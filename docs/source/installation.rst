@@ -7,7 +7,7 @@ However, you might prefer using CompressAIVision :ref:`via docker instead <docke
 1. Python dependencies
 ----------------------
 
-Here we assume you are running Ubuntu XX (TODO)
+Here we assume you are running Ubuntu 20.04 LTS (or newer)
 
 First, create and activate the virtualenv with:
 
@@ -17,9 +17,10 @@ First, create and activate the virtualenv with:
    source ./venv/bin/activate
    pip install -U pip
 
-While in the activated virtualenv, run one of the bash scripts found in (TODO)
+While in the activated virtualenv, run one of the ``install_*.bash`` bash scripts in
+`bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
 
-It will install the following software stack:
+Please, take a look at one of the scripts; it will install the following software stack:
 
 - `PyTorch <https://pytorch.org/>`_
 - `CompressAI <https://interdigitalinc.github.io/CompressAI>`_
@@ -27,20 +28,17 @@ It will install the following software stack:
 - `fiftyone <https://voxel51.com/docs/fiftyone/>`_
 - *This* library (CompressAI-Vision)
 
-PyTorch, Detectron2 and CUDA versions are different for each installation script:
+PyTorch, Detectron2 and CUDA versions differ for each script:
 
 ==============  ======= ========== ====
 script          PyTorch Detectron2 CUDA
 ==============  ======= ========== ====
-install_1.bash  xx      xx         xx
+install_1.bash  1.9.1   0.6        10.2
 ==============  ======= ========== ====
 
 2. VTM
 ------
 
-Use still need to install VTM from here (TODO: link).  
-VTM is used for anchor-pipeline, i.e. for setting the baseline against 
-which deep-learning encoders are tested
-
-TODO
+Use still need to install VTM from `here <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>`_. VTM is used for anchor-pipeline, i.e. for setting a baseline against 
+which deep-learning encoders are tested.
 
