@@ -1,6 +1,8 @@
 Installation
 ============
 
+**TODO: install.bash(s) try to pull CompressAI-Vision from the public repo: this does not work since the repo is not yet public**
+
 This section explains how to install the required software stack *natively* on your system.
 However, you might prefer using CompressAIVision :ref:`via docker instead <docker>`.
 
@@ -20,7 +22,7 @@ First, create and activate the virtualenv with:
 While in the activated virtualenv, run one of the ``install_*.bash`` bash scripts in
 `bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
 
-Please, take a look at one of the scripts; it will install the following software stack:
+The script will install the following software stack:
 
 - `PyTorch <https://pytorch.org/>`_
 - `CompressAI <https://interdigitalinc.github.io/CompressAI>`_
@@ -28,7 +30,7 @@ Please, take a look at one of the scripts; it will install the following softwar
 - `fiftyone <https://voxel51.com/docs/fiftyone/>`_
 - *This* library (CompressAI-Vision)
 
-PyTorch, Detectron2 and CUDA versions differ for each script:
+PyTorch, Detectron2 and CUDA versions are different for each of the installation scripts:
 
 ==============  ======= ========== ====
 script          PyTorch Detectron2 CUDA

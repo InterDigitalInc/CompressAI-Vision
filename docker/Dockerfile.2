@@ -64,8 +64,8 @@ RUN pip3 install opencv-python==4.2.0.34 \
     scikit-image
 
 RUN pip3 install compressai
-## WARNING TODO: this won't work until CompressAI-Vision becomes all public:
-RUN pip3 install -vvv --upgrade git+https://github.com/InterDigitalInc/CompressAI-Vision.git
+## we're hot-reloading this from local directory intead:
+# RUN pip3 install -vvv --upgrade git+https://github.com/InterDigitalInc/CompressAI-Vision.git
 
 RUN python3 -c 'import torch, detectron2; print("torch:", torch.__version__, "/ cuda:", torch.version.cuda, "/ detectron2:", detectron2.__version__)'
 ENV VTM_DIR=/root/vtm/VVCSoftware_VTM-VTM-12.0/bin/

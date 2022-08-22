@@ -15,7 +15,7 @@ efficient encoders for machine learning tasks:
     Video stream --> Encoding --> bitstream over internet --> Decoding --> Detector
 
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean average precision (mAP) 
-as function of a set of encoding/quality parameters:
+as a function of encoding/quality parameters:
 
 TODO: add a figure here
 
