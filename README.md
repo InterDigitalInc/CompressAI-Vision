@@ -13,7 +13,7 @@ Developing optimized encoders for pipelines including deep-learning-based detect
 Video stream --> Encoding --> bitstream over internet --> Decoding --> Detector
 ```
 
-A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean average precision (mAP) as function of a set of encoding/quality parameters:
+A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean average precision (mAP) as a function of encoding/quality parameters:
 
 TODO: add a figure here
 
@@ -56,7 +56,20 @@ Docker images including the software stack are also provided (TODO: link).
 
 ## For developers
 
-In order to compile the sphinx documentation, you need to install the (furo theme)[https://github.com/pradyunsg/furo].
+### Compiling documentation
+
+You need to install the [furo theme](https://github.com/pradyunsg/furo).  A good idea is to install it into the same virtualenv as all the other stuff.
+
+You need also this:
+```
+sudo apt-get install pandoc
+```
+
+Tutorial documentation is produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  First, you need to run ``compile.bash`` therein.  After that you may run in [docs/](docs/):
+```
+make html
+```
+The go with your browser to [docs/index.html](docs/index.html)
 
 ## Copyright
 

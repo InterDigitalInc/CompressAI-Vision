@@ -204,7 +204,11 @@ def main(p):
                 }, f)
 
     print("\nHAVE A NICE DAY!\n")
+    """load with:
+    with open(p.output,"r") as f:
+        res=json.load(f)
     """
+    """old:
     with open(p.output,"rb") as f:
         xs, ys, maps = pickle.load(f)
         print(xs, ys, maps)
