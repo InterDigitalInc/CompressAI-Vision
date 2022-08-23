@@ -143,7 +143,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         cmd_str= f'ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}'
         self.process_cmd(cmd_str, print_out = bPrint)
 
-        cmd_str= f'ffmpeg -y -i {rec_png_path} -vf "crop={width}:" {output_image_name}'
+        cmd_str= f'ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {output_image_name}'
         self.process_cmd(cmd_str, print_out = bPrint)
 
         img = Image.open(output_image_name)
