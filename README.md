@@ -13,6 +13,8 @@ Developing optimized encoders for pipelines including deep-learning-based detect
 Video stream --> Encoding --> bitstream over internet --> Decoding --> Detector
 ```
 
+TODO: Jacky had some nice diagrams for this..?
+
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean average precision (mAP) as a function of encoding/quality parameters:
 
 TODO: add a figure here
