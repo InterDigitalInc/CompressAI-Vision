@@ -65,7 +65,9 @@ You need also this:
 sudo apt-get install pandoc
 ```
 
-Tutorial documentation is produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  First, you need to run ``compile.bash`` therein.  After that you may run in [docs/](docs/):
+Tutorials are produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  If you update the notebooks, first you need to run ``compile.bash`` therein.  
+
+To produce the html documentation, run in [docs/](docs/):
 ```
 make html
 ```
