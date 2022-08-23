@@ -2,24 +2,22 @@ import logging
 
 
 class EncoderDecoder:
-    """Get input from various frameworks/dataloaders (each implemented in their corresponding methods).
+    """NOTE: virtual class that *you* need to subclass
 
-    Transforms images to a format accepted by the encoder/decoder engine (can be a "traditional" encoder, compessai, etc.) & push the image 
-    through the encoder/decoder.  Returns bbps & the transformed image(s).
+    An instance of this class encodes an image, calculates the bitrate and decodes the encoded image, resulting in "transformed" image.
 
-    Subclass for a certain encoder/decoder system.
-    
-    Create an additional method for a certain famework/dataloder.
+    Transformed image is similar to the original image, while the encoding+decoding process might have introduced some distortion.
+
+    The instance may (say, H266 video encoder+decoder) or may not (say, jpeg encoder+decoder) have an internal state.
     """
-    def __init__(self, device = 'cpu'):
+    def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.device = device
         self.reset()
         raise(AssertionError("virtual"))
 
 
     def reset(self):
-        """Reset the internal state of the encoder & decoder, if any
+        """Reset the internal state of the encoder & decoder, if there is any
         """
         self.bpp_sum=0 # accumulated bits per pixel sum
         self.cc=0
@@ -50,16 +48,16 @@ class EncoderDecoder:
         """
         :param bgr_image: numpy BGR image (y,x,3)
 
-        Returns BGR image that has gone through transformation (the encoding + decoding process)
+        Takes in an BGR image, pushes it through encoder + decoder.
 
-        Returns bits_per_pixel, transformed BGR image
+        Returns bits_per_pixel, transformed BGR image.
         """
         raise(AssertionError("virtual"))
 
 
 
 class VoidEncoderDecoder(EncoderDecoder):
-    """Does no encoding/decoding .. use for debugging
+    """Does no encoding/decoding whatsoever.  Use for debugging.
     """
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)

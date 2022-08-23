@@ -1,5 +1,5 @@
 #!/bin/bash
-dirnames="download convert detectron2 evaluate"
+dirnames="download convert detectron2 evaluate encdec"
 # dirnames="detectron2"
 for dirname in $dirnames
 do

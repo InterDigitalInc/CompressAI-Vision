@@ -13,6 +13,8 @@ Developing optimized encoders for pipelines including deep-learning-based detect
 Video stream --> Encoding --> bitstream over internet --> Decoding --> Detector
 ```
 
+TODO: Jacky had some nice diagrams for this..?
+
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean average precision (mAP) as a function of encoding/quality parameters:
 
 TODO: add a figure here
@@ -65,7 +67,9 @@ You need also this:
 sudo apt-get install pandoc
 ```
 
-Tutorial documentation is produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  First, you need to run ``compile.bash`` therein.  After that you may run in [docs/](docs/):
+Tutorials are produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  If you update the notebooks, first you need to run ``compile.bash`` therein.  
+
+To produce the html documentation, run in [docs/](docs/):
 ```
 make html
 ```
@@ -83,6 +87,6 @@ TODO
 
 Sampsa Riikonen
 
-Jacky Lam
+Jacky Yat-Hong Lam
 
 Fabien Racapé

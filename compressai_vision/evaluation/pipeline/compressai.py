@@ -11,21 +11,18 @@ from .base import EncoderDecoder
 class CompressAIEncoderDecoder(EncoderDecoder):
     """EncoderDecoder class for CompressAI
     
-    :param net: compressai network:
+    :param net: compressai network, for example:
 
     ::
     
         net = bmshj2018_factorized(quality=2, pretrained=True).eval().to(device)
 
     :param device: "cpu" or "cuda"
-    :param save_transformed: dump transformed images to disk.  default = False
-    :param m: images should be multiples of this number.  If not, a padding is applied 
-    before passing to compressai.  default = 64
-    
+    :param save_transformed: (debugging) dump transformed images to disk.  default = False
+    :param m: images should be multiples of this number.  If not, a padding is applied before passing to compressai.  default = 64
     """
     toFloat=transforms.ConvertImageDtype(torch.float)
     toByte=transforms.ConvertImageDtype(torch.uint8)
-
 
     def __init__(self, net, device = 'cpu', save_transformed=False, m:int=64):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -43,6 +40,8 @@ class CompressAIEncoderDecoder(EncoderDecoder):
                 pass
         
     def reset(self):
+        """Reset internal image counter
+        """
         super().reset()
         self.imcount=0
 
@@ -133,11 +132,13 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
 
     def BGR(self, bgr_image: np.array) -> np.array:
-        """Take in BGR, spit out BGR that's gone through compressai encoding/decoding
+        """Return transformed image and bpp for a BGR image
 
         :param bgr_image: numpy BGR image (y,x,3)
 
-        Returns BGR image that has gone through compressai
+        Returns bits-per-pixel and transformed BGR image that has gone through compressai encoding+decoding.
+
+        Necessary padding for compressai is added and removed on-the-fly
         """
         # TO RGB & TENSOR
         rgb_image = bgr_image[:,:,[2,1,0]] # BGR --> RGB

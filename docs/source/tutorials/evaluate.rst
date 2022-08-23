@@ -1,3 +1,5 @@
+.. _evaluate:
+
 4. Evaluate
 -----------
 

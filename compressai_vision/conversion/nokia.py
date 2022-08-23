@@ -1,4 +1,4 @@
-"""Convert from NokiaBS(tm) format to OpenImageV6 that can be read with fiftyone
+"""Convert from Nokia format to OpenImageV6 that can be read with fiftyone
 
 This is the official OpenImageV6 dir structure:
 ```
@@ -80,9 +80,20 @@ def nokiaBSToOpenImageV6(
     mask_dir: str = None, 
     link = True,
     verbose=False):
-        """From Nokia BS format to proper OpenImageV6 format
+        """From Nokia's (MPEG/VCM) input file format to proper OpenImageV6 format
 
-        :param bbox_csv_file: A filename (detection_validation_5k_bbox.csv) with the nokia proprietary bs format that looks like this:
+        :param validation_csv_file: Nokia's image-level labels (typically ``detection_validation_labels_5k.csv`` or ``segmentation_validation_labels_5k.csv``)
+        :param list_file: Nokia's image list file (typically ``detection_validation_input_5k.lst`` or ``segmentation_validation_input_5k.lst``)
+        :param bbox_csv_file: Nokia's detection input file (typically ``detection_validation_5k_bbox.csv`` or ``segmentation_validation_bbox_5k.csv``)
+        :param seg_masks_csv_file: Nokia's segmentation input file (typically ``segmentation_validation_masks_5k.csv``)
+        :param output_directory: Path where the OpenImageV6 formatted files are dumped
+        :param data_dir: Source directory where the image jpg files are.  Use the standard OpenImageV6 directory.
+        :param mask_dir: Source directory where the mask png files are.  Use the standard OpenImageV6 directory.
+        :param link: True (default): create a softlink from source data_dir to target data_dir.  False: copy all images to target.
+
+        More details on the conversion follow
+
+        ``bbox_csv_file``: A filename (``detection_validation_5k_bbox.csv``) with the nokia format that looks like this:
 
         ::
 
@@ -98,7 +109,7 @@ def nokiaBSToOpenImageV6(
             ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside
             ...
 
-        :param seg_masks_csv_file: A filename (segmentation_validation_masks_5k.csv) with the nokia format that looks like this:
+        ``seg_masks_csv_file``: A filename (``segmentation_validation_masks_5k.csv``) with the nokia format that looks like this:
 
         ::
 
@@ -106,8 +117,8 @@ def nokiaBSToOpenImageV6(
             001464cfae2a30b8,sandwich,1024,683,0.261062,0.245575,0.681416,0.573009,0,eNqtlNlSwzAMR..GtiA5L,001464cfae2a30b8_m0cdn1_5fa59bf3.png
             ...
 
-        How is the column "Mask" encoded? .. no need to solve that.  Assume that they have not modified the masks.
 
+        We're using mask bitmaps from the original OpenImageV6 image set, i.e. we're omitting that "Mask" column that seems to be a byte blob encoded in some way
 
         --> Converted to proper OpenImageV6 format:
 
@@ -118,7 +129,7 @@ def nokiaBSToOpenImageV6(
             ...
 
 
-        :param output_directory: Path to where the OpenImageV6 formatted files are dumped.  Files under that path are:
+        ``output_directory``: Path to where the OpenImageV6 formatted files are dumped.  Files under that path are:
 
         ::
 
@@ -139,10 +150,6 @@ def nokiaBSToOpenImageV6(
             ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside
             0001eeaf4aed83f9,source,tag,1,0.022673031,0.9642005,0.07103825,0.80054647,0,0,0,0,0
             ...
-
-
-        :param data_dir: source directory where the actual jpg files are 
-        :param link: True (default): create a softlink from source data_dir to target data_dir.  False: copy all images to target.
         """
         assert(validation_csv_file is not None), "you _must_ provide at least nokia-formatted image-level labels csv file, aka 'detection_validation_labels_5k.csv'"
         # assert(bbox_csv_file is not None), "please provide nokia-formatted bbox csv file, aka 'detection_validation_5k_bbox.csv'" # OPT

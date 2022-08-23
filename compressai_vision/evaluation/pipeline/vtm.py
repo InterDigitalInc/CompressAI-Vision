@@ -14,11 +14,8 @@ from PIL import Image
 from torchvision import transforms
 
 class VTMEncoderDecoder(EncoderDecoder):
-    """EncoderDecoder class for VTM encoder
+    """EncoderDecoder class for VTM encoder.  Jacky: TODO.
     """
-
-
-   
     def __init__(self, encoderApp, decoderApp, vtm_cfg, qp, save_transformed=False):
         self.logger = logging.getLogger(self.__class__.__name__)
         
@@ -39,6 +36,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.reset()
 
     def reset(self):
+        """Reset encoder/decoder internal state? Jacky: TODO.
+        """
         super().reset()
         self.imcount=0
 
@@ -56,9 +55,6 @@ class VTMEncoderDecoder(EncoderDecoder):
         
         if print_out:
             print('Done')
-
-
-    
 
 
     def __encode_ffmpeg__(self, x, qp, bin_path, bPrint=True):
@@ -148,7 +144,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         """
         :param bgr_image: numpy BGR image (y,x,3)
 
-        Returns BGR image that has gone through compressai
+        Returns BGR image that has gone through VTM encode/decode.  Jacky: TODO
         """
         rgb_image = bgr_image[:,:,[2,1,0]] # BGR --> RGB
         # rgb_image (y,x,3) to FloatTensor (1,3,y,x):
