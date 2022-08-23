@@ -19,13 +19,13 @@ def findLabels(dataset: Dataset, detection_field: str = "detections") -> list:
 
 
 class FO2DetectronDataset(torch.utils.data.Dataset):
-    """A class to construct a Detectron2 dataset from a FiftyOne dataset.
-
+    """A class to construct a Detectron2 dataset from a FiftyOne dataset.  Subclass of ``torch.utils.data.Dataset``.
+    
     :param fo_dataset: fiftyone dataset
-    :param detection_field: each fiftyone dataset sample may have several members that include bboxes, segmetations, etc.
-    The resulting fiftyone dataset will have a member detection_field of the class Detections
-
+    :param detection_field: name of member in the FiftyOne Sample where the detector (ground truth) is put into.  Default: "detections".
     :param model_catids: a list of category labels as provided from Detectron2 model's metadata.  Used to transform fiftyone category label into an index number used by Detectron2
+
+    NOTE: Usually we are more interested in going from Detectron results to FiftyOne format, so you might not use this torch Dataset class that much
 
     refs: 
 
@@ -36,7 +36,6 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
     WARNING: at the moment, only detection (not segmentation) is supported
     """
-
     def __init__(self,
         fo_dataset:Dataset=None,
         detection_field="detections", # let's use "detections" or "ground-truths" for GT and "predictions" for detectron2-give predictions
@@ -181,14 +180,16 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
 
 def detectron251(res, model_catids: list = [], allowed_labels: list = None, verbose = False) -> list:
-    """Detectron2 formatted results, i.e. ``{'instances': Instances}`` into fiftyone-formatted results
+    """Detectron2 formatted results, i.e. ``{'instances': Instances}`` into FiftyOne-formatted results
 
     This works for detectors and instance segmentation, where a segmentation is always accompanied with a bounding box
 
-    :param res: Detectron2 predictor output
-    :param model_catids: A category label list
+    :param res: Detectron2 predictor output (a dictionary ``{'instances': Instances}``)
+    :param model_catids: A category label list, as provided by Detectron2 model's metadata
+
+    Returns FiftyOne ``Detections`` instance that can be attached to a FiftyOne ``Sample`` instance.
     """
-    assert(len(model_catids)>0), "please provide MODEL's ORIGINAL category label list.  Get his from detectron2 model's metadata."
+    assert(len(model_catids)>0), "please provide MODEL's ORIGINAL category label list.  Get it from detectron2 model's metadata."
     """
 
     Which you would do with:
