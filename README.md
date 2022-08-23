@@ -85,6 +85,6 @@ TODO
 
 Sampsa Riikonen
 
-Jacky Lam
+Jacky Yat-Hong Lam
 
 Fabien Racapé
