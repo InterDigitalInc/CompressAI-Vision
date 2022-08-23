@@ -52,7 +52,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
         
         Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
-        bpps is a list of bits per second of each compressed image in that batch
+        bpps is a list of bits per pixel of each compressed image in that batch
 
         This method chooses either self.__v0__ or self.__v1__
         """
