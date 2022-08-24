@@ -14,7 +14,13 @@ from PIL import Image
 from torchvision import transforms
 
 class VTMEncoderDecoder(EncoderDecoder):
-    """EncoderDecoder class for VTM encoder.  Jacky: TODO.
+    """EncoderDecoder class for VTM encoder
+
+    :param encoderApp: path of VTM encoder
+    :param decoderApp: path of VTM decoder
+    :param vtm_cfg: path of encoder cfg
+    :param qp: the default quantization parameter of the instance. Integer from 0 to 63
+    :param save_transformed: option to save intermedidate images. default = False
     """
     def __init__(self, encoderApp, decoderApp, vtm_cfg, qp, save_transformed=False):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -43,7 +49,12 @@ class VTMEncoderDecoder(EncoderDecoder):
 
 
     def process_cmd(self, cmd, print_out=False):
-        # cmd = f'ffmpeg -y -hide_banner -loglevel error -i {input_fname} -vf "crop={width}:{height}" {output_fname}'
+        """
+        process bash cmd
+        :param cmd: bash command 
+        :param print_out: show printout. Default: False
+        """
+        
         if print_out:
             print(cmd)
         p = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
@@ -59,9 +70,14 @@ class VTMEncoderDecoder(EncoderDecoder):
 
     def __encode_ffmpeg__(self, x, qp, bin_path, bPrint=True):
 
-        # self.logger.debug("feeding tensor to VTM encoder: shape: %s, type: %s", x.size, x.type)
+        """
+        Encode input image x with VTM encoder. Padding is done with ffmpeg if the image has singular dimenions.
 
-# from Torch Tensor to Image   
+        :param x: a FloatTensor with dimensions (batch, channels, y, x)
+        :param qp: quantization parameter. Integer: 0-63
+        :param bin_path: path of output bitstream
+        
+        """
         x=torch.squeeze(x, 0)
         tensor_size=x.size()
 
@@ -75,7 +91,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         
         
         tmp_jpg_path = os.path.join(self.tmp_output_folder, image_name)
-        # some function to save x as tmp_jpg
+        # function to save x as tmp_jpg
         img= transforms.ToPILImage()(x).convert("RGB")
         img.save(tmp_jpg_path)
 
@@ -86,19 +102,27 @@ class VTMEncoderDecoder(EncoderDecoder):
         cmd_str= f'ffmpeg -y -i {tmp_jpg_path} -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}'
         self.process_cmd(cmd_str,print_out= bPrint)
 
-        # 2. use VTM encoder to generate bitstream
+        # use VTM encoder to generate bitstream
         cmd_str= f'{self.encoderApp} -c {self.vtm_cfg} -i {yuv_image_path} -b {bin_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp}'
         self.process_cmd(cmd_str, print_out= bPrint)
 
-        # 3. check if bin is generated correctly
+        # check if bin is generated correctly
 
         check_bin = os.path.isfile(bin_path)
         if check_bin:
             self.logger.debug("Bitstream stored at: %s", bin_path)
+        else:
+            self.logger.critical("Bitstream %s storage failed.", bin_path)
 
     def __decode_ffmpeg__(self, bin_path, width, height, bPrint=True):
 
-        # self.logger.debug("feeding tensor to VTM encoder: shape: %s, type: %s", x.shape, x.type())
+        '''
+        Decode the bitstream with VTM decoder and return recontructed image x_hat. Cropping is done with ffmpeg.
+        :param bin_path: Input bitstream path
+        :param width: The width of the reconstructed image
+        :param height: The height of the reconstructed image
+        '''
+
         padded_hgt = math.ceil(height/2)*2
         padded_wdt = math.ceil(width/2)*2
         rec_yuv_path = os.path.join(self.tmp_output_folder, bin_path.replace('.bin', '.yuv'))
@@ -106,26 +130,39 @@ class VTMEncoderDecoder(EncoderDecoder):
         output_image_name = os.path.join(self.tmp_output_folder, bin_path.replace('.bin', '.png'))
 
 
-        # 3. use VTM decoder
+        # use VTM decoder
         cmd_str= f'{self.decoderApp} -b {bin_path} -o {rec_yuv_path}'
         self.process_cmd(cmd_str, print_out = bPrint)
 
-        # 4. use ffmpeg to convert yuv back to png
+        # use ffmpeg to convert yuv back to png
         cmd_str= f'ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}'
         self.process_cmd(cmd_str, print_out = bPrint)
 
-        cmd_str= f'ffmpeg -y -i {rec_png_path} -vf "crop={width}:" {output_image_name}'
+        cmd_str= f'ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {output_image_name}'
         self.process_cmd(cmd_str, print_out = bPrint)
 
         img = Image.open(output_image_name)
         x_hat= transforms.ToTensor()(img).unsqueeze(0)
 
-
+        
         return x_hat
         
 
 
     def __call_ffmpeg__(self, x, qp):
+        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
+
+        :param x: a FloatTensor with dimensions (batch, channels, y, x)
+
+        :param qp: quantization parameter. Integer: 0-63
+        
+        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
+        bpps is a list of bits per pixel of each compressed image in that batch
+
+        Rescaling and colour transformation are done with ffmpeg.
+        """
+
+
         bin_path='tmp.bin'
         tensor_size=x.size()
         width= tensor_size[-1]
@@ -136,6 +173,19 @@ class VTMEncoderDecoder(EncoderDecoder):
         return [bpp], img
 
     def __call__(self, x, qp = None):
+
+        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
+
+        :param x: a FloatTensor with dimensions (batch, channels, y, x)
+        :param qp: quantization parameter. Default: None- use the default qp of the instance.
+
+        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
+        bpps is a list of bits per pixel of each compressed image in that batch
+
+        currently this method is implemented in self.__call_ffmpeg__, rescaling and colour transformation are done with ffmpeg.
+        """
+
+
         if (qp is None):
             qp= self.qp
         return self.__call_ffmpeg__(x, qp)
