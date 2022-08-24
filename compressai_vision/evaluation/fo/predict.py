@@ -13,20 +13,16 @@ def annexPredictions(
         fo_dataset: Dataset = None,
         detection_field: str = "detections",
         predictor_field: str = "detectron-predictions",
-        encoder_decoder = None, # compressai_vision.evaluation.pipeline.base.EncoderDecoder
-        append = None
+        encoder_decoder = None # compressai_vision.evaluation.pipeline.base.EncoderDecoder
         ):
-    """Run detector and annex predictions under the key "detectron-predictions" of each sample
+    """Run detector on a dataset and annex predictions of the detector into the dataset.
 
-    :param predictor: Detector2 predictor
+    :param predictor: A Detectron2 predictor
     :param fo_dataset: Fiftyone dataset
-    :detection_field: Which member to use for ground truths
-    :encoder_decoder: (optional) an EncoderDecoder instance to cruch the image through before
-    detection
-    :append: don't overwrite the default "detectron-predictions" field, but add a new
-    field instead.  Default=None: don't append any new field
+    :param detection_field: Which dataset member to use for ground truths.  Default: "detections"
+    :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
+    :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
     """
-
     assert(predictor is not None), "provide Detectron2 predictor"
     assert(fo_dataset is not None), "provide fiftyone dataset"
     if encoder_decoder is not None:

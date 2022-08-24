@@ -1,4 +1,6 @@
-"""This file has been modified from "from detectron2.evaluation.inference_on_dataset" by Interdigital to
+"""Using the Detectron2 library to evaluate encoded/decoded image.  WARNING: legacy code, should not be use.
+
+This file has been modified from "from detectron2.evaluation.inference_on_dataset" by Interdigital to
 include bpp (bits per pixel) calculations
 """
 import datetime

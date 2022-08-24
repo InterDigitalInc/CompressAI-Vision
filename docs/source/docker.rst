@@ -36,7 +36,7 @@ The default demo version starts a python notebook and tensorboard:
     ./run_image.bash 1 gpu
 
 File versions
-=============
+-------------
 
 List of docker images and software versions:
 
