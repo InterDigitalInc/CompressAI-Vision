@@ -1,52 +1,110 @@
-from cv2 import transform
-from matplotlib.transforms import Transform
 import numpy as np
-import logging, io, shlex
-import os
-import math
+import logging, io, shlex, shutil
+import os, time, glob
 import subprocess
-from regex import B
+from hashlib import md5
 
 from .base import EncoderDecoder
 from PIL import Image
 
 
+def test_command(comm):
+    try:
+        p=subprocess.Popen(comm, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError:
+        raise
+    else:
+        return comm
+
+
 class VTMEncoderDecoder(EncoderDecoder):
     """EncoderDecoder class for VTM encoder
 
-    :param encoderApp: path of VTM encoder
-    :param decoderApp: path of VTM decoder
-    :param vtm_cfg: path of encoder cfg
-    :param qp: the default quantization parameter of the instance. Integer from 0 to 63
-    :param save_transformed: option to save intermedidate images. default = False
+    :param encoderApp: VTM encoder command
+    :param decoderApp: VTM decoder command
+    :param vtm_cfg: path of encoder cfg file
+    :param ffmpeg: ffmpeg command
+    :param qp: the default quantization parameter of the instance. Integer from 0 to 63.  Default=30.
+    :param save: save intermediate steps into member ``saved`` (for debugging).
+
+    Example:
+
+    ::
+
+        import cv2, os
+        from compressai_vision.evaluation.pipeline import VTMEncoderDecoder
+        from compressai_vision.tools import getDataFile
+
+        path="/path/to/VVCSoftware_VTM/bin/umake/gcc-9.4/x86_64/debug"
+        encoderApp=os.path.join(path, "EncoderApp")
+        decoderApp=os.path.join(path, "DecoderApp")
+        
+        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=30)
+        bpp, img_hat = encdec.BGR(cv2.imread("fname.png"))
+
     """
-    def __init__(self, encoderApp="foo", decoderApp="foo", ffmpeg="ffmpeg", vtm_cfg, qp, save_transformed=False):
+    def __init__(self, encoderApp=None, decoderApp=None, ffmpeg="ffmpeg", vtm_cfg=None, qp=30, save=False, base_path="/dev/shm"):
         self.logger = logging.getLogger(self.__class__.__name__)
-        # TODO: save vtm_cfg as a constant in python file or in data files
-        if os.path.isfile(vtm_cfg):
-            self.vtm_cfg = vtm_cfg
-        if os.path.isfile(encoderApp):
-            self.encoderApp = encoderApp
-        else:
-            self.logger.critical("VTM encoder not found at %s", encoderApp)
-        if os.path.isfile(decoderApp):
-            self.decoderApp = decoderApp
-        else:
-            self.logger.critical("VTM decoder not found at %s", decoderApp)
-        self.tmp_output_folder = '/dev/shm/'
-        self.qp = qp
-        self.save_transformed = save_transformed
-        self.ffmpeg = "ffmpeg"
+        assert(encoderApp is not None), "please give encoder command"
+        assert(decoderApp is not None), "please give decoder command"
+        assert(vtm_cfg is not None), "please give VTM config file"
+        # test commands
+        self.encoderApp=test_command(encoderApp)
+        self.decoderApp=test_command(decoderApp)
+        self.ffmpeg=test_command(ffmpeg)
+        assert(os.path.isfile(vtm_cfg)), "can't find "+vtm_cfg
+        assert(os.path.isdir(base_path)), "can't find "+base_path
+
+        self.encoderApp=encoderApp
+        self.decoderApp=decoderApp
+        self.ffmpeg=ffmpeg
+        self.vtm_cfg = vtm_cfg
+        self.qp=qp
+        self.save=save
+        self.base_path=base_path
+        
+        self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
+        try:
+            os.mkdir(self.folder)
+        except FileExistsError:
+            assert(os.path.isdir(self.folder))
+            self.logger.critical("folder %s already exists", self.folder)
         self.reset()
 
+    def __str__(self):
+        st=""
+        st += "encoderApp:   "+self.encoderApp + "\n"
+        st += "decoderApp:   "+self.decoderApp + "\n"
+        st += "ffmpeg    :   "+self.ffmpeg + "\n"
+        st += "qp        :   "+str(self.qp) + "\n"
+        st += "path      :   "+self.folder + "\n"
+        return st
+
+    def dump(self):
+        """Dumps files cached on disk by the VTMEncoderDecoder
+        """
+        print("contents of", self.folder)
+        for fname in glob.glob(os.path.join(self.folder, "*")):
+            print("    ", fname)
+
+    def __del__(self):
+        # print("VTM: __del__", len(glob.glob(os.path.join(self.folder,"*"))))
+        if len(glob.glob(os.path.join(self.folder,"*"))) > 5:
+            # add some security here if user fat-fingers self.base_bath --> self.folder
+            self.logger.critical("there are multiple files in %s : please remove manually", self.folder)
+            return
+        # print("removing", self.folder)
+        self.logger.debug("removing %s", self.folder)
+        shutil.rmtree(self.folder)
+
     def reset(self):
-        """Reset encoder/decoder internal state? Jacky: TODO.
+        """Reset encoder/decoder internal state?  Is there any?
         """
         super().reset()
+        self.saved={}
         self.imcount=0
 
-
-    def ff_op(self, rgb_image:np.array, op) -> np.array:
+    def __ff_op__(self, rgb_image:np.array, op) -> np.array:
         """takes as an input a numpy RGB array (y,x,3)
         
         Outputs numpy RGB array after certain transformation
@@ -71,7 +129,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         return np.array(pil_img2)
 
 
-    def ff_RGB24ToRAW(self, rgb_image:np.array, form) -> bytes:
+    def __ff_RGB24ToRAW__(self, rgb_image:np.array, form) -> bytes:
         """takes as an input a numpy RGB array (y,x,3)
         
         ffmpeg -i input.png -f rawvideo -pix_fmt yuv420p -dst_range 1 output.yuv
@@ -98,7 +156,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         return f2.read()
 
 
-    def ff_RAWToRGB24(self, raw:bytes, form, width=None, height=None) -> bytes:
+    def __ff_RAWToRGB24__(self, raw:bytes, form, width=None, height=None) -> bytes:
         """takes as an input a numpy RGB array (y,x,3)
         
         ffmpeg -y -f rawvideo -pix_fmt yuv420p -s 768x512 -src_range 1 -i test.yuv -frames 1 -pix_fmt rgb24 out.png
@@ -125,96 +183,97 @@ class VTMEncoderDecoder(EncoderDecoder):
         return np.array(pil_img)
 
 
-    def process_cmd(self, cmd, print_out=False):
-        """
-        process bash cmd
-        :param cmd: bash command 
-        :param print_out: show printout. Default: False
-        """
-        
-        if print_out:
-            print(cmd)
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        
-        for line in p.stdout.readlines():
-            if print_out:
-                self.logger.debug(line)
-                print(line)
-        
-        if print_out:
-            print('Done')
+    def __VTMEncode__(self, yuv_inp, width=None, height=None):
+        # TODO: take this into use
+        assert(width is not None)
+        assert(height is not None)
+        comm='{encoderApp} -c {vtm_cfg} -i {inp_yuv_path} -b {bin_path} -o {out_yuv_path} -fr 1 -f 1 -wdt {wdt} -hgt {hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10'.format(
+            encoderApp=self.encoderApp,
+            vtm_cfg=self.vtm_cfg,
+            inp_yuv_path=yuv_inp,
+            out_yuv_path="out.yuv", # OUT # TODO
+            bin_path="bytes.dat", # OUT # TODO
+            wdt=width,
+            hgt=height,
+            qp=self.qp,
+        )
+        self.logger.debug(comm)
+        args = shlex.split(comm)
+        # p=subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # stdout, stderr=p.communicate()
+        ## handle errors as for ffmpeg
 
-        """
-        # use VTM encoder to generate bitstream
-        cmd_str= f'{self.encoderApp} -c {self.vtm_cfg} -i {yuv_image_path} -b {bin_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp}'
-        self.process_cmd(cmd_str, print_out= bPrint)
-        # check if bin is generated correctly
-        check_bin = os.path.isfile(bin_path)
-        if check_bin:
-            self.logger.debug("Bitstream stored at: %s", bin_path)
-        else:
-            self.logger.critical("Bitstream %s storage failed.", bin_path)
-    
-        # use VTM decoder
-        cmd_str= f'{self.decoderApp} -b {bin_path} -o {rec_yuv_path}'
-        self.process_cmd(cmd_str, print_out = bPrint)
-        """
 
-    
-    def BGR(self, bgr_image):
+    def BGR(self, bgr_image, tag=None):
         """
         :param bgr_image: numpy BGR image (y,x,3)
+        :param tag: a string that can be used to identify & cache images (optional)
 
-        Returns BGR image that has gone through VTM encode/decode.  Jacky: TODO
+
+        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM, namely:
 
         ::
 
             padded_hgt = math.ceil(height/2)*2
             padded_wdt = math.ceil(width/2)*2
-            ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
-            ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
-            {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
-            {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
-            ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
-            ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
+            1. ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
+            2. ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
+            3. {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
+            4. {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
+            5. ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
+            6. ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
 
 
         """
+        ## we could use this to create unique filename if we want cache & later identify the images:
+        #"X".join([str(n) for n in md5(bgr_image).digest()])
+        ##but it's better to use explicit tags as provided by the user
+        fname="tmp.yuv"
+
         rgb_image = bgr_image[:,:,[2,1,0]] # BGR --> RGB
         # apply ffmpeg commands as defined in MPEG VCM group docs
         # each submethod should cite the correct command
 
-        # MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
-        padded=self.ff_op(rgb_image, "pad=ceil(iw/2)*2:ceil(ih/2)*2")
+        # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
+        padded=self.__ff_op__(rgb_image, "pad=ceil(iw/2)*2:ceil(ih/2)*2")
 
-        # MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
-        yuv_bytes=self.ff_RGB24ToRAW(padded)
+        # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
+        yuv_bytes=self.__ff_RGB24ToRAW__(padded, "yuv420p")
 
-        # TODO: dump bytes to disk & call VTM Encoder
-        # TODO: call VTM Decoder & read bytes from disk
-        # TODO: time VTM encoder/decode, calculate bpp
-
-        # MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
-        padded_hat=self.ff_RAWToRGB24(yuv_bytes_hat, form="yuv420p10le", width=padded.shape[1],
+        tmu=int(time.time()*1E6) # microsec timestamp
+        fname=os.path.join(self.folder, str(tmu))
+        with open(fname, "wb") as f:
+            f.write(yuv_bytes)
+        # TODO: call VTM Encoder & Decoder
+        # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
+        # self.__VTMEncode__(fname, width=padded.shape[1], height=padded.shape[0]) # TODO
+        # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
+        # TODO: read the encoded bytes => calculate bpp
+        bpp=10
+        with open(fname, "rb") as f:
+            yuv_bytes_hat=f.read()
+        os.remove(fname)
+        # 5. MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
+        # form="yuv420p10le" # TODO: enable this
+        form="yuv420p"
+        padded_hat=self.__ff_RAWToRGB24__(yuv_bytes_hat, form=form, width=padded.shape[1],
             height=padded.shape[0])
 
-        # MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
-        rgb_image_hat=self.ff_op(padded_hat, "crop={width}:{height}".format(
+        # 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
+        rgb_image_hat=self.__ff_op__(padded_hat, "crop={width}:{height}".format(
             width=rgb_image.shape[1],
             height=rgb_image.shape[0]
-        )
-
+        ))
         if self.save:
             self.saved={
                 "rgb_image"     : rgb_image,
-                "padded "       : padded,
+                "padded"        : padded,
                 "padded_hat"    : padded_hat,
                 "rgb_image_hat" : rgb_image_hat
             }
         else:
-            self.saved = None
+            self.saved = {}
 
         bgr_image_hat=rgb_image_hat[:,:,[2,1,0]] # RGB --> BGR
-        self.logger.debug("input & output sizes: %s %s. bps = %s", bgr_image.shape, bgr_image_hat.shape, bpp[0])
-        # print(">> cc, bpp_sum ", self.cc, self.bpp_sum)
-        return bpp[0], bgr_image_hat
+        self.logger.debug("input & output sizes: %s %s. bps = %s", bgr_image.shape, bgr_image_hat.shape, bpp)
+        return bpp, bgr_image_hat

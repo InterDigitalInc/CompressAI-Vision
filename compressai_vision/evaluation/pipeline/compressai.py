@@ -131,10 +131,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         return bpps, x_hat
 
 
-    def BGR(self, bgr_image: np.array) -> np.array:
+    def BGR(self, bgr_image: np.array, tag=None) -> np.array:
         """Return transformed image and bpp for a BGR image
 
         :param bgr_image: numpy BGR image (y,x,3)
+        :param tag: a string that can be used to identify & cache images (optional)
 
         Returns bits-per-pixel and transformed BGR image that has gone through compressai encoding+decoding.
 
