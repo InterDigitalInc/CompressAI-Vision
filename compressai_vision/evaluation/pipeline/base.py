@@ -44,9 +44,10 @@ class EncoderDecoder:
         return None, None
 
 
-    def BGR(self, bgr_image):
+    def BGR(self, bgr_image, tag=None):
         """
         :param bgr_image: numpy BGR image (y,x,3)
+        :param tag: a string that can be used to identify & cache images (optional)
 
         Takes in an BGR image, pushes it through encoder + decoder.
 
@@ -91,9 +92,10 @@ class VoidEncoderDecoder(EncoderDecoder):
         return [0], x
 
 
-    def BGR(self, bgr_image):
+    def BGR(self, bgr_image, tag=None):
         """
         :param bgr_image: numpy BGR image (y,x,3)
+        :param tag: a string that can be used to identify & cache images (optional)
 
         Returns BGR image that has gone through transformation (the encoding + decoding process)
 
