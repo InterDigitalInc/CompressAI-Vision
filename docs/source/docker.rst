@@ -4,6 +4,7 @@ Docker
 ======
 
 **TODO: dockerfiles try to pull CompressAI-Vision from the public repo: this does not work since the repo is not yet public**
+**So for the moment, use Dockerfile.2**
 
 Docker images are provided with the correct software stack:
 
@@ -40,12 +41,11 @@ File versions
 
 List of docker images and software versions:
 
-==============  ======= ========== ==== ===== ============ ===================================================================
-Dockerfile      PyTorch Detectron2 CUDA VTM   OS           Description
-==============  ======= ========== ==== ===== ============ ===================================================================
-Dockerfile.1    1.8.2   0.4        11.1 12.0  Ubuntu 20.04 All inclusive image,
-                                                           run with ``run_image.bash``
-Dockerfile.2    1.8.2   0.4        11.1 12.0  Ubuntu 20.04 Hot-reload CompressAI-Vision (for compressai-vision development),
-                                                           run with ``run_image_dev.bash``
-==============  ======= ========== ==== ===== ============ ===================================================================
-
+==============  ======= ========== ==== ===== ====== =============== ===================================================================
+Dockerfile      PyTorch Detectron2 CUDA VTM   FFMpeg OS              Description
+==============  ======= ========== ==== ===== ====== =============== ===================================================================
+Dockerfile.1    1.8.2   0.4        11.1 12.0  4.2.7  Ubuntu 20.04    All inclusive image,
+                                                                     run with ``run_image.bash``
+Dockerfile.2    1.8.2   0.4        11.1 12.0  4.2.7  Ubuntu 20.04    Hot-reload CompressAI-Vision (for compressai-vision development),
+                                                                     run with ``run_image_dev.bash``
+==============  ======= ========== ==== ===== ====== =============== ===================================================================

@@ -1,6 +1,6 @@
 
 import cv2
-import math
+import math, os
 from detectron2.data import MetadataCatalog
 from compressai_vision.conversion.detectron2 import findLabels, detectron251
 from compressai_vision.evaluation.pipeline.base import EncoderDecoder
@@ -49,11 +49,14 @@ def annexPredictions(
     with ProgressBar(fo_dataset) as pb:
         for sample in fo_dataset:
             # sample.filepath
-            im = cv2.imread(sample.filepath)
+            path = sample.filepath
+            im = cv2.imread(path)
+            tag=path.split(os.path.sep)[-1].split(".")[0] # i.e.: /path/to/some.jpg --> some.jpg --> some
+            print(tag)
             if encoder_decoder is not None:
                 # before using detector, crunch through 
                 # encoder/decoder
-                bpp, im=encoder_decoder.BGR(im)
+                bpp, im=encoder_decoder.BGR(im, tag=tag) # include a tag for cases where EncoderDecoder uses caching
                 bpp_sum += bpp
             res = predictor(im)
             predictions=detectron251(res, 
