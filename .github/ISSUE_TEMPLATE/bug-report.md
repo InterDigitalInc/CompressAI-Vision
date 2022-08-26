@@ -1,6 +1,6 @@
 ---
 name: "Bug Report"
-about: Create a report to help us improve CompressAI
+about: Create a report to help us improve CompressAI-Vision
 title: ''
 labels: ''
 assignees: ''
@@ -30,9 +30,9 @@ Steps to reproduce the behavior:
 Please copy and paste the output from `python3 -m torch.utils.collect_env`
 
 ```
-- PyTorch / CompressAI Version (e.g., 1.0 / 0.4.0):
+- PyTorch / CompressAI-Vision Version (e.g., 1.0 / 0.4.0):
 - OS (e.g., Linux):
-- How you installed PyTorch / CompressAI (`pip`, source):
+- How you installed PyTorch / CompressAI-Vision (`pip`, source):
 - Build command you used (if compiling from source):
 - Python version:
 - CUDA/cuDNN version:

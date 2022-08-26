@@ -1,6 +1,6 @@
 ---
 name: "Documentation"
-about: Report an issue to help improve CompressAI documentation
+about: Report an issue to help improve CompressAI-Vision documentation
 title: ''
 labels: ''
 assignees: ''
