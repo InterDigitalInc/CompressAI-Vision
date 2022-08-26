@@ -67,6 +67,11 @@ RUN pip3 install compressai
 ## we're hot-reloading this from local directory intead:
 # RUN pip3 install -vvv --upgrade git+https://github.com/InterDigitalInc/CompressAI-Vision.git
 
-RUN python3 -c 'import torch, detectron2; print("torch:", torch.__version__, "/ cuda:", torch.version.cuda, "/ detectron2:", detectron2.__version__)'
-ENV VTM_DIR=/root/vtm/VVCSoftware_VTM-VTM-12.0/bin/
+ENV VTM_DIR=/root/vtm/VVCSoftware_VTM-VTM-12.0
+# $VTM_DIR/bin/EncoderAppStatic
+# $VTM_DIR/bin/DecoderAppStatic
+# $VTM_DIR/cfg/encoder_intra_vtm.cfg
 WORKDIR /root
+
+RUN python3 -c 'import torch, detectron2; print("torch:", torch.__version__, "/ cuda:", torch.version.cuda, "/ detectron2:", detectron2.__version__)'
+RUN ffmpeg -version

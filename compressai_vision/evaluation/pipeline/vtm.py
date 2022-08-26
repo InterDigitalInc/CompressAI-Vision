@@ -31,19 +31,37 @@ class VTMEncoderDecoder(EncoderDecoder):
 
     ::
 
-        import cv2, os
+        import cv2, os, logging
         from compressai_vision.evaluation.pipeline import VTMEncoderDecoder
         from compressai_vision.tools import getDataFile
 
-        path="/path/to/VVCSoftware_VTM/bin/umake/gcc-9.4/x86_64/debug"
-        encoderApp=os.path.join(path, "EncoderApp")
-        decoderApp=os.path.join(path, "DecoderApp")
-        
-        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=30)
+        path="/path/to/VVCSoftware_VTM/bin"
+        encoderApp=os.path.join(path, "EncoderAppStatic")
+        decoderApp=os.path.join(path, "DecoderAppStatic")
+
+        # enable debugging log to see explicitly all the steps        
+        loglev=logging.DEBUG
+        quickLog("VTMEncoderDecoder", loglev)
+
+        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=47)
         bpp, img_hat = encdec.BGR(cv2.imread("fname.png"))
 
+    You can enable caching and avoid re-encoding of images like this:
+
+    ::
+
+        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=47, cache="/tmp/kokkelis")
+        bpp, img_hat = encdec.BGR(cv2.imread("fname.png"), tag="a_unique_tag")
+
+    Cache can be inspected with:
+
+    ::
+
+        encdec.dump()
+
+
     """
-    def __init__(self, encoderApp=None, decoderApp=None, ffmpeg="ffmpeg", vtm_cfg=None, qp=30, save=False, base_path="/dev/shm"):
+    def __init__(self, encoderApp=None, decoderApp=None, ffmpeg="ffmpeg", vtm_cfg=None, qp=30, save=False, base_path="/dev/shm", cache=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert(encoderApp is not None), "please give encoder command"
         assert(decoderApp is not None), "please give decoder command"
@@ -63,12 +81,21 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.save=save
         self.base_path=base_path
         
-        self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
+        if cache is not None:
+            if not os.path.isdir(cache):
+                self.logger.info("creating %s", cache)
+                os.makedirs(cache)
+            self.folder=cache
+            self.caching=True
+        else:
+            self.caching=False
+            self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
+
         try:
             os.mkdir(self.folder)
         except FileExistsError:
             assert(os.path.isdir(self.folder))
-            self.logger.critical("folder %s already exists", self.folder)
+            self.logger.warning("folder %s exists already", self.folder)
         self.reset()
 
     def __str__(self):
@@ -78,6 +105,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         st += "ffmpeg    :   "+self.ffmpeg + "\n"
         st += "qp        :   "+str(self.qp) + "\n"
         st += "path      :   "+self.folder + "\n"
+        if self.caching:
+            st += "CACHING ENABLED\n"
         return st
 
     def dump(self):
@@ -88,6 +117,8 @@ class VTMEncoderDecoder(EncoderDecoder):
             print("    ", fname)
 
     def __del__(self):
+        if self.caching:
+            return
         # print("VTM: __del__", len(glob.glob(os.path.join(self.folder,"*"))))
         if len(glob.glob(os.path.join(self.folder,"*"))) > 5:
             # add some security here if user fat-fingers self.base_bath --> self.folder
@@ -183,25 +214,39 @@ class VTMEncoderDecoder(EncoderDecoder):
         return np.array(pil_img)
 
 
-    def __VTMEncode__(self, yuv_inp, width=None, height=None):
-        # TODO: take this into use
+    def __VTMEncode__(self, inp_yuv_path=None, bin_path=None, width=None, height=None):
+        assert(inp_yuv_path is not None)
+        assert(bin_path is not None)
         assert(width is not None)
         assert(height is not None)
         comm='{encoderApp} -c {vtm_cfg} -i {inp_yuv_path} -b {bin_path} -o {out_yuv_path} -fr 1 -f 1 -wdt {wdt} -hgt {hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10'.format(
             encoderApp=self.encoderApp,
             vtm_cfg=self.vtm_cfg,
-            inp_yuv_path=yuv_inp,
-            out_yuv_path="out.yuv", # OUT # TODO
-            bin_path="bytes.dat", # OUT # TODO
+            inp_yuv_path=inp_yuv_path, # IN
+            out_yuv_path="nada.yuv", # OUT # NOT USED
+            bin_path=bin_path, # OUT
             wdt=width,
             hgt=height,
             qp=self.qp,
         )
         self.logger.debug(comm)
         args = shlex.split(comm)
-        # p=subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # stdout, stderr=p.communicate()
-        ## handle errors as for ffmpeg
+        p=subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr=p.communicate()
+
+
+    def __VTMDecode__(self, bin_path=None, rec_yuv_path=None):
+        assert(bin_path is not None)
+        assert(rec_yuv_path is not None)
+        comm='{decoderApp} -b {bin_path} -o {rec_yuv_path}'.format(
+            decoderApp=self.decoderApp,
+            bin_path=bin_path, # IN
+            rec_yuv_path=rec_yuv_path # OUT
+        )
+        self.logger.debug(comm)
+        args = shlex.split(comm)
+        p=subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr=p.communicate()
 
 
     def BGR(self, bgr_image, tag=None):
@@ -228,7 +273,13 @@ class VTMEncoderDecoder(EncoderDecoder):
         ## we could use this to create unique filename if we want cache & later identify the images:
         #"X".join([str(n) for n in md5(bgr_image).digest()])
         ##but it's better to use explicit tags as provided by the user
-        fname="tmp.yuv"
+        fname_yuv=os.path.join(self.folder, "tmp.yuv") # yuv produced by ffmpeg
+        if self.caching:
+            assert(tag is not None), "caching requested, but got no tag"
+            fname_bin=os.path.join(self.folder, "bin_"+tag) # bin produced by VTM
+        else:
+            fname_bin=os.path.join(self.folder, "bin") # bin produced by VTM
+        fname_rec=os.path.join(self.folder, "rec.yuv") # yuv produced by VTM
 
         rgb_image = bgr_image[:,:,[2,1,0]] # BGR --> RGB
         # apply ffmpeg commands as defined in MPEG VCM group docs
@@ -237,25 +288,47 @@ class VTMEncoderDecoder(EncoderDecoder):
         # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
         padded=self.__ff_op__(rgb_image, "pad=ceil(iw/2)*2:ceil(ih/2)*2")
 
-        # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
-        yuv_bytes=self.__ff_RGB24ToRAW__(padded, "yuv420p")
+        if (not self.caching) or (not os.path.isfile(fname_bin)):
+            
+            # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
+            yuv_bytes=self.__ff_RGB24ToRAW__(padded, "yuv420p")
 
-        tmu=int(time.time()*1E6) # microsec timestamp
-        fname=os.path.join(self.folder, str(tmu))
-        with open(fname, "wb") as f:
-            f.write(yuv_bytes)
-        # TODO: call VTM Encoder & Decoder
-        # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
-        # self.__VTMEncode__(fname, width=padded.shape[1], height=padded.shape[0]) # TODO
+            ## this is not needed since each VTMEncoderDecoder has its own directory
+            # tmu=int(time.time()*1E6) # microsec timestamp
+            # fname=os.path.join(self.folder, str(tmu))
+            ## ..you could also use the tag to cache the encoded images if you'd like to do caching
+            
+            self.logger.debug("writing %s", fname_yuv)
+            with open(fname_yuv, "wb") as f:
+                f.write(yuv_bytes)
+
+            # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} 
+            #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
+            self.__VTMEncode__(inp_yuv_path=fname_yuv, bin_path=fname_bin, width=padded.shape[1], height=padded.shape[0])
+            self.logger.debug("removing %s", fname_yuv)
+            os.remove(fname_yuv) # cleanup
+
+        # calculate bpp
+        self.logger.debug("reading %s for bpp calculation", fname_bin)
+        with open(fname_bin, "rb") as f:
+            n_bytes=len(f.read())
+        bpp=n_bytes*8/(rgb_image.shape[1]*rgb_image.shape[0])
+
         # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
-        # TODO: read the encoded bytes => calculate bpp
-        bpp=10
-        with open(fname, "rb") as f:
+        self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
+
+        self.logger.debug("reading %s", fname_rec)
+        with open(fname_rec, "rb") as f:
             yuv_bytes_hat=f.read()
-        os.remove(fname)
+        self.logger.debug("removing %s", fname_rec)
+        os.remove(fname_rec) # cleanup
+
+        if not self.caching:
+            self.logger.debug("removing %s", fname_bin)
+            os.remove(fname_bin)
+
         # 5. MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
-        # form="yuv420p10le" # TODO: enable this
-        form="yuv420p"
+        form="yuv420p10le"
         padded_hat=self.__ff_RAWToRGB24__(yuv_bytes_hat, form=form, width=padded.shape[1],
             height=padded.shape[0])
 
