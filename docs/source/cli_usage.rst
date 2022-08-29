@@ -3,6 +3,12 @@
 Command line usage
 ==================
 
+compressai-vision-info
+----------------------
+
+Shows information about your the installed software stack, library
+versions and registered databases.
+
 compressai-nokia-auto-import
 ----------------------------
 
