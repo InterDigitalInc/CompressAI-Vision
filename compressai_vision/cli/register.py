@@ -73,3 +73,5 @@ def main(p):
             name=p.name,
             image_ids=image_ids
         )
+    dataset.persistent=True # don't forget!
+    
