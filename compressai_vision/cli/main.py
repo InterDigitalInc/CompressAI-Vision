@@ -75,12 +75,19 @@ commands & parameters:
         --name          name of the fiftyone registered database
         --model         name of the detectron2 model
                         for example: COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
-        --output        outputfile, default: compressai-vision.pckl
+        --output        outputfile, default: compressai-vision.json
         --compressai    compressai model (optional), for example: bmshj2018_factorized
         --vtm           use vtm model (optional)
         --qpars         quality parameters to be used with either compressai or vtm
         WARNING/TODO : currently works only for detections (not for segmentations)
-
+        example 1 (calculate mAP):
+            compressai-vision detectron2_eval --y --name=nokia-detection \\ 
+            --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+        example 2 (calculate mAP=mAP(bpp)):
+            compressai-vision detectron2_eval --y --name=nokia-detection \\ 
+            --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
+            --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
+            
     NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
     the first three steps can be dealt with the compress-nokia-auto-import command
 

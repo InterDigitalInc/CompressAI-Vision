@@ -40,6 +40,11 @@ def main():
     print("cuda version        :", torch.version.cuda)
     print("detectron2 version  :", detectron2.__version__)
     print("compressai version  :", compressai.__version__)
+
+    print("\n*** CHECKING GPU AVAILABILITY ***")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print("device              :", device)
+
     print("\n*** TESTING FFMPEG ***")
     c=os.system("ffmpeg -version")
     if c>0:
