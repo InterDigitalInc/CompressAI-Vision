@@ -41,8 +41,15 @@ install_1.bash  1.9.1   0.6        10.2
 2. VTM
 ------
 
-Use still need to install VTM from `here <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>`_. VTM is used for anchor-pipeline, i.e. for setting a baseline against 
-which deep-learning encoders are tested.
+Use still need to install VTM from `here <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>`_. 
+VTM is used for anchor pipeline, i.e. for setting a baseline against which deep-learning encoders are tested.
+
+Before compiling VTM, you need at least:
+
+::
+
+    sudo apt-get install build-essential wget tar cmake
+
 
 Here is your quickstart for compiling VTM (adjust VTM version number accordingly):
 
@@ -57,7 +64,7 @@ Here is your quickstart for compiling VTM (adjust VTM version number accordingly
     make -j
     ls ../bin
 
-There should be:
+Now there should be:
 
 ::
 
@@ -66,3 +73,13 @@ There should be:
     ...
     
 Now you can try the `standalone test <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
+
+3. Other dependencies
+---------------------
+
+MPEG VCM defines several ffmpeg commands for the anchor pipeline, so you need ffmeg:
+
+::
+
+    sudo apt-get install ffmpeg
+
