@@ -1,7 +1,9 @@
-"""Using the Detectron2 library to evaluate encoded/decoded image.  WARNING: legacy code, should not be use.
+"""Using the Detectron2 library to evaluate encoded/decoded image.  WARNING:
+legacy code, should not be use.
 
-This file has been modified from "from detectron2.evaluation.inference_on_dataset" by Interdigital to
-include bpp (bits per pixel) calculations
+This file has been modified from "from
+detectron2.evaluation.inference_on_dataset" by Interdigital to include bpp (bits
+per pixel) calculations
 """
 import datetime
 import logging
@@ -28,25 +30,28 @@ def inference_on_dataset(
     mapping: dict = None,
 ):
     """
-    Run model on the data_loader and evaluate the metrics with evaluator.
-    Also benchmark the inference speed of `model.__call__` accurately.
-    The model will be used in eval mode.
+    Run model on the data_loader and evaluate the metrics with evaluator. Also
+    benchmark the inference speed of `model.__call__` accurately. The model will
+    be used in eval mode.
 
     Args:
         model (callable): a callable which takes an object from
             `data_loader` and returns some outputs.
 
-            If it's an nn.Module, it will be temporarily set to `eval` mode.
-            If you wish to evaluate a model in `training` mode instead, you can
-            wrap the given model and override its behavior of `.eval()` and `.train()`.
+            If it's an nn.Module, it will be temporarily set to `eval` mode. If
+            you wish to evaluate a model in `training` mode instead, you can
+            wrap the given model and override its behavior of `.eval()` and
+            `.train()`.
 
         data_loader: an iterable object with a length.
             The elements it generates will be the inputs to the model.
 
-        evaluator: the evaluator(s) to run. Use `None` if you only want to benchmark,
+        evaluator: the evaluator(s) to run. Use `None` if you only want to
+        benchmark,
             but don't want to do any evaluation.
 
-        mapping [optional]: values of this dictionary (which are class id numbers) are used to filter the results
+        mapping [optional]: values of this dictionary (which are class id
+        numbers) are used to filter the results
 
     Returns:
         The return value of `evaluator.evaluate()`
@@ -113,11 +118,12 @@ def inference_on_dataset(
                 ]
 
 
-            instances is an Instances object (please refer to detectron2's documentation)
+            instances is an Instances object (please refer to detectron2's
+            documentation)
             """
 
-            """apply a mapping from Detectron2 output to the more reduced/specialized
-            test set"""
+            """apply a mapping from Detectron2 output to the more
+            reduced/specialized test set"""
             if class_list is not None:
                 instances = outputs[0][
                     "instances"
@@ -136,18 +142,17 @@ def inference_on_dataset(
 
             evaluator: `COCOEvaluator("my_dataset_val", output_dir="./output")`
 
-            x = input to neural net (image)
-            y = results from neural net (Instace object with bboxes, etc.)
-            Y = ground truth
+            x = input to neural net (image) y = results from neural net (Instace
+            object with bboxes, etc.) Y = ground truth
 
             Each one "carries" image_id information so that evaluation can be
             done against the ground truth:
 
-            y = net(x) / x has image_id => y has image_id
-            Y = ground truth / evaluator has Y with image_id
+            y = net(x) / x has image_id => y has image_id Y = ground truth /
+            evaluator has Y with image_id
 
-            evaluator takes x image_id from inputs, y from outputs => y(image_id)
-            compares Y(image_id) to y(image_id)
+            evaluator takes x image_id from inputs, y from outputs =>
+            y(image_id) compares Y(image_id) to y(image_id)
             """
             total_eval_time += time.perf_counter() - start_eval_time
 
@@ -201,8 +206,8 @@ def inference_on_dataset(
         else:
             results["bpp"] = bpp_sum / cc
 
-    # An evaluator may return None when not in main process.
-    # Replace it by an empty dict instead to make it easier for downstream code to handle
+    # An evaluator may return None when not in main process. Replace it by an
+    # empty dict instead to make it easier for downstream code to handle
     return results
 
 

@@ -18,11 +18,14 @@ class EncodingDecodingDatasetMapper(DatasetMapper):
         super().__init__(*args, **kwargs)  # MODIFIED
 
     def __call__(self, dataset_dict):
-        """NOTE: this has been taken from detectron2.data.dataset_mapper.DatasetMapper & modified very slightly:
+        """NOTE: this has been taken from
+        detectron2.data.dataset_mapper.DatasetMapper & modified very
+        slightly:
         look for the tag "MODIFIED"
 
         Args:
-            dataset_dict (dict): Metadata of one image, in Detectron2 Dataset format.
+            dataset_dict (dict): Metadata of one image, in Detectron2 Dataset
+            format.
 
         Returns:
             dict: a format that builtin models in detectron2 accept
@@ -61,9 +64,10 @@ class EncodingDecodingDatasetMapper(DatasetMapper):
         image, sem_seg_gt = aug_input.image, aug_input.sem_seg
 
         image_shape = image.shape[:2]  # h, w
-        # Pytorch's dataloader is efficient on torch.Tensor due to shared-memory,
-        # but not efficient on large generic data structures due to the use of pickle & mp.Queue.
-        # Therefore it's important to use torch.Tensor.
+        # Pytorch's dataloader is efficient on torch.Tensor due to
+        # shared-memory, but not efficient on large generic data structures due
+        # to the use of pickle & mp.Queue. Therefore it's important to use
+        # torch.Tensor.
         dataset_dict["image"] = torch.as_tensor(
             np.ascontiguousarray(image.transpose(2, 0, 1))
         )

@@ -58,6 +58,7 @@ setup(
         "console_scripts": [
             "compressai-vision = compressai_vision.cli.main:main",
             "compressai-nokia-auto-import = compressai_vision.cli.auto:main",
+            "compressai-vision-info = compressai_vision.cli.info:main",
         ]
     },
     # metadata for upload to PyPI

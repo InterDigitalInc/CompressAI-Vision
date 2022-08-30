@@ -16,7 +16,7 @@ def mapInputDict(mapper: dict = None, input: dict = None, verbose=False):
 
     ::
 
-        {'file_name': '/home/sampsa/fiftyone/openimagev6_nokia_small_COCO/data/001464cfae2a30b8-2.jpg',
+        {'file_name': '001464cfae2a30b8-2.jpg',
             'height': 683,
             'width': 1024,
             'image_id': 1,
@@ -46,24 +46,25 @@ def mapInputDict(mapper: dict = None, input: dict = None, verbose=False):
                 print("mapping annotation from category", old_i, "to", new_i)
             annotation["category_id"] = new_i
             annotations_.append(annotation)
-    output["annotations"] = annotations_  # replace old annotations list with new one
+    output["annotations"] = annotations_
+    # replace old annotations list with new one
     return output
 
 
 def mapInstances(mapper: dict, instances: Instances, verbose=False) -> Instances:
     """mapping detectron output Instance objects from one class id to another
 
-    :param mapper: a dictionary with key=class id from the detector.  value=corresponding class id in the ground truth set.
-    :param instances: a detectron2.structures.instances.Instances instance that will be modified/mapped
+    :param mapper: a dictionary with key=class id from the detector.
+        value=corresponding class id in the ground truth set.
+    :param instances: a detectron2.structures.instances.Instances instance that
+        will be modified/mapped
 
     An example.  Assume the following mapper:
 
     ::
 
         {
-            70: 1,
-            71: 2,
-            74: 3
+            70: 1, 71: 2, 74: 3
         }
 
     - Detector prediction class id 70 is mapped to ground truth dataset class 1
@@ -106,7 +107,8 @@ def mapDataset(
 
     :param source_name:     name of source dataset
     :param target_name:     name target/mapped dataset
-    :param base_name:       name of original dataset the detector was trained with .. we get the class names from here
+    :param base_name:       name of original dataset the detector was trained
+              with .. we get the class names from here
 
 
     f.e. suppose this mapping
@@ -117,23 +119,16 @@ def mapDataset(
 
         t2,m2  ---> t1,m1
 
-        0 Book -->  73 book
-        1 Chair -->  56 chair
-        2 Clock -->  74 clock
-        3 Dining table -->  60 dining table
-        4 Microwave -->  68 microwave
-        5 Person -->  0 person
-        6 Potted plant -->  58 potted plant
-        7 Refrigerator -->  72 refrigerator
-        8 Tv -->  62 tv
-        9 Vase -->  75 vase
-        ...
-        20 Humanoid --> 0 person  # NOTE: we can also have many-to-one mappings
-        ...
+        0 Book -->  73 book 1 Chair -->  56 chair 2 Clock -->  74 clock 3 Dining
+        table -->  60 dining table 4 Microwave -->  68 microwave 5 Person -->  0
+        person 6 Potted plant -->  58 potted plant 7 Refrigerator -->  72
+        refrigerator 8 Tv -->  62 tv 9 Vase -->  75 vase ... 20 Humanoid --> 0
+        person  # NOTE: we can also have many-to-one mappings ...
 
 
         map detector ids --> gt ids
-            - detector spits out instances .. map those instances to gt instances
+            - detector spits out instances .. map those instances to gt
+              instances
             - ..remove instances not compatible with gt
             - gt has been pruned
             - compare
@@ -141,11 +136,12 @@ def mapDataset(
 
         map gt ids --> detector ids
             - whole gt dataset has been premapped to detectors ids
-            - detector spits out instances .. remove instances that are not in gt
+            - detector spits out instances .. remove instances that are not in
+              gt
 
 
-        detector spits out 81 .. but that's not in t3
-        gt mapped to detector class numbers ..
+        detector spits out 81 .. but that's not in t3 gt mapped to detector
+        class numbers ..
 
     """
     assert source_name is not None
@@ -158,8 +154,9 @@ def mapDataset(
         MetadataCatalog.remove(target_name)
 
     ds = DatasetCatalog.get(source_name)  # source: list of dict(s)
-    mt = MetadataCatalog.get(source_name)  # source: metadata
-    base_meta = MetadataCatalog.get(base_name)  # the class ids are taken from here
+    # mt = MetadataCatalog.get(source_name)  # source: metadata
+    # base_meta = MetadataCatalog.get(base_name)
+    # the class ids are taken from here
     new_ds = []
     for sample in ds:
         new_sample = mapInputDict(mapper=mapper, input=sample)

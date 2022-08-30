@@ -62,7 +62,7 @@ def annexPredictions(
             tag = path.split(os.path.sep)[-1].split(".")[
                 0
             ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-            print(tag)
+            # print(tag)
             if encoder_decoder is not None:
                 # before using detector, crunch through
                 # encoder/decoder

@@ -35,5 +35,5 @@ def getDataPath():
 
 
 def getDataFile(fname):
-    """Return complete path to datafile fname.  Data files are in the directory skeleton/skeleton/data"""
+    """Return complete path to datafile fname.  Data files are in the directory compressai_vision/"""
     return os.path.join(getDataPath(), fname)
