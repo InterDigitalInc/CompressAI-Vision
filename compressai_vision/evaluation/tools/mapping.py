@@ -41,18 +41,18 @@ def findMapping(det: list = None, gt: list = None):
     assert gt is not None
 
     # all tags to lowercase
-    det = [l.lower() for l in det]
-    gt = [l.lower() for l in gt]
+    det = [i.lower() for i in det]
+    gt = [i.lower() for i in gt]
     d = OrderedDict()
     ins = set(det).intersection(set(gt))  # {'cat','dog'}
     lis = list(ins)  # ['cat','dog']
     tags = []
     indexes = []
 
-    for l in lis:  # tags intersection
-        tags.append(l)
-        val = det.index(l)
-        key = gt.index(l)
+    for i in lis:  # tags intersection
+        tags.append(i)
+        val = det.index(i)
+        key = gt.index(i)
         d[key] = val
         indexes.append(key)
     indexes.sort()

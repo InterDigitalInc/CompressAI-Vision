@@ -4,11 +4,12 @@ import os
 
 # fiftyone
 import fiftyone as fo
-import fiftyone.zoo as foz
 
 # compressai_vision
 from compressai_vision.conversion import imageIdFileList
 from compressai_vision.tools import pathExists
+
+# import fiftyone.zoo as foz
 
 
 def main(p):
@@ -17,7 +18,7 @@ def main(p):
 
     try:
         dataset = fo.load_dataset(p.name)
-    except ValueError as e:
+    except ValueError:
         pass
     else:
         print("dataset %s already exists - will deregister it first" % (p.name))

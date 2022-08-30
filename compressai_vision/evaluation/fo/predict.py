@@ -43,14 +43,14 @@ def annexPredictions(
         )
     """
     try:
-        allowed_labels = findLabels(fo_dataset, detection_field=detection_field)
+        _ = findLabels(fo_dataset, detection_field=detection_field)
     except ValueError:
         print(
             "your ground truths suck: samples have no member",
             detection_field,
             "will set allowed_labels to empty list",
         )
-        allowed_labels = []
+        # allowed_labels = []
 
     # add predicted bboxes to each fiftyone Sample
     bpp_sum = 0
@@ -77,7 +77,7 @@ def annexPredictions(
                 # allowed_labels=allowed_labels # not needed, really
             )  # fiftyone Detections object
             sample[predictor_field] = predictions
-            ## we could attach the bitrate to each detection, of course
+            # we could attach the bitrate to each detection, of course
             # if encoder_decoder is not None:
             #    sample["bpp"]=bpp
             sample.save()

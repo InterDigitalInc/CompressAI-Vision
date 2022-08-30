@@ -3,11 +3,9 @@
 import copy
 import json
 import logging
-import pickle
 
 # fiftyone
 import fiftyone as fo
-import fiftyone.zoo as foz
 
 # compressai_vision
 from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
@@ -17,8 +15,11 @@ from compressai_vision.evaluation.pipeline import (
 )
 from compressai_vision.tools import quickLog
 
+# import pickle
+# import fiftyone.zoo as foz
 
-def main(p):
+
+def main(p):  # noqa: C901
     assert p.name is not None, "please provide dataset name"
     try:
         dataset = fo.load_dataset(p.name)
@@ -60,10 +61,10 @@ def main(p):
     # compressai_model == None --> no compressai
     # p.vtm == False --> no vtm
 
-    ## *** Detectron imports ***
+    # *** Detectron imports ***
     # Some basic setup:
     # Setup detectron2 logger
-    import detectron2
+    # import detectron2
     import torch
 
     from detectron2.utils.logger import setup_logger
@@ -73,7 +74,7 @@ def main(p):
     # import some common detectron2 utilities
     from detectron2 import model_zoo
     from detectron2.config import get_cfg
-    from detectron2.data import DatasetCatalog, MetadataCatalog
+    from detectron2.data import MetadataCatalog  # , DatasetCatalog
     from detectron2.engine import DefaultPredictor
 
     device = "cuda" if torch.cuda.is_available() else "cpu"

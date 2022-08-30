@@ -9,18 +9,19 @@ import datetime
 import logging
 import time
 
-from collections import OrderedDict, abc
+# from collections import OrderedDict, abc
 from contextlib import ExitStack, contextmanager
-from typing import List, Union
 
 import torch
 
-from detectron2.evaluation import DatasetEvaluator, DatasetEvaluators
-from detectron2.utils.comm import get_world_size, is_main_process
+from detectron2.evaluation import DatasetEvaluator  # , DatasetEvaluators
+from detectron2.utils.comm import get_world_size  # , is_main_process
 from detectron2.utils.logger import log_every_n_seconds
 from torch import nn
 
 from .tools import filterInstances
+
+# from typing import List, Union
 
 
 def inference_on_dataset(

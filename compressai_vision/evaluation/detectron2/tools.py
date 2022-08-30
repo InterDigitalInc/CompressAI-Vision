@@ -1,11 +1,11 @@
 import copy
 
-from collections import OrderedDict
-
 import torch
 
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures.instances import Instances
+
+# from collections import OrderedDict
 
 
 def mapInputDict(mapper: dict = None, input: dict = None, verbose=False):

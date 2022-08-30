@@ -2,13 +2,14 @@
 """
 from math import floor
 
-import cv2
-import detectron2
+# import cv2
+# import detectron2
 import torch
 
-from detectron2.data import MetadataCatalog
+# from detectron2.data import MetadataCatalog
 from detectron2.structures import BoxMode
-from fiftyone import ProgressBar
+
+# from fiftyone import ProgressBar
 from fiftyone.core.dataset import Dataset
 from fiftyone.core.labels import Detection, Detections
 from PIL import Image
@@ -19,13 +20,18 @@ def findLabels(dataset: Dataset, detection_field: str = "detections") -> list:
 
 
 class FO2DetectronDataset(torch.utils.data.Dataset):
-    """A class to construct a Detectron2 dataset from a FiftyOne dataset.  Subclass of ``torch.utils.data.Dataset``.
+    """A class to construct a Detectron2 dataset from a FiftyOne dataset.
+    Subclass of ``torch.utils.data.Dataset``.
 
     :param fo_dataset: fiftyone dataset
-    :param detection_field: name of member in the FiftyOne Sample where the detector (ground truth) is put into.  Default: "detections".
-    :param model_catids: a list of category labels as provided from Detectron2 model's metadata.  Used to transform fiftyone category label into an index number used by Detectron2
+    :param detection_field: name of member in the FiftyOne Sample where the
+        detector (ground truth) is put into.  Default: "detections".
+    :param model_catids: a list of category labels as provided from Detectron2
+        model's metadata.  Used to transform fiftyone category label into an
+        index number used by Detectron2
 
-    NOTE: Usually we are more interested in going from Detectron results to FiftyOne format, so you might not use this torch Dataset class that much
+    NOTE: Usually we are more interested in going from Detectron results to
+    FiftyOne format, so you might not use this torch Dataset class that much
 
     refs:
 
@@ -40,8 +46,11 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
     def __init__(
         self,
         fo_dataset: Dataset = None,
-        detection_field="detections",  # let's use "detections" or "ground-truths" for GT and "predictions" for detectron2-give predictions
-        model_catids=[],
+        detection_field="detections",
+        # let's use "detections" or "ground-truths" for GT and "predictions" for
+        # detectron2-give predictions
+        model_catids=[],  # noqa: B006
+        # TODO (sampsa) "Do not use mutable data structures for argument defaults"
     ):
         assert fo_dataset is not None, "please provide fo_dataset (fiftyone dataset)"
         assert (
@@ -63,11 +72,11 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
         sample = self.fo_dataset[
             img_path
         ]  # datasets are allowed to be index with ids, filenames, etc. only (not with plain integers)
-        metadata = sample.metadata
+        # metadata = sample.metadata
         img = Image.open(img_path)
 
         """Example detectron2 formatted sample:
-        
+
         ::
 
             {'file_name': '/home/sampsa/fiftyone/openimagev6_nokia_small_COCO/data/001997021f01f208.jpg',
@@ -83,8 +92,8 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
                 'bbox': [430.188652, 410.87401984, 82.85117200000002, 95.55209215999997],
                 'category_id': 32,
                 'bbox_mode': <BoxMode.XYWH_ABS: 1>}
-            ]            
-        
+            ]
+
 
         Example fiftyone sample:
 
@@ -125,7 +134,7 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
                 }>,
             }>
 
-        OpenImageV6 bbox format: xMin, xMax, yMin, yMax (or starting with yMin, depending what tool you use(!) 
+        OpenImageV6 bbox format: xMin, xMax, yMin, yMax (or starting with yMin, depending what tool you use(!)
         https://stackoverflow.com/questions/55832578/how-to-make-sense-of-open-images-datasets-bounding-box-annotations)
         fiftyone bbox format: all relative coordinates: [x0, y0, w, h] (origo at left up)
         Detectron2 bbox format: see: https://detectron2.readthedocs.io/en/latest/modules/structures.html#detectron2.structures.BoxMode
@@ -190,7 +199,11 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
 
 def detectron251(
-    res, model_catids: list = [], allowed_labels: list = None, verbose=False
+    res,
+    model_catids: list = [],  # noqa: B006
+    # TODO (sampsa) "Do not use mutable data structures for argument defaults"
+    allowed_labels: list = None,
+    verbose=False,
 ) -> list:
     """Detectron2 formatted results, i.e. ``{'instances': Instances}`` into FiftyOne-formatted results
 
@@ -218,7 +231,7 @@ def detectron251(
 
     instances = res["instances"]
 
-    """    
+    """
     For example:
 
     ::
@@ -227,7 +240,7 @@ def detectron251(
             [941.1395, 268.9208, 978.8932, 300.9435],
             [891.1142, 275.1706, 942.4617, 299.9345],
             [112.7023, 152.5475, 307.6531, 241.2931],
-            [815.8085, 311.5709, 898.5360, 346.5404]])), 
+            [815.8085, 311.5709, 898.5360, 346.5404]])),
             scores: tensor([0.9964, 0.9494, 0.9204, 0.7443, 0.6773]), pred_classes: tensor([4, 7, 7, 4, 7])])
 
     """
@@ -265,9 +278,9 @@ def detectron251(
         # bboxes
         if hasattr(instances, "pred_boxes"):
             boxObject = instances.pred_boxes[i]  # indexing returns a Boxes object
-            for (
-                t
-            ) in boxObject:  # so annoying.. only way to get the tensor is to iterate
+            for t in boxObject:  # noqa: B007
+                # TODO (sampsa) "Loop control variable 't' not used within the loop body"
+                # so annoying.. only way to get the tensor is to iterate
                 pass
             x, y, x2, y2 = t.detach().tolist()  # abs coordinates
             bbox = [x / width, y / height, (x2 - x) / width, (y2 - y) / height]

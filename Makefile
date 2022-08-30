@@ -6,7 +6,7 @@ PYTHON_DOCKER_IMAGE = python:3.8-buster
 GIT_DESCRIBE = $(shell git describe --first-parent)
 ARCHIVE = compressai_vision.tar.gz
 
-src_dirs := compressai_vision 
+src_dirs := compressai_vision
 
 .PHONY: help
 help: ## Show this message
@@ -29,11 +29,11 @@ check-flake8: ## Run flake8 checks
 	@echo "--> Running flake8 checks"
 	@flake8 $(src_dirs)
 
-check-mypy: ## Run mypy checks
-	@echo "--> Running mypy checks"
-	@mypy
+# check-mypy: ## Run mypy checks
+# 	@echo "--> Running mypy checks"
+# 	@mypy
 
-static-analysis: check-black check-isort check-flake8 check-mypy ## Run all static checks
+static-analysis: check-black check-isort check-flake8 # check-mypy ## Run all static checks
 
 
 # Apply styling

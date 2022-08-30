@@ -1,10 +1,11 @@
 """cli load_eval functionality
 """
-import pickle
+# import pickle
+import fiftyone as fo
 
 
 def main(p):
-    dataset = fo.load_dataset(p.name)
+    # dataset = fo.load_dataset(p.name)
     print("removing dataset %s from fiftyone" % (p.name))
     if not p.y:
         input("press enter to continue.. ")

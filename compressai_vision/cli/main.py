@@ -8,90 +8,100 @@
 This file is part of compressai-vision libraru
 """
 import argparse
-import configparser  # https://docs.python.org/3/library/configparser.html
-import logging
+
+# import configparser  # https://docs.python.org/3/library/configparser.html
+# import logging
 
 # from compressai_vision import constant
-from compressai_vision.local import AppLocalDir
-from compressai_vision.tools import confLogger, pathExists, quickLog
+# from compressai_vision.local import AppLocalDir
+# from compressai_vision.tools import confLogger, pathExists, quickLog
 
 
 def process_cl_args():
-    def str2bool(v):
-        return v.lower() in ("yes", "true", "t", "1")
+    # def str2bool(v):
+    #     return v.lower() in ("yes", "true", "t", "1")
 
     parser = argparse.ArgumentParser(
-        usage="""     
+        usage="""
 compressai-vision [options] command
 
-for an all-automagic-no-brainer, please try "compressai-nokia-auto-import help" that
-substitutes for download, nokia_convert and register commands
+for an all-automagic-no-brainer, please try "compressai-nokia-auto-import help"
+that substitutes for download, nokia_convert and register commands
 
 commands & parameters:
 
     --y                 non-interactive
 
     download            download image set _and_ register it to fiftyone.
-        --name          name of the dataset.  Default: "open-images-v6".
-        --lists         lst files that define the subset of images to download.
-        --split         typically "train" or "validation".  Default: "validation".
-        example:        (donwloads images corresponding to nokia's detection & segmentation test sets)
+        --name          name of the dataset.  Default: "open-images-v6". --lists
+        lst files that define the subset of images to download. --split
+        typically "train" or "validation".  Default: "validation". example:
+        (donwloads images corresponding to nokia's detection & segmentation test
+        sets)
             compressai-vision download \\
-            --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
-            --name=open-image-v6 --split=validation
-        
+            --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst
+            \\ --name=open-image-v6 --split=validation
+
     list                list all image sets registered to fiftyone
 
     deregister          de-register image set from fiftyine
-        --name          name of the dataset, for example "open-image-v6"
-        --split         name of the split, for example "validation"
+        --name          name of the dataset, for example "open-image-v6" --split
+        name of the split, for example "validation"
 
-    nokia_convert       convert nokia-provided files into proper OpenImageV6 format & directory structure
+    nokia_convert       convert nokia-provided files into proper OpenImageV6
+    format & directory structure
         --lists         file listing necessary images, i.e.
-                        "detection_validation_input_5k.lst" or "segmentation_validation_input_5k.lst"
-        --dir           a base OpenImageV6 dataset dir: 
-                        images are taken from "[dir]/data/" and masks from "[dir]/labels/masks/"
+                        "detection_validation_input_5k.lst" or
+                        "segmentation_validation_input_5k.lst"
+        --dir           a base OpenImageV6 dataset dir:
+                        images are taken from "[dir]/data/" and masks from
+                        "[dir]/labels/masks/"
         --target_dir    target directory directory for the converted format
-        --label         image-level labels, i.e. 
-                        "detection_validation_labels_5k.csv" or "segmentation_validation_labels_5k.csv"
-        --bbox          bbox data, i.e. 
-                        "detection_validation_5k_bbox.csv" or "segmentation_validation_bbox_5k.csv"
-        --mask          segmentation masks, i.e. "segmentation_validation_masks_5k.csv"
-        example:
+        --label         image-level labels, i.e.
+                        "detection_validation_labels_5k.csv" or
+                        "segmentation_validation_labels_5k.csv"
+        --bbox          bbox data, i.e.
+                        "detection_validation_5k_bbox.csv" or
+                        "segmentation_validation_bbox_5k.csv"
+        --mask          segmentation masks,
+        i.e."segmentation_validation_masks_5k.csv" example:
             compressai-vision nokia-convert
             --lists=detection_validation_input_5k.lst \\
-            --bbox=detection_validation_5k_bbox.csv --label=detection_validation_labels_5k.csv \\
-            --dir=~/fiftyone/open-image-v6/validation
-            --target_dir=/path/to/dir
-        
+            --bbox=detection_validation_5k_bbox.csv
+            --label=detection_validation_labels_5k.csv \\
+            --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
+
     register            register image set to fiftyone from local dir
-        --name          database registered name
-        --lists         lst files that define the subset of images to register
-        --dir           source directory
+        --name          database registered name --lists         lst files that
+        define the subset of images to register --dir           source directory
         --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
         example:        (register converted nokia files into fiftyone)
-            compressai-vision register --name=nokia-import --dir=~/somedir/nokia-import
+            compressai-vision register --name=nokia-import
+            --dir=~/somedir/nokia-import
 
-    detectron2_eval     evaluate model with detectron2 using OpenImageV6 evaluation protocol
-                        optionally with no (de)compression or with compressai or vtm
-        --name          name of the fiftyone registered database
-        --model         name of the detectron2 model
-                        for example: COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
-        --output        outputfile, default: compressai-vision.json
-        --compressai    compressai model (optional), for example: bmshj2018_factorized
-        --vtm           use vtm model (optional)
-        --qpars         quality parameters to be used with either compressai or vtm
-        WARNING/TODO : currently works only for detections (not for segmentations)
-        example 1 (calculate mAP):
-            compressai-vision detectron2_eval --y --name=nokia-detection \\ 
+    detectron2_eval     evaluate model with detectron2 using OpenImageV6
+    evaluation protocol
+                        optionally with no (de)compression or with compressai or
+                        vtm
+        --name          name of the fiftyone registered database --model
+        name of the detectron2 model
+                        for example:
+                        COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+        --output        outputfile, default: compressai-vision.json --compressai
+        compressai model (optional), for example: bmshj2018_factorized --vtm
+        use vtm model (optional) --qpars         quality parameters to be used
+        with either compressai or vtm WARNING/TODO : currently works only for
+        detections (not for segmentations) example 1 (calculate mAP):
+            compressai-vision detectron2_eval --y --name=nokia-detection \\
             --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         example 2 (calculate mAP=mAP(bpp)):
-            compressai-vision detectron2_eval --y --name=nokia-detection \\ 
+            compressai-vision detectron2_eval --y --name=nokia-detection \\
             --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
             --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
-            
-    NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
-    the first three steps can be dealt with the compress-nokia-auto-import command
+
+    NOTE: your normal workflow would be: download, nokia_convert, register,
+    detectron2_eval the first three steps can be dealt with the
+    compress-nokia-auto-import command
 
     """
     )

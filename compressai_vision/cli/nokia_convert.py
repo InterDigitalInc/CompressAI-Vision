@@ -2,13 +2,13 @@
 """
 import os
 
-# fiftyone
-import fiftyone as fo
-import fiftyone.zoo as foz
-
 # compressai_vision
-from compressai_vision.conversion import imageIdFileList, nokiaBSToOpenImageV6
+from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList
 from compressai_vision.tools import pathExists
+
+# fiftyone
+# import fiftyone as fo
+# import fiftyone.zoo as foz
 
 
 def main(p):

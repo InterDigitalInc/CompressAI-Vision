@@ -14,7 +14,7 @@ This is the official OpenImageV6 dir structure:
 │   └── segmentations.csv # segmentations
 |       [MaskPath,ImageID,LabelName,BoxID,BoxXMin,BoxXMax,BoxYMin,BoxYMax,PredictedIoU,Clicks]
 |        MaskPath refers to png files in that masks directory (omitting directories 0/, 1/, etc.?)
-| 
+|
 └── metadata
     ├── attributes.csv
     ├── classes.csv     # all classes for image level labels (and bboxes?)
@@ -71,7 +71,7 @@ def imageIdFileList(*args):
     return lis
 
 
-def nokiaBSToOpenImageV6(
+def nokiaBSToOpenImageV6(  # noqa: C901
     validation_csv_file: str = None,  # detection_validation_labels_5k.csv # OR # segmentation_validation_labels_5k.csv # image-level labels
     list_file: str = None,  # detection_validation_input_5k.lst
     bbox_csv_file: str = None,  # detection_validation_5k_bbox.csv # OR # segmentation_validation_bbox_5k.csv # OPTIONAL

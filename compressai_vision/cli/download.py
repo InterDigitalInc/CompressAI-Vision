@@ -1,9 +1,9 @@
 """cli download functionality
 """
-import os
+# import os
 
 # fiftyone
-import fiftyone as fo
+# import fiftyone as fo
 import fiftyone.zoo as foz
 
 # compressai_vision

@@ -1,15 +1,16 @@
 import copy
-import logging
-
-from typing import List, Optional, Union
 
 import numpy as np
 import torch
 
-from detectron2.config import configurable
+# from detectron2.config import configurable
 from detectron2.data import DatasetMapper
 from detectron2.data import detection_utils as utils
 from detectron2.data import transforms as T
+
+# import logging
+
+# from typing import List, Optional, Union
 
 
 class EncodingDecodingDatasetMapper(DatasetMapper):

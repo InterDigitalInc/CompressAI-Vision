@@ -13,11 +13,12 @@ import sys
 
 # fiftyone
 import fiftyone as fo
-import fiftyone.zoo as foz
+
+# import fiftyone.zoo as foz
 
 # from compressai_vision import constant
-from compressai_vision.local import AppLocalDir
-from compressai_vision.tools import confLogger, pathExists, quickLog
+# from compressai_vision.local import AppLocalDir
+# from compressai_vision.tools import confLogger, pathExists, quickLog
 
 # compressai_vision
 
@@ -31,7 +32,7 @@ def main():
     try:
         import detectron2
     except ModuleNotFoundError:
-        print("\nDETECTRON2 NOT INSTALLED\ŋ")
+        print("\nDETECTRON2 NOT INSTALLED\n")
         sys.exit(2)
 
     try:

@@ -26,7 +26,7 @@ compressai-nokia-auto-import
 
 Automatic downloading of images and importing nokia-provided files into fiftyone
 
-Before running this command (without any arguments), put the following files into the same directory 
+Before running this command (without any arguments), put the following files into the same directory
 (please note 'detection_validation_5k_bbox.csv' name inconsistency):
 
 """

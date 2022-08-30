@@ -25,8 +25,8 @@ def pathExists(p):
 def getModulePath():
     lis = inspect.getabsfile(inspect.currentframe()).split("/")
     st = "/"
-    for l in lis[:-1]:
-        st = os.path.join(st, l)
+    for f in lis[:-1]:
+        st = os.path.join(st, f)
     return st
 
 

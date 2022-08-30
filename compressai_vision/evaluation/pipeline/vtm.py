@@ -5,9 +5,6 @@ import os
 import shlex
 import shutil
 import subprocess
-import time
-
-from hashlib import md5
 
 import numpy as np
 
@@ -15,10 +12,14 @@ from PIL import Image
 
 from .base import EncoderDecoder
 
+# import time
+
+# from hashlib import md5
+
 
 def test_command(comm):
     try:
-        p = subprocess.Popen(
+        subprocess.Popen(
             comm, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     except FileNotFoundError:
@@ -294,12 +295,11 @@ class VTMEncoderDecoder(EncoderDecoder):
             4. {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
             5. ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
             6. ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
-
-
         """
-        ## we could use this to create unique filename if we want cache & later identify the images:
+
+        # we could use this to create unique filename if we want cache & later identify the images:
         # "X".join([str(n) for n in md5(bgr_image).digest()])
-        ##but it's better to use explicit tags as provided by the user
+        # but it's better to use explicit tags as provided by the user
         fname_yuv = os.path.join(self.folder, "tmp.yuv")  # yuv produced by ffmpeg
         if self.caching:
             assert tag is not None, "caching requested, but got no tag"
@@ -320,10 +320,10 @@ class VTMEncoderDecoder(EncoderDecoder):
             # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
             yuv_bytes = self.__ff_RGB24ToRAW__(padded, "yuv420p")
 
-            ## this is not needed since each VTMEncoderDecoder has its own directory
+            # this is not needed since each VTMEncoderDecoder has its own directory
             # tmu=int(time.time()*1E6) # microsec timestamp
             # fname=os.path.join(self.folder, str(tmu))
-            ## ..you could also use the tag to cache the encoded images if you'd like to do caching
+            # ..you could also use the tag to cache the encoded images if you'd like to do caching
 
             self.logger.debug("writing %s", fname_yuv)
             with open(fname_yuv, "wb") as f:

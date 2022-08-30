@@ -10,7 +10,8 @@ This file is part of the python skeleton example library
 """
 import os
 import shutil
-import sys
+
+# import sys
 
 home = os.path.expanduser("~")
 
@@ -39,7 +40,7 @@ class LocalDir:
             return
         try:
             shutil.rmtree(self.dirname)
-        except Exception as e:
+        except Exception:
             pass
 
     def has(self, fname):
