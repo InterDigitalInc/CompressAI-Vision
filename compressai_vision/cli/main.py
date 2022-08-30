@@ -7,19 +7,21 @@
 
 This file is part of compressai-vision libraru
 """
-import logging
 import argparse
-import configparser # https://docs.python.org/3/library/configparser.html
+import configparser  # https://docs.python.org/3/library/configparser.html
+import logging
+
 # from compressai_vision import constant
 from compressai_vision.local import AppLocalDir
-from compressai_vision.tools import quickLog, confLogger, pathExists
+from compressai_vision.tools import confLogger, pathExists, quickLog
+
 
 def process_cl_args():
-  
     def str2bool(v):
         return v.lower() in ("yes", "true", "t", "1")
 
-    parser = argparse.ArgumentParser(usage="""     
+    parser = argparse.ArgumentParser(
+        usage="""     
 compressai-vision [options] command
 
 for an all-automagic-no-brainer, please try "compressai-nokia-auto-import help" that
@@ -84,45 +86,130 @@ commands & parameters:
     NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
     the first three steps can be dealt with the compress-nokia-auto-import command
 
-    """)
+    """
+    )
     # parser.register('type','bool',str2bool)  # this works only in theory..
     parser.add_argument("command", action="store", type=str, help="mandatory command")
 
-    parser.add_argument("--name", action="store", type=str, required=False, default=None,
-                        help="name of the dataset")
-    parser.add_argument("--lists", action="store", type=str, required=False, default=None,
-                        help="comma-separated list of list files")
-    parser.add_argument("--split", action="store", type=str, required=False, default="validation",
-                        help="database sub-name, say, 'train' or 'validation'")
-    
-    parser.add_argument("--dir", action="store", type=str, required=False, default=None,
-                        help="source directory, depends on command")
-    parser.add_argument("--target_dir", action="store", type=str, required=False, default=None,
-                        help="target directory for nokia_convert")
-    parser.add_argument("--label", action="store", type=str, required=False, default=None,
-                        help="nokia-formatted image-level labels")
-    parser.add_argument("--bbox", action="store", type=str, required=False, default=None,
-                        help="nokia-formatted bbox data")
-    parser.add_argument("--mask", action="store", type=str, required=False, default=None,
-                        help="nokia-formatted segmask data")
-    
-    parser.add_argument("--type", action="store", type=str, required=False, default="OpenImagesV6Dataset",
-                        help="image set type to be imported")
+    parser.add_argument(
+        "--name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of the dataset",
+    )
+    parser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    parser.add_argument(
+        "--split",
+        action="store",
+        type=str,
+        required=False,
+        default="validation",
+        help="database sub-name, say, 'train' or 'validation'",
+    )
 
-    parser.add_argument("--proto", action="store", type=str, required=False, default=None,
-                        help="evaluation protocol")
-    parser.add_argument("--model", action="store", type=str, required=False, default=None,
-                        help="detectron2 model")
-    parser.add_argument("--output", action="store", type=str, required=False, default="compressai-vision.json",
-                        help="results output file")
+    parser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="source directory, depends on command",
+    )
+    parser.add_argument(
+        "--target_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target directory for nokia_convert",
+    )
+    parser.add_argument(
+        "--label",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="nokia-formatted image-level labels",
+    )
+    parser.add_argument(
+        "--bbox",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="nokia-formatted bbox data",
+    )
+    parser.add_argument(
+        "--mask",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="nokia-formatted segmask data",
+    )
 
-    parser.add_argument("--compressai", action="store", type=str, required=False, default=None,
-                        help="use compressai model")
-    parser.add_argument('--vtm', action='store_true', default=False)
-    parser.add_argument("--qpars", action="store", type=str, required=False, default=None,
-                        help="quality parameters for compressai model or vtm")
+    parser.add_argument(
+        "--type",
+        action="store",
+        type=str,
+        required=False,
+        default="OpenImagesV6Dataset",
+        help="image set type to be imported",
+    )
 
-    parser.add_argument('--y', action='store_true', default=False)
+    parser.add_argument(
+        "--proto",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="evaluation protocol",
+    )
+    parser.add_argument(
+        "--model",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="detectron2 model",
+    )
+    parser.add_argument(
+        "--output",
+        action="store",
+        type=str,
+        required=False,
+        default="compressai-vision.json",
+        help="results output file",
+    )
+
+    parser.add_argument(
+        "--compressai",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use compressai model",
+    )
+    parser.add_argument("--vtm", action="store_true", default=False)
+    parser.add_argument(
+        "--qpars",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="quality parameters for compressai model or vtm",
+    )
+
+    parser.add_argument("--y", action="store_true", default=False)
 
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
@@ -130,7 +217,7 @@ commands & parameters:
 
 def main():
     parsed, unparsed = process_cl_args()
-    
+
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
@@ -142,11 +229,19 @@ def main():
     confLogger(logger, logging.INFO)
     """
     # some command filtering here
-    if parsed.command in ["download", "list", "deregister", "nokia_convert", 
-        "register", "detectron2_eval", "load_eval"]:
+    if parsed.command in [
+        "download",
+        "list",
+        "deregister",
+        "nokia_convert",
+        "register",
+        "detectron2_eval",
+        "load_eval",
+    ]:
         from compressai_vision import cli
+
         # print("command is", parsed.command)
-        func=getattr(cli, parsed.command)
+        func = getattr(cli, parsed.command)
         func(parsed)
     else:
         print("unknown command", parsed.command)
@@ -162,5 +257,6 @@ def main():
             f.write(constant.SOME)
     """
 
-if (__name__ == "__main__"):
+
+if __name__ == "__main__":
     main()

@@ -30,13 +30,12 @@ def test2():
 def main():
     pre = "main :"
     print(pre, "main: arguments: ", sys.argv)
-    if (len(sys.argv) < 2):
+    if len(sys.argv) < 2:
         print(pre, "main: needs test number")
     else:
         st = "test" + str(sys.argv[1]) + "()"
         exec(st)
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     main()
-

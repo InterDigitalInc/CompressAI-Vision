@@ -1,33 +1,33 @@
 """From 51 dataset into Detectron2-compatible dataset
 """
-import torch
-import cv2
-from PIL import Image
 from math import floor
+
+import cv2
 import detectron2
+import torch
+
 from detectron2.data import MetadataCatalog
 from detectron2.structures import BoxMode
-from fiftyone.core.labels import Detection, Detections
-from fiftyone.core.dataset import Dataset
 from fiftyone import ProgressBar
+from fiftyone.core.dataset import Dataset
+from fiftyone.core.labels import Detection, Detections
+from PIL import Image
 
 
 def findLabels(dataset: Dataset, detection_field: str = "detections") -> list:
-    return dataset.distinct(
-        "%s.detections.label" % detection_field
-        )
+    return dataset.distinct("%s.detections.label" % detection_field)
 
 
 class FO2DetectronDataset(torch.utils.data.Dataset):
     """A class to construct a Detectron2 dataset from a FiftyOne dataset.  Subclass of ``torch.utils.data.Dataset``.
-    
+
     :param fo_dataset: fiftyone dataset
     :param detection_field: name of member in the FiftyOne Sample where the detector (ground truth) is put into.  Default: "detections".
     :param model_catids: a list of category labels as provided from Detectron2 model's metadata.  Used to transform fiftyone category label into an index number used by Detectron2
 
     NOTE: Usually we are more interested in going from Detectron results to FiftyOne format, so you might not use this torch Dataset class that much
 
-    refs: 
+    refs:
 
     - https://voxel51.com/docs/fiftyone/user_guide/using_datasets.html
     - https://towardsdatascience.com/stop-wasting-time-with-pytorch-datasets-17cac2c22fa8
@@ -36,26 +36,33 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
     WARNING: at the moment, only detection (not segmentation) is supported
     """
-    def __init__(self,
-        fo_dataset:Dataset=None,
-        detection_field="detections", # let's use "detections" or "ground-truths" for GT and "predictions" for detectron2-give predictions
-        model_catids=[]
+
+    def __init__(
+        self,
+        fo_dataset: Dataset = None,
+        detection_field="detections",  # let's use "detections" or "ground-truths" for GT and "predictions" for detectron2-give predictions
+        model_catids=[],
     ):
-        assert(fo_dataset is not None), "please provide fo_dataset (fiftyone dataset)"
-        assert(len(model_catids) > 0), "please provide MODEL's ORIGINAL category label list.  Get his from detectron2 model's metadata."
+        assert fo_dataset is not None, "please provide fo_dataset (fiftyone dataset)"
+        assert (
+            len(model_catids) > 0
+        ), "please provide MODEL's ORIGINAL category label list.  Get his from detectron2 model's metadata."
         self.fo_dataset = fo_dataset
         self.detection_field = detection_field
-        self.model_catids=model_catids
-        self.img_paths = self.fo_dataset.values("filepath") # list of all filepaths in the dataset
+        self.model_catids = model_catids
+        self.img_paths = self.fo_dataset.values(
+            "filepath"
+        )  # list of all filepaths in the dataset
         # Get list of distinct labels that exist in the view
-        #self.classes = self.fo_dataset.distinct(
+        # self.classes = self.fo_dataset.distinct(
         #    "%s.detections.label" % detection_field
-        #)
-
+        # )
 
     def __getitem__(self, idx):
         img_path = self.img_paths[idx]
-        sample = self.fo_dataset[img_path] # datasets are allowed to be index with ids, filenames, etc. only (not with plain integers)
+        sample = self.fo_dataset[
+            img_path
+        ]  # datasets are allowed to be index with ids, filenames, etc. only (not with plain integers)
         metadata = sample.metadata
         img = Image.open(img_path)
 
@@ -134,17 +141,17 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
         """
 
-        d={
-            "file_name" : sample.filepath,
-            "height" : img.height,
-            "width"  : img.width,
-            "image_id" : sample.id
+        d = {
+            "file_name": sample.filepath,
+            "height": img.height,
+            "width": img.width,
+            "image_id": sample.id,
         }
-        
-        annotations=[]
+
+        annotations = []
         # detections = sample.detections.detections # so could that last one be detections, ground_truths, etc.?
         # print(sample)
-        detections=None
+        detections = None
         if sample[self.detection_field] is not None:
             detections = sample[self.detection_field].detections
         if detections is not None:
@@ -153,33 +160,38 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
                 op = floor
                 bbox = [
                     op(x_ * img.width),
-                    op(y_ * img.height), 
-                    op(w_ * img.width), 
-                    op(h_ * img.height)
-                    ]
+                    op(y_ * img.height),
+                    op(w_ * img.width),
+                    op(h_ * img.height),
+                ]
                 try:
-                    n=self.model_catids.index(detection.label)
+                    n = self.model_catids.index(detection.label)
                 except ValueError:
-                    print("found a label name that is not in the 'model_catids' provided")
+                    print(
+                        "found a label name that is not in the 'model_catids' provided"
+                    )
                     raise
-                annotations.append({
-                    "iscrowd": 0,
-                    "bbox" : bbox,
-                    # category_id = 0, # from label to catid
-                    "category_id" : n,
-                    # "bbox_mode" : BoxMode.XYWH_REL # does not work
-                    "bbox_mode" : BoxMode.XYWH_ABS
-                })
-                
-        d["annotations"]=annotations
+                annotations.append(
+                    {
+                        "iscrowd": 0,
+                        "bbox": bbox,
+                        # category_id = 0, # from label to catid
+                        "category_id": n,
+                        # "bbox_mode" : BoxMode.XYWH_REL # does not work
+                        "bbox_mode": BoxMode.XYWH_ABS,
+                    }
+                )
+
+        d["annotations"] = annotations
         return d
 
     def __len__(self):
         return len(self.img_paths)
 
 
-
-def detectron251(res, model_catids: list = [], allowed_labels: list = None, verbose = False) -> list:
+def detectron251(
+    res, model_catids: list = [], allowed_labels: list = None, verbose=False
+) -> list:
     """Detectron2 formatted results, i.e. ``{'instances': Instances}`` into FiftyOne-formatted results
 
     This works for detectors and instance segmentation, where a segmentation is always accompanied with a bounding box
@@ -189,7 +201,9 @@ def detectron251(res, model_catids: list = [], allowed_labels: list = None, verb
 
     Returns FiftyOne ``Detections`` instance that can be attached to a FiftyOne ``Sample`` instance.
     """
-    assert(len(model_catids)>0), "please provide MODEL's ORIGINAL category label list.  Get it from detectron2 model's metadata."
+    assert (
+        len(model_catids) > 0
+    ), "please provide MODEL's ORIGINAL category label list.  Get it from detectron2 model's metadata."
     """
 
     Which you would do with:
@@ -202,7 +216,7 @@ def detectron251(res, model_catids: list = [], allowed_labels: list = None, verb
 
     """
 
-    instances=res["instances"]
+    instances = res["instances"]
 
     """    
     For example:
@@ -217,23 +231,29 @@ def detectron251(res, model_catids: list = [], allowed_labels: list = None, verb
             scores: tensor([0.9964, 0.9494, 0.9204, 0.7443, 0.6773]), pred_classes: tensor([4, 7, 7, 4, 7])])
 
     """
-    dets=[]
-    # all models give scores & pred_classes 
+    dets = []
+    # all models give scores & pred_classes
     # for bbox, score, pred_class in zip(instances.pred_boxes, instances.scores, instances.pred_classes):
     for i, score in enumerate(instances.scores):
         bbox = None
         mask = None
-        class_index=instances[i].pred_classes.detach().item()
+        class_index = instances[i].pred_classes.detach().item()
         # index to label
         try:
-            label=model_catids[class_index]
+            label = model_catids[class_index]
         except IndexError:
-            print("model gave pred_class", class_index, "but the model_catids provided length is only", len(model_catids))
+            print(
+                "model gave pred_class",
+                class_index,
+                "but the model_catids provided length is only",
+                len(model_catids),
+            )
             raise
         if allowed_labels is None:
             pass
         elif label not in allowed_labels:
-            if verbose: print("detectron251: skipping label", label)
+            if verbose:
+                print("detectron251: skipping label", label)
             continue
         # print(bbox.to("cpu").tolist(), score.to("cpu").item())
         height, width = instances.image_size
@@ -244,16 +264,13 @@ def detectron251(res, model_catids: list = [], allowed_labels: list = None, verb
         """
         # bboxes
         if hasattr(instances, "pred_boxes"):
-            boxObject=instances.pred_boxes[i] # indexing returns a Boxes object
-            for t in boxObject: # so annoying.. only way to get the tensor is to iterate
+            boxObject = instances.pred_boxes[i]  # indexing returns a Boxes object
+            for (
+                t
+            ) in boxObject:  # so annoying.. only way to get the tensor is to iterate
                 pass
-            x, y, x2, y2=t.detach().tolist() # abs coordinates
-            bbox = [
-                x/width,
-                y/height,
-                (x2-x)/width,
-                (y2-y)/height
-            ]
+            x, y, x2, y2 = t.detach().tolist()  # abs coordinates
+            bbox = [x / width, y / height, (x2 - x) / width, (y2 - y) / height]
             # print(bbox)
         # segmentation
         if hasattr(instances, "pred_masks"):
@@ -262,27 +279,24 @@ def detectron251(res, model_catids: list = [], allowed_labels: list = None, verb
             y_ = floor(y)
             x2_ = floor(x2)
             y2_ = floor(y2)
-            small_mask=mask[y_:y2_, x_:x2_]
+            small_mask = mask[y_:y2_, x_:x2_]
 
         if bbox is not None:
             if mask is None:
                 dets.append(
                     Detection(
-                        label=label,
-                        confidence=score.detach().item(),
-                        bounding_box = bbox
+                        label=label, confidence=score.detach().item(), bounding_box=bbox
                     )
                 )
-            else: # we have also a mask
+            else:  # we have also a mask
                 dets.append(
                     Detection(
                         label=label,
                         confidence=score.detach().item(),
-                        bounding_box = bbox,
-                        mask = small_mask
+                        bounding_box=bbox,
+                        mask=small_mask,
                     )
                 )
 
-    detections=Detections(detections=dets)
+    detections = Detections(detections=dets)
     return detections
-
