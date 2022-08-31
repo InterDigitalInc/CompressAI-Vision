@@ -5,4 +5,14 @@ from .inference import inference_on_dataset
 from .mapper import EncodingDecodingDatasetMapper
 from .tools import filterInstances, mapDataset, mapInputDict, mapInstances
 
+__all__ = [
+    "inference_on_dataset",
+    "EncodingDecodingDatasetMapper",
+    "filterInstances",
+    "mapDataset",
+    "mapInputDict",
+    "mapInstances",
+]
+
+
 raise AssertionError("legacy code")
