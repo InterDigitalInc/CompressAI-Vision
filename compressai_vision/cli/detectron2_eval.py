@@ -180,6 +180,8 @@ def main(p):  # noqa: C901
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
                 enc_dec = CompressAIEncoderDecoder(net, device=device)
+            elif p.vtm:
+                enc_dec = VTMEncoderDecoder(vtm_encoder, vtm_decoder, vtm_cfg=vtm_cfg, qp= i)
             else:
                 enc_dec = VTMEncoderDecoder(encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
