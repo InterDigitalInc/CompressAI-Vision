@@ -48,6 +48,10 @@ commands & parameters:
         --name          name of the dataset, for example "open-image-v6" --split
         name of the split, for example "validation"
 
+    dummy               create & register a dummy database with just the first sample
+        --name          name of the original database
+                        name of the new database will be appended with "-dummy"
+
     nokia_convert       convert nokia-provided files into proper OpenImageV6
     format & directory structure
         --lists         file listing necessary images, i.e.
@@ -296,6 +300,7 @@ def main():
     if parsed.command in [
         "download",
         "list",
+        "dummy",
         "deregister",
         "nokia_convert",
         "register",
