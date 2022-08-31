@@ -449,7 +449,7 @@ Results from the predictor will be annexed to the same fiftyone dataset.
 
 .. code:: ipython3
 
-    # dataset=dataset[0:2] # enable this if you want to create dummy/testing dataset of just two images from the big dataset
+    # dataset = fo.load_dataset("nokia-dummy") # use the dummy dataset for testing/debugging
 
 .. code:: ipython3
 

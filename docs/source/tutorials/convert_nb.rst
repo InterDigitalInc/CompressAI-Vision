@@ -182,3 +182,17 @@ formatted dataset into fiftyone:
 
     ## now, in the future, just do
     dataset = fo.load_dataset("nokia-exported")
+
+Finaly, let’s also create a dummy dataset for debugging and testing with
+only two samples:
+
+.. code:: ipython3
+
+    try:
+        fo.delete_dataset("nokia-dummy")
+    except ValueError:
+        print("no dummmy dataset yet..")
+    dummy_dataset=fo.Dataset("nokia-dummy")
+    for sample in dataset[0:2]:
+        dummy_dataset.add_sample(sample)
+    dummy_dataset.persistent=True

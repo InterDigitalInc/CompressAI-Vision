@@ -24,8 +24,9 @@ Detectron2 predictors.
 
 .. code:: ipython3
 
-        def BGR(self, bgr_image):
+        def BGR(self, bgr_image, tag=None):
             # bgr_image: numpy BGR24 image: (y,x,3)
+            # tag could be used to identify images if we want to cache them
             # BGR -> RGB (as PIL works with RGB)
             rgb_image = bgr_image[:,:,::-1]
             pil_img=Image.fromarray(rgb_image).convert("RGB")

@@ -14,8 +14,8 @@ import argparse
 
 # from compressai_vision import constant
 # from compressai_vision.local import AppLocalDir
-# from compressai_vision.tools import confLogger, pathExists, quickLog
-
+from compressai_vision.tools import quickLog
+import logging
 
 def process_cl_args():
     # def str2bool(v):
@@ -91,7 +91,21 @@ commands & parameters:
         compressai model (optional), for example: bmshj2018_factorized --vtm
         use vtm model (optional) --qpars         quality parameters to be used
         with either compressai or vtm WARNING/TODO : currently works only for
-        detections (not for segmentations) example 1 (calculate mAP):
+        detections (not for segmentations) 
+        
+        --vtm_dir       specify path to directory "VVCSoftware_VTM/bin", i.e. to the
+                        directory where there are executables "EncoderAppStatic" and 
+                        "DecoderAppStatic".  If not specified, tries to use the
+                        environmental variable VTM_DIR
+        
+        --ffmpeg        specify ffmpeg command.  If not specified, uses "ffmpeg".
+        
+        --vtm_cfg       path to vtm config file.  If not specified uses an internal
+                        default file.
+
+        --debug         debug verbosity for the CompressAI & VTM
+
+        example 1 (calculate mAP):
             compressai-vision detectron2_eval --y --name=nokia-detection \\
             --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         example 2 (calculate mAP=mAP(bpp)):
@@ -225,8 +239,34 @@ commands & parameters:
         default=None,
         help="quality parameters for compressai model or vtm",
     )
+    parser.add_argument(
+        "--vtm_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic"
+    )
+    parser.add_argument(
+        "--ffmpeg",
+        action="store",
+        type=str,
+        required=False,
+        default="ffmpeg",
+        help="ffmpeg command"
+    )
+    parser.add_argument(
+        "--vtm_cfg",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm config file"
+    )
+    
 
-    parser.add_argument("--y", action="store_true", default=False)
+    parser.add_argument("--debug", action="store_true", default=False, help="debug verbosity")
+    parser.add_argument("--y", action="store_true", default=False, help="non-interactive run")
 
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
@@ -245,6 +285,13 @@ def main():
     logger = logging.getLogger("name.space")
     confLogger(logger, logging.INFO)
     """
+    if parsed.debug:
+        loglev=logging.DEBUG
+    else:
+        loglev=logging.INFO
+    quickLog("CompressAIEncoderDecoder", loglev)
+    quickLog("VTMEncoderDecoder", loglev)
+
     # some command filtering here
     if parsed.command in [
         "download",
@@ -273,7 +320,6 @@ def main():
         with open(some_data_dir.getFile("some.yml"), "w") as f:
             f.write(constant.SOME)
     """
-
 
 if __name__ == "__main__":
     main()
