@@ -45,7 +45,7 @@ def get_(key):
 
 
 def main():
-    from compressai_vision.cli import download, nokia_convert, register
+    from compressai_vision.cli import download, nokia_convert, register, dummy
 
     if len(sys.argv) > 1:
         print(help_st)
@@ -99,6 +99,12 @@ def main():
     p.dir = "~/fiftyone/nokia-detection"
     p.type = "OpenImagesV6Dataset"
     register(p)
+
+    print("\n**CREATING DUMMY/MOCK DETECTION DATA FOR YOUR CONVENIENCE SIR**\n")
+    p = Namespace()
+    p.y = False
+    p.name = "nokia-detection"
+    dummy(p)
 
     print("\n**REGISTERING SEGMENTATION DATA**\n")
     p = Namespace()
