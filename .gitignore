@@ -141,3 +141,4 @@ dmypy.json
 # PyCharm
 .idea/
 docs/source/tutorials/out.json
+tmp/

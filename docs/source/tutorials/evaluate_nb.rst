@@ -31,8 +31,8 @@
     from compressai_vision.conversion import FO2DetectronDataset # convert fiftyone dataset to Detectron2 dataset
     from compressai_vision.conversion import detectron251 # convert Detectron2 results to fiftyone format
     from compressai_vision.evaluation.fo import annexPredictions # annex predictions from
-    from compressai_vision.evaluation.pipeline import CompressAIEncoderDecoder # a class that does encoding+decoding & returns the transformed image & bitrate
-    from compressai_vision.tools import confLogger, quickLog
+    from compressai_vision.evaluation.pipeline import CompressAIEncoderDecoder, VTMEncoderDecoder # a class that does encoding+decoding & returns the transformed image & bitrate
+    from compressai_vision.tools import confLogger, quickLog, getDataFile
 
 .. code:: ipython3
 
@@ -48,7 +48,7 @@
 
 .. parsed-literal::
 
-    cuda
+    cpu
 
 
 .. code:: ipython3
@@ -116,6 +116,7 @@ Get a handle to the dataset created in previous notebooks:
 .. code:: ipython3
 
     dataset = fo.load_dataset("nokia-exported")
+    # dataset = fo.load_dataset("nokia-dummy") # or use the dummy dataset for testing/debugging
 
 .. code:: ipython3
 
@@ -143,10 +144,6 @@ Get a handle to the dataset created in previous notebooks:
         detectron-predictions: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
 
 
-
-.. code:: ipython3
-
-    # dataset=dataset[0:2] # enable this to create a dummy two sample dataset for debugging
 
 Set some loglevels
 
@@ -177,7 +174,7 @@ Get a list of labels in the dataset:
 
 .. parsed-literal::
 
-    ['airplane', 'apple', 'backpack', 'bird', 'boat', 'book', 'bottle', 'bowl', 'broccoli', 'bus', 'cake', 'car', 'carrot', 'cat', 'cell phone', 'clock', 'couch', 'cow', 'cup', 'dog', 'donut', 'elephant', 'giraffe', 'handbag', 'horse', 'keyboard', 'knife', 'laptop', 'motorcycle', 'orange', 'person', 'pizza', 'sandwich', 'sheep', 'skateboard', 'spoon', 'sports ball', 'suitcase', 'surfboard', 'tennis racket', 'tie', 'toilet', 'traffic light', 'train', 'truck', 'vase', 'zebra']
+    ['airplane', 'person']
 
 
 .. code:: ipython3
@@ -209,6 +206,7 @@ parameters:
 
 .. code:: ipython3
 
+    # params=[1] # debugging
     params=[1,2,3,4,5,6,7,8]; predictor_field="detectron-predictions"
     xs=[]; ys=[]; maps=[]; # bpp, mAP values, mAP(s) per class
     results=[] # complete results
@@ -217,6 +215,7 @@ parameters:
         enc_dec = CompressAIEncoderDecoder(net, device=device)
         # note the EncoderDecoder instance here:
         # before the predictor is used, the image is crunched through the encoding/decoding process & the bitrate is recorded
+        # you could substitute CompressAIEncoderDecoder with VTMEncoderDecoder if you'd like to (see also the end of this tutorial)
         print("running the detector at", i)
         bpp = annexPredictions(predictor=predictor, fo_dataset=dataset, encoder_decoder=enc_dec, predictor_field=predictor_field)
         # .. now detectron's results are in each sample at the "detectron-predictions"  field
@@ -263,5 +262,38 @@ Load results
 
 
 
-.. image:: evaluate_nb_files/evaluate_nb_23_0.png
+.. image:: evaluate_nb_files/evaluate_nb_22_0.png
 
+
+In that loop over quality parameters above, you cam substitute the
+``CompressAIEncoderDecoder`` with ``VTMEncoderDecoder``\ in order to
+produce the anchor/baseline results. Let’s first set some variables for
+the VTM program:
+
+.. code:: ipython3
+
+    path="/path/to/VVCSoftware_VTM/bin"
+    vtm_encoder_app=os.path.join(path, "EncoderAppStatic")
+    vtm_decoder_app=os.path.join(path, "DecoderAppStatic")
+    vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg")
+
+If you’d want to see what the VTM is doing exactly, enable debugging
+output:
+
+.. code:: ipython3
+
+    loglev=logging.DEBUG
+    # loglev=logging.INFO
+    log=quickLog("VTMEncoderDecoder", loglev) # VTMEncoderDecoder
+
+At each quality parameter in the loop, instantiate an
+``VTMEncoderDecoder`` instead:
+
+.. code:: ipython3
+
+    enc_dec = VTMEncoderDecoder(encoderApp=vtm_encoder_app,
+        decoderApp=vtm_decoder_app,
+        ffmpeg="ffmpeg",
+        vtm_cfg=vtm_cfg,
+        qp=47 # # changing value here
+    )

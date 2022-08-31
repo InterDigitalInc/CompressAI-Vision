@@ -5,7 +5,10 @@ import os
 
 def confLogger(logger, level):
     logger.setLevel(level)
-    if not logger.hasHandlers():
+    # print("confLogger", logger.handlers)
+    # print("confLogger", logger.hasHandlers())
+    # if not logger.hasHandlers(): # when did this turn into a practical joke?
+    if len(logger.handlers) < 1:
         formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
