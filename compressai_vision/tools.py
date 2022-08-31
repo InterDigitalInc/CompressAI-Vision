@@ -1,12 +1,16 @@
-import logging, os, inspect
+import inspect
+import logging
+import os
+
 
 def confLogger(logger, level):
     logger.setLevel(level)
     if not logger.hasHandlers():
-        formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
         ch = logging.StreamHandler()
-        ch.setFormatter(formatter)    
+        ch.setFormatter(formatter)
         logger.addHandler(ch)
+
 
 def quickLog(name, level):
     logger = logging.getLogger(name)
@@ -19,17 +23,17 @@ def pathExists(p):
 
 
 def getModulePath():
-  lis=inspect.getabsfile(inspect.currentframe()).split("/")
-  st="/"
-  for l in lis[:-1]:
-    st=os.path.join(st,l)
-  return st
+    lis = inspect.getabsfile(inspect.currentframe()).split("/")
+    st = "/"
+    for f in lis[:-1]:
+        st = os.path.join(st, f)
+    return st
+
 
 def getDataPath():
-  return os.path.join(getModulePath(),"data")
+    return os.path.join(getModulePath(), "data")
 
 
 def getDataFile(fname):
-  """Return complete path to datafile fname.  Data files are in the directory compressai_vision/
-  """
-  return os.path.join(getDataPath(),fname)
+    """Return complete path to datafile fname.  Data files are in the directory compressai_vision/"""
+    return os.path.join(getDataPath(), fname)

@@ -21,7 +21,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ap
 
 ## opencv requires libsm6 libxext6 libxrender-dev, vtm compilation needs build-essential, cmake
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-libsm6 libxext6 libxrender-dev tree git build-essential wget tar cmake ffmpeg
+  libsm6 libxext6 libxrender-dev tree git build-essential wget tar cmake ffmpeg
 
 ## tracking the vtm dependencies.. needs cmake .. what else?
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cmake
@@ -39,14 +39,14 @@ RUN make -j
 RUN pip3 install --upgrade pip
 
 RUN pip3 install \
-    fiftyone \ 
-    pycocotools \ 
-    jupyter \
-    ipython \
-    torch==1.8.2 \
-    torchvision==0.9.2 \
-    pytorch-msssim \
-    --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu111
+  fiftyone \ 
+  pycocotools \ 
+  jupyter \
+  ipython \
+  torch==1.8.2 \
+  torchvision==0.9.2 \
+  pytorch-msssim \
+  --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu111
 ## see torch & torchvision compat here:
 ## https://pypi.org/project/torchvision/
 
@@ -56,12 +56,12 @@ RUN python3 -m pip install detectron2==0.4 -f \
   https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.8/index.html
 
 RUN pip3 install opencv-python==4.2.0.34 \
-    progressbar \
-    tqdm \
-    PyYAML \
-    tensorboard \
-    Pillow \
-    scikit-image
+  progressbar \
+  tqdm \
+  PyYAML \
+  tensorboard \
+  Pillow \
+  scikit-image
 
 RUN pip3 install compressai
 ## WARNING TODO: this won't work until CompressAI-Vision becomes all public:

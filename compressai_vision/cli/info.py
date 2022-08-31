@@ -7,15 +7,21 @@
 
 This file is part of compressai-vision libraru
 """
-# from compressai_vision import constant
-from compressai_vision.local import AppLocalDir
-from compressai_vision.tools import quickLog, confLogger, pathExists
 #
-import os, sys
+import os
+import sys
+
 # fiftyone
 import fiftyone as fo
-import fiftyone.zoo as foz
+
+# import fiftyone.zoo as foz
+
+# from compressai_vision import constant
+# from compressai_vision.local import AppLocalDir
+# from compressai_vision.tools import confLogger, pathExists, quickLog
+
 # compressai_vision
+
 
 def main():
     try:
@@ -26,7 +32,7 @@ def main():
     try:
         import detectron2
     except ModuleNotFoundError:
-        print("\nDETECTRON2 NOT INSTALLED\ŋ")
+        print("\nDETECTRON2 NOT INSTALLED\n")
         sys.exit(2)
 
     try:
@@ -42,12 +48,12 @@ def main():
     print("compressai version  :", compressai.__version__)
 
     print("\n*** CHECKING GPU AVAILABILITY ***")
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     print("device              :", device)
 
     print("\n*** TESTING FFMPEG ***")
-    c=os.system("ffmpeg -version")
-    if c>0:
+    c = os.system("ffmpeg -version")
+    if c > 0:
         print("\nRUNNING FFMPEG FAILED\n")
     #
     print("\n*** DATASETS ***")
@@ -56,10 +62,10 @@ def main():
     for name in fo.list_datasets():
         dataset = fo.load_dataset(name)
         n = len(dataset)
-        if n>0:
-            sample=dataset.first()
-            p=os.path.sep.join(sample["filepath"].split(os.path.sep)[:-1])
+        if n > 0:
+            sample = dataset.first()
+            p = os.path.sep.join(sample["filepath"].split(os.path.sep)[:-1])
         else:
-            p="?"
+            p = "?"
         print("%s, %i, %s" % (name, len(dataset), p))
     print()

@@ -1,49 +1,59 @@
 """cli detectron2_eval functionality
-""" 
-import logging, pickle, copy, json
+"""
+import copy
+import json
+import logging
+
 # fiftyone
 import fiftyone as fo
-import fiftyone.zoo as foz
+
 # compressai_vision
-from compressai_vision.evaluation.fo import annexPredictions # annex predictions from
-from compressai_vision.evaluation.pipeline import CompressAIEncoderDecoder, VTMEncoderDecoder
+from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
+from compressai_vision.evaluation.pipeline import (
+    CompressAIEncoderDecoder,
+    VTMEncoderDecoder,
+)
 from compressai_vision.tools import quickLog
 
+# import pickle
+# import fiftyone.zoo as foz
 
-def main(p):
-    assert(p.name is not None), "please provide dataset name"
+
+def main(p):  # noqa: C901
+    assert p.name is not None, "please provide dataset name"
     try:
-        dataset=fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.name)
     except ValueError:
         print("FATAL: no such registered database", p.name)
         return
-    assert(p.model is not None), "provide Detectron2 model name"    
+    assert p.model is not None, "provide Detectron2 model name"
 
     qpars = None
-    if (p.compressai is not None):
+    if p.compressai is not None:
         if p.vtm:
             print("FATAL: evaluation either with compressai or vtm or with nothing")
             return
-        assert(p.qpars is not None), "need to provide quality parameters for compressai"
+        assert p.qpars is not None, "need to provide quality parameters for compressai"
         try:
             qpars = [int(i) for i in p.qpars.split(",")]
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
         import compressai.zoo
+
         # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
         compressai_model = getattr(compressai.zoo, p.compressai)
     else:
         compressai_model = None
 
-    if (p.vtm):
-        assert(p.qpars is not None), "need to provide quality parameters for vtm"
+    if p.vtm:
+        assert p.qpars is not None, "need to provide quality parameters for vtm"
         try:
             qpars = [float(i) for i in p.qpars.split(",")]
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
-    
+
     if ((p.vtm is None) and (p.compressai is None)) and (p.qpars is not None):
         print("FATAL: you defined qpars although they are not needed")
         return
@@ -51,31 +61,33 @@ def main(p):
     # compressai_model == None --> no compressai
     # p.vtm == False --> no vtm
 
-    ## *** Detectron imports ***
+    # *** Detectron imports ***
     # Some basic setup:
     # Setup detectron2 logger
-    import detectron2
+    # import detectron2
     import torch
+
     from detectron2.utils.logger import setup_logger
+
     setup_logger()
 
     # import some common detectron2 utilities
     from detectron2 import model_zoo
-    from detectron2.engine import DefaultPredictor
     from detectron2.config import get_cfg
-    from detectron2.data import MetadataCatalog, DatasetCatalog
+    from detectron2.data import MetadataCatalog  # , DatasetCatalog
+    from detectron2.engine import DefaultPredictor
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     # print(device)
     model_name = p.model
 
     # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
     cfg = get_cfg()
-    cfg.MODEL.DEVICE=device
+    cfg.MODEL.DEVICE = device
     # load config from a file:
     cfg.merge_from_file(model_zoo.get_config_file(model_name))
     # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-    # too big a threshold will cut the smallest values 
+    # too big a threshold will cut the smallest values
     # & affect the precision(recall) curves & evaluation results
     # the default value is 0.05
     # value of 0.01 saturates the results (they don't change at lower values)
@@ -84,9 +96,9 @@ def main(p):
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_name)
     # print("expected input colorspace:", cfg.INPUT.FORMAT)
     # print("loaded datasets:", cfg.DATASETS)
-    model_dataset=cfg.DATASETS.TRAIN[0]
+    model_dataset = cfg.DATASETS.TRAIN[0]
     # print("model was trained with", model_dataset)
-    model_meta=MetadataCatalog.get(model_dataset)
+    model_meta = MetadataCatalog.get(model_dataset)
 
     print()
     print("Using dataset          :", p.name)
@@ -103,11 +115,9 @@ def main(p):
     if qpars is not None:
         print("Quality parameters      :", qpars)
 
-    classes = dataset.distinct(
-        "detections.detections.label"
-    )
+    classes = dataset.distinct("detections.detections.label")
     classes.sort()
-    detectron_classes=copy.deepcopy(model_meta.thing_classes)
+    detectron_classes = copy.deepcopy(model_meta.thing_classes)
     detectron_classes.sort()
     print("Peek model classes     :")
     print(detectron_classes[0:5], "...")
@@ -115,13 +125,13 @@ def main(p):
     print(classes[0:5], "...")
 
     if not p.y:
-        input('press enter to continue.. ')
+        input("press enter to continue.. ")
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
 
-    predictor_field="detectron-predictions"
-    
+    predictor_field = "detectron-predictions"
+
     def per_class(results_obj):
         """take fiftyone/openimagev6 results object & spit
         out mAP breakdown as per class
@@ -131,14 +141,17 @@ def main(p):
             d[class_] = results_obj.mAP([class_])
         return d
 
-    xs=[]; ys=[]; maps=[]; # bpp, mAP values, mAP breakdown per class
+    xs = []
+    ys = []
+    maps = []
+    # bpp, mAP values, mAP breakdown per class
 
     if qpars is not None:
         # loglev=logging.DEBUG
-        loglev=logging.INFO
+        loglev = logging.INFO
         quickLog("CompressAIEncoderDecoder", loglev)
         quickLog("VTMEncoderDecoder", loglev)
-        for i in qpars: 
+        for i in qpars:
             # concurrency considerations
             # could multithread/process over quality pars
             # .. but that would be even better to do at the cli level
@@ -152,10 +165,11 @@ def main(p):
                 raise AssertionError("JACKY-TODO")
                 enc_dec = VTMEncoderDecoder()
             bpp = annexPredictions(
-                predictor=predictor, 
-                fo_dataset=dataset, 
-                encoder_decoder=enc_dec, 
-                predictor_field=predictor_field)
+                predictor=predictor,
+                fo_dataset=dataset,
+                encoder_decoder=enc_dec,
+                predictor_field=predictor_field,
+            )
             res = dataset.evaluate_detections(
                 predictor_field,
                 gt_field="detections",
@@ -163,23 +177,18 @@ def main(p):
                 pos_label_field="positive_labels",
                 neg_label_field="negative_labels",
                 expand_pred_hierarchy=False,
-                expand_gt_hierarchy=False
+                expand_gt_hierarchy=False,
             )
             xs.append(bpp)
             ys.append(res.mAP())
             maps.append(per_class(res))
-            with open(p.output,"w") as f:
-                json.dump({
-                    "bpp" : xs, 
-                    "map" : ys,
-                    "map_per_class" : maps
-                    }, f)
+            with open(p.output, "w") as f:
+                json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     else:
         bpp = annexPredictions(
-            predictor=predictor, 
-            fo_dataset=dataset,
-            predictor_field=predictor_field)
+            predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field
+        )
         res = dataset.evaluate_detections(
             predictor_field,
             gt_field="detections",
@@ -187,7 +196,7 @@ def main(p):
             pos_label_field="positive_labels",
             neg_label_field="negative_labels",
             expand_pred_hierarchy=False,
-            expand_gt_hierarchy=False
+            expand_gt_hierarchy=False,
         )
         xs.append(bpp)
         ys.append(res.mAP())
@@ -196,12 +205,8 @@ def main(p):
         with open(p.output,"wb") as f:
             pickle.dump((xs, ys, maps), f)
         """
-        with open(p.output,"w") as f:
-            json.dump({
-                "bpp" : xs, 
-                "map" : ys,
-                "map_per_class" : maps
-                }, f)
+        with open(p.output, "w") as f:
+            json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     print("\nHAVE A NICE DAY!\n")
     """load with:

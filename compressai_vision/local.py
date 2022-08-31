@@ -7,16 +7,14 @@ local.py : Local $HOME directory management
 * Version  : 0.1
 
 This file is part of the python skeleton example library
-
-Skeleton example library is free software: you can redistribute it and/or modify it under the terms of the MIT License.  
-This code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-See the MIT License for more details.   
 """
-import sys
 import os
 import shutil
 
+# import sys
+
 home = os.path.expanduser("~")
+
 
 class LocalDir:
     basedir = ".some_hidden_dir"
@@ -42,7 +40,7 @@ class LocalDir:
             return
         try:
             shutil.rmtree(self.dirname)
-        except Exception as e:
+        except Exception:
             pass
 
     def has(self, fname):
@@ -64,8 +62,7 @@ class AppLocalDir(LocalDir):
 
 if __name__ == "__main__":
     config_dir = AppLocalDir("kokkelis")
-    deeper_dir = AppLocalDir("kokkelis","fs")
+    deeper_dir = AppLocalDir("kokkelis", "fs")
     print(config_dir.getFile("diibadaaba"))
     config_dir.clear()
     deeper_dir.clear()
-
