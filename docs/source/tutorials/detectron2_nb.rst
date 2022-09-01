@@ -1,7 +1,7 @@
 .. code:: ipython3
 
     # common libs
-    import math, os, io, json, cv2, random, logging
+    import math, os, io, json, cv2, random, logging, datetime
     import numpy as np
     # torch
     import torch
@@ -119,7 +119,7 @@ Get a handle to the dataset created in previous notebooks
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("nokia-exported")
+    dataset = fo.load_dataset("nokia-detection")
 
 .. code:: ipython3
 
@@ -130,21 +130,20 @@ Get a handle to the dataset created in previous notebooks
 
 .. parsed-literal::
 
-    Name:        nokia-exported
+    Name:        nokia-detection
     Media type:  image
     Num samples: 5000
     Persistent:  True
     Tags:        []
     Sample fields:
-        id:                    fiftyone.core.fields.ObjectIdField
-        filepath:              fiftyone.core.fields.StringField
-        tags:                  fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
-        metadata:              fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
-        positive_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
-        negative_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
-        detections:            fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
-        open_images_id:        fiftyone.core.fields.StringField
-        detectron-predictions: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        id:              fiftyone.core.fields.ObjectIdField
+        filepath:        fiftyone.core.fields.StringField
+        tags:            fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+        metadata:        fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+        positive_labels: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+        negative_labels: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+        detections:      fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        open_images_id:  fiftyone.core.fields.StringField
 
 
 
@@ -182,6 +181,14 @@ Let’s try the Detectron2 predictor:
 
     res=predictor(img)
 
+
+.. parsed-literal::
+
+    /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
+    To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
+      return torch.floor_divide(self, other)
+
+
 We can convert from Detectron2 format to fiftyone detection objects:
 
 .. code:: ipython3
@@ -200,7 +207,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
     <Detections: {
         'detections': BaseList([
             <Detection: {
-                'id': '6303b0184179c92c4a2726b5',
+                'id': '6310bde39a52f207bd793582',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -215,7 +222,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726b6',
+                'id': '6310bde39a52f207bd793583',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -230,7 +237,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726b7',
+                'id': '6310bde39a52f207bd793584',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -245,7 +252,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726b8',
+                'id': '6310bde39a52f207bd793585',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'motorcycle',
@@ -260,7 +267,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726b9',
+                'id': '6310bde39a52f207bd793586',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -275,7 +282,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726ba',
+                'id': '6310bde39a52f207bd793587',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -290,7 +297,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726bb',
+                'id': '6310bde39a52f207bd793588',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'bicycle',
@@ -305,7 +312,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726bc',
+                'id': '6310bde39a52f207bd793589',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -320,7 +327,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726bd',
+                'id': '6310bde39a52f207bd79358a',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'cell phone',
@@ -335,7 +342,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726be',
+                'id': '6310bde39a52f207bd79358b',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -350,7 +357,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726bf',
+                'id': '6310bde39a52f207bd79358c',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -365,7 +372,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726c0',
+                'id': '6310bde39a52f207bd79358d',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -380,7 +387,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726c1',
+                'id': '6310bde39a52f207bd79358e',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -395,7 +402,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726c2',
+                'id': '6310bde39a52f207bd79358f',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'motorcycle',
@@ -410,7 +417,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726c3',
+                'id': '6310bde39a52f207bd793590',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'truck',
@@ -425,7 +432,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6303b0184179c92c4a2726c4',
+                'id': '6310bde39a52f207bd793591',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'baseball bat',
@@ -449,16 +456,31 @@ Results from the predictor will be annexed to the same fiftyone dataset.
 
 .. code:: ipython3
 
-    # dataset = fo.load_dataset("nokia-dummy") # use the dummy dataset for testing/debugging
+    dataset = fo.load_dataset("nokia-detection-dummy") # use the dummy dataset for testing/debugging
+
+Detectron prediction results are saved during the run into the fiftyone
+(mongodb) database. Let’s define a unique name for the sample field
+where the detectron results are saved:
 
 .. code:: ipython3
 
-    annexPredictions(predictor=predictor, fo_dataset=dataset)
+    predictor_field='detectron-{0:%Y-%m-%d-%H-%M-%S-%f}'.format(datetime.datetime.now())
+    print(predictor_field)
 
 
 .. parsed-literal::
 
-     100% |█████████████████████| 2/2 [10.2s elapsed, 0s remaining, 0.2 samples/s]  
+    detectron-2022-09-01-17-12-52-069878
+
+
+.. code:: ipython3
+
+    annexPredictions(predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field)
+
+
+.. parsed-literal::
+
+     100% |█████████████████████| 1/1 [6.0s elapsed, 0s remaining, 0.2 samples/s] 
 
 
 After that one, the dataset looks slightly different
@@ -475,16 +497,16 @@ After that one, the dataset looks slightly different
 .. code:: ipython3
 
     ## this one has been added by running the Detectron2 predictor:
-    #sample["detectron-predictions"]
+    #sample[predictor_field]
 
 Each sample in the dataset contains “detections” (ground truths) and
-“detectron-predictions” (predicted values). Now we can run the
+“detectron-unique-datetime-id]” (predicted values). Now we can run the
 OpenImageV6 evaluation protocol on the dataset that compares the two:
 
 .. code:: ipython3
 
     results = dataset.evaluate_detections(
-        "detectron-predictions",
+        predictor_field,
         gt_field="detections",
         method="open-images",
         pos_label_field="positive_labels",
@@ -497,8 +519,15 @@ OpenImageV6 evaluation protocol on the dataset that compares the two:
 .. parsed-literal::
 
     Evaluating detections...
-     100% |███████████████| 5000/5000 [57.9s elapsed, 0s remaining, 95.8 samples/s]       
+     100% |█████████████████████| 1/1 [26.3ms elapsed, 0s remaining, 38.0 samples/s] 
 
+
+After the evaluation we can (and should!) remove the detectron results
+from the database:
+
+.. code:: ipython3
+
+    dataset.delete_sample_fields(predictor_field)
 
 OpenImageV6 evaluation protocol mAP:
 
@@ -511,7 +540,7 @@ OpenImageV6 evaluation protocol mAP:
 
 .. parsed-literal::
 
-    0.7927697664330146
+    1.0
 
 
 
@@ -524,4 +553,10 @@ Per class mAP:
     )
     for class_ in classes:
         print(class_, results.mAP([class_]))
+
+
+.. parsed-literal::
+
+    airplane 1.0
+
 

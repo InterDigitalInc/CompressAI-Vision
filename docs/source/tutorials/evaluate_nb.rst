@@ -1,7 +1,7 @@
 .. code:: ipython3
 
     # common libs
-    import math, os, io, json, cv2, random, logging, pickle
+    import math, os, io, json, cv2, random, logging, pickle, datetime
     import numpy as np
     # torch
     import torch
@@ -115,8 +115,8 @@ Get a handle to the dataset created in previous notebooks:
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("nokia-exported")
-    # dataset = fo.load_dataset("nokia-dummy") # or use the dummy dataset for testing/debugging
+    dataset = fo.load_dataset("nokia-detection")
+    # dataset = fo.load_dataset("nokia-detection-dummy") # or use the dummy dataset for testing/debugging
 
 .. code:: ipython3
 
@@ -127,21 +127,20 @@ Get a handle to the dataset created in previous notebooks:
 
 .. parsed-literal::
 
-    Name:        nokia-exported
+    Name:        nokia-detection-dummy
     Media type:  image
-    Num samples: 5000
+    Num samples: 1
     Persistent:  True
     Tags:        []
     Sample fields:
-        id:                    fiftyone.core.fields.ObjectIdField
-        filepath:              fiftyone.core.fields.StringField
-        tags:                  fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
-        metadata:              fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
-        positive_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
-        negative_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
-        detections:            fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
-        open_images_id:        fiftyone.core.fields.StringField
-        detectron-predictions: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        id:              fiftyone.core.fields.ObjectIdField
+        filepath:        fiftyone.core.fields.StringField
+        tags:            fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+        metadata:        fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+        positive_labels: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+        negative_labels: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+        detections:      fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        open_images_id:  fiftyone.core.fields.StringField
 
 
 
@@ -174,7 +173,7 @@ Get a list of labels in the dataset:
 
 .. parsed-literal::
 
-    ['airplane', 'person']
+    ['airplane']
 
 
 .. code:: ipython3
@@ -207,7 +206,25 @@ parameters:
 .. code:: ipython3
 
     # params=[1] # debugging
-    params=[1,2,3,4,5,6,7,8]; predictor_field="detectron-predictions"
+    params=[1,2,3,4,5,6,7,8]; 
+
+Detectron prediction results are saved during the run into the fiftyone
+(mongodb) database. Let’s define a unique name for the sample field
+where the detectron results are saved:
+
+.. code:: ipython3
+
+    predictor_field='detectron-{0:%Y-%m-%d-%H-%M-%S-%f}'.format(datetime.datetime.now())
+    print(predictor_field)
+
+
+.. parsed-literal::
+
+    detectron-2022-09-01-17-02-30-310913
+
+
+.. code:: ipython3
+
     xs=[]; ys=[]; maps=[]; # bpp, mAP values, mAP(s) per class
     results=[] # complete results
     for i in params:
@@ -241,6 +258,13 @@ parameters:
                 }, f)
     print("ready!")
 
+After the evaluation we can (and should!) remove the detectron results
+from the database:
+
+.. code:: ipython3
+
+    dataset.delete_sample_fields(predictor_field)
+
 Load results
 
 .. code:: ipython3
@@ -262,7 +286,7 @@ Load results
 
 
 
-.. image:: evaluate_nb_files/evaluate_nb_22_0.png
+.. image:: evaluate_nb_files/evaluate_nb_27_0.png
 
 
 In that loop over quality parameters above, you cam substitute the

@@ -1,6 +1,6 @@
 """cli detectron2_eval functionality
 """
-import copy, os
+import copy, os, uuid, datetime
 import json
 import logging
 
@@ -149,7 +149,14 @@ def main(p):  # noqa: C901
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
 
-    predictor_field = "detectron-predictions"
+    # predictor_field = "detectron-predictions"
+    ## instead, create a unique identifier for the field
+    ## in this run: this way parallel runs dont overwrite
+    ## each other's field
+    ## as the database is the same for each running instance/process
+    #ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
+    #predictor_field = "detectron-"+ui
+    predictor_field='detectron-{0:%Y-%m-%d-%H-%M-%S-%f}'.format(datetime.datetime.now())
 
     def per_class(results_obj):
         """take fiftyone/openimagev6 results object & spit
@@ -165,6 +172,8 @@ def main(p):  # noqa: C901
     maps = []
     # bpp, mAP values, mAP breakdown per class
 
+    dataset.persistent=False
+
     if qpars is not None:
         #loglev=logging.DEBUG # this now set in main
         #loglev = logging.INFO
@@ -177,16 +186,19 @@ def main(p):  # noqa: C901
             # beware that all processes use the same fiftyone/mongodb, so maybe
             # different predictor_field instance for each running (multi)process
             print("\nQUALITY PARAMETER", i)
+            enc_dec=None # default: no encoding/decoding
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
                 enc_dec = CompressAIEncoderDecoder(net, device=device)
-            else:
+            # elif p.vtm:
+            else: # eh.. must be VTM
                 enc_dec = VTMEncoderDecoder(encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
                     ffmpeg=p.ffmpeg,
                     vtm_cfg=vtm_cfg,
                     qp=i
                     )
+            print("predictor_field=", predictor_field)
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,
@@ -230,6 +242,10 @@ def main(p):  # noqa: C901
         """
         with open(p.output, "w") as f:
             json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
+
+
+    # remove the predicted field from the database
+    dataset.delete_sample_field(predictor_field)
 
     print("\nHAVE A NICE DAY!\n")
     """load with:

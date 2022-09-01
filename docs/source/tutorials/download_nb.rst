@@ -42,19 +42,6 @@ List all datasets (already) registered to fiftyone
 
     fo.list_datasets()
 
-
-
-
-.. parsed-literal::
-
-    ['nokia-50-test',
-     'nokia-exported',
-     'nokia-exported-1',
-     'nokia-seg-exported',
-     'open-images-v6-validation']
-
-
-
 Create a list of necessary images
 
 MPEG VCM working group and Nokia provides you with files listing the

@@ -99,13 +99,13 @@ are:
 
 Now we convert nokia proprietary format annotation into proper
 OpenImageV6 format dataset and place it into
-``~/fiftyone/nokia-exported``
+``~/fiftyone/nokia-detection``
 
 First, remove any previously imported stuff:
 
 .. code:: ipython3
 
-    !rm -rf ~/fiftyone/nokia-exported
+    !rm -rf ~/fiftyone/nokia-detection
 
 .. code:: ipython3
 
@@ -113,7 +113,7 @@ First, remove any previously imported stuff:
         validation_csv_file=validation_csv_file,
         list_file=list_file,
         bbox_csv_file=bbox_csv_file,
-        output_directory=os.path.join(fodir,"nokia-exported"),
+        output_directory=os.path.join(fodir,"nokia-detection"),
         data_dir=path_to_images
     )
 
@@ -121,12 +121,12 @@ let’s see what we got:
 
 .. code:: ipython3
 
-    !tree --filelimit=10 ~/fiftyone/nokia-exported | cat
+    !tree --filelimit=10 ~/fiftyone/nokia-detection | cat
 
 
 .. parsed-literal::
 
-    /home/sampsa/fiftyone/nokia-exported
+    /home/sampsa/fiftyone/nokia-detection
     ├── data -> /home/sampsa/fiftyone/open-images-v6/validation/data
     ├── labels
     │   ├── classifications.csv
@@ -151,48 +151,49 @@ formatted dataset into fiftyone:
 
     # remove the dataset in the case it was already registered in fiftyone
     try:
-        fo.delete_dataset("nokia-exported")
+        fo.delete_dataset("nokia-detection")
     except ValueError as e:
         print("could not delete because of", e)
 
 .. code:: ipython3
 
     dataset_type = fo.types.OpenImagesV6Dataset
-    dataset_dir = os.path.join(fodir,"nokia-exported")
+    dataset_dir = os.path.join(fodir,"nokia-detection")
     dataset = fo.Dataset.from_dir(
         dataset_dir=dataset_dir,
         dataset_type=dataset_type,
         label_types=("detections","classifications"),
         load_hierarchy=False,
-        name="nokia-exported",
+        name="nokia-detection",
         image_ids=imageIdFileList(list_file)
     )
 
 
 .. parsed-literal::
 
-     100% |███████████████| 5000/5000 [16.1s elapsed, 0s remaining, 324.2 samples/s]      
+     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]      
 
 
 .. code:: ipython3
 
-    dataset.persistent=True
+    dataset.persistent=True # without this, your dabatase will disappear!
 
 .. code:: ipython3
 
     ## now, in the future, just do
-    dataset = fo.load_dataset("nokia-exported")
+    dataset = fo.load_dataset("nokia-detection")
 
 Finaly, let’s also create a dummy dataset for debugging and testing with
-only two samples:
+only one sample:
 
 .. code:: ipython3
 
     try:
-        fo.delete_dataset("nokia-dummy")
+        fo.delete_dataset("nokia-detection-dummy")
     except ValueError:
         print("no dummmy dataset yet..")
-    dummy_dataset=fo.Dataset("nokia-dummy")
-    for sample in dataset[0:2]:
+    dummy_dataset=fo.Dataset("nokia-detection-dummy")
+    for sample in dataset[0:1]:
         dummy_dataset.add_sample(sample)
     dummy_dataset.persistent=True
+
