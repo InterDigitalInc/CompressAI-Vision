@@ -36,6 +36,7 @@ import argparse
 from compressai_vision.tools import quickLog
 import logging
 
+
 def process_cl_args():
     # def str2bool(v):
     #     return v.lower() in ("yes", "true", "t", "1")
@@ -46,19 +47,20 @@ compressai-vision [options] command for an all-automagic-no-brainer, please try
 "compressai-nokia-auto-import help" that substitutes for download,
 nokia_convert and register commands
 
-    commands & parameters:
+commands & parameters:
 
-    --y             non-interactive download
-                    download image set _and_ register it to fiftyone.
-    --name          name of the dataset.  Default: "open-images-v6".
-    --lists         list files that define the subset of images to download.
-    --split         typically "train" or "validation".  Default: "validation". example:
-                    (donwloads images corresponding to nokia's detection &
-                    segmentation test sets)
+    --y                 non-interactive download
 
-    compressai-vision download \\
-    --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
-    --name=open-image-v6 --split=validation
+    download            download image set _and_ register it to fiftyone.
+        --name          name of the dataset.  Default: "open-images-v6".
+        --lists         list files that define the subset of images to download.
+        --split         typically "train" or "validation".  Default: "validation".
+
+        example: (donwloads images corresponding to nokia's detection & segmentation
+                 test sets)
+            compressai-vision download \\
+            --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
+            --name=open-image-v6 --split=validation
 
     list                list all image sets registered to fiftyone
 
@@ -87,30 +89,26 @@ nokia_convert and register commands
                         "segmentation_validation_bbox_5k.csv"
         --mask          segmentation masks,
                         i.e. "segmentation_validation_masks_5k.csv"
-
         example:
             compressai-vision nokia-convert
-            --lists=detection_validation_input_5k.lst \\
-            --bbox=detection_validation_5k_bbox.csv
-            --label=detection_validation_labels_5k.csv \\
-            --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
+                --lists=detection_validation_input_5k.lst \\
+                --bbox=detection_validation_5k_bbox.csv
+                --label=detection_validation_labels_5k.csv \\
+                --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
     register            register image set to fiftyone from local dir
         --name          database registered name
-        --lists         lst files that
-        define the subset of images to register
+        --lists         lst files that define the subset of images to register
         --dir           source directory
         --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
         example:        (register converted nokia files into fiftyone)
-
-    compressai-vision register
-            --name=nokia-import
-            --dir=~/somedir/nokia-import
+            compressai-vision register
+                --name=nokia-import
+                --dir=~/somedir/nokia-import
 
     detectron2_eval     evaluate model with detectron2 using OpenImageV6
-    evaluation protocol
-                        optionally with no (de)compression or with compressai or
-                        vtm
+                        evaluation protocol optionally with no (de)compression or
+                        with compressai or vtm
         --name          name of the fiftyone registered database
         --model         name of the detectron2 model
                         for example:
@@ -143,11 +141,10 @@ nokia_convert and register commands
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
-    NOTE: your normal workflow would be: download, nokia_convert, register,
-    detectron2_eval the first three steps can be dealt with the
-    compress-nokia-auto-import command
+NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
+the first three steps can be dealt with the compress-nokia-auto-import command
 
-    """
+"""
     )
     # parser.register('type','bool',str2bool)  # this works only in theory..
     parser.add_argument("command", action="store", type=str, help="mandatory command")
@@ -275,7 +272,7 @@ nokia_convert and register commands
         type=str,
         required=False,
         default=None,
-        help="path to directory with executables EncoderAppStatic & DecoderAppStatic"
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
     )
     parser.add_argument(
         "--ffmpeg",
@@ -283,7 +280,7 @@ nokia_convert and register commands
         type=str,
         required=False,
         default="ffmpeg",
-        help="ffmpeg command"
+        help="ffmpeg command",
     )
     parser.add_argument(
         "--vtm_cfg",
@@ -291,12 +288,15 @@ nokia_convert and register commands
         type=str,
         required=False,
         default=None,
-        help="vtm config file"
+        help="vtm config file",
     )
 
-
-    parser.add_argument("--debug", action="store_true", default=False, help="debug verbosity")
-    parser.add_argument("--y", action="store_true", default=False, help="non-interactive run")
+    parser.add_argument(
+        "--debug", action="store_true", default=False, help="debug verbosity"
+    )
+    parser.add_argument(
+        "--y", action="store_true", default=False, help="non-interactive run"
+    )
 
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
@@ -316,9 +316,9 @@ def main():
     confLogger(logger, logging.INFO)
     """
     if parsed.debug:
-        loglev=logging.DEBUG
+        loglev = logging.DEBUG
     else:
-        loglev=logging.INFO
+        loglev = logging.INFO
     quickLog("CompressAIEncoderDecoder", loglev)
     quickLog("VTMEncoderDecoder", loglev)
 
@@ -351,6 +351,7 @@ def main():
         with open(some_data_dir.getFile("some.yml"), "w") as f:
             f.write(constant.SOME)
     """
+
 
 if __name__ == "__main__":
     main()
