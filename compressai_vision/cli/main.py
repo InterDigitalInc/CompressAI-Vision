@@ -30,11 +30,11 @@
 """cli.py : Command-line interface tools for compressai-vision
 """
 import argparse
-
-# import configparser  # https://docs.python.org/3/library/configparser.html
+import logging
 
 from compressai_vision.tools import quickLog
-import logging
+
+# import configparser  # https://docs.python.org/3/library/configparser.html
 
 
 def process_cl_args():
@@ -143,7 +143,6 @@ commands & parameters:
 
 NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
 the first three steps can be dealt with the compress-nokia-auto-import command
-
 """
     )
     # parser.register('type','bool',str2bool)  # this works only in theory..

@@ -34,6 +34,7 @@ import os
 # fiftyone
 import fiftyone as fo
 
+
 def main(p):
     print()
     print("datasets currently registered into fiftyone")

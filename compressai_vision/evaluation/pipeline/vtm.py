@@ -41,6 +41,7 @@ from PIL import Image
 
 from .base import EncoderDecoder
 
+
 def test_command(comm):
     try:
         subprocess.Popen(

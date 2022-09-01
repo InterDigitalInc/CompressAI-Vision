@@ -67,7 +67,7 @@ def get_(key):
 
 
 def main():
-    from compressai_vision.cli import download, nokia_convert, register, dummy
+    from compressai_vision.cli import download, dummy, nokia_convert, register
 
     if len(sys.argv) > 1:
         print(help_st)

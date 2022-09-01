@@ -36,6 +36,7 @@ import sys
 # fiftyone
 import fiftyone as fo
 
+
 # compressai_vision
 def main():
     try:

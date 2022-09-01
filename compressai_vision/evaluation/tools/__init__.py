@@ -28,3 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .mapping import findMapping
+
+__all__ = [
+    "findMapping",
+]
