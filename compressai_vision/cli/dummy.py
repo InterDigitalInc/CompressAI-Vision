@@ -34,8 +34,6 @@
 import fiftyone as fo
 
 # import fiftyone.zoo as foz
-
-# compressai_vision
 # from compressai_vision.conversion import imageIdFileList
 
 
