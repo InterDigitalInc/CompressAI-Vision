@@ -17,6 +17,7 @@ import argparse
 from compressai_vision.tools import quickLog
 import logging
 
+
 def process_cl_args():
     # def str2bool(v):
     #     return v.lower() in ("yes", "true", "t", "1")
@@ -249,7 +250,7 @@ commands & parameters:
         type=str,
         required=False,
         default=None,
-        help="path to directory with executables EncoderAppStatic & DecoderAppStatic"
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
     )
     parser.add_argument(
         "--ffmpeg",
@@ -257,7 +258,7 @@ commands & parameters:
         type=str,
         required=False,
         default="ffmpeg",
-        help="ffmpeg command"
+        help="ffmpeg command",
     )
     parser.add_argument(
         "--vtm_cfg",
@@ -265,12 +266,15 @@ commands & parameters:
         type=str,
         required=False,
         default=None,
-        help="vtm config file"
+        help="vtm config file",
     )
-    
 
-    parser.add_argument("--debug", action="store_true", default=False, help="debug verbosity")
-    parser.add_argument("--y", action="store_true", default=False, help="non-interactive run")
+    parser.add_argument(
+        "--debug", action="store_true", default=False, help="debug verbosity"
+    )
+    parser.add_argument(
+        "--y", action="store_true", default=False, help="non-interactive run"
+    )
 
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
@@ -290,9 +294,9 @@ def main():
     confLogger(logger, logging.INFO)
     """
     if parsed.debug:
-        loglev=logging.DEBUG
+        loglev = logging.DEBUG
     else:
-        loglev=logging.INFO
+        loglev = logging.INFO
     quickLog("CompressAIEncoderDecoder", loglev)
     quickLog("VTMEncoderDecoder", loglev)
 
@@ -325,6 +329,7 @@ def main():
         with open(some_data_dir.getFile("some.yml"), "w") as f:
             f.write(constant.SOME)
     """
+
 
 if __name__ == "__main__":
     main()

@@ -15,5 +15,5 @@ __all__ = [
     "load_eval",
     "nokia_convert",
     "register",
-    "dummy"
+    "dummy",
 ]
