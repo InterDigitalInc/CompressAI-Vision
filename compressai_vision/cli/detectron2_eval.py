@@ -29,11 +29,7 @@
 
 """cli detectron2_eval functionality
 """
-<<<<<<< HEAD
 import copy, os, uuid, datetime
-=======
-import copy
->>>>>>> main
 import json
 import os
 
@@ -222,12 +218,8 @@ def main(p):  # noqa: C901
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
                 enc_dec = CompressAIEncoderDecoder(net, device=device)
-<<<<<<< HEAD
             # elif p.vtm:
             else:  # eh.. must be VTM
-=======
-            else:
->>>>>>> main
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -235,10 +227,6 @@ def main(p):  # noqa: C901
                     vtm_cfg=vtm_cfg,
                     qp=i,
                 )
-<<<<<<< HEAD
-            print("predictor_field=", predictor_field)
-=======
->>>>>>> main
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,
