@@ -194,7 +194,14 @@ def process_cl_args():
         default=None,
         help="vtm config file",
     )
-
+    parser.add_argument(
+        "--vtm_cache",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory to cache vtm bitstreams",
+    )
     parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )

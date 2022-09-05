@@ -142,3 +142,4 @@ dmypy.json
 .idea/
 docs/source/tutorials/out.json
 tmp/
+Untitled*.ipynb
