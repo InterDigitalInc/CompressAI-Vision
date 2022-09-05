@@ -67,6 +67,7 @@ RUN pip3 install compressai
 ## we're hot-reloading this from local directory intead:
 # RUN pip3 install -vvv --upgrade git+https://github.com/InterDigitalInc/CompressAI-Vision.git
 
+ENV PYTHONUNBUFFERED=1
 ENV VTM_DIR=/root/vtm/VVCSoftware_VTM-VTM-12.0
 # $VTM_DIR/bin/EncoderAppStatic
 # $VTM_DIR/bin/DecoderAppStatic
