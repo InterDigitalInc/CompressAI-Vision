@@ -96,8 +96,18 @@ def main(p):  # noqa: C901
             vtm_cfg = p.vtm_cfg
             assert os.path.isfile(vtm_cfg), "vtm config file not found"
 
+        # try both filenames..
         vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
+        if not os.path.isfile(vtm_encoder_app):
+            vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStaticd")
+        if not os.path.isfile(vtm_encoder_app):
+            print("FATAL: can't find EncoderAppStatic(d) in", vtm_dir)
+        # try both filenames..
         vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStatic")
+        if not os.path.isfile(vtm_decoder_app):
+            vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
+        if not os.path.isfile(vtm_decoder_app):
+            print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
 
     if ((p.vtm is None) and (p.compressai is None)) and (p.qpars is not None):
         print("FATAL: you defined qpars although they are not needed")
@@ -155,6 +165,10 @@ def main(p):  # noqa: C901
         print("Using compressai model :", p.compressai)
     elif p.vtm:
         print("Using VTM               ")
+        if p.vtm_cache:
+            # assert(os.path.isdir(p.vtm_cache)), "no such directory "+p.vtm_cache
+            # ..created by the VTMEncoderDecoder class
+            print("WARNING: VTM USES CACHING INTO", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:
@@ -226,7 +240,9 @@ def main(p):  # noqa: C901
                     ffmpeg=p.ffmpeg,
                     vtm_cfg=vtm_cfg,
                     qp=i,
+                    cache=p.vtm_cache,
                 )
+                print(enc_dec)
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,

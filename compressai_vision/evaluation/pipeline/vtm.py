@@ -62,6 +62,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     :param ffmpeg: ffmpeg command
     :param qp: the default quantization parameter of the instance. Integer from 0 to 63.  Default=30.
     :param save: save intermediate steps into member ``saved`` (for debugging).
+    :param cache: define a directory where all encoded bitstreams are cached.  This class tries to use the cached bitstreams if they are available
 
     Example:
 
@@ -127,12 +128,17 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.qp = qp
         self.save = save
         self.base_path = base_path
+        self.caching = False
 
         if cache is not None:
             if not os.path.isdir(cache):
                 self.logger.info("creating %s", cache)
                 os.makedirs(cache)
-            self.folder = cache
+            # let's make the life easier for the user
+            # for caching, they won't remember to include the quality parameter
+            # value into the path anyway (so that files corresponding to different qps don't get mixed up)
+            # so we'll do it here:
+            self.folder = os.path.join(cache, str(self.qp))
             self.caching = True
         else:
             self.caching = False
@@ -162,6 +168,10 @@ class VTMEncoderDecoder(EncoderDecoder):
         for fname in glob.glob(os.path.join(self.folder, "*")):
             print("    ", fname)
 
+    def getCacheDir(self):
+        """Returns directory where temporary and cached files are saved"""
+        return self.folder
+
     def __del__(self):
         if self.caching:
             return
@@ -177,7 +187,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         shutil.rmtree(self.folder)
 
     def reset(self):
-        """Reset encoder/decoder internal state?  Is there any?"""
+        """Reset encoder/decoder internal state.  At the moment, there ain't any."""
         super().reset()
         self.saved = {}
         self.imcount = 0
@@ -265,8 +275,16 @@ class VTMEncoderDecoder(EncoderDecoder):
         pil_img = Image.open(f)
         return np.array(pil_img)
 
-    def __VTMEncode__(self, inp_yuv_path=None, bin_path=None, width=None, height=None):
+    def __VTMEncode__(
+        self,
+        inp_yuv_path=None,
+        out_yuv_path=None,
+        bin_path=None,
+        width=None,
+        height=None,
+    ):
         assert inp_yuv_path is not None
+        assert out_yuv_path is not None
         assert bin_path is not None
         assert width is not None
         assert height is not None
@@ -274,7 +292,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             encoderApp=self.encoderApp,
             vtm_cfg=self.vtm_cfg,
             inp_yuv_path=inp_yuv_path,  # IN
-            out_yuv_path="nada.yuv",  # OUT # NOT USED
+            out_yuv_path=out_yuv_path,  # OUT # NOT USED
             bin_path=bin_path,  # OUT
             wdt=width,
             hgt=height,
@@ -305,8 +323,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     def BGR(self, bgr_image, tag=None):
         """
         :param bgr_image: numpy BGR image (y,x,3)
-        :param tag: a string that can be used to identify & cache images (optional)
-
+        :param tag: a string that can be used to identify & cache images (optional).  Necessary if you're using caching
 
         Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM, namely:
 
@@ -326,6 +343,9 @@ class VTMEncoderDecoder(EncoderDecoder):
         # "X".join([str(n) for n in md5(bgr_image).digest()])
         # but it's better to use explicit tags as provided by the user
         fname_yuv = os.path.join(self.folder, "tmp.yuv")  # yuv produced by ffmpeg
+        fname_yuv_out = os.path.join(
+            self.folder, "nada.yuv"
+        )  # yuv produced VTM.. not used
         if self.caching:
             assert tag is not None, "caching requested, but got no tag"
             fname_bin = os.path.join(self.folder, "bin_" + tag)  # bin produced by VTM
@@ -358,6 +378,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
             self.__VTMEncode__(
                 inp_yuv_path=fname_yuv,
+                out_yuv_path=fname_yuv_out,
                 bin_path=fname_bin,
                 width=padded.shape[1],
                 height=padded.shape[0],
