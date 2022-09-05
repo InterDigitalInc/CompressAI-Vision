@@ -47,7 +47,11 @@ run the whole evaluation pipeline using Detectron2:
 
     Image dataset --> Encoding --> calculate bitrate --> Decoding --> Detectron2 predictor
 
-Type the command in terminal for more information
+Type this command in your terminal for more information
+
+::
+
+    compressai-vision manual
 
 Here are some example commands you might want to try 
 (from the proper virtualenvironment or docker container, of course):

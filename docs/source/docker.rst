@@ -47,5 +47,5 @@ Dockerfile      PyTorch Detectron2 CUDA VTM   FFMpeg OS              Description
 Dockerfile.1    1.8.2   0.4        11.1 12.0  4.2.7  Ubuntu 20.04    All inclusive image,
                                                                      run with ``run_image.bash``
 Dockerfile.2    1.8.2   0.4        11.1 12.0  4.2.7  Ubuntu 20.04    Hot-reload CompressAI-Vision (for compressai-vision development),
-                                                                     run with ``run_image_dev.bash``
+                                                                     run with ``run_image_dev.bash``.
 ==============  ======= ========== ==== ===== ====== =============== ===================================================================
