@@ -2,15 +2,12 @@
 #
 # This will install compressai-vision using the provided versions of the
 # dependencies within a virtual environment with python3 and up-to-date pip 
-
 set -eu
 
 TORCH="1.9.1"
 TORCHVISION="0.10.1"
 DETECTRON2="https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-
 
 while [[ $# -gt 0 ]]
 do
@@ -34,7 +31,7 @@ _EOF_
 done;
 
 pip install -U pip
-pip install fiftyone pycocotools jupyter
+pip install fiftyone jupyter
 pip install torch==${TORCH} torchvision==${TORCHVISION} pytorch-msssim
 pip install detectron2 -f ${DETECTRON2}
 pip install compressai
