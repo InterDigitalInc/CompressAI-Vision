@@ -84,7 +84,7 @@ def process_cl_args():
         type=str,
         required=False,
         default=None,
-        help="source directory, depends on command",
+        help="target/source directory, depends on command",
     )
     parser.add_argument(
         "--target_dir",
@@ -208,6 +208,7 @@ def process_cl_args():
     parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
+    parser.add_argument("--mock", action="store_true", default=False, help="mock tests")
 
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args

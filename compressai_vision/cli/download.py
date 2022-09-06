@@ -29,6 +29,7 @@
 
 """cli download functionality
 """
+import os
 
 # fiftyone
 import fiftyone.zoo as foz
@@ -53,22 +54,27 @@ def main(p):
         for fname in fnames:
             assert pathExists(fname)
         image_ids = imageIdFileList(*fnames)
+        if p.mock:
+            image_ids = image_ids[0:2]
+            print("WARNING! MOCK TEST OF ONLY TWO SAMPLES!")
         n_images = str(len(image_ids))
     print("Using list files:    ", p.lists)
     print("Number of images:    ", n_images)
     print("Database name   :    ", p.name)
     print("Subname/split   :    ", p.split)
+    print("Target dir      :    ", p.dir)
     if not p.y:
         input("press enter to continue.. ")
     print()
     # return
     # https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6
-    if image_ids is None:
-        dataset = foz.load_zoo_dataset(
-            p.name,
-            split=p.split,
-            # label_types=("detections", "classifications", "relationships", "segmentations") # default
-        )
-    else:
-        dataset = foz.load_zoo_dataset(p.name, split=p.split, image_ids=image_ids)
+    kwargs = {}
+    kwargs["split"] = p.split
+    if image_ids is not None:
+        kwargs["image_ids"] = image_ids
+    if p.dir is not None:
+        p.dir = os.path.expanduser(p.dir)
+        kwargs["dataset_dir"] = p.dir
+    dataset = foz.load_zoo_dataset(p.name, **kwargs)
+    # label_types=("detections", "classifications", "relationships", "segmentations") # default
     dataset.persistent = True
