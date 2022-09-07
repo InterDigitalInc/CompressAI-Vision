@@ -114,16 +114,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         assert encoderApp is not None, "please give encoder command"
         assert decoderApp is not None, "please give decoder command"
         assert vtm_cfg is not None, "please give VTM config file"
-        # test commands
-        self.encoderApp = test_command(encoderApp)
-        self.decoderApp = test_command(decoderApp)
-        self.ffmpeg = test_command(ffmpeg)
-        assert os.path.isfile(vtm_cfg), "can't find " + vtm_cfg
-        assert os.path.isdir(base_path), "can't find " + base_path
 
-        self.encoderApp = encoderApp
-        self.decoderApp = decoderApp
-        self.ffmpeg = ffmpeg
         self.vtm_cfg = vtm_cfg
         self.qp = qp
         self.save = save
@@ -144,6 +135,19 @@ class VTMEncoderDecoder(EncoderDecoder):
             self.caching = False
             self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
 
+        # test commands
+        self.encoderApp = test_command(encoderApp)
+        self.decoderApp = test_command(decoderApp)
+        try:
+            self.ffmpeg = test_command(ffmpeg)
+        except FileNotFoundError:
+            raise(AssertionError("cant find ffmpeg"))
+        assert os.path.isfile(vtm_cfg), "can't find " + vtm_cfg
+        assert os.path.isdir(base_path), "can't find " + base_path
+
+        #self.encoderApp = encoderApp
+        #self.decoderApp = decoderApp
+        self.ffmpeg = ffmpeg
         try:
             os.mkdir(self.folder)
         except FileExistsError:
@@ -173,6 +177,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         return self.folder
 
     def __del__(self):
+        if not hasattr(self, "caching"):
+            return # means ctor crashed
         if self.caching:
             return
         # print("VTM: __del__", len(glob.glob(os.path.join(self.folder,"*"))))
