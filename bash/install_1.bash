@@ -2,7 +2,9 @@
 ## installing these in correct order seems to be important
 ## due to versioning resons..
 pip3 install -U pip
-pip3 install fiftyone jupyter ipython
+# word of warning here: depending on your python version, a different fiftyone
+# version might get installed, so we fix explicitly here the fiftyone version.  you need python3.8+ for this version
+pip3 install fiftyone==0.16.6 jupyter ipython
 pip3 install torch==1.9.1 torchvision==0.10.1 pytorch-msssim
 python3 -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html
 pip3 install pybind11

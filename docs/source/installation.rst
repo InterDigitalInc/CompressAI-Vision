@@ -19,6 +19,8 @@ First, create and activate the virtualenv with:
    source ./venv/bin/activate
    pip install -U pip
 
+You might want to define the python version explicitly, i.e. with ``python3.8 -m venv venv``.  Python3.8+ is required.
+
 While in the activated virtualenv, run one of the ``install_*.bash`` bash scripts in
 `bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
 
