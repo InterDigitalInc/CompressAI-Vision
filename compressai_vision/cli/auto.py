@@ -112,7 +112,7 @@ def main():
     if "MOCK" in args:
         print("WARNING: MOCK TEST")
         p.mock = True
-    else
+    else:
         p.mock = False
     p.y = False
     p.name = "open-images-v6"
