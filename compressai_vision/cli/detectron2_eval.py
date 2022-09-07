@@ -214,8 +214,6 @@ def main(p):  # noqa: C901
     maps = []
     # bpp, mAP values, mAP breakdown per class
 
-    dataset.persistent = False
-
     if qpars is not None:
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
