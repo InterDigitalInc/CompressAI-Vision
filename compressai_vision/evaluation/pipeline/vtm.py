@@ -141,12 +141,12 @@ class VTMEncoderDecoder(EncoderDecoder):
         try:
             self.ffmpeg = test_command(ffmpeg)
         except FileNotFoundError:
-            raise(AssertionError("cant find ffmpeg"))
+            raise (AssertionError("cant find ffmpeg"))
         assert os.path.isfile(vtm_cfg), "can't find " + vtm_cfg
         assert os.path.isdir(base_path), "can't find " + base_path
 
-        #self.encoderApp = encoderApp
-        #self.decoderApp = decoderApp
+        # self.encoderApp = encoderApp
+        # self.decoderApp = decoderApp
         self.ffmpeg = ffmpeg
         try:
             os.mkdir(self.folder)
@@ -178,7 +178,7 @@ class VTMEncoderDecoder(EncoderDecoder):
 
     def __del__(self):
         if not hasattr(self, "caching"):
-            return # means ctor crashed
+            return  # means ctor crashed
         if self.caching:
             return
         # print("VTM: __del__", len(glob.glob(os.path.join(self.folder,"*"))))
