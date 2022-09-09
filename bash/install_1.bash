@@ -1,4 +1,12 @@
 #!/bin/bash
+python3 -c "import sys; assert(sys.version_info.major>=3); assert(sys.version_info.minor>=8)"
+if [[ $? -gt 0 ]] 
+then
+    echo
+    echo "Your python version needs to be >=3.8"
+    echo
+    exit 2
+fi
 ## installing these in correct order seems to be important
 ## due to versioning resons..
 pip3 install -U pip
