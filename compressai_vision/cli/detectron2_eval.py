@@ -89,12 +89,19 @@ def main(p):  # noqa: C901
         else:
             vtm_dir = p.vtm_dir
 
+        vtm_dir = os.path.expanduser(vtm_dir)
+
         if p.vtm_cfg is None:
             vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
             print("WARNING: using VTM default config file", vtm_cfg)
         else:
             vtm_cfg = p.vtm_cfg
-            assert os.path.isfile(vtm_cfg), "vtm config file not found"
+
+        vtm_cfg = os.path.expanduser(
+            vtm_cfg
+        )  # some more systematic way of doing these..
+
+        assert os.path.isfile(vtm_cfg), "vtm config file not found"
 
         # try both filenames..
         vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
@@ -240,7 +247,7 @@ def main(p):  # noqa: C901
                     qp=i,
                     cache=p.vtm_cache,
                 )
-                print(enc_dec)
+                # print(enc_dec)
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,

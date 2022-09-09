@@ -248,6 +248,7 @@ def main():
         "register",
         "detectron2_eval",
         "load_eval",
+        "vtm",
     ]:
         from compressai_vision import cli
 

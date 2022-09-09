@@ -35,6 +35,7 @@ from compressai_vision.cli.list import main as list
 from compressai_vision.cli.load_eval import main as load_eval
 from compressai_vision.cli.nokia_convert import main as nokia_convert
 from compressai_vision.cli.register import main as register
+from compressai_vision.cli.vtm import main as vtm
 
 __all__ = [
     "deregister",
@@ -45,4 +46,5 @@ __all__ = [
     "nokia_convert",
     "register",
     "dummy",
+    "vtm",
 ]

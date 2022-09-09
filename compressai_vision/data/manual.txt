@@ -115,5 +115,19 @@ commands & parameters:
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
+    vtm                 generate bitstream with the vtm video encoder
+                        this is done also by the command detectron2_eval, but you
+                        can do the bitstream generation step separately.
+                        The following options are same as in "detectron2_eval" command:
+
+                        --name, --qpars, --vtm_dir, --ffmpeg, --vtm_cfg, --debug
+
+        --vtm_cache     as "detectron2_eval" command, but _must_ be define
+    
+        example:
+
+            compressai-vision vtm
+                --y --name=nokia-detection --qpars=38,47 --vtm_cache=/path/to/dir
+
 NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
 the first three steps can be dealt with the compress-nokia-auto-import command
