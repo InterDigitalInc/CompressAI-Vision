@@ -30,6 +30,7 @@
 import inspect
 import logging
 import os
+import subprocess
 
 
 def confLogger(logger, level):
@@ -69,3 +70,14 @@ def getDataPath():
 def getDataFile(fname):
     """Return complete path to datafile fname.  Data files are in the directory compressai_vision/"""
     return os.path.join(getDataPath(), fname)
+
+
+def test_command(comm):
+    try:
+        subprocess.Popen(
+            comm, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+    except FileNotFoundError:
+        raise
+    else:
+        return comm

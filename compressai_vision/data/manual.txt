@@ -90,6 +90,9 @@ commands & parameters:
         --qpars         quality parameters to be used with either compressai or vtm
                         WARNING/TODO : currently works only for detections
                         (not for segmentations)
+        --scale         ffmpeg scaling applied to the image as defined per VCM working group.
+                        values can be: 100 (original size), 75, 50, 25.
+                        0 = no scaling applied (use with care)
         --vtm_dir       specify path to directory "VVCSoftware_VTM/bin", i.e. to the
                         directory where there are executables "EncoderAppStatic" and
                         "DecoderAppStatic".  If not specified, tries to use the

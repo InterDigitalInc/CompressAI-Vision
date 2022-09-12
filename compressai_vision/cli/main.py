@@ -171,6 +171,14 @@ def process_cl_args():
         help="quality parameters for compressai model or vtm",
     )
     parser.add_argument(
+        "--scale",
+        action="store",
+        type=int,
+        required=False,
+        default=100,
+        help="image scaling as per VCM working group docs",
+    )
+    parser.add_argument(
         "--vtm_dir",
         action="store",
         type=str,
@@ -259,6 +267,11 @@ def main():
         with open(getDataFile("manual.txt"), "r") as f:
             print(f.read())
         return
+
+    # parameter filtering/mods
+    if parsed.scale == 0:
+        parsed.scale = None
+
     # some command filtering here
     if parsed.command in [
         "download",

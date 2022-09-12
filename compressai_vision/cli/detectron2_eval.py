@@ -43,6 +43,7 @@ from compressai_vision.evaluation.pipeline import (
     VTMEncoderDecoder,
 )
 from compressai_vision.tools import getDataFile
+from compressai_vision.constant import vf_per_scale
 
 
 def main(p):  # noqa: C901
@@ -121,6 +122,9 @@ def main(p):  # noqa: C901
         print("FATAL: you defined qpars although they are not needed")
         return
 
+    if p.scale is not None:
+        assert p.scale in vf_per_scale.keys(), "invalid scale value"
+
     # compressai_model == None --> no compressai
     # p.vtm == False --> no vtm
 
@@ -165,6 +169,7 @@ def main(p):  # noqa: C901
 
     print()
     print("Using dataset          :", p.name)
+    print("Image scaling          :", p.scale)
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
@@ -241,9 +246,12 @@ def main(p):  # noqa: C901
             enc_dec = None  # default: no encoding/decoding
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
-                enc_dec = CompressAIEncoderDecoder(net, device=device)
+                enc_dec = CompressAIEncoderDecoder(
+                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
+                )
             # elif p.vtm:
             else:  # eh.. must be VTM
+                # VCM working-group scaling with ffmpeg?
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -251,7 +259,9 @@ def main(p):  # noqa: C901
                     vtm_cfg=vtm_cfg,
                     qp=i,
                     cache=p.vtm_cache,
+                    scale=p.scale,
                 )
+                # VCM backscaling with ffmpeg?
                 # print(enc_dec)
             bpp = annexPredictions(
                 predictor=predictor,

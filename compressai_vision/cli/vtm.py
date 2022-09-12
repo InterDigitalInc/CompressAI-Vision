@@ -45,6 +45,7 @@ from compressai_vision.evaluation.pipeline import (
     VTMEncoderDecoder,
 )
 from compressai_vision.tools import getDataFile
+from compressai_vision.constant import vf_per_scale
 
 
 def main(p):
@@ -113,11 +114,15 @@ def main(p):
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
+    if p.scale is not None:
+        assert p.scale in vf_per_scale.keys(), "invalid scale value"
+
     print()
     print("VTM bitstream generation")
     print("Target dir             :", p.vtm_cache)
     print("Quality points/subdirs :", qpars)
     print("Using dataset          :", p.name)
+    print("Image Scaling          :", p.scale)
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
@@ -137,6 +142,7 @@ def main(p):
             vtm_cfg=vtm_cfg,
             qp=i,
             cache=p.vtm_cache,
+            scale=p.scale,
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
@@ -152,7 +158,9 @@ def main(p):
                 0
             ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
             # print(tag)
+            # VCM working-group scaling with ffmpeg?
             bpp, im = enc_dec.BGR(im, tag=tag)
+            # back-scaling with ffmpeg?
             if p.progress > 0 and ((cc % p.progress) == 0):
                 print("sample: ", cc, "/", len(dataset))
             if p.progressbar:
