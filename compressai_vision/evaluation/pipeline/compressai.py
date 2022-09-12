@@ -53,6 +53,17 @@ class CompressAIEncoderDecoder(EncoderDecoder):
     :param device: "cpu" or "cuda"
     :param save_transformed: (debugging) dump transformed images to disk.  default = False
     :param m: images should be multiples of this number.  If not, a padding is applied before passing to compressai.  default = 64
+
+    This class uses CompressAI model API's ``compress`` and ``decompress`` methods, so if your model has them, then it is
+    compatible with this particular ``EncoderDecoder`` class, in detail:
+
+    ::
+        # CompressAI model API:
+        # compression:
+        out_enc = self.net.compress(x)
+        # decompression:
+        out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
+
     """
 
     toFloat = transforms.ConvertImageDtype(torch.float)
