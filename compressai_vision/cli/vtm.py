@@ -57,7 +57,8 @@ def main(p):
     assert p.vtm_cache is not None, "need to provide a cache directory"
     assert p.qpars is not None, "need to provide quality parameters for vtm"
     try:
-        qpars = [float(i) for i in p.qpars.split(",")]
+        # qpars = [float(i) for i in p.qpars.split(",")]
+        qpars = [int(i) for i in p.qpars.split(",")]  # integer for god's sake!
     except Exception as e:
         print("problems with your quality parameter list")
         raise e
@@ -96,12 +97,35 @@ def main(p):
     if not os.path.isfile(vtm_decoder_app):
         print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
 
+    if p.slice is not None:
+        print("WARNING: using a dataset slice instead of full dataset")
+        # say, 0:100
+        nums = p.slice.split(":")
+        if len(nums) < 2:
+            print("invalid slicing: use normal python slicing, say, 0:100")
+            return
+        try:
+            fr = int(nums[0])
+            to = int(nums[1])
+        except ValueError:
+            print("invalid slicing: use normal python slicing, say, 0:100")
+            return
+        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
+        dataset = dataset[fr:to]
+
     print()
     print("VTM bitstream generation")
     print("Target dir             :", p.vtm_cache)
     print("Quality points/subdirs :", qpars)
     print("Using dataset          :", p.name)
+    if p.slice is not None:
+        print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
+    print("Progressbar             :", p.progressbar)
+    if p.progressbar and p.progress > 0:
+        print("WARNING: progressbar enabled --> disabling normal progress print")
+        p.progress = 0
+    print("Print progress          :", p.progress)
     if not p.y:
         input("press enter to continue.. ")
     for i in qpars:
@@ -114,15 +138,23 @@ def main(p):
             qp=i,
             cache=p.vtm_cache,
         )
-        with ProgressBar(dataset) as pb:
-            for sample in dataset:
-                # sample.filepath
-                path = sample.filepath
-                im = cv2.imread(path)
-                tag = path.split(os.path.sep)[-1].split(".")[
-                    0
-                ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-                # print(tag)
-                bpp, im = enc_dec.BGR(im, tag=tag)
+        # with ProgressBar(dataset) as pb: # captures stdout
+        if p.progressbar:
+            pb = ProgressBar(dataset)
+
+        cc = 0
+        for sample in dataset:
+            cc += 1
+            # sample.filepath
+            path = sample.filepath
+            im = cv2.imread(path)
+            tag = path.split(os.path.sep)[-1].split(".")[
+                0
+            ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+            # print(tag)
+            bpp, im = enc_dec.BGR(im, tag=tag)
+            if p.progress > 0 and ((cc % p.progress) == 0):
+                print("sample: ", cc, "/", len(dataset))
+            if p.progressbar:
                 pb.update()
     print("\nHAVE A NICE DAY!\n")

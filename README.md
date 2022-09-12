@@ -67,7 +67,7 @@ compressai-vision-info
 
 ### Code formatting
 
-Code is formatted using black (install with ``pip3 install --user back``).
+Code is formatted using black (install with ``pip3 install --user black``).
 
 The CI pipeline checks for your code formatting, so be sure that it conforms to black before committing.  To do that, run (in this directory):
 ```

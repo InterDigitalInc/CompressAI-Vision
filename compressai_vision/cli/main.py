@@ -203,13 +203,34 @@ def process_cl_args():
         help="directory to cache vtm bitstreams",
     )
     parser.add_argument(
+        "--slice",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use a dataset slice instead of the complete dataset",
+    )
+    parser.add_argument(
+        "--progress",
+        action="store",
+        type=int,
+        required=False,
+        default=1,
+        help="Print progress this often",
+    )
+    parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
     parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
+    parser.add_argument(
+        "--progressbar",
+        action="store_true",
+        default=False,
+        help="show fancy progressbar",
+    )
     parser.add_argument("--mock", action="store_true", default=False, help="mock tests")
-
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
 

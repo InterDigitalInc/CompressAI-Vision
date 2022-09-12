@@ -103,6 +103,10 @@ commands & parameters:
                         Default: no caching.
                         NOTE: 
         --debug         debug verbosity for the CompressAI & VTM
+        --progressbar   show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress      show progress every n:th step, i.e. --progress=10 would print out
+                        progress every tenth step.  0: don't print anything. Default: 1.
+                        Nice for batch jobs.
 
         example 1 (calculate mAP):
 
@@ -122,12 +126,23 @@ commands & parameters:
 
                         --name, --qpars, --vtm_dir, --ffmpeg, --vtm_cfg, --debug
 
-        --vtm_cache     as "detectron2_eval" command, but _must_ be define
-    
-        example:
+        --vtm_cache     as in "detectron2_eval" command, but _must_ be defined
+        --slice         instead of using the complete dataset, just use a slice of the
+                        dataset.  Normal python slicing is used.
+
+        example 1:
 
             compressai-vision vtm
                 --y --name=nokia-detection --qpars=38,47 --vtm_cache=/path/to/dir
 
-NOTE: your normal workflow would be: download, nokia_convert, register, detectron2_eval
+        example 2 (calculate bitstream for first 100 samples in the dataset):
+
+            compressai-vision vtm
+                --y --name=nokia-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
+
+
+NOTE 1: your normal workflow would be: download, nokia_convert, register, detectron2_eval
 the first three steps can be dealt with the compress-nokia-auto-import command
+
+NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,
+launch detectron2_eval.  Be sure not to send several parallel (batch) jobs using the same dataset slices.

@@ -46,6 +46,8 @@ def annexPredictions(
     detection_field: str = "detections",
     predictor_field: str = "detectron-predictions",
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
+    use_pb: bool = False,  # progressbar.  captures stdion
+    use_print: int = 1,  # print progress at each n:th line.  good for batch jobs
 ):
     """Run detector on a dataset and annex predictions of the detector into the dataset.
 
@@ -54,6 +56,8 @@ def annexPredictions(
     :param detection_field: Which dataset member to use for ground truths.  Default:    "detections"
     :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
     :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
+    :param use_pb: Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.
+    :param use_print: Print progress at every n:th. step.  Default: 0 = no printing.
     """
     assert predictor is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
@@ -83,34 +87,44 @@ def annexPredictions(
 
     # add predicted bboxes to each fiftyone Sample
     bpp_sum = 0
-    with ProgressBar(fo_dataset) as pb:
-        for sample in fo_dataset:
-            # sample.filepath
-            path = sample.filepath
-            im = cv2.imread(path)
-            tag = path.split(os.path.sep)[-1].split(".")[
-                0
-            ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-            # print(tag)
-            if encoder_decoder is not None:
-                # before using detector, crunch through
-                # encoder/decoder
-                bpp, im = encoder_decoder.BGR(
-                    im, tag=tag
-                )  # include a tag for cases where EncoderDecoder uses caching
-                bpp_sum += bpp
-            res = predictor(im)
-            predictions = detectron251(
-                res,
-                model_catids=model_meta.thing_classes,
-                # allowed_labels=allowed_labels # not needed, really
-            )  # fiftyone Detections object
-            sample[predictor_field] = predictions
-            # we could attach the bitrate to each detection, of course
-            # if encoder_decoder is not None:
-            #    sample["bpp"]=bpp
-            sample.save()
+    cc = 0
+    # with ProgressBar(fo_dataset) as pb: # captures stdout
+    if use_pb:
+        pb = ProgressBar(fo_dataset)
+    for sample in fo_dataset:
+        cc += 1
+        # sample.filepath
+        path = sample.filepath
+        im = cv2.imread(path)
+        tag = path.split(os.path.sep)[-1].split(".")[
+            0
+        ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+        # print(tag)
+        if encoder_decoder is not None:
+            # before using detector, crunch through
+            # encoder/decoder
+            bpp, im = encoder_decoder.BGR(
+                im, tag=tag
+            )  # include a tag for cases where EncoderDecoder uses caching
+            bpp_sum += bpp
+        res = predictor(im)
+        predictions = detectron251(
+            res,
+            model_catids=model_meta.thing_classes,
+            # allowed_labels=allowed_labels # not needed, really
+        )  # fiftyone Detections object
+        sample[predictor_field] = predictions
+        # we could attach the bitrate to each detection, of course
+        # if encoder_decoder is not None:
+        #    sample["bpp"]=bpp
+        sample.save()
+        if use_pb:
             pb.update()
+        # print(">>>", cc%use_print)
+        if use_print > 0 and ((cc % use_print) == 0):
+            print("sample: ", cc, "/", len(fo_dataset))
+    if use_pb:
+        pb.close()
     if encoder_decoder is None:
         return None
     elif len(fo_dataset) > 0:

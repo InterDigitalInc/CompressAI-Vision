@@ -75,7 +75,8 @@ def main(p):  # noqa: C901
     if p.vtm:
         assert p.qpars is not None, "need to provide quality parameters for vtm"
         try:
-            qpars = [float(i) for i in p.qpars.split(",")]
+            # qpars = [float(i) for i in p.qpars.split(",")]
+            qpars = [int(i) for i in p.qpars.split(",")]  # integer for god's sake!
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
@@ -180,7 +181,11 @@ def main(p):  # noqa: C901
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:
         print("Quality parameters      :", qpars)
-
+    print("Progressbar             :", p.progressbar)
+    if p.progressbar and p.progress > 0:
+        print("WARNING: progressbar enabled --> disabling normal progress print")
+        p.progress = 0
+    print("Print progress          :", p.progress)
     classes = dataset.distinct("detections.detections.label")
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
@@ -253,6 +258,8 @@ def main(p):  # noqa: C901
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
                 predictor_field=predictor_field,
+                use_pb=p.progressbar,
+                use_print=p.progress,
             )
             res = dataset.evaluate_detections(
                 predictor_field,
@@ -271,7 +278,11 @@ def main(p):  # noqa: C901
 
     else:
         bpp = annexPredictions(
-            predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field
+            predictor=predictor,
+            fo_dataset=dataset,
+            predictor_field=predictor_field,
+            use_pb=p.progressbar,
+            use_print=p.progress,
         )
         res = dataset.evaluate_detections(
             predictor_field,
