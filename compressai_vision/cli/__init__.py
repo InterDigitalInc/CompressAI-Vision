@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# importing this takes quite a while!
 from compressai_vision.cli.deregister import main as deregister
 from compressai_vision.cli.detectron2_eval import main as detectron2_eval
 from compressai_vision.cli.download import main as download
@@ -36,6 +37,17 @@ from compressai_vision.cli.load_eval import main as load_eval
 from compressai_vision.cli.nokia_convert import main as nokia_convert
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
+"""
+deregister = compressai_vision.cli.deregister.main
+detectron2_eval = compressai_vision.cli.detectron2_eval.main
+download = compressai_vision.cli.download.main
+dummy = compressai_vision.cli.dummy.main
+list = compressai_vision.cli.list.main
+load_eval = compressai_vision.cli.load_eval.main
+nokia_convert = compressai_vision.cli.nokia_convert.main
+register = compressai_vision.cli.register.main
+vtm = compressai_vision.cli.vtm.main
+"""
 
 __all__ = [
     "deregister",

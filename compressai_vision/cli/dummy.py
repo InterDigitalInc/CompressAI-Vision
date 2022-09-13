@@ -30,14 +30,10 @@
 """cli create dummy db functionality
 """
 
-# fiftyone
-import fiftyone as fo
-
-# import fiftyone.zoo as foz
-# from compressai_vision.conversion import imageIdFileList
-
-
 def main(p):
+    # fiftyone
+    import fiftyone as fo
+
     try:
         dataset = fo.load_dataset(p.name)
     except ValueError:

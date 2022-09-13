@@ -31,11 +31,10 @@
 """
 import os
 
-# fiftyone
-import fiftyone as fo
-
-
 def main(p):
+    # fiftyone
+    import fiftyone as fo
+
     print()
     print("datasets currently registered into fiftyone")
     print("name, length, first sample path")

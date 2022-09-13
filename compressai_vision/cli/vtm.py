@@ -29,26 +29,24 @@
 
 """cli detectron2_eval functionality
 """
-import copy, os, uuid, datetime
-import json
 import os
-import cv2
-
-# fiftyone
-import fiftyone as fo
-from fiftyone import ProgressBar
-
-# compressai_vision
-from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
-from compressai_vision.evaluation.pipeline import (
-    CompressAIEncoderDecoder,
-    VTMEncoderDecoder,
-)
-from compressai_vision.tools import getDataFile
-from compressai_vision.constant import vf_per_scale
-
 
 def main(p):
+    import cv2
+
+    # fiftyone
+    import fiftyone as fo
+    from fiftyone import ProgressBar
+
+    # compressai_vision
+    from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
+    from compressai_vision.evaluation.pipeline import (
+        CompressAIEncoderDecoder,
+        VTMEncoderDecoder,
+    )
+    from compressai_vision.tools import getDataFile
+    from compressai_vision.constant import vf_per_scale
+
     assert p.name is not None, "please provide dataset name"
     try:
         dataset = fo.load_dataset(p.name)

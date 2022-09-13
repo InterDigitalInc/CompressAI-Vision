@@ -29,10 +29,9 @@
 
 """cli load_eval functionality
 """
-import fiftyone as fo
-
-
 def main(p):
+    import fiftyone as fo
+
     # dataset = fo.load_dataset(p.name)
     print("removing dataset %s from fiftyone" % (p.name))
     if not p.y:
