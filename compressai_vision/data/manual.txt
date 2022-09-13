@@ -92,7 +92,7 @@ commands & parameters:
                         (not for segmentations)
         --scale         ffmpeg scaling applied to the image as defined per VCM working group.
                         values can be: 100 (original size), 75, 50, 25.
-                        0 = no scaling applied (use with care)
+                        0 = no scaling applied
         --vtm_dir       specify path to directory "VVCSoftware_VTM/bin", i.e. to the
                         directory where there are executables "EncoderAppStatic" and
                         "DecoderAppStatic".  If not specified, tries to use the
@@ -104,7 +104,8 @@ commands & parameters:
                         The program saves bitstream to disk and tries to recycle the
                         bitstreams saved earlier.
                         Default: no caching.
-                        NOTE: 
+                        NOTE: the path is automatically appended with 
+                        "scale/quality-parameter/" (see --scale)
         --debug         debug verbosity for the CompressAI & VTM
         --progressbar   show a fancy progressbar.  Default: false.  Nice for interactive runs.
         --progress      show progress every n:th step, i.e. --progress=10 would print out
@@ -131,7 +132,8 @@ commands & parameters:
 
         --vtm_cache     as in "detectron2_eval" command, but _must_ be defined
         --slice         instead of using the complete dataset, just use a slice of the
-                        dataset.  Normal python slicing is used.
+                        dataset: good for parallelizing the VTM encoder.  
+                        Normal python slicing indexes are used.
 
         example 1:
 

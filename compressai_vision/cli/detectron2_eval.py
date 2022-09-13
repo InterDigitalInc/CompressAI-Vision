@@ -122,6 +122,12 @@ def main(p):  # noqa: C901
         print("FATAL: you defined qpars although they are not needed")
         return
 
+
+    if p.slice is not None:
+        # print("WARNING: using a dataset slice instead of full dataset")
+        print("FATAL: can't use dataset slice's in evaluation: must be whole dataset")
+        return
+        
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
@@ -170,6 +176,8 @@ def main(p):  # noqa: C901
     print()
     print("Using dataset          :", p.name)
     print("Image scaling          :", p.scale)
+    #if p.slice is not None: # woops.. can't use slicing
+    #    print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
@@ -181,7 +189,7 @@ def main(p):  # noqa: C901
         if p.vtm_cache:
             # assert(os.path.isdir(p.vtm_cache)), "no such directory "+p.vtm_cache
             # ..created by the VTMEncoderDecoder class
-            print("WARNING: VTM USES CACHING INTO", p.vtm_cache)
+            print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:

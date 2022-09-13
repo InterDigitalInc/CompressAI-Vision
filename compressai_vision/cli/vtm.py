@@ -119,6 +119,8 @@ def main(p):
 
     print()
     print("VTM bitstream generation")
+    if p.vtm_cache:
+        print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     print("Target dir             :", p.vtm_cache)
     print("Quality points/subdirs :", qpars)
     print("Using dataset          :", p.name)
@@ -143,6 +145,7 @@ def main(p):
             qp=i,
             cache=p.vtm_cache,
             scale=p.scale,
+            dump=p.dump
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
