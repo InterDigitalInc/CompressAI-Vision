@@ -37,6 +37,7 @@ from compressai_vision.cli.load_eval import main as load_eval
 from compressai_vision.cli.nokia_convert import main as nokia_convert
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
+
 """
 deregister = compressai_vision.cli.deregister.main
 detectron2_eval = compressai_vision.cli.detectron2_eval.main

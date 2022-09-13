@@ -83,10 +83,11 @@ def test_command(comm):
     else:
         return comm
 
+
 def dumpImageArray(arr, dir, name, is_bgr=False):
     os.makedirs(dir, exist_ok=True)
     if is_bgr:
-        arr_=arr[:, :, ::-1] # BGR --> RGB
+        arr_ = arr[:, :, ::-1]  # BGR --> RGB
     else:
-        arr_=arr
+        arr_ = arr
     Image.fromarray(arr_).save(os.path.join(dir, name))

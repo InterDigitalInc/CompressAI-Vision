@@ -30,8 +30,10 @@
 """cli deregister functionality
 """
 
+
 def main(p):
     import fiftyone as fo
+
     # dataset = fo.load_dataset(p.name)
     print("removing dataset %s from fiftyone" % (p.name))
     if not p.y:

@@ -31,6 +31,7 @@
 """
 import os
 
+
 def main(p):
     # compressai_vision
     from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList

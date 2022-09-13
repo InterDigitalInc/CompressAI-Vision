@@ -39,7 +39,9 @@ def main(p):  # noqa: C901
     import fiftyone as fo
 
     # compressai_vision
-    from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
+    from compressai_vision.evaluation.fo import (
+        annexPredictions,
+    )  # annex predictions from
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
@@ -122,12 +124,11 @@ def main(p):  # noqa: C901
         print("FATAL: you defined qpars although they are not needed")
         return
 
-
     if p.slice is not None:
         # print("WARNING: using a dataset slice instead of full dataset")
         print("FATAL: can't use dataset slice's in evaluation: must be whole dataset")
         return
-        
+
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
@@ -176,7 +177,7 @@ def main(p):  # noqa: C901
     print()
     print("Using dataset          :", p.name)
     print("Image scaling          :", p.scale)
-    #if p.slice is not None: # woops.. can't use slicing
+    # if p.slice is not None: # woops.. can't use slicing
     #    print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)

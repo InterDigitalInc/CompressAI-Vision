@@ -30,6 +30,7 @@
 """cli create dummy db functionality
 """
 
+
 def main(p):
     # fiftyone
     import fiftyone as fo

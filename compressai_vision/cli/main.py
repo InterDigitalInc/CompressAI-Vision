@@ -230,7 +230,10 @@ def process_cl_args():
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
     parser.add_argument(
-        "--dump", action="store_true", default=False, help="debugging: dump intermediate data to local directory"
+        "--dump",
+        action="store_true",
+        default=False,
+        help="debugging: dump intermediate data to local directory",
     )
     parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"

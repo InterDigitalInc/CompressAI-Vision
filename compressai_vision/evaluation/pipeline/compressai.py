@@ -211,8 +211,9 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
 
         if self.dump:
-            dumpImageArray(padded, self.save_folder, 
-            "original_" + str(self.imcount) + ".png")
+            dumpImageArray(
+                padded, self.save_folder, "original_" + str(self.imcount) + ".png"
+            )
 
         if self.scale is not None:
             # the padding for compressai is bigger than this one, so it is innecessary to do this
@@ -223,8 +224,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             vf = vf_per_scale[self.scale]
             padded = self.ffmpeg.ff_op(rgb_image, vf)
             if self.dump:
-                dumpImageArray(padded, self.save_folder, 
-                    "ffmpeg_scaled_" + str(self.imcount) + ".png")
+                dumpImageArray(
+                    padded,
+                    self.save_folder,
+                    "ffmpeg_scaled_" + str(self.imcount) + ".png",
+                )
         else:
             padded = rgb_image
 
@@ -251,8 +255,9 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # SAVE IMAGE IF
         if self.dump:
             tmp = transforms.ToPILImage()(x_pad.squeeze(0))
-            dumpImageArray(tmp, self.save_folder, 
-                "compressai_pad_" + str(self.imcount) + ".png")
+            dumpImageArray(
+                tmp, self.save_folder, "compressai_pad_" + str(self.imcount) + ".png"
+            )
 
         # RUN COMPRESSAI
         x_pad = x_pad.to(self.device)
@@ -286,8 +291,12 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # SAVE IMAGE IF
         if self.dump:
-            dumpImageArray(bgr_image_hat, self.save_folder,
-                "final_" + str(self.imcount) + ".png", is_bgr=True)
+            dumpImageArray(
+                bgr_image_hat,
+                self.save_folder,
+                "final_" + str(self.imcount) + ".png",
+                is_bgr=True,
+            )
 
         self.logger.debug(
             "input & output sizes: %s %s. bps = %s",

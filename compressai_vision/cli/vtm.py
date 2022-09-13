@@ -31,6 +31,7 @@
 """
 import os
 
+
 def main(p):
     import cv2
 
@@ -39,7 +40,9 @@ def main(p):
     from fiftyone import ProgressBar
 
     # compressai_vision
-    from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
+    from compressai_vision.evaluation.fo import (
+        annexPredictions,
+    )  # annex predictions from
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
@@ -143,7 +146,7 @@ def main(p):
             qp=i,
             cache=p.vtm_cache,
             scale=p.scale,
-            dump=p.dump
+            dump=p.dump,
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:

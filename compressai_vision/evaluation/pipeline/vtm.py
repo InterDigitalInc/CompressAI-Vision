@@ -60,7 +60,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     :param cache: (optional) define a directory where all encoded bitstreams are cached.
                   NOTE: If scale is defined, "scale/qp/" is appended to the cache path.  If no scale is defined, the appended path is "0/qp/"
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
-    
+
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
 
@@ -110,7 +110,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         save=False,
         base_path="/dev/shm",
         cache=None,
-        dump=False
+        dump=False,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -247,7 +247,13 @@ class VTMEncoderDecoder(EncoderDecoder):
         )
         stdout, stderr = p.communicate()
         if p.returncode != 0:
-            raise (AssertionError("VTM encode failed with:\n"+stderr.decode("utf-8")+"\nYOU PROBABLY SHOULD ENABLE FFMPEG SCALING\n"))
+            raise (
+                AssertionError(
+                    "VTM encode failed with:\n"
+                    + stderr.decode("utf-8")
+                    + "\nYOU PROBABLY SHOULD ENABLE FFMPEG SCALING\n"
+                )
+            )
 
     def __VTMDecode__(self, bin_path=None, rec_yuv_path=None):
         assert bin_path is not None
@@ -312,16 +318,20 @@ class VTMEncoderDecoder(EncoderDecoder):
         # each submethod should cite the correct command
 
         if self.dump:
-            dumpImageArray(rgb_image, self.save_folder, 
-            "original_" + str(self.imcount) + ".png")
+            dumpImageArray(
+                rgb_image, self.save_folder, "original_" + str(self.imcount) + ".png"
+            )
 
         if self.scale is not None:
             # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
             vf = vf_per_scale[self.scale]
             padded = self.ffmpeg.ff_op(rgb_image, vf)
             if self.dump:
-                dumpImageArray(padded, self.save_folder, 
-                    "ffmpeg_scaled_" + str(self.imcount) + ".png")
+                dumpImageArray(
+                    padded,
+                    self.save_folder,
+                    "ffmpeg_scaled_" + str(self.imcount) + ".png",
+                )
         else:
             padded = rgb_image
 
@@ -377,7 +387,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             yuv_bytes_hat, form=form, width=padded.shape[1], height=padded.shape[0]
         )
 
-        if self.scale is not None and self.scale==100:
+        if self.scale is not None and self.scale == 100:
             # was scaled, so need to backscale
             # NOTE: this can only be done to the 100% "scaling" which is nothing else than just cropping
             # so we "backcrop" & remove the added borders
@@ -400,10 +410,11 @@ class VTMEncoderDecoder(EncoderDecoder):
             }
         else:
             self.saved = {}
-        
+
         if self.dump:
-            dumpImageArray(rgb_image_hat, self.save_folder, 
-                "final_" + str(self.imcount) + ".png")
+            dumpImageArray(
+                rgb_image_hat, self.save_folder, "final_" + str(self.imcount) + ".png"
+            )
 
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
         self.logger.debug(
