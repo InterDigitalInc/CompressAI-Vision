@@ -29,16 +29,14 @@
 
 """cli.py : Command-line interface tools for compressai-vision
 """
-#
 import os
 import sys
 
-# fiftyone
-import fiftyone as fo
-
-
 # compressai_vision
 def main():
+    # fiftyone
+    import fiftyone as fo
+
     try:
         import torch
     except ModuleNotFoundError:

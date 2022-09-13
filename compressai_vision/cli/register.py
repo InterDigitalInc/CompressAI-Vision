@@ -31,17 +31,15 @@
 """
 import os
 
-# fiftyone
-import fiftyone as fo
-
-# compressai_vision
-from compressai_vision.conversion import imageIdFileList
-from compressai_vision.tools import pathExists
-
-# import fiftyone.zoo as foz
-
 
 def main(p):
+    # fiftyone
+    import fiftyone as fo
+
+    # compressai_vision
+    from compressai_vision.conversion import imageIdFileList
+    from compressai_vision.tools import pathExists
+
     assert p.name is not None, "provide name for your dataset"
     assert p.dir is not None, "please provide path to dataset"
 

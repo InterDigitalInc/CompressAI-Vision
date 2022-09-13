@@ -30,6 +30,8 @@
 import inspect
 import logging
 import os
+import subprocess
+from PIL import Image
 
 
 def confLogger(logger, level):
@@ -69,3 +71,23 @@ def getDataPath():
 def getDataFile(fname):
     """Return complete path to datafile fname.  Data files are in the directory compressai_vision/"""
     return os.path.join(getDataPath(), fname)
+
+
+def test_command(comm):
+    try:
+        subprocess.Popen(
+            comm, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+    except FileNotFoundError:
+        raise
+    else:
+        return comm
+
+
+def dumpImageArray(arr, dir, name, is_bgr=False):
+    os.makedirs(dir, exist_ok=True)
+    if is_bgr:
+        arr_ = arr[:, :, ::-1]  # BGR --> RGB
+    else:
+        arr_ = arr
+    Image.fromarray(arr_).save(os.path.join(dir, name))

@@ -27,9 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
+
+# only way to import "fastentrypoint.py" from this directory:
 
 # The following line is modified by setver.bash
 version = "0.0.0"
@@ -52,7 +55,6 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "mypy",
 ]
 
-
 def get_extra_requirements():
     extras_require = {
         "dev": DEV_REQUIRES,
@@ -61,6 +63,7 @@ def get_extra_requirements():
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
     return extras_require
 
+# exec(open(os.path.join(this_folder, "fastentrypoints.py")).read()) # not needed
 
 # # https://setuptools.readthedocs.io/en/latest/setuptools.html#basic-use
 setup(

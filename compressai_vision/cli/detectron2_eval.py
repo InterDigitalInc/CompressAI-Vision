@@ -33,19 +33,22 @@ import copy, os, uuid, datetime
 import json
 import os
 
-# fiftyone
-import fiftyone as fo
-
-# compressai_vision
-from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
-from compressai_vision.evaluation.pipeline import (
-    CompressAIEncoderDecoder,
-    VTMEncoderDecoder,
-)
-from compressai_vision.tools import getDataFile
-
 
 def main(p):  # noqa: C901
+    # fiftyone
+    import fiftyone as fo
+
+    # compressai_vision
+    from compressai_vision.evaluation.fo import (
+        annexPredictions,
+    )  # annex predictions from
+    from compressai_vision.evaluation.pipeline import (
+        CompressAIEncoderDecoder,
+        VTMEncoderDecoder,
+    )
+    from compressai_vision.tools import getDataFile
+    from compressai_vision.constant import vf_per_scale
+
     assert p.name is not None, "please provide dataset name"
     try:
         dataset = fo.load_dataset(p.name)
@@ -121,6 +124,14 @@ def main(p):  # noqa: C901
         print("FATAL: you defined qpars although they are not needed")
         return
 
+    if p.slice is not None:
+        # print("WARNING: using a dataset slice instead of full dataset")
+        print("FATAL: can't use dataset slice's in evaluation: must be whole dataset")
+        return
+
+    if p.scale is not None:
+        assert p.scale in vf_per_scale.keys(), "invalid scale value"
+
     # compressai_model == None --> no compressai
     # p.vtm == False --> no vtm
 
@@ -165,6 +176,9 @@ def main(p):  # noqa: C901
 
     print()
     print("Using dataset          :", p.name)
+    print("Image scaling          :", p.scale)
+    # if p.slice is not None: # woops.. can't use slicing
+    #    print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
@@ -176,7 +190,7 @@ def main(p):  # noqa: C901
         if p.vtm_cache:
             # assert(os.path.isdir(p.vtm_cache)), "no such directory "+p.vtm_cache
             # ..created by the VTMEncoderDecoder class
-            print("WARNING: VTM USES CACHING INTO", p.vtm_cache)
+            print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:
@@ -241,9 +255,12 @@ def main(p):  # noqa: C901
             enc_dec = None  # default: no encoding/decoding
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
-                enc_dec = CompressAIEncoderDecoder(net, device=device)
+                enc_dec = CompressAIEncoderDecoder(
+                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
+                )
             # elif p.vtm:
             else:  # eh.. must be VTM
+                # VCM working-group scaling with ffmpeg?
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -251,7 +268,9 @@ def main(p):  # noqa: C901
                     vtm_cfg=vtm_cfg,
                     qp=i,
                     cache=p.vtm_cache,
+                    scale=p.scale,
                 )
+                # VCM backscaling with ffmpeg?
                 # print(enc_dec)
             bpp = annexPredictions(
                 predictor=predictor,

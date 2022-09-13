@@ -31,15 +31,15 @@
 """
 import os
 
-# fiftyone
-import fiftyone.zoo as foz
-
-# compressai_vision
-from compressai_vision.conversion import imageIdFileList
-from compressai_vision.tools import pathExists
-
 
 def main(p):
+    # fiftyone
+    import fiftyone.zoo as foz
+
+    # compressai_vision
+    from compressai_vision.conversion import imageIdFileList
+    from compressai_vision.tools import pathExists
+
     if p.name is None:
         p.name = "open-images-v6"
     print()

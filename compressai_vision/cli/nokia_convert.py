@@ -31,16 +31,12 @@
 """
 import os
 
-# compressai_vision
-from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList
-from compressai_vision.tools import pathExists
-
-# fiftyone
-# import fiftyone as fo
-# import fiftyone.zoo as foz
-
 
 def main(p):
+    # compressai_vision
+    from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList
+    from compressai_vision.tools import pathExists
+
     assert p.target_dir is not None, "please give target_dir"
     assert (
         p.dir is not None
