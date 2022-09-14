@@ -149,7 +149,9 @@ class VTMEncoderDecoder(EncoderDecoder):
             self.caching = True
         else:
             self.caching = False
-            self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
+            # uid=str(id(self))
+            uid=str(uuid()) # safer
+            self.folder = os.path.join(self.base_path, "vtm_" + uid)
 
         # test commands
         self.encoderApp = test_command(encoderApp)
