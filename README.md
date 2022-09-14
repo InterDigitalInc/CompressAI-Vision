@@ -58,6 +58,27 @@ Docker images including the software stack are also provided (TODO: link).
 
 ## For developers
 
+### Testing
+
+Until a proper test pipeline is established, for the absolute minimal testing, you can use this command to see that's nothing accutely broken:
+```
+compressai-vision-info
+```
+
+### Code formatting
+
+Code is formatted using black (install with ``pip3 install --user black``).
+
+The CI pipeline checks for your code formatting, so be sure that it conforms to black before committing.  To do that, run (in this directory):
+```
+black --check --diff compressai_vision
+```
+To apply the formatting, run
+```
+black compressai_vision
+```
+You might want to install the "black formatter" extension if you're into VSCode.
+
 ### Compiling documentation
 
 You need to install the [furo theme](https://github.com/pradyunsg/furo).  A good idea is to install it into the same virtualenv as all the other stuff.

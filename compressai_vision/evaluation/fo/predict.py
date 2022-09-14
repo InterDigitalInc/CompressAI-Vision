@@ -1,3 +1,32 @@
+# Copyright (c) 2022, InterDigital Communications, Inc
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the disclaimer
+# below) provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of InterDigital Communications, Inc nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+# THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import math
 import os
 
@@ -17,14 +46,18 @@ def annexPredictions(
     detection_field: str = "detections",
     predictor_field: str = "detectron-predictions",
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
+    use_pb: bool = False,  # progressbar.  captures stdion
+    use_print: int = 1,  # print progress at each n:th line.  good for batch jobs
 ):
     """Run detector on a dataset and annex predictions of the detector into the dataset.
 
     :param predictor: A Detectron2 predictor
     :param fo_dataset: Fiftyone dataset
-    :param detection_field: Which dataset member to use for ground truths.  Default: "detections"
+    :param detection_field: Which dataset member to use for ground truths.  Default:    "detections"
     :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
     :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
+    :param use_pb: Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.
+    :param use_print: Print progress at every n:th. step.  Default: 0 = no printing.
     """
     assert predictor is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
@@ -54,34 +87,44 @@ def annexPredictions(
 
     # add predicted bboxes to each fiftyone Sample
     bpp_sum = 0
-    with ProgressBar(fo_dataset) as pb:
-        for sample in fo_dataset:
-            # sample.filepath
-            path = sample.filepath
-            im = cv2.imread(path)
-            tag = path.split(os.path.sep)[-1].split(".")[
-                0
-            ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-            # print(tag)
-            if encoder_decoder is not None:
-                # before using detector, crunch through
-                # encoder/decoder
-                bpp, im = encoder_decoder.BGR(
-                    im, tag=tag
-                )  # include a tag for cases where EncoderDecoder uses caching
-                bpp_sum += bpp
-            res = predictor(im)
-            predictions = detectron251(
-                res,
-                model_catids=model_meta.thing_classes,
-                # allowed_labels=allowed_labels # not needed, really
-            )  # fiftyone Detections object
-            sample[predictor_field] = predictions
-            # we could attach the bitrate to each detection, of course
-            # if encoder_decoder is not None:
-            #    sample["bpp"]=bpp
-            sample.save()
+    cc = 0
+    # with ProgressBar(fo_dataset) as pb: # captures stdout
+    if use_pb:
+        pb = ProgressBar(fo_dataset)
+    for sample in fo_dataset:
+        cc += 1
+        # sample.filepath
+        path = sample.filepath
+        im = cv2.imread(path)
+        tag = path.split(os.path.sep)[-1].split(".")[
+            0
+        ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+        # print(tag)
+        if encoder_decoder is not None:
+            # before using detector, crunch through
+            # encoder/decoder
+            bpp, im = encoder_decoder.BGR(
+                im, tag=tag
+            )  # include a tag for cases where EncoderDecoder uses caching
+            bpp_sum += bpp
+        res = predictor(im)
+        predictions = detectron251(
+            res,
+            model_catids=model_meta.thing_classes,
+            # allowed_labels=allowed_labels # not needed, really
+        )  # fiftyone Detections object
+        sample[predictor_field] = predictions
+        # we could attach the bitrate to each detection, of course
+        # if encoder_decoder is not None:
+        #    sample["bpp"]=bpp
+        sample.save()
+        if use_pb:
             pb.update()
+        # print(">>>", cc%use_print)
+        if use_print > 0 and ((cc % use_print) == 0):
+            print("sample: ", cc, "/", len(fo_dataset))
+    if use_pb:
+        pb.close()
     if encoder_decoder is None:
         return None
     elif len(fo_dataset) > 0:

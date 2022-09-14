@@ -1,3 +1,32 @@
+# Copyright (c) 2022, InterDigital Communications, Inc
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the disclaimer
+# below) provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of InterDigital Communications, Inc nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+# THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import logging
 import math
 import os
@@ -10,6 +39,9 @@ from PIL import Image
 from torchvision import transforms
 
 from .base import EncoderDecoder
+from compressai_vision.ffmpeg import FFMpeg
+from compressai_vision.tools import test_command, dumpImageArray
+from compressai_vision.constant import vf_per_scale
 
 
 class CompressAIEncoderDecoder(EncoderDecoder):
@@ -22,27 +54,56 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         net = bmshj2018_factorized(quality=2, pretrained=True).eval().to(device)
 
     :param device: "cpu" or "cuda"
-    :param save_transformed: (debugging) dump transformed images to disk.  default = False
+    :param dump: (debugging) dump transformed images to disk.  default = False
     :param m: images should be multiples of this number.  If not, a padding is applied before passing to compressai.  default = 64
+    :param ffmpeg: ffmpeg command used for padding/scaling (as defined by VCM working group). Default: "ffmpeg".
+    :param scale: enable the VCM working group defined padding/scaling pre & post-processings steps.
+                  Possible values: 100 (default), 75, 50, 25.  Special value: None = ffmpeg scaling.  100 equals to a simple padding operation
+    :param dump: debugging option: dump input, intermediate and output images to disk in local directory
+
+    This class uses CompressAI model API's ``compress`` and ``decompress`` methods, so if your model has them, then it is
+    compatible with this particular ``EncoderDecoder`` class, in detail:
+
+    ::
+        # CompressAI model API:
+        # compression:
+        out_enc = self.net.compress(x)
+        # decompression:
+        out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
+
     """
 
     toFloat = transforms.ConvertImageDtype(torch.float)
     toByte = transforms.ConvertImageDtype(torch.uint8)
 
-    def __init__(self, net, device="cpu", save_transformed=False, m: int = 64):
+    def __init__(
+        self,
+        net,
+        device="cpu",
+        dump=False,
+        m: int = 64,
+        ffmpeg="ffmpeg",
+        scale: int = None,
+    ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.net = net
         self.device = device
-        self.save_transformed = save_transformed
+        self.dump = dump
         self.m = 64
         self.reset()
         self.save_folder = "compressai_encoder_decoder"
-        if self.save_transformed:
+        if self.dump:
             self.logger.info("Will save images to folder %s", self.save_folder)
+            os.makedirs(self.save_folder, exist_ok=True)
+
+        self.scale = scale
+        if self.scale is not None:
+            assert self.scale in vf_per_scale.keys(), "incorrect scaling constant"
             try:
-                os.mkdir(self.save_folder)
-            except FileExistsError:
-                pass
+                self.ffmpeg_comm = test_command(ffmpeg)
+            except FileNotFoundError:
+                raise (AssertionError("cant find ffmpeg"))
+            self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
 
     def reset(self):
         """Reset internal image counter"""
@@ -148,8 +209,31 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         """
         # TO RGB & TENSOR
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
-        # rgb_image (y,x,3) to FloatTensor (1,3,y,x):
-        x = transforms.ToTensor()(rgb_image).unsqueeze(0)
+
+        if self.dump:
+            dumpImageArray(
+                padded, self.save_folder, "original_" + str(self.imcount) + ".png"
+            )
+
+        if self.scale is not None:
+            # the padding for compressai is bigger than this one, so it is innecessary to do this
+            # on the other hand, if we want to play strictly by the VCM working group book, then
+            # this should be done..?
+            #
+            # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
+            vf = vf_per_scale[self.scale]
+            padded = self.ffmpeg.ff_op(rgb_image, vf)
+            if self.dump:
+                dumpImageArray(
+                    padded,
+                    self.save_folder,
+                    "ffmpeg_scaled_" + str(self.imcount) + ".png",
+                )
+        else:
+            padded = rgb_image
+
+        # padded (y,x,3) to FloatTensor (1,3,y,x):
+        x = transforms.ToTensor()(padded).unsqueeze(0)
 
         # ADD PADDING
         # padding in order to conform to compressai network
@@ -169,10 +253,10 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         )
 
         # SAVE IMAGE IF
-        if self.save_transformed:
+        if self.dump:
             tmp = transforms.ToPILImage()(x_pad.squeeze(0))
-            Image.fromarray(np.array(tmp)).save(  # PIL Image to numpy array
-                os.path.join(self.save_folder, "dump_pad_" + str(self.imcount) + ".png")
+            dumpImageArray(
+                tmp, self.save_folder, "compressai_pad_" + str(self.imcount) + ".png"
             )
 
         # RUN COMPRESSAI
@@ -189,16 +273,31 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # TO NUMPY ARRAY & BGR IMAGE
         x_hat = x_hat.squeeze(0)
-        rgb_image_hat = np.array(transforms.ToPILImage()(x_hat))
+        padded_hat = np.array(transforms.ToPILImage()(x_hat))
+
+        if self.scale is not None:
+            # was scaled, so need to backscale
+            # 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
+            rgb_image_hat = self.ffmpeg.ff_op(
+                padded_hat,
+                "crop={width}:{height}".format(
+                    width=rgb_image.shape[1], height=rgb_image.shape[0]
+                ),
+            )
+        else:
+            rgb_image_hat = padded_hat
+
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
 
         # SAVE IMAGE IF
-        if self.save_transformed:
-            Image.fromarray(
-                bgr_image_hat[:, :, ::-1]
-                # bgr_image
-            ).save(os.path.join(self.save_folder, "dump_" + str(self.imcount) + ".png"))
-            self.imcount += 1
+        if self.dump:
+            dumpImageArray(
+                bgr_image_hat,
+                self.save_folder,
+                "final_" + str(self.imcount) + ".png",
+                is_bgr=True,
+            )
+
         self.logger.debug(
             "input & output sizes: %s %s. bps = %s",
             bgr_image.shape,
@@ -206,4 +305,5 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             bpp[0],
         )
         # print(">> cc, bpp_sum ", self.cc, self.bpp_sum)
+        self.imcount += 1
         return bpp[0], bgr_image_hat

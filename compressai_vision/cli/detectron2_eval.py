@@ -1,25 +1,54 @@
+# Copyright (c) 2022, InterDigital Communications, Inc
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the disclaimer
+# below) provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of InterDigital Communications, Inc nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+# THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """cli detectron2_eval functionality
 """
-import copy, os
+import copy, os, uuid, datetime
 import json
-import logging
-
-# fiftyone
-import fiftyone as fo
-
-# compressai_vision
-from compressai_vision.evaluation.fo import annexPredictions  # annex predictions from
-from compressai_vision.evaluation.pipeline import (
-    CompressAIEncoderDecoder,
-    VTMEncoderDecoder,
-)
-from compressai_vision.tools import quickLog, getDataFile
-
-# import pickle
-# import fiftyone.zoo as foz
+import os
 
 
 def main(p):  # noqa: C901
+    # fiftyone
+    import fiftyone as fo
+
+    # compressai_vision
+    from compressai_vision.evaluation.fo import (
+        annexPredictions,
+    )  # annex predictions from
+    from compressai_vision.evaluation.pipeline import (
+        CompressAIEncoderDecoder,
+        VTMEncoderDecoder,
+    )
+    from compressai_vision.tools import getDataFile
+    from compressai_vision.constant import vf_per_scale
+
     assert p.name is not None, "please provide dataset name"
     try:
         dataset = fo.load_dataset(p.name)
@@ -49,33 +78,59 @@ def main(p):  # noqa: C901
     if p.vtm:
         assert p.qpars is not None, "need to provide quality parameters for vtm"
         try:
-            qpars = [float(i) for i in p.qpars.split(",")]
+            # qpars = [float(i) for i in p.qpars.split(",")]
+            qpars = [int(i) for i in p.qpars.split(",")]  # integer for god's sake!
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
         if p.vtm_dir is None:
             try:
-                vtm_dir=os.environ["VTM_DIR"]
+                vtm_dir = os.environ["VTM_DIR"]
             except KeyError as e:
                 print("please define --vtm_dir or set environmental variable VTM_DIR")
                 # raise e
                 return
         else:
-            vtm_dir=p.vtm_dir
+            vtm_dir = p.vtm_dir
+
+        vtm_dir = os.path.expanduser(vtm_dir)
 
         if p.vtm_cfg is None:
-            vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg")
+            vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
             print("WARNING: using VTM default config file", vtm_cfg)
         else:
             vtm_cfg = p.vtm_cfg
-            assert(os.path.isfile(vtm_cfg)), "vtm config file not found"
 
-        vtm_encoder_app=os.path.join(vtm_dir, "EncoderAppStatic")
-        vtm_decoder_app=os.path.join(vtm_dir, "DecoderAppStatic")
+        vtm_cfg = os.path.expanduser(
+            vtm_cfg
+        )  # some more systematic way of doing these..
+
+        assert os.path.isfile(vtm_cfg), "vtm config file not found"
+
+        # try both filenames..
+        vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
+        if not os.path.isfile(vtm_encoder_app):
+            vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStaticd")
+        if not os.path.isfile(vtm_encoder_app):
+            print("FATAL: can't find EncoderAppStatic(d) in", vtm_dir)
+        # try both filenames..
+        vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStatic")
+        if not os.path.isfile(vtm_decoder_app):
+            vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
+        if not os.path.isfile(vtm_decoder_app):
+            print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
 
     if ((p.vtm is None) and (p.compressai is None)) and (p.qpars is not None):
         print("FATAL: you defined qpars although they are not needed")
         return
+
+    if p.slice is not None:
+        # print("WARNING: using a dataset slice instead of full dataset")
+        print("FATAL: can't use dataset slice's in evaluation: must be whole dataset")
+        return
+
+    if p.scale is not None:
+        assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
     # compressai_model == None --> no compressai
     # p.vtm == False --> no vtm
@@ -121,6 +176,9 @@ def main(p):  # noqa: C901
 
     print()
     print("Using dataset          :", p.name)
+    print("Image scaling          :", p.scale)
+    # if p.slice is not None: # woops.. can't use slicing
+    #    print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
@@ -129,11 +187,19 @@ def main(p):  # noqa: C901
         print("Using compressai model :", p.compressai)
     elif p.vtm:
         print("Using VTM               ")
+        if p.vtm_cache:
+            # assert(os.path.isdir(p.vtm_cache)), "no such directory "+p.vtm_cache
+            # ..created by the VTMEncoderDecoder class
+            print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:
         print("Quality parameters      :", qpars)
-
+    print("Progressbar             :", p.progressbar)
+    if p.progressbar and p.progress > 0:
+        print("WARNING: progressbar enabled --> disabling normal progress print")
+        p.progress = 0
+    print("Print progress          :", p.progress)
     classes = dataset.distinct("detections.detections.label")
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
@@ -149,7 +215,16 @@ def main(p):  # noqa: C901
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
 
-    predictor_field = "detectron-predictions"
+    # predictor_field = "detectron-predictions"
+    ## instead, create a unique identifier for the field
+    ## in this run: this way parallel runs dont overwrite
+    ## each other's field
+    ## as the database is the same for each running instance/process
+    # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
+    # predictor_field = "detectron-"+ui
+    predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+        datetime.datetime.now()
+    )
 
     def per_class(results_obj):
         """take fiftyone/openimagev6 results object & spit
@@ -166,10 +241,10 @@ def main(p):  # noqa: C901
     # bpp, mAP values, mAP breakdown per class
 
     if qpars is not None:
-        #loglev=logging.DEBUG # this now set in main
-        #loglev = logging.INFO
-        #quickLog("CompressAIEncoderDecoder", loglev)
-        #quickLog("VTMEncoderDecoder", loglev)
+        # loglev=logging.DEBUG # this now set in main
+        # loglev = logging.INFO
+        # quickLog("CompressAIEncoderDecoder", loglev)
+        # quickLog("VTMEncoderDecoder", loglev)
         for i in qpars:
             # concurrency considerations
             # could multithread/process over quality pars
@@ -177,23 +252,33 @@ def main(p):  # noqa: C901
             # beware that all processes use the same fiftyone/mongodb, so maybe
             # different predictor_field instance for each running (multi)process
             print("\nQUALITY PARAMETER", i)
+            enc_dec = None  # default: no encoding/decoding
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
-                enc_dec = CompressAIEncoderDecoder(net, device=device)
-            elif p.vtm:
-                enc_dec = VTMEncoderDecoder(vtm_encoder, vtm_decoder, vtm_cfg=vtm_cfg, qp= i)
-            else:
-                enc_dec = VTMEncoderDecoder(encoderApp=vtm_encoder_app,
+                enc_dec = CompressAIEncoderDecoder(
+                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
+                )
+            # elif p.vtm:
+            else:  # eh.. must be VTM
+                # VCM working-group scaling with ffmpeg?
+                enc_dec = VTMEncoderDecoder(
+                    encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
                     ffmpeg=p.ffmpeg,
                     vtm_cfg=vtm_cfg,
-                    qp=i
-                    )
+                    qp=i,
+                    cache=p.vtm_cache,
+                    scale=p.scale,
+                )
+                # VCM backscaling with ffmpeg?
+                # print(enc_dec)
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
                 predictor_field=predictor_field,
+                use_pb=p.progressbar,
+                use_print=p.progress,
             )
             res = dataset.evaluate_detections(
                 predictor_field,
@@ -212,7 +297,11 @@ def main(p):  # noqa: C901
 
     else:
         bpp = annexPredictions(
-            predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field
+            predictor=predictor,
+            fo_dataset=dataset,
+            predictor_field=predictor_field,
+            use_pb=p.progressbar,
+            use_print=p.progress,
         )
         res = dataset.evaluate_detections(
             predictor_field,
@@ -232,6 +321,9 @@ def main(p):  # noqa: C901
         """
         with open(p.output, "w") as f:
             json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
+
+    # remove the predicted field from the database
+    dataset.delete_sample_field(predictor_field)
 
     print("\nHAVE A NICE DAY!\n")
     """load with:

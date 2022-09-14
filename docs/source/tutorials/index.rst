@@ -8,6 +8,12 @@ you need first to convert the input files into a standard/recognized format.  Af
 We'll be using fiftyone to store, manage, visualize and evaluate datasets.  So the next thing is to import the data into fiftyone.  
 Fiftyone is then used to evaluate your results which have been generated using Detectron2 and your encoder/decoder.
 
+So, first of all, you should take a look at `fiftyone <https://voxel51.com/docs/fiftyone/user_guide>`_ and therein, at least
+how convenient `fiftyone datasets <https://voxel51.com/docs/fiftyone/user_guide/using_datasets.html#>`_ are.
+
+Fiftyone datasets are particularly convenient: fiftyone starts silently a mongodb server on the background, providing a single
+source of ground truths and a place to save your detection results, visible to all python processes running on the same host.
+
 Please follow rigorously the steps (1)-(4) in the tutorial list below.
 
 .. toctree::
