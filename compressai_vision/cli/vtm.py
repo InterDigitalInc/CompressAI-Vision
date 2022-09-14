@@ -134,6 +134,8 @@ def main(p):
         print("WARNING: progressbar enabled --> disabling normal progress print")
         p.progress = 0
     print("Print progress          :", p.progress)
+    if p.keep:
+        print("WARNING: keep enabled --> will not remove intermediate files")
     if not p.y:
         input("press enter to continue.. ")
     for i in qpars:
@@ -147,6 +149,8 @@ def main(p):
             cache=p.vtm_cache,
             scale=p.scale,
             dump=p.dump,
+            skip=True, # if there's a bitstream file then just exit at call to BGR
+            keep=p.keep
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
