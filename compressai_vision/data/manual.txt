@@ -134,6 +134,7 @@ commands & parameters:
         --slice         instead of using the complete dataset, just use a slice of the
                         dataset: good for parallelizing the VTM encoder.  
                         Normal python slicing indexes are used.
+        --keep          keep all intermediate files (for debugging)
 
         example 1:
 

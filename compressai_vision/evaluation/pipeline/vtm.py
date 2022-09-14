@@ -61,6 +61,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     :param cache: (optional) define a directory where all encoded bitstreams are cached.
                   NOTE: If scale is defined, "scale/qp/" is appended to the cache path.  If no scale is defined, the appended path is "0/qp/"
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
+    :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.
 
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
@@ -112,6 +113,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         base_path="/dev/shm",
         cache=None,
         dump=False,
+        skip=False,
+        keep=False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -128,6 +131,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.base_path = base_path
         self.caching = False
         self.dump = dump
+        self.skip = skip
+        self.keep = keep
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
@@ -201,6 +206,8 @@ class VTMEncoderDecoder(EncoderDecoder):
     def __del__(self):
         if not hasattr(self, "caching"):
             return  # means ctor crashed
+        if self.keep:
+            return
         if self.caching:
             return
         # print("VTM: __del__", len(glob.glob(os.path.join(self.folder,"*"))))
@@ -317,6 +324,10 @@ class VTMEncoderDecoder(EncoderDecoder):
             tag = ""
             fname_bin = os.path.join(self.folder, "bin")  # bin produced by VTM
 
+        if (self.caching) and os.path.isfile(fname_bin) and self.skip:
+            self.logger.debug("Found file %s from cache & skip enabled: returning None", fname_bin)
+            return 0, None
+
         # uid=str(uuid())
         uid = tag  # the tag is supposedly unique, so use that to mark all files
         fname_yuv = os.path.join(
@@ -376,10 +387,11 @@ class VTMEncoderDecoder(EncoderDecoder):
                 height=padded.shape[0],
             )
             # cleanup
-            self.logger.debug("removing %s from ffmpeg", fname_yuv)
-            os.remove(fname_yuv)  # cleanup
-            self.logger.debug("removing %s from VTMEncode", fname_yuv_out)
-            os.remove(fname_yuv_out)  # cleanup
+            if not self.keep:
+                self.logger.debug("removing %s from ffmpeg", fname_yuv)
+                os.remove(fname_yuv)  # cleanup
+                self.logger.debug("removing %s from VTMEncode", fname_yuv_out)
+                os.remove(fname_yuv_out)  # cleanup
         else:
             self.logger.debug("Using existing file %s from cache", fname_bin)
 
@@ -395,10 +407,11 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.logger.debug("reading %s from VTMDecode", fname_rec)
         with open(fname_rec, "rb") as f:
             yuv_bytes_hat = f.read()
-        self.logger.debug("removing %s from VTMDecode", fname_rec)
+        if not self.keep:
+            self.logger.debug("removing %s from VTMDecode", fname_rec)
         os.remove(fname_rec)  # cleanup
 
-        if not self.caching:
+        if not self.caching and not self.keep:
             self.logger.debug("removing %s from VTMEncode", fname_bin)
             os.remove(fname_bin)
 

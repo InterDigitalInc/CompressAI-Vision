@@ -230,6 +230,9 @@ def process_cl_args():
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
     parser.add_argument(
+        "--keep", action="store_true", default=False, help="vtm: keep all intermediate files (for debugging)"
+    )
+    parser.add_argument(
         "--dump",
         action="store_true",
         default=False,

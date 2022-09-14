@@ -94,8 +94,8 @@ setup(
         ]
     },
     # metadata for upload to PyPI
-    author="Sampsa Riikonen",
-    author_email="sampsa.riikonen@iki.fi",
+    author="CompressAI-Vision team",
+    author_email="compressai@interdigital.com",
     description="Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI",
     extras_require=get_extra_requirements(),
     license="BSD 3-Clause Clear License",
@@ -104,10 +104,8 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.9"
     ],
     # project_urls={ # some additional urls
     #    'Tutorial': 'nada
