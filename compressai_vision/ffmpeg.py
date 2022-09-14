@@ -10,6 +10,7 @@ class FFMpeg:
     :param ffmpeg: the ffmpeg command
     :param logger: a logger instance
 
+    TODO: for reading video, define video input, keep ffmpeg process alive & stream into stdin
     """
 
     def __init__(self, ffmpeg, logger):

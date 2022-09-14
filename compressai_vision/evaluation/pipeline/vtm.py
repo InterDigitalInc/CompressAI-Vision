@@ -34,6 +34,7 @@ import os
 import shlex
 import shutil
 import subprocess
+from uuid import uuid4 as uuid
 
 import numpy as np
 
@@ -130,7 +131,9 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
-            self.logger.info("Will save images to folder %s", self.save_folder)
+            self.logger.warning(
+                "Will save intermediate images to local folder %s", self.save_folder
+            )
             os.makedirs(self.save_folder, exist_ok=True)
 
         if cache is not None:
@@ -148,7 +151,9 @@ class VTMEncoderDecoder(EncoderDecoder):
             self.caching = True
         else:
             self.caching = False
-            self.folder = os.path.join(self.base_path, "vtm_" + str(id(self)))
+            # uid=str(id(self))
+            uid = str(uuid())  # safer
+            self.folder = os.path.join(self.base_path, "vtm_" + uid)
 
         # test commands
         self.encoderApp = test_command(encoderApp)
@@ -302,16 +307,28 @@ class VTMEncoderDecoder(EncoderDecoder):
         # we could use this to create unique filename if we want cache & later identify the images:
         # "X".join([str(n) for n in md5(bgr_image).digest()])
         # but it's better to use explicit tags as provided by the user
-        fname_yuv = os.path.join(self.folder, "tmp.yuv")  # yuv produced by ffmpeg
-        fname_yuv_out = os.path.join(
-            self.folder, "nada.yuv"
-        )  # yuv produced VTM.. not used
+
         if self.caching:
             assert tag is not None, "caching requested, but got no tag"
             fname_bin = os.path.join(self.folder, "bin_" + tag)  # bin produced by VTM
         else:
+            # if no caching, we have a unique directory where all this stuff goes, so no need to separate the files
+            # with uuids
+            tag = ""
             fname_bin = os.path.join(self.folder, "bin")  # bin produced by VTM
-        fname_rec = os.path.join(self.folder, "rec.yuv")  # yuv produced by VTM
+
+        # uid=str(uuid())
+        uid = tag  # the tag is supposedly unique, so use that to mark all files
+        fname_yuv = os.path.join(
+            self.folder, "tmp_%s.yuv" % (uid)
+        )  # yuv produced by ffmpeg
+        fname_yuv_out = os.path.join(
+            self.folder, "nada_%s.yuv" % (uid)
+        )  # yuv produced VTM.. not used
+
+        fname_rec = os.path.join(
+            self.folder, "rec_%s.yuv" % (uid)
+        )  # yuv produced by VTM
 
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
         # apply ffmpeg commands as defined in MPEG VCM group docs
@@ -336,7 +353,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             padded = rgb_image
 
         if (not self.caching) or (not os.path.isfile(fname_bin)):
-            self.logger.debug("Creating file %s", fname_bin)
+            self.logger.debug("Creating file %s with ffmpeg", fname_yuv)
             # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
             yuv_bytes = self.ffmpeg.ff_RGB24ToRAW(padded, "yuv420p")
 
@@ -344,12 +361,13 @@ class VTMEncoderDecoder(EncoderDecoder):
             # tmu=int(time.time()*1E6) # microsec timestamp
             # fname=os.path.join(self.folder, str(tmu))
             # ..you could also use the tag to cache the encoded images if you'd like to do caching
-            self.logger.debug("writing %s", fname_yuv)
+            self.logger.debug("reading %s from ffmpeg for VTMEncode", fname_yuv)
             with open(fname_yuv, "wb") as f:
                 f.write(yuv_bytes)
 
             # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path}
             #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
+            self.logger.debug("creating %s with VTMEncode", fname_bin)
             self.__VTMEncode__(
                 inp_yuv_path=fname_yuv,
                 out_yuv_path=fname_yuv_out,
@@ -357,13 +375,16 @@ class VTMEncoderDecoder(EncoderDecoder):
                 width=padded.shape[1],
                 height=padded.shape[0],
             )
-            self.logger.debug("removing %s", fname_yuv)
+            # cleanup
+            self.logger.debug("removing %s from ffmpeg", fname_yuv)
             os.remove(fname_yuv)  # cleanup
+            self.logger.debug("removing %s from VTMEncode", fname_yuv_out)
+            os.remove(fname_yuv_out)  # cleanup
         else:
-            self.logger.debug("Using file %s from cache", fname_bin)
+            self.logger.debug("Using existing file %s from cache", fname_bin)
 
         # calculate bpp
-        self.logger.debug("reading %s for bpp calculation", fname_bin)
+        self.logger.debug("reading %s from VTMEncode for bpp calculation", fname_bin)
         with open(fname_bin, "rb") as f:
             n_bytes = len(f.read())
         bpp = n_bytes * 8 / (rgb_image.shape[1] * rgb_image.shape[0])
@@ -371,14 +392,14 @@ class VTMEncoderDecoder(EncoderDecoder):
         # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
         self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
 
-        self.logger.debug("reading %s", fname_rec)
+        self.logger.debug("reading %s from VTMDecode", fname_rec)
         with open(fname_rec, "rb") as f:
             yuv_bytes_hat = f.read()
-        self.logger.debug("removing %s", fname_rec)
+        self.logger.debug("removing %s from VTMDecode", fname_rec)
         os.remove(fname_rec)  # cleanup
 
         if not self.caching:
-            self.logger.debug("removing %s", fname_bin)
+            self.logger.debug("removing %s from VTMEncode", fname_bin)
             os.remove(fname_bin)
 
         # 5. MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
