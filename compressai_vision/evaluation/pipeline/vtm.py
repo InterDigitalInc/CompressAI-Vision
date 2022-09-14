@@ -131,7 +131,9 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
-            self.logger.warning("Will save intermediate images to local folder %s", self.save_folder)
+            self.logger.warning(
+                "Will save intermediate images to local folder %s", self.save_folder
+            )
             os.makedirs(self.save_folder, exist_ok=True)
 
         if cache is not None:
@@ -150,7 +152,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         else:
             self.caching = False
             # uid=str(id(self))
-            uid=str(uuid()) # safer
+            uid = str(uuid())  # safer
             self.folder = os.path.join(self.base_path, "vtm_" + uid)
 
         # test commands
@@ -305,24 +307,28 @@ class VTMEncoderDecoder(EncoderDecoder):
         # we could use this to create unique filename if we want cache & later identify the images:
         # "X".join([str(n) for n in md5(bgr_image).digest()])
         # but it's better to use explicit tags as provided by the user
-        
+
         if self.caching:
             assert tag is not None, "caching requested, but got no tag"
             fname_bin = os.path.join(self.folder, "bin_" + tag)  # bin produced by VTM
         else:
             # if no caching, we have a unique directory where all this stuff goes, so no need to separate the files
             # with uuids
-            tag=""
+            tag = ""
             fname_bin = os.path.join(self.folder, "bin")  # bin produced by VTM
 
         # uid=str(uuid())
-        uid=tag # the tag is supposedly unique, so use that to mark all files
-        fname_yuv = os.path.join(self.folder, "tmp_%s.yuv" % (uid))  # yuv produced by ffmpeg
+        uid = tag  # the tag is supposedly unique, so use that to mark all files
+        fname_yuv = os.path.join(
+            self.folder, "tmp_%s.yuv" % (uid)
+        )  # yuv produced by ffmpeg
         fname_yuv_out = os.path.join(
             self.folder, "nada_%s.yuv" % (uid)
         )  # yuv produced VTM.. not used
 
-        fname_rec = os.path.join(self.folder, "rec_%s.yuv" % (uid))  # yuv produced by VTM
+        fname_rec = os.path.join(
+            self.folder, "rec_%s.yuv" % (uid)
+        )  # yuv produced by VTM
 
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
         # apply ffmpeg commands as defined in MPEG VCM group docs

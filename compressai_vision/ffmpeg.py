@@ -12,6 +12,7 @@ class FFMpeg:
 
     TODO: for reading video, define video input, keep ffmpeg process alive & stream into stdin
     """
+
     def __init__(self, ffmpeg, logger):
         self.ffmpeg = ffmpeg
         self.logger = logger
