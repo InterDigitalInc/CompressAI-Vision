@@ -36,14 +36,16 @@ from PIL import Image
 
 def confLogger(logger, level):
     logger.setLevel(level)
+    logger.propagate = False
     # print("confLogger", logger.handlers)
     # print("confLogger", logger.hasHandlers())
     # if not logger.hasHandlers(): # when did this turn into a practical joke?
-    if len(logger.handlers) < 1:
-        formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    logger.handlers = []
+    #if len(logger.handlers) < 1:
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
 
 def quickLog(name, level):
