@@ -260,7 +260,6 @@ def main(p):  # noqa: C901
                 )
             # elif p.vtm:
             else:  # eh.. must be VTM
-                # VCM working-group scaling with ffmpeg?
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -270,8 +269,10 @@ def main(p):  # noqa: C901
                     cache=p.vtm_cache,
                     scale=p.scale,
                 )
-                # VCM backscaling with ffmpeg?
-                # print(enc_dec)
+            # TODO: separate annexPredictions & evaluate_detectrions
+            # into different commands?  this way we could parallelize them
+            # could also automagically calculate detections for samples
+            # that are missing them
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,
@@ -324,6 +325,8 @@ def main(p):  # noqa: C901
 
     # remove the predicted field from the database
     dataset.delete_sample_field(predictor_field)
+    # WARNING: if the program is ctrl-c'd/killed then the field will
+    # remain there..!
 
     print("\nHAVE A NICE DAY!\n")
     """load with:

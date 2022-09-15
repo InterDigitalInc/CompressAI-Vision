@@ -233,6 +233,17 @@ def process_cl_args():
         "--keep", action="store_true", default=False, help="vtm: keep all intermediate files (for debugging)"
     )
     parser.add_argument(
+        "--checkmode", action="store_true", default=False, help="vtm: report if bitstream files are missing"
+    )
+    parser.add_argument(
+        "--tags",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm: a list of open_image_ids to pick from the dataset/slice"
+    )
+    parser.add_argument(
         "--dump",
         action="store_true",
         default=False,
