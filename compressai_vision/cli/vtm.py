@@ -115,6 +115,14 @@ def main(p):
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
+    #if p.d_list is not None:
+    #    print("WARNING: using only certain images from the dataset/slice")
+
+    if p.tags is not None:
+        lis=p.tags.split(",") # 0001eeaf4aed83f9,000a1249af2bc5f0
+        from fiftyone import ViewField as F
+        dataset = dataset.match(F("open_images_id").contains_str(lis))
+
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
@@ -128,14 +136,18 @@ def main(p):
     print("Image Scaling          :", p.scale)
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
+    if p.tags is not None:
+        print("WARNING: Picking samples, based on open_images_id field")
     print("Number of samples      :", len(dataset))
-    print("Progressbar             :", p.progressbar)
+    print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
         p.progress = 0
-    print("Print progress          :", p.progress)
+    print("Print progress         :", p.progress)
     if p.keep:
         print("WARNING: keep enabled --> will not remove intermediate files")
+    if p.checkmode:
+        print("WARNING: checkmode enabled --> will only check if bitstream files exist or not")
     if not p.y:
         input("press enter to continue.. ")
     for i in qpars:
@@ -150,27 +162,41 @@ def main(p):
             scale=p.scale,
             dump=p.dump,
             skip=True, # if there's a bitstream file then just exit at call to BGR
-            keep=p.keep
+            keep=p.keep,
+            checkmode=p.checkmode
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
             pb = ProgressBar(dataset)
 
         cc = 0
+        if p.checkmode: # just report which bitstreams exist in the cache
+            print()
+            print("reporting images missing bitstream at '%s'" % enc_dec.getCacheDir())
+            print("n / id / open_images_id (use this!) / path")
+            check_c=0
+
         for sample in dataset:
             cc += 1
             # sample.filepath
             path = sample.filepath
             im = cv2.imread(path)
-            tag = path.split(os.path.sep)[-1].split(".")[
-                0
-            ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+            # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+            tag = sample.open_images_id # TODO: if there is no open_images_id, then use the normal id?
             # print(tag)
-            # VCM working-group scaling with ffmpeg?
             bpp, im = enc_dec.BGR(im, tag=tag)
-            # back-scaling with ffmpeg?
+
+            if p.checkmode: # just report which bitstreams exist in the cache
+                if bpp == 0:
+                    pass
+                else:
+                    check_c += 1
+                    print(check_c, "/", sample.id, "/", sample.open_images_id, "/", path)
+                continue
+
             if p.progress > 0 and ((cc % p.progress) == 0):
-                print("sample: ", cc, "/", len(dataset))
+                print("sample: ", cc, "/", len(dataset), "tag:", tag)
             if p.progressbar:
                 pb.update()
+            
     print("\nHAVE A NICE DAY!\n")

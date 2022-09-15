@@ -132,9 +132,13 @@ commands & parameters:
 
         --vtm_cache     as in "detectron2_eval" command, but _must_ be defined
         --slice         instead of using the complete dataset, just use a slice of the
-                        dataset: good for parallelizing the VTM encoder.  
+                        dataset: good for parallelizing the VTM encoder.
                         Normal python slicing indexes are used.
+        --tags          pick certain images from the dataset/slice
+                        for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
+                        the tags correspond to __open image ids__
         --keep          keep all intermediate files (for debugging)
+        --checkmode     report which required bitstream files are missing from the cache
 
         example 1:
 

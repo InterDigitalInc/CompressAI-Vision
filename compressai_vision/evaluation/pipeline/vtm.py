@@ -62,6 +62,9 @@ class VTMEncoderDecoder(EncoderDecoder):
                   NOTE: If scale is defined, "scale/qp/" is appended to the cache path.  If no scale is defined, the appended path is "0/qp/"
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
     :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.
+                 When enabled, method BGR returns (0, None)
+    :param checkmode: do nothing else, but just check the cache for existing bitstream files.  Good for checking problematic input files. default False.
+                      When enabled, method BGR returns (0, None) when file found and (-1, None) when not found
 
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
@@ -85,7 +88,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=47)
         bpp, img_hat = encdec.BGR(cv2.imread("fname.png"))
 
-    You can enable caching and avoid re-encoding of images like this:
+    You can enable caching and avoid re-encoding of images:
 
     ::
 
@@ -114,7 +117,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         cache=None,
         dump=False,
         skip=False,
-        keep=False
+        keep=False,
+        checkmode=False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -133,6 +137,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.dump = dump
         self.skip = skip
         self.keep = keep
+        self.checkmode = checkmode
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
@@ -324,7 +329,20 @@ class VTMEncoderDecoder(EncoderDecoder):
             tag = ""
             fname_bin = os.path.join(self.folder, "bin")  # bin produced by VTM
 
-        if (self.caching) and os.path.isfile(fname_bin) and self.skip:
+        if self.checkmode or self.skip:
+            assert self.caching, "checkmode and skip require caching enabled"
+
+        if self.caching and self.checkmode:
+            self.logger.debug("Checkmode: looking for file %s", fname_bin)
+            # just check if required bitstream exists.  return 0 if ok, -1 if not there
+            if os.path.isfile(fname_bin):
+                # cached bitstream exists allright
+                return 0, None
+            else:
+                self.logger.debug("Checkmode: %s does not exist", fname_bin)
+                return -1, None
+
+        if self.caching and os.path.isfile(fname_bin) and self.skip:
             self.logger.debug("Found file %s from cache & skip enabled: returning None", fname_bin)
             return 0, None
 
