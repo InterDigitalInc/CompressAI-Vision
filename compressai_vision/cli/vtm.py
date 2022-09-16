@@ -115,12 +115,13 @@ def main(p):
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
-    #if p.d_list is not None:
+    # if p.d_list is not None:
     #    print("WARNING: using only certain images from the dataset/slice")
 
     if p.tags is not None:
-        lis=p.tags.split(",") # 0001eeaf4aed83f9,000a1249af2bc5f0
+        lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
         from fiftyone import ViewField as F
+
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 
     if p.scale is not None:
@@ -147,7 +148,9 @@ def main(p):
     if p.keep:
         print("WARNING: keep enabled --> will not remove intermediate files")
     if p.check:
-        print("WARNING: checkmode enabled --> will only check if bitstream files exist or not")
+        print(
+            "WARNING: checkmode enabled --> will only check if bitstream files exist or not"
+        )
     if not p.y:
         input("press enter to continue.. ")
     for i in qpars:
@@ -161,7 +164,7 @@ def main(p):
             cache=p.vtm_cache,
             scale=p.scale,
             dump=p.dump,
-            skip=p.check, # if there's a bitstream file then just exit at call to BGR
+            skip=p.check,  # if there's a bitstream file then just exit at call to BGR
             keep=p.keep,
         )
         # with ProgressBar(dataset) as pb: # captures stdout
@@ -182,27 +185,38 @@ def main(p):
             path = sample.filepath
             im0 = cv2.imread(path)
             # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-            tag = sample.open_images_id # TODO: if there is no open_images_id, then use the normal id?
+            tag = (
+                sample.open_images_id
+            )  # TODO: if there is no open_images_id, then use the normal id?
             # print(tag)
             bpp, im = enc_dec.BGR(im0, tag=tag)
             if bpp < 0:
                 if p.check:
-                    print("Bitstream missing for image id={id}, openImageId={tag}, path={path}". format(
-                        id=sample.id, tag=tag, path=path))
+                    print(
+                        "Bitstream missing for image id={id}, openImageId={tag}, path={path}".format(
+                            id=sample.id, tag=tag, path=path
+                        )
+                    )
                     continue
                 # enc_dec.BGR tried to use the existing bitstream file but failed to decode it
-                print("Corrupt data for image id={id}, openImageId={tag}, path={path}". format(
-                    id=sample.id, tag=tag, path=path))
+                print(
+                    "Corrupt data for image id={id}, openImageId={tag}, path={path}".format(
+                        id=sample.id, tag=tag, path=path
+                    )
+                )
                 # .. the bitstream has been removed
                 print("Trying to regenerate")
                 # let's try to generate it again
                 bpp, im = enc_dec.BGR(im0, tag=tag)
                 if bpp < 0:
-                    print("DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!". format(
-                        id=sample.id, tag=tag, path=path))
+                    print(
+                        "DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!".format(
+                            id=sample.id, tag=tag, path=path
+                        )
+                    )
             if p.progress > 0 and ((cc % p.progress) == 0):
                 print("sample: ", cc, "/", len(dataset), "tag:", tag)
             if p.progressbar:
                 pb.update()
-            
+
     print("\nHAVE A NICE DAY!\n")

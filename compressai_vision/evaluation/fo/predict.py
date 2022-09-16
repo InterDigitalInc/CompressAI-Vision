@@ -97,7 +97,9 @@ def annexPredictions(
         path = sample.filepath
         im = cv2.imread(path)
         # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-        tag = sample.open_images_id # TODO: if there is no open_images_id, then use the normal id?
+        tag = (
+            sample.open_images_id
+        )  # TODO: if there is no open_images_id, then use the normal id?
         # print(tag)
         if encoder_decoder is not None:
             # before using detector, crunch through
@@ -117,7 +119,7 @@ def annexPredictions(
             model_catids=model_meta.thing_classes,
             # allowed_labels=allowed_labels # not needed, really
         )  # fiftyone Detections object
-        predictions.bpp = bpp # TODO use this in the future
+        predictions.bpp = bpp  # TODO use this in the future
         sample[predictor_field] = predictions
         # we could attach the bitrate to each detection, of course
         # if encoder_decoder is not None:
