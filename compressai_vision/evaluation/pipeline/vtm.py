@@ -72,7 +72,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
     :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.
                  When enabled, method BGR returns (0, None).  NOTE: do not use if you want to verify the bitstream files.
-    
+
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
 
@@ -305,7 +305,6 @@ class VTMEncoderDecoder(EncoderDecoder):
         else:
             return True
 
-
     def BGR(self, bgr_image, tag=None) -> tuple:
         """
         :param bgr_image: numpy BGR image (y,x,3)
@@ -378,7 +377,9 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         if self.skip:
             if os.path.isfile(fname_bin):
-                self.logger.debug("Found file %s from cache & skip enabled: returning None", fname_bin)
+                self.logger.debug(
+                    "Found file %s from cache & skip enabled: returning None", fname_bin
+                )
                 return 0, None
             else:
                 return -1, None
@@ -410,7 +411,9 @@ class VTMEncoderDecoder(EncoderDecoder):
             vf = vf_per_scale[self.scale]
             padded = self.ffmpeg.ff_op(rgb_image, vf)
             if padded is None:
-                self.logger.fatal("ffmpeg scale operation failed: will skip image %s", tag)
+                self.logger.fatal(
+                    "ffmpeg scale operation failed: will skip image %s", tag
+                )
                 return -1, None
             if self.dump:
                 dumpImageArray(
@@ -426,14 +429,19 @@ class VTMEncoderDecoder(EncoderDecoder):
             # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
             yuv_bytes = self.ffmpeg.ff_RGB24ToRAW(padded, "yuv420p")
             if yuv_bytes is None:
-                self.logger.fatal("ffmpeg to yuv conversion failed: will skip image %s", tag)
+                self.logger.fatal(
+                    "ffmpeg to yuv conversion failed: will skip image %s", tag
+                )
                 return -1, None
 
             # this is not needed since each VTMEncoderDecoder has its own directory
             # tmu=int(time.time()*1E6) # microsec timestamp
             # fname=os.path.join(self.folder, str(tmu))
             # ..you could also use the tag to cache the encoded images if you'd like to do caching
-            self.logger.debug("writing %s output from ffmpeg to disk (for VTMEncode to read it)", fname_yuv)
+            self.logger.debug(
+                "writing %s output from ffmpeg to disk (for VTMEncode to read it)",
+                fname_yuv,
+            )
             with open(fname_yuv, "wb") as f:
                 f.write(yuv_bytes)
 
@@ -453,11 +461,11 @@ class VTMEncoderDecoder(EncoderDecoder):
                 removeFileIf(fname_yuv)  # cleanup
                 self.logger.debug("removing %s from VTMEncode", fname_yuv_out)
                 removeFileIf(fname_yuv_out)  # cleanup
-                
+
             if (not ok) or (not os.path.isfile(fname_bin)):
                 self.logger.fatal("VTMEncode failed: will skip image %s", tag)
                 return -1, None
-            
+
         else:
             self.logger.debug("Using existing file %s from cache", fname_bin)
 
@@ -467,7 +475,10 @@ class VTMEncoderDecoder(EncoderDecoder):
             n_bytes = len(f.read())
 
         if n_bytes < 1:
-            self.logger.fatal("Empty output from VTMEncode: will skip image %s & remove the bitstream file", tag)
+            self.logger.fatal(
+                "Empty output from VTMEncode: will skip image %s & remove the bitstream file",
+                tag,
+            )
             removeFileIf(fname_bin)
             return -1, None
 
@@ -477,7 +488,9 @@ class VTMEncoderDecoder(EncoderDecoder):
         ok = self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
 
         if (not ok) or (not os.path.isfile(fname_rec)):
-            self.logger.fatal("VTMDecode failed: will skip image %s & remove the bitstream file", tag)
+            self.logger.fatal(
+                "VTMDecode failed: will skip image %s & remove the bitstream file", tag
+            )
             removeFileIf(fname_rec)
             removeFileIf(fname_bin)
             return -1, None
@@ -485,9 +498,12 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.logger.debug("reading %s from VTMDecode", fname_rec)
         with open(fname_rec, "rb") as f:
             yuv_bytes_hat = f.read()
-    
+
         if len(yuv_bytes_hat) < 1:
-            self.logger.fatal("Empty output from VTMDecode: will skip image %s & remove the bitstream file", tag)
+            self.logger.fatal(
+                "Empty output from VTMDecode: will skip image %s & remove the bitstream file",
+                tag,
+            )
             removeFileIf(fname_rec)
             removeFileIf(fname_bin)
             return -1, None
@@ -507,7 +523,10 @@ class VTMEncoderDecoder(EncoderDecoder):
         )
 
         if padded_hat is None:
-            self.logger.fatal("ffmpeg raw->rgb24 operation failed: will skip image %s & remove bitstream file (if cached)", tag)
+            self.logger.fatal(
+                "ffmpeg raw->rgb24 operation failed: will skip image %s & remove bitstream file (if cached)",
+                tag,
+            )
             removeFileIf(fname_bin)
             return -1, None
 
@@ -523,7 +542,10 @@ class VTMEncoderDecoder(EncoderDecoder):
                 ),
             )
             if rgb_image_hat is None:
-                self.logger.fatal("ffmpeg crop operation failed: will skip image %s & remove bitstream file (if cached)", tag)
+                self.logger.fatal(
+                    "ffmpeg crop operation failed: will skip image %s & remove bitstream file (if cached)",
+                    tag,
+                )
                 removeFileIf(fname_bin)
                 return -1, None
         else:

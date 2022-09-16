@@ -56,7 +56,6 @@ def main(p):  # noqa: C901
         print("FATAL: no such registered dataset", p.name)
         return
 
-
     if p.slice is not None:
         print("WARNING: using a dataset slice instead of full dataset")
         print("SURE YOU WANT THIS?")
@@ -201,7 +200,7 @@ def main(p):  # noqa: C901
     print()
     print("Using dataset          :", p.name)
     print("Image scaling          :", p.scale)
-    if p.slice is not None: # woops.. can't use slicing
+    if p.slice is not None:  # woops.. can't use slicing
         print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
@@ -302,8 +301,8 @@ def main(p):  # noqa: C901
                 print()
                 print("Sorry, mAP calculation aborted")
                 ##TODO: implement:
-                #print("If you want to resume, start again with:")
-                #print("--continue", predictor_field)
+                # print("If you want to resume, start again with:")
+                # print("--continue", predictor_field)
                 print()
                 return
 
@@ -328,7 +327,7 @@ def main(p):  # noqa: C901
             fo_dataset=dataset,
             predictor_field=predictor_field,
             use_pb=p.progressbar,
-            use_print=p.progress, # TODO: implement possibilty to append results
+            use_print=p.progress,  # TODO: implement possibilty to append results
         )
         res = dataset.evaluate_detections(
             predictor_field,
@@ -350,8 +349,10 @@ def main(p):  # noqa: C901
             json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     # remove the predicted field from the database
-    dataset.delete_sample_field(predictor_field) # TODO: depends, if we want to recover from an interrupted predictor run
-    
+    dataset.delete_sample_field(
+        predictor_field
+    )  # TODO: depends, if we want to recover from an interrupted predictor run
+
     # WARNING: if the program is ctrl-c'd/killed then the field will
     # remain there..!
 
