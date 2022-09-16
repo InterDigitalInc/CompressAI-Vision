@@ -468,7 +468,7 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         if n_bytes < 1:
             self.logger.fatal("Empty output from VTMEncode: will skip image %s & remove the bitstream file", tag)
-            self.removeFileIf(fname_bin)
+            removeFileIf(fname_bin)
             return -1, None
 
         bpp = n_bytes * 8 / (rgb_image.shape[1] * rgb_image.shape[0])
