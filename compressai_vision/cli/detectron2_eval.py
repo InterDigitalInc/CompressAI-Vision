@@ -53,8 +53,27 @@ def main(p):  # noqa: C901
     try:
         dataset = fo.load_dataset(p.name)
     except ValueError:
-        print("FATAL: no such registered database", p.name)
+        print("FATAL: no such registered dataset", p.name)
         return
+
+
+    if p.slice is not None:
+        print("WARNING: using a dataset slice instead of full dataset")
+        print("SURE YOU WANT THIS?")
+        # say, 0:100
+        nums = p.slice.split(":")
+        if len(nums) < 2:
+            print("invalid slicing: use normal python slicing, say, 0:100")
+            return
+        try:
+            fr = int(nums[0])
+            to = int(nums[1])
+        except ValueError:
+            print("invalid slicing: use normal python slicing, say, 0:100")
+            return
+        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
+        dataset = dataset[fr:to]
+
     assert p.model is not None, "provide Detectron2 model name"
 
     qpars = None
@@ -124,11 +143,6 @@ def main(p):  # noqa: C901
         print("FATAL: you defined qpars although they are not needed")
         return
 
-    if p.slice is not None:
-        # print("WARNING: using a dataset slice instead of full dataset")
-        print("FATAL: can't use dataset slice's in evaluation: must be whole dataset")
-        return
-
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
@@ -174,11 +188,21 @@ def main(p):  # noqa: C901
     # print("model was trained with", model_dataset)
     model_meta = MetadataCatalog.get(model_dataset)
 
+    # predictor_field = "detectron-predictions"
+    ## instead, create a unique identifier for the field
+    ## in this run: this way parallel runs dont overwrite
+    ## each other's field
+    ## as the database is the same for each running instance/process
+    # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
+    # predictor_field = "detectron-"+ui
+    predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+        datetime.datetime.now()
+    )
     print()
     print("Using dataset          :", p.name)
     print("Image scaling          :", p.scale)
-    # if p.slice is not None: # woops.. can't use slicing
-    #    print("Using slice            :", str(fr) + ":" + str(to))
+    if p.slice is not None: # woops.. can't use slicing
+        print("Using slice            :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
@@ -194,12 +218,15 @@ def main(p):  # noqa: C901
     else:
         print("** Evaluation without Encoding/Decoding **")
     if qpars is not None:
-        print("Quality parameters      :", qpars)
-    print("Progressbar             :", p.progressbar)
+        print("Quality parameters     :", qpars)
+
+    print("Eval. datafield name    :", predictor_field)
+    print("(if aborted, start again with --resume=%s)" % predictor_field)
+    print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
         p.progress = 0
-    print("Print progress          :", p.progress)
+    print("Print progress         :", p.progress)
     classes = dataset.distinct("detections.detections.label")
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
@@ -214,17 +241,6 @@ def main(p):  # noqa: C901
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
-
-    # predictor_field = "detectron-predictions"
-    ## instead, create a unique identifier for the field
-    ## in this run: this way parallel runs dont overwrite
-    ## each other's field
-    ## as the database is the same for each running instance/process
-    # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
-    # predictor_field = "detectron-"+ui
-    predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
-        datetime.datetime.now()
-    )
 
     def per_class(results_obj):
         """take fiftyone/openimagev6 results object & spit
@@ -253,13 +269,13 @@ def main(p):  # noqa: C901
             # different predictor_field instance for each running (multi)process
             print("\nQUALITY PARAMETER", i)
             enc_dec = None  # default: no encoding/decoding
+
             if compressai_model is not None:
                 net = compressai_model(quality=i, pretrained=True).eval().to(device)
                 enc_dec = CompressAIEncoderDecoder(
                     net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
                 )
-            # elif p.vtm:
-            else:  # eh.. must be VTM
+            else:  # must be VTM
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -281,6 +297,16 @@ def main(p):  # noqa: C901
                 use_pb=p.progressbar,
                 use_print=p.progress,
             )
+
+            if bpp < 0:
+                print()
+                print("Sorry, mAP calculation aborted")
+                ##TODO: implement:
+                #print("If you want to resume, start again with:")
+                #print("--continue", predictor_field)
+                print()
+                return
+
             res = dataset.evaluate_detections(
                 predictor_field,
                 gt_field="detections",
@@ -302,7 +328,7 @@ def main(p):  # noqa: C901
             fo_dataset=dataset,
             predictor_field=predictor_field,
             use_pb=p.progressbar,
-            use_print=p.progress,
+            use_print=p.progress, # TODO: implement possibilty to append results
         )
         res = dataset.evaluate_detections(
             predictor_field,
@@ -324,7 +350,8 @@ def main(p):  # noqa: C901
             json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     # remove the predicted field from the database
-    dataset.delete_sample_field(predictor_field)
+    dataset.delete_sample_field(predictor_field) # TODO: depends, if we want to recover from an interrupted predictor run
+    
     # WARNING: if the program is ctrl-c'd/killed then the field will
     # remain there..!
 

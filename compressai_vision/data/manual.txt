@@ -78,7 +78,7 @@ commands & parameters:
 
     detectron2_eval     evaluate model with detectron2 using OpenImageV6
                         evaluation protocol optionally with no (de)compression or
-                        with compressai or vtm
+                        with compressai or vtm. 
 
         --name          name of the fiftyone registered database
         --model         name of the detectron2 model
@@ -138,7 +138,8 @@ commands & parameters:
                         for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
                         the tags correspond to __open image ids__
         --keep          keep all intermediate files (for debugging)
-        --checkmode     report which required bitstream files are missing from the cache
+        --check         simply reports which bitstream files are missing from the cache
+                        if you enable this, then no bitstream verification is done
 
         example 1:
 

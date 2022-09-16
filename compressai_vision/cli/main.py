@@ -233,7 +233,7 @@ def process_cl_args():
         "--keep", action="store_true", default=False, help="vtm: keep all intermediate files (for debugging)"
     )
     parser.add_argument(
-        "--checkmode", action="store_true", default=False, help="vtm: report if bitstream files are missing"
+        "--check", action="store_true", default=False, help="vtm: report if bitstream files are missing"
     )
     parser.add_argument(
         "--tags",

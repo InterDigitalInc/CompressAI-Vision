@@ -96,9 +96,8 @@ def annexPredictions(
         # sample.filepath
         path = sample.filepath
         im = cv2.imread(path)
-        tag = path.split(os.path.sep)[-1].split(".")[
-            0
-        ]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+        # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
+        tag = sample.open_images_id # TODO: if there is no open_images_id, then use the normal id?
         # print(tag)
         if encoder_decoder is not None:
             # before using detector, crunch through
@@ -106,6 +105,11 @@ def annexPredictions(
             bpp, im = encoder_decoder.BGR(
                 im, tag=tag
             )  # include a tag for cases where EncoderDecoder uses caching
+            if bpp < 0:
+                # there's something wrong with the encoder/decoder process
+                # say, corrupt data from the VTMEncode bitstream etc.
+                print("EncoderDecoder returned error: will abort")
+                return -1
             bpp_sum += bpp
         res = predictor(im)
         predictions = detectron251(
@@ -113,6 +117,7 @@ def annexPredictions(
             model_catids=model_meta.thing_classes,
             # allowed_labels=allowed_labels # not needed, really
         )  # fiftyone Detections object
+        predictions.bpp = bpp # TODO use this in the future
         sample[predictor_field] = predictions
         # we could attach the bitrate to each detection, of course
         # if encoder_decoder is not None:
