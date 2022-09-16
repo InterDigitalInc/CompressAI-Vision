@@ -146,7 +146,7 @@ def main(p):
     print("Print progress         :", p.progress)
     if p.keep:
         print("WARNING: keep enabled --> will not remove intermediate files")
-    if p.checkmode:
+    if p.check:
         print("WARNING: checkmode enabled --> will only check if bitstream files exist or not")
     if not p.y:
         input("press enter to continue.. ")
@@ -161,39 +161,45 @@ def main(p):
             cache=p.vtm_cache,
             scale=p.scale,
             dump=p.dump,
-            skip=True, # if there's a bitstream file then just exit at call to BGR
+            skip=p.check, # if there's a bitstream file then just exit at call to BGR
             keep=p.keep,
-            checkmode=p.checkmode
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
             pb = ProgressBar(dataset)
 
         cc = 0
+        """
         if p.checkmode: # just report which bitstreams exist in the cache
             print()
             print("reporting images missing bitstream at '%s'" % enc_dec.getCacheDir())
             print("n / id / open_images_id (use this!) / path")
             check_c=0
-
+        """
         for sample in dataset:
             cc += 1
             # sample.filepath
             path = sample.filepath
-            im = cv2.imread(path)
+            im0 = cv2.imread(path)
             # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
             tag = sample.open_images_id # TODO: if there is no open_images_id, then use the normal id?
             # print(tag)
-            bpp, im = enc_dec.BGR(im, tag=tag)
-
-            if p.checkmode: # just report which bitstreams exist in the cache
-                if bpp == 0:
-                    pass
-                else:
-                    check_c += 1
-                    print(check_c, "/", sample.id, "/", sample.open_images_id, "/", path)
-                continue
-
+            bpp, im = enc_dec.BGR(im0, tag=tag)
+            if bpp < 0:
+                if p.check:
+                    print("Bitstream missing for image id={id}, openImageId={tag}, path={path}". format(
+                        id=sample.id, tag=tag, path=path))
+                    continue
+                # enc_dec.BGR tried to use the existing bitstream file but failed to decode it
+                print("Corrupt data for image id={id}, openImageId={tag}, path={path}". format(
+                    id=sample.id, tag=tag, path=path))
+                # .. the bitstream has been removed
+                print("Trying to regenerate")
+                # let's try to generate it again
+                bpp, im = enc_dec.BGR(im0, tag=tag)
+                if bpp < 0:
+                    print("DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!". format(
+                        id=sample.id, tag=tag, path=path))
             if p.progress > 0 and ((cc % p.progress) == 0):
                 print("sample: ", cc, "/", len(dataset), "tag:", tag)
             if p.progressbar:

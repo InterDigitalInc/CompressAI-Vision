@@ -35,9 +35,9 @@ class FFMpeg:
             args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         stdout, stderr = p.communicate(f.getvalue())
-        if (stdout is None) or (len(stdout) < 5):  # say
+        if (stdout is None) or (len(stdout) < 5) or p.returncode!=0:
             # print(stderr.decode("utf-8"))
-            self.logger.fatal(stderr.decode("utf-8"))
+            self.logger.fatal("ffmpeg failed with %s", stderr.decode("utf-8"))
             return None
         f2 = io.BytesIO(stdout)
         pil_img2 = Image.open(f2).convert("RGB")
@@ -63,10 +63,8 @@ class FFMpeg:
             args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         stdout, stderr = p.communicate(f.getvalue())
-        if (stdout is None) or (len(stdout) < 5):  # say
-            # print("ERROR")
-            # print(stderr.decode("utf-8"))
-            self.logger.fatal(stderr.decode("utf-8"))
+        if (stdout is None) or (len(stdout) < 5) or p.returncode!=0:  # say
+            self.logger.fatal("ffmpeg failed with %s", stderr.decode("utf-8"))
             return None
         f2 = io.BytesIO(stdout)
         return f2.read()
@@ -91,10 +89,8 @@ class FFMpeg:
             args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         stdout, stderr = p.communicate(raw)
-        if (stdout is None) or (len(stdout) < 5):  # say
-            # print("ERROR")
-            # print(stderr.decode("utf-8"))
-            self.logger.fatal(stderr.decode("utf-8"))
+        if (stdout is None) or (len(stdout) < 5) or p.returncode!=0:  # say
+            self.logger.fatal("ffmpeg failed with %s", stderr.decode("utf-8"))
             return None
         f = io.BytesIO(stdout)
         pil_img = Image.open(f)

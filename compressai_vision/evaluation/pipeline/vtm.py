@@ -47,6 +47,15 @@ from compressai_vision.tools import test_command, dumpImageArray
 from compressai_vision.constant import vf_per_scale
 
 
+def removeFileIf(path) -> bool:
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        return False
+    else:
+        return True
+
+
 class VTMEncoderDecoder(EncoderDecoder):
     """EncoderDecoder class for VTM encoder
 
@@ -62,10 +71,8 @@ class VTMEncoderDecoder(EncoderDecoder):
                   NOTE: If scale is defined, "scale/qp/" is appended to the cache path.  If no scale is defined, the appended path is "0/qp/"
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
     :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.
-                 When enabled, method BGR returns (0, None)
-    :param checkmode: do nothing else, but just check the cache for existing bitstream files.  Good for checking problematic input files. default False.
-                      When enabled, method BGR returns (0, None) when file found and (-1, None) when not found
-
+                 When enabled, method BGR returns (0, None).  NOTE: do not use if you want to verify the bitstream files.
+    
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
 
@@ -118,7 +125,6 @@ class VTMEncoderDecoder(EncoderDecoder):
         dump=False,
         skip=False,
         keep=False,
-        checkmode=False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -137,7 +143,6 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.dump = dump
         self.skip = skip
         self.keep = keep
-        self.checkmode = checkmode
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
@@ -241,7 +246,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         bin_path=None,
         width=None,
         height=None,
-    ):
+    ) -> bool:
         assert inp_yuv_path is not None
         assert out_yuv_path is not None
         assert bin_path is not None
@@ -264,6 +269,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         )
         stdout, stderr = p.communicate()
         if p.returncode != 0:
+            """
             raise (
                 AssertionError(
                     "VTM encode failed with:\n"
@@ -271,8 +277,14 @@ class VTMEncoderDecoder(EncoderDecoder):
                     + "\nYOU PROBABLY SHOULD ENABLE FFMPEG SCALING\n"
                 )
             )
+            """
+            self.logger.fatal("VTM encode failed with %s", stderr.decode("utf-8"))
+            self.logger.fatal("\nYOU PROBABLY SHOULD ENABLE FFMPEG SCALING\n")
+            return False
+        else:
+            return True
 
-    def __VTMDecode__(self, bin_path=None, rec_yuv_path=None):
+    def __VTMDecode__(self, bin_path=None, rec_yuv_path=None) -> bool:
         assert bin_path is not None
         assert rec_yuv_path is not None
         comm = "{decoderApp} -b {bin_path} -o {rec_yuv_path}".format(
@@ -287,14 +299,26 @@ class VTMEncoderDecoder(EncoderDecoder):
         )
         stdout, stderr = p.communicate()
         if p.returncode != 0:
-            raise (AssertionError("VTM decode failed with " + stderr.decode("utf-8")))
+            # raise (AssertionError("VTM decode failed with " + stderr.decode("utf-8")))
+            self.logger.fatal("VTM encode failed with %s", stderr.decode("utf-8"))
+            return False
+        else:
+            return True
 
-    def BGR(self, bgr_image, tag=None):
+
+    def BGR(self, bgr_image, tag=None) -> tuple:
         """
         :param bgr_image: numpy BGR image (y,x,3)
         :param tag: a string that can be used to identify & cache images (optional).  Necessary if you're using caching
 
-        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM, namely:
+        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM.
+
+        Returns a tuple of (bpp, transformed_bgr_image)
+
+        This method is somewhat complex: in addition to perform the necessary image transformation, it also handles caching of bitstreams,
+        inspection if bitstreams exist, etc.  Error conditions from ffmpeg and/or from VTMEncoder/Decoder must be taken correctly into account.
+
+        VCM working group ops:
 
         ::
 
@@ -314,7 +338,7 @@ class VTMEncoderDecoder(EncoderDecoder):
                 -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
             4. {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
             5. ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1 -pix_fmt rgb24 {rec_png_path}
-            6. ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path} # NOTE: This can be done only if scale=100%, i.e. just remove the padding
+            6. ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path} # NOTE: This can be done only if scale=100%, i.e. to remove padding
         """
         # we could use this to create unique filename if we want cache & later identify the images:
         # "X".join([str(n) for n in md5(bgr_image).digest()])
@@ -329,22 +353,35 @@ class VTMEncoderDecoder(EncoderDecoder):
             tag = ""
             fname_bin = os.path.join(self.folder, "bin")  # bin produced by VTM
 
-        if self.checkmode or self.skip:
-            assert self.caching, "checkmode and skip require caching enabled"
+        if self.skip:
+            assert self.caching, "skip requires caching enabled"
+
+        """A separate checkmode is not a good idea.. either check if the file exists (quickcheck) or otherwise
+        do the whole pipeline (using the existing bitstream)
 
         if self.caching and self.checkmode:
-            self.logger.debug("Checkmode: looking for file %s", fname_bin)
+            self.logger.debug("checkmode: looking for file %s", fname_bin)
             # just check if required bitstream exists.  return 0 if ok, -1 if not there
             if os.path.isfile(fname_bin):
+                self.logger.debug("checkmode: test reading file %s", fname_bin)
+                with open(fname_bin, "rb") as f:
+                    bitstream = f.read()
+                if len(bitstream) < 1:
+                    self.logger.warning("checkmode: found empty file for %s: will remove", fname_bin)
+                    removeFileIf(fname_bin)
                 # cached bitstream exists allright
                 return 0, None
             else:
                 self.logger.debug("Checkmode: %s does not exist", fname_bin)
                 return -1, None
+        """
 
-        if self.caching and os.path.isfile(fname_bin) and self.skip:
-            self.logger.debug("Found file %s from cache & skip enabled: returning None", fname_bin)
-            return 0, None
+        if self.skip:
+            if os.path.isfile(fname_bin):
+                self.logger.debug("Found file %s from cache & skip enabled: returning None", fname_bin)
+                return 0, None
+            else:
+                return -1, None
 
         # uid=str(uuid())
         uid = tag  # the tag is supposedly unique, so use that to mark all files
@@ -372,6 +409,9 @@ class VTMEncoderDecoder(EncoderDecoder):
             # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
             vf = vf_per_scale[self.scale]
             padded = self.ffmpeg.ff_op(rgb_image, vf)
+            if padded is None:
+                self.logger.fatal("ffmpeg scale operation failed: will skip image %s", tag)
+                return -1, None
             if self.dump:
                 dumpImageArray(
                     padded,
@@ -385,19 +425,22 @@ class VTMEncoderDecoder(EncoderDecoder):
             self.logger.debug("Creating file %s with ffmpeg", fname_yuv)
             # 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}
             yuv_bytes = self.ffmpeg.ff_RGB24ToRAW(padded, "yuv420p")
+            if yuv_bytes is None:
+                self.logger.fatal("ffmpeg to yuv conversion failed: will skip image %s", tag)
+                return -1, None
 
             # this is not needed since each VTMEncoderDecoder has its own directory
             # tmu=int(time.time()*1E6) # microsec timestamp
             # fname=os.path.join(self.folder, str(tmu))
             # ..you could also use the tag to cache the encoded images if you'd like to do caching
-            self.logger.debug("reading %s from ffmpeg for VTMEncode", fname_yuv)
+            self.logger.debug("writing %s output from ffmpeg to disk (for VTMEncode to read it)", fname_yuv)
             with open(fname_yuv, "wb") as f:
                 f.write(yuv_bytes)
 
             # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path}
             #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
             self.logger.debug("creating %s with VTMEncode", fname_bin)
-            self.__VTMEncode__(
+            ok = self.__VTMEncode__(
                 inp_yuv_path=fname_yuv,
                 out_yuv_path=fname_yuv_out,
                 bin_path=fname_bin,
@@ -407,9 +450,14 @@ class VTMEncoderDecoder(EncoderDecoder):
             # cleanup
             if not self.keep:
                 self.logger.debug("removing %s from ffmpeg", fname_yuv)
-                os.remove(fname_yuv)  # cleanup
+                removeFileIf(fname_yuv)  # cleanup
                 self.logger.debug("removing %s from VTMEncode", fname_yuv_out)
-                os.remove(fname_yuv_out)  # cleanup
+                removeFileIf(fname_yuv_out)  # cleanup
+                
+            if (not ok) or (not os.path.isfile(fname_bin)):
+                self.logger.fatal("VTMEncode failed: will skip image %s", tag)
+                return -1, None
+            
         else:
             self.logger.debug("Using existing file %s from cache", fname_bin)
 
@@ -417,27 +465,51 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.logger.debug("reading %s from VTMEncode for bpp calculation", fname_bin)
         with open(fname_bin, "rb") as f:
             n_bytes = len(f.read())
+
+        if n_bytes < 1:
+            self.logger.fatal("Empty output from VTMEncode: will skip image %s & remove the bitstream file", tag)
+            self.removeFileIf(fname_bin)
+            return -1, None
+
         bpp = n_bytes * 8 / (rgb_image.shape[1] * rgb_image.shape[0])
 
         # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
-        self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
+        ok = self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
+
+        if (not ok) or (not os.path.isfile(fname_rec)):
+            self.logger.fatal("VTMDecode failed: will skip image %s & remove the bitstream file", tag)
+            removeFileIf(fname_rec)
+            removeFileIf(fname_bin)
+            return -1, None
 
         self.logger.debug("reading %s from VTMDecode", fname_rec)
         with open(fname_rec, "rb") as f:
             yuv_bytes_hat = f.read()
+    
+        if len(yuv_bytes_hat) < 1:
+            self.logger.fatal("Empty output from VTMDecode: will skip image %s & remove the bitstream file", tag)
+            removeFileIf(fname_rec)
+            removeFileIf(fname_bin)
+            return -1, None
+
         if not self.keep:
             self.logger.debug("removing %s from VTMDecode", fname_rec)
-        os.remove(fname_rec)  # cleanup
+            removeFileIf(fname_rec)  # cleanup
 
         if not self.caching and not self.keep:
             self.logger.debug("removing %s from VTMEncode", fname_bin)
-            os.remove(fname_bin)
+            removeFileIf(fname_bin)
 
         # 5. MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}
         form = "yuv420p10le"
         padded_hat = self.ffmpeg.ff_RAWToRGB24(
             yuv_bytes_hat, form=form, width=padded.shape[1], height=padded.shape[0]
         )
+
+        if padded_hat is None:
+            self.logger.fatal("ffmpeg raw->rgb24 operation failed: will skip image %s & remove bitstream file (if cached)", tag)
+            removeFileIf(fname_bin)
+            return -1, None
 
         if self.scale is not None and self.scale == 100:
             # was scaled, so need to backscale
@@ -450,6 +522,10 @@ class VTMEncoderDecoder(EncoderDecoder):
                     width=rgb_image.shape[1], height=rgb_image.shape[0]
                 ),
             )
+            if rgb_image_hat is None:
+                self.logger.fatal("ffmpeg crop operation failed: will skip image %s & remove bitstream file (if cached)", tag)
+                removeFileIf(fname_bin)
+                return -1, None
         else:
             rgb_image_hat = padded_hat
 
