@@ -198,9 +198,13 @@ def main(p):  # noqa: C901
     #    datetime.datetime.now()
     #)
     # even better idea: create a temporarily cloned database
-    tmp_name=p.name+".detectron-run.{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+    try:
+        username=os.environ["USER"]
+    except KeyError:
+        username="nouser"
+    tmp_name=p.name+"-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
         datetime.datetime.now())
-
+    tmp_name = "detectron-run-"+username+"-"+tmp_name
     print()
     print("Using dataset          :", p.name)
     print("Dataset tmp clone      :", tmp_name)
@@ -314,6 +318,7 @@ def main(p):  # noqa: C901
                 print()
                 return
 
+            print("evaluating dataset", ds.name)
             res = dataset.evaluate_detections(
                 predictor_field,
                 gt_field="detections",
