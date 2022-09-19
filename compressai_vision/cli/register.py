@@ -109,3 +109,10 @@ def main(p):
             image_ids=image_ids,
         )
     dataset.persistent = True  # don't forget!
+
+    print()
+    print("** Let's peek at the first sample - check that it looks ok:**")
+    print()
+    print(dataset.first())
+    print()
+    

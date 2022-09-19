@@ -332,7 +332,7 @@ def main(p):  # noqa: C901
                 use_print=p.progress,
             )
 
-            if bpp < 0:
+            if bpp is None or bpp < 0:
                 print()
                 print("Sorry, mAP calculation aborted")
                 ##TODO: implement:
