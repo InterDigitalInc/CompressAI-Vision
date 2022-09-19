@@ -69,6 +69,12 @@ def main():
     if c > 0:
         print("\nRUNNING FFMPEG FAILED\n")
     #
+
+    print("\n*** DATABASE ***")
+    print("info about your connection:")
+    print(fo.core.odm.database.get_db_conn())
+    print()
+
     print("\n*** DATASETS ***")
     print("datasets currently registered into fiftyone")
     print("name, length, first sample path")
