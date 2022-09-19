@@ -187,18 +187,30 @@ def main(p):  # noqa: C901
     # print("model was trained with", model_dataset)
     model_meta = MetadataCatalog.get(model_dataset)
 
-    # predictor_field = "detectron-predictions"
+    predictor_field = "detectron-predictions"
     ## instead, create a unique identifier for the field
     ## in this run: this way parallel runs dont overwrite
     ## each other's field
     ## as the database is the same for each running instance/process
     # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
     # predictor_field = "detectron-"+ui
-    predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
-        datetime.datetime.now()
+    # predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+    #    datetime.datetime.now()
+    # )
+    # even better idea: create a temporarily cloned database
+    try:
+        username = os.environ["USER"]
+    except KeyError:
+        username = "nouser"
+    tmp_name0 = p.name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(datetime.datetime.now())
+
+    tmp_name = "detectron-run-{username}-{tmp_name0}".format(
+        username=username, tmp_name0=tmp_name0
     )
+
     print()
     print("Using dataset          :", p.name)
+    print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # woops.. can't use slicing
         print("Using slice            :", str(fr) + ":" + str(to))
@@ -220,7 +232,7 @@ def main(p):  # noqa: C901
         print("Quality parameters     :", qpars)
 
     print("Eval. datafield name    :", predictor_field)
-    print("(if aborted, start again with --resume=%s)" % predictor_field)
+    # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
@@ -237,6 +249,29 @@ def main(p):  # noqa: C901
 
     if not p.y:
         input("press enter to continue.. ")
+
+    # save metadata about the run into the json file
+    metadata = {
+        "dataset": p.name,
+        "dataset tmp name": tmp_name,
+        "slice": p.slice,
+        "model": model_name,
+        "compressai model": p.compressai,
+        "vtm": p.vtm,
+        "vtm_cache": p.vtm_cache,
+        "qpars": qpars,
+        # "map"     : ys,
+        # "map_per_class": maps
+    }
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
+
+    # please see ../monkey.py for problems I encountered when cloning datasets
+    # simultaneously with various multiprocesses/batch jobs
+    print("cloning dataset", p.name, "to", tmp_name)
+    dataset = dataset.clone(tmp_name)
+    dataset.persistent = True
+    # fo.core.odm.database.sync_database() # this would've helped? not sure..
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
@@ -306,6 +341,7 @@ def main(p):  # noqa: C901
                 print()
                 return
 
+            # print("evaluating dataset", dataset.name)
             res = dataset.evaluate_detections(
                 predictor_field,
                 gt_field="detections",
@@ -318,8 +354,6 @@ def main(p):  # noqa: C901
             xs.append(bpp)
             ys.append(res.mAP())
             maps.append(per_class(res))
-            with open(p.output, "w") as f:
-                json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     else:
         bpp = annexPredictions(
@@ -345,9 +379,15 @@ def main(p):  # noqa: C901
         with open(p.output,"wb") as f:
             pickle.dump((xs, ys, maps), f)
         """
-        with open(p.output, "w") as f:
-            json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
+    print(">>", metadata)
+    metadata["bpp"] = xs
+    metadata["map"] = ys
+    metadata["map_per_class"] = maps
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
+
+    """
     # remove the predicted field from the database
     dataset.delete_sample_field(
         predictor_field
@@ -355,14 +395,13 @@ def main(p):  # noqa: C901
 
     # WARNING: if the program is ctrl-c'd/killed then the field will
     # remain there..!
+    """
+    # remove the tmp database
+    print("deleting tmp database", tmp_name)
+    fo.delete_dataset(tmp_name)
 
     print("\nHAVE A NICE DAY!\n")
     """load with:
     with open(p.output,"r") as f:
         res=json.load(f)
-    """
-    """old:
-    with open(p.output,"rb") as f:
-        xs, ys, maps = pickle.load(f)
-        print(xs, ys, maps)
     """
