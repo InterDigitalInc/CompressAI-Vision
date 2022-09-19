@@ -194,17 +194,20 @@ def main(p):  # noqa: C901
     ## as the database is the same for each running instance/process
     # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
     # predictor_field = "detectron-"+ui
-    #predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+    # predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
     #    datetime.datetime.now()
-    #)
+    # )
     # even better idea: create a temporarily cloned database
     try:
-        username=os.environ["USER"]
+        username = os.environ["USER"]
     except KeyError:
-        username="nouser"
-    tmp_name=p.name+"-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
-        datetime.datetime.now())
-    tmp_name = "detectron-run-"+username+"-"+tmp_name
+        username = "nouser"
+    tmp_name0 = p.name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(datetime.datetime.now())
+
+    tmp_name = "detectron-run-{username}-{tmp_name0}".format(
+        username=username, tmp_name0=tmp_name0
+    )
+
     print()
     print("Using dataset          :", p.name)
     print("Dataset tmp clone      :", tmp_name)
@@ -247,8 +250,28 @@ def main(p):  # noqa: C901
     if not p.y:
         input("press enter to continue.. ")
 
+    # save metadata about the run into the json file
+    metadata = {
+        "dataset": p.name,
+        "dataset tmp name": tmp_name,
+        "slice": p.slice,
+        "model": model_name,
+        "compressai model": p.compressai,
+        "vtm": p.vtm,
+        "vtm_cache": p.vtm_cache,
+        "qpars": qpars,
+        # "map"     : ys,
+        # "map_per_class": maps
+    }
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
+
+    # please see ../monkey.py for problems I encountered when cloning datasets
+    # simultaneously with various multiprocesses/batch jobs
     print("cloning dataset", p.name, "to", tmp_name)
-    dataset=dataset.clone(tmp_name, persistent=True)
+    dataset = dataset.clone(tmp_name)
+    dataset.persistent = True
+    # fo.core.odm.database.sync_database() # this would've helped? not sure..
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
@@ -318,7 +341,7 @@ def main(p):  # noqa: C901
                 print()
                 return
 
-            print("evaluating dataset", ds.name)
+            # print("evaluating dataset", dataset.name)
             res = dataset.evaluate_detections(
                 predictor_field,
                 gt_field="detections",
@@ -331,8 +354,6 @@ def main(p):  # noqa: C901
             xs.append(bpp)
             ys.append(res.mAP())
             maps.append(per_class(res))
-            with open(p.output, "w") as f:
-                json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
 
     else:
         bpp = annexPredictions(
@@ -358,8 +379,13 @@ def main(p):  # noqa: C901
         with open(p.output,"wb") as f:
             pickle.dump((xs, ys, maps), f)
         """
-        with open(p.output, "w") as f:
-            json.dump({"bpp": xs, "map": ys, "map_per_class": maps}, f)
+
+    print(">>", metadata)
+    metadata["bpp"] = xs
+    metadata["map"] = ys
+    metadata["map_per_class"] = maps
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
 
     """
     # remove the predicted field from the database
@@ -378,9 +404,4 @@ def main(p):  # noqa: C901
     """load with:
     with open(p.output,"r") as f:
         res=json.load(f)
-    """
-    """old:
-    with open(p.output,"rb") as f:
-        xs, ys, maps = pickle.load(f)
-        print(xs, ys, maps)
     """
