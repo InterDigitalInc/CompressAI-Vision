@@ -46,9 +46,13 @@ fname_list = [
 help_st = """
 compressai-nokia-auto-import
 
+parameters:
+
+    --datadir=/path/to/datasets     directory where all datasets are downloaded by default (optional)
+
 Automatic downloading of images and importing nokia-provided files into fiftyone
 
-Before running this command (without any arguments), put the following files into the same directory
+Before running this command, put the following files into the same directory
 (please note 'detection_validation_5k_bbox.csv' name inconsistency):
 
 """
@@ -95,9 +99,14 @@ def main():
     from compressai_vision.cli import download, dummy, nokia_convert, register
 
     args = []
+    dirname=None
     if len(sys.argv) > 1:
         if sys.argv[1] in ["MOCK"]:  # some debugging cli parameters are allowed
-            args = sys.argv[1:]
+            args = sys.argv[1]
+        elif "--datadir=" in sys.argv[1]:
+            dirname=sys.argv[1].split("=")[1].strip() # --datadir=/path/to --> /path/to
+            print("WARNING: using datadir", dirname)
+            assert os.path.isdir(dirname), "no such directory "+dirname
         else:
             print(help_st)
             return
@@ -117,7 +126,11 @@ def main():
     p.y = False
     p.name = "open-images-v6"
 
-    dir_ = os.path.join("~", "fiftyone", p.name)  # ~/fiftyone/open-images-v6
+    if dirname is None:
+        dir_ = os.path.join("~", "fiftyone", p.name)  # ~/fiftyone/open-images-v6
+    else:
+        dir_ = os.path.join(dirname, p.name)
+    
     dir_ = get_dir(dir_, "path to download (nokia subset of) OpenImageV6 ")
     source_dir = os.path.join(
         dir_, "validation"
@@ -137,9 +150,14 @@ def main():
     p = Namespace()
     p.y = False
 
-    nokia_dir = os.path.join(
-        "~", "fiftyone", "nokia-detection"
-    )  # ~/fiftyone/nokia-detection
+    if dirname is None:
+        nokia_dir = os.path.join(
+            "~", "fiftyone", "nokia-detection"
+        )  # ~/fiftyone/nokia-detection
+    else:
+        nokia_dir = os.path.join(
+            dirname, "nokia-detection"
+        )
     nokia_dir = get_dir(
         nokia_dir, "imported detection dataset path", make=False, check=False
     )
@@ -158,9 +176,14 @@ def main():
     p = Namespace()
     p.y = False
 
-    nokia_dir_seg = os.path.join(
-        "~", "fiftyone", "nokia-segmentation"
-    )  # ~/fiftyone/nokia-segmentation
+    if dirname is None:
+        nokia_dir_seg = os.path.join(
+            "~", "fiftyone", "nokia-segmentation"
+        )  # ~/fiftyone/nokia-segmentation
+    else:
+        nokia_dir_seg = os.path.join(
+            dirname, "nokia-segmentation"
+        )
     nokia_dir_seg = get_dir(
         nokia_dir_seg, "imported segmentation dataset path", make=False, check=False
     )

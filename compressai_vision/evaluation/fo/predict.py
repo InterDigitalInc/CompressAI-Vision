@@ -96,6 +96,9 @@ def annexPredictions(
         # sample.filepath
         path = sample.filepath
         im = cv2.imread(path)
+        if im is None:
+            print("FATAL: could not read the image file '"+path+"'")
+            return -1
         # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
         tag = (
             sample.open_images_id
