@@ -378,10 +378,13 @@ class VTMEncoderDecoder(EncoderDecoder):
         if self.skip:
             if os.path.isfile(fname_bin):
                 self.logger.debug(
-                    "Found file %s from cache & skip enabled: returning None", fname_bin
+                    "Found file %s from cache & skip enabled: returning 0, None", fname_bin
                 )
                 return 0, None
             else:
+                self.logger.debug(
+                    "Couldn't find file %s from cache & skip enabled: returning -1, None", fname_bin
+                )
                 return -1, None
 
         # uid=str(uuid())
