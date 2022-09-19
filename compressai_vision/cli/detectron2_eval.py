@@ -244,8 +244,7 @@ def main(p):  # noqa: C901
         input("press enter to continue.. ")
 
     print("cloning dataset", p.name, "to", tmp_name)
-    dataset=dataset.clone(tmp_name)
-    dataset.persistent=True
+    dataset=dataset.clone(tmp_name, persistent=True)
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
