@@ -116,17 +116,20 @@ def annexPredictions(
                 print("EncoderDecoder returned error: will abort")
                 return -1
             bpp_sum += bpp
+        
         res = predictor(im)
+
         predictions = detectron251(
             res,
             model_catids=model_meta.thing_classes,
             # allowed_labels=allowed_labels # not needed, really
         )  # fiftyone Detections object
-        predictions.bpp = bpp  # TODO use this in the future
+
+        if encoder_decoder is not None:
+            predictions.bpp = bpp  # TODO use this in the future
+
         sample[predictor_field] = predictions
-        # we could attach the bitrate to each detection, of course
-        # if encoder_decoder is not None:
-        #    sample["bpp"]=bpp
+        
         sample.save()
         if use_pb:
             pb.update()
