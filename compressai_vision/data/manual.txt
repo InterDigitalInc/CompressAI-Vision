@@ -80,16 +80,19 @@ commands & parameters:
                         evaluation protocol optionally with no (de)compression or
                         with compressai or vtm. 
 
+                        WARNING/TODO : currently works only for detections
+                        (not for segmentations)
+
         --name          name of the fiftyone registered database
         --model         name of the detectron2 model
                         for example:
                         COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         --output        outputfile, default: compressai-vision.json
-        --compressai    compressai model (optional), for example: bmshj2018_factorized
+        --compressai    CompressAI model (optional), for example: bmshj2018_factorized
+                        can be a model name from the CompressAI model zoo
+                        or a path to a consolidated directory with a custom model
         --vtm           use vtm model (optional)
         --qpars         quality parameters to be used with either compressai or vtm
-                        WARNING/TODO : currently works only for detections
-                        (not for segmentations)
         --scale         ffmpeg scaling applied to the image as defined per VCM working group.
                         values can be: 100 (original size), 75, 50, 25.
                         0 = no scaling applied
@@ -122,6 +125,11 @@ commands & parameters:
             compressai-vision detectron2_eval --y --name=nokia-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
+
+        example 3 (calculate mAP=mAP(bpp)):
+            compressai-vision detectron2_eval --y --name=nokia-detection \\
+                --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
+                --compressai=/path/to/directory --qpars=1
 
     vtm                 generate bitstream with the vtm video encoder
                         this is done also by the command detectron2_eval, but you

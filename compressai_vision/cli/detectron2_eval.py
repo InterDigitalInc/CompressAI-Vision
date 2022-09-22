@@ -86,10 +86,30 @@ def main(p):  # noqa: C901
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
-        import compressai.zoo
 
-        # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
-        compressai_model = getattr(compressai.zoo, p.compressai)
+        compressai_from_zoo=False
+        if os.path.isdir(p.compressai): # directory name & model name could be in theory, confused
+            path=os.path.join(p.compressai, "model.py")
+            assert os.path.isfile(path), "your model directory is missing model.py"
+            # if the directory has the same name & is under current dir..!
+            import importlib.util
+            try:
+                spec = importlib.util.spec_from_file_location("module", os.path.join(p.compressai, path))
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+            except Exception as e:
+                print("loading model from directory", p.compressai, "failed with", e)
+                compressai_from_zoo=True # try to load from zoo instead
+            else:
+                assert(hasattr(module, "getModel")), "your module is missing getModel function"
+                compressai_model = module.getModel # a function that returns a model instance or just a class
+        else:
+            compressai_from_zoo=True
+
+        if compressai_from_zoo:
+            import compressai.zoo
+            # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
+            compressai_model = getattr(compressai.zoo, p.compressai) # a function that returns a model instance or just a class
     else:
         compressai_model = None
 
@@ -220,6 +240,10 @@ def main(p):  # noqa: C901
     print("Model was trained with :", model_dataset)
     if compressai_model is not None:
         print("Using compressai model :", p.compressai)
+        if compressai_from_zoo:
+            print("--> Compressai model from the zoo")
+        else:
+            print("--> Compressai model loaded from separate directory")
     elif p.vtm:
         print("Using VTM               ")
         if p.vtm_cache:
