@@ -121,7 +121,6 @@ def main(p):
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
         from fiftyone import ViewField as F
-
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 
     if p.scale is not None:
@@ -166,6 +165,7 @@ def main(p):
             dump=p.dump,
             skip=p.check,  # if there's a bitstream file then just exit at call to BGR
             keep=p.keep,
+            warn=True
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
@@ -189,8 +189,8 @@ def main(p):
                 sample.open_images_id
             )  # TODO: if there is no open_images_id, then use the normal id?
             # print(tag)
-            bpp, im = enc_dec.BGR(im0, tag=tag)
-            if bpp < 0:
+            nbits, im = enc_dec.BGR(im0, tag=tag)
+            if nbits < 0:
                 if p.check:
                     print(
                         "Bitstream missing for image id={id}, openImageId={tag}, path={path}".format(
@@ -207,8 +207,8 @@ def main(p):
                 # .. the bitstream has been removed
                 print("Trying to regenerate")
                 # let's try to generate it again
-                bpp, im = enc_dec.BGR(im0, tag=tag)
-                if bpp < 0:
+                nbits, im = enc_dec.BGR(im0, tag=tag)
+                if nbits < 0:
                     print(
                         "DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!".format(
                             id=sample.id, tag=tag, path=path

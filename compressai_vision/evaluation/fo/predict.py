@@ -49,7 +49,7 @@ def annexPredictions(
     use_pb: bool = False,  # progressbar.  captures stdion
     use_print: int = 1,  # print progress at each n:th line.  good for batch jobs
 ):
-    """Run detector on a dataset and annex predictions of the detector into the dataset.
+    """Run detector and EncoderDecoder instance on a dataset.  Append detector results and bits-per-pixel to each sample.
 
     :param predictor: A Detectron2 predictor
     :param fo_dataset: Fiftyone dataset
@@ -85,8 +85,8 @@ def annexPredictions(
         )
         # allowed_labels = []
 
-    # add predicted bboxes to each fiftyone Sample
-    bpp_sum = 0
+    npix_sum=0
+    nbits_sum=0
     cc = 0
     # with ProgressBar(fo_dataset) as pb: # captures stdout
     if use_pb:
@@ -105,29 +105,36 @@ def annexPredictions(
         )  # TODO: if there is no open_images_id, then use the normal id?
         # print(tag)
         if encoder_decoder is not None:
-            # before using detector, crunch through
+            # before using a detector, crunch through
             # encoder/decoder
-            bpp, im = encoder_decoder.BGR(
+            nbits, im_ = encoder_decoder.BGR(
                 im, tag=tag
             )  # include a tag for cases where EncoderDecoder uses caching
-            if bpp < 0:
+            if nbits < 0:
                 # there's something wrong with the encoder/decoder process
                 # say, corrupt data from the VTMEncode bitstream etc.
-                print("EncoderDecoder returned error: will abort")
+                print("EncoderDecoder returned error: will try using it once again")
+                nbits, im_ = encoder_decoder.BGR(
+                    im, tag=tag
+                )
+            if nbits < 0:
+                print("EncoderDecoder returned error - again!  Will abort calculation")
                 return -1
-            bpp_sum += bpp
         
-        res = predictor(im)
+            npix_sum += im.shape[0]*im.shape[1] # use original image (im) dims not transformed image (im_) dims
+            nbits_sum += nbits
+            res = predictor(im)
 
         predictions = detectron251(
             res,
             model_catids=model_meta.thing_classes,
             # allowed_labels=allowed_labels # not needed, really
-        )  # fiftyone Detections object
+        )  # --> fiftyone Detections object
 
+        """# could save nbits into each sample:
         if encoder_decoder is not None:
-            predictions.bpp = bpp  # TODO use this in the future
-
+            predictions.nbits = nbits
+        """
         sample[predictor_field] = predictions
         
         sample.save()
@@ -138,9 +145,13 @@ def annexPredictions(
             print("sample: ", cc, "/", len(fo_dataset))
     if use_pb:
         pb.close()
-    if encoder_decoder is None:
-        return None
-    elif len(fo_dataset) > 0:
-        return bpp_sum / len(fo_dataset)
-    else:
-        return math.nan
+
+    # calculate bpp as defined by the VCM working group:
+    if (npix_sum < 1):
+        print("error: number of pixels sum < 1")
+        return -1
+    if (nbits_sum < 1):
+        print("error: number of bits sum < 1")
+        return -1
+    bpp=nbits_sum/npix_sum
+    return bpp

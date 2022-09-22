@@ -289,7 +289,6 @@ def main(p):  # noqa: C901
     ys = []
     maps = []
     # bpp, mAP values, mAP breakdown per class
-
     if qpars is not None:
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
@@ -318,6 +317,7 @@ def main(p):  # noqa: C901
                     qp=i,
                     cache=p.vtm_cache,
                     scale=p.scale,
+                    warn = True
                 )
             # TODO: separate annexPredictions & evaluate_detectrions
             # into different commands?  this way we could parallelize them
@@ -380,7 +380,7 @@ def main(p):  # noqa: C901
             pickle.dump((xs, ys, maps), f)
         """
 
-    print(">>", metadata)
+    # print(">>", metadata)
     metadata["bpp"] = xs
     metadata["map"] = ys
     metadata["map_per_class"] = maps
@@ -405,3 +405,4 @@ def main(p):  # noqa: C901
     with open(p.output,"r") as f:
         res=json.load(f)
     """
+
