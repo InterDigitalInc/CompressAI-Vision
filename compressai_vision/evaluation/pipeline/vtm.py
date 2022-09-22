@@ -72,6 +72,7 @@ class VTMEncoderDecoder(EncoderDecoder):
     :param dump: debugging option: dump input, intermediate and output images to disk in local directory
     :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.
                  When enabled, method BGR returns (0, None).  NOTE: do not use if you want to verify the bitstream files.
+    :param warn: warn always when a bitstream is generated.  default: False.
 
     This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
     is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.
@@ -93,14 +94,14 @@ class VTMEncoderDecoder(EncoderDecoder):
         quickLog("VTMEncoderDecoder", loglev)
 
         encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=47)
-        bpp, img_hat = encdec.BGR(cv2.imread("fname.png"))
+        nbits, img_hat = encdec.BGR(cv2.imread("fname.png"))
 
     You can enable caching and avoid re-encoding of images:
 
     ::
 
         encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg="ffmpeg", vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg"), qp=47, cache="/tmp/kokkelis")
-        bpp, img_hat = encdec.BGR(cv2.imread("fname.png"), tag="a_unique_tag")
+        nbits, img_hat = encdec.BGR(cv2.imread("fname.png"), tag="a_unique_tag")
 
     Cache can be inspected with:
 
@@ -125,6 +126,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         dump=False,
         skip=False,
         keep=False,
+        warn=False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -143,6 +145,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.dump = dump
         self.skip = skip
         self.keep = keep
+        self.warn = warn
 
         self.save_folder = "vtm_encoder_decoder"
         if self.dump:
@@ -312,7 +315,7 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM.
 
-        Returns a tuple of (bpp, transformed_bgr_image)
+        Returns a tuple of (nbits, transformed_bgr_image)
 
         This method is somewhat complex: in addition to perform the necessary image transformation, it also handles caching of bitstreams,
         inspection if bitstreams exist, etc.  Error conditions from ffmpeg and/or from VTMEncoder/Decoder must be taken correctly into account.
@@ -374,9 +377,8 @@ class VTMEncoderDecoder(EncoderDecoder):
                 self.logger.debug("Checkmode: %s does not exist", fname_bin)
                 return -1, None
         """
-
         if self.skip:
-            if os.path.isfile(fname_bin):
+            if os.path.isfile(fname_bin) and (os.path.getsize(fname_bin) > 5):
                 self.logger.debug(
                     "Found file %s from cache & skip enabled: returning 0, None",
                     fname_bin,
@@ -384,7 +386,7 @@ class VTMEncoderDecoder(EncoderDecoder):
                 return 0, None
             else:
                 self.logger.debug(
-                    "Couldn't find file %s from cache & skip enabled: returning -1, None",
+                    "Couldn't find file %s from cache (or its zero-length) & skip enabled: returning -1, None",
                     fname_bin,
                 )
                 return -1, None
@@ -452,7 +454,11 @@ class VTMEncoderDecoder(EncoderDecoder):
 
             # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path}
             #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
-            self.logger.debug("creating %s with VTMEncode", fname_bin)
+            if self.warn:
+                self.logger.warning("creating bitstream %s with VTMEncode from scratch", fname_bin)
+            else:
+                self.logger.debug("creating bitstream %s with VTMEncode from scratch", fname_bin)
+
             ok = self.__VTMEncode__(
                 inp_yuv_path=fname_yuv,
                 out_yuv_path=fname_yuv_out,
@@ -474,8 +480,8 @@ class VTMEncoderDecoder(EncoderDecoder):
         else:
             self.logger.debug("Using existing file %s from cache", fname_bin)
 
-        # calculate bpp
-        self.logger.debug("reading %s from VTMEncode for bpp calculation", fname_bin)
+        # calculate nbits
+        self.logger.debug("reading %s from VTMEncode", fname_bin)
         with open(fname_bin, "rb") as f:
             n_bytes = len(f.read())
 
@@ -487,7 +493,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             removeFileIf(fname_bin)
             return -1, None
 
-        bpp = n_bytes * 8 / (rgb_image.shape[1] * rgb_image.shape[0])
+        nbits = n_bytes * 8 # / (rgb_image.shape[1] * rgb_image.shape[0])
 
         # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
         ok = self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)
@@ -573,10 +579,10 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
         self.logger.debug(
-            "input & output sizes: %s %s. bps = %s",
+            "input & output sizes: %s %s. nbits = %s",
             bgr_image.shape,
             bgr_image_hat.shape,
-            bpp,
+            nbits,
         )
         self.imcount += 1
-        return bpp, bgr_image_hat
+        return nbits, bgr_image_hat

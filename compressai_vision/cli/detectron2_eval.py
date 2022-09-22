@@ -231,13 +231,14 @@ def main(p):  # noqa: C901
     if qpars is not None:
         print("Quality parameters     :", qpars)
 
-    print("Eval. datafield name    :", predictor_field)
+    print("Eval. datafield name   :", predictor_field)
     # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
         p.progress = 0
     print("Print progress         :", p.progress)
+    print("Output file            :", p.output)
     classes = dataset.distinct("detections.detections.label")
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
@@ -289,7 +290,6 @@ def main(p):  # noqa: C901
     ys = []
     maps = []
     # bpp, mAP values, mAP breakdown per class
-
     if qpars is not None:
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
@@ -318,6 +318,7 @@ def main(p):  # noqa: C901
                     qp=i,
                     cache=p.vtm_cache,
                     scale=p.scale,
+                    warn = True
                 )
             # TODO: separate annexPredictions & evaluate_detectrions
             # into different commands?  this way we could parallelize them
@@ -380,7 +381,7 @@ def main(p):  # noqa: C901
             pickle.dump((xs, ys, maps), f)
         """
 
-    print(">>", metadata)
+    # print(">>", metadata)
     metadata["bpp"] = xs
     metadata["map"] = ys
     metadata["map_per_class"] = maps
@@ -405,3 +406,4 @@ def main(p):  # noqa: C901
     with open(p.output,"r") as f:
         res=json.load(f)
     """
+

@@ -137,9 +137,11 @@ commands & parameters:
         --tags          pick certain images from the dataset/slice
                         for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
                         the tags correspond to __open image ids__
+        --output        outputfile, default: compressai-vision.json.  Reports metadata and 
+                        bpp values for each qpar
         --keep          keep all intermediate files (for debugging)
         --check         simply reports which bitstream files are missing from the cache
-                        if you enable this, then no bitstream verification is done
+                        if you enable this, no bitstream verification is done
 
         example 1:
 

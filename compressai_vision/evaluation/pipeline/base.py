@@ -33,7 +33,7 @@ import logging
 class EncoderDecoder:
     """NOTE: virtual class that *you* need to subclass
 
-    An instance of this class encodes an image, calculates the bitrate and decodes the encoded image, resulting in "transformed" image.
+    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image, resulting in "transformed" image.
 
     Transformed image is similar to the original image, while the encoding+decoding process might have introduced some distortion.
 
@@ -47,22 +47,14 @@ class EncoderDecoder:
 
     def reset(self):
         """Reset the internal state of the encoder & decoder, if there is any"""
-        self.bpp_sum = 0  # accumulated bits per pixel sum
         self.cc = 0
 
-    def getAverageBpps(self):
-        """The encoder decoder can internally accumulate bits per pixel sum in order to get the average value"""
-        if self.cc <= 0:
-            return 0
-        else:
-            return self.bpp_sum / self.cc
-
     def __call__(self, x) -> tuple:
-        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
+        """Push images(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
 
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
 
-        Returns (bpps, x_hat), where bpps is a list of bit per pixel values and x_hat is the image that has gone throught the encoder/decoder process
+        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
         self.cc += 1
         raise (AssertionError("virtual"))
@@ -75,7 +67,7 @@ class EncoderDecoder:
 
         Takes in an BGR image, pushes it through encoder + decoder.
 
-        Returns bits_per_pixel, transformed BGR image.
+        Returns nbits, transformed BGR image.
         """
         raise (AssertionError("virtual"))
 
@@ -89,22 +81,14 @@ class VoidEncoderDecoder(EncoderDecoder):
 
     def reset(self):
         """Reset the internal state of the encoder & decoder, if any"""
-        self.bpp_sum = 0  # accumulated bits per pixel sum
         self.cc = 0
-
-    def getAverageBpps(self):
-        """The encoder decoder can internally accumulate bits per pixel sum in order to get the average value"""
-        if self.cc <= 0:
-            return 0
-        else:
-            return self.bpp_sum / self.cc
 
     def __call__(self, x) -> tuple:
         """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
 
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
 
-        Returns (bpps, x_hat), where bpps is a list of bit per pixel values and x_hat is the image that has gone throught the encoder/decoder process
+        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
         self.cc += 1
         return [0], x
@@ -116,6 +100,6 @@ class VoidEncoderDecoder(EncoderDecoder):
 
         Returns BGR image that has gone through transformation (the encoding + decoding process)
 
-        Returns bits_per_pixel, transformed BGR image
+        Returns nbits, transformed BGR image
         """
         return 0, bgr_image

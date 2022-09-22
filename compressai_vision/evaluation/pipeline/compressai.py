@@ -133,6 +133,8 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
         bpps is a list of bits per second of each compressed image in that batch
         """
+        raise AssertionError("DONT USE")
+
         self.logger.debug(
             "feeding tensor to CompressAI: shape: %s, type: %s", x.shape, x.type()
         )
@@ -167,7 +169,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         return bpps, x_hat
 
     def __v1__(self, x):
-        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
+        """Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images
 
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
 
@@ -175,8 +177,8 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         as per: https://github.com/InterDigitalInc/siloai-playground/blob/7b2fe5069abd9489d301647f53e0534f3a7fbfed/jacky/scripts/object_detection_mAP.py#L163
 
-        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
-        bpps is a list of bits per second of each compressed image in that batch
+        Returns (nbitslist, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
+        nbitslist is a list of number of bits of each compressed image in that batch
         """
         assert x.size()[0] == 1, "batch dimension must be 1"
         with torch.no_grad():
@@ -188,22 +190,20 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # TODO: out_enc["strings"][batch_index?][what?] .. for batch sizes > 1
         bitstream = out_enc["strings"][0][0]  # _the_ compressed bitstream
         x_hat = out_dec["x_hat"].clamp(0, 1)
-        num_pixels = x.shape[2] * x.shape[3]
+        # num_pixels = x.shape[2] * x.shape[3]
         # print("num_pixels", num_pixels)
-        bpp = (
-            8 * len(bitstream) / num_pixels
-        )  # remember to multiply by eight.. BITS not BYTES
-        bpps = [bpp]
+        nbits = 8 * len(bitstream) # BITS not BYTES
+        nbitslist = [nbits]
         x_hat = out_dec["x_hat"]
-        return bpps, x_hat
+        return nbitslist, x_hat
 
-    def BGR(self, bgr_image: np.array, tag=None) -> np.array:
-        """Return transformed image and bpp for a BGR image
+    def BGR(self, bgr_image: np.array, tag=None) -> tuple:
+        """Return transformed image and nbits for a BGR image
 
         :param bgr_image: numpy BGR image (y,x,3)
         :param tag: a string that can be used to identify & cache images (optional)
 
-        Returns bits-per-pixel and transformed BGR image that has gone through compressai encoding+decoding.
+        Returns number of bits and transformed BGR image that has gone through compressai encoding+decoding.
 
         Necessary padding for compressai is added and removed on-the-fly
         """
@@ -261,7 +261,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # RUN COMPRESSAI
         x_pad = x_pad.to(self.device)
-        bpp, x_hat_pad = self(x_pad)
+        nbitslist, x_hat_pad = self(x_pad)
         x_hat_pad = x_hat_pad.to("cpu")
 
         # REMOVE PADDING
@@ -299,11 +299,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             )
 
         self.logger.debug(
-            "input & output sizes: %s %s. bps = %s",
+            "input & output sizes: %s %s. nbits = %s",
             bgr_image.shape,
             bgr_image_hat.shape,
-            bpp[0],
+            nbitslist[0],
         )
         # print(">> cc, bpp_sum ", self.cc, self.bpp_sum)
         self.imcount += 1
-        return bpp[0], bgr_image_hat
+        return nbitslist[0], bgr_image_hat
