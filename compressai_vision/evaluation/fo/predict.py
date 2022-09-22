@@ -121,9 +121,10 @@ def annexPredictions(
                 print("EncoderDecoder returned error - again!  Will abort calculation")
                 return -1
         
-            npix_sum += im.shape[0]*im.shape[1] # use original image (im) dims not transformed image (im_) dims
+            # NOTE: use tranformed image im_
+            npix_sum += im_.shape[0]*im_.shape[1]
             nbits_sum += nbits
-            res = predictor(im)
+            res = predictor(im_)
 
         predictions = detectron251(
             res,

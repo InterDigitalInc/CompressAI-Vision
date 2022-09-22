@@ -29,7 +29,7 @@
 
 """cli detectron2_eval functionality
 """
-import os
+import os, json
 
 
 def main(p):
@@ -140,6 +140,7 @@ def main(p):
         print("WARNING: Picking samples, based on open_images_id field")
     print("Number of samples      :", len(dataset))
     print("Progressbar            :", p.progressbar)
+    print("Output file            :", p.output)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
         p.progress = 0
@@ -149,9 +150,23 @@ def main(p):
     if p.check:
         print(
             "WARNING: checkmode enabled --> will only check if bitstream files exist or not"
+            "WARNING: doesn't calculate bbp values either"
         )
     if not p.y:
         input("press enter to continue.. ")
+
+    # save metadata about the run into the json file
+    metadata = {
+        "dataset": p.name,
+        "just-check": p.check,
+        "slice": p.slice,
+        "vtm_cache": p.vtm_cache,
+        "qpars": qpars,
+    }
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
+
+    xs = []
     for i in qpars:
         print("\nQUALITY PARAMETER", i)
         enc_dec = VTMEncoderDecoder(
@@ -179,6 +194,9 @@ def main(p):
             print("n / id / open_images_id (use this!) / path")
             check_c=0
         """
+        npix_sum=0
+        nbits_sum=0
+        missing = False
         for sample in dataset:
             cc += 1
             # sample.filepath
@@ -193,30 +211,46 @@ def main(p):
             if nbits < 0:
                 if p.check:
                     print(
-                        "Bitstream missing for image id={id}, openImageId={tag}, path={path}".format(
+                        "WARNING: Bitstream missing for image id={id}, openImageId={tag}, path={path}".format(
                             id=sample.id, tag=tag, path=path
                         )
                     )
                     continue
                 # enc_dec.BGR tried to use the existing bitstream file but failed to decode it
                 print(
-                    "Corrupt data for image id={id}, openImageId={tag}, path={path}".format(
+                    "ERROR: Corrupt data for image id={id}, openImageId={tag}, path={path}".format(
                         id=sample.id, tag=tag, path=path
                     )
                 )
                 # .. the bitstream has been removed
-                print("Trying to regenerate")
+                print("ERROR: Trying to regenerate")
                 # let's try to generate it again
                 nbits, im = enc_dec.BGR(im0, tag=tag)
                 if nbits < 0:
                     print(
-                        "DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!".format(
+                        "ERROR: DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!".format(
                             id=sample.id, tag=tag, path=path
                         )
                     )
+            if not p.check:
+                # NOTE: use transformed image im
+                npix_sum += im.shape[0]*im.shape[1]
+                nbits_sum += nbits
             if p.progress > 0 and ((cc % p.progress) == 0):
                 print("sample: ", cc, "/", len(dataset), "tag:", tag)
             if p.progressbar:
                 pb.update()
+
+        if not p.check:
+            if (nbits_sum < 1) or (npix_sum < 1):
+                print("ERROR: nbits_sum", nbits_sum, "npix_sum", npix_sum)
+                xs.append(None)
+            else:
+                xs.append(nbits_sum/npix_sum)
+
+    # print(">>", metadata)
+    metadata["bpp"] = xs
+    with open(p.output, "w") as f:
+        json.dump(metadata, f)
 
     print("\nHAVE A NICE DAY!\n")

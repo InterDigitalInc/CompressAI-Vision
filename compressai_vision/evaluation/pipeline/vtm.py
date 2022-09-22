@@ -378,7 +378,7 @@ class VTMEncoderDecoder(EncoderDecoder):
                 return -1, None
         """
         if self.skip:
-            if os.path.isfile(fname_bin) and (os.path.getsize(fname_bin) > 0):
+            if os.path.isfile(fname_bin) and (os.path.getsize(fname_bin) > 5):
                 self.logger.debug(
                     "Found file %s from cache & skip enabled: returning 0, None",
                     fname_bin,
