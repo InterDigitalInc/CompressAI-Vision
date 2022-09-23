@@ -126,7 +126,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         dump=False,
         skip=False,
         keep=False,
-        warn=False
+        warn=False,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         assert encoderApp is not None, "please give encoder command"
@@ -455,9 +455,13 @@ class VTMEncoderDecoder(EncoderDecoder):
             # 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path}
             #               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10
             if self.warn:
-                self.logger.warning("creating bitstream %s with VTMEncode from scratch", fname_bin)
+                self.logger.warning(
+                    "creating bitstream %s with VTMEncode from scratch", fname_bin
+                )
             else:
-                self.logger.debug("creating bitstream %s with VTMEncode from scratch", fname_bin)
+                self.logger.debug(
+                    "creating bitstream %s with VTMEncode from scratch", fname_bin
+                )
 
             ok = self.__VTMEncode__(
                 inp_yuv_path=fname_yuv,
@@ -493,7 +497,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             removeFileIf(fname_bin)
             return -1, None
 
-        nbits = n_bytes * 8 # / (rgb_image.shape[1] * rgb_image.shape[0])
+        nbits = n_bytes * 8  # / (rgb_image.shape[1] * rgb_image.shape[0])
 
         # 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}
         ok = self.__VTMDecode__(bin_path=fname_bin, rec_yuv_path=fname_rec)

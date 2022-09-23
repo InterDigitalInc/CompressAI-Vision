@@ -1,9 +1,8 @@
 # monkey-patching!
 
-
 import fiftyone.core.odm as foo
 from datetime import datetime
-import fiftyone
+import fiftyone  # importing god'damn fiftyone for the first time always takes time as it starts the mongodb
 
 
 def _make_sample_collection_name(patches=False, frames=False, clips=False):
