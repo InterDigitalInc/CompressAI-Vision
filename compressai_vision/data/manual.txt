@@ -5,7 +5,7 @@ that substitutes for download, nokia_convert and register commands.
 
 commands & parameters:
 
-    --y                 non-interactive download
+    --y                 non-interactive
 
     manual
                         shows this manual

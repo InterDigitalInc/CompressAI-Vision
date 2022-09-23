@@ -91,6 +91,7 @@ setup(
             "compressai-vision = compressai_vision.cli.main:main",
             "compressai-nokia-auto-import = compressai_vision.cli.auto:main",
             "compressai-vision-info = compressai_vision.cli.info:main",
+            "compressai-vision-plot = compressai_vision.cli.plotter:main",
         ]
     },
     # metadata for upload to PyPI
