@@ -75,52 +75,71 @@ def main(p):  # noqa: C901
 
     assert p.model is not None, "provide Detectron2 model name"
 
-    qpars = None
-    if p.compressai is not None:
-        if p.vtm:
-            print("FATAL: evaluation either with compressai or vtm or with nothing")
-            return
-        assert p.qpars is not None, "need to provide quality parameters for compressai"
+    if (p.compressai is None) == p.vtm == (p.modelpath is None) == False:
+        compression = False
+        # no (de)compression, just eval
+        assert (
+            qpars is None
+        ), "you have provided quality pars but not a (de)compress model"
+
+    # check that only one is defined
+    defined = False
+    for scheme in [p.compressai, p.vtm, p.modelpath]:
+        if scheme:
+            if defined:  # second match!
+                raise AssertionError(
+                    "please define only one of the following: compressai, vtm or modelpath"
+                )
+            defined = True
+
+    if defined:
+        # check quality parameter list
+        assert p.qpars is not None, "need to provide integer quality parameters"
         try:
             qpars = [int(i) for i in p.qpars.split(",")]
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
+        # check checkpoint file validity if defined
+        if p.checkpoint is not None:
+            assert os.path.isfile(p.checkpoint), "can't find defined checkpoint file"
 
-        compressai_from_zoo=False
-        if os.path.isdir(p.compressai): # directory name & model name could be in theory, confused
-            path=os.path.join(p.compressai, "model.py")
-            assert os.path.isfile(path), "your model directory is missing model.py"
-            # if the directory has the same name & is under current dir..!
-            import importlib.util
-            try:
-                spec = importlib.util.spec_from_file_location("module", os.path.join(p.compressai, path))
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            except Exception as e:
-                print("loading model from directory", p.compressai, "failed with", e)
-                compressai_from_zoo=True # try to load from zoo instead
-            else:
-                assert(hasattr(module, "getModel")), "your module is missing getModel function"
-                compressai_model = module.getModel # a function that returns a model instance or just a class
-        else:
-            compressai_from_zoo=True
-
-        if compressai_from_zoo:
-            import compressai.zoo
-            # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
-            compressai_model = getattr(compressai.zoo, p.compressai) # a function that returns a model instance or just a class
     else:
-        compressai_model = None
+        qpars = None
 
-    if p.vtm:
-        assert p.qpars is not None, "need to provide quality parameters for vtm"
+    # *** CHOOSE COMPRESSION SCHEME ***
+
+    if p.compressai is not None:  # compression from compressai zoo
+        import compressai.zoo
+
+        # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
+        compressai_model = getattr(
+            compressai.zoo, p.compressai
+        )  # a function that returns a model instance or just a class
+
+    elif p.modelpath is not None:  # compression from a custcom compressai model
+        path = os.path.join(p.modelpath, "model.py")
+        assert os.path.isfile(path), "your model directory is missing model.py"
+        import importlib.util
+
         try:
-            # qpars = [float(i) for i in p.qpars.split(",")]
-            qpars = [int(i) for i in p.qpars.split(",")]  # integer for god's sake!
+            spec = importlib.util.spec_from_file_location(
+                "module", os.path.join(p.modelpath, path)
+            )
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
         except Exception as e:
-            print("problems with your quality parameter list")
-            raise e
+            print("loading model from directory", p.modelpath, "failed with", e)
+            return
+        else:
+            assert hasattr(
+                module, "getModel"
+            ), "your module is missing getModel function"
+            compressai_model = (
+                module.getModel
+            )  # a function that returns a model instance or just a class
+
+    elif p.vtm is not None:  # setup VTM
         if p.vtm_dir is None:
             try:
                 vtm_dir = os.environ["VTM_DIR"]
@@ -130,21 +149,16 @@ def main(p):  # noqa: C901
                 return
         else:
             vtm_dir = p.vtm_dir
-
         vtm_dir = os.path.expanduser(vtm_dir)
-
         if p.vtm_cfg is None:
             vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
             print("WARNING: using VTM default config file", vtm_cfg)
         else:
             vtm_cfg = p.vtm_cfg
-
         vtm_cfg = os.path.expanduser(
             vtm_cfg
         )  # some more systematic way of doing these..
-
         assert os.path.isfile(vtm_cfg), "vtm config file not found"
-
         # try both filenames..
         vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
         if not os.path.isfile(vtm_encoder_app):
@@ -158,15 +172,10 @@ def main(p):  # noqa: C901
         if not os.path.isfile(vtm_decoder_app):
             print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
 
-    if ((p.vtm is None) and (p.compressai is None)) and (p.qpars is not None):
-        print("FATAL: you defined qpars although they are not needed")
-        return
+    # *** CHOOSE COMPRESSION SCHEME OK ***
 
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
-
-    # compressai_model == None --> no compressai
-    # p.vtm == False --> no vtm
 
     # *** Detectron imports ***
     # Some basic setup:
@@ -233,17 +242,15 @@ def main(p):  # noqa: C901
     print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # woops.. can't use slicing
-        print("Using slice            :", str(fr) + ":" + str(to))
+        print("WARNING: Using slice   :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
     print("Model was trained with :", model_dataset)
-    if compressai_model is not None:
+    if p.compressai is not None:
         print("Using compressai model :", p.compressai)
-        if compressai_from_zoo:
-            print("--> Compressai model from the zoo")
-        else:
-            print("--> Compressai model loaded from separate directory")
+    elif p.modelpath is not None:
+        print("Using custom mode from :", p.modelpath)
     elif p.vtm:
         print("Using VTM               ")
         if p.vtm_cache:
@@ -252,9 +259,10 @@ def main(p):  # noqa: C901
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
+    if p.checkpoint:
+        print("WARN: using checkpoint :", p.checkpoint)
     if qpars is not None:
         print("Quality parameters     :", qpars)
-
     print("Eval. datafield name   :", predictor_field)
     # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
@@ -278,15 +286,15 @@ def main(p):  # noqa: C901
     # save metadata about the run into the json file
     metadata = {
         "dataset": p.name,
-        "dataset tmp name": tmp_name,
+        "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
         "compressai model": p.compressai,
+        "custom model": p.modelpath,
+        "checkpoint": p.checkpoint,
         "vtm": p.vtm,
         "vtm_cache": p.vtm_cache,
         "qpars": qpars,
-        # "map"     : ys,
-        # "map_per_class": maps
     }
     with open(p.output, "w") as f:
         json.dump(metadata, f)
@@ -320,20 +328,29 @@ def main(p):  # noqa: C901
         # quickLog("CompressAIEncoderDecoder", loglev)
         # quickLog("VTMEncoderDecoder", loglev)
         for i in qpars:
-            # concurrency considerations
-            # could multithread/process over quality pars
-            # .. but that would be even better to do at the cli level
-            # beware that all processes use the same fiftyone/mongodb, so maybe
-            # different predictor_field instance for each running (multi)process
             print("\nQUALITY PARAMETER", i)
             enc_dec = None  # default: no encoding/decoding
-
-            if compressai_model is not None:
-                net = compressai_model(quality=i, pretrained=True).eval().to(device)
+            if (
+                p.compressai or p.modelpath
+            ):  # compressai model, either from the zoo or from a directory
+                if p.checkpoint is None:
+                    net = compressai_model(quality=i, pretrained=True).eval().to(device)
+                    # e.g. compressai.zoo.bmshj2018_factorized
+                    # or a custom model form a file
+                else:  # load a checkpoint
+                    net = compressai_model(quality=i)
+                    try:
+                        cp = torch.load(p.checkpoint)
+                        # print(">>>", cp.keys())
+                        # net.load_state_dict(cp['state_dict']).eval().to(device)
+                        net.load_state_dict(cp).eval().to(device)
+                    except Exception as e:
+                        print("\nLoading checkpoint failed!\n")
+                        raise e
                 enc_dec = CompressAIEncoderDecoder(
                     net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
                 )
-            else:  # must be VTM
+            elif p.vtm:
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
                     decoderApp=vtm_decoder_app,
@@ -342,12 +359,11 @@ def main(p):  # noqa: C901
                     qp=i,
                     cache=p.vtm_cache,
                     scale=p.scale,
-                    warn = True
+                    warn=True,
                 )
-            # TODO: separate annexPredictions & evaluate_detectrions
-            # into different commands?  this way we could parallelize them
-            # could also automagically calculate detections for samples
-            # that are missing them
+            else:
+                raise BaseException("program logic error")
+
             bpp = annexPredictions(
                 predictor=predictor,
                 fo_dataset=dataset,
@@ -380,13 +396,13 @@ def main(p):  # noqa: C901
             ys.append(res.mAP())
             maps.append(per_class(res))
 
-    else:
+    else:  # a pure evaluation without encoding/decoding
         bpp = annexPredictions(
             predictor=predictor,
             fo_dataset=dataset,
             predictor_field=predictor_field,
             use_pb=p.progressbar,
-            use_print=p.progress,  # TODO: implement possibilty to append results
+            use_print=p.progress,
         )
         res = dataset.evaluate_detections(
             predictor_field,
@@ -400,10 +416,6 @@ def main(p):  # noqa: C901
         xs.append(bpp)
         ys.append(res.mAP())
         maps.append(per_class(res))
-        """ # let's use json instead
-        with open(p.output,"wb") as f:
-            pickle.dump((xs, ys, maps), f)
-        """
 
     # print(">>", metadata)
     metadata["bpp"] = xs
@@ -412,15 +424,6 @@ def main(p):  # noqa: C901
     with open(p.output, "w") as f:
         json.dump(metadata, f)
 
-    """
-    # remove the predicted field from the database
-    dataset.delete_sample_field(
-        predictor_field
-    )  # TODO: depends, if we want to recover from an interrupted predictor run
-
-    # WARNING: if the program is ctrl-c'd/killed then the field will
-    # remain there..!
-    """
     # remove the tmp database
     print("deleting tmp database", tmp_name)
     fo.delete_dataset(tmp_name)
@@ -430,4 +433,3 @@ def main(p):  # noqa: C901
     with open(p.output,"r") as f:
         res=json.load(f)
     """
-

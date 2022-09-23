@@ -152,7 +152,6 @@ def process_cl_args():
         default="compressai-vision.json",
         help="results output file",
     )
-
     parser.add_argument(
         "--compressai",
         action="store",
@@ -160,6 +159,22 @@ def process_cl_args():
         required=False,
         default=None,
         help="use compressai model",
+    )
+    parser.add_argument(
+        "--modelpath",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="a path to a directory containing model.py for custom development model",
+    )
+    parser.add_argument(
+        "--checkpoint",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to a model checkpoint",
     )
     parser.add_argument("--vtm", action="store_true", default=False)
     parser.add_argument(

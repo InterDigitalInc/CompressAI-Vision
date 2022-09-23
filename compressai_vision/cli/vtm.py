@@ -121,6 +121,7 @@ def main(p):
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
         from fiftyone import ViewField as F
+
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 
     if p.scale is not None:
@@ -180,7 +181,7 @@ def main(p):
             dump=p.dump,
             skip=p.check,  # if there's a bitstream file then just exit at call to BGR
             keep=p.keep,
-            warn=True
+            warn=True,
         )
         # with ProgressBar(dataset) as pb: # captures stdout
         if p.progressbar:
@@ -194,8 +195,8 @@ def main(p):
             print("n / id / open_images_id (use this!) / path")
             check_c=0
         """
-        npix_sum=0
-        nbits_sum=0
+        npix_sum = 0
+        nbits_sum = 0
         missing = False
         for sample in dataset:
             cc += 1
@@ -234,7 +235,7 @@ def main(p):
                     )
             if not p.check:
                 # NOTE: use transformed image im
-                npix_sum += im.shape[0]*im.shape[1]
+                npix_sum += im.shape[0] * im.shape[1]
                 nbits_sum += nbits
             if p.progress > 0 and ((cc % p.progress) == 0):
                 print("sample: ", cc, "/", len(dataset), "tag:", tag)
@@ -246,7 +247,7 @@ def main(p):
                 print("ERROR: nbits_sum", nbits_sum, "npix_sum", npix_sum)
                 xs.append(None)
             else:
-                xs.append(nbits_sum/npix_sum)
+                xs.append(nbits_sum / npix_sum)
 
     # print(">>", metadata)
     metadata["bpp"] = xs

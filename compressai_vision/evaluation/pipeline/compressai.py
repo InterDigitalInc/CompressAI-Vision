@@ -192,7 +192,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         x_hat = out_dec["x_hat"].clamp(0, 1)
         # num_pixels = x.shape[2] * x.shape[3]
         # print("num_pixels", num_pixels)
-        nbits = 8 * len(bitstream) # BITS not BYTES
+        nbits = 8 * len(bitstream)  # BITS not BYTES
         nbitslist = [nbits]
         x_hat = out_dec["x_hat"]
         return nbitslist, x_hat

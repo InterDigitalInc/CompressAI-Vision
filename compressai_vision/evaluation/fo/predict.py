@@ -85,8 +85,8 @@ def annexPredictions(
         )
         # allowed_labels = []
 
-    npix_sum=0
-    nbits_sum=0
+    npix_sum = 0
+    nbits_sum = 0
     cc = 0
     # with ProgressBar(fo_dataset) as pb: # captures stdout
     if use_pb:
@@ -97,7 +97,7 @@ def annexPredictions(
         path = sample.filepath
         im = cv2.imread(path)
         if im is None:
-            print("FATAL: could not read the image file '"+path+"'")
+            print("FATAL: could not read the image file '" + path + "'")
             return -1
         # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
         tag = (
@@ -114,15 +114,13 @@ def annexPredictions(
                 # there's something wrong with the encoder/decoder process
                 # say, corrupt data from the VTMEncode bitstream etc.
                 print("EncoderDecoder returned error: will try using it once again")
-                nbits, im_ = encoder_decoder.BGR(
-                    im, tag=tag
-                )
+                nbits, im_ = encoder_decoder.BGR(im, tag=tag)
             if nbits < 0:
                 print("EncoderDecoder returned error - again!  Will abort calculation")
                 return -1
-        
+
             # NOTE: use tranformed image im_
-            npix_sum += im_.shape[0]*im_.shape[1]
+            npix_sum += im_.shape[0] * im_.shape[1]
             nbits_sum += nbits
             res = predictor(im_)
 
@@ -137,7 +135,7 @@ def annexPredictions(
             predictions.nbits = nbits
         """
         sample[predictor_field] = predictions
-        
+
         sample.save()
         if use_pb:
             pb.update()
@@ -148,11 +146,11 @@ def annexPredictions(
         pb.close()
 
     # calculate bpp as defined by the VCM working group:
-    if (npix_sum < 1):
+    if npix_sum < 1:
         print("error: number of pixels sum < 1")
         return -1
-    if (nbits_sum < 1):
+    if nbits_sum < 1:
         print("error: number of bits sum < 1")
         return -1
-    bpp=nbits_sum/npix_sum
+    bpp = nbits_sum / npix_sum
     return bpp

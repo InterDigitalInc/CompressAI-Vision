@@ -18,8 +18,8 @@ commands & parameters:
         --dir           directory where the dataset (images, annotations, etc.) is downloaded
                         Default: $HOME/fiftyone/dataset-name
 
-        example: (downloads images corresponding to nokia's detection & segmentation
-                 test sets)
+        example (downloads images corresponding to nokia's detection & segmentation
+                 test sets):
 
             compressai-vision download \\
             --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
@@ -70,7 +70,7 @@ commands & parameters:
         --dir           source directory
         --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
 
-        example:        (register converted nokia files into fiftyone)
+        example (register converted nokia files into fiftyone):
 
             compressai-vision register
                 --name=nokia-import
@@ -88,11 +88,21 @@ commands & parameters:
                         for example:
                         COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         --output        outputfile, default: compressai-vision.json
-        --compressai    CompressAI model (optional), for example: bmshj2018_factorized
-                        can be a model name from the CompressAI model zoo
-                        or a path to a consolidated directory with a custom model
-        --vtm           use vtm model (optional)
-        --qpars         quality parameters to be used with either compressai or vtm
+
+        compression models: 
+        
+        you can choose a compression model from compressai zoo, use vtm
+        or a model you're currently developing.  If no model is chosen, then no (de)compression is
+        done before passing the image to detectron
+
+        --compressai    CompressAI model from the zoo, for example: bmshj2018_factorized
+                        can be a model name from the CompressAI model zoo (optional)
+        --modelpath     load a custom model. Defines a path to directory with a custom development model.  
+                        The directory should contain a properly formatted "model.py" file (optional)
+        --vtm           use vtm (optional)
+
+        --checkpoint    a torch checkpoint file for loading the model state (.pth.tar file)
+        --qpars         a quality parameters to be used with either compressai or vtm
         --scale         ffmpeg scaling applied to the image as defined per VCM working group.
                         values can be: 100 (original size), 75, 50, 25.
                         0 = no scaling applied
@@ -109,7 +119,7 @@ commands & parameters:
                         Default: no caching.
                         NOTE: the path is automatically appended with 
                         "scale/quality-parameter/" (see --scale)
-        --debug         debug verbosity for the CompressAI & VTM
+        --debug         enable debug verbosity for the CompressAI / development / VTM models
         --progressbar   show a fancy progressbar.  Default: false.  Nice for interactive runs.
         --progress      show progress every n:th step, i.e. --progress=10 would print out
                         progress every tenth step.  0: don't print anything. Default: 1.
@@ -121,15 +131,17 @@ commands & parameters:
                 --y --name=nokia-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
-        example 2 (calculate mAP=mAP(bpp)):
+        example 2 (calculate mAP=mAP(bpp) with a model from CompressAI zoo):
+
             compressai-vision detectron2_eval --y --name=nokia-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
-        example 3 (calculate mAP=mAP(bpp)):
+        example 3 (calculate mAP=mAP(bpp) with a custom development model):
+
             compressai-vision detectron2_eval --y --name=nokia-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
-                --compressai=/path/to/directory --qpars=1
+                --modelpath=/path/to/directory --qpars=1
 
     vtm                 generate bitstream with the vtm video encoder
                         this is done also by the command detectron2_eval, but you
@@ -144,7 +156,7 @@ commands & parameters:
                         Normal python slicing indexes are used.
         --tags          pick certain images from the dataset/slice
                         for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
-                        the tags correspond to __open image ids__
+                        the tags correspond to _open image ids_
         --output        outputfile, default: compressai-vision.json.  Reports metadata and 
                         bpp values for each qpar
         --keep          keep all intermediate files (for debugging)

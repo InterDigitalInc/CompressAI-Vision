@@ -99,14 +99,16 @@ def main():
     from compressai_vision.cli import download, dummy, nokia_convert, register
 
     args = []
-    dirname=None
+    dirname = None
     if len(sys.argv) > 1:
         if sys.argv[1] in ["MOCK"]:  # some debugging cli parameters are allowed
             args = sys.argv[1]
         elif "--datadir=" in sys.argv[1]:
-            dirname=sys.argv[1].split("=")[1].strip() # --datadir=/path/to --> /path/to
+            dirname = (
+                sys.argv[1].split("=")[1].strip()
+            )  # --datadir=/path/to --> /path/to
             print("WARNING: using datadir", dirname)
-            assert os.path.isdir(dirname), "no such directory "+dirname
+            assert os.path.isdir(dirname), "no such directory " + dirname
         else:
             print(help_st)
             return
@@ -130,7 +132,7 @@ def main():
         dir_ = os.path.join("~", "fiftyone", p.name)  # ~/fiftyone/open-images-v6
     else:
         dir_ = os.path.join(dirname, p.name)
-    
+
     dir_ = get_dir(dir_, "path to download (nokia subset of) OpenImageV6 ")
     source_dir = os.path.join(
         dir_, "validation"
@@ -155,9 +157,7 @@ def main():
             "~", "fiftyone", "nokia-detection"
         )  # ~/fiftyone/nokia-detection
     else:
-        nokia_dir = os.path.join(
-            dirname, "nokia-detection"
-        )
+        nokia_dir = os.path.join(dirname, "nokia-detection")
     nokia_dir = get_dir(
         nokia_dir, "imported detection dataset path", make=False, check=False
     )
@@ -181,9 +181,7 @@ def main():
             "~", "fiftyone", "nokia-segmentation"
         )  # ~/fiftyone/nokia-segmentation
     else:
-        nokia_dir_seg = os.path.join(
-            dirname, "nokia-segmentation"
-        )
+        nokia_dir_seg = os.path.join(dirname, "nokia-segmentation")
     nokia_dir_seg = get_dir(
         nokia_dir_seg, "imported segmentation dataset path", make=False, check=False
     )
