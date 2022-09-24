@@ -36,6 +36,18 @@ from compressai_vision.tools import quickLog, getDataFile
 
 # import configparser  # https://docs.python.org/3/library/configparser.html
 
+COMMANDS = [
+    "download",
+    "list",
+    "dummy",
+    "deregister",
+    "nokia_convert",
+    "register",
+    "detectron2_eval",
+    "load_eval",
+    "vtm",
+]
+
 
 def process_cl_args():
     # def str2bool(v):
@@ -43,50 +55,96 @@ def process_cl_args():
 
     # about black: https://github.com/psf/black/issues/397
     parser = argparse.ArgumentParser(
+        description="compressai-vision, evaluation of video compression for machine frameworks.",
         usage=(
             "compressai-vision [options] command\n"
             "\n"
             "please use the command 'manual' for full documentation of this program\n"
             "\n"
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parent_parser = argparse.ArgumentParser(add_help=False)
+
+    subparsers = parser.add_subparsers(help="command", dest="cmd")
+    subparsers.add_parser("list")
+    subparsers.add_parser("manual")
+    parent_parser.add_argument(
+        "--y", action="store_true", default=False, help="non-interactive run"
+    )
+
+    download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
+    eval_model_parser = subparsers.add_parser(
+        "download_dataset", parents=[parent_parser]
+    )
+
+    dummy_database_parser = subparsers.add_parser(
+        "dummy_database", parents=[parent_parser]
+    )
+    convert_to_mpeg_vcm_parser = subparsers.add_parser(
+        "convert_mpeg_vcm", parents=[parent_parser]
+    )
+    register_dataset_parser = subparsers.add_parser(
+        "register_dataset", parents=[parent_parser]
+    )
+    deregister_dataset_parser = subparsers.add_parser(
+        "deregister_dataset", parents=[parent_parser]
+    )
+    vtm_parser = subparsers.add_parser("vtm", parents=[parent_parser])
+
+    for subparser in [
+        download_parser,
+        dummy_database_parser,
+        eval_model_parser,
+        register_dataset_parser,
+        deregister_dataset_parser,
+    ]:
+        subparser.add_argument(
+            "--dataset_name",
+            action="store",
+            type=str,
+            required=False,
+            default=None,
+            help="name of the dataset",
         )
-    )
-    # parser.register('type','bool',str2bool)  # this works only in theory..
-    parser.add_argument("command", action="store", type=str, help="mandatory command")
 
-    parser.add_argument(
-        "--name",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="name of the dataset",
-    )
-    parser.add_argument(
-        "--lists",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="comma-separated list of list files",
-    )
-    parser.add_argument(
-        "--split",
-        action="store",
-        type=str,
-        required=False,
-        default="validation",
-        help="database sub-name, say, 'train' or 'validation'",
-    )
-
-    parser.add_argument(
-        "--dir",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="target/source directory, depends on command",
-    )
-    parser.add_argument(
+    for subparser in [
+        download_parser,
+        convert_to_mpeg_vcm_parser,
+        register_dataset_parser,
+    ]:
+        subparser.add_argument(
+            "--lists",
+            action="store",
+            type=str,
+            required=False,
+            default=None,
+            help="comma-separated list of list files",
+        )
+    for subparser in [download_parser, deregister_dataset_parser]:
+        subparser.add_argument(
+            "--split",
+            action="store",
+            type=str,
+            required=False,
+            default="validation",
+            help="database sub-name, say, 'train' or 'validation'",
+        )
+    for subparser in [
+        download_parser,
+        register_dataset_parser,
+        convert_to_mpeg_vcm_parser,
+    ]:
+        subparser.add_argument(
+            "--dir",
+            action="store",
+            type=str,
+            required=False,
+            default=None,
+            help="target/source directory, depends on command",
+        )
+    convert_to_mpeg_vcm_parser.add_argument(
         "--target_dir",
         action="store",
         type=str,
@@ -94,7 +152,7 @@ def process_cl_args():
         default=None,
         help="target directory for nokia_convert",
     )
-    parser.add_argument(
+    convert_to_mpeg_vcm_parser.add_argument(
         "--label",
         action="store",
         type=str,
@@ -102,7 +160,7 @@ def process_cl_args():
         default=None,
         help="nokia-formatted image-level labels",
     )
-    parser.add_argument(
+    convert_to_mpeg_vcm_parser.add_argument(
         "--bbox",
         action="store",
         type=str,
@@ -110,7 +168,7 @@ def process_cl_args():
         default=None,
         help="nokia-formatted bbox data",
     )
-    parser.add_argument(
+    convert_to_mpeg_vcm_parser.add_argument(
         "--mask",
         action="store",
         type=str,
@@ -118,8 +176,7 @@ def process_cl_args():
         default=None,
         help="nokia-formatted segmask data",
     )
-
-    parser.add_argument(
+    register_dataset_parser.add_argument(
         "--type",
         action="store",
         type=str,
@@ -127,8 +184,7 @@ def process_cl_args():
         default="OpenImagesV6Dataset",
         help="image set type to be imported",
     )
-
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--proto",
         action="store",
         type=str,
@@ -136,30 +192,29 @@ def process_cl_args():
         default=None,
         help="evaluation protocol",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--model",
         action="store",
         type=str,
         required=False,
         default=None,
-        help="detectron2 model",
+        help="use compressai model",
     )
-    parser.add_argument(
-        "--output",
-        action="store",
-        type=str,
-        required=False,
-        default="compressai-vision.json",
-        help="results output file",
-    )
-
-    parser.add_argument(
-        "--compressai",
+    eval_model_parser.add_argument(
+        "--modelpath",
         action="store",
         type=str,
         required=False,
         default=None,
-        help="use compressai model",
+        help="a path to a directory containing model.py for custom development model",
+    )
+    eval_model_parser.add_argument(
+        "--checkpoint",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to a model checkpoint",
     )
     parser.add_argument("--vtm", action="store_true", default=False)
     parser.add_argument(
@@ -170,7 +225,7 @@ def process_cl_args():
         default=None,
         help="quality parameters for compressai model or vtm",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--scale",
         action="store",
         type=int,
@@ -178,7 +233,7 @@ def process_cl_args():
         default=100,
         help="image scaling as per VCM working group docs",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--vtm_dir",
         action="store",
         type=str,
@@ -186,7 +241,7 @@ def process_cl_args():
         default=None,
         help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--ffmpeg",
         action="store",
         type=str,
@@ -194,7 +249,7 @@ def process_cl_args():
         default="ffmpeg",
         help="ffmpeg command",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--vtm_cfg",
         action="store",
         type=str,
@@ -202,7 +257,7 @@ def process_cl_args():
         default=None,
         help="vtm config file",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--vtm_cache",
         action="store",
         type=str,
@@ -210,7 +265,7 @@ def process_cl_args():
         default=None,
         help="directory to cache vtm bitstreams",
     )
-    parser.add_argument(
+    vtm_parser.add_argument(
         "--slice",
         action="store",
         type=str,
@@ -218,7 +273,7 @@ def process_cl_args():
         default=None,
         help="use a dataset slice instead of the complete dataset",
     )
-    parser.add_argument(
+    vtm_parser.add_argument(
         "--progress",
         action="store",
         type=int,
@@ -226,22 +281,22 @@ def process_cl_args():
         default=1,
         help="Print progress this often",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
-    parser.add_argument(
+    vtm_parser.add_argument(
         "--keep",
         action="store_true",
         default=False,
         help="vtm: keep all intermediate files (for debugging)",
     )
-    parser.add_argument(
+    vtm_parser.add_argument(
         "--check",
         action="store_true",
         default=False,
         help="vtm: report if bitstream files are missing",
     )
-    parser.add_argument(
+    vtm_parser.add_argument(
         "--tags",
         action="store",
         type=str,
@@ -249,29 +304,28 @@ def process_cl_args():
         default=None,
         help="vtm: a list of open_image_ids to pick from the dataset/slice",
     )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--dump",
         action="store_true",
         default=False,
         help="debugging: dump intermediate data to local directory",
     )
-    parser.add_argument(
-        "--y", action="store_true", default=False, help="non-interactive run"
-    )
-    parser.add_argument(
+    eval_model_parser.add_argument(
         "--progressbar",
         action="store_true",
         default=False,
         help="show fancy progressbar",
     )
-    parser.add_argument("--mock", action="store_true", default=False, help="mock tests")
+    parent_parser.add_argument(
+        "--mock", action="store_true", default=False, help="mock tests"
+    )
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
 
 
 def main():
     parsed, unparsed = process_cl_args()
-
+    print("ok1")
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
@@ -299,17 +353,7 @@ def main():
         parsed.scale = None
 
     # some command filtering here
-    if parsed.command in [
-        "download",
-        "list",
-        "dummy",
-        "deregister",
-        "nokia_convert",
-        "register",
-        "detectron2_eval",
-        "load_eval",
-        "vtm",
-    ]:
+    if parsed.command in COMMANDS:
         from compressai_vision import cli
 
         # print("command is", parsed.command)
