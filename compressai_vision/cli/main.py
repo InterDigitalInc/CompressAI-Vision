@@ -73,6 +73,9 @@ def process_cl_args():
     parent_parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
+    eval_model_parser.add_argument(
+        "--debug", action="store_true", default=False, help="debug verbosity"
+    )
 
     download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
     eval_model_parser = subparsers.add_parser(
@@ -280,9 +283,6 @@ def process_cl_args():
         required=False,
         default=1,
         help="Print progress this often",
-    )
-    eval_model_parser.add_argument(
-        "--debug", action="store_true", default=False, help="debug verbosity"
     )
     vtm_parser.add_argument(
         "--keep",
