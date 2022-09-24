@@ -31,7 +31,10 @@
 """
 import argparse
 import logging
+
 from compressai_vision.tools import quickLog, getDataFile
+
+# import configparser  # https://docs.python.org/3/library/configparser.html
 
 
 def process_cl_args():
@@ -149,6 +152,7 @@ def process_cl_args():
         default="compressai-vision.json",
         help="results output file",
     )
+
     parser.add_argument(
         "--compressai",
         action="store",
@@ -156,22 +160,6 @@ def process_cl_args():
         required=False,
         default=None,
         help="use compressai model",
-    )
-    parser.add_argument(
-        "--modelpath",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="a path to a directory containing model.py for custom development model",
-    )
-    parser.add_argument(
-        "--checkpoint",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="path to a model checkpoint",
     )
     parser.add_argument("--vtm", action="store_true", default=False)
     parser.add_argument(
@@ -321,12 +309,11 @@ def main():
         "detectron2_eval",
         "load_eval",
         "vtm",
-        "clean",
     ]:
-        import compressai_vision.cli as cli
+        from compressai_vision import cli
 
+        # print("command is", parsed.command)
         func = getattr(cli, parsed.command)
-        # i.e. func=compressai_vision.cli.download.main
         func(parsed)
     else:
         print("unknown command", parsed.command)
