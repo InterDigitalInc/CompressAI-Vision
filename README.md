@@ -54,7 +54,22 @@ The software stack looks like this (all with CUDA support):
 - [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
 - _This_ library (CompressAI-Vision)
 
-Instructions for creating a correct ``virtualenv`` are provided in the documentation (TODO: link).
+### Virtualenv
+
+To get started locally and install the development version of CompressAI-Vision, run
+first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
+
+Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
+```
+bash bash/install.sh
+```
+within your virtual environment.
+
+Please run
+```
+bash bash/install.sh --help
+```
+for more .
 
 Docker images including the software stack are also provided (TODO: link).
 
