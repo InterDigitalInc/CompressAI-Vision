@@ -41,11 +41,12 @@ COMMANDS = [
     "list",
     "dummy",
     "deregister",
-    "nokia_convert",
+    "convert_to_mpeg_vcm",
     "register",
     "detectron2_eval",
     "load_eval",
     "vtm",
+    "clean",
 ]
 
 
@@ -58,9 +59,7 @@ def setup_parser():
     parent_parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
-    parent_parser.add_argument(
-        "--mock", action="store_true", default=False, help="mock tests"
-    )
+
     parser = argparse.ArgumentParser(description="compressai-vision.", add_help=True)
 
     subparsers = parser.add_subparsers(help="select command", dest="command")
@@ -69,7 +68,9 @@ def setup_parser():
     subparsers.add_parser("list", parents=[parent_parser])
 
     download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
-
+    download_parser.add_argument(
+        "--mock", action="store_true", default=False, help="mock tests"
+    )
     eval_model_parser = subparsers.add_parser(
         "download_dataset", parents=[parent_parser]
     )
@@ -145,7 +146,7 @@ def setup_parser():
         type=str,
         required=False,
         default=None,
-        help="target directory for nokia_convert",
+        help="target directory for convert_to_mpeg_vcm",
     )
     convert_to_mpeg_vcm_parser.add_argument(
         "--label",
@@ -340,16 +341,15 @@ def main():
         quickLog("VTMEncoderDecoder", loglev)
 
         # parameter filtering/mods
-        if args.scale == 0:
+        if args.command == "detectron2_eval" and args.scale == 0:
             args.scale = None
 
-        from compressai_vision import cli
+        import compressai_vision.cli as cli
 
-        # print("command is", parsed.command)
         func = getattr(cli, args.command)
+        # i.e. func=compressai_vision.cli.download.main
         func(args)
     else:
-        print("unknown command:", args.command)
         parser.print_usage()
         raise SystemExit(2)
     # some ideas on how to handle config files & default values

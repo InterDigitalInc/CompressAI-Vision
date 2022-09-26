@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""cli nokia_convert functionality
+"""cli convert_to_mpeg_vcm functionality
 """
 import os
 

@@ -36,7 +36,7 @@ from compressai_vision.cli.download import main as download
 from compressai_vision.cli.dummy import main as dummy
 from compressai_vision.cli.list import main as list
 from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.nokia_convert import main as nokia_convert
+from compressai_vision.cli.convert_to_mpeg_vcm import main as convert_to_mpeg_vcm
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
 from compressai_vision.cli.clean import main as clean
@@ -49,7 +49,7 @@ __all__ = [
     "download",
     "list",
     "load_eval",
-    "nokia_convert",
+    "convert_to_mpeg_vcm",
     "register",
     "dummy",
     "vtm",

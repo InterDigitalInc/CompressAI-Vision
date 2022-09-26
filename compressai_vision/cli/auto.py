@@ -96,7 +96,7 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 
 def main():
-    from compressai_vision.cli import download, dummy, nokia_convert, register
+    from compressai_vision.cli import download, dummy, convert_to_mpeg_vcm, register
 
     args = []
     dirname = None
@@ -170,7 +170,7 @@ def main():
     p.label = get_("detection_validation_labels_5k.csv")
     p.bbox = get_("detection_validation_5k_bbox.csv")
     p.mask = None
-    nokia_convert(p)
+    convert_to_mpeg_vcm(p)
 
     print("\n**CONVERTING NOKIA SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
@@ -194,7 +194,7 @@ def main():
     p.label = get_("segmentation_validation_labels_5k.csv")
     p.bbox = get_("segmentation_validation_bbox_5k.csv")
     p.mask = get_("segmentation_validation_masks_5k.csv")
-    nokia_convert(p)
+    convert_to_mpeg_vcm(p)
 
     print("\n**REGISTERING NOKIA DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()

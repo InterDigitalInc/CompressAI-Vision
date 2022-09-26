@@ -1,7 +1,7 @@
-compressai-vision [options] command 
+compressai-vision [options] command
 
-for an all-automatic no-brainer, please try: "compressai-nokia-auto-import help" 
-that substitutes for download, nokia_convert and register commands.
+for an all-automatic no-brainer, please try: "compressai-nokia-auto-import help"
+that substitutes for download, convert_to_mpeg_vcm and register commands.
 
 commands & parameters:
 
@@ -37,7 +37,7 @@ commands & parameters:
         --name          name of the original database
                         name of the new database will be appended with "-dummy"
 
-    nokia_convert       convert nokia-provided files into proper OpenImageV6
+    convert_to_mpeg_vcm       convert nokia-provided files into proper OpenImageV6
                         format & directory structure
 
         --lists         file listing necessary images, i.e.
@@ -78,7 +78,7 @@ commands & parameters:
 
     detectron2_eval     evaluate model with detectron2 using OpenImageV6
                         evaluation protocol optionally with no (de)compression or
-                        with compressai or vtm. 
+                        with compressai or vtm.
 
                         WARNING/TODO : currently works only for detections
                         (not for segmentations)
@@ -89,15 +89,15 @@ commands & parameters:
                         COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         --output        outputfile, default: compressai-vision.json
 
-        compression models: 
-        
+        compression models:
+
         you can choose a compression model from compressai zoo, use vtm
         or a model you're currently developing.  If no model is chosen, then no (de)compression is
         done before passing the image to detectron
 
         --compressai    CompressAI model from the zoo, for example: bmshj2018_factorized
                         can be a model name from the CompressAI model zoo (optional)
-        --modelpath     load a custom model. Defines a path to directory with a custom development model.  
+        --modelpath     load a custom model. Defines a path to directory with a custom development model.
                         The directory should contain a properly formatted "model.py" file (optional)
         --vtm           use vtm (optional)
 
@@ -117,7 +117,7 @@ commands & parameters:
                         The program saves bitstream to disk and tries to recycle the
                         bitstreams saved earlier.
                         Default: no caching.
-                        NOTE: the path is automatically appended with 
+                        NOTE: the path is automatically appended with
                         "scale/quality-parameter/" (see --scale)
         --debug         enable debug verbosity for the CompressAI / development / VTM models
         --progressbar   show a fancy progressbar.  Default: false.  Nice for interactive runs.
@@ -164,7 +164,7 @@ commands & parameters:
         --tags          pick certain images from the dataset/slice
                         for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
                         the tags correspond to _open image ids_
-        --output        outputfile, default: compressai-vision.json.  Reports metadata and 
+        --output        outputfile, default: compressai-vision.json.  Reports metadata and
                         bpp values for each qpar
         --keep          keep all intermediate files (for debugging)
         --check         simply reports which bitstream files are missing from the cache
@@ -181,7 +181,7 @@ commands & parameters:
                 --y --name=nokia-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
 
-NOTE 1: your normal workflow would be: download, nokia_convert, register, detectron2_eval
+NOTE 1: your normal workflow would be: download, convert_to_mpeg_vcm, register, detectron2_eval
 the first three steps can be dealt with the compress-nokia-auto-import command
 
 NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,
