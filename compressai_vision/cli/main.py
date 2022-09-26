@@ -49,22 +49,7 @@ COMMANDS = [
 ]
 
 
-def process_cl_args():
-    # def str2bool(v):
-    #     return v.lower() in ("yes", "true", "t", "1")
-
-    # about black: https://github.com/psf/black/issues/397
-    # parser = argparse.ArgumentParser(
-    #     description="compressai-vision, evaluation of video compression for machine frameworks.",
-    #     usage=(
-    #         "compressai-vision [options] command\n"
-    #         "\n"
-    #         "please use the command 'manual' for full documentation of this program\n"
-    #         "\n"
-    #     ),
-    #     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    # )
-
+def setup_parser():
     parent_parser = argparse.ArgumentParser(add_help=False)
 
     parent_parser.add_argument(
@@ -76,14 +61,12 @@ def process_cl_args():
     parent_parser.add_argument(
         "--mock", action="store_true", default=False, help="mock tests"
     )
-    parser = argparse.ArgumentParser(
-        description="compressai-vision.", add_help=True)
+    parser = argparse.ArgumentParser(description="compressai-vision.", add_help=True)
 
     subparsers = parser.add_subparsers(help="select command", dest="command")
 
     subparsers.add_parser("manual", parents=[parent_parser])
     subparsers.add_parser("list", parents=[parent_parser])
-
 
     download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
 
@@ -325,48 +308,49 @@ def process_cl_args():
         default=False,
         help="show fancy progressbar",
     )
-    parsed_args, unparsed_args = parser.parse_known_args()
-    return parsed_args, unparsed_args
+    return parser
 
 
 def main():
-    parsed, unparsed = process_cl_args()
+    parser = setup_parser()
+    args, unparsed = parser.parse_known_args()
 
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
 
-    # setting loglevels manually
-    # should only be done in tests:
-    """
-    logger = logging.getLogger("name.space")
-    confLogger(logger, logging.INFO)
-    """
-    if parsed.debug:
-        loglev = logging.DEBUG
-    else:
-        loglev = logging.INFO
-    quickLog("CompressAIEncoderDecoder", loglev)
-    quickLog("VTMEncoderDecoder", loglev)
-
-    if parsed.command == "manual":
+    if args.command == "manual":
         with open(getDataFile("manual.txt"), "r") as f:
             print(f.read())
         return
 
-    # parameter filtering/mods
-    if parsed.scale == 0:
-        parsed.scale = None
-
     # some command filtering here
-    if parsed.command in COMMANDS:
+    if args.command in COMMANDS:
+        # setting loglevels manually
+        # should only be done in tests:
+        """
+        logger = logging.getLogger("name.space")
+        confLogger(logger, logging.INFO)
+        """
+        if args.debug:
+            loglev = logging.DEBUG
+        else:
+            loglev = logging.INFO
+        quickLog("CompressAIEncoderDecoder", loglev)
+        quickLog("VTMEncoderDecoder", loglev)
+
+        # parameter filtering/mods
+        if args.scale == 0:
+            args.scale = None
+
         from compressai_vision import cli
 
         # print("command is", parsed.command)
-        func = getattr(cli, parsed.command)
-        func(parsed)
+        func = getattr(cli, args.command)
+        func(args)
     else:
-        print("unknown command", parsed.command)
+        print("unknown command:", args.command)
+        parser.print_usage()
         raise SystemExit(2)
     # some ideas on how to handle config files & default values
     #
