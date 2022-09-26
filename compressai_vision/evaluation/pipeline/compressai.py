@@ -38,10 +38,11 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
-from .base import EncoderDecoder
-from compressai_vision.ffmpeg import FFMpeg
-from compressai_vision.tools import test_command, dumpImageArray
 from compressai_vision.constant import vf_per_scale
+from compressai_vision.ffmpeg import FFMpeg
+from compressai_vision.tools import dumpImageArray, test_command
+
+from .base import EncoderDecoder
 
 
 class CompressAIEncoderDecoder(EncoderDecoder):

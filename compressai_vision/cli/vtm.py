@@ -124,7 +124,7 @@ def main(p):
 
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
-        from fo import ViewField as F
+        from fiftyone import ViewField as F
 
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 

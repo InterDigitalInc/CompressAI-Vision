@@ -32,6 +32,7 @@
 import os
 import sys
 
+
 # compressai_vision
 def main():
     try:

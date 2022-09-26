@@ -32,7 +32,7 @@
 import argparse
 import logging
 
-from compressai_vision.tools import quickLog, getDataFile
+from compressai_vision.tools import getDataFile, quickLog
 
 # import configparser  # https://docs.python.org/3/library/configparser.html
 
