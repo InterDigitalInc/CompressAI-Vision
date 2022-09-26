@@ -29,13 +29,20 @@ do
     case $key in
         -h|--help)
 cat << _EOF_
+Installs CompressAI-Vision and its dependencies within a virtual environment.
+Before running, create a virtual env, i.e.:
+$ python3 -m venv venv
+$ source venv/bin/activate
+
 RUN OPTIONS:    [-t|--torch torch version, default="1.9.1"]
                 [-v|--torchvision torchvision version, default="0.10.1"]
-                [--detectron2_url location of proper pre-built detectron2 (find at "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"), if not provided, cuda and="https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
+                [--detectron2_url location of proper pre-built detectron2 (find at
+                    "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
+                    if not provided, cuda and="https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--compressai) provide path to compressai source code for import (in editable mode), default: install compressai from PyPI)]
                 [--cuda) provide cuda version in the form cu11.1 for cuda 11.1, or "cpu", default: "cu102")]
 
-EXAMPLE         [bash install.sh -t "1.9.1" -d https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.9/index.html]
+EXAMPLE         [bash install.sh -t "1.9.1" --cuda "cu102" --compressai /path/to/compressai]
 _EOF_
             exit;
             ;;
