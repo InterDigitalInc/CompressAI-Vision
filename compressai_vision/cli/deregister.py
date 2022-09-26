@@ -26,13 +26,15 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """cli deregister functionality
 """
 
 
 def main(p):
+    print("importing fiftyone")
     import fiftyone as fo
+
+    print("fiftyone imported")
 
     # dataset = fo.load_dataset(p.name)
     print("removing dataset %s from fiftyone" % (p.name))

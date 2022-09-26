@@ -34,9 +34,6 @@ import sys
 
 # compressai_vision
 def main():
-    # fiftyone
-    import fiftyone as fo
-
     try:
         import torch
     except ModuleNotFoundError:
@@ -69,6 +66,9 @@ def main():
     if c > 0:
         print("\nRUNNING FFMPEG FAILED\n")
     #
+    print("\nimporting fiftyone..\n")
+    # fiftyone
+    import fiftyone as fo
 
     print("\n*** DATABASE ***")
     print("info about your connection:")

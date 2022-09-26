@@ -33,7 +33,10 @@
 
 def main(p):
     # fiftyone
+    print("importing fiftyone")
     import fiftyone as fo
+
+    print("fiftyone imported")
 
     try:
         dataset = fo.load_dataset(p.name)

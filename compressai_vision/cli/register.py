@@ -34,7 +34,10 @@ import os
 
 def main(p):
     # fiftyone
+    print("importing fiftyone")
     import fiftyone as fo
+
+    print("fiftyone imported")
 
     # compressai_vision
     from compressai_vision.conversion import imageIdFileList

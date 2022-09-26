@@ -143,6 +143,13 @@ commands & parameters:
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --modelpath=/path/to/directory --qpars=1
 
+    clean               remove temporary databases.
+                        detectron2_eval creates temporary clones of the dataset per each run.
+                        These dataset are automatically cleaned up after detectron2_eval run.
+                        If your run crashed, the temporary database might be left in the database
+                        (you can see them with the list command where they appear with the name
+                        "detectron-run-*".)
+
     vtm                 generate bitstream with the vtm video encoder
                         this is done also by the command detectron2_eval, but you
                         can do the bitstream generation step separately.

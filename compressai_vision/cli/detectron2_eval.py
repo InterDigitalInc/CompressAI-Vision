@@ -36,7 +36,11 @@ import os
 
 def main(p):  # noqa: C901
     # fiftyone
+    print("importing fiftyone")
     import fiftyone as fo
+    from compressai_vision import patch  # dataset.clone needs this
+
+    print("fiftyone imported")
 
     # compressai_vision
     from compressai_vision.evaluation.fo import (

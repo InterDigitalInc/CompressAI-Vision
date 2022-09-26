@@ -35,9 +35,13 @@ import os, json
 def main(p):
     import cv2
 
+    print("importing fiftyone")
     # fiftyone
     import fiftyone as fo
     from fiftyone import ProgressBar
+
+    ProgressBar = fo.ProgressBar
+    print("fiftyone imported")
 
     # compressai_vision
     from compressai_vision.evaluation.fo import (
@@ -120,7 +124,7 @@ def main(p):
 
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
-        from fiftyone import ViewField as F
+        from fo import ViewField as F
 
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 

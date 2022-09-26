@@ -28,6 +28,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # importing this takes quite a while!
+# ..not anymore since import fiftyone is inside the function
+# print("cli: import")
 from compressai_vision.cli.deregister import main as deregister
 from compressai_vision.cli.detectron2_eval import main as detectron2_eval
 from compressai_vision.cli.download import main as download
@@ -37,18 +39,9 @@ from compressai_vision.cli.load_eval import main as load_eval
 from compressai_vision.cli.nokia_convert import main as nokia_convert
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
+from compressai_vision.cli.clean import main as clean
 
-"""
-deregister = compressai_vision.cli.deregister.main
-detectron2_eval = compressai_vision.cli.detectron2_eval.main
-download = compressai_vision.cli.download.main
-dummy = compressai_vision.cli.dummy.main
-list = compressai_vision.cli.list.main
-load_eval = compressai_vision.cli.load_eval.main
-nokia_convert = compressai_vision.cli.nokia_convert.main
-register = compressai_vision.cli.register.main
-vtm = compressai_vision.cli.vtm.main
-"""
+# print("cli: import end")
 
 __all__ = [
     "deregister",
