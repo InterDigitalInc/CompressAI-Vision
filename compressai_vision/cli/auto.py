@@ -126,12 +126,14 @@ def main():
     else:
         p.mock = False
     p.y = False
-    p.name = "open-images-v6"
+    p.dataset_name = "open-images-v6"
 
     if dirname is None:
-        dir_ = os.path.join("~", "fiftyone", p.name)  # ~/fiftyone/open-images-v6
+        dir_ = os.path.join(
+            "~", "fiftyone", p.dataset_name
+        )  # ~/fiftyone/open-images-v6
     else:
-        dir_ = os.path.join(dirname, p.name)
+        dir_ = os.path.join(dirname, p.dataset_name)
 
     dir_ = get_dir(dir_, "path to download (mpeg_vcm subset of) OpenImageV6 ")
     source_dir = os.path.join(
@@ -196,11 +198,11 @@ def main():
     p.mask = get_("segmentation_validation_masks_5k.csv")
     convert_to_mpeg_vcm(p)
 
-    print("\n**REGISTERING mpeg_vcm DETECTION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG VCM DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
-    dataset_name = get_inp("mpeg_vcm-detection", "name for detection dataset")
-    p.name = dataset_name
+    dataset_name = get_inp("mpeg-vcm-detection", "name for detection dataset")
+    p.dataset_name = dataset_name
     p.lists = get_("detection_validation_input_5k.lst")
     p.dir = mpeg_vcm_dir
     p.type = "OpenImagesV6Dataset"
@@ -209,14 +211,14 @@ def main():
     print("\n**CREATING DUMMY/MOCK DETECTION DATA FOR YOUR CONVENIENCE SIR**\n")
     p = Namespace()
     p.y = False
-    p.name = dataset_name
+    p.dataset_name = dataset_name
     dummy(p)
 
-    print("\n**REGISTERING mpeg_vcm SEGMENTATION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG VCM SEGMENTATION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
-    dataset_name = get_inp("mpeg_vcm-segmentation", "name for segmentation dataset")
-    p.name = dataset_name
+    dataset_name = get_inp("mpeg-vcm-segmentation", "name for segmentation dataset")
+    p.dataset_name = dataset_name
     p.lists = get_("segmentation_validation_input_5k.lst")
     p.dir = mpeg_vcm_dir_seg
     p.type = "OpenImagesV6Dataset"

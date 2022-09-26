@@ -68,11 +68,13 @@ def setup_parser():
     subparsers.add_parser("list", parents=[parent_parser])
     subparsers.add_parser("load_eval", parents=[parent_parser])
 
-    download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
+    download_parser = subparsers.add_parser("download", parents=[parent_parser])
     download_parser.add_argument(
         "--mock", action="store_true", default=False, help="mock tests"
     )
-    eval_model_parser = subparsers.add_parser("download", parents=[parent_parser])
+    eval_model_parser = subparsers.add_parser(
+        "detectron2_eval", parents=[parent_parser]
+    )
 
     dummy_database_parser = subparsers.add_parser("dummy", parents=[parent_parser])
     convert_to_mpeg_vcm_parser = subparsers.add_parser(
@@ -92,7 +94,7 @@ def setup_parser():
         deregister_dataset_parser,
     ]:
         subparser.add_argument(
-            "--dataset_name",
+            "--dataset-name",
             action="store",
             type=str,
             required=False,

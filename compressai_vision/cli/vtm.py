@@ -55,11 +55,11 @@ def main(p):
     from compressai_vision.tools import getDataFile
     from compressai_vision.constant import vf_per_scale
 
-    assert p.name is not None, "please provide dataset name"
+    assert p.dataset_name is not None, "please provide dataset name"
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
-        print("FATAL: no such registered database", p.name)
+        print("FATAL: no such registered database", p.dataset_name)
         return
     assert p.vtm_cache is not None, "need to provide a cache directory"
     assert p.qpars is not None, "need to provide quality parameters for vtm"
@@ -138,7 +138,7 @@ def main(p):
         print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     print("Target dir             :", p.vtm_cache)
     print("Quality points/subdirs :", qpars)
-    print("Using dataset          :", p.name)
+    print("Using dataset          :", p.dataset_name)
     print("Image Scaling          :", p.scale)
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
@@ -163,7 +163,7 @@ def main(p):
 
     # save metadata about the run into the json file
     metadata = {
-        "dataset": p.name,
+        "dataset": p.dataset_name,
         "just-check": p.check,
         "slice": p.slice,
         "vtm_cache": p.vtm_cache,

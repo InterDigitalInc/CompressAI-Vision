@@ -36,11 +36,11 @@ def main(p):
 
     print("fiftyone imported")
 
-    # dataset = fo.load_dataset(p.name)
-    print("removing dataset %s from fiftyone" % (p.name))
+    # dataset = fo.load_dataset(p.dataset_name)
+    print("removing dataset %s from fiftyone" % (p.dataset_name))
     if not p.y:
         input("press enter to continue.. ")
     try:
-        fo.delete_dataset(p.name)
+        fo.delete_dataset(p.dataset_name)
     except ValueError as e:
         print("could not deregister because of", e)

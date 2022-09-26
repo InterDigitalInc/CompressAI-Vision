@@ -57,11 +57,11 @@ def main(p):  # noqa: C901
     )
     from compressai_vision.tools import getDataFile
 
-    assert p.name is not None, "please provide dataset name"
+    assert p.dataset_name is not None, "please provide dataset name"
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
-        print("FATAL: no such registered dataset", p.name)
+        print("FATAL: no such registered dataset", p.dataset_name)
         return
 
     if p.slice is not None:
@@ -239,14 +239,16 @@ def main(p):  # noqa: C901
         username = os.environ["USER"]
     except KeyError:
         username = "nouser"
-    tmp_name0 = p.name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(datetime.datetime.now())
+    tmp_name0 = p.dataset_name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+        datetime.datetime.now()
+    )
 
     tmp_name = "detectron-run-{username}-{tmp_name0}".format(
         username=username, tmp_name0=tmp_name0
     )
 
     print()
-    print("Using dataset          :", p.name)
+    print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # woops.. can't use slicing
@@ -293,7 +295,7 @@ def main(p):  # noqa: C901
 
     # save metadata about the run into the json file
     metadata = {
-        "dataset": p.name,
+        "dataset": p.dataset_name,
         "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
@@ -309,7 +311,7 @@ def main(p):  # noqa: C901
 
     # please see ../monkey.py for problems I encountered when cloning datasets
     # simultaneously with various multiprocesses/batch jobs
-    print("cloning dataset", p.name, "to", tmp_name)
+    print("cloning dataset", p.dataset_name, "to", tmp_name)
     dataset = dataset.clone(tmp_name)
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..

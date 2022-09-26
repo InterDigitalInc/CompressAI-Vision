@@ -45,8 +45,8 @@ def main(p):
     from compressai_vision.conversion import imageIdFileList
     from compressai_vision.tools import pathExists
 
-    if p.name is None:
-        p.name = "open-images-v6"
+    if p.dataset_name is None:
+        p.dataset_name = "open-images-v6"
     print()
     if p.lists is None:
         print(
@@ -65,7 +65,7 @@ def main(p):
         n_images = str(len(image_ids))
     print("Using list files:    ", p.lists)
     print("Number of images:    ", n_images)
-    print("Database name   :    ", p.name)
+    print("Database name   :    ", p.dataset_name)
     print("Subname/split   :    ", p.split)
     print("Target dir      :    ", p.dir)
     if not p.y:
@@ -80,6 +80,6 @@ def main(p):
     if p.dir is not None:
         p.dir = os.path.expanduser(p.dir)
         kwargs["dataset_dir"] = p.dir
-    dataset = foz.load_zoo_dataset(p.name, **kwargs)
+    dataset = foz.load_zoo_dataset(p.dataset_name, **kwargs)
     # label_types=("detections", "classifications", "relationships", "segmentations") # default
     dataset.persistent = True

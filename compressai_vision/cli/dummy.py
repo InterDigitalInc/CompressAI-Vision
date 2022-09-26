@@ -39,11 +39,11 @@ def main(p):
     print("fiftyone imported")
 
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
-        print("dataset", p.name, "does not exist!")
+        print("dataset", p.dataset_name, "does not exist!")
         return
-    dummyname = p.name + "-dummy"
+    dummyname = p.dataset_name + "-dummy"
     print("creating dataset", dummyname)
     try:
         fo.delete_dataset(dummyname)

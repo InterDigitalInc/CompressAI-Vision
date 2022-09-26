@@ -43,18 +43,18 @@ def main(p):
     from compressai_vision.conversion import imageIdFileList
     from compressai_vision.tools import pathExists
 
-    assert p.name is not None, "provide name for your dataset"
+    assert p.dataset_name is not None, "provide name for your dataset"
     assert p.dir is not None, "please provide path to dataset"
 
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
         pass
     else:
-        print("dataset %s already exists - will deregister it first" % (p.name))
+        print("dataset %s already exists - will deregister it first" % (p.dataset_name))
         if not p.y:
             input("press enter to continue.. ")
-        fo.delete_dataset(p.name)
+        fo.delete_dataset(p.dataset_name)
 
     if p.type != "OpenImagesV6Dataset":
         print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
@@ -90,7 +90,7 @@ def main(p):
     print("From directory  :    ", p.dir)
     print("Using list file :    ", p.lists)
     print("Number of images:    ", n_images)
-    print("Registering name:    ", p.name)
+    print("Registering name:    ", p.dataset_name)
     if not p.y:
         input("press enter to continue.. ")
     print()
@@ -100,7 +100,7 @@ def main(p):
             dataset_type=dataset_type,
             label_types=label_types,
             load_hierarchy=False,  # screw hierarchies for the moment..
-            name=p.name,
+            name=p.dataset_name,
         )
     else:
         dataset = fo.Dataset.from_dir(
@@ -108,7 +108,7 @@ def main(p):
             dataset_type=dataset_type,
             label_types=label_types,
             load_hierarchy=False,
-            name=p.name,
+            name=p.dataset_name,
             image_ids=image_ids,
         )
     dataset.persistent = True  # don't forget!
