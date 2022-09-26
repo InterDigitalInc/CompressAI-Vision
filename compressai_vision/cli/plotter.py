@@ -36,26 +36,28 @@ import matplotlib.pyplot as plt
 
 from compressai_vision.tools import quickLog, getDataFile
 
-colors=["b","g", "r", "c", "m", "y", "k", "w"]
+colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 
 
 def getBaseline(scale):
-    path=getDataFile(os.path.join("results","vtm-scale-"+str(scale)+".csv"))
+    path = getDataFile(os.path.join("results", "vtm-scale-" + str(scale) + ".csv"))
     if not os.path.exists(path):
         print("Sorry, can't find file", path)
         sys.exit(2)
-    print(path,":")
-    xs=[]; ys=[]
+    print(path, ":")
+    xs = []
+    ys = []
     with open(path) as csvfile:
-        reader = csv.reader(csvfile, delimiter=' ')
+        reader = csv.reader(csvfile, delimiter=" ")
         for cols in reader:
             if "#" in cols[0]:
                 print(" ".join(cols[1:]))
-                continue # this is a comment line
+                continue  # this is a comment line
             bpp, map_ = float(cols[0]), float(cols[1])
             # print(bpp, map_)
-            xs.append(bpp); ys.append(map_)
-    a=np.array([xs, ys]).transpose() # (2,6) --> (6,2)
+            xs.append(bpp)
+            ys.append(map_)
+    a = np.array([xs, ys]).transpose()  # (2,6) --> (6,2)
     return a
 
 
@@ -64,11 +66,12 @@ def jsonFilesToArray(dir_):
     The files should have key "qpars" and "bpp".
     Returns numpy array.
     """
-    xs=[]; ys=[]
+    xs = []
+    ys = []
     for path in glob.glob(os.path.join(dir_, "*.json")):
         print("reading", path)
         with open(path, "r") as f:
-            res=json.load(f)
+            res = json.load(f)
             # print(res)
             # res has two lists: res["bpp"] & res["map"]: bpp values and corresponding map values
             # assume there is at least res[”bpp"]
@@ -77,20 +80,25 @@ def jsonFilesToArray(dir_):
                 ys += res["map"]
             # print(xs, ys)
     if len(ys) < 1:
-        a=np.array(xs).transpose()
+        a = np.array(xs).transpose()
         a.sort(0)
         return a
-    a=np.array([xs, ys]).transpose() # (2,6) --> (6,2)
+    a = np.array([xs, ys]).transpose()  # (2,6) --> (6,2)
     a.sort(0)
     return a
 
 
 def tx(ax, st, i, j, color):
-    ax.text(i, j, st,
-    horizontalalignment='center',
-    verticalalignment='center',
-    color = color,
-    transform=ax.transAxes)
+    ax.text(
+        i,
+        j,
+        st,
+        horizontalalignment="center",
+        verticalalignment="center",
+        color=color,
+        transform=ax.transAxes,
+    )
+
 
 def process_cl_args():
     parser = argparse.ArgumentParser(
@@ -127,11 +135,7 @@ def process_cl_args():
         help="list of pyplot symbols/colors, e.g: o--k,-b, etc.",
     )
     parser.add_argument(
-        "--names",
-        action="store",
-        type=str,
-        required=False,
-        help="list of plot names"
+        "--names", action="store", type=str, required=False, help="list of plot names"
     )
     parser.add_argument(
         "--eval",
@@ -139,20 +143,21 @@ def process_cl_args():
         type=str,
         required=False,
         default=None,
-        help="mAP value without (de)compression and pyplot symbol"
+        help="mAP value without (de)compression and pyplot symbol",
     )
-    
+
     parser.add_argument(
         "--show-baseline",
         action="store",
         type=int,
         required=False,
         default=None,
-        help="show baseline at a certain scale"
+        help="show baseline at a certain scale",
     )
-    
+
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
+
 
 def main():
     parsed, unparsed = process_cl_args()
@@ -165,21 +170,19 @@ def main():
         with open(getDataFile("plotter.txt"), "r") as f:
             print(f.read())
         return
-    
+
     # for csv and plot needs directory names
-    assert(parsed.dirs is not None), "needs list of directory names"    
-    dirs=parsed.dirs.split(",")
-    arrays=[]
+    assert parsed.dirs is not None, "needs list of directory names"
+    dirs = parsed.dirs.split(",")
+    arrays = []
     for dir_ in dirs:
         dir_ = os.path.expanduser(os.path.join(dir_))
         assert os.path.isdir(dir_), "nonexistent dir"
-        arrays.append(
-            jsonFilesToArray(dir_)
-        )
+        arrays.append(jsonFilesToArray(dir_))
 
     if parsed.command == "csv":
         for dir_, a in zip(dirs, arrays):
-            print("\n"+dir_+":\n")
+            print("\n" + dir_ + ":\n")
             for bpp, map_ in a:
                 print(bpp, map_)
         return
@@ -190,15 +193,16 @@ def main():
         sys.exit(2)
 
     # assert(parsed.colors is not None), "needs list of pyplot color codes"
-    assert(parsed.symbols is not None), "needs list of pyplot symbol codes"
-    assert(parsed.names is not None), "needs list of names for plots"
+    assert parsed.symbols is not None, "needs list of pyplot symbol codes"
+    assert parsed.names is not None, "needs list of names for plots"
 
     # colors=parsed.colors.split(",")
-    symbols=parsed.symbols.split(",")
-    names=parsed.names.split(",")
+    symbols = parsed.symbols.split(",")
+    names = parsed.names.split(",")
 
-    assert len(dirs)==len(symbols)==len(names),\
-        "dirs, symbols and names must have the same length"
+    assert (
+        len(dirs) == len(symbols) == len(names)
+    ), "dirs, symbols and names must have the same length"
 
     if parsed.eval:
         eval_val, eval_symbol = parsed.eval.split(",")
@@ -212,35 +216,35 @@ def main():
         else:
             print("please don't use reserved name VTM")
             sys.exit(2)
-        a=getBaseline(parsed.show_baseline)
+        a = getBaseline(parsed.show_baseline)
         arrays.append(a)
         symbols.append("k--*")
         names.append("VTM")
-    
+
     plt.figure(figsize=(6, 6))
 
-    cc=0
+    cc = 0
     for a, symbol, name in zip(arrays, symbols, names):
         # print(a.shape, len(a.shape))
         if len(a.shape) < 2:
             print("mAP value missing, will skip", name)
             continue
-        plt.plot(a[:,0], a[:,1], symbol)
+        plt.plot(a[:, 0], a[:, 1], symbol)
         ax = plt.gca()
-        color_=None
-        for color in colors: # ["b", "g", ..]
-            if color in symbol: # i.e. if "b" in symbol
-                color_=color
+        color_ = None
+        for color in colors:  # ["b", "g", ..]
+            if color in symbol:  # i.e. if "b" in symbol
+                color_ = color
                 break
         if not color:
             print("can't resolve color code: please use:", colors)
             sys.exit(2)
         # print(">>", color)
-        tx(ax, name, 0.5, 0.50+cc*0.05, color_)
-        cc+=1
+        tx(ax, name, 0.5, 0.50 + cc * 0.05, color_)
+        cc += 1
 
-    minx=plt.axis()[0]
-    maxx=plt.axis()[1]
+    minx = plt.axis()[0]
+    maxx = plt.axis()[1]
 
     plt.plot((minx, maxx), (eval_val, eval_val), eval_symbol)
 
@@ -265,4 +269,3 @@ def main():
     plt.title("Detection, scale=100%")
     plt.savefig(os.path.join("out.png"))
     """
-
