@@ -2,19 +2,25 @@ compressai-vision-plot [options] command
 
 commands:
 
-    manual              shows this manual 
+    manual              shows this manual
+
+    csv                 dump json results in csv format
 
     plot                create the plot
 
 parameters for plot:
  
     --dirs              list of directories with json files produced
-    --colors            list of matplotlib colors for each plot
-    --symbols           list of matplotlib symbols for each plot
-    --names             list of names to be included into the plot
+    --symbols           list of matplotlib symbols for each plot, 
+                        for example: o--k,-g,*:r
+    --names             list of names to be included into the plot, 
+                        for example: vtm,mymodel,mymodel2
+    --eval              mAP value without (de)compress and maplotlib symbol,
+                        for example: 0.792,--c
     --show-baseline     include VTM baseline results into the plot at
                         a certain scale (100,75,50 or 25)
-    
+
+
 instructions:
 
     The compressai-vision command has produced you json output files
@@ -28,13 +34,12 @@ instructions:
     over quality parameters)
 
     This script handles both situations automatically, you just need to
-    provide the directory name.
+    provide the directory name(s)
 
     Suppose you want to plot two (bpp, mAP) curves from two models 
     (results are in "model1_results" and "model2_results") and also include
     the VTM baseline, then do this:
 
     compressai-vision-plot --dirs=model1_results,model2_results \\
-    --colors=red,blue --symbols=o,x --names=model1,model2 \\
-    --show-baseline=100
-
+    --symbols=o--r,x-b --names=model1,model2 \\
+    --eval=0.792,--c --show-baseline=100

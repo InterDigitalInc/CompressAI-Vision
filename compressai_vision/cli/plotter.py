@@ -1,4 +1,3 @@
- 
 # Copyright (c) 2022, InterDigital Communications, Inc
 # All rights reserved.
 
@@ -31,11 +30,33 @@
 """cli.py : Command-line interface tools for compressai-vision
 """
 import argparse
-import os, json, glob
+import os, json, glob, sys, csv
 import numpy as np
 import matplotlib.pyplot as plt
 
 from compressai_vision.tools import quickLog, getDataFile
+
+colors=["b","g", "r", "c", "m", "y", "k", "w"]
+
+
+def getBaseline(scale):
+    path=getDataFile(os.path.join("results","vtm-scale-"+str(scale)+".csv"))
+    if not os.path.exists(path):
+        print("Sorry, can't find file", path)
+        sys.exit(2)
+    print(path,":")
+    xs=[]; ys=[]
+    with open(path) as csvfile:
+        reader = csv.reader(csvfile, delimiter=' ')
+        for cols in reader:
+            if "#" in cols[0]:
+                print(" ".join(cols[1:]))
+                continue # this is a comment line
+            bpp, map_ = float(cols[0]), float(cols[1])
+            # print(bpp, map_)
+            xs.append(bpp); ys.append(map_)
+    a=np.array([xs, ys]).transpose() # (2,6) --> (6,2)
+    return a
 
 
 def jsonFilesToArray(dir_):
@@ -64,6 +85,13 @@ def jsonFilesToArray(dir_):
     return a
 
 
+def tx(ax, st, i, j, color):
+    ax.text(i, j, st,
+    horizontalalignment='center',
+    verticalalignment='center',
+    color = color,
+    transform=ax.transAxes)
+
 def process_cl_args():
     parser = argparse.ArgumentParser(
         usage=(
@@ -79,30 +107,41 @@ def process_cl_args():
         "--dirs",
         action="store",
         type=str,
-        required=True,
+        required=False,
         help="list of directories",
     )
+    """
     parser.add_argument(
         "--colors",
         action="store",
         type=str,
-        required=True,
+        required=False,
         help="list of pyplot colors",
     )
+    """
     parser.add_argument(
         "--symbols",
         action="store",
         type=str,
-        required=True,
-        help="list of pyplot symbols",
+        required=False,
+        help="list of pyplot symbols/colors, e.g: o--k,-b, etc.",
     )
     parser.add_argument(
         "--names",
         action="store",
         type=str,
-        required=True,
+        required=False,
         help="list of plot names"
     )
+    parser.add_argument(
+        "--eval",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mAP value without (de)compression and pyplot symbol"
+    )
+    
     parser.add_argument(
         "--show-baseline",
         action="store",
@@ -126,26 +165,90 @@ def main():
         with open(getDataFile("plotter.txt"), "r") as f:
             print(f.read())
         return
-
+    
+    # for csv and plot needs directory names
+    assert(parsed.dirs is not None), "needs list of directory names"    
     dirs=parsed.dirs.split(",")
-    colors=parsed.colors.split(",")
-    symbols=parsed.symbols.split(",")
-    names=parsed.names.split(",")
-    show_baseline=parsed.show_baseline
-
-    assert len(dirs)==len(colors)==len(symbols)==len(names),\
-        "dirs, colors, symbols and names must have the same length"
-
     arrays=[]
     for dir_ in dirs:
-        dir_ = os.path.expanduser("~")
+        dir_ = os.path.expanduser(os.path.join(dir_))
         assert os.path.isdir(dir_), "nonexistent dir"
         arrays.append(
             jsonFilesToArray(dir_)
         )
 
+    if parsed.command == "csv":
+        for dir_, a in zip(dirs, arrays):
+            print("\n"+dir_+":\n")
+            for bpp, map_ in a:
+                print(bpp, map_)
+        return
+
+    if parsed.command != "plot":
+        print("unknow command", parsed.command)
+        print("commands are: manual, plot")
+        sys.exit(2)
+
+    # assert(parsed.colors is not None), "needs list of pyplot color codes"
+    assert(parsed.symbols is not None), "needs list of pyplot symbol codes"
+    assert(parsed.names is not None), "needs list of names for plots"
+
+    # colors=parsed.colors.split(",")
+    symbols=parsed.symbols.split(",")
+    names=parsed.names.split(",")
+
+    assert len(dirs)==len(symbols)==len(names),\
+        "dirs, symbols and names must have the same length"
+
+    if parsed.eval:
+        eval_val, eval_symbol = parsed.eval.split(",")
+        eval_val = float(eval_val)
+
+    if parsed.show_baseline:
+        try:
+            names.index("VTM")
+        except ValueError:
+            pass
+        else:
+            print("please don't use reserved name VTM")
+            sys.exit(2)
+        a=getBaseline(parsed.show_baseline)
+        arrays.append(a)
+        symbols.append("k--*")
+        names.append("VTM")
+    
     plt.figure(figsize=(6, 6))
-    """
+
+    cc=0
+    for a, symbol, name in zip(arrays, symbols, names):
+        # print(a.shape, len(a.shape))
+        if len(a.shape) < 2:
+            print("mAP value missing, will skip", name)
+            continue
+        plt.plot(a[:,0], a[:,1], symbol)
+        ax = plt.gca()
+        color_=None
+        for color in colors: # ["b", "g", ..]
+            if color in symbol: # i.e. if "b" in symbol
+                color_=color
+                break
+        if not color:
+            print("can't resolve color code: please use:", colors)
+            sys.exit(2)
+        # print(">>", color)
+        tx(ax, name, 0.5, 0.50+cc*0.05, color_)
+        cc+=1
+
+    minx=plt.axis()[0]
+    maxx=plt.axis()[1]
+
+    plt.plot((minx, maxx), (eval_val, eval_val), eval_symbol)
+
+    plt.xlabel("bpp")
+    plt.ylabel("mAP")
+    plt.savefig(os.path.join("out.png"))
+
+    """from the notebook:
     plt.plot(vtm[:,0], vtm[:,1], '*-b', markersize=12)
     plt.plot(coai[:,0], coai[:,1], '.-r')
     plt.plot(nokia[:,0], nokia[:,1], 'o--k')
