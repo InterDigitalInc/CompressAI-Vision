@@ -57,7 +57,7 @@ done;
 
 
 pip install -U pip
-pip install fiftyone==0.16.6 jupyter ipython
+pip install fiftyone jupyter ipython
 pip install torch==${TORCH} torchvision==${TORCHVISION} pytorch-msssim
 pip install detectron2 -f ${DETECTRON2}
 
