@@ -73,7 +73,7 @@ def process_cl_args():
     parent_parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
-    eval_model_parser.add_argument(
+    parent_parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
 
