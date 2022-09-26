@@ -27,6 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from compressai_vision.cli.clean import main as clean
+from compressai_vision.cli.convert_to_mpeg_vcm import main as convert_to_mpeg_vcm
+
 # importing this takes quite a while!
 # ..not anymore since import fiftyone is inside the function
 # print("cli: import")
@@ -36,10 +39,8 @@ from compressai_vision.cli.download import main as download
 from compressai_vision.cli.dummy import main as dummy
 from compressai_vision.cli.list import main as list
 from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.convert_to_mpeg_vcm import main as convert_to_mpeg_vcm
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
-from compressai_vision.cli.clean import main as clean
 
 # print("cli: import end")
 

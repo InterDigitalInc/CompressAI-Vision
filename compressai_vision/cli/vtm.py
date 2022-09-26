@@ -38,6 +38,7 @@ def main(p):
     print("importing fiftyone")
     # fiftyone
     import fiftyone as fo
+
     from fiftyone import ProgressBar
 
     ProgressBar = fo.ProgressBar

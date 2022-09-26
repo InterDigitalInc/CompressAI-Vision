@@ -2,8 +2,9 @@
 
 # import importhook # this module simply ...ks up everything (at least torch imports)
 from datetime import datetime
-import fiftyone.core.odm as foo
+
 import fiftyone  # importing god'damn fiftyone for the first time always takes time as it starts the mongodb
+import fiftyone.core.odm as foo
 
 
 def _make_sample_collection_name(patches=False, frames=False, clips=False):

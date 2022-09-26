@@ -44,7 +44,10 @@ If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
     
 """
 
-import os, sys, glob, shutil
+import glob
+import os
+import shutil
+import sys
 
 
 def stopMongo():

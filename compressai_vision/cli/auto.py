@@ -96,7 +96,7 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 
 def main():
-    from compressai_vision.cli import download, dummy, convert_to_mpeg_vcm, register
+    from compressai_vision.cli import convert_to_mpeg_vcm, download, dummy, register
 
     args = []
     dirname = None

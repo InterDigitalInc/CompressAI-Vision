@@ -30,11 +30,16 @@
 """cli.py : Command-line interface tools for compressai-vision
 """
 import argparse
-import os, json, glob, sys, csv
-import numpy as np
-import matplotlib.pyplot as plt
+import csv
+import glob
+import json
+import os
+import sys
 
-from compressai_vision.tools import quickLog, getDataFile
+import matplotlib.pyplot as plt
+import numpy as np
+
+from compressai_vision.tools import getDataFile, quickLog
 
 colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 

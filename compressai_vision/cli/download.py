@@ -36,6 +36,7 @@ def main(p):
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
+
     from fiftyone import zoo as foz  # different fiftyone than the patched one.. eh
 
     print("fiftyone imported")
