@@ -325,7 +325,6 @@ def process_cl_args():
 
 def main():
     parsed, unparsed = process_cl_args()
-    print("ok1")
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
