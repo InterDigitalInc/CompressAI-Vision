@@ -154,7 +154,7 @@ def setup_parser():
         type=str,
         required=False,
         default=None,
-        help="nokia-formatted image-level labels",
+        help="mpeg_vcm-formatted image-level labels",
     )
     convert_to_mpeg_vcm_parser.add_argument(
         "--bbox",
@@ -162,7 +162,7 @@ def setup_parser():
         type=str,
         required=False,
         default=None,
-        help="nokia-formatted bbox data",
+        help="mpeg_vcm-formatted bbox data",
     )
     convert_to_mpeg_vcm_parser.add_argument(
         "--mask",
@@ -170,7 +170,7 @@ def setup_parser():
         type=str,
         required=False,
         default=None,
-        help="nokia-formatted segmask data",
+        help="mpeg_vcm-formatted segmask data",
     )
     register_dataset_parser.add_argument(
         "--type",

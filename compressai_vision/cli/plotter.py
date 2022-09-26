@@ -255,7 +255,7 @@ def main():
     """from the notebook:
     plt.plot(vtm[:,0], vtm[:,1], '*-b', markersize=12)
     plt.plot(coai[:,0], coai[:,1], '.-r')
-    plt.plot(nokia[:,0], nokia[:,1], 'o--k')
+    plt.plot(mpeg_vcm[:,0], mpeg_vcm[:,1], 'o--k')
     minx=plt.axis()[0]
     maxx=plt.axis()[1]
     plt.plot((minx, maxx), (eval_[:,1], eval_[:,1]), '--g')
@@ -263,7 +263,7 @@ def main():
     tx(ax, "OUR VTM", 0.5, 0.50, "b")
     tx(ax, "COMPRESSAI", 0.5, 0.55, "r")
     tx(ax, "EVAL", 0.5, 0.60, "g")
-    tx(ax, "NOKIA VTM", 0.5, 0.65, "k")
+    tx(ax, "mpeg_vcm VTM", 0.5, 0.65, "k")
     plt.xlabel("bpp")
     plt.ylabel("mAP")
     plt.title("Detection, scale=100%")

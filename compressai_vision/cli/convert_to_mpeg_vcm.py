@@ -34,7 +34,7 @@ import os
 
 def main(p):
     # compressai_vision
-    from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList
+    from compressai_vision.conversion import MPEGVCMToOpenImageV6  # imageIdFileList
     from compressai_vision.tools import pathExists
 
     assert p.target_dir is not None, "please give target_dir"
@@ -65,7 +65,7 @@ def main(p):
     print()
     assert p.lists is not None, "a list file (.lst) required --lists"
     fnames = p.lists.split(",")
-    assert len(fnames) == 1, "please specify exactly one list file for nokia convert"
+    assert len(fnames) == 1, "please specify exactly one list file for mpeg_vcm convert"
     fname = fnames[0]
     print("Using list file         :    ", fname)
     print("Images (and masks) from :    ", p.dir)
@@ -77,7 +77,7 @@ def main(p):
     print("Final OIV6 format in    :    ", p.target_dir)
     if not p.y:
         input("press enter to continue.. ")
-    nokiaBSToOpenImageV6(
+    MPEGVCMToOpenImageV6(
         validation_csv_file=os.path.expanduser(p.label),
         list_file=os.path.expanduser(fname),
         bbox_csv_file=p.bbox,
@@ -86,4 +86,4 @@ def main(p):
         data_dir=os.path.expanduser(image_dir),
         mask_dir=os.path.expanduser(mask_dir),
     )
-    print("nokia convert ready, please check", p.target_dir)
+    print("mpeg_vcm convert ready, please check", p.target_dir)

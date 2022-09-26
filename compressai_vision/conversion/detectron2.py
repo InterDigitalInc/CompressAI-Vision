@@ -108,7 +108,7 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
         ::
 
-            {'file_name': '/home/sampsa/fiftyone/openimagev6_nokia_small_COCO/data/001997021f01f208.jpg',
+            {'file_name': '/home/sampsa/fiftyone/openimagev6_mpeg_vcm_small_COCO/data/001997021f01f208.jpg',
             'height': 1024,
             'width': 760,
             'image_id': 1,

@@ -34,7 +34,7 @@
 .. code:: ipython3
 
     # CompressAI-Vision
-    from compressai_vision.conversion import nokiaBSToOpenImageV6, imageIdFileList
+    from compressai_vision.conversion import MPEGVCMToOpenImageV6, imageIdFileList
 
 We expect that you have downloaded correct images and segmentation masks
 into open-images-v6 folder:
@@ -65,7 +65,7 @@ into open-images-v6 folder:
             ├── hierarchy.json
             ├── image_ids.csv
             └── segmentation_classes.csv
-    
+
     5 directories, 10 files
 
 
@@ -86,34 +86,34 @@ are:
 .. code:: ipython3
 
     ## TODO: DEFINE YOUR PARTICULAR PATHS
-    path_to_nokia_files="/home/sampsa/silo/interdigital/siloai-playground/sampsa/nokia/data5K"
+    path_to_mpeg_vcm_files="/home/sampsa/silo/interdigital/siloai-playground/sampsa/mpeg_vcm/data5K"
     path_to_images=os.path.join(fodir,"open-images-v6/validation/data")
-    
-    list_file=os.path.join(path_to_nokia_files, "detection_validation_input_5k.lst")
-    bbox_csv_file=os.path.join(path_to_nokia_files, "detection_validation_5k_bbox.csv")
-    validation_csv_file=os.path.join(path_to_nokia_files, "detection_validation_labels_5k.csv")
-    
+
+    list_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_input_5k.lst")
+    bbox_csv_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_5k_bbox.csv")
+    validation_csv_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_labels_5k.csv")
+
     assert(os.path.exists(bbox_csv_file)), "can't find bbox file"
     assert(os.path.exists(validation_csv_file)), "can't find labels file"
     assert(os.path.exists(path_to_images)), "can't find image directory"
 
-Now we convert nokia proprietary format annotation into proper
+Now we convert mpeg_vcm proprietary format annotation into proper
 OpenImageV6 format dataset and place it into
-``~/fiftyone/nokia-detection``
+``~/fiftyone/mpeg_vcm-detection``
 
 First, remove any previously imported stuff:
 
 .. code:: ipython3
 
-    !rm -rf ~/fiftyone/nokia-detection
+    !rm -rf ~/fiftyone/mpeg_vcm-detection
 
 .. code:: ipython3
 
-    nokiaBSToOpenImageV6(
+    MPEGVCMToOpenImageV6(
         validation_csv_file=validation_csv_file,
         list_file=list_file,
         bbox_csv_file=bbox_csv_file,
-        output_directory=os.path.join(fodir,"nokia-detection"),
+        output_directory=os.path.join(fodir,"mpeg_vcm-detection"),
         data_dir=path_to_images
     )
 
@@ -121,12 +121,12 @@ let’s see what we got:
 
 .. code:: ipython3
 
-    !tree --filelimit=10 ~/fiftyone/nokia-detection | cat
+    !tree --filelimit=10 ~/fiftyone/mpeg_vcm-detection | cat
 
 
 .. parsed-literal::
 
-    /home/sampsa/fiftyone/nokia-detection
+    /home/sampsa/fiftyone/mpeg_vcm-detection
     ├── data -> /home/sampsa/fiftyone/open-images-v6/validation/data
     ├── labels
     │   ├── classifications.csv
@@ -135,7 +135,7 @@ let’s see what we got:
         ├── attributes.csv
         ├── classes.csv
         └── image_ids.csv
-    
+
     3 directories, 5 files
 
 
@@ -151,27 +151,27 @@ formatted dataset into fiftyone:
 
     # remove the dataset in the case it was already registered in fiftyone
     try:
-        fo.delete_dataset("nokia-detection")
+        fo.delete_dataset("mpeg_vcm-detection")
     except ValueError as e:
         print("could not delete because of", e)
 
 .. code:: ipython3
 
     dataset_type = fo.types.OpenImagesV6Dataset
-    dataset_dir = os.path.join(fodir,"nokia-detection")
+    dataset_dir = os.path.join(fodir,"mpeg_vcm-detection")
     dataset = fo.Dataset.from_dir(
         dataset_dir=dataset_dir,
         dataset_type=dataset_type,
         label_types=("detections","classifications"),
         load_hierarchy=False,
-        name="nokia-detection",
+        name="mpeg_vcm-detection",
         image_ids=imageIdFileList(list_file)
     )
 
 
 .. parsed-literal::
 
-     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]      
+     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]
 
 
 .. code:: ipython3
@@ -181,7 +181,7 @@ formatted dataset into fiftyone:
 .. code:: ipython3
 
     ## now, in the future, just do
-    dataset = fo.load_dataset("nokia-detection")
+    dataset = fo.load_dataset("mpeg_vcm-detection")
 
 Finaly, let’s also create a dummy dataset for debugging and testing with
 only one sample:
@@ -189,10 +189,10 @@ only one sample:
 .. code:: ipython3
 
     try:
-        fo.delete_dataset("nokia-detection-dummy")
+        fo.delete_dataset("mpeg_vcm-detection-dummy")
     except ValueError:
         print("no dummmy dataset yet..")
-    dummy_dataset=fo.Dataset("nokia-detection-dummy")
+    dummy_dataset=fo.Dataset("mpeg_vcm-detection-dummy")
     for sample in dataset[0:1]:
         dummy_dataset.add_sample(sample)
     dummy_dataset.persistent=True

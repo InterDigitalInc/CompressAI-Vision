@@ -1,6 +1,6 @@
 compressai-vision [options] command
 
-for an all-automatic no-brainer, please try: "compressai-nokia-auto-import help"
+for an all-automatic no-brainer, please try: "compressai-mpeg_vcm-auto-import help"
 that substitutes for download, convert_to_mpeg_vcm and register commands.
 
 commands & parameters:
@@ -18,7 +18,7 @@ commands & parameters:
         --dir           directory where the dataset (images, annotations, etc.) is downloaded
                         Default: $HOME/fiftyone/dataset-name
 
-        example (downloads images corresponding to nokia's detection & segmentation
+        example (downloads images corresponding to mpeg_vcm's detection & segmentation
                  test sets):
 
             compressai-vision download \\
@@ -37,7 +37,7 @@ commands & parameters:
         --name          name of the original database
                         name of the new database will be appended with "-dummy"
 
-    convert_to_mpeg_vcm       convert nokia-provided files into proper OpenImageV6
+    convert_to_mpeg_vcm       convert mpeg_vcm-provided files into proper OpenImageV6
                         format & directory structure
 
         --lists         file listing necessary images, i.e.
@@ -57,7 +57,7 @@ commands & parameters:
                         i.e. "segmentation_validation_masks_5k.csv"
         example:
 
-            compressai-vision nokia-convert
+            compressai-vision mpeg_vcm-convert
                 --lists=detection_validation_input_5k.lst \\
                 --bbox=detection_validation_5k_bbox.csv
                 --label=detection_validation_labels_5k.csv \\
@@ -70,11 +70,11 @@ commands & parameters:
         --dir           source directory
         --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
 
-        example (register converted nokia files into fiftyone):
+        example (register converted mpeg_vcm files into fiftyone):
 
             compressai-vision register
-                --name=nokia-import
-                --dir=~/somedir/nokia-import
+                --name=mpeg_vcm-import
+                --dir=~/somedir/mpeg_vcm-import
 
     detectron2_eval     evaluate model with detectron2 using OpenImageV6
                         evaluation protocol optionally with no (de)compression or
@@ -128,18 +128,18 @@ commands & parameters:
         example 1 (calculate mAP):
 
             compressai-vision detectron2_eval
-                --y --name=nokia-detection \\
+                --y --name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
         example 2 (calculate mAP=mAP(bpp) with a model from CompressAI zoo):
 
-            compressai-vision detectron2_eval --y --name=nokia-detection \\
+            compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
         example 3 (calculate mAP=mAP(bpp) with a custom development model):
 
-            compressai-vision detectron2_eval --y --name=nokia-detection \\
+            compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --modelpath=/path/to/directory --qpars=1
 
@@ -173,16 +173,16 @@ commands & parameters:
         example 1:
 
             compressai-vision vtm
-                --y --name=nokia-detection --qpars=38,47 --vtm_cache=/path/to/dir
+                --y --name=mpeg_vcm-detection --qpars=38,47 --vtm_cache=/path/to/dir
 
         example 2 (calculate bitstream for first 100 samples in the dataset):
 
             compressai-vision vtm
-                --y --name=nokia-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
+                --y --name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
 
 NOTE 1: your normal workflow would be: download, convert_to_mpeg_vcm, register, detectron2_eval
-the first three steps can be dealt with the compress-nokia-auto-import command
+the first three steps can be dealt with the compress-mpeg_vcm-auto-import command
 
 NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,
 launch detectron2_eval.  Be sure not to send several parallel (batch) jobs using the same dataset slices.

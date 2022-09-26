@@ -1,6 +1,6 @@
 #!/bin/bash
 ## ./run_image 1 gpu
-## 
+##
 if [ $# -lt 1 ]; then
   echo "usage: ./run_image number [gpu]"
   exit
@@ -20,10 +20,10 @@ notebook_dir="/path/to/your/notebook/directory" # notebooks in this dir --> visi
 data_dir="/path/to/your/data/directory" # some random data of yours --> visible in docker at /mnt/data
 
 notebook_dir="../../siloai-playground/sampsa/notebook"
-data_dir="../../siloai-playground/sampsa/nokia"
+data_dir="../../siloai-playground/sampsa/mpeg_vcm"
 
 ## If you'd like to hot-reload a python module from your local filesystem:
-python_module_dir1="../" # hot-reload code from this python package --> visible in docker at /mnt/python-module1 
+python_module_dir1="../" # hot-reload code from this python package --> visible in docker at /mnt/python-module1
 
 ## NOTE: /root/.cache/torch is where toch caches models, mongo saves stuff into /root/.fiftyone/var/lib/mongo
 ## final command:

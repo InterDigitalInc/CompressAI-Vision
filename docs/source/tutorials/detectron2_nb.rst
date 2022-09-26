@@ -16,7 +16,7 @@
     import detectron2
     from detectron2.utils.logger import setup_logger
     setup_logger()
-    
+
     # import some common detectron2 utilities
     from detectron2 import model_zoo
     from detectron2.engine import DefaultPredictor
@@ -66,7 +66,7 @@ Pick up correct Detectron2 model
     model_name="COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml"
     ## look here:
     ## https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md#faster-r-cnn
-    
+
     ## MODEL B
     # model_name="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
 
@@ -119,7 +119,7 @@ Get a handle to the dataset created in previous notebooks
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("nokia-detection")
+    dataset = fo.load_dataset("mpeg_vcm-detection")
 
 .. code:: ipython3
 
@@ -130,7 +130,7 @@ Get a handle to the dataset created in previous notebooks
 
 .. parsed-literal::
 
-    Name:        nokia-detection
+    Name:        mpeg_vcm-detection
     Media type:  image
     Num samples: 5000
     Persistent:  True
@@ -456,7 +456,7 @@ Results from the predictor will be annexed to the same fiftyone dataset.
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("nokia-detection-dummy") # use the dummy dataset for testing/debugging
+    dataset = fo.load_dataset("mpeg_vcm-detection-dummy") # use the dummy dataset for testing/debugging
 
 Detectron prediction results are saved during the run into the fiftyone
 (mongodb) database. Let’s define a unique name for the sample field
@@ -480,7 +480,7 @@ where the detectron results are saved:
 
 .. parsed-literal::
 
-     100% |█████████████████████| 1/1 [6.0s elapsed, 0s remaining, 0.2 samples/s] 
+     100% |█████████████████████| 1/1 [6.0s elapsed, 0s remaining, 0.2 samples/s]
 
 
 After that one, the dataset looks slightly different
@@ -519,7 +519,7 @@ OpenImageV6 evaluation protocol on the dataset that compares the two:
 .. parsed-literal::
 
     Evaluating detections...
-     100% |█████████████████████| 1/1 [26.3ms elapsed, 0s remaining, 38.0 samples/s] 
+     100% |█████████████████████| 1/1 [26.3ms elapsed, 0s remaining, 38.0 samples/s]
 
 
 After the evaluation we can (and should!) remove the detectron results
