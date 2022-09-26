@@ -79,7 +79,7 @@ def setup_parser():
         "dummy_database", parents=[parent_parser]
     )
     convert_to_mpeg_vcm_parser = subparsers.add_parser(
-        "convert_mpeg_vcm", parents=[parent_parser]
+        "convert_to_mpeg_vcm", parents=[parent_parser]
     )
     register_dataset_parser = subparsers.add_parser(
         "register_dataset", parents=[parent_parser]
