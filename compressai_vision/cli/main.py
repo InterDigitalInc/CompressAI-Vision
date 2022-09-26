@@ -54,30 +54,39 @@ def process_cl_args():
     #     return v.lower() in ("yes", "true", "t", "1")
 
     # about black: https://github.com/psf/black/issues/397
-    parser = argparse.ArgumentParser(
-        description="compressai-vision, evaluation of video compression for machine frameworks.",
-        usage=(
-            "compressai-vision [options] command\n"
-            "\n"
-            "please use the command 'manual' for full documentation of this program\n"
-            "\n"
-        ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
+    # parser = argparse.ArgumentParser(
+    #     description="compressai-vision, evaluation of video compression for machine frameworks.",
+    #     usage=(
+    #         "compressai-vision [options] command\n"
+    #         "\n"
+    #         "please use the command 'manual' for full documentation of this program\n"
+    #         "\n"
+    #     ),
+    #     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    # )
 
     parent_parser = argparse.ArgumentParser(add_help=False)
 
-    subparsers = parser.add_subparsers(help="command", dest="cmd")
-    subparsers.add_parser("list")
-    subparsers.add_parser("manual")
     parent_parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
     parent_parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
+    parent_parser.add_argument(
+        "--mock", action="store_true", default=False, help="mock tests"
+    )
+    parser = argparse.ArgumentParser(
+        description="compressai-vision.", add_help=True)
+
+    subparsers = parser.add_subparsers(help="select command", dest="command")
+
+    subparsers.add_parser("manual", parents=[parent_parser])
+    subparsers.add_parser("list", parents=[parent_parser])
+
 
     download_parser = subparsers.add_parser("download_dataset", parents=[parent_parser])
+
     eval_model_parser = subparsers.add_parser(
         "download_dataset", parents=[parent_parser]
     )
@@ -219,8 +228,8 @@ def process_cl_args():
         default=None,
         help="path to a model checkpoint",
     )
-    parser.add_argument("--vtm", action="store_true", default=False)
-    parser.add_argument(
+    eval_model_parser.add_argument("--vtm", action="store_true", default=False)
+    eval_model_parser.add_argument(
         "--qpars",
         action="store",
         type=str,
@@ -316,15 +325,13 @@ def process_cl_args():
         default=False,
         help="show fancy progressbar",
     )
-    parent_parser.add_argument(
-        "--mock", action="store_true", default=False, help="mock tests"
-    )
     parsed_args, unparsed_args = parser.parse_known_args()
     return parsed_args, unparsed_args
 
 
 def main():
     parsed, unparsed = process_cl_args()
+
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
