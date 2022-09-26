@@ -32,8 +32,10 @@
 
 
 def main(p):
+    print("importing fiftyone")
     import fiftyone as fo
 
+    print("fiftyone imported")
     # dataset = fo.load_dataset(p.name)
     print("removing dataset %s from fiftyone" % (p.name))
     if not p.y:

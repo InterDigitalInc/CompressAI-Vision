@@ -68,6 +68,12 @@ CompressAI-Vision makes the handling and evaluation of the mentioned datasets wi
   cli_usage
 
 .. toctree::
+  :maxdepth: 2
+  :caption: faq
+
+  faq
+
+.. toctree::
    :caption: Development
 
    Github repository <https://github.com/InterDigitalInc/CompressAI-Vision>

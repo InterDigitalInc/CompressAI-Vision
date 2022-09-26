@@ -34,8 +34,10 @@ import os
 
 def main(p):
     # fiftyone
+    print("importing fiftyone")
     import fiftyone as fo
 
+    print("fiftyone imported")
     print()
     print("datasets currently registered into fiftyone")
     print("name, length, first sample path")

@@ -31,10 +31,7 @@
 """
 import argparse
 import logging
-
 from compressai_vision.tools import quickLog, getDataFile
-
-# import configparser  # https://docs.python.org/3/library/configparser.html
 
 
 def process_cl_args():
@@ -324,11 +321,12 @@ def main():
         "detectron2_eval",
         "load_eval",
         "vtm",
+        "clean",
     ]:
-        from compressai_vision import cli
+        import compressai_vision.cli as cli
 
-        # print("command is", parsed.command)
         func = getattr(cli, parsed.command)
+        # i.e. func=compressai_vision.cli.download.main
         func(parsed)
     else:
         print("unknown command", parsed.command)

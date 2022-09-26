@@ -27,4 +27,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from compressai_vision.patch import *  # apply monkey-patches
+"""cli list functionality
+"""
+import os
+
+
+def main(p):
+    print("importing fiftyone")
+    import fiftyone as fo
+
+    print("fiftyone imported")
+    print()
+    try:
+        username = os.environ["USER"]
+    except KeyError:
+        username = "nouser"
+    print("removing tmp datasets for username", username)
+    print("WARNING: be sure not to remove datasets currently used by a process")
+    if not p.y:
+        input("press enter to continue.. ")
+    for name in fo.list_datasets():
+        if "detectron-run-" + username in name:
+            print("deleting dataset", name)
+            fo.delete_dataset(name)

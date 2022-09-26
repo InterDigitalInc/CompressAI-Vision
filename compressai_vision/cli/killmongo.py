@@ -27,58 +27,63 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""cli download functionality
+"""Kill / clear mongodb 
+
+If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
+
+::
+
+    ~/.fiftyone/var/lib/mongo/mongod.lock # kill mongodb, remove this file
+
+    ~/.fiftyone # kill mongodb & remove the mongodb database .. this can happen if fiftyone & mongo versions are not compatible
+
+    fiftyone.core.service.ServiceListenTimeout: fiftyone.core.service.DatabaseService failed to bind to port
+
+    https://github.com/voxel51/fiftyone/issues/1988     # related github issues
+    https://github.com/voxel51/fiftyone/issues/1334
+    
 """
-import os
+
+import os, sys, glob, shutil
 
 
-def main(p):
-    # fiftyone
-    print("importing fiftyone")
-    import fiftyone as fo
-    from fiftyone import zoo as foz  # different fiftyone than the patched one.. eh
+def stopMongo():
+    print("killing mongo process")
+    os.system("killall -9 mongod")
+    print("killed mongo process")
+    for fname in glob.glob(
+        os.path.expanduser(os.path.join("~", ".fiftyone/var/lib/mongo/*lock*"))
+    ):
+        print("removing", fname, "PRESS ENTER TO CONTINUE")
+        input()
+        os.remove(fname)
 
-    print("fiftyone imported")
 
-    # compressai_vision
-    from compressai_vision.conversion import imageIdFileList
-    from compressai_vision.tools import pathExists
+def clearMongo():
+    print("killing mongo process")
+    os.system("killall -9 mongod")
+    print("killed mongo process")
+    dirname = os.path.expanduser(os.path.join("~", ".fiftyone"))
+    print("WARNING: removing directory", dirname, "PRESS ENTER TO CONTINUE")
+    input()
+    shutil.rmtree(dirname)
 
-    if p.name is None:
-        p.name = "open-images-v6"
-    print()
-    if p.lists is None:
+
+def main():
+    if len(sys.argv) < 2:
         print(
-            "WARNING: downloading ALL images.  You should use the --lists option instead."
+            "\n" "compressai-vision-mongo command\n",
+            "\n"
+            "commands\n"
+            "\n"
+            "        stop     stop local mongodb server and clean lockfiles\n"
+            "        clear    remove the local mongodb database\n"
+            "\n",
         )
-        n_images = "?"
-        image_ids = None
+
+    elif sys.argv[1] == "stop":
+        stopMongo()
+    elif sys.argv[1] == "clear":
+        clearMongo()
     else:
-        fnames = p.lists.split(",")
-        for fname in fnames:
-            assert pathExists(fname)
-        image_ids = imageIdFileList(*fnames)
-        if p.mock:
-            image_ids = image_ids[0:2]
-            print("WARNING! MOCK TEST OF ONLY TWO SAMPLES!")
-        n_images = str(len(image_ids))
-    print("Using list files:    ", p.lists)
-    print("Number of images:    ", n_images)
-    print("Database name   :    ", p.name)
-    print("Subname/split   :    ", p.split)
-    print("Target dir      :    ", p.dir)
-    if not p.y:
-        input("press enter to continue.. ")
-    print()
-    # return
-    # https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6
-    kwargs = {}
-    kwargs["split"] = p.split
-    if image_ids is not None:
-        kwargs["image_ids"] = image_ids
-    if p.dir is not None:
-        p.dir = os.path.expanduser(p.dir)
-        kwargs["dataset_dir"] = p.dir
-    dataset = foz.load_zoo_dataset(p.name, **kwargs)
-    # label_types=("detections", "classifications", "relationships", "segmentations") # default
-    dataset.persistent = True
+        print("unknown command", sys.argv[1])
