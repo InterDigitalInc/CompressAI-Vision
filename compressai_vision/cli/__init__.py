@@ -28,7 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_to_mpeg_vcm import main as convert_to_mpeg_vcm
+from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
 
 # importing this takes quite a while!
 # ..not anymore since import fiftyone is inside the function
@@ -50,7 +50,7 @@ __all__ = [
     "download",
     "list",
     "load_eval",
-    "convert_to_mpeg_vcm",
+    "convert_mpeg_to_oiv6",
     "register",
     "dummy",
     "vtm",

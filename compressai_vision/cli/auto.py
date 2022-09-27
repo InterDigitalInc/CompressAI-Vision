@@ -50,7 +50,7 @@ parameters:
 
     --datadir=/path/to/datasets     directory where all datasets are downloaded by default (optional)
 
-Automatic downloading of images and importing mpeg_vcm-provided files into fiftyone
+Automatic downloading of images and importing files provided by MPEG/VCM test conditions into fiftyone
 
 Before running this command, put the following files into the same directory
 (please note 'detection_validation_5k_bbox.csv' name inconsistency):
@@ -96,7 +96,7 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 
 def main():
-    from compressai_vision.cli import convert_to_mpeg_vcm, download, dummy, register
+    from compressai_vision.cli import convert_mpeg_to_oiv6, download, dummy, register
 
     args = []
     dirname = None
@@ -135,7 +135,7 @@ def main():
     else:
         dir_ = os.path.join(dirname, p.dataset_name)
 
-    dir_ = get_dir(dir_, "path to download (mpeg_vcm subset of) OpenImageV6 ")
+    dir_ = get_dir(dir_, "path to download (MPEG/VCM subset of) OpenImageV6 ")
     source_dir = os.path.join(
         dir_, "validation"
     )  # "~/fiftyone/open-images-v6/validation"
@@ -150,7 +150,7 @@ def main():
     p.dir = dir_
     download(p)
 
-    print("\n**CONVERTING mpeg_vcm DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
+    print("\n**CONVERTING MPEG/VCM DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
     p.y = False
 
@@ -172,9 +172,9 @@ def main():
     p.label = get_("detection_validation_labels_5k.csv")
     p.bbox = get_("detection_validation_5k_bbox.csv")
     p.mask = None
-    convert_to_mpeg_vcm(p)
+    convert_mpeg_to_oiv6(p)
 
-    print("\n**CONVERTING mpeg_vcm SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
+    print("\n**CONVERTING MPEG/VCM SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
     p.y = False
 
@@ -196,9 +196,9 @@ def main():
     p.label = get_("segmentation_validation_labels_5k.csv")
     p.bbox = get_("segmentation_validation_bbox_5k.csv")
     p.mask = get_("segmentation_validation_masks_5k.csv")
-    convert_to_mpeg_vcm(p)
+    convert_mpeg_to_oiv6(p)
 
-    print("\n**REGISTERING MPEG VCM DETECTION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG/VCM DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
     dataset_name = get_inp("mpeg-vcm-detection", "name for detection dataset")
@@ -214,7 +214,7 @@ def main():
     p.dataset_name = dataset_name
     dummy(p)
 
-    print("\n**REGISTERING MPEG VCM SEGMENTATION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG/VCM SEGMENTATION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
     dataset_name = get_inp("mpeg-vcm-segmentation", "name for segmentation dataset")

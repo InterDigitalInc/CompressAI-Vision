@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Convert from mpeg_vcm format to OpenImageV6 that can be read with fiftyone
+"""Convert from MPEG/VCM format to OpenImageV6 that can be read with fiftyone
 
 This is the official OpenImageV6 dir structure:
 ```
@@ -111,12 +111,12 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
     link=True,
     verbose=False,
 ):
-    """From mpeg_vcm's (MPEG/VCM) input file format to proper OpenImageV6 format
+    """From MPEG/VCM input file format to proper OpenImageV6 format
 
-    :param validation_csv_file: mpeg_vcm's image-level labels (typically ``detection_validation_labels_5k.csv`` or ``segmentation_validation_labels_5k.csv``)
-    :param list_file: mpeg_vcm's image list file (typically ``detection_validation_input_5k.lst`` or ``segmentation_validation_input_5k.lst``)
-    :param bbox_csv_file: mpeg_vcm's detection input file (typically ``detection_validation_5k_bbox.csv`` or ``segmentation_validation_bbox_5k.csv``)
-    :param seg_masks_csv_file: mpeg_vcm's segmentation input file (typically ``segmentation_validation_masks_5k.csv``)
+    :param validation_csv_file: MPEG/VCM image-level labels (typically ``detection_validation_labels_5k.csv`` or ``segmentation_validation_labels_5k.csv``)
+    :param list_file: MPEG/VCM image list (typically ``detection_validation_input_5k.lst`` or ``segmentation_validation_input_5k.lst``)
+    :param bbox_csv_file: MPEG/VCM detection input file (typically ``detection_validation_5k_bbox.csv`` or ``segmentation_validation_bbox_5k.csv``)
+    :param seg_masks_csv_file: MPEG/VCM segmentation input file (typically ``segmentation_validation_masks_5k.csv``)
     :param output_directory: Path where the OpenImageV6 formatted files are dumped
     :param data_dir: Source directory where the image jpg files are.  Use the standard OpenImageV6 directory.
     :param mask_dir: Source directory where the mask png files are.  Use the standard OpenImageV6 directory.
@@ -124,7 +124,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
 
     More details on the conversion follow
 
-    ``bbox_csv_file``: A filename (``detection_validation_5k_bbox.csv``) with the mpeg_vcm format that looks like this:
+    ``bbox_csv_file``: A filename (``detection_validation_5k_bbox.csv``) with the MPEG/VCM format that looks like this:
 
     ::
 
@@ -140,7 +140,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside
         ...
 
-    ``seg_masks_csv_file``: A filename (``segmentation_validation_masks_5k.csv``) with the mpeg_vcm format that looks like this:
+    ``seg_masks_csv_file``: A filename (``segmentation_validation_masks_5k.csv``) with the MPEG/VCM format that looks like this:
 
     ::
 
@@ -184,8 +184,8 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
     """
     assert (
         validation_csv_file is not None
-    ), "you _must_ provide at least mpeg_vcm-formatted image-level labels csv file, aka 'detection_validation_labels_5k.csv'"
-    # assert(bbox_csv_file is not None), "please provide mpeg_vcm-formatted bbox csv file, aka 'detection_validation_5k_bbox.csv'" # OPT
+    ), "you _must_ provide at least MPEG/VCM-formatted image-level labels csv file, aka 'detection_validation_labels_5k.csv'"
+    # assert(bbox_csv_file is not None), "please provide MPEG/VCM-formatted bbox csv file, aka 'detection_validation_5k_bbox.csv'" # OPT
 
     assert output_directory is not None, "please provide output root directory"
     assert data_dir is not None, "please provide data_dir where the images are located"
@@ -248,9 +248,9 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         classes = []
         for line in f:
             name = line.strip().split(",")[1]
-            # WARNING: this is a landmine!  The mpeg_vcm input files include corrupt label names, i.e. "cell_phone"
+            # WARNING: MPEG/VCM input files include corrupt label names, i.e. "cell_phone"
             # instead of "cell phone" as understood by COCO-trained detectors
-            # why provide such corrupt input files.. no idea. In the original mpeg_vcm pipeline, these labels are corrected "on-the-fly"
+            # why provide such corrupt input files.. no idea. In the original MPEG/VCM pipeline, these labels are corrected "on-the-fly"
             name = name.replace("_", " ")
             if name not in classes:
                 classes.append(name)
@@ -283,7 +283,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                 )
                 for line in source:  # bef50424c62d12c5.jpg, ..
                     ImageID = line.strip().split(".")[0]  # bef50424c62d12c5
-                    # and yes, all info is lost / not provided by mpeg_vcm files
+                    # and yes, all info is lost / not provided by MPEG/VCM files
                     Subset = "nada"
                     OriginalURL = "nada"
                     OriginalLandingURL = "nada"
@@ -326,9 +326,9 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                 row = [r.strip() for r in row]
                 ImageID, LabelName, Confidence = row
                 Source = "mpeg_vcm"
-                # WARNING: this is a landmine!  The mpeg_vcm input files include corrupt label names, i.e. "cell_phone"
+                # WARNING: MPEG/VCM input files include corrupt label names, i.e. "cell_phone"
                 # instead of "cell phone" as understood by COCO-trained detectors
-                # why provide such corrupt input files.. no idea. In the original mpeg_vcm pipeline, these labels are corrected "on-the-fly"
+                # why provide such corrupt input files.. no idea. In the original MPEG/VCM pipeline, these labels are corrected "on-the-fly"
                 LabelName = LabelName.replace("_", " ")
                 target.write(",".join((ImageID, Source, LabelName, Confidence)) + "\n")
 
@@ -338,7 +338,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
             print("reading", bbox_csv_file, "and writing", detections_csv)
         with open(bbox_csv_file, "r") as source:
             source.readline()  # ImageID,LabelName,XMin,XMax,YMin,YMax,IsGroupOf
-            # mpeg_vcm bs format:
+            # MPEG/VCM format:
             # ImageID,LabelName,XMin,XMax,YMin,YMax,IsGroupOf
             # bef50424c62d12c5,airplane,0.15641026,0.8282050999999999,0.16284987,0.82188296,0
             # c540d9c96b6a79a2,person,0.4421875,0.5796875,0.67083335,0.84791666,0
@@ -362,9 +362,9 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                     # IsGroupOf="0" # don't change this!
                     IsDepiction = "0"
                     IsInside = "0"
-                    # WARNING: this is a landmine!  The mpeg_vcm input files include corrupt label names, i.e. "cell_phone"
+                    # WARNING: MPEG/VCM input files include corrupt label names, i.e. "cell_phone"
                     # instead of "cell phone" as understood by COCO-trained detectors
-                    # why provide such corrupt input files.. no idea.  In the original mpeg_vcm pipeline, these labels are corrected "on-the-fly"
+                    # why provide such corrupt input files.. no idea.  In the original MPEG/VCM pipeline, these labels are corrected "on-the-fly"
                     LabelName = LabelName.replace("_", " ")
                     target.write(
                         ",".join(
@@ -427,7 +427,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                     BoxYMax = YMax
                     PredictedIoU = "0.0"  # lost information..
                     Clicks = "0.0"  # lost information..
-                    # WARNING: this is a landmine!  The mpeg_vcm input files include corrupt label names, i.e. "cell_phone"
+                    # WARNING: MPEG/VCM input files include corrupt label names, i.e. "cell_phone"
                     LabelName = LabelName.replace("_", " ")
                     target.write(
                         ",".join(

@@ -314,7 +314,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         :param bgr_image: numpy BGR image (y,x,3)
         :param tag: a string that can be used to identify & cache images (optional).  Necessary if you're using caching
 
-        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG VCM.
+        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG/VCM.
 
         Returns a tuple of (nbits, transformed_bgr_image)
 
@@ -406,7 +406,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         )  # yuv produced by VTM
 
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
-        # apply ffmpeg commands as defined in MPEG VCM group docs
+        # apply ffmpeg commands as defined in MPEG/VCM group docs
         # each submethod should cite the correct command
 
         if self.dump:

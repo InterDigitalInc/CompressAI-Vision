@@ -41,7 +41,7 @@ COMMANDS = [
     "list",
     "dummy",
     "deregister",
-    "convert_to_mpeg_vcm",
+    "convert_mpeg_to_oiv6",
     "register",
     "detectron2_eval",
     "load_eval",
@@ -77,8 +77,8 @@ def setup_parser():
     )
 
     dummy_database_parser = subparsers.add_parser("dummy", parents=[parent_parser])
-    convert_to_mpeg_vcm_parser = subparsers.add_parser(
-        "convert_to_mpeg_vcm", parents=[parent_parser]
+    convert_mpeg_to_oiv6_parser = subparsers.add_parser(
+        "convert_mpeg_to_oiv6", parents=[parent_parser]
     )
     register_dataset_parser = subparsers.add_parser("register", parents=[parent_parser])
     deregister_dataset_parser = subparsers.add_parser(
@@ -104,7 +104,7 @@ def setup_parser():
 
     for subparser in [
         download_parser,
-        convert_to_mpeg_vcm_parser,
+        convert_mpeg_to_oiv6_parser,
         register_dataset_parser,
     ]:
         subparser.add_argument(
@@ -127,7 +127,7 @@ def setup_parser():
     for subparser in [
         download_parser,
         register_dataset_parser,
-        convert_to_mpeg_vcm_parser,
+        convert_mpeg_to_oiv6_parser,
     ]:
         subparser.add_argument(
             "--dir",
@@ -137,15 +137,15 @@ def setup_parser():
             default=None,
             help="target/source directory, depends on command",
         )
-    convert_to_mpeg_vcm_parser.add_argument(
+    convert_mpeg_to_oiv6_parser.add_argument(
         "--target_dir",
         action="store",
         type=str,
         required=False,
         default=None,
-        help="target directory for convert_to_mpeg_vcm",
+        help="target directory for convert_mpeg_to_oiv6",
     )
-    convert_to_mpeg_vcm_parser.add_argument(
+    convert_mpeg_to_oiv6_parser.add_argument(
         "--label",
         action="store",
         type=str,
@@ -153,7 +153,7 @@ def setup_parser():
         default=None,
         help="mpeg_vcm-formatted image-level labels",
     )
-    convert_to_mpeg_vcm_parser.add_argument(
+    convert_mpeg_to_oiv6_parser.add_argument(
         "--bbox",
         action="store",
         type=str,
@@ -161,7 +161,7 @@ def setup_parser():
         default=None,
         help="mpeg_vcm-formatted bbox data",
     )
-    convert_to_mpeg_vcm_parser.add_argument(
+    convert_mpeg_to_oiv6_parser.add_argument(
         "--mask",
         action="store",
         type=str,

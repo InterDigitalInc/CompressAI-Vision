@@ -72,7 +72,7 @@ into open-images-v6 folder:
 So the downloaded images reside in ``~/fiftyone/open-images-v6/data``
 and segmentation masks in ``~/fiftyone/open-images-v6/labels/masks``.
 
-We are not going to use the default OpenImageV6 annotations: MPEG VCM
+We are not going to use the default OpenImageV6 annotations: MPEG/VCM
 working group provides us with custom-format annotation files we need to
 convert into OpenImageV6 format. For the detector ground truths, these
 are:

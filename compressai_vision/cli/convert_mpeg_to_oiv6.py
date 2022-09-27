@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""cli convert_to_mpeg_vcm functionality
+"""cli convert_mpeg_to_oiv6 functionality
 """
 import os
 

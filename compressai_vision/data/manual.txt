@@ -1,7 +1,7 @@
 compressai-vision [options] command
 
 for an all-automatic no-brainer, please try: "compressai-mpeg_vcm-auto-import help"
-that substitutes for download, convert_to_mpeg_vcm and register commands.
+that substitutes for download, convert_mpeg_to_oiv6 and register commands.
 
 commands & parameters:
 
@@ -18,8 +18,8 @@ commands & parameters:
         --dir           directory where the dataset (images, annotations, etc.) is downloaded
                         Default: $HOME/fiftyone/dataset-name
 
-        example (downloads images corresponding to mpeg_vcm's detection & segmentation
-                 test sets):
+        example (downloads images corresponding the Common Test Conditions (CTC) of MPEG/VCM for
+        the detection & segmentation tasks):
 
             compressai-vision download \\
             --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
@@ -37,7 +37,7 @@ commands & parameters:
         --name          name of the original database
                         name of the new database will be appended with "-dummy"
 
-    convert_to_mpeg_vcm       convert mpeg_vcm-provided files into proper OpenImageV6
+    convert_mpeg_to_oiv6       convert the files specified in MPEG/VCM CTC into proper OpenImageV6
                         format & directory structure
 
         --lists         file listing necessary images, i.e.
@@ -57,7 +57,7 @@ commands & parameters:
                         i.e. "segmentation_validation_masks_5k.csv"
         example:
 
-            compressai-vision mpeg_vcm-convert
+            compressai-vision convert_mpeg_to_oiv6
                 --lists=detection_validation_input_5k.lst \\
                 --bbox=detection_validation_5k_bbox.csv
                 --label=detection_validation_labels_5k.csv \\
@@ -70,7 +70,7 @@ commands & parameters:
         --dir           source directory
         --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
 
-        example (register converted mpeg_vcm files into fiftyone):
+        example (register converted MPEG/VCM files into fiftyone):
 
             compressai-vision register
                 --name=mpeg_vcm-import
@@ -181,7 +181,7 @@ commands & parameters:
                 --y --name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
 
-NOTE 1: your normal workflow would be: download, convert_to_mpeg_vcm, register, detectron2_eval
+NOTE 1: your normal workflow would be: download, convert_mpeg_to_oiv6, register, detectron2_eval
 the first three steps can be dealt with the compress-mpeg_vcm-auto-import command
 
 NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,

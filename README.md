@@ -22,7 +22,7 @@ TODO: add a figure here
 
 For testing VCM pipelines, various mAP measures (as in COCO or OpenImageV6 evaluation protocols) and datasets can be used, while the deep-learning CompressAI-based models are typically compared againts a well-known "anchor" pipeline, featuring a classical image/video codec, say, H266.
 
-In particular, CompressAI-Vision supports part of the Common Test Conditions defined by the Ad-hoc Group **MPEG VCM**, part of the ISO/MPEG working group 3, including standardized data/image sets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+In particular, CompressAI-Vision supports part of the Common Test Conditions defined by the Ad-hoc Group **MPEG/VCM**, part of the ISO/MPEG working group 3, including standardized data/image sets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
 ## Features
 
@@ -35,7 +35,7 @@ CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 - Uses [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) as detector and image segmentation models
 
 # TODO (fracape) make it sound like it's one option
-- Supports official MPEG committee input files (TODO: link to mpeg vcm document?)
+- Supports official MPEG committee input files (TODO: link to MPEG/VCM document?)
 
 - Single-shot CLI commands for fast input file import, image download and evaluation
 

@@ -44,7 +44,7 @@ List all datasets (already) registered to fiftyone
 
 Create a list of necessary images
 
-MPEG VCM working group and mpeg_vcm provides you with files listing the
+MPEG/VCM working group and mpeg_vcm provides you with files listing the
 necessary images for detection and segmentation validation, namely
 ``detection_validation_input_5k.lst`` and
 ``segmentation_validation_input_5k.lst``. Let’s combine those two files
