@@ -31,7 +31,6 @@
 """
 import os
 
-
 def main(p):
     print("importing fiftyone")
     import fiftyone as fo
