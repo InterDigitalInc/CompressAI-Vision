@@ -140,7 +140,7 @@ def process_cl_args():
         help="list of pyplot symbols/colors, e.g: o--k,-b, etc.",
     )
     parser.add_argument(
-        "--names", action="store", type=str, required=False, help="list of plot names"
+        "--dataset-names", action="store", type=str, required=False, help="list of plot names"
     )
     parser.add_argument(
         "--eval",

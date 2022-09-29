@@ -5,49 +5,49 @@ that substitutes for download, convert_mpeg_to_oiv6 and register commands.
 
 commands & parameters:
 
-    --y                 non-interactive
+    --y                     non-interactive
 
     manual
-                        shows this manual
+                            shows this manual
 
-    download            download image set _and_ register it to fiftyone.
+    download                download image set _and_ register it to fiftyone.
 
-        --name          name of the dataset.  Default: "open-images-v6".
-        --lists         list files that define the subset of images to download.
-        --split         typically "train" or "validation".  Default: "validation".
-        --dir           directory where the dataset (images, annotations, etc.) is downloaded
-                        Default: $HOME/fiftyone/dataset-name
+        --dataset-name      name of the dataset.  Default: "open-images-v6".
+        --lists             list files that define the subset of images to download.
+        --split             typically "train" or "validation".  Default: "validation".
+        --dir               directory where the dataset (images, annotations, etc.) is downloaded
+                            Default: $HOME/fiftyone/dataset-name
 
         example (downloads images corresponding the Common Test Conditions (CTC) of MPEG/VCM for
         the detection & segmentation tasks):
 
             compressai-vision download \\
             --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
-            --name=open-image-v6 --split=validation
+            --dataset-name=open-image-v6 --split=validation
 
-    list                list all image sets registered to fiftyone
+    list                    list all image sets registered to fiftyone
 
-    register            register image set to fiftyone from local dir
+    register                register image set to fiftyone from local dir
 
-        --name          database registered name
-        --lists         lst files that define the subset of images to register
-        --dir           source directory
-        --type          fiftyone.types name.  Default: "OpenImagesV6Dataset"
+        --dataset-name      database registered name
+        --lists             lst files that define the subset of images to register
+        --dir               source directory
+        --type              fiftyone.types name.  Default: "OpenImagesV6Dataset"
 
         example (register converted MPEG/VCM files into fiftyone):
 
             compressai-vision register
-                --name=mpeg_vcm-import
+                --dataset-name=mpeg_vcm-import
                 --dir=~/somedir/mpeg_vcm-import
 
     deregister              de-register image set from fiftyone
 
-        --name              name of the dataset, for example "open-image-v6"
+        --dataset-name      name of the dataset, for example "open-image-v6"
         --split             name of the split, for example "validation"
 
     dummy                   create & register a dummy database with just the first sample
 
-        --name              name of the original database
+        --dataset-name      name of the original database
                             name of the new database will be appended with "-dummy"
 
     clean                   remove temporary databases.
@@ -64,7 +64,7 @@ commands & parameters:
                             WARNING/TODO : currently works only for detections
                             (not for segmentations)
 
-        --name              name of the fiftyone registered database
+        --dataset-name      name of the fiftyone registered database
         --model             name of the detectron2 model
                             for example:
                             COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
@@ -109,18 +109,18 @@ commands & parameters:
         example 1 (calculate mAP):
 
             compressai-vision detectron2_eval
-                --y --name=mpeg_vcm-detection \\
+                --y --dataset-name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
         example 2 (calculate mAP=mAP(bpp) with a model from CompressAI zoo):
 
-            compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \\
+            compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
         example 3 (calculate mAP=mAP(bpp) with a custom development model):
 
-            compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \\
+            compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --modelpath=/path/to/directory --qpars=1
 
@@ -129,7 +129,7 @@ commands & parameters:
                         can do the bitstream generation step separately.
                         The following options are same as in "detectron2_eval" command:
 
-                        --name, --qpars, --vtm_dir, --ffmpeg, --vtm_cfg, --debug
+                        --dataset-name, --qpars, --vtm_dir, --ffmpeg, --vtm_cfg, --debug
 
         --vtm_cache     as in "detectron2_eval" command, but _must_ be defined
         --slice         instead of using the complete dataset, just use a slice of the
@@ -147,12 +147,12 @@ commands & parameters:
         example 1:
 
             compressai-vision vtm
-                --y --name=mpeg_vcm-detection --qpars=38,47 --vtm_cache=/path/to/dir
+                --y --dataset-name=mpeg_vcm-detection --qpars=38,47 --vtm_cache=/path/to/dir
 
         example 2 (calculate bitstream for first 100 samples in the dataset):
 
             compressai-vision vtm
-                --y --name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
+                --y --dataset-name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
     convert_mpeg_to_oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
                             format & directory structure

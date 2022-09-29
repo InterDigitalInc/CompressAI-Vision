@@ -129,7 +129,7 @@ def main(p):  # noqa: C901
 
         # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
         compression_model = getattr(
-            compressai.zoo, p.compressai
+            compressai.zoo, p.compressai_model_name
         )  # a function that returns a model instance or just a class
 
     elif (
@@ -272,7 +272,7 @@ def main(p):  # noqa: C901
     print("Detectron2 model       :", model_name)
     print("Model was trained with :", model_dataset)
     if p.compressai_model_name is not None:
-        print("Using compressai model :", p.compressai)
+        print("Using compressai model :", p.compressai_model_name)
     elif p.compression_model_path is not None:
         print("Using custom mode from :", p.compression_model_path)
     elif p.vtm:

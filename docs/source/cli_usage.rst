@@ -60,7 +60,7 @@ Here are some example commands you might want to try
 
 ::
 
-    compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \
+    compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --output=eval5K.json
 
@@ -68,7 +68,7 @@ Here are some example commands you might want to try
 
 ::
 
-    compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \
+    compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --compressai=bmshj2018_factorized \
     --qpars=1,2,3,4,5,6,7,8 --output=eval5Kqp.json
@@ -78,7 +78,7 @@ Here are some example commands you might want to try
 ::
 
     compressai-vision detectron2_eval --y --debug \
-    --name=mpeg_vcm-detection-dummy \
+    --dataset-name=mpeg_vcm-detection-dummy \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --vtm --vtm_dir=path/to/VVCSoftware_VTM/bin --qpars=47 --output=vtm_test.json
 
