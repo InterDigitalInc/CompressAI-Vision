@@ -86,7 +86,7 @@ def setup_parser():
 def main():
     parser = setup_parser()
     args, unparsed = parser.parse_known_args()
-    print(">",args)
+    # print(">",args)
     # return
     for weird in unparsed:
         print("invalid argument", weird)
