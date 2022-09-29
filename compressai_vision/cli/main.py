@@ -94,10 +94,10 @@ def setup_parser():
         deregister_dataset_parser,
     ]:
         subparser.add_argument(
-            "--dataset-name",
+            "--name",
             action="store",
             type=str,
-            required=False,
+            required=True,
             default=None,
             help="name of the dataset",
         )
