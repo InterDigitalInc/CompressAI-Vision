@@ -48,6 +48,19 @@ from . import clean, convert_mpeg_to_oiv6, deregister, detectron2_eval,\
     download, dummy, list_, load_eval, register, vtm
 
 __all__ = [
+<<<<<<< HEAD
  "clean", "convert_mpeg_to_oiv6", "deregister", "detectron2_eval",
     "download", "dummy", "list_", "load_eval", "register", "vtm"
+=======
+    "deregister",
+    "detectron2_eval",
+    "download",
+    "list",
+    "load_eval",
+    "nokia_convert",
+    "register",
+    "dummy",
+    "vtm",
+    "clean"
+>>>>>>> sampsa-dev
 ]
