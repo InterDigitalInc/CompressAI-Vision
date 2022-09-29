@@ -1,6 +1,6 @@
 compressai-vision [options] command
 
-for an all-automatic no-brainer, please try: "compressai-mpeg_vcm-auto-import help"
+for an all-automatic no-brainer dataset setup, please try: "compressai-mpeg_vcm-auto-import help"
 that substitutes for download, convert_mpeg_to_oiv6 and register commands.
 
 commands & parameters:
@@ -27,42 +27,6 @@ commands & parameters:
 
     list                list all image sets registered to fiftyone
 
-    deregister          de-register image set from fiftyone
-
-        --name          name of the dataset, for example "open-image-v6"
-        --split         name of the split, for example "validation"
-
-    dummy               create & register a dummy database with just the first sample
-
-        --name          name of the original database
-                        name of the new database will be appended with "-dummy"
-
-    convert_mpeg_to_oiv6       convert the files specified in MPEG/VCM CTC into proper OpenImageV6
-                        format & directory structure
-
-        --lists         file listing necessary images, i.e.
-                        "detection_validation_input_5k.lst" or
-                        "segmentation_validation_input_5k.lst"
-        --dir           a base OpenImageV6 dataset dir:
-                        images are taken from "[dir]/data/" and masks from
-                        "[dir]/labels/masks/"
-        --target_dir    target directory directory for the converted format
-        --label         image-level labels, i.e.
-                        "detection_validation_labels_5k.csv" or
-                        "segmentation_validation_labels_5k.csv"
-        --bbox          bbox data, i.e.
-                        "detection_validation_5k_bbox.csv" or
-                        "segmentation_validation_bbox_5k.csv"
-        --mask          segmentation masks,
-                        i.e. "segmentation_validation_masks_5k.csv"
-        example:
-
-            compressai-vision convert_mpeg_to_oiv6
-                --lists=detection_validation_input_5k.lst \\
-                --bbox=detection_validation_5k_bbox.csv
-                --label=detection_validation_labels_5k.csv \\
-                --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
-
     register            register image set to fiftyone from local dir
 
         --name          database registered name
@@ -76,18 +40,35 @@ commands & parameters:
                 --name=mpeg_vcm-import
                 --dir=~/somedir/mpeg_vcm-import
 
-    detectron2_eval     evaluate model with detectron2 using OpenImageV6
-                        evaluation protocol optionally with no (de)compression or
-                        with compressai or vtm.
+    deregister              de-register image set from fiftyone
 
-                        WARNING/TODO : currently works only for detections
-                        (not for segmentations)
+        --name              name of the dataset, for example "open-image-v6"
+        --split             name of the split, for example "validation"
 
-        --name          name of the fiftyone registered database
-        --model         name of the detectron2 model
-                        for example:
-                        COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
-        --output        outputfile, default: compressai-vision.json
+    dummy                   create & register a dummy database with just the first sample
+
+        --name              name of the original database
+                            name of the new database will be appended with "-dummy"
+
+    clean                   remove temporary databases.
+                            detectron2_eval creates temporary clones of the dataset per each run.
+                            These dataset are automatically cleaned up after detectron2_eval run.
+                            If your run crashed, the temporary database might be left in the database
+                            (you can see them with the list command where they appear with the name
+                            "detectron-run-*".)
+
+    detectron2_eval         evaluate model with detectron2 using OpenImageV6
+                            evaluation protocol optionally with no (de)compression or
+                            with compressai or vtm.
+
+                            WARNING/TODO : currently works only for detections
+                            (not for segmentations)
+
+        --name              name of the fiftyone registered database
+        --model             name of the detectron2 model
+                            for example:
+                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+        --output            outputfile, default: compressai-vision.json
 
         compression models:
 
@@ -95,35 +76,35 @@ commands & parameters:
         or a model you're currently developing.  If no model is chosen, then no (de)compression is
         done before passing the image to detectron
 
-        --compressai    CompressAI model from the zoo, for example: bmshj2018_factorized
-                        can be a model name from the CompressAI model zoo (optional)
-        --modelpath     load a custom model. Defines a path to directory with a custom development model.
-                        The directory should contain a properly formatted "model.py" file (optional)
-        --vtm           use vtm (optional)
+        --compressai-model-name     CompressAI model from the zoo, for example: bmshj2018_factorized
+                                    can be a model name from the CompressAI model zoo (optional)
+        --compression-model-path    load a custom model. Defines a path to directory with a custom development model.
+                                    The directory should contain a properly formatted "model.py" file (optional)
+        --vtm                       use vtm (optional)
 
-        --checkpoint    a torch checkpoint file for loading the model state (.pth.tar file)
-        --qpars         a quality parameters to be used with either compressai or vtm
-        --scale         ffmpeg scaling applied to the image as defined per VCM working group.
-                        values can be: 100 (original size), 75, 50, 25.
-                        0 = no scaling applied
-        --vtm_dir       specify path to directory "VVCSoftware_VTM/bin", i.e. to the
-                        directory where there are executables "EncoderAppStatic" and
-                        "DecoderAppStatic".  If not specified, tries to use the
-                        environmental variable VTM_DIR
-        --ffmpeg        specify ffmpeg command.  If not specified, uses "ffmpeg".
-        --vtm_cfg       path to vtm config file.  If not specified uses an internal
-                        default file.
-        --vtm_cache     specify a path to directory where the bitstreams are cached.
-                        The program saves bitstream to disk and tries to recycle the
-                        bitstreams saved earlier.
-                        Default: no caching.
-                        NOTE: the path is automatically appended with
-                        "scale/quality-parameter/" (see --scale)
-        --debug         enable debug verbosity for the CompressAI / development / VTM models
-        --progressbar   show a fancy progressbar.  Default: false.  Nice for interactive runs.
-        --progress      show progress every n:th step, i.e. --progress=10 would print out
-                        progress every tenth step.  0: don't print anything. Default: 1.
-                        Nice for batch jobs.
+        --checkpoint                a torch checkpoint file for loading the model state (.pth.tar file)
+        --qpars                     a quality parameters to be used with either compressai or vtm
+        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
+                                    values can be: 100 (original size), 75, 50, 25.
+                                    0 = no scaling applied
+        --vtm_dir                   specify path to directory "VVCSoftware_VTM/bin", i.e. to the
+                                    directory where there are executables "EncoderAppStatic" and
+                                    "DecoderAppStatic".  If not specified, tries to use the
+                                    environmental variable VTM_DIR
+        --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
+        --vtm_cfg                   path to vtm config file.  If not specified uses an internal
+                                    default file.
+        --vtm_cache                 specify a path to directory where the bitstreams are cached.
+                                    The program saves bitstream to disk and tries to recycle the
+                                    bitstreams saved earlier.
+                                    Default: no caching.
+                                    NOTE: the path is automatically appended with
+                                    "scale/quality-parameter/" (see --scale)
+        --debug                     enable debug verbosity for the CompressAI / development / VTM models
+        --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress                  show progress every n:th step, i.e. --progress=10 would print out
+                                    progress every tenth step.  0: don't print anything. Default: 1.
+                                    Nice for batch jobs.
 
         example 1 (calculate mAP):
 
@@ -142,13 +123,6 @@ commands & parameters:
             compressai-vision detectron2_eval --y --name=mpeg_vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --modelpath=/path/to/directory --qpars=1
-
-    clean               remove temporary databases.
-                        detectron2_eval creates temporary clones of the dataset per each run.
-                        These dataset are automatically cleaned up after detectron2_eval run.
-                        If your run crashed, the temporary database might be left in the database
-                        (you can see them with the list command where they appear with the name
-                        "detectron-run-*".)
 
     vtm                 generate bitstream with the vtm video encoder
                         this is done also by the command detectron2_eval, but you
@@ -179,6 +153,32 @@ commands & parameters:
 
             compressai-vision vtm
                 --y --name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
+
+    convert_mpeg_to_oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
+                            format & directory structure
+
+        --lists             file listing necessary images, i.e.
+                            "detection_validation_input_5k.lst" or
+                            "segmentation_validation_input_5k.lst"
+        --dir               a base OpenImageV6 dataset dir:
+                            images are taken from "[dir]/data/" and masks from
+                            "[dir]/labels/masks/"
+        --target_dir        target directory directory for the converted format
+        --label             image-level labels, i.e.
+                            "detection_validation_labels_5k.csv" or
+                            "segmentation_validation_labels_5k.csv"
+        --bbox              bbox data, i.e.
+                            "detection_validation_5k_bbox.csv" or
+                            "segmentation_validation_bbox_5k.csv"
+        --mask              segmentation masks,
+                            i.e. "segmentation_validation_masks_5k.csv"
+        example:
+
+            compressai-vision convert_mpeg_to_oiv6
+                --lists=detection_validation_input_5k.lst \\
+                --bbox=detection_validation_5k_bbox.csv
+                --label=detection_validation_labels_5k.csv \\
+                --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
 
 NOTE 1: your normal workflow would be: download, convert_mpeg_to_oiv6, register, detectron2_eval

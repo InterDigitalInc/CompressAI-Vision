@@ -83,7 +83,7 @@ def main(p):  # noqa: C901
 
     assert p.model is not None, "provide Detectron2 model name"
 
-    if (p.compressai is None) == p.vtm == (p.modelpath is None) == False:
+    if (p.compressai_model_name is None) == p.vtm == (p.compression_model_path is None) == False:
         compression = False
         # no (de)compression, just eval
         assert (
@@ -92,11 +92,11 @@ def main(p):  # noqa: C901
 
     # check that only one is defined
     defined = False
-    for scheme in [p.compressai, p.vtm, p.modelpath]:
+    for scheme in [p.compressai_model_name, p.vtm, p.compression_model_path]:
         if scheme:
             if defined:  # second match!
                 raise AssertionError(
-                    "please define only one of the following: compressai, vtm or modelpath"
+                    "please define only one of the following: compressai_model_name, vtm or compression_model_path"
                 )
             defined = True
 
@@ -109,41 +109,41 @@ def main(p):  # noqa: C901
             print("problems with your quality parameter list")
             raise e
         # check checkpoint file validity if defined
-        if p.checkpoint is not None:
-            assert os.path.isfile(p.checkpoint), "can't find defined checkpoint file"
+        if p.compression_model_checkpoint is not None:
+            assert os.path.isfile(p.compression_model_checkpoint), "can't find defined checkpoint file"
 
     else:
         qpars = None
 
     # *** CHOOSE COMPRESSION SCHEME ***
 
-    if p.compressai is not None:  # compression from compressai zoo
+    if p.compressai_model_name is not None:  # compression from compressai zoo
         import compressai.zoo
 
         # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
-        compressai_model = getattr(
+        compression_model = getattr(
             compressai.zoo, p.compressai
         )  # a function that returns a model instance or just a class
 
-    elif p.modelpath is not None:  # compression from a custcom compressai model
-        path = os.path.join(p.modelpath, "model.py")
+    elif p.compression_model_path is not None:  # compression from a custcom compression model
+        path = os.path.join(p.compression_model_path, "model.py")
         assert os.path.isfile(path), "your model directory is missing model.py"
         import importlib.util
 
         try:
             spec = importlib.util.spec_from_file_location(
-                "module", os.path.join(p.modelpath, path)
+                "module", os.path.join(p.compression_model_path, path)
             )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         except Exception as e:
-            print("loading model from directory", p.modelpath, "failed with", e)
+            print("loading model from directory", p.compression_model_path, "failed with", e)
             return
         else:
             assert hasattr(
                 module, "getModel"
             ), "your module is missing getModel function"
-            compressai_model = (
+            compression_model = (
                 module.getModel
             )  # a function that returns a model instance or just a class
 
@@ -257,10 +257,10 @@ def main(p):  # noqa: C901
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
     print("Model was trained with :", model_dataset)
-    if p.compressai is not None:
+    if p.compressai_model_name is not None:
         print("Using compressai model :", p.compressai)
-    elif p.modelpath is not None:
-        print("Using custom mode from :", p.modelpath)
+    elif p.compression_model_path is not None:
+        print("Using custom mode from :", p.compression_model_path)
     elif p.vtm:
         print("Using VTM               ")
         if p.vtm_cache:
@@ -269,8 +269,8 @@ def main(p):  # noqa: C901
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
-    if p.checkpoint:
-        print("WARN: using checkpoint :", p.checkpoint)
+    if p.compression_model_checkpoint:
+        print("WARN: using checkpoint :", p.compression_model_checkpoint)
     if qpars is not None:
         print("Quality parameters     :", qpars)
     print("Eval. datafield name   :", predictor_field)
@@ -299,9 +299,9 @@ def main(p):  # noqa: C901
         "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
-        "compressai model": p.compressai,
-        "custom model": p.modelpath,
-        "checkpoint": p.checkpoint,
+        "compressai model": p.compressai_model_name,
+        "custom model": p.compression_model_path,
+        "checkpoint": p.compression_model_checkpoint,
         "vtm": p.vtm,
         "vtm_cache": p.vtm_cache,
         "qpars": qpars,
@@ -341,16 +341,16 @@ def main(p):  # noqa: C901
             print("\nQUALITY PARAMETER", i)
             enc_dec = None  # default: no encoding/decoding
             if (
-                p.compressai or p.modelpath
+                p.compressai_model_name or p.compression_model_path
             ):  # compressai model, either from the zoo or from a directory
-                if p.checkpoint is None:
-                    net = compressai_model(quality=i, pretrained=True).eval().to(device)
+                if p.compression_model_checkpoint is None:
+                    net = compression_model(quality=i, pretrained=True).eval().to(device)
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model form a file
                 else:  # load a checkpoint
-                    net = compressai_model(quality=i)
+                    net = compression_model(quality=i)
                     try:
-                        cp = torch.load(p.checkpoint)
+                        cp = torch.load(p.compression_model_checkpoint)
                         # print(">>>", cp.keys())
                         # net.load_state_dict(cp['state_dict']).eval().to(device)
                         net.load_state_dict(cp).eval().to(device)

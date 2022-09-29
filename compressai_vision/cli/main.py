@@ -94,7 +94,7 @@ def setup_parser():
         deregister_dataset_parser,
     ]:
         subparser.add_argument(
-            "--name",
+            "--dataset-name",
             action="store",
             type=str,
             required=True,
@@ -189,12 +189,12 @@ def setup_parser():
         "--model",
         action="store",
         type=str,
-        required=False,
+        required=True,
         default=None,
-        help="use compressai model",
+        help="name of Detectron2 config model",
     )
     eval_model_parser.add_argument(
-        "--modelpath",
+        "--compression-model-path",
         action="store",
         type=str,
         required=False,
@@ -202,12 +202,20 @@ def setup_parser():
         help="a path to a directory containing model.py for custom development model",
     )
     eval_model_parser.add_argument(
-        "--checkpoint",
+        "--compression-model-checkpoint",
         action="store",
         type=str,
         required=False,
         default=None,
-        help="path to a model checkpoint",
+        help="path to a compression model checkpoint",
+    )
+    eval_model_parser.add_argument(
+        "--compressai-model-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of an existing model in compressai (e.g. 'cheng2020-attn')",
     )
     eval_model_parser.add_argument("--vtm", action="store_true", default=False)
     eval_model_parser.add_argument(
@@ -258,14 +266,18 @@ def setup_parser():
         default=None,
         help="directory to cache vtm bitstreams",
     )
-    vtm_parser.add_argument(
-        "--slice",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="use a dataset slice instead of the complete dataset",
-    )
+    for subparser in [
+        eval_model_parser,
+        vtm_parser,
+    ]:
+        subparser.add_argument(
+            "--slice",
+            action="store",
+            type=str,
+            required=False,
+            default=None,
+            help="use a dataset slice instead of the complete dataset",
+        )
     vtm_parser.add_argument(
         "--progress",
         action="store",
