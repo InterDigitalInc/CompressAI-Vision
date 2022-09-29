@@ -53,4 +53,5 @@ __all__ = [
     "register",
     "dummy",
     "vtm",
+    "clean"
 ]

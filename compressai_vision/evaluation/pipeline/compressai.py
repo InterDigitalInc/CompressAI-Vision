@@ -237,6 +237,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # ADD PADDING
         # padding in order to conform to compressai network
+        # TODO: this should be a global singleton function defined in one place only
         h, w = x.size(2), x.size(3)
         p = self.m  # maximum 6 strides of 2
         new_h = (h + p - 1) // p * p
