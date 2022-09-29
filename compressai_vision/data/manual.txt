@@ -7,8 +7,7 @@ commands & parameters:
 
     --y                     non-interactive
 
-    manual
-                            shows this manual
+    manual                  shows this manual
 
     download                download image set _and_ register it to fiftyone.
 
@@ -42,8 +41,7 @@ commands & parameters:
 
     deregister              de-register image set from fiftyone
 
-        --dataset-name      name of the dataset, for example "open-image-v6"
-        --split             name of the split, for example "validation"
+        --dataset-name      name of the dataset, for example "open-image-v6-validation"
 
     dummy                   create & register a dummy database with just the first sample
 
@@ -80,18 +78,13 @@ commands & parameters:
                                     can be a model name from the CompressAI model zoo (optional)
         --compression-model-path    load a custom model. Defines a path to directory with a custom development model.
                                     The directory should contain a properly formatted "model.py" file (optional)
+        --compression-model-checkpoint
+                                    a torch checkpoint file for loading the model state (.pth.tar file)
         --vtm                       use vtm (optional)
-
-        --checkpoint                a torch checkpoint file for loading the model state (.pth.tar file)
-        --qpars                     a quality parameters to be used with either compressai or vtm
-        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
-                                    values can be: 100 (original size), 75, 50, 25.
-                                    0 = no scaling applied
         --vtm_dir                   specify path to directory "VVCSoftware_VTM/bin", i.e. to the
                                     directory where there are executables "EncoderAppStatic" and
                                     "DecoderAppStatic".  If not specified, tries to use the
                                     environmental variable VTM_DIR
-        --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
         --vtm_cfg                   path to vtm config file.  If not specified uses an internal
                                     default file.
         --vtm_cache                 specify a path to directory where the bitstreams are cached.
@@ -100,7 +93,15 @@ commands & parameters:
                                     Default: no caching.
                                     NOTE: the path is automatically appended with
                                     "scale/quality-parameter/" (see --scale)
-        --debug                     enable debug verbosity for the CompressAI / development / VTM models
+        --qpars                     a quality parameters to be used with either compressai or vtm
+        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
+                                    values can be: 100 (original size), 75, 50, 25.
+                                    0 = no scaling applied
+        --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
+        --slice                     instead of using the complete dataset, just use a slice of the
+                                    dataset: good for parallelizing the VTM encoder.
+                                    Normal python slicing indexes are used.
+        --debug                     enable debug verbosity
         --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
         --progress                  show progress every n:th step, i.e. --progress=10 would print out
                                     progress every tenth step.  0: don't print anything. Default: 1.
@@ -129,17 +130,39 @@ commands & parameters:
                         can do the bitstream generation step separately.
                         The following options are same as in "detectron2_eval" command:
 
-                        --dataset-name, --qpars, --vtm_dir, --ffmpeg, --vtm_cfg, --debug
 
-        --vtm_cache     as in "detectron2_eval" command, but _must_ be defined
-        --slice         instead of using the complete dataset, just use a slice of the
-                        dataset: good for parallelizing the VTM encoder.
-                        Normal python slicing indexes are used.
+        --dataset-name      name of the fiftyone registered database
+        --output            outputfile, default: compressai-vision.json
+
+        --vtm_dir                   specify path to directory "VVCSoftware_VTM/bin", i.e. to the
+                                    directory where there are executables "EncoderAppStatic" and
+                                    "DecoderAppStatic".  If not specified, tries to use the
+                                    environmental variable VTM_DIR
+        --vtm_cfg                   path to vtm config file.  If not specified uses an internal
+                                    default file.
+        --vtm_cache                 specify a path to directory where the bitstreams are cached.
+                                    The program saves bitstream to disk and tries to recycle the
+                                    bitstreams saved earlier.
+                                    Default: no caching.
+                                    NOTE: the path is automatically appended with
+                                    "scale/quality-parameter/" (see --scale)
+        --qpars                     a quality parameters to be used with either compressai or vtm
+        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
+                                    values can be: 100 (original size), 75, 50, 25.
+                                    0 = no scaling applied
+        --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
+        --slice                     instead of using the complete dataset, just use a slice of the
+                                    dataset: good for parallelizing the VTM encoder.
+                                    Normal python slicing indexes are used.
+        --debug                     enable debug verbosity
+        --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress                  show progress every n:th step, i.e. --progress=10 would print out
+                                    progress every tenth step.  0: don't print anything. Default: 1.
+                                    Nice for batch jobs.
+
         --tags          pick certain images from the dataset/slice
                         for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
                         the tags correspond to _open image ids_
-        --output        outputfile, default: compressai-vision.json.  Reports metadata and
-                        bpp values for each qpar
         --keep          keep all intermediate files (for debugging)
         --check         simply reports which bitstream files are missing from the cache
                         if you enable this, no bitstream verification is done

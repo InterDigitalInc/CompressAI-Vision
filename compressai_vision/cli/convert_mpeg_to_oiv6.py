@@ -32,6 +32,58 @@
 import os
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("convert_mpeg_to_oiv6", parents=[])
+    subparser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    subparser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target/source directory, depends on command",
+    )
+    subparser.add_argument(
+        "--target_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target directory for convert_mpeg_to_oiv6",
+    )
+    subparser.add_argument(
+        "--label",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted image-level labels",
+    )
+    subparser.add_argument(
+        "--bbox",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted bbox data",
+    )
+    subparser.add_argument(
+        "--mask",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted segmask data",
+    )
+
+
 def main(p):
     # compressai_vision
     from compressai_vision.conversion import MPEGVCMToOpenImageV6  # imageIdFileList

@@ -32,13 +32,50 @@
 import os
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("download", parents=parents)
+    subparser.add_argument(
+        "--mock", action="store_true", default=False, help="mock tests"
+    )
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default="open-images-v6",
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    subparser.add_argument(
+        "--split",
+        action="store",
+        type=str,
+        required=False,
+        default="validation",
+        help="database sub-name, say, 'train' or 'validation'",
+    )
+    subparser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory where the dataset (images, annotations, etc.) is downloaded. default uses fiftyone default, i.e. ~/fiftyone/",
+    )
+
+
 def main(p):
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
-
     from fiftyone import zoo as foz  # different fiftyone than the patched one.. eh
-
     print("fiftyone imported")
 
     # compressai_vision

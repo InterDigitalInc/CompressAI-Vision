@@ -29,6 +29,17 @@
 """cli deregister functionality
 """
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("deregister", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+
 
 def main(p):
     print("importing fiftyone")

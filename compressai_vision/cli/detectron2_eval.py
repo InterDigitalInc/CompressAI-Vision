@@ -36,6 +36,144 @@ import os
 import uuid
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "detectron2_eval", parents=parents
+    )
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--model",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of Detectron2 config model",
+    )
+    subparser.add_argument(
+        "--output",
+        action="store",
+        type=str,
+        required=False,
+        default="compressai-vision.json",
+        help="outputfile, default: compressai-vision.json",
+    )
+    """TODO: not only oiv6 protocol, but coco etc. 
+    subparser.add_argument(
+        "--proto",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="evaluation protocol",
+    )
+    """
+    subparser.add_argument(
+        "--compressai-model-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of an existing model in compressai (e.g. 'cheng2020-attn')",
+    )
+    subparser.add_argument(
+        "--compression-model-path",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="a path to a directory containing model.py for custom development model",
+    )
+    subparser.add_argument(
+        "--compression-model-checkpoint",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to a compression model checkpoint",
+    )
+    subparser.add_argument("--vtm", action="store_true", default=False)
+    subparser.add_argument(
+        "--vtm_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
+    )
+    subparser.add_argument(
+        "--vtm_cfg",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm config file",
+    )
+    subparser.add_argument(
+        "--vtm_cache",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory to cache vtm bitstreams",
+    )
+    subparser.add_argument(
+        "--qpars",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="quality parameters for compressai model or vtm",
+    )
+    subparser.add_argument(
+        "--scale",
+        action="store",
+        type=int,
+        required=False,
+        default=100,
+        help="image scaling as per VCM working group docs",
+    )
+    
+    subparser.add_argument(
+        "--ffmpeg",
+        action="store",
+        type=str,
+        required=False,
+        default="ffmpeg",
+        help="ffmpeg command",
+    )
+    subparser.add_argument(
+        "--slice",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use a dataset slice instead of the complete dataset",
+    )
+    # subparser.add_argument("--debug", action="store_true", default=False) # not here
+    subparser.add_argument(
+        "--progressbar",
+        action="store_true",
+        default=False,
+        help="show fancy progressbar",
+    )
+    subparser.add_argument(
+        "--progress",
+        action="store",
+        type=int,
+        required=False,
+        default=1,
+        help="Print progress this often",
+    )
+    return subparser
+    
+
 def main(p):  # noqa: C901
     # fiftyone
     print("importing fiftyone")

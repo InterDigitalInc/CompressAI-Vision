@@ -32,6 +32,117 @@
 import os, json
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("vtm", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--output",
+        action="store",
+        type=str,
+        required=False,
+        default="compressai-vision.json",
+        help="outputfile, default: compressai-vision.json",
+    )
+
+    subparser.add_argument(
+        "--vtm_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
+    )
+    subparser.add_argument(
+        "--vtm_cfg",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm config file",
+    )
+    subparser.add_argument(
+        "--vtm_cache",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="directory to cache vtm bitstreams",
+    )
+    subparser.add_argument(
+        "--qpars",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="quality parameters for compressai model or vtm",
+    )
+    subparser.add_argument(
+        "--scale",
+        action="store",
+        type=int,
+        required=False,
+        default=100,
+        help="image scaling as per VCM working group docs",
+    )
+    subparser.add_argument(
+        "--ffmpeg",
+        action="store",
+        type=str,
+        required=False,
+        default="ffmpeg",
+        help="ffmpeg command",
+    )
+    subparser.add_argument(
+        "--slice",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use a dataset slice instead of the complete dataset",
+    )
+    # --debug: TODO # in fact, not here
+    subparser.add_argument(
+        "--progressbar",
+        action="store_true",
+        default=False,
+        help="show fancy progressbar",
+    )
+    subparser.add_argument(
+        "--progress",
+        action="store",
+        type=int,
+        required=False,
+        default=1,
+        help="Print progress this often",
+    )
+    subparser.add_argument(
+        "--tags",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm: a list of open_image_ids to pick from the dataset/slice",
+    )
+    subparser.add_argument(
+        "--keep",
+        action="store_true",
+        default=False,
+        help="vtm: keep all intermediate files (for debugging)",
+    )
+    subparser.add_argument(
+        "--check",
+        action="store_true",
+        default=False,
+        help="vtm: report if bitstream files are missing",
+    )
+
 def main(p):
     import cv2
 

@@ -27,12 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-
+"""
 # importing this takes quite a while!
 # ..not anymore since import fiftyone is inside the function
 # print("cli: import")
+from compressai_vision.cli.clean import main as clean
+from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
 from compressai_vision.cli.deregister import main as deregister
 from compressai_vision.cli.detectron2_eval import main as detectron2_eval
 from compressai_vision.cli.download import main as download
@@ -43,15 +43,11 @@ from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
 
 # print("cli: import end")
+"""
+from . import clean, convert_mpeg_to_oiv6, deregister, detectron2_eval,\
+    download, dummy, list_, load_eval, register, vtm
 
 __all__ = [
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "list",
-    "load_eval",
-    "convert_mpeg_to_oiv6",
-    "register",
-    "dummy",
-    "vtm",
+ "clean", "convert_mpeg_to_oiv6", "deregister", "detectron2_eval",
+    "download", "dummy", "list_", "load_eval", "register", "vtm"
 ]

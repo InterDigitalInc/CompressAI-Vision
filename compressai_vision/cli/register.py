@@ -32,6 +32,42 @@
 import os
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("register", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    subparser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target/source directory, depends on command",
+    )
+    subparser.add_argument(
+        "--type",
+        action="store",
+        type=str,
+        required=False,
+        default="OpenImagesV6Dataset",
+        help="image set type to be imported",
+    )
+
+
 def main(p):
     # fiftyone
     print("importing fiftyone")

@@ -31,6 +31,10 @@
 """
 import os
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "list_", parents=parents
+    )
 
 def main(p):
     # fiftyone

@@ -31,6 +31,18 @@
 """
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("dummy", parents=[])
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+
+
 def main(p):
     # fiftyone
     print("importing fiftyone")
