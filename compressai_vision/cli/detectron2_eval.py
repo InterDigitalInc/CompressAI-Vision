@@ -83,7 +83,12 @@ def main(p):  # noqa: C901
 
     assert p.model is not None, "provide Detectron2 model name"
 
-    if (p.compressai_model_name is None) == p.vtm == (p.compression_model_path is None) == False:
+    if (
+        (p.compressai_model_name is None)
+        == p.vtm
+        == (p.compression_model_path is None)
+        == False
+    ):
         compression = False
         # no (de)compression, just eval
         assert (
@@ -110,7 +115,9 @@ def main(p):  # noqa: C901
             raise e
         # check checkpoint file validity if defined
         if p.compression_model_checkpoint is not None:
-            assert os.path.isfile(p.compression_model_checkpoint), "can't find defined checkpoint file"
+            assert os.path.isfile(
+                p.compression_model_checkpoint
+            ), "can't find defined checkpoint file"
 
     else:
         qpars = None
@@ -125,7 +132,9 @@ def main(p):  # noqa: C901
             compressai.zoo, p.compressai
         )  # a function that returns a model instance or just a class
 
-    elif p.compression_model_path is not None:  # compression from a custcom compression model
+    elif (
+        p.compression_model_path is not None
+    ):  # compression from a custcom compression model
         path = os.path.join(p.compression_model_path, "model.py")
         assert os.path.isfile(path), "your model directory is missing model.py"
         import importlib.util
@@ -137,7 +146,12 @@ def main(p):  # noqa: C901
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         except Exception as e:
-            print("loading model from directory", p.compression_model_path, "failed with", e)
+            print(
+                "loading model from directory",
+                p.compression_model_path,
+                "failed with",
+                e,
+            )
             return
         else:
             assert hasattr(
@@ -344,7 +358,9 @@ def main(p):  # noqa: C901
                 p.compressai_model_name or p.compression_model_path
             ):  # compressai model, either from the zoo or from a directory
                 if p.compression_model_checkpoint is None:
-                    net = compression_model(quality=i, pretrained=True).eval().to(device)
+                    net = (
+                        compression_model(quality=i, pretrained=True).eval().to(device)
+                    )
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model form a file
                 else:  # load a checkpoint
