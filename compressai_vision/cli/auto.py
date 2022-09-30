@@ -32,6 +32,7 @@
 import os
 import sys
 
+
 # define legit filenames.. there are inconsistencies here
 fname_list = [
     "detection_validation_input_5k.lst",
@@ -95,23 +96,29 @@ def get_dir(dir_, txt="", make=True, check=False):
     return dir_input
 
 
-def main():
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "mpeg-vcm-auto-import", parents=parents, help=help_st # TODO
+    )
+    subparser.add_argument(
+        "--datadir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory where all datasets are downloaded by default (optional)"
+    )
+    subparser.add_argument("--mock", 
+        action="store_true", 
+        default=False,
+        help="debugging switch: don't use"
+    )
+
+
+def main(p_):
     from compressai_vision.cli import convert_mpeg_to_oiv6, download, dummy, register
 
-    args = []
-    dirname = None
-    if len(sys.argv) > 1:
-        if sys.argv[1] in ["MOCK"]:  # some debugging cli parameters are allowed
-            args = sys.argv[1]
-        elif "--datadir=" in sys.argv[1]:
-            dirname = (
-                sys.argv[1].split("=")[1].strip()
-            )  # --datadir=/path/to --> /path/to
-            print("WARNING: using datadir", dirname)
-            assert os.path.isdir(dirname), "no such directory " + dirname
-        else:
-            print(help_st)
-            return
+    dirname=p_.datadir
 
     for fname in fname_list:
         if not os.path.exists(fname):
@@ -120,11 +127,7 @@ def main():
             sys.exit(2)
 
     p = Namespace()
-    if "MOCK" in args:
-        print("WARNING: MOCK TEST")
-        p.mock = True
-    else:
-        p.mock = False
+    p.mock = p_.mock
     p.y = False
     p.dataset_name = "open-images-v6"
 
@@ -148,7 +151,7 @@ def main():
     )
     p.split = "validation"
     p.dir = dir_
-    download(p)
+    download.main(p)
 
     print("\n**CONVERTING MPEG/VCM DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
@@ -156,10 +159,10 @@ def main():
 
     if dirname is None:
         mpeg_vcm_dir = os.path.join(
-            "~", "fiftyone", "mpeg_vcm-detection"
-        )  # ~/fiftyone/mpeg_vcm-detection
+            "~", "fiftyone", "mpeg-vcm-detection"
+        )  # ~/fiftyone/mpeg-vcm-detection
     else:
-        mpeg_vcm_dir = os.path.join(dirname, "mpeg_vcm-detection")
+        mpeg_vcm_dir = os.path.join(dirname, "mpeg-vcm-detection")
     mpeg_vcm_dir = get_dir(
         mpeg_vcm_dir, "imported detection dataset path", make=False, check=False
     )
@@ -167,12 +170,12 @@ def main():
     p.lists = get_("detection_validation_input_5k.lst")
     # p.dir = "~/fiftyone/open-images-v6/validation"
     p.dir = source_dir
-    # p.target_dir = "~/fiftyone/mpeg_vcm-detection"
+    # p.target_dir = "~/fiftyone/mpeg-vcm-detection"
     p.target_dir = mpeg_vcm_dir
     p.label = get_("detection_validation_labels_5k.csv")
     p.bbox = get_("detection_validation_5k_bbox.csv")
     p.mask = None
-    convert_mpeg_to_oiv6(p)
+    convert_mpeg_to_oiv6.main(p)
 
     print("\n**CONVERTING MPEG/VCM SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
@@ -180,10 +183,10 @@ def main():
 
     if dirname is None:
         mpeg_vcm_dir_seg = os.path.join(
-            "~", "fiftyone", "mpeg_vcm-segmentation"
+            "~", "fiftyone", "mpeg-vcm-segmentation"
         )  # ~/fiftyone/mpeg_vcm-segmentation
     else:
-        mpeg_vcm_dir_seg = os.path.join(dirname, "mpeg_vcm-segmentation")
+        mpeg_vcm_dir_seg = os.path.join(dirname, "mpeg-vcm-segmentation")
     mpeg_vcm_dir_seg = get_dir(
         mpeg_vcm_dir_seg, "imported segmentation dataset path", make=False, check=False
     )
@@ -196,7 +199,7 @@ def main():
     p.label = get_("segmentation_validation_labels_5k.csv")
     p.bbox = get_("segmentation_validation_bbox_5k.csv")
     p.mask = get_("segmentation_validation_masks_5k.csv")
-    convert_mpeg_to_oiv6(p)
+    convert_mpeg_to_oiv6.main(p)
 
     print("\n**REGISTERING MPEG/VCM DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()
@@ -206,13 +209,13 @@ def main():
     p.lists = get_("detection_validation_input_5k.lst")
     p.dir = mpeg_vcm_dir
     p.type = "OpenImagesV6Dataset"
-    register(p)
+    register.main(p)
 
     print("\n**CREATING DUMMY/MOCK DETECTION DATA FOR YOUR CONVENIENCE SIR**\n")
     p = Namespace()
     p.y = False
     p.dataset_name = dataset_name
-    dummy(p)
+    dummy.main(p)
 
     print("\n**REGISTERING MPEG/VCM SEGMENTATION DATA INTO FIFTYONE**\n")
     p = Namespace()
@@ -222,7 +225,7 @@ def main():
     p.lists = get_("segmentation_validation_input_5k.lst")
     p.dir = mpeg_vcm_dir_seg
     p.type = "OpenImagesV6Dataset"
-    register(p)
+    register.main(p)
     print("\nPlease continue with the compressai-vision command line tool\n")
     print("\nGOODBYE\n")
 

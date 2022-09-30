@@ -38,7 +38,7 @@ from . import *
 
 COMMANDS = {
     "clean" : clean.main,
-    "convert_mpeg_to_oiv6" : convert_mpeg_to_oiv6.main,
+    "convert-mpeg-to-oiv6" : convert_mpeg_to_oiv6.main,
     "deregister" : deregister.main,
     "detectron2_eval" : detectron2_eval.main,
     "download" : download.main,
@@ -47,7 +47,9 @@ COMMANDS = {
     "load_eval" : load_eval.main,
     "register" : register.main,
     "vtm" : vtm.main,
-    "manual" : None
+    "mpeg-vcm-auto-import" : auto.main,
+    "info" : info.main,
+    "manual" : None,
 }
 
 coms=""
@@ -80,6 +82,8 @@ def setup_parser():
     list_.add_subparser(subparsers, parents=[common_parser])
     register.add_subparser(subparsers, parents=[common_parser])
     vtm.add_subparser(subparsers, parents=[common_parser])
+    auto.add_subparser(subparsers, parents=[common_parser])
+    info.add_subparser(subparsers, parents=[common_parser])
     return parser
 
 

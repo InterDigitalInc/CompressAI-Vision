@@ -33,8 +33,14 @@ import os
 import sys
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "info", parents=parents
+    )
+
+
 # compressai_vision
-def main():
+def main(p):
     try:
         import torch
     except ModuleNotFoundError:
