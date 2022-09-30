@@ -9,8 +9,9 @@ commands & parameters:
 
     mongo                   mongod management
         
-        stop                stops fiftyone's local mongodb server
-        clean               removes fiftyone's local mongodb records
+        stop                kills all local mongod servers
+        clean               like stop, but additionally, removes all
+                            fiftyone data from the mongod servers
 
     mpeg-vcm-auto-import    auto-imports mpeg-vcm working group files
                             downloads necessary images from the internet
@@ -32,7 +33,8 @@ commands & parameters:
 
         --dataset-name      name of the dataset.  Default: "open-images-v6".
         --lists             list files that define the subset of images to download.
-        --split             typically "train" or "validation".  Default: "validation".
+        --split             typically "train" or "validation".  Default: None
+                            (final dataset name is then for example "open-images-v6-validation"
         --dir               directory where the dataset (images, annotations, etc.) is downloaded
                             Default: $HOME/fiftyone/dataset-name
 
@@ -50,7 +52,11 @@ commands & parameters:
         --dataset-name      database registered name
         --lists             lst files that define the subset of images to register
         --dir               source directory
-        --type              fiftyone.types name.  Default: "OpenImagesV6Dataset"
+        --type              fiftyone.types name.  Default: OpenImagesV6Dataset
+                            typical values:
+                                FiftyOneDataset
+                                OpenImagesV6Dataset
+                                ImageDirectory
 
         example (register converted MPEG/VCM files into fiftyone):
 

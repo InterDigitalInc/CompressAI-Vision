@@ -47,13 +47,18 @@ If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
 import glob
 import os
 import shutil
-import sys
-import argparse
+
+# https://voxel51.com/docs/fiftyone/user_guide/config.html
+
+
+def killer():
+    print("trying to kill local mongo processes")
+    os.system("killall -9 mongod")
+    print("killed what could.  If you got 'Operation not permitted', you have mongod running as a systemd daemon (use systemctl to shut down)")
+
 
 def stopMongo():
-    print("killing mongo process")
-    os.system("killall -9 mongod")
-    print("killed mongo process")
+    killer()
     for fname in glob.glob(
         os.path.expanduser(os.path.join("~", ".fiftyone/var/lib/mongo/*lock*"))
     ):
@@ -63,13 +68,24 @@ def stopMongo():
 
 
 def clearMongo():
-    print("killing mongo process")
-    os.system("killall -9 mongod")
-    print("killed mongo process")
+    killer()
     dirname = os.path.expanduser(os.path.join("~", ".fiftyone"))
-    print("WARNING: removing directory", dirname, "PRESS ENTER TO CONTINUE")
+    print("WARNING: removing local directory", dirname, "PRESS ENTER TO CONTINUE")
     input()
     shutil.rmtree(dirname)
+    try:
+        adr=os.environ["FIFTYONE_DATABASE_URI"]
+    except KeyError:
+        pass
+    else:
+        print("WARNING: You have external mongodb server configured with", adr)
+        print("Wiping out fiftyone data from there. PRESS ENTER TO CONTINUE")
+        input()
+        import mongoengine
+        conn=mongoengine.connect(host=adr)
+        conn.drop_database("fiftyone")
+        conn.close()
+    print("have a nice day!")
 
 
 def add_subparser(subparsers, parents=[]):
@@ -86,13 +102,9 @@ def add_subparser(subparsers, parents=[]):
 
 
 def main(p):
-    print("killmongo: p=",p)
     if p.subcommand == "stop":
         stopMongo()
     elif p.subcommand == "clear":
         clearMongo()
-    """TODO:
-    - check if the env variable defining fiftyone mongodb connection is on
-    - ..in that case clear using mongoengine
-    - report all mongo processes in the system?
-    """
+    else:
+        print("use -h to see options")

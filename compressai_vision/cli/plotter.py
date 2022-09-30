@@ -108,8 +108,8 @@ def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
         "plot", parents=parents
     )
-    parser = subparser
-    parser.add_argument(
+    subparser.add_argument("--csv", action="store_true", default=False)
+    subparser.add_argument(
         "--dirs",
         action="store",
         type=str,
@@ -117,7 +117,7 @@ def add_subparser(subparsers, parents=[]):
         help="list of directories",
     )
     """
-    parser.add_argument(
+    subparser.add_argument(
         "--colors",
         action="store",
         type=str,
@@ -125,17 +125,17 @@ def add_subparser(subparsers, parents=[]):
         help="list of pyplot colors",
     )
     """
-    parser.add_argument(
+    subparser.add_argument(
         "--symbols",
         action="store",
         type=str,
         required=False,
         help="list of pyplot symbols/colors, e.g: o--k,-b, etc.",
     )
-    parser.add_argument(
-        "--dataset-names", action="store", type=str, required=False, help="list of plot names"
+    subparser.add_argument(
+        "--names", action="store", type=str, required=False, help="list of plot names"
     )
-    parser.add_argument(
+    subparser.add_argument(
         "--eval",
         action="store",
         type=str,
@@ -143,7 +143,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="mAP value without (de)compression and pyplot symbol",
     )
-    parser.add_argument(
+    subparser.add_argument(
         "--show-baseline",
         action="store",
         type=int,
@@ -166,7 +166,7 @@ def main(p):
         assert os.path.isdir(dir_), "nonexistent dir"
         arrays.append(jsonFilesToArray(dir_))
 
-    if parsed.command == "csv":
+    if parsed.csv:
         for dir_, a in zip(dirs, arrays):
             print("\n" + dir_ + ":\n")
             for bpp, map_ in a:
@@ -236,8 +236,9 @@ def main(p):
 
     plt.xlabel("bpp")
     plt.ylabel("mAP")
+    print("--> producing out.png to current path")
     plt.savefig(os.path.join("out.png"))
-
+    print("have a nice day!")
     """from the notebook:
     plt.plot(vtm[:,0], vtm[:,1], '*-b', markersize=12)
     plt.plot(coai[:,0], coai[:,1], '.-r')

@@ -92,9 +92,22 @@ def main(p):
             input("press enter to continue.. ")
         fo.delete_dataset(p.dataset_name)
 
-    if p.type != "OpenImagesV6Dataset":
-        print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
-    dataset_type = getattr(fo.types, p.type)
+    #if p.type != "OpenImagesV6Dataset":
+    #    print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
+
+    # dataset types are in:
+    # fo.types.dataset_types.*
+    # quickstart dataset is of type FiftyOneDataset
+    try:
+        dataset_type = getattr(fo.types.dataset_types, p.type)
+    except AttributeError:
+        print("WARNING: could not find dataset type from fo.types.dataset_types.*")
+        print("dataset types:")
+        for type_ in dir(fo.types.dataset_types):
+            if type_[0] != "_":
+                print(type_)
+        raise
+     
     dataset_dir = os.path.expanduser(p.dir)
     assert pathExists(dataset_dir)
     print()

@@ -107,7 +107,6 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="use a dataset slice instead of the complete dataset",
     )
-    # --debug: TODO # in fact, not here
     subparser.add_argument(
         "--progressbar",
         action="store_true",
@@ -136,6 +135,7 @@ def add_subparser(subparsers, parents=[]):
         default=False,
         help="vtm: keep all intermediate files (for debugging)",
     )
+    subparser.add_argument("--dump", action="store_true", default=False)
     subparser.add_argument(
         "--check",
         action="store_true",

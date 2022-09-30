@@ -299,7 +299,7 @@ def main(p):  # noqa: C901
                 module.getModel
             )  # a function that returns a model instance or just a class
 
-    elif p.vtm is not None:  # setup VTM
+    elif p.vtm:  # setup VTM
         if p.vtm_dir is None:
             try:
                 vtm_dir = os.environ["VTM_DIR"]

@@ -10,7 +10,8 @@ CUDA="cu102"
 DETECTRON2="https://dl.fbaipublicfiles.com/detectron2/wheels/${CUDA}/torch${TORCH::-2}/index.html"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 COMPRESSAI=""
-
+# WARNING: keep consistent with ../compressai_vision/__init__.py:
+FO_VERSION="0.16.6" 
 
 #test python version>3.8
 python3 -c "import sys; assert(sys.version_info.major>=3); assert(sys.version_info.minor>=8)"
@@ -57,7 +58,7 @@ done;
 
 
 pip install -U pip
-pip install fiftyone==0.16.6 jupyter ipython
+pip install fiftyone==$FO_VERSION jupyter ipython
 pip install torch==${TORCH} torchvision==${TORCHVISION} pytorch-msssim
 pip install detectron2 -f ${DETECTRON2}
 

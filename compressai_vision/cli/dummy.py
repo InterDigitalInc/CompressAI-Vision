@@ -32,7 +32,7 @@
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("dummy", parents=[])
+    subparser = subparsers.add_parser("dummy", parents=parents)
     subparser.add_argument(
         "--dataset-name",
         action="store",

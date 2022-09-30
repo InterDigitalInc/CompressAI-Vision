@@ -58,7 +58,7 @@ def add_subparser(subparsers, parents=[]):
         action="store",
         type=str,
         required=False,
-        default="validation",
+        default=None,
         help="database sub-name, say, 'train' or 'validation'",
     )
     subparser.add_argument(
@@ -111,7 +111,8 @@ def main(p):
     # return
     # https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6
     kwargs = {}
-    kwargs["split"] = p.split
+    if p.split is not None:
+        kwargs["split"] = p.split
     if image_ids is not None:
         kwargs["image_ids"] = image_ids
     if p.dir is not None:
