@@ -45,8 +45,8 @@ fname_list = [
 ]
 
 help_st = """
-compressai-mpeg_vcm-auto-import
-
+compressai-mpeg_vcm-auto-import\n
+\n
 parameters:
 
     --datadir=/path/to/datasets     directory where all datasets are downloaded by default (optional)
@@ -98,8 +98,10 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
-        "mpeg-vcm-auto-import", parents=parents, help=help_st # TODO
+        "mpeg-vcm-auto-import", parents=parents, help="kokkelis", description=help_st
     )
+    # NOTE: help is something show without using this command
+    # descriptions is shown when the command is used
     subparser.add_argument(
         "--datadir",
         action="store",

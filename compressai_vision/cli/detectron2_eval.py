@@ -38,7 +38,7 @@ import uuid
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
-        "detectron2_eval", parents=parents
+        "detectron2-eval", parents=parents
     )
     subparser.add_argument(
         "--dataset-name",

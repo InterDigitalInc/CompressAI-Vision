@@ -29,7 +29,6 @@
 
 """cli.py : Command-line interface tools for compressai-vision
 """
-import argparse
 import csv
 import glob
 import json
@@ -39,7 +38,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from compressai_vision.tools import getDataFile, quickLog
+from compressai_vision.tools import getDataFile
 
 colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 
@@ -105,17 +104,11 @@ def tx(ax, st, i, j, color):
     )
 
 
-def process_cl_args():
-    parser = argparse.ArgumentParser(
-        usage=(
-            "compressai-vision-plot [options] command\n"
-            "\n"
-            "please use the command 'manual' for full documentation of this program\n"
-            "\n"
-        )
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "plot", parents=parents
     )
-    parser.add_argument("command", action="store", type=str, help="mandatory command")
-
+    parser = subparser
     parser.add_argument(
         "--dirs",
         action="store",
@@ -150,7 +143,6 @@ def process_cl_args():
         default=None,
         help="mAP value without (de)compression and pyplot symbol",
     )
-
     parser.add_argument(
         "--show-baseline",
         action="store",
@@ -159,23 +151,12 @@ def process_cl_args():
         default=None,
         help="show baseline at a certain scale",
     )
+    #parsed_args, unparsed_args = parser.parse_known_args()
+    #return parsed_args, unparsed_args
 
-    parsed_args, unparsed_args = parser.parse_known_args()
-    return parsed_args, unparsed_args
 
-
-def main():
-    parsed, unparsed = process_cl_args()
-
-    for weird in unparsed:
-        print("invalid argument", weird)
-        raise SystemExit(2)
-
-    if parsed.command == "manual":
-        with open(getDataFile("plotter.txt"), "r") as f:
-            print(f.read())
-        return
-
+def main(p):
+    parsed=p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"
     dirs = parsed.dirs.split(",")

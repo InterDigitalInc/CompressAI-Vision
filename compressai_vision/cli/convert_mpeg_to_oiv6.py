@@ -33,7 +33,7 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("convert_mpeg_to_oiv6", parents=[])
+    subparser = subparsers.add_parser("convert-mpeg-to-oiv6", parents=[])
     subparser.add_argument(
         "--lists",
         action="store",

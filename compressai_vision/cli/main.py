@@ -40,7 +40,7 @@ COMMANDS = {
     "clean" : clean.main,
     "convert-mpeg-to-oiv6" : convert_mpeg_to_oiv6.main,
     "deregister" : deregister.main,
-    "detectron2_eval" : detectron2_eval.main,
+    "detectron2-eval" : detectron2_eval.main,
     "download" : download.main,
     "dummy" : dummy.main,
     "list" : list_.main,
@@ -49,6 +49,8 @@ COMMANDS = {
     "vtm" : vtm.main,
     "mpeg-vcm-auto-import" : auto.main,
     "info" : info.main,
+    "mongo" : killmongo.main,
+    "plot" : plotter.main,
     "manual" : None,
 }
 
@@ -65,14 +67,20 @@ def setup_parser():
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
 
-    parser = argparse.ArgumentParser(description="compressai-vision", add_help=True)
+    parser = argparse.ArgumentParser(
+        description="Includes several subcommands.  For full manual, type compressai-vision manual", 
+        add_help=True,
+    )
     subparsers = parser.add_subparsers(help="select command", dest="command")
 
+    # MANUAL SUBCOMMAND:
     manual_parser=subparsers.add_parser("manual")
+    """
     manual_parser.add_argument(
         "command", type=str,
-        help="main command to show the manual:"+coms
+        help="show manual"
     )
+    """
     clean.add_subparser(subparsers, parents=[common_parser])
     convert_mpeg_to_oiv6.add_subparser(subparsers, parents=[common_parser])
     deregister.add_subparser(subparsers, parents=[common_parser])
@@ -82,8 +90,14 @@ def setup_parser():
     list_.add_subparser(subparsers, parents=[common_parser])
     register.add_subparser(subparsers, parents=[common_parser])
     vtm.add_subparser(subparsers, parents=[common_parser])
+    # AUTO IMPORT:
     auto.add_subparser(subparsers, parents=[common_parser])
+    # INFO:
     info.add_subparser(subparsers, parents=[common_parser])
+    # MONGO killings & cleanups:
+    killmongo.add_subparser(subparsers, parents=[common_parser])
+    # PLOTTING:
+    plotter.add_subparser(subparsers, parents=[common_parser])
     return parser
 
 

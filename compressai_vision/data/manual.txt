@@ -1,15 +1,34 @@
-compressai-vision [options] command
-
-for an all-automatic no-brainer dataset setup, please try: "compressai-mpeg_vcm-auto-import help"
-that substitutes for download, convert_mpeg_to_oiv6 and register commands.
-
 commands & parameters:
 
     --y                     non-interactive
+    --debug                 debug verbosity (for some cases)
 
     manual                  shows this manual
 
-    download                download image set _and_ register it to fiftyone.
+    info                    shows info about your system
+
+    mongo                   mongod management
+        
+        stop                stops fiftyone's local mongodb server
+        clean               removes fiftyone's local mongodb records
+
+    mpeg-vcm-auto-import    auto-imports mpeg-vcm working group files
+                            downloads necessary images from the internet
+                            imports them to fiftyone, etc.
+                            (combines download, convert-mpeg-to-oiv6, register, 
+                            etc. commands, see below)
+
+                            You should have these files in the running directory:
+
+                            detection_validation_input_5k.lst
+                            detection_validation_5k_bbox.csv
+                            detection_validation_labels_5k.csv
+                            segmentation_validation_input_5k.lst
+                            segmentation_validation_bbox_5k.csv
+                            segmentation_validation_labels_5k.csv
+                            segmentation_validation_masks_5k.csv
+
+    download                download an image set and register it to fiftyone.
 
         --dataset-name      name of the dataset.  Default: "open-images-v6".
         --lists             list files that define the subset of images to download.
@@ -24,7 +43,7 @@ commands & parameters:
             --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
             --dataset-name=open-image-v6 --split=validation
 
-    list                    list all image sets registered to fiftyone
+    list                    list all datasets registered to fiftyone
 
     register                register image set to fiftyone from local dir
 
@@ -49,13 +68,13 @@ commands & parameters:
                             name of the new database will be appended with "-dummy"
 
     clean                   remove temporary databases.
-                            detectron2_eval creates temporary clones of the dataset per each run.
+                            detectron2-eval creates temporary clones of the dataset per each run.
                             These dataset are automatically cleaned up after detectron2_eval run.
                             If your run crashed, the temporary database might be left in the database
                             (you can see them with the list command where they appear with the name
                             "detectron-run-*".)
 
-    detectron2_eval         evaluate model with detectron2 using OpenImageV6
+    detectron2-eval         evaluate model with detectron2 using OpenImageV6
                             evaluation protocol optionally with no (de)compression or
                             with compressai or vtm.
 
@@ -134,38 +153,38 @@ commands & parameters:
         --dataset-name      name of the fiftyone registered database
         --output            outputfile, default: compressai-vision.json
 
-        --vtm_dir                   specify path to directory "VVCSoftware_VTM/bin", i.e. to the
-                                    directory where there are executables "EncoderAppStatic" and
-                                    "DecoderAppStatic".  If not specified, tries to use the
-                                    environmental variable VTM_DIR
-        --vtm_cfg                   path to vtm config file.  If not specified uses an internal
-                                    default file.
-        --vtm_cache                 specify a path to directory where the bitstreams are cached.
-                                    The program saves bitstream to disk and tries to recycle the
-                                    bitstreams saved earlier.
-                                    Default: no caching.
-                                    NOTE: the path is automatically appended with
-                                    "scale/quality-parameter/" (see --scale)
-        --qpars                     a quality parameters to be used with either compressai or vtm
-        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
-                                    values can be: 100 (original size), 75, 50, 25.
-                                    0 = no scaling applied
-        --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
-        --slice                     instead of using the complete dataset, just use a slice of the
-                                    dataset: good for parallelizing the VTM encoder.
-                                    Normal python slicing indexes are used.
-        --debug                     enable debug verbosity
-        --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
-        --progress                  show progress every n:th step, i.e. --progress=10 would print out
-                                    progress every tenth step.  0: don't print anything. Default: 1.
-                                    Nice for batch jobs.
+        --vtm_dir           specify path to directory "VVCSoftware_VTM/bin", i.e. to the
+                            directory where there are executables "EncoderAppStatic" and
+                            "DecoderAppStatic".  If not specified, tries to use the
+                             environmental variable VTM_DIR
+        --vtm_cfg           path to vtm config file.  If not specified uses an internal
+                            default file.
+        --vtm_cache         specify a path to directory where the bitstreams are cached.
+                            The program saves bitstream to disk and tries to recycle the
+                            bitstreams saved earlier.
+                            Default: no caching.
+                            NOTE: the path is automatically appended with
+                            "scale/quality-parameter/" (see --scale)
+        --qpars             a quality parameters to be used with either compressai or vtm
+        --scale             ffmpeg scaling applied to the image as defined per VCM working group.
+                            values can be: 100 (original size), 75, 50, 25.
+                            0 = no scaling applied
+        --ffmpeg            specify ffmpeg command.  If not specified, uses "ffmpeg".
+        --slice             instead of using the complete dataset, just use a slice of the
+                            dataset: good for parallelizing the VTM encoder.
+                            Normal python slicing indexes are used.
+        --debug             enable debug verbosity
+        --progressbar       show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress          show progress every n:th step, i.e. --progress=10 would print out
+                            progress every tenth step.  0: don't print anything. Default: 1.
+                            Nice for batch jobs.
 
-        --tags          pick certain images from the dataset/slice
-                        for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
-                        the tags correspond to _open image ids_
-        --keep          keep all intermediate files (for debugging)
-        --check         simply reports which bitstream files are missing from the cache
-                        if you enable this, no bitstream verification is done
+        --tags              pick certain images from the dataset/slice
+                            for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
+                            the tags correspond to _open image ids_
+        --keep              keep all intermediate files (for debugging)
+        --check             simply reports which bitstream files are missing from the cache
+                            if you enable this, no bitstream verification is done
 
         example 1:
 
@@ -205,7 +224,7 @@ commands & parameters:
 
 
 NOTE 1: your normal workflow would be: download, convert_mpeg_to_oiv6, register, detectron2_eval
-the first three steps can be dealt with the compress-mpeg_vcm-auto-import command
+the first three steps can be dealt with the compress-mpeg-vcm-auto-import command
 
 NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,
-launch detectron2_eval.  Be sure not to send several parallel (batch) jobs using the same dataset slices.
+launch detectron2-eval.  Be sure not to send several parallel (batch) jobs using the same dataset slices.

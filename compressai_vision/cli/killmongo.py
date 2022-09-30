@@ -48,7 +48,7 @@ import glob
 import os
 import shutil
 import sys
-
+import argparse
 
 def stopMongo():
     print("killing mongo process")
@@ -72,21 +72,27 @@ def clearMongo():
     shutil.rmtree(dirname)
 
 
-def main():
-    if len(sys.argv) < 2:
-        print(
-            "\n" "compressai-vision-mongo command\n",
-            "\n"
-            "commands\n"
-            "\n"
-            "        stop     stop local mongodb server and clean lockfiles\n"
-            "        clear    remove the local mongodb database\n"
-            "\n",
-        )
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "mongo", parents=parents
+    )
+    subsubparsers = subparser.add_subparsers(help="select subcommand (stop or clear)", dest="subcommand")
+    subsubparsers.add_parser(
+        "stop", description="stop local mongodb server and clean lockfiles"
+    )
+    subsubparsers.add_parser(
+        "clear", description="remove the local mongodb database"
+    )
 
-    elif sys.argv[1] == "stop":
+
+def main(p):
+    print("killmongo: p=",p)
+    if p.subcommand == "stop":
         stopMongo()
-    elif sys.argv[1] == "clear":
+    elif p.subcommand == "clear":
         clearMongo()
-    else:
-        print("unknown command", sys.argv[1])
+    """TODO:
+    - check if the env variable defining fiftyone mongodb connection is on
+    - ..in that case clear using mongoengine
+    - report all mongo processes in the system?
+    """
