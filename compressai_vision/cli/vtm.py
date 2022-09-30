@@ -32,12 +32,124 @@
 import os, json
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("vtm", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--output",
+        action="store",
+        type=str,
+        required=False,
+        default="compressai-vision.json",
+        help="outputfile, default: compressai-vision.json",
+    )
+
+    subparser.add_argument(
+        "--vtm_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
+    )
+    subparser.add_argument(
+        "--vtm_cfg",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm config file",
+    )
+    subparser.add_argument(
+        "--vtm_cache",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="directory to cache vtm bitstreams",
+    )
+    subparser.add_argument(
+        "--qpars",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="quality parameters for compressai model or vtm",
+    )
+    subparser.add_argument(
+        "--scale",
+        action="store",
+        type=int,
+        required=False,
+        default=100,
+        help="image scaling as per VCM working group docs",
+    )
+    subparser.add_argument(
+        "--ffmpeg",
+        action="store",
+        type=str,
+        required=False,
+        default="ffmpeg",
+        help="ffmpeg command",
+    )
+    subparser.add_argument(
+        "--slice",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use a dataset slice instead of the complete dataset",
+    )
+    subparser.add_argument(
+        "--progressbar",
+        action="store_true",
+        default=False,
+        help="show fancy progressbar",
+    )
+    subparser.add_argument(
+        "--progress",
+        action="store",
+        type=int,
+        required=False,
+        default=1,
+        help="Print progress this often",
+    )
+    subparser.add_argument(
+        "--tags",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm: a list of open_image_ids to pick from the dataset/slice",
+    )
+    subparser.add_argument(
+        "--keep",
+        action="store_true",
+        default=False,
+        help="vtm: keep all intermediate files (for debugging)",
+    )
+    subparser.add_argument("--dump", action="store_true", default=False)
+    subparser.add_argument(
+        "--check",
+        action="store_true",
+        default=False,
+        help="vtm: report if bitstream files are missing",
+    )
+
 def main(p):
     import cv2
 
     print("importing fiftyone")
     # fiftyone
     import fiftyone as fo
+
     from fiftyone import ProgressBar
 
     ProgressBar = fo.ProgressBar
@@ -54,11 +166,11 @@ def main(p):
     from compressai_vision.tools import getDataFile
     from compressai_vision.constant import vf_per_scale
 
-    assert p.name is not None, "please provide dataset name"
+    assert p.dataset_name is not None, "please provide dataset name"
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
-        print("FATAL: no such registered database", p.name)
+        print("FATAL: no such registered database", p.dataset_name)
         return
     assert p.vtm_cache is not None, "need to provide a cache directory"
     assert p.qpars is not None, "need to provide quality parameters for vtm"
@@ -124,7 +236,7 @@ def main(p):
 
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
-        from fo import ViewField as F
+        from fiftyone import ViewField as F
 
         dataset = dataset.match(F("open_images_id").contains_str(lis))
 
@@ -137,7 +249,7 @@ def main(p):
         print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     print("Target dir             :", p.vtm_cache)
     print("Quality points/subdirs :", qpars)
-    print("Using dataset          :", p.name)
+    print("Using dataset          :", p.dataset_name)
     print("Image Scaling          :", p.scale)
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
@@ -162,7 +274,7 @@ def main(p):
 
     # save metadata about the run into the json file
     metadata = {
-        "dataset": p.name,
+        "dataset": p.dataset_name,
         "just-check": p.check,
         "slice": p.slice,
         "vtm_cache": p.vtm_cache,

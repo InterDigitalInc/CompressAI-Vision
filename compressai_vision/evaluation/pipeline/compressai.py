@@ -38,10 +38,11 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
-from .base import EncoderDecoder
-from compressai_vision.ffmpeg import FFMpeg
-from compressai_vision.tools import test_command, dumpImageArray
 from compressai_vision.constant import vf_per_scale
+from compressai_vision.ffmpeg import FFMpeg
+from compressai_vision.tools import dumpImageArray, test_command
+
+from .base import EncoderDecoder
 
 
 class CompressAIEncoderDecoder(EncoderDecoder):
@@ -237,6 +238,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # ADD PADDING
         # padding in order to conform to compressai network
+        # TODO: this should be a global singleton function defined in one place only
         h, w = x.size(2), x.size(3)
         p = self.m  # maximum 6 strides of 2
         new_h = (h + p - 1) // p * p

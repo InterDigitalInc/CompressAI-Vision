@@ -27,14 +27,66 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""cli nokia_convert functionality
+"""cli convert_mpeg_to_oiv6 functionality
 """
 import os
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("convert-mpeg-to-oiv6", parents=[])
+    subparser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    subparser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target/source directory, depends on command",
+    )
+    subparser.add_argument(
+        "--target_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target directory for convert_mpeg_to_oiv6",
+    )
+    subparser.add_argument(
+        "--label",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted image-level labels",
+    )
+    subparser.add_argument(
+        "--bbox",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted bbox data",
+    )
+    subparser.add_argument(
+        "--mask",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="mpeg_vcm-formatted segmask data",
+    )
+
+
 def main(p):
     # compressai_vision
-    from compressai_vision.conversion import nokiaBSToOpenImageV6  # imageIdFileList
+    from compressai_vision.conversion import MPEGVCMToOpenImageV6  # imageIdFileList
     from compressai_vision.tools import pathExists
 
     assert p.target_dir is not None, "please give target_dir"
@@ -65,7 +117,7 @@ def main(p):
     print()
     assert p.lists is not None, "a list file (.lst) required --lists"
     fnames = p.lists.split(",")
-    assert len(fnames) == 1, "please specify exactly one list file for nokia convert"
+    assert len(fnames) == 1, "please specify exactly one list file for mpeg_vcm convert"
     fname = fnames[0]
     print("Using list file         :    ", fname)
     print("Images (and masks) from :    ", p.dir)
@@ -77,7 +129,7 @@ def main(p):
     print("Final OIV6 format in    :    ", p.target_dir)
     if not p.y:
         input("press enter to continue.. ")
-    nokiaBSToOpenImageV6(
+    MPEGVCMToOpenImageV6(
         validation_csv_file=os.path.expanduser(p.label),
         list_file=os.path.expanduser(fname),
         bbox_csv_file=p.bbox,
@@ -86,4 +138,4 @@ def main(p):
         data_dir=os.path.expanduser(image_dir),
         mask_dir=os.path.expanduser(mask_dir),
     )
-    print("nokia convert ready, please check", p.target_dir)
+    print("mpeg_vcm convert ready, please check", p.target_dir)

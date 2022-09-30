@@ -44,7 +44,7 @@ List all datasets (already) registered to fiftyone
 
 Create a list of necessary images
 
-MPEG VCM working group and Nokia provides you with files listing the
+MPEG/VCM working group and mpeg_vcm provides you with files listing the
 necessary images for detection and segmentation validation, namely
 ``detection_validation_input_5k.lst`` and
 ``segmentation_validation_input_5k.lst``. Let’s combine those two files
@@ -53,7 +53,7 @@ into a list:
 .. code:: ipython3
 
     # TODO: edit according to your paths
-    path="/home/sampsa/silo/interdigital/siloai-playground/sampsa/nokia/"
+    path="/home/sampsa/silo/interdigital/siloai-playground/sampsa/mpeg_vcm/"
     det_lst=os.path.join(path, "data5K/detection_validation_input_5k.lst") # the images used for detection validation
     seg_lst=os.path.join(path, "data5K_seg/segmentation_validation_input_5k.lst") # the images used for segmentation validation
     assert(os.path.exists(det_lst)), "missing file "+det_lst
@@ -215,14 +215,14 @@ Let’s take a look where fiftyone downloaded the files
             ├── hierarchy.json
             ├── image_ids.csv
             └── segmentation_classes.csv
-    
+
     5 directories, 10 files
 
 
 .. code:: ipython3
 
     ## if you'd like to remove it, do this:
-    ## CAREFULL 
+    ## CAREFULL
     # fo.delete_dataset("open-images-v6-validation")
 
 visualize the dataset

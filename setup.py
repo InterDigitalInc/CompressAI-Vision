@@ -27,7 +27,6 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -55,6 +54,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "mypy",
 ]
 
+
 def get_extra_requirements():
     extras_require = {
         "dev": DEV_REQUIRES,
@@ -62,6 +62,7 @@ def get_extra_requirements():
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
     return extras_require
+
 
 # exec(open(os.path.join(this_folder, "fastentrypoints.py")).read()) # not needed
 
@@ -89,10 +90,6 @@ setup(
     entry_points={
         "console_scripts": [
             "compressai-vision = compressai_vision.cli.main:main",
-            "compressai-nokia-auto-import = compressai_vision.cli.auto:main",
-            "compressai-vision-info = compressai_vision.cli.info:main",
-            "compressai-vision-plot = compressai_vision.cli.plotter:main",
-            "compressai-vision-mongo = compressai_vision.cli.killmongo:main"
         ]
     },
     # metadata for upload to PyPI
@@ -107,7 +104,7 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9"
+        "Programming Language :: Python :: 3.9",
     ],
     # project_urls={ # some additional urls
     #    'Tutorial': 'nada

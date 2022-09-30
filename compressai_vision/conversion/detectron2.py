@@ -108,7 +108,7 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
 
         ::
 
-            {'file_name': '/home/sampsa/fiftyone/openimagev6_nokia_small_COCO/data/001997021f01f208.jpg',
+            {'file_name': '/home/sampsa/fiftyone/openimagev6_mpeg_vcm_small_COCO/data/001997021f01f208.jpg',
             'height': 1024,
             'width': 760,
             'image_id': 1,
@@ -311,8 +311,8 @@ def detectron251(
                 # TODO (sampsa) "Loop control variable 't' not used within the loop body"
                 # so annoying.. only way to get the tensor is to iterate
                 pass
-            x, y, x2, y2 = t.detach().tolist()  # abs coordinates
-            bbox = [x / width, y / height, (x2 - x) / width, (y2 - y) / height]
+            x, y, x2, y2 = t.detach().tolist()  # detectron2: abs coordinates
+            bbox = [x / width, y / height, (x2 - x) / width, (y2 - y) / height] # fiftyone: rex, rely, relw, relh
             # print(bbox)
         # segmentation
         if hasattr(instances, "pred_masks"):

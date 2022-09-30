@@ -33,16 +33,29 @@ If you get an error of this kind:
 
     You must have fiftyone>=0.17.2 installed in order to migrate from v0.17.2 to v0.16.6, but you are currently running fiftyone==0.16.6.
 
-Each version of fiftyone uses a certain version of mongodb.  The above error raises typically, when you have created the database with a certain
-version of fiftyone (say, v0.16.6), but then try to access it with a different version of fiftyone (for example 0.17.2). 
+First of all, make sure that you are **not running a mongodb server on your linux box**, as fiftyone starts its own (internal) mongodb server instance!
+
+Each version of fiftyone comes bundled with a mongodb server binary.  That server binary is version is compatible with the fiftyone version in question.
+
+The above error occurs typically, when you have created the database with a certain version of fiftyone (say, v0.16.6), but then try to access it with a different version of fiftyone 
+(for example 0.17.2). 
 
 A typical confusion is that you use two different versions of fiftyone, each from a different virtualenv.
-
-Please use *only* the same virtualenv from where you created the database in the first place.  
 
 To wipe out the (incompatible) database, you can always do this:
 
 ::
 
     compressai-vision-mongo clear
+
+To recap, use *only* the same virtualenv from where you created the database in the first place.  And be sure you don't have any "extra" mongodb servers running in your system.
+
+TODO: clear distinction between a separate mongodb server .. intentional (when using FIFTYONE_MONGODB_ADR or whatwasit) vs. accidental (mongodb daemon running in a port without user knowing it)
+clear should use mongoengine python API to clear the db (when intentional mongodb) or just wipe out the local directory under .fiftyone
+
+
+
+
+
+
 

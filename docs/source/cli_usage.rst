@@ -9,10 +9,10 @@ compressai-vision-info
 Shows information about your the installed software stack, library
 versions and registered databases.
 
-compressai-nokia-auto-import
+compressai-mpeg_vcm-auto-import
 ----------------------------
 
-Provided Nokia's input files, namely:
+Provided mpeg_vcm's input files, namely:
 
 ::
 
@@ -32,7 +32,7 @@ the command will:
 Step (1) will use FiftyOne to download necessary images and segmentation masks from the
 OpenImageV6 dataset.
 
-Step (2) will convert Nokia's detection and segmentation annotations into proper
+Step (2) will convert mpeg_vcm's detection and segmentation annotations into proper
 OpenImageV6 format and import (register) them into FiftyOne.
 
 Type the command in terminal for more information
@@ -53,22 +53,22 @@ Type this command in your terminal for more information
 
     compressai-vision manual
 
-Here are some example commands you might want to try 
+Here are some example commands you might want to try
 (from the proper virtualenvironment or docker container, of course):
 
-*OpenImageV6 evaluation for the Nokia 5K dataset*
+*OpenImageV6 evaluation for the mpeg_vcm 5K dataset*
 
 ::
 
-    compressai-vision detectron2_eval --y --name=nokia-detection \
+    compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --output=eval5K.json
 
-*OpenImageV6 evaluation for the Nokia 5K dataset with CompressAI to produce mAP(bpp) curve*
+*OpenImageV6 evaluation for the mpeg_vcm 5K dataset with CompressAI to produce mAP(bpp) curve*
 
 ::
 
-    compressai-vision detectron2_eval --y --name=nokia-detection \
+    compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --compressai=bmshj2018_factorized \
     --qpars=1,2,3,4,5,6,7,8 --output=eval5Kqp.json
@@ -78,7 +78,7 @@ Here are some example commands you might want to try
 ::
 
     compressai-vision detectron2_eval --y --debug \
-    --name=nokia-detection-dummy \
+    --dataset-name=mpeg_vcm-detection-dummy \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \
     --vtm --vtm_dir=path/to/VVCSoftware_VTM/bin --qpars=47 --output=vtm_test.json
 

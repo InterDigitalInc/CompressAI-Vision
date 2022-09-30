@@ -29,6 +29,17 @@
 """cli deregister functionality
 """
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("deregister", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+
 
 def main(p):
     print("importing fiftyone")
@@ -36,11 +47,11 @@ def main(p):
 
     print("fiftyone imported")
 
-    # dataset = fo.load_dataset(p.name)
-    print("removing dataset %s from fiftyone" % (p.name))
+    # dataset = fo.load_dataset(p.dataset_name)
+    print("removing dataset %s from fiftyone" % (p.dataset_name))
     if not p.y:
         input("press enter to continue.. ")
     try:
-        fo.delete_dataset(p.name)
+        fo.delete_dataset(p.dataset_name)
     except ValueError as e:
         print("could not deregister because of", e)

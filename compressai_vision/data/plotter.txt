@@ -1,4 +1,4 @@
-compressai-vision-plot [options] command 
+compressai-vision-plot [options] command
 
 commands:
 
@@ -9,11 +9,11 @@ commands:
     plot                create the plot
 
 parameters for plot:
- 
+
     --dirs              list of directories with json files produced
-    --symbols           list of matplotlib symbols for each plot, 
+    --symbols           list of matplotlib symbols for each plot,
                         for example: o--k,-g,*:r
-    --names             list of names to be included into the plot, 
+    --dataset-names             list of names to be included into the plot,
                         for example: vtm,mymodel,mymodel2
     --eval              mAP value without (de)compress and maplotlib symbol,
                         for example: 0.792,--c
@@ -36,10 +36,10 @@ instructions:
     This script handles both situations automatically, you just need to
     provide the directory name(s)
 
-    Suppose you want to plot two (bpp, mAP) curves from two models 
+    Suppose you want to plot two (bpp, mAP) curves from two models
     (results are in "model1_results" and "model2_results") and also include
     the VTM baseline, then do this:
 
     compressai-vision-plot --dirs=model1_results,model2_results \\
-    --symbols=o--r,x-b --names=model1,model2 \\
+    --symbols=o--r,x-b --dataset-names=model1,model2 \\
     --eval=0.792,--c --show-baseline=100

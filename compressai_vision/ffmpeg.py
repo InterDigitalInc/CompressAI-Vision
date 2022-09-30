@@ -1,6 +1,9 @@
 import io
+import shlex
+import subprocess
+
 import numpy as np
-import subprocess, shlex
+
 from PIL import Image
 
 

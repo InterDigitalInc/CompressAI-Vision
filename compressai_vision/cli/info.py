@@ -32,8 +32,15 @@
 import os
 import sys
 
+
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "info", parents=parents
+    )
+
+
 # compressai_vision
-def main():
+def main(p):
     try:
         import torch
     except ModuleNotFoundError:
@@ -66,12 +73,23 @@ def main():
     if c > 0:
         print("\nRUNNING FFMPEG FAILED\n")
     #
-    print("\nimporting fiftyone..\n")
+    print()
+    try:
+        adr=os.environ["FIFTYONE_DATABASE_URI"]
+    except KeyError:
+        print("NOTICE: Using mongodb managed by fiftyone")
+        print("Be sure not to have extra mongod server(s) running on your system")
+    else:
+        print("NOTICE: You have external mongodb server configured with", adr)
     # fiftyone
+    print("importing fiftyone..")
     import fiftyone as fo
+    print("..imported")
+    print("fiftyone version:", fo.__version__)
 
     print("\n*** DATABASE ***")
     print("info about your connection:")
+    
     print(fo.core.odm.database.get_db_conn())
     print()
 

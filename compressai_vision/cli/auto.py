@@ -32,6 +32,7 @@
 import os
 import sys
 
+
 # define legit filenames.. there are inconsistencies here
 fname_list = [
     "detection_validation_input_5k.lst",
@@ -44,13 +45,13 @@ fname_list = [
 ]
 
 help_st = """
-compressai-nokia-auto-import
-
+compressai-mpeg_vcm-auto-import\n
+\n
 parameters:
 
     --datadir=/path/to/datasets     directory where all datasets are downloaded by default (optional)
 
-Automatic downloading of images and importing nokia-provided files into fiftyone
+Automatic downloading of images and importing files provided by MPEG/VCM test conditions into fiftyone
 
 Before running this command, put the following files into the same directory
 (please note 'detection_validation_5k_bbox.csv' name inconsistency):
@@ -95,23 +96,31 @@ def get_dir(dir_, txt="", make=True, check=False):
     return dir_input
 
 
-def main():
-    from compressai_vision.cli import download, dummy, nokia_convert, register
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "mpeg-vcm-auto-import", parents=parents, help="kokkelis", description=help_st
+    )
+    # NOTE: help is something show without using this command
+    # descriptions is shown when the command is used
+    subparser.add_argument(
+        "--datadir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory where all datasets are downloaded by default (optional)"
+    )
+    subparser.add_argument("--mock", 
+        action="store_true", 
+        default=False,
+        help="debugging switch: don't use"
+    )
 
-    args = []
-    dirname = None
-    if len(sys.argv) > 1:
-        if sys.argv[1] in ["MOCK"]:  # some debugging cli parameters are allowed
-            args = sys.argv[1]
-        elif "--datadir=" in sys.argv[1]:
-            dirname = (
-                sys.argv[1].split("=")[1].strip()
-            )  # --datadir=/path/to --> /path/to
-            print("WARNING: using datadir", dirname)
-            assert os.path.isdir(dirname), "no such directory " + dirname
-        else:
-            print(help_st)
-            return
+
+def main(p_):
+    from compressai_vision.cli import convert_mpeg_to_oiv6, download, dummy, register
+
+    dirname=p_.datadir
 
     for fname in fname_list:
         if not os.path.exists(fname):
@@ -120,20 +129,18 @@ def main():
             sys.exit(2)
 
     p = Namespace()
-    if "MOCK" in args:
-        print("WARNING: MOCK TEST")
-        p.mock = True
-    else:
-        p.mock = False
+    p.mock = p_.mock
     p.y = False
-    p.name = "open-images-v6"
+    p.dataset_name = "open-images-v6"
 
     if dirname is None:
-        dir_ = os.path.join("~", "fiftyone", p.name)  # ~/fiftyone/open-images-v6
+        dir_ = os.path.join(
+            "~", "fiftyone", p.dataset_name
+        )  # ~/fiftyone/open-images-v6
     else:
-        dir_ = os.path.join(dirname, p.name)
+        dir_ = os.path.join(dirname, p.dataset_name)
 
-    dir_ = get_dir(dir_, "path to download (nokia subset of) OpenImageV6 ")
+    dir_ = get_dir(dir_, "path to download (MPEG/VCM subset of) OpenImageV6 ")
     source_dir = os.path.join(
         dir_, "validation"
     )  # "~/fiftyone/open-images-v6/validation"
@@ -146,81 +153,81 @@ def main():
     )
     p.split = "validation"
     p.dir = dir_
-    download(p)
+    download.main(p)
 
-    print("\n**CONVERTING NOKIA DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
+    print("\n**CONVERTING MPEG/VCM DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
     p.y = False
 
     if dirname is None:
-        nokia_dir = os.path.join(
-            "~", "fiftyone", "nokia-detection"
-        )  # ~/fiftyone/nokia-detection
+        mpeg_vcm_dir = os.path.join(
+            "~", "fiftyone", "mpeg-vcm-detection"
+        )  # ~/fiftyone/mpeg-vcm-detection
     else:
-        nokia_dir = os.path.join(dirname, "nokia-detection")
-    nokia_dir = get_dir(
-        nokia_dir, "imported detection dataset path", make=False, check=False
+        mpeg_vcm_dir = os.path.join(dirname, "mpeg-vcm-detection")
+    mpeg_vcm_dir = get_dir(
+        mpeg_vcm_dir, "imported detection dataset path", make=False, check=False
     )
 
     p.lists = get_("detection_validation_input_5k.lst")
     # p.dir = "~/fiftyone/open-images-v6/validation"
     p.dir = source_dir
-    # p.target_dir = "~/fiftyone/nokia-detection"
-    p.target_dir = nokia_dir
+    # p.target_dir = "~/fiftyone/mpeg-vcm-detection"
+    p.target_dir = mpeg_vcm_dir
     p.label = get_("detection_validation_labels_5k.csv")
     p.bbox = get_("detection_validation_5k_bbox.csv")
     p.mask = None
-    nokia_convert(p)
+    convert_mpeg_to_oiv6.main(p)
 
-    print("\n**CONVERTING NOKIA SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
+    print("\n**CONVERTING MPEG/VCM SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
     p.y = False
 
     if dirname is None:
-        nokia_dir_seg = os.path.join(
-            "~", "fiftyone", "nokia-segmentation"
-        )  # ~/fiftyone/nokia-segmentation
+        mpeg_vcm_dir_seg = os.path.join(
+            "~", "fiftyone", "mpeg-vcm-segmentation"
+        )  # ~/fiftyone/mpeg_vcm-segmentation
     else:
-        nokia_dir_seg = os.path.join(dirname, "nokia-segmentation")
-    nokia_dir_seg = get_dir(
-        nokia_dir_seg, "imported segmentation dataset path", make=False, check=False
+        mpeg_vcm_dir_seg = os.path.join(dirname, "mpeg-vcm-segmentation")
+    mpeg_vcm_dir_seg = get_dir(
+        mpeg_vcm_dir_seg, "imported segmentation dataset path", make=False, check=False
     )
 
     p.lists = get_("segmentation_validation_input_5k.lst")
     # p.dir = "~/fiftyone/open-images-v6/validation"
     p.dir = source_dir
-    # p.target_dir = "~/fiftyone/nokia-segmentation"
-    p.target_dir = nokia_dir_seg
+    # p.target_dir = "~/fiftyone/mpeg_vcm-segmentation"
+    p.target_dir = mpeg_vcm_dir_seg
     p.label = get_("segmentation_validation_labels_5k.csv")
     p.bbox = get_("segmentation_validation_bbox_5k.csv")
     p.mask = get_("segmentation_validation_masks_5k.csv")
-    nokia_convert(p)
+    convert_mpeg_to_oiv6.main(p)
 
-    print("\n**REGISTERING NOKIA DETECTION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG/VCM DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
-    dataset_name = get_inp("nokia-detection", "name for detection dataset")
-    p.name = dataset_name
+    dataset_name = get_inp("mpeg-vcm-detection", "name for detection dataset")
+    p.dataset_name = dataset_name
     p.lists = get_("detection_validation_input_5k.lst")
-    p.dir = nokia_dir
+    p.dir = mpeg_vcm_dir
     p.type = "OpenImagesV6Dataset"
-    register(p)
+    register.main(p)
 
     print("\n**CREATING DUMMY/MOCK DETECTION DATA FOR YOUR CONVENIENCE SIR**\n")
     p = Namespace()
     p.y = False
-    p.name = dataset_name
-    dummy(p)
+    p.dataset_name = dataset_name
+    dummy.main(p)
 
-    print("\n**REGISTERING NOKIA SEGMENTATION DATA INTO FIFTYONE**\n")
+    print("\n**REGISTERING MPEG/VCM SEGMENTATION DATA INTO FIFTYONE**\n")
     p = Namespace()
     p.y = False
-    dataset_name = get_inp("nokia-segmentation", "name for segmentation dataset")
-    p.name = dataset_name
+    dataset_name = get_inp("mpeg-vcm-segmentation", "name for segmentation dataset")
+    p.dataset_name = dataset_name
     p.lists = get_("segmentation_validation_input_5k.lst")
-    p.dir = nokia_dir_seg
+    p.dir = mpeg_vcm_dir_seg
     p.type = "OpenImagesV6Dataset"
-    register(p)
+    register.main(p)
     print("\nPlease continue with the compressai-vision command line tool\n")
     print("\nGOODBYE\n")
 

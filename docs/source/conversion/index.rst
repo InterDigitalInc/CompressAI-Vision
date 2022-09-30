@@ -3,10 +3,10 @@ compressai_vision.conversion
 
 .. currentmodule:: compressai_vision.conversion
 
-Nokia input file conversion
+mpeg_vcm input file conversion
 ---------------------------
 
-.. autofunction:: nokiaBSToOpenImageV6
+.. autofunction:: MPEGVCMToOpenImageV6
 
 .. autofunction:: imageIdFileList
 

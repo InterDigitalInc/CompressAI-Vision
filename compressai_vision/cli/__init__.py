@@ -27,30 +27,29 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
 # importing this takes quite a while!
 # ..not anymore since import fiftyone is inside the function
 # print("cli: import")
+from compressai_vision.cli.clean import main as clean
+from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
 from compressai_vision.cli.deregister import main as deregister
 from compressai_vision.cli.detectron2_eval import main as detectron2_eval
 from compressai_vision.cli.download import main as download
 from compressai_vision.cli.dummy import main as dummy
 from compressai_vision.cli.list import main as list
 from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.nokia_convert import main as nokia_convert
 from compressai_vision.cli.register import main as register
 from compressai_vision.cli.vtm import main as vtm
-from compressai_vision.cli.clean import main as clean
 
 # print("cli: import end")
+"""
+from . import clean, convert_mpeg_to_oiv6, deregister, detectron2_eval,\
+    download, dummy, list_, load_eval, register, vtm, auto, info, killmongo,\
+    plotter
 
 __all__ = [
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "list",
-    "load_eval",
-    "nokia_convert",
-    "register",
-    "dummy",
-    "vtm",
+ "clean", "convert_mpeg_to_oiv6", "deregister", "detectron2_eval",
+    "download", "dummy", "list_", "load_eval", "register", "vtm", "auto", "info",
+    "killmongo", "plotter"
 ]

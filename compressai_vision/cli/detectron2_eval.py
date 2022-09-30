@@ -29,35 +29,177 @@
 
 """cli detectron2_eval functionality
 """
-import copy, os, uuid, datetime
+import copy
+import datetime
 import json
 import os
+import uuid
 
+
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "detectron2-eval", parents=parents
+    )
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--model",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of Detectron2 config model",
+    )
+    subparser.add_argument(
+        "--output",
+        action="store",
+        type=str,
+        required=False,
+        default="compressai-vision.json",
+        help="outputfile, default: compressai-vision.json",
+    )
+    """TODO: not only oiv6 protocol, but coco etc. 
+    subparser.add_argument(
+        "--proto",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="evaluation protocol",
+    )
+    """
+    subparser.add_argument(
+        "--compressai-model-name",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="name of an existing model in compressai (e.g. 'cheng2020-attn')",
+    )
+    subparser.add_argument(
+        "--compression-model-path",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="a path to a directory containing model.py for custom development model",
+    )
+    subparser.add_argument(
+        "--compression-model-checkpoint",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to a compression model checkpoint",
+    )
+    subparser.add_argument("--vtm", action="store_true", default=False)
+    subparser.add_argument(
+        "--vtm_dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
+    )
+    subparser.add_argument(
+        "--vtm_cfg",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="vtm config file",
+    )
+    subparser.add_argument(
+        "--vtm_cache",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory to cache vtm bitstreams",
+    )
+    subparser.add_argument(
+        "--qpars",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="quality parameters for compressai model or vtm",
+    )
+    subparser.add_argument(
+        "--scale",
+        action="store",
+        type=int,
+        required=False,
+        default=100,
+        help="image scaling as per VCM working group docs",
+    )
+    
+    subparser.add_argument(
+        "--ffmpeg",
+        action="store",
+        type=str,
+        required=False,
+        default="ffmpeg",
+        help="ffmpeg command",
+    )
+    subparser.add_argument(
+        "--slice",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="use a dataset slice instead of the complete dataset",
+    )
+    # subparser.add_argument("--debug", action="store_true", default=False) # not here
+    subparser.add_argument(
+        "--progressbar",
+        action="store_true",
+        default=False,
+        help="show fancy progressbar",
+    )
+    subparser.add_argument(
+        "--progress",
+        action="store",
+        type=int,
+        required=False,
+        default=1,
+        help="Print progress this often",
+    )
+    return subparser
+    
 
 def main(p):  # noqa: C901
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
+
     from compressai_vision import patch  # dataset.clone needs this
 
     print("fiftyone imported")
 
+    from compressai_vision.constant import vf_per_scale
+
     # compressai_vision
-    from compressai_vision.evaluation.fo import (
+    from compressai_vision.evaluation.fo import (  # annex predictions from
         annexPredictions,
-    )  # annex predictions from
+    )
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
     from compressai_vision.tools import getDataFile
-    from compressai_vision.constant import vf_per_scale
 
-    assert p.name is not None, "please provide dataset name"
+    assert p.dataset_name is not None, "please provide dataset name"
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
-        print("FATAL: no such registered dataset", p.name)
+        print("FATAL: no such registered dataset", p.dataset_name)
         return
 
     if p.slice is not None:
@@ -79,7 +221,12 @@ def main(p):  # noqa: C901
 
     assert p.model is not None, "provide Detectron2 model name"
 
-    if (p.compressai is None) == p.vtm == (p.modelpath is None) == False:
+    if (
+        (p.compressai_model_name is None)
+        == p.vtm
+        == (p.compression_model_path is None)
+        == False
+    ):
         compression = False
         # no (de)compression, just eval
         assert (
@@ -88,11 +235,11 @@ def main(p):  # noqa: C901
 
     # check that only one is defined
     defined = False
-    for scheme in [p.compressai, p.vtm, p.modelpath]:
+    for scheme in [p.compressai_model_name, p.vtm, p.compression_model_path]:
         if scheme:
             if defined:  # second match!
                 raise AssertionError(
-                    "please define only one of the following: compressai, vtm or modelpath"
+                    "please define only one of the following: compressai_model_name, vtm or compression_model_path"
                 )
             defined = True
 
@@ -105,45 +252,54 @@ def main(p):  # noqa: C901
             print("problems with your quality parameter list")
             raise e
         # check checkpoint file validity if defined
-        if p.checkpoint is not None:
-            assert os.path.isfile(p.checkpoint), "can't find defined checkpoint file"
+        if p.compression_model_checkpoint is not None:
+            assert os.path.isfile(
+                p.compression_model_checkpoint
+            ), "can't find defined checkpoint file"
 
     else:
         qpars = None
 
     # *** CHOOSE COMPRESSION SCHEME ***
 
-    if p.compressai is not None:  # compression from compressai zoo
+    if p.compressai_model_name is not None:  # compression from compressai zoo
         import compressai.zoo
 
         # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
-        compressai_model = getattr(
-            compressai.zoo, p.compressai
+        compression_model = getattr(
+            compressai.zoo, p.compressai_model_name
         )  # a function that returns a model instance or just a class
 
-    elif p.modelpath is not None:  # compression from a custcom compressai model
-        path = os.path.join(p.modelpath, "model.py")
+    elif (
+        p.compression_model_path is not None
+    ):  # compression from a custcom compression model
+        path = os.path.join(p.compression_model_path, "model.py")
         assert os.path.isfile(path), "your model directory is missing model.py"
         import importlib.util
 
         try:
             spec = importlib.util.spec_from_file_location(
-                "module", os.path.join(p.modelpath, path)
+                "module", os.path.join(p.compression_model_path, path)
             )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         except Exception as e:
-            print("loading model from directory", p.modelpath, "failed with", e)
+            print(
+                "loading model from directory",
+                p.compression_model_path,
+                "failed with",
+                e,
+            )
             return
         else:
             assert hasattr(
                 module, "getModel"
             ), "your module is missing getModel function"
-            compressai_model = (
+            compression_model = (
                 module.getModel
             )  # a function that returns a model instance or just a class
 
-    elif p.vtm is not None:  # setup VTM
+    elif p.vtm:  # setup VTM
         if p.vtm_dir is None:
             try:
                 vtm_dir = os.environ["VTM_DIR"]
@@ -235,14 +391,16 @@ def main(p):  # noqa: C901
         username = os.environ["USER"]
     except KeyError:
         username = "nouser"
-    tmp_name0 = p.name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(datetime.datetime.now())
+    tmp_name0 = p.dataset_name + "-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
+        datetime.datetime.now()
+    )
 
     tmp_name = "detectron-run-{username}-{tmp_name0}".format(
         username=username, tmp_name0=tmp_name0
     )
 
     print()
-    print("Using dataset          :", p.name)
+    print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # woops.. can't use slicing
@@ -251,10 +409,10 @@ def main(p):  # noqa: C901
     print("Torch device           :", device)
     print("Detectron2 model       :", model_name)
     print("Model was trained with :", model_dataset)
-    if p.compressai is not None:
-        print("Using compressai model :", p.compressai)
-    elif p.modelpath is not None:
-        print("Using custom mode from :", p.modelpath)
+    if p.compressai_model_name is not None:
+        print("Using compressai model :", p.compressai_model_name)
+    elif p.compression_model_path is not None:
+        print("Using custom mode from :", p.compression_model_path)
     elif p.vtm:
         print("Using VTM               ")
         if p.vtm_cache:
@@ -263,8 +421,8 @@ def main(p):  # noqa: C901
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
-    if p.checkpoint:
-        print("WARN: using checkpoint :", p.checkpoint)
+    if p.compression_model_checkpoint:
+        print("WARN: using checkpoint :", p.compression_model_checkpoint)
     if qpars is not None:
         print("Quality parameters     :", qpars)
     print("Eval. datafield name   :", predictor_field)
@@ -289,13 +447,13 @@ def main(p):  # noqa: C901
 
     # save metadata about the run into the json file
     metadata = {
-        "dataset": p.name,
+        "dataset": p.dataset_name,
         "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
-        "compressai model": p.compressai,
-        "custom model": p.modelpath,
-        "checkpoint": p.checkpoint,
+        "compressai model": p.compressai_model_name,
+        "custom model": p.compression_model_path,
+        "checkpoint": p.compression_model_checkpoint,
         "vtm": p.vtm,
         "vtm_cache": p.vtm_cache,
         "qpars": qpars,
@@ -305,7 +463,7 @@ def main(p):  # noqa: C901
 
     # please see ../monkey.py for problems I encountered when cloning datasets
     # simultaneously with various multiprocesses/batch jobs
-    print("cloning dataset", p.name, "to", tmp_name)
+    print("cloning dataset", p.dataset_name, "to", tmp_name)
     dataset = dataset.clone(tmp_name)
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
@@ -335,16 +493,18 @@ def main(p):  # noqa: C901
             print("\nQUALITY PARAMETER", i)
             enc_dec = None  # default: no encoding/decoding
             if (
-                p.compressai or p.modelpath
+                p.compressai_model_name or p.compression_model_path
             ):  # compressai model, either from the zoo or from a directory
-                if p.checkpoint is None:
-                    net = compressai_model(quality=i, pretrained=True).eval().to(device)
+                if p.compression_model_checkpoint is None:
+                    net = (
+                        compression_model(quality=i, pretrained=True).eval().to(device)
+                    )
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model form a file
                 else:  # load a checkpoint
-                    net = compressai_model(quality=i)
+                    net = compression_model(quality=i)
                     try:
-                        cp = torch.load(p.checkpoint)
+                        cp = torch.load(p.compression_model_checkpoint)
                         # print(">>>", cp.keys())
                         # net.load_state_dict(cp['state_dict']).eval().to(device)
                         net.load_state_dict(cp).eval().to(device)

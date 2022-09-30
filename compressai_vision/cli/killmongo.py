@@ -44,13 +44,21 @@ If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
     
 """
 
-import os, sys, glob, shutil
+import glob
+import os
+import shutil
+
+# https://voxel51.com/docs/fiftyone/user_guide/config.html
+
+
+def killer():
+    print("trying to kill local mongo processes")
+    os.system("killall -9 mongod")
+    print("killed what could.  If you got 'Operation not permitted', you have mongod running as a systemd daemon (use systemctl to shut down)")
 
 
 def stopMongo():
-    print("killing mongo process")
-    os.system("killall -9 mongod")
-    print("killed mongo process")
+    killer()
     for fname in glob.glob(
         os.path.expanduser(os.path.join("~", ".fiftyone/var/lib/mongo/*lock*"))
     ):
@@ -60,30 +68,43 @@ def stopMongo():
 
 
 def clearMongo():
-    print("killing mongo process")
-    os.system("killall -9 mongod")
-    print("killed mongo process")
+    killer()
     dirname = os.path.expanduser(os.path.join("~", ".fiftyone"))
-    print("WARNING: removing directory", dirname, "PRESS ENTER TO CONTINUE")
+    print("WARNING: removing local directory", dirname, "PRESS ENTER TO CONTINUE")
     input()
     shutil.rmtree(dirname)
+    try:
+        adr=os.environ["FIFTYONE_DATABASE_URI"]
+    except KeyError:
+        pass
+    else:
+        print("WARNING: You have external mongodb server configured with", adr)
+        print("Wiping out fiftyone data from there. PRESS ENTER TO CONTINUE")
+        input()
+        import mongoengine
+        conn=mongoengine.connect(host=adr)
+        conn.drop_database("fiftyone")
+        conn.close()
+    print("have a nice day!")
 
 
-def main():
-    if len(sys.argv) < 2:
-        print(
-            "\n" "compressai-vision-mongo command\n",
-            "\n"
-            "commands\n"
-            "\n"
-            "        stop     stop local mongodb server and clean lockfiles\n"
-            "        clear    remove the local mongodb database\n"
-            "\n",
-        )
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "mongo", parents=parents
+    )
+    subsubparsers = subparser.add_subparsers(help="select subcommand (stop or clear)", dest="subcommand")
+    subsubparsers.add_parser(
+        "stop", description="stop local mongodb server and clean lockfiles"
+    )
+    subsubparsers.add_parser(
+        "clear", description="remove the local mongodb database"
+    )
 
-    elif sys.argv[1] == "stop":
+
+def main(p):
+    if p.subcommand == "stop":
         stopMongo()
-    elif sys.argv[1] == "clear":
+    elif p.subcommand == "clear":
         clearMongo()
     else:
-        print("unknown command", sys.argv[1])
+        print("use -h to see options")

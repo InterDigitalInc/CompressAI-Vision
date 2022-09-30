@@ -29,12 +29,16 @@
 
 """cli.py : Command-line interface tools for compressai-vision
 """
-import argparse
-import os, json, glob, sys, csv
-import numpy as np
-import matplotlib.pyplot as plt
+import csv
+import glob
+import json
+import os
+import sys
 
-from compressai_vision.tools import quickLog, getDataFile
+import matplotlib.pyplot as plt
+import numpy as np
+
+from compressai_vision.tools import getDataFile
 
 colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 
@@ -100,18 +104,12 @@ def tx(ax, st, i, j, color):
     )
 
 
-def process_cl_args():
-    parser = argparse.ArgumentParser(
-        usage=(
-            "compressai-vision-plot [options] command\n"
-            "\n"
-            "please use the command 'manual' for full documentation of this program\n"
-            "\n"
-        )
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser(
+        "plot", parents=parents
     )
-    parser.add_argument("command", action="store", type=str, help="mandatory command")
-
-    parser.add_argument(
+    subparser.add_argument("--csv", action="store_true", default=False)
+    subparser.add_argument(
         "--dirs",
         action="store",
         type=str,
@@ -119,7 +117,7 @@ def process_cl_args():
         help="list of directories",
     )
     """
-    parser.add_argument(
+    subparser.add_argument(
         "--colors",
         action="store",
         type=str,
@@ -127,17 +125,17 @@ def process_cl_args():
         help="list of pyplot colors",
     )
     """
-    parser.add_argument(
+    subparser.add_argument(
         "--symbols",
         action="store",
         type=str,
         required=False,
         help="list of pyplot symbols/colors, e.g: o--k,-b, etc.",
     )
-    parser.add_argument(
+    subparser.add_argument(
         "--names", action="store", type=str, required=False, help="list of plot names"
     )
-    parser.add_argument(
+    subparser.add_argument(
         "--eval",
         action="store",
         type=str,
@@ -145,8 +143,7 @@ def process_cl_args():
         default=None,
         help="mAP value without (de)compression and pyplot symbol",
     )
-
-    parser.add_argument(
+    subparser.add_argument(
         "--show-baseline",
         action="store",
         type=int,
@@ -154,23 +151,12 @@ def process_cl_args():
         default=None,
         help="show baseline at a certain scale",
     )
+    #parsed_args, unparsed_args = parser.parse_known_args()
+    #return parsed_args, unparsed_args
 
-    parsed_args, unparsed_args = parser.parse_known_args()
-    return parsed_args, unparsed_args
 
-
-def main():
-    parsed, unparsed = process_cl_args()
-
-    for weird in unparsed:
-        print("invalid argument", weird)
-        raise SystemExit(2)
-
-    if parsed.command == "manual":
-        with open(getDataFile("plotter.txt"), "r") as f:
-            print(f.read())
-        return
-
+def main(p):
+    parsed=p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"
     dirs = parsed.dirs.split(",")
@@ -180,7 +166,7 @@ def main():
         assert os.path.isdir(dir_), "nonexistent dir"
         arrays.append(jsonFilesToArray(dir_))
 
-    if parsed.command == "csv":
+    if parsed.csv:
         for dir_, a in zip(dirs, arrays):
             print("\n" + dir_ + ":\n")
             for bpp, map_ in a:
@@ -250,12 +236,13 @@ def main():
 
     plt.xlabel("bpp")
     plt.ylabel("mAP")
+    print("--> producing out.png to current path")
     plt.savefig(os.path.join("out.png"))
-
+    print("have a nice day!")
     """from the notebook:
     plt.plot(vtm[:,0], vtm[:,1], '*-b', markersize=12)
     plt.plot(coai[:,0], coai[:,1], '.-r')
-    plt.plot(nokia[:,0], nokia[:,1], 'o--k')
+    plt.plot(mpeg_vcm[:,0], mpeg_vcm[:,1], 'o--k')
     minx=plt.axis()[0]
     maxx=plt.axis()[1]
     plt.plot((minx, maxx), (eval_[:,1], eval_[:,1]), '--g')
@@ -263,7 +250,7 @@ def main():
     tx(ax, "OUR VTM", 0.5, 0.50, "b")
     tx(ax, "COMPRESSAI", 0.5, 0.55, "r")
     tx(ax, "EVAL", 0.5, 0.60, "g")
-    tx(ax, "NOKIA VTM", 0.5, 0.65, "k")
+    tx(ax, "mpeg_vcm VTM", 0.5, 0.65, "k")
     plt.xlabel("bpp")
     plt.ylabel("mAP")
     plt.title("Detection, scale=100%")

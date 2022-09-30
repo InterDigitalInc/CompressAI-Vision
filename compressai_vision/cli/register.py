@@ -32,6 +32,42 @@
 import os
 
 
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("register", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--lists",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="comma-separated list of list files",
+    )
+    subparser.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="target/source directory, depends on command",
+    )
+    subparser.add_argument(
+        "--type",
+        action="store",
+        type=str,
+        required=False,
+        default="OpenImagesV6Dataset",
+        help="image set type to be imported",
+    )
+
+
 def main(p):
     # fiftyone
     print("importing fiftyone")
@@ -43,22 +79,35 @@ def main(p):
     from compressai_vision.conversion import imageIdFileList
     from compressai_vision.tools import pathExists
 
-    assert p.name is not None, "provide name for your dataset"
+    assert p.dataset_name is not None, "provide name for your dataset"
     assert p.dir is not None, "please provide path to dataset"
 
     try:
-        dataset = fo.load_dataset(p.name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
         pass
     else:
-        print("dataset %s already exists - will deregister it first" % (p.name))
+        print("dataset %s already exists - will deregister it first" % (p.dataset_name))
         if not p.y:
             input("press enter to continue.. ")
-        fo.delete_dataset(p.name)
+        fo.delete_dataset(p.dataset_name)
 
-    if p.type != "OpenImagesV6Dataset":
-        print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
-    dataset_type = getattr(fo.types, p.type)
+    #if p.type != "OpenImagesV6Dataset":
+    #    print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
+
+    # dataset types are in:
+    # fo.types.dataset_types.*
+    # quickstart dataset is of type FiftyOneDataset
+    try:
+        dataset_type = getattr(fo.types.dataset_types, p.type)
+    except AttributeError:
+        print("WARNING: could not find dataset type from fo.types.dataset_types.*")
+        print("dataset types:")
+        for type_ in dir(fo.types.dataset_types):
+            if type_[0] != "_":
+                print(type_)
+        raise
+     
     dataset_dir = os.path.expanduser(p.dir)
     assert pathExists(dataset_dir)
     print()
@@ -90,7 +139,7 @@ def main(p):
     print("From directory  :    ", p.dir)
     print("Using list file :    ", p.lists)
     print("Number of images:    ", n_images)
-    print("Registering name:    ", p.name)
+    print("Registering name:    ", p.dataset_name)
     if not p.y:
         input("press enter to continue.. ")
     print()
@@ -100,7 +149,7 @@ def main(p):
             dataset_type=dataset_type,
             label_types=label_types,
             load_hierarchy=False,  # screw hierarchies for the moment..
-            name=p.name,
+            name=p.dataset_name,
         )
     else:
         dataset = fo.Dataset.from_dir(
@@ -108,7 +157,7 @@ def main(p):
             dataset_type=dataset_type,
             label_types=label_types,
             load_hierarchy=False,
-            name=p.name,
+            name=p.dataset_name,
             image_ids=image_ids,
         )
     dataset.persistent = True  # don't forget!

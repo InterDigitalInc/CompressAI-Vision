@@ -1,11 +1,11 @@
- 
+
 Tutorials
 =========
 
-In order to test your encoder's performance against the official MPEG VCM working group input files, 
+In order to test your encoder's performance against the official MPEG/VCM working group input files,
 you need first to convert the input files into a standard/recognized format.  After this, you can use them with any standard tool.
 
-We'll be using fiftyone to store, manage, visualize and evaluate datasets.  So the next thing is to import the data into fiftyone.  
+We'll be using fiftyone to store, manage, visualize and evaluate datasets.  So the next thing is to import the data into fiftyone.
 Fiftyone is then used to evaluate your results which have been generated using Detectron2 and your encoder/decoder.
 
 So, first of all, you should take a look at `fiftyone <https://voxel51.com/docs/fiftyone/user_guide>`_ and therein, at least
