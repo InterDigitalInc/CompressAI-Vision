@@ -70,15 +70,14 @@ def stopMongo():
 
 
 def clearMongo():
-    killer()
-    dirname = os.path.expanduser(os.path.join("~", ".fiftyone"))
-    print("WARNING: removing local directory", dirname, "PRESS ENTER TO CONTINUE")
-    input()
-    shutil.rmtree(dirname)
     try:
         adr = os.environ["FIFTYONE_DATABASE_URI"]
     except KeyError:
-        pass
+        killer()
+        dirname = os.path.expanduser(os.path.join("~", ".fiftyone"))
+        print("WARNING: removing local directory", dirname, "PRESS ENTER TO CONTINUE")
+        input()
+        shutil.rmtree(dirname)
     else:
         print("WARNING: You have external mongodb server configured with", adr)
         print("Wiping out fiftyone data from there. PRESS ENTER TO CONTINUE")
