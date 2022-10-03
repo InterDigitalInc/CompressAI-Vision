@@ -33,13 +33,13 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparsers.add_parser(
-        "clean", parents=parents
-    )
+    subparsers.add_parser("clean", parents=parents)
+
 
 def main(p):
     print("importing fiftyone")
     import fiftyone as fo
+
     print("fiftyone imported")
     print()
     try:

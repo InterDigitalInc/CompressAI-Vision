@@ -29,6 +29,7 @@
 """cli deregister functionality
 """
 
+
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("deregister", parents=parents)
     subparser.add_argument(

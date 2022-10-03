@@ -76,6 +76,7 @@ def main(p):
     print("importing fiftyone")
     import fiftyone as fo
     from fiftyone import zoo as foz  # different fiftyone than the patched one.. eh
+
     print("fiftyone imported")
 
     # compressai_vision
@@ -118,6 +119,7 @@ def main(p):
     if p.dir is not None:
         p.dir = os.path.expanduser(p.dir)
         kwargs["dataset_dir"] = p.dir
+    # print(">>>", p.dir)
     dataset = foz.load_zoo_dataset(p.dataset_name, **kwargs)
     # label_types=("detections", "classifications", "relationships", "segmentations") # default
     dataset.persistent = True
