@@ -92,7 +92,7 @@ def main(p):
             input("press enter to continue.. ")
         fo.delete_dataset(p.dataset_name)
 
-    #if p.type != "OpenImagesV6Dataset":
+    # if p.type != "OpenImagesV6Dataset":
     #    print("WARNING: not tested for other than OpenImagesV6Dataset - might now work")
 
     # dataset types are in:
@@ -107,7 +107,7 @@ def main(p):
             if type_[0] != "_":
                 print(type_)
         raise
-     
+
     dataset_dir = os.path.expanduser(p.dir)
     assert pathExists(dataset_dir)
     print()

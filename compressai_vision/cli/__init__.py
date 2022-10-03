@@ -44,12 +44,36 @@ from compressai_vision.cli.vtm import main as vtm
 
 # print("cli: import end")
 """
-from . import clean, convert_mpeg_to_oiv6, deregister, detectron2_eval,\
-    download, dummy, list_, load_eval, register, vtm, auto, info, killmongo,\
-    plotter
+from . import (
+    clean,
+    convert_mpeg_to_oiv6,
+    deregister,
+    detectron2_eval,
+    download,
+    dummy,
+    list_,
+    load_eval,
+    register,
+    vtm,
+    auto,
+    info,
+    killmongo,
+    plotter,
+)
 
 __all__ = [
- "clean", "convert_mpeg_to_oiv6", "deregister", "detectron2_eval",
-    "download", "dummy", "list_", "load_eval", "register", "vtm", "auto", "info",
-    "killmongo", "plotter"
+    "clean",
+    "convert_mpeg_to_oiv6",
+    "deregister",
+    "detectron2_eval",
+    "download",
+    "dummy",
+    "list_",
+    "load_eval",
+    "register",
+    "vtm",
+    "auto",
+    "info",
+    "killmongo",
+    "plotter",
 ]

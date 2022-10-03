@@ -105,9 +105,7 @@ def tx(ax, st, i, j, color):
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser(
-        "plot", parents=parents
-    )
+    subparser = subparsers.add_parser("plot", parents=parents)
     subparser.add_argument("--csv", action="store_true", default=False)
     subparser.add_argument(
         "--dirs",
@@ -151,12 +149,12 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="show baseline at a certain scale",
     )
-    #parsed_args, unparsed_args = parser.parse_known_args()
-    #return parsed_args, unparsed_args
+    # parsed_args, unparsed_args = parser.parse_known_args()
+    # return parsed_args, unparsed_args
 
 
 def main(p):
-    parsed=p
+    parsed = p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"
     dirs = parsed.dirs.split(",")

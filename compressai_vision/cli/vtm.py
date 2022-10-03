@@ -143,6 +143,7 @@ def add_subparser(subparsers, parents=[]):
         help="vtm: report if bitstream files are missing",
     )
 
+
 def main(p):
     import cv2
 

@@ -37,9 +37,7 @@ import uuid
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser(
-        "detectron2-eval", parents=parents
-    )
+    subparser = subparsers.add_parser("detectron2-eval", parents=parents)
     subparser.add_argument(
         "--dataset-name",
         action="store",
@@ -139,7 +137,7 @@ def add_subparser(subparsers, parents=[]):
         default=100,
         help="image scaling as per VCM working group docs",
     )
-    
+
     subparser.add_argument(
         "--ffmpeg",
         action="store",
@@ -172,7 +170,7 @@ def add_subparser(subparsers, parents=[]):
         help="Print progress this often",
     )
     return subparser
-    
+
 
 def main(p):  # noqa: C901
     # fiftyone
@@ -278,9 +276,7 @@ def main(p):  # noqa: C901
         import importlib.util
 
         try:
-            spec = importlib.util.spec_from_file_location(
-                "module", os.path.join(p.compression_model_path, path)
-            )
+            spec = importlib.util.spec_from_file_location("module", path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         except Exception as e:
@@ -298,6 +294,7 @@ def main(p):  # noqa: C901
             compression_model = (
                 module.getModel
             )  # a function that returns a model instance or just a class
+            print("loaded custom model.py")
 
     elif p.vtm:  # setup VTM
         if p.vtm_dir is None:
@@ -412,7 +409,8 @@ def main(p):  # noqa: C901
     if p.compressai_model_name is not None:
         print("Using compressai model :", p.compressai_model_name)
     elif p.compression_model_path is not None:
-        print("Using custom mode from :", p.compression_model_path)
+        print("Using custom model.py from")
+        print("                       :", p.compression_model_path)
     elif p.vtm:
         print("Using VTM               ")
         if p.vtm_cache:
@@ -500,7 +498,7 @@ def main(p):  # noqa: C901
                         compression_model(quality=i, pretrained=True).eval().to(device)
                     )
                     # e.g. compressai.zoo.bmshj2018_factorized
-                    # or a custom model form a file
+                    # or a custom model from a file
                 else:  # load a checkpoint
                     net = compression_model(quality=i)
                     try:

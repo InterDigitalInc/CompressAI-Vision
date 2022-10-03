@@ -31,6 +31,7 @@
 # because of the continuous inconsistencies between fiftyone and the stuff written into
 # mongodb, we'll do this:
 from importlib.metadata import version
-FO_VERSION="0.16.6"
+
+FO_VERSION = "0.16.6"
 assert version("fiftyone") == FO_VERSION, "you need fiftyone version " + FO_VERSION
 # ..now you can't write into the mongodb with different fiftyone version! (hopefully!)

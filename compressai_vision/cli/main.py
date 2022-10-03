@@ -37,26 +37,27 @@ from compressai_vision.tools import getDataFile, quickLog
 from . import *
 
 COMMANDS = {
-    "clean" : clean.main,
-    "convert-mpeg-to-oiv6" : convert_mpeg_to_oiv6.main,
-    "deregister" : deregister.main,
-    "detectron2-eval" : detectron2_eval.main,
-    "download" : download.main,
-    "dummy" : dummy.main,
-    "list" : list_.main,
-    "load_eval" : load_eval.main,
-    "register" : register.main,
-    "vtm" : vtm.main,
-    "mpeg-vcm-auto-import" : auto.main,
-    "info" : info.main,
-    "mongo" : killmongo.main,
-    "plot" : plotter.main,
-    "manual" : None,
+    "clean": clean.main,
+    "convert-mpeg-to-oiv6": convert_mpeg_to_oiv6.main,
+    "deregister": deregister.main,
+    "detectron2-eval": detectron2_eval.main,
+    "download": download.main,
+    "dummy": dummy.main,
+    "list": list_.main,
+    "load_eval": load_eval.main,
+    "register": register.main,
+    "vtm": vtm.main,
+    "mpeg-vcm-auto-import": auto.main,
+    "info": info.main,
+    "mongo": killmongo.main,
+    "plot": plotter.main,
+    "manual": None,
 }
 
-coms=""
+coms = ""
 for key in COMMANDS:
-    coms+=key+","
+    coms += key + ","
+
 
 def setup_parser():
     common_parser = argparse.ArgumentParser(add_help=False)
@@ -68,13 +69,13 @@ def setup_parser():
     )
 
     parser = argparse.ArgumentParser(
-        description="Includes several subcommands.  For full manual, type compressai-vision manual", 
+        description="Includes several subcommands.  For full manual, type compressai-vision manual",
         add_help=True,
     )
     subparsers = parser.add_subparsers(help="select command", dest="command")
 
     # MANUAL SUBCOMMAND:
-    manual_parser=subparsers.add_parser("manual")
+    manual_parser = subparsers.add_parser("manual")
     """
     manual_parser.add_argument(
         "command", type=str,
@@ -113,7 +114,7 @@ def main():
     # assert args.command in COMMANDS.keys(), "unknown command"
     if args.command not in COMMANDS.keys():
         print("invalid command", args.command)
-        print("subcommands: "+coms)
+        print("subcommands: " + coms)
         sys.exit(2)
 
     if args.command == "manual":
@@ -128,8 +129,9 @@ def main():
     quickLog("CompressAIEncoderDecoder", loglev)
     quickLog("VTMEncoderDecoder", loglev)
 
-    func=COMMANDS[args.command]
-    func(args) # pass cli args to the function in question
+    func = COMMANDS[args.command]
+    func(args)  # pass cli args to the function in question
+
 
 if __name__ == "__main__":
     main()

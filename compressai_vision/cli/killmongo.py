@@ -54,7 +54,9 @@ import shutil
 def killer():
     print("trying to kill local mongo processes")
     os.system("killall -9 mongod")
-    print("killed what could.  If you got 'Operation not permitted', you have mongod running as a systemd daemon (use systemctl to shut down)")
+    print(
+        "killed what could.  If you got 'Operation not permitted', you have mongod running as a systemd daemon (use systemctl to shut down)"
+    )
 
 
 def stopMongo():
@@ -74,7 +76,7 @@ def clearMongo():
     input()
     shutil.rmtree(dirname)
     try:
-        adr=os.environ["FIFTYONE_DATABASE_URI"]
+        adr = os.environ["FIFTYONE_DATABASE_URI"]
     except KeyError:
         pass
     else:
@@ -82,23 +84,22 @@ def clearMongo():
         print("Wiping out fiftyone data from there. PRESS ENTER TO CONTINUE")
         input()
         import mongoengine
-        conn=mongoengine.connect(host=adr)
+
+        conn = mongoengine.connect(host=adr)
         conn.drop_database("fiftyone")
         conn.close()
     print("have a nice day!")
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser(
-        "mongo", parents=parents
+    subparser = subparsers.add_parser("mongo", parents=parents)
+    subsubparsers = subparser.add_subparsers(
+        help="select subcommand (stop or clear)", dest="subcommand"
     )
-    subsubparsers = subparser.add_subparsers(help="select subcommand (stop or clear)", dest="subcommand")
     subsubparsers.add_parser(
         "stop", description="stop local mongodb server and clean lockfiles"
     )
-    subsubparsers.add_parser(
-        "clear", description="remove the local mongodb database"
-    )
+    subsubparsers.add_parser("clear", description="remove the local mongodb database")
 
 
 def main(p):

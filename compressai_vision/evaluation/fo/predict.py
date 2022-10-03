@@ -30,6 +30,7 @@
 import math
 import os
 
+import traceback
 import cv2
 
 from detectron2.data import MetadataCatalog
@@ -107,9 +108,15 @@ def annexPredictions(
         if encoder_decoder is not None:
             # before using a detector, crunch through
             # encoder/decoder
-            nbits, im_ = encoder_decoder.BGR(
-                im, tag=tag
-            )  # include a tag for cases where EncoderDecoder uses caching
+            try:
+                nbits, im_ = encoder_decoder.BGR(
+                    im, tag=tag
+                )  # include a tag for cases where EncoderDecoder uses caching
+            except Exception as e:
+                print("EncoderDecoder failed with '" + str(e) + "'")
+                print("Traceback:")
+                traceback.print_exc()
+                return -1
             if nbits < 0:
                 # there's something wrong with the encoder/decoder process
                 # say, corrupt data from the VTMEncode bitstream etc.
@@ -122,7 +129,10 @@ def annexPredictions(
             # NOTE: use tranformed image im_
             npix_sum += im_.shape[0] * im_.shape[1]
             nbits_sum += nbits
-            res = predictor(im_)
+        else:
+            im_ = im
+
+        res = predictor(im_)
 
         predictions = detectron251(
             res,
