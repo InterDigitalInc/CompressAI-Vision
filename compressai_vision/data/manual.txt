@@ -98,6 +98,8 @@ commands & parameters:
                             COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
         --eval-method       Evaluation method/protocol for mAP calculations: 
                             open-images or coco.  Default: open-images.
+        --gt-field          Name of the ground truth field in the dataset.
+                            Default: detections
         --output            outputfile, default: compressai-vision.json
 
         compression models:
