@@ -215,14 +215,14 @@ Let’s take a look where fiftyone downloaded the files
             ├── hierarchy.json
             ├── image_ids.csv
             └── segmentation_classes.csv
-
+    
     5 directories, 10 files
 
 
 .. code:: ipython3
 
     ## if you'd like to remove it, do this:
-    ## CAREFULL
+    ## CAREFULL 
     # fo.delete_dataset("open-images-v6-validation")
 
 visualize the dataset

@@ -42,9 +42,17 @@ def add_subparser(subparsers, parents=[]):
         "--dataset-name",
         action="store",
         type=str,
-        required=False,
+        required=True,
         default=None,
         help="name of the dataset",
+    )
+    subparser.add_argument(
+        "--gt-field",
+        action="store",
+        type=str,
+        required=False,
+        default="detections",
+        help="name of the ground truth field in the dataset.  Default: detections",
     )
     subparser.add_argument(
         "--model",
@@ -168,6 +176,14 @@ def add_subparser(subparsers, parents=[]):
         required=False,
         default=1,
         help="Print progress this often",
+    )
+    subparser.add_argument(
+        "--eval-method",
+        action="store",
+        type=str,
+        required=False,
+        default="open-images",
+        help="Evaluation method/protocol: open-images or coco.  Default: open-images",
     )
     return subparser
 
@@ -396,6 +412,10 @@ def main(p):  # noqa: C901
         username=username, tmp_name0=tmp_name0
     )
 
+    # eval_method="open-images" # could be changeable in the future..
+    # eval_method="coco"
+    eval_method=p.eval_method
+    
     print()
     print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
@@ -423,7 +443,20 @@ def main(p):  # noqa: C901
         print("WARN: using checkpoint :", p.compression_model_checkpoint)
     if qpars is not None:
         print("Quality parameters     :", qpars)
-    print("Eval. datafield name   :", predictor_field)
+    print("Ground truth data field name")
+    print("                       :", p.gt_field)
+    print("Eval. results will be saved to datafield")
+    print("                       :", predictor_field)
+    print("Evaluation protocol    :", eval_method)
+
+
+    dataset_ = fo.load_dataset(p.dataset_name)
+    if dataset_.get_field(p.gt_field) is None:
+        print("FATAL: your dataset does not have requested field '"+p.gt_field+"'")
+        print("Dataset info:")
+        print(dataset_)
+        return
+
     # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
@@ -431,7 +464,7 @@ def main(p):  # noqa: C901
         p.progress = 0
     print("Print progress         :", p.progress)
     print("Output file            :", p.output)
-    classes = dataset.distinct("detections.detections.label")
+    classes = dataset.distinct("%s.detections.label" % (p.gt_field))
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
     detectron_classes.sort()
@@ -446,6 +479,7 @@ def main(p):  # noqa: C901
     # save metadata about the run into the json file
     metadata = {
         "dataset": p.dataset_name,
+        "gt_field": p.gt_field,
         "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
@@ -465,6 +499,20 @@ def main(p):  # noqa: C901
     dataset = dataset.clone(tmp_name)
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
+
+    # parameters for dataset.evaluate_detections
+    eval_args={
+        "gt_field": p.gt_field,
+        "method": eval_method,
+        "compute_mAP":True
+    }
+    if eval_method == "open-images":
+        if dataset.get_field("positive_labels"):
+            eval_args["pos_label_field"] = "positive_labels"
+        if dataset.get_field("negative_labels"):
+            eval_args["neg_label_field"] = "negative_labels"
+        eval_args["expand_pred_hierarchy"] = False
+        eval_args["expand_gt_hierarchy"] = False
 
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
@@ -530,6 +578,7 @@ def main(p):  # noqa: C901
                 predictor=predictor,
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
+                gt_field=p.gt_field,
                 predictor_field=predictor_field,
                 use_pb=p.progressbar,
                 use_print=p.progress,
@@ -547,12 +596,13 @@ def main(p):  # noqa: C901
             # print("evaluating dataset", dataset.name)
             res = dataset.evaluate_detections(
                 predictor_field,
-                gt_field="detections",
-                method="open-images",
-                pos_label_field="positive_labels",
-                neg_label_field="negative_labels",
-                expand_pred_hierarchy=False,
-                expand_gt_hierarchy=False,
+                **eval_args
+                #gt_field=p.gt_field,
+                #method="open-images",
+                #pos_label_field="positive_labels",
+                #neg_label_field="negative_labels",
+                #expand_pred_hierarchy=False,
+                #expand_gt_hierarchy=False,
             )
             xs.append(bpp)
             ys.append(res.mAP())
@@ -562,19 +612,22 @@ def main(p):  # noqa: C901
         bpp = annexPredictions(
             predictor=predictor,
             fo_dataset=dataset,
+            gt_field=p.gt_field,
             predictor_field=predictor_field,
             use_pb=p.progressbar,
             use_print=p.progress,
         )
         res = dataset.evaluate_detections(
             predictor_field,
-            gt_field="detections",
-            method="open-images",
-            pos_label_field="positive_labels",
-            neg_label_field="negative_labels",
-            expand_pred_hierarchy=False,
-            expand_gt_hierarchy=False,
+            **eval_args
+            #gt_field=p.gt_field,
+            #method="open-images",
+            #pos_label_field="positive_labels",
+            #neg_label_field="negative_labels",
+            #expand_pred_hierarchy=False,
+            #expand_gt_hierarchy=False,
         )
+        # print(res)
         xs.append(bpp)
         ys.append(res.mAP())
         maps.append(per_class(res))

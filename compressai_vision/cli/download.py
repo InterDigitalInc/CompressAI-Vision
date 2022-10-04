@@ -88,7 +88,7 @@ def main(p):
     print()
     if p.lists is None:
         print(
-            "WARNING: downloading ALL images.  You should use the --lists option instead."
+            "WARNING: downloading ALL images.  You might want to use the --lists option to download only certain images"
         )
         n_images = "?"
         image_ids = None

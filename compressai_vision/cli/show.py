@@ -27,55 +27,28 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""cli list functionality
 """
-# importing this takes quite a while!
-# ..not anymore since import fiftyone is inside the function
-# print("cli: import")
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-from compressai_vision.cli.deregister import main as deregister
-from compressai_vision.cli.detectron2_eval import main as detectron2_eval
-from compressai_vision.cli.download import main as download
-from compressai_vision.cli.dummy import main as dummy
-from compressai_vision.cli.list import main as list
-from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.register import main as register
-from compressai_vision.cli.vtm import main as vtm
+import os
 
-# print("cli: import end")
-"""
-from . import (
-    clean,
-    convert_mpeg_to_oiv6,
-    deregister,
-    detectron2_eval,
-    download,
-    dummy,
-    list_,
-    load_eval,
-    register,
-    vtm,
-    auto,
-    info,
-    killmongo,
-    plotter,
-    show
-)
 
-__all__ = [
-    "clean",
-    "convert_mpeg_to_oiv6",
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "dummy",
-    "list_",
-    "load_eval",
-    "register",
-    "vtm",
-    "auto",
-    "info",
-    "killmongo",
-    "plotter",
-    "show"
-]
+def add_subparser(subparsers, parents=[]):
+    subparser = subparsers.add_parser("show", parents=parents)
+    subparser.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+
+
+def main(p):
+    # fiftyone
+    print("importing fiftyone")
+    import fiftyone as fo
+    print("fiftyone imported")
+    print()
+    dataset = fo.load_dataset(p.dataset_name)
+    print(dataset)

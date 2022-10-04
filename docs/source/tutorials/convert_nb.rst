@@ -65,7 +65,7 @@ into open-images-v6 folder:
             ├── hierarchy.json
             ├── image_ids.csv
             └── segmentation_classes.csv
-
+    
     5 directories, 10 files
 
 
@@ -88,11 +88,11 @@ are:
     ## TODO: DEFINE YOUR PARTICULAR PATHS
     path_to_mpeg_vcm_files="/home/sampsa/silo/interdigital/siloai-playground/sampsa/mpeg_vcm/data5K"
     path_to_images=os.path.join(fodir,"open-images-v6/validation/data")
-
+    
     list_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_input_5k.lst")
     bbox_csv_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_5k_bbox.csv")
     validation_csv_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_labels_5k.csv")
-
+    
     assert(os.path.exists(bbox_csv_file)), "can't find bbox file"
     assert(os.path.exists(validation_csv_file)), "can't find labels file"
     assert(os.path.exists(path_to_images)), "can't find image directory"
@@ -135,7 +135,7 @@ let’s see what we got:
         ├── attributes.csv
         ├── classes.csv
         └── image_ids.csv
-
+    
     3 directories, 5 files
 
 
@@ -171,7 +171,7 @@ formatted dataset into fiftyone:
 
 .. parsed-literal::
 
-     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]
+     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]      
 
 
 .. code:: ipython3

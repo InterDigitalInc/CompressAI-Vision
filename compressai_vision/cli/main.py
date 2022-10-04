@@ -51,6 +51,7 @@ COMMANDS = {
     "info": info.main,
     "mongo": killmongo.main,
     "plot": plotter.main,
+    "show": show.main,
     "manual": None,
 }
 
@@ -89,6 +90,7 @@ def setup_parser():
     download.add_subparser(subparsers, parents=[common_parser])
     dummy.add_subparser(subparsers, parents=[common_parser])
     list_.add_subparser(subparsers, parents=[common_parser])
+    show.add_subparser(subparsers, parents=[common_parser])
     register.add_subparser(subparsers, parents=[common_parser])
     vtm.add_subparser(subparsers, parents=[common_parser])
     # AUTO IMPORT:

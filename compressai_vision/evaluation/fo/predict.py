@@ -44,7 +44,7 @@ from compressai_vision.evaluation.pipeline.base import EncoderDecoder
 def annexPredictions(
     predictor=None,
     fo_dataset: Dataset = None,
-    detection_field: str = "detections",
+    gt_field: str = "detections",
     predictor_field: str = "detectron-predictions",
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
     use_pb: bool = False,  # progressbar.  captures stdion
@@ -54,7 +54,7 @@ def annexPredictions(
 
     :param predictor: A Detectron2 predictor
     :param fo_dataset: Fiftyone dataset
-    :param detection_field: Which dataset member to use for ground truths.  Default:    "detections"
+    :param gt_field: Which dataset member to use for ground truths.  Default: "detections"
     :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
     :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
     :param use_pb: Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.
@@ -77,14 +77,20 @@ def annexPredictions(
         )
     """
     try:
-        _ = findLabels(fo_dataset, detection_field=detection_field)
+        _ = findLabels(fo_dataset, detection_field=gt_field)
     except ValueError:
         print(
-            "your ground truths suck: samples have no member",
-            detection_field,
-            "will set allowed_labels to empty list",
+            "your ground truths suck: samples have no member '",
+            gt_field,
+            "' will set allowed_labels to empty list",
         )
         # allowed_labels = []
+
+    # use open image ids if avail
+    if fo_dataset.get_field("open_images_id"):
+        id_field_name="open_images_id"
+    else:
+        id_field_name="id"
 
     npix_sum = 0
     nbits_sum = 0
@@ -101,10 +107,8 @@ def annexPredictions(
             print("FATAL: could not read the image file '" + path + "'")
             return -1
         # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-        tag = (
-            sample.open_images_id
-        )  # TODO: if there is no open_images_id, then use the normal id?
-        # print(tag)
+        # if open_images_id is avail, then use it, otherwise use normal id
+        tag=sample[id_field_name]
         if encoder_decoder is not None:
             # before using a detector, crunch through
             # encoder/decoder

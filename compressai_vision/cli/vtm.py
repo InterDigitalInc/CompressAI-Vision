@@ -127,7 +127,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="vtm: a list of open_image_ids to pick from the dataset/slice",
+        help="vtm: a list of ids to pick from the dataset/slice",
     )
     subparser.add_argument(
         "--keep",
@@ -235,11 +235,17 @@ def main(p):
     # if p.d_list is not None:
     #    print("WARNING: using only certain images from the dataset/slice")
 
+    # use open image ids if avail
+    if dataset.get_field("open_images_id"):
+        id_field_name="open_images_id"
+    else:
+        id_field_name="id"
+
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
         from fiftyone import ViewField as F
 
-        dataset = dataset.match(F("open_images_id").contains_str(lis))
+        dataset = dataset.match(F("id_field_name").contains_str(lis))
 
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
@@ -255,7 +261,7 @@ def main(p):
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
     if p.tags is not None:
-        print("WARNING: Picking samples, based on open_images_id field")
+        print("WARNING: Picking samples, based on",id_field_name,"field")
     print("Number of samples      :", len(dataset))
     print("Progressbar            :", p.progressbar)
     print("Output file            :", p.output)
@@ -321,22 +327,20 @@ def main(p):
             path = sample.filepath
             im0 = cv2.imread(path)
             # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
-            tag = (
-                sample.open_images_id
-            )  # TODO: if there is no open_images_id, then use the normal id?
+            tag = sample[id_field_name]
             # print(tag)
             nbits, im = enc_dec.BGR(im0, tag=tag)
             if nbits < 0:
                 if p.check:
                     print(
-                        "WARNING: Bitstream missing for image id={id}, openImageId={tag}, path={path}".format(
+                        "WARNING: Bitstream missing for image id={id}, tag={tag}, path={path}".format(
                             id=sample.id, tag=tag, path=path
                         )
                     )
                     continue
                 # enc_dec.BGR tried to use the existing bitstream file but failed to decode it
                 print(
-                    "ERROR: Corrupt data for image id={id}, openImageId={tag}, path={path}".format(
+                    "ERROR: Corrupt data for image id={id}, tag={tag}, path={path}".format(
                         id=sample.id, tag=tag, path=path
                     )
                 )
@@ -346,7 +350,7 @@ def main(p):
                 nbits, im = enc_dec.BGR(im0, tag=tag)
                 if nbits < 0:
                     print(
-                        "ERROR: DEFINITELY Corrupt data for image id={id}, openImageId={tag}, path={path} --> CHECK MANUALLY!".format(
+                        "ERROR: DEFINITELY Corrupt data for image id={id}, tag={tag}, path={path} --> CHECK MANUALLY!".format(
                             id=sample.id, tag=tag, path=path
                         )
                     )

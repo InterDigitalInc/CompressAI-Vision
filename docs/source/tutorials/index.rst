@@ -1,6 +1,15 @@
+CLI Tutorial
+============
 
-Tutorials
-=========
+.. toctree::
+   :maxdepth: 2
+   :caption: CLI HOWTO
+
+   cli_tutorial_1
+
+
+Library Tutorial
+================
 
 In order to test your encoder's performance against the official MPEG/VCM working group input files,
 you need first to convert the input files into a standard/recognized format.  After this, you can use them with any standard tool.
@@ -18,7 +27,7 @@ Please follow rigorously the steps (1)-(4) in the tutorial list below.
 
 .. toctree::
    :maxdepth: 2
-   :caption: HOWTO
+   :caption: LIB HOWTO
 
    download
    convert
