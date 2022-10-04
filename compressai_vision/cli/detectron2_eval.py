@@ -34,7 +34,7 @@ import datetime
 import json
 import os
 import uuid
-
+from pathlib import Path
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents)
@@ -70,7 +70,7 @@ def add_subparser(subparsers, parents=[]):
         default="compressai-vision.json",
         help="outputfile, default: compressai-vision.json",
     )
-    """TODO: not only oiv6 protocol, but coco etc. 
+    """TODO: not only oiv6 protocol, but coco etc.
     subparser.add_argument(
         "--proto",
         action="store",
@@ -100,9 +100,10 @@ def add_subparser(subparsers, parents=[]):
         "--compression-model-checkpoint",
         action="store",
         type=str,
+        nargs="*",
         required=False,
         default=None,
-        help="path to a compression model checkpoint",
+        help="path to a compression model checkpoint(s)",
     )
     subparser.add_argument("--vtm", action="store_true", default=False)
     subparser.add_argument(
@@ -189,6 +190,19 @@ def add_subparser(subparsers, parents=[]):
 
 
 def main(p):  # noqa: C901
+
+    # check that only one is defined
+    defined_codec = ""
+    for codec in [p.compressai_model_name, p.vtm, p.compression_model_path]:
+        if codec:
+            if defined_codec:  # second match!
+                raise AssertionError(
+                    "please define only one of the following: compressai_model_name, vtm or compression_model_path"
+                )
+            defined_codec = codec
+    assert p.dataset_name is not None, "please provide dataset name"
+    assert p.model is not None, "provide Detectron2 model name"
+
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
@@ -209,7 +223,7 @@ def main(p):  # noqa: C901
     )
     from compressai_vision.tools import getDataFile
 
-    assert p.dataset_name is not None, "please provide dataset name"
+
     try:
         dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
@@ -233,7 +247,7 @@ def main(p):  # noqa: C901
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
-    assert p.model is not None, "provide Detectron2 model name"
+
 
     if (
         (p.compressai_model_name is None)
@@ -247,17 +261,9 @@ def main(p):  # noqa: C901
             qpars is None
         ), "you have provided quality pars but not a (de)compress model"
 
-    # check that only one is defined
-    defined = False
-    for scheme in [p.compressai_model_name, p.vtm, p.compression_model_path]:
-        if scheme:
-            if defined:  # second match!
-                raise AssertionError(
-                    "please define only one of the following: compressai_model_name, vtm or compression_model_path"
-                )
-            defined = True
 
-    if defined:
+
+    if defined_codec != p.compression_model_path:
         # check quality parameter list
         assert p.qpars is not None, "need to provide integer quality parameters"
         try:
@@ -265,16 +271,14 @@ def main(p):  # noqa: C901
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
-        # check checkpoint file validity if defined
-        if p.compression_model_checkpoint is not None:
-            assert os.path.isfile(
-                p.compression_model_checkpoint
-            ), "can't find defined checkpoint file"
+    # check checkpoint file validity if defined
+    # if p.compression_model_checkpoint is not None:
+    #     assert os.path.isfile(
+    #         p.compression_model_checkpoint
+    #     ), "can't find defined checkpoint file"
 
     else:
         qpars = None
-
-    # *** CHOOSE COMPRESSION SCHEME ***
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         import compressai.zoo
@@ -287,30 +291,40 @@ def main(p):  # noqa: C901
     elif (
         p.compression_model_path is not None
     ):  # compression from a custcom compression model
-        path = os.path.join(p.compression_model_path, "model.py")
-        assert os.path.isfile(path), "your model directory is missing model.py"
-        import importlib.util
+    # TODO (fracape) why not asking for the full file path?
+        model_file = Path(p.compression_model_path) / "model.py"
+        if model_file.is_file():
+            import importlib.util
 
-        try:
-            spec = importlib.util.spec_from_file_location("module", path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-        except Exception as e:
-            print(
-                "loading model from directory",
-                p.compression_model_path,
-                "failed with",
-                e,
-            )
-            return
+            try:
+                spec = importlib.util.spec_from_file_location("module", model_file)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+            except Exception as e:
+                print(
+                    "loading model from directory",
+                    p.compression_model_path,
+                    "failed with",
+                    e,
+                )
+                return
+            else:
+                assert hasattr(
+                    module, "getModel"
+                ), "your module is missing getModel function"
+                compression_model = (
+                    module.getModel
+                )  # a function that returns a model instance or just a class
+                print("loaded custom model.py")
+            assert p.compression_model_checkpoint is not None
+            # for checkpoint_file in p.compression_model_checkpoint:
+            #     try:
+            #         _ = Path(checkpoint_file).resolve(strict=True)
+            #     except FileNotFoundError:
+            #         # doesn't exist
         else:
-            assert hasattr(
-                module, "getModel"
-            ), "your module is missing getModel function"
-            compression_model = (
-                module.getModel
-            )  # a function that returns a model instance or just a class
-            print("loaded custom model.py")
+            raise FileNotFoundError(f"No model.py in {p.compression_model_path}")
+
 
     elif p.vtm:  # setup VTM
         if p.vtm_dir is None:
@@ -517,6 +531,7 @@ def main(p):  # noqa: C901
     print("instantiating Detectron2 predictor")
     predictor = DefaultPredictor(cfg)
 
+    # bpp, mAP values, mAP breakdown per class
     def per_class(results_obj):
         """take fiftyone/openimagev6 results object & spit
         out mAP breakdown as per class
@@ -529,7 +544,12 @@ def main(p):  # noqa: C901
     xs = []
     ys = []
     maps = []
-    # bpp, mAP values, mAP breakdown per class
+
+    #if model checkpoints provided, loop over the checkpoints
+    if p.compression_model_checkpoint:
+        qpars=range(0,len(p.compression_model_checkpoint))
+
+    # qpars is not None == we perform compression before detectron2
     if qpars is not None:
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
@@ -548,12 +568,19 @@ def main(p):  # noqa: C901
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model from a file
                 else:  # load a checkpoint
-                    net = compression_model(quality=i)
+                    net = compression_model()
                     try:
-                        cp = torch.load(p.compression_model_checkpoint)
-                        # print(">>>", cp.keys())
-                        # net.load_state_dict(cp['state_dict']).eval().to(device)
-                        net.load_state_dict(cp).eval().to(device)
+                        checkpoint = torch.load(p.compression_model_checkpoint[i])
+                        # net.load_state_dict(cp).eval().to(device)
+                        if "network" in checkpoint:
+                            state_dict = checkpoint["network"]
+                        elif "state_dict" in checkpoint:
+                            state_dict = checkpoint["state_dict"]
+                        else:
+                            state_dict = checkpoint
+
+                        net.from_state_dict(state_dict).eval()
+
                     except Exception as e:
                         print("\nLoading checkpoint failed!\n")
                         raise e
