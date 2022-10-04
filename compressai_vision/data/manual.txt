@@ -47,9 +47,14 @@ commands & parameters:
 
     list                    list all datasets registered to fiftyone
 
+    show                    show info about the dataset
+
+        --dataset-name      dataset registered name
+    
+
     register                register image set to fiftyone from local dir
 
-        --dataset-name      database registered name
+        --dataset-name      dataset registered name
         --lists             lst files that define the subset of images to register
         --dir               source directory
         --type              fiftyone.types name.  Default: OpenImagesV6Dataset
@@ -68,15 +73,15 @@ commands & parameters:
 
         --dataset-name      name of the dataset, for example "open-image-v6-validation"
 
-    dummy                   create & register a dummy database with just the first sample
+    dummy                   create & register a dummy dataset with just the first sample
 
-        --dataset-name      name of the original database
-                            name of the new database will be appended with "-dummy"
+        --dataset-name      name of the original dataset
+                            name of the new dataset will be appended with "-dummy"
 
-    clean                   remove temporary databases.
+    clean                   remove temporary datasets.
                             detectron2-eval creates temporary clones of the dataset per each run.
                             These dataset are automatically cleaned up after detectron2_eval run.
-                            If your run crashed, the temporary database might be left in the database
+                            If your run crashed, the temporary dataset might be left in the database
                             (you can see them with the list command where they appear with the name
                             "detectron-run-*".)
 
@@ -87,10 +92,12 @@ commands & parameters:
                             WARNING/TODO : currently works only for detections
                             (not for segmentations)
 
-        --dataset-name      name of the fiftyone registered database
+        --dataset-name      name of the fiftyone registered dataset
         --model             name of the detectron2 model
                             for example:
                             COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+        --eval-method       Evaluation method/protocol for mAP calculations: 
+                            open-images or coco.  Default: open-images.
         --output            outputfile, default: compressai-vision.json
 
         compression models:
@@ -156,7 +163,7 @@ commands & parameters:
                         The following options are same as in "detectron2_eval" command:
 
 
-        --dataset-name      name of the fiftyone registered database
+        --dataset-name      name of the fiftyone registered dataset
         --output            outputfile, default: compressai-vision.json
 
         --vtm_dir           specify path to directory "VVCSoftware_VTM/bin", i.e. to the

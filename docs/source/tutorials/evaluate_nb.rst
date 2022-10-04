@@ -17,7 +17,7 @@
     import detectron2
     from detectron2.utils.logger import setup_logger
     setup_logger()
-
+    
     # import some common detectron2 utilities
     from detectron2 import model_zoo
     from detectron2.engine import DefaultPredictor
@@ -58,7 +58,7 @@
     ## look here:
     ## https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md#faster-r-cnn
     ## for the line that says X101-FPN --> box AP is 43
-
+    
     ## MODEL B
     # model_name="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
 
@@ -206,7 +206,7 @@ parameters:
 .. code:: ipython3
 
     # params=[1] # debugging
-    params=[1,2,3,4,5,6,7,8];
+    params=[1,2,3,4,5,6,7,8]; 
 
 Detectron prediction results are saved during the run into the fiftyone
 (mongodb) database. Let’s define a unique name for the sample field
@@ -252,7 +252,7 @@ where the detectron results are saved:
         maps.append(per_class(res))
         with open("out.json","w") as f:
             json.dump({
-                "bpp" : xs,
+                "bpp" : xs, 
                 "map" : ys,
                 "map_per_class" : maps
                 }, f)
