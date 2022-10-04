@@ -103,7 +103,7 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
-        "mpeg-vcm-auto-import", parents=parents, help="kokkelis", description=help_st
+        "mpeg-vcm-auto-import", parents=parents, help="auto-imports mpeg-vcm working group files, downloads necessary images from the internet, imports them to fiftyone, etc.", description=help_st
     )
     # NOTE: help is something show without using this command
     # descriptions is shown when the command is used
@@ -123,6 +123,42 @@ def add_subparser(subparsers, parents=[]):
         action="store_true",
         default=True,
         help="Use mpeg-vcm files bundled with compressai-vision",
+    )
+    subparser = subparsers.add_parser(
+        "manual", parents=parents, help="shows complete manual", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "info", parents=parents, help="shows info about your system", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "mongo", parents=parents, help="mongod management", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "download", parents=parents, help="download an image set and register it to fiftyone.", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "list", parents=parents, help="list all datasets registered to fiftyone", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "register", parents=parents, help="register image set to fiftyone from local dir", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "deregister", parents=parents, help="de-register image set from fiftyone", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "dummy", parents=parents, help="create & register a dummy database with just the first sample", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "clean", parents=parents, help="remove temporary databases.", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "detectron2-eval", parents=parents, help="evaluate model with detectron2 using OpenImageV6", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "vtm", parents=parents, help="generate bitstream with the vtm video encoder", description=help_st
+    )
+    subparser = subparsers.add_parser(
+        "convert_mpeg_to_oiv6", parents=parents, help="convert the files specified in MPEG/VCM CTC into proper OpenImageV6 format & directory structure", description=help_st
     )
 
 
