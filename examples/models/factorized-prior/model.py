@@ -72,7 +72,7 @@ def find_named_buffer(module, query):
 
 
 
-def update_registered_buffer(
+def _update_registered_buffer(
     module,
     buffer_name,
     state_dict_key,
@@ -99,6 +99,43 @@ def update_registered_buffer(
     else:
         raise ValueError(f'Invalid policy "{policy}"')
 
+
+def update_registered_buffers(
+    module,
+    module_name,
+    buffer_names,
+    state_dict,
+    policy="resize_if_empty",
+    dtype=torch.int,
+):
+    """Update the registered buffers in a module according to the tensors sized
+    in a state_dict.
+
+    (There's no way in torch to directly load a buffer with a dynamic size)
+
+    Args:
+        module (nn.Module): the module
+        module_name (str): module name in the state dict
+        buffer_names (list(str)): list of the buffer names to resize in the module
+        state_dict (dict): the state dict
+        policy (str): Update policy, choose from
+            ('resize_if_empty', 'resize', 'register')
+        dtype (dtype): Type of buffer to be registered (when policy is 'register')
+    """
+    valid_buffer_names = [n for n, _ in module.named_buffers()]
+    for buffer_name in buffer_names:
+        if buffer_name not in valid_buffer_names:
+            raise ValueError(f'Invalid buffer name "{buffer_name}"')
+
+    for buffer_name in buffer_names:
+        _update_registered_buffer(
+            module,
+            buffer_name,
+            f"{module_name}.{buffer_name}",
+            state_dict,
+            policy,
+            dtype,
+        )
 
 
 class CompressionModel(nn.Module):
@@ -155,7 +192,7 @@ class CompressionModel(nn.Module):
 
     def load_state_dict(self, state_dict):
         # Dynamically update the entropy bottleneck buffers related to the CDFs
-        update_registered_buffer(
+        update_registered_buffers(
             self.entropy_bottleneck,
             "entropy_bottleneck",
             ["_quantized_cdf", "_offset", "_cdf_length"],
