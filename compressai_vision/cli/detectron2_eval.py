@@ -37,7 +37,8 @@ import uuid
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("detectron2-eval", parents=parents)
+    subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
+    help="evaluate model with detectron2 using OpenImageV6")
     subparser.add_argument(
         "--dataset-name",
         action="store",
@@ -68,7 +69,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default="compressai-vision.json",
-        help="outputfile, default: compressai-vision.json",
+        help="outputfile. Default: compressai-vision.json",
     )
     """TODO: not only oiv6 protocol, but coco etc. 
     subparser.add_argument(
@@ -86,7 +87,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="name of an existing model in compressai (e.g. 'cheng2020-attn')",
+        help="name of an existing model in compressai-zoo. Example: 'cheng2020-attn' ",
     )
     subparser.add_argument(
         "--compression-model-path",
@@ -119,7 +120,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="vtm config file",
+        help="vtm config file. Example: 'encoder_intra_vtm.cfg' ",
     )
     subparser.add_argument(
         "--vtm_cache",
@@ -135,7 +136,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="quality parameters for compressai model or vtm",
+        help="quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer 1-8. For VTM, it should be integer from 0-51.",
     )
     subparser.add_argument(
         "--scale",
@@ -143,7 +144,7 @@ def add_subparser(subparsers, parents=[]):
         type=int,
         required=False,
         default=100,
-        help="image scaling as per VCM working group docs",
+        help="image scaling as per VCM working group docs. Default: 100",
     )
 
     subparser.add_argument(
@@ -152,7 +153,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default="ffmpeg",
-        help="ffmpeg command",
+        help="path of ffmpeg executable. Default: ffmpeg",
     )
     subparser.add_argument(
         "--slice",
@@ -160,14 +161,14 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="use a dataset slice instead of the complete dataset",
+        help="use a dataset slice instead of the complete dataset. Example: 0:2 for the first two images",
     )
     # subparser.add_argument("--debug", action="store_true", default=False) # not here
     subparser.add_argument(
         "--progressbar",
         action="store_true",
         default=False,
-        help="show fancy progressbar",
+        help="show fancy progressbar. Default: False",
     )
     subparser.add_argument(
         "--progress",

@@ -31,7 +31,7 @@
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("deregister", parents=parents)
+    subparser = subparsers.add_parser("deregister", parents=parents, help="de-register image set from fiftyone")
     subparser.add_argument(
         "--dataset-name",
         action="store",

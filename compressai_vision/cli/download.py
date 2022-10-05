@@ -33,7 +33,7 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("download", parents=parents)
+    subparser = subparsers.add_parser("download", parents=parents, help="download an image set and register it to fiftyone.")
     subparser.add_argument(
         "--mock", action="store_true", default=False, help="mock tests"
     )
