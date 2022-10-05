@@ -306,11 +306,6 @@ def main(p):  # noqa: C901
         except Exception as e:
             print("problems with your quality parameter list")
             raise e
-    # check checkpoint file validity if defined
-    # if p.compression_model_checkpoint is not None:
-    #     assert os.path.isfile(
-    #         p.compression_model_checkpoint
-    #     ), "can't find defined checkpoint file"
 
     else:
         qpars = None
@@ -535,12 +530,11 @@ def main(p):  # noqa: C901
         "compressai model": p.compressai_model_name,
         "custom model": p.compression_model_path,
         "checkpoint": p.compression_model_checkpoint,
-        "vtm": p.vtm,
-        "vtm_cache": p.vtm_cache,
+        "codec": defined_codec,
         "qpars": qpars,
     }
     with open(p.output, "w") as f:
-        json.dump(metadata, f)
+        f.write(json.dumps(metadata, indent=2))
 
     # please see ../monkey.py for problems I encountered when cloning datasets
     # simultaneously with various multiprocesses/batch jobs
@@ -702,7 +696,7 @@ def main(p):  # noqa: C901
     metadata["map"] = ys
     metadata["map_per_class"] = maps
     with open(p.output, "w") as f:
-        json.dump(metadata, f)
+        f.write(json.dumps(metadata, indent=2))
 
     # remove the tmp database
     print("deleting tmp database", tmp_name)
