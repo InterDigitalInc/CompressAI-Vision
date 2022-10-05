@@ -288,7 +288,7 @@ def main(p):
         "qpars": qpars,
     }
     with open(p.output, "w") as f:
-        json.dump(metadata, f)
+        f.write(json.dumps(metadata, indent=2))
 
     xs = []
     for i in qpars:
