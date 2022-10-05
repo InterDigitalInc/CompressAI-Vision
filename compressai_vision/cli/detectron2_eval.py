@@ -35,6 +35,40 @@ import json
 import os
 import uuid
 from pathlib import Path
+from typing import Dict
+
+from torch import Tensor
+
+
+def rename_key(key: str) -> str:
+    """Rename state_dict key."""
+
+    # Deal with modules trained with DataParallel
+    if key.startswith("module."):
+        key = key[7:]
+
+    # ResidualBlockWithStride: 'downsample' -> 'skip'
+    if ".downsample." in key:
+        return key.replace("downsample", "skip")
+
+    # EntropyBottleneck: nn.ParameterList to nn.Parameters
+    if key.startswith("entropy_bottleneck."):
+        if key.startswith("entropy_bottleneck._biases."):
+            return f"entropy_bottleneck._bias{key[-1]}"
+
+        if key.startswith("entropy_bottleneck._matrices."):
+            return f"entropy_bottleneck._matrix{key[-1]}"
+
+        if key.startswith("entropy_bottleneck._factors."):
+            return f"entropy_bottleneck._factor{key[-1]}"
+
+    return key
+
+
+def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
+    """Convert state_dict keys."""
+    state_dict = {rename_key(k): v for k, v in state_dict.items()}
+    return state_dict
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents)
@@ -429,7 +463,7 @@ def main(p):  # noqa: C901
     # eval_method="open-images" # could be changeable in the future..
     # eval_method="coco"
     eval_method=p.eval_method
-    
+
     print()
     print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
@@ -567,11 +601,11 @@ def main(p):  # noqa: C901
                     )
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model from a file
-                else:  # load a checkpoint
+                else:  # load a checkpoint,
+                    # make sure we load just trained models and pre-trained/ updated entropy parameters
                     net = compression_model()
                     try:
                         checkpoint = torch.load(p.compression_model_checkpoint[i])
-                        # net.load_state_dict(cp).eval().to(device)
                         if "network" in checkpoint:
                             state_dict = checkpoint["network"]
                         elif "state_dict" in checkpoint:
@@ -579,8 +613,11 @@ def main(p):  # noqa: C901
                         else:
                             state_dict = checkpoint
 
-                        net.from_state_dict(state_dict).eval()
-
+                        state_dict = load_state_dict(state_dict)
+                        # For now, update is forced in case
+                        net = net.from_state_dict(state_dict)
+                        net.update(force=True)
+                        net = net.to(device).eval()
                     except Exception as e:
                         print("\nLoading checkpoint failed!\n")
                         raise e
