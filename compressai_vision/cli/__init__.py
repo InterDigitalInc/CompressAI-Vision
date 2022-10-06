@@ -45,21 +45,21 @@ from compressai_vision.cli.vtm import main as vtm
 # print("cli: import end")
 """
 from . import (
+    auto,
     clean,
     convert_mpeg_to_oiv6,
     deregister,
     detectron2_eval,
     download,
     dummy,
-    list_,
-    load_eval,
-    register,
-    vtm,
-    auto,
     info,
     killmongo,
+    list_,
+    load_eval,
     plotter,
-    show
+    register,
+    show,
+    vtm,
 )
 
 __all__ = [
@@ -77,5 +77,5 @@ __all__ = [
     "info",
     "killmongo",
     "plotter",
-    "show"
+    "show",
 ]

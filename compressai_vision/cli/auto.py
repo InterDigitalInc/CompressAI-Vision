@@ -31,8 +31,8 @@
 """
 import os
 import sys
-from compressai_vision.tools import getDataFile
 
+from compressai_vision.tools import getDataFile
 
 # define legit filenames.. there are inconsistencies here
 fname_list = [

@@ -48,6 +48,7 @@ def main(p):
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
+
     print("fiftyone imported")
     print()
     dataset = fo.load_dataset(p.dataset_name)

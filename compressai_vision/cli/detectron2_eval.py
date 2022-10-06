@@ -33,7 +33,9 @@ import copy
 import datetime
 import json
 import os
-import uuid
+
+# import uuid
+
 from pathlib import Path
 from typing import Dict
 
@@ -69,6 +71,7 @@ def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
     """Convert state_dict keys."""
     state_dict = {rename_key(k): v for k, v in state_dict.items()}
     return state_dict
+
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
@@ -258,7 +261,6 @@ def main(p):  # noqa: C901
     )
     from compressai_vision.tools import getDataFile
 
-
     try:
         dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
@@ -282,8 +284,6 @@ def main(p):  # noqa: C901
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
-
-
     if (
         (p.compressai_model_name is None)
         == p.vtm
@@ -296,8 +296,6 @@ def main(p):  # noqa: C901
             qpars is None
         ), "you have provided quality pars but not a (de)compress model"
 
-
-
     if defined_codec != p.compression_model_path:
         # check quality parameter list
         assert p.qpars is not None, "need to provide integer quality parameters"
@@ -308,7 +306,7 @@ def main(p):  # noqa: C901
             raise e
 
     else:
-        #if model checkpoints provided, loop over the checkpoints
+        # if model checkpoints provided, loop over the checkpoints
         qpars = p.compression_model_checkpoint
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
@@ -324,7 +322,7 @@ def main(p):  # noqa: C901
     elif (
         p.compression_model_path is not None
     ):  # compression from a custcom compression model
-    # TODO (fracape) why not asking for the full file path?
+        # TODO (fracape) why not asking for the full file path?
         model_file = Path(p.compression_model_path) / "model.py"
         if model_file.is_file():
             import importlib.util
@@ -357,7 +355,6 @@ def main(p):  # noqa: C901
             #         # doesn't exist
         else:
             raise FileNotFoundError(f"No model.py in {p.compression_model_path}")
-
 
     elif p.vtm:  # setup VTM
         if p.vtm_dir is None:
@@ -437,10 +434,10 @@ def main(p):  # noqa: C901
     model_meta = MetadataCatalog.get(model_dataset)
 
     predictor_field = "detectron-predictions"
-    ## instead, create a unique identifier for the field
-    ## in this run: this way parallel runs dont overwrite
-    ## each other's field
-    ## as the database is the same for each running instance/process
+    # instead, create a unique identifier for the field
+    # in this run: this way parallel runs dont overwrite
+    # each other's field
+    # as the database is the same for each running instance/process
     # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
     # predictor_field = "detectron-"+ui
     # predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
@@ -461,7 +458,7 @@ def main(p):  # noqa: C901
 
     # eval_method="open-images" # could be changeable in the future..
     # eval_method="coco"
-    eval_method=p.eval_method
+    eval_method = p.eval_method
 
     print()
     print("Using dataset          :", p.dataset_name)
@@ -496,10 +493,9 @@ def main(p):  # noqa: C901
     print("                       :", predictor_field)
     print("Evaluation protocol    :", eval_method)
 
-
     dataset_ = fo.load_dataset(p.dataset_name)
     if dataset_.get_field(p.gt_field) is None:
-        print("FATAL: your dataset does not have requested field '"+p.gt_field+"'")
+        print("FATAL: your dataset does not have requested field '" + p.gt_field + "'")
         print("Dataset info:")
         print(dataset_)
         return
@@ -544,11 +540,7 @@ def main(p):  # noqa: C901
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
 
     # parameters for dataset.evaluate_detections
-    eval_args={
-        "gt_field": p.gt_field,
-        "method": eval_method,
-        "compute_mAP":True
-    }
+    eval_args = {"gt_field": p.gt_field, "method": eval_method, "compute_mAP": True}
     if eval_method == "open-images":
         if dataset.get_field("positive_labels"):
             eval_args["pos_label_field"] = "positive_labels"
@@ -589,7 +581,9 @@ def main(p):  # noqa: C901
                     # e.g. "bmshj2018-factorized"
                     print("\nQUALITY PARAMETER: ", quality)
                     net = (
-                        compression_model(quality=quality, pretrained=True).eval().to(device)
+                        compression_model(quality=quality, pretrained=True)
+                        .eval()
+                        .to(device)
                     )
                     # or a custom model from a file
                 else:
@@ -653,12 +647,12 @@ def main(p):  # noqa: C901
             res = dataset.evaluate_detections(
                 predictor_field,
                 **eval_args
-                #gt_field=p.gt_field,
-                #method="open-images",
-                #pos_label_field="positive_labels",
-                #neg_label_field="negative_labels",
-                #expand_pred_hierarchy=False,
-                #expand_gt_hierarchy=False,
+                # gt_field=p.gt_field,
+                # method="open-images",
+                # pos_label_field="positive_labels",
+                # neg_label_field="negative_labels",
+                # expand_pred_hierarchy=False,
+                # expand_gt_hierarchy=False,
             )
             xs.append(bpp)
             ys.append(res.mAP())
@@ -676,12 +670,12 @@ def main(p):  # noqa: C901
         res = dataset.evaluate_detections(
             predictor_field,
             **eval_args
-            #gt_field=p.gt_field,
-            #method="open-images",
-            #pos_label_field="positive_labels",
-            #neg_label_field="negative_labels",
-            #expand_pred_hierarchy=False,
-            #expand_gt_hierarchy=False,
+            # gt_field=p.gt_field,
+            # method="open-images",
+            # pos_label_field="positive_labels",
+            # neg_label_field="negative_labels",
+            # expand_pred_hierarchy=False,
+            # expand_gt_hierarchy=False,
         )
         # print(res)
         xs.append(bpp)
