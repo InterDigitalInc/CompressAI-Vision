@@ -91,7 +91,7 @@ def clearMongo():
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("mongo", parents=parents)
+    subparser = subparsers.add_parser("mongo", parents=parents, help="mongod management")
     subsubparsers = subparser.add_subparsers(
         help="select subcommand (stop or clear)", dest="subcommand"
     )

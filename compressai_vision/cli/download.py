@@ -51,7 +51,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="comma-separated list of list files",
+        help="comma-separated list of list files. Example: detection_validation_input_5k.lst, segmentation_validation_input_5k.lst",
     )
     subparser.add_argument(
         "--split",
@@ -59,7 +59,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="database sub-name, say, 'train' or 'validation'",
+        help="database sub-name. Example: 'train' or 'validation'",
     )
     subparser.add_argument(
         "--dir",

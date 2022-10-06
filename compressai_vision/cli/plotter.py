@@ -105,7 +105,7 @@ def tx(ax, st, i, j, color):
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("plot", parents=parents)
+    subparser = subparsers.add_parser("plot", parents=parents, help="plot mAP-bpp curve")
     subparser.add_argument("--csv", action="store_true", default=False)
     subparser.add_argument(
         "--dirs",

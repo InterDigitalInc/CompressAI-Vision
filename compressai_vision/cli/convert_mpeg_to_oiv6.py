@@ -64,7 +64,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted image-level labels",
+        help="mpeg_vcm-formatted image-level labels. Example: detection_validation_labels_5k.csv",
     )
     subparser.add_argument(
         "--bbox",
@@ -72,7 +72,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted bbox data",
+        help="mpeg_vcm-formatted bbox data. Example: detection_validation_5k_bbox.csv",
     )
     subparser.add_argument(
         "--mask",
@@ -80,7 +80,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted segmask data",
+        help="mpeg_vcm-formatted segmask data. Example: segmentation_validation_masks_5k.csv",
     )
 
 

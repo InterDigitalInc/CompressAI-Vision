@@ -34,7 +34,7 @@ import sys
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("info", parents=parents)
+    subparser = subparsers.add_parser("info", parents=parents, help="shows info about your system")
 
 
 # compressai_vision

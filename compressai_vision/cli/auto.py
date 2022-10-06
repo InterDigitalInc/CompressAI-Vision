@@ -124,14 +124,14 @@ def add_subparser(subparsers, parents=[]):
         default=True,
         help="Use mpeg-vcm files bundled with compressai-vision",
     )
-    # subparser = subparsers.add_parser(
-    #     "manual", parents=parents, help="shows complete manual"
-    # )
+    subparser = subparsers.add_parser(
+        "manual", parents=parents, help="shows complete manual"
+    )
     # subparser = subparsers.add_parser(
     #     "info", parents=parents, help="shows info about your system", description=help_st
     # )
     # subparser = subparsers.add_parser(
-    #     "mongo", parents=parents, help="mongod management", description=help_st
+    #     "mongo", parents=parents, description=help_st
     # )
     # subparser = subparsers.add_parser(
     #     "download", parents=parents, help="download an image set and register it to fiftyone.", description=help_st
