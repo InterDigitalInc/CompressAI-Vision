@@ -237,6 +237,7 @@ def main(p):  # noqa: C901
                     "please define only one of the following: compressai_model_name, vtm or compression_model_path"
                 )
             defined_codec = codec
+
     assert p.dataset_name is not None, "please provide dataset name"
     assert p.model is not None, "provide Detectron2 model name"
 
@@ -283,6 +284,7 @@ def main(p):  # noqa: C901
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
+    compression = True
     if (
         (p.compressai_model_name is None)
         == p.vtm
@@ -565,8 +567,9 @@ def main(p):  # noqa: C901
     ys = []
     maps = []
 
-    # qpars is not None == we perform compression before detectron2
-    if qpars is not None:
+    if compression:
+        # we perform compression before detectron2
+
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
         # quickLog("CompressAIEncoderDecoder", loglev)
