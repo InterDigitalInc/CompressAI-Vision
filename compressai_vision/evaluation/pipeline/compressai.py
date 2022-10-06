@@ -69,8 +69,10 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # CompressAI model API:
         # compression:
         out_enc = self.net.compress(x)
+        bitstream = out_enc["strings"][0][0]  # compressed bitstream
         # decompression:
         out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
+        x_hat = out_dec["x_hat"] # reconstructed image
 
     """
 
@@ -195,7 +197,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # print("num_pixels", num_pixels)
         nbits = 8 * len(bitstream)  # BITS not BYTES
         nbitslist = [nbits]
-        x_hat = out_dec["x_hat"]
+        x_hat = out_dec["x_hat"] # reconstructed image
         return nbitslist, x_hat
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:
