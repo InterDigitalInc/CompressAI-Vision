@@ -307,7 +307,8 @@ def main(p):  # noqa: C901
             raise e
 
     else:
-        qpars = None
+        #if model checkpoints provided, loop over the checkpoints
+        qpars = p.compression_model_checkpoint
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         import compressai.zoo
@@ -483,7 +484,7 @@ def main(p):  # noqa: C901
     else:
         print("** Evaluation without Encoding/Decoding **")
     if p.compression_model_checkpoint:
-        print("WARN: using checkpoint :", p.compression_model_checkpoint)
+        print("WARN: using checkpoints")
     if qpars is not None:
         print("Quality parameters     :", qpars)
     print("Ground truth data field name")
@@ -526,9 +527,6 @@ def main(p):  # noqa: C901
         "tmp datasetname": tmp_name,
         "slice": p.slice,
         "model": model_name,
-        "compressai model": p.compressai_model_name,
-        "custom model": p.compression_model_path,
-        "checkpoint": p.compression_model_checkpoint,
         "codec": defined_codec,
         "qpars": qpars,
     }
@@ -573,25 +571,21 @@ def main(p):  # noqa: C901
     ys = []
     maps = []
 
-    #if model checkpoints provided, loop over the checkpoints
-    if p.compression_model_checkpoint:
-        qpars=range(0,len(p.compression_model_checkpoint))
-
     # qpars is not None == we perform compression before detectron2
     if qpars is not None:
         # loglev=logging.DEBUG # this now set in main
         # loglev = logging.INFO
         # quickLog("CompressAIEncoderDecoder", loglev)
         # quickLog("VTMEncoderDecoder", loglev)
-        for i in qpars:
-            print("\nQUALITY PARAMETER", i)
+        for quality in qpars:
+            print("\nQUALITY PARAMETER OR CHECKPOINT: ", quality)
             enc_dec = None  # default: no encoding/decoding
             if (
                 p.compressai_model_name or p.compression_model_path
             ):  # compressai model, either from the zoo or from a directory
                 if p.compression_model_checkpoint is None:
                     net = (
-                        compression_model(quality=i, pretrained=True).eval().to(device)
+                        compression_model(quality=quality, pretrained=True).eval().to(device)
                     )
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model from a file
@@ -599,7 +593,7 @@ def main(p):  # noqa: C901
                     # make sure we load just trained models and pre-trained/ updated entropy parameters
                     net = compression_model()
                     try:
-                        checkpoint = torch.load(p.compression_model_checkpoint[i])
+                        checkpoint = torch.load(quality)
                         if "network" in checkpoint:
                             state_dict = checkpoint["network"]
                         elif "state_dict" in checkpoint:
