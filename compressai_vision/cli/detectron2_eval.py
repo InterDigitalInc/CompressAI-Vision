@@ -580,19 +580,19 @@ def main(p):  # noqa: C901
         # quickLog("CompressAIEncoderDecoder", loglev)
         # quickLog("VTMEncoderDecoder", loglev)
         for quality in qpars:
-            print("\nQUALITY PARAMETER OR CHECKPOINT: ", quality)
             enc_dec = None  # default: no encoding/decoding
             if (
                 p.compressai_model_name or p.compression_model_path
             ):  # compressai model, either from the zoo or from a directory
-                if p.compression_model_checkpoint is None:
+                if p.compressai_model_name is not None:
+                    # e.g. "bmshj2018-factorized"
+                    print("\nQUALITY PARAMETER: ", quality)
                     net = (
                         compression_model(quality=quality, pretrained=True).eval().to(device)
                     )
-                    # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model from a file
-                else:  # load a checkpoint,
-
+                else:
+                    print("CHECKPOINT: ", Path(quality).stem)
                     net = compression_model()
                     # make sure we load just trained models and pre-trained/ updated entropy parameters
                     try:
