@@ -32,6 +32,14 @@
 # mongodb, we'll do this:
 from importlib.metadata import version
 
+# why this mess? people might install development versions of fiftyone & compressai
+# with manual pip install commands in different virtualenvs..
 FO_VERSION = "0.16.6"
+COMPRESSAI_VERSION="1.2.0"
+#
 assert version("fiftyone") == FO_VERSION, "you need fiftyone version " + FO_VERSION
 # ..now you can't write into the mongodb with different fiftyone version! (hopefully!)
+v_=[int(n) for n in COMPRESSAI_VERSION.split(".")[0:3]] # required ver
+v=[int(n) for n in version("compressai").split(".")[0:3]] # installed ver
+# print(v_, v)
+assert(v[0] >= v_[0] and v[1] >= v_[1] and v[2] >= v_[2]), "compressai version must be >="+COMPRESSAI_VERSION

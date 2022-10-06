@@ -340,7 +340,7 @@ def main(p):  # noqa: C901
                     "failed with",
                     e,
                 )
-                return
+                raise
             else:
                 assert hasattr(
                     module, "getModel"
@@ -692,9 +692,10 @@ def main(p):  # noqa: C901
     with open(p.output, "w") as f:
         f.write(json.dumps(metadata, indent=2))
 
+    """maybe not?
     print("\nResult output:")
     print(json.dumps(metadata, indent=2))
-
+    """
     # remove the tmp database
     print("deleting tmp database", tmp_name)
     fo.delete_dataset(tmp_name)

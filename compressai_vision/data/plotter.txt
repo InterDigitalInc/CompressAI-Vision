@@ -1,29 +1,32 @@
-compressai-vision-plot [options] command
+compressai-vision plot [options]
 
-commands:
+    --dirs              list of directories with json files, produced by 
+                        detectron2-eval subcommand
 
-    manual              shows this manual
+                        Each directory corresponds to an evaluation of a certain model
+                        done with detectron2-eval: each directory contains a list of json files, 
+                        produced by the subcommand detectron2-eval.
 
-    csv                 dump json results in csv format
+                        Within one directory, you typically have json files, 
+                        produced in a parallel run for
+                        each quality point, for example: 1.json, 2.json, ..
 
-    plot                create the plot
+                        Or you can have a json files with several quality point results 
+                        in each file, say: 1_2_3.json, 4_5.json, ..
 
-parameters for plot:
+                        The program knows how to combine these files.
 
-    --dirs              list of directories with json files produced
     --symbols           list of matplotlib symbols for each plot,
-                        for example: o--k,-g,*:r
-    --dataset-names             list of names to be included into the plot,
-                        for example: vtm,mymodel,mymodel2
+                        for example: o--k,-g,*:r (optional)
+    --names             list of names to be included into the plot,
+                        for example: vtm,mymodel,mymodel2 (optional)
     --eval              mAP value without (de)compress and maplotlib symbol,
-                        for example: 0.792,--c
-    --show-baseline     include VTM baseline results into the plot at
-                        a certain scale (100,75,50 or 25)
-
+                        for example: 0.792,--c 
+    --csv               instead of plot, dump json results in csv format
 
 instructions:
 
-    The compressai-vision command has produced you json output files
+    The compressai-vision detectron2-eval command has produced you json output files
     to a certain directory (say, into "model1_results/")
 
     In a single json file you can have multiple (bpp, mAP) results (for
@@ -37,9 +40,10 @@ instructions:
     provide the directory name(s)
 
     Suppose you want to plot two (bpp, mAP) curves from two models
-    (results are in "model1_results" and "model2_results") and also include
-    the VTM baseline, then do this:
+    (results are in "model1_results" and "model2_results"), do this:
 
-    compressai-vision-plot --dirs=model1_results,model2_results \\
+    compressai-vision plot --dirs=model1_results,model2_results \\
     --symbols=o--r,x-b --dataset-names=model1,model2 \\
-    --eval=0.792,--c --show-baseline=100
+    --eval=0.792,--c
+
+
