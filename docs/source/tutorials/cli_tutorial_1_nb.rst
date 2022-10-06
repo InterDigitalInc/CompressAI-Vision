@@ -1,6 +1,6 @@
 The command line interface (cli) has all the functionality for
 evaluating your deep-learning compression algorithm against standardized
-benchmars.
+benchmarks.
 
 The cli is accessed with the ``compressai-vision`` command that has
 several subcommands for handling datasets, evaluating your models with
@@ -135,6 +135,7 @@ closer look at the fields that the samples have in this datafield with
     importing fiftyone
     fiftyone imported
     
+    dataset info:
     Name:        quickstart
     Media type:  image
     Num samples: 200
@@ -148,6 +149,9 @@ closer look at the fields that the samples have in this datafield with
         ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
         uniqueness:   fiftyone.core.fields.FloatField
         predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    
+    test-loading first image from /home/sampsa/fiftyone/quickstart/data/000880.jpg
+    loaded image with dimensions (480, 640, 3) ok
 
 
 Some fields of interests in each sample: ``filepath`` fields have the
@@ -316,5 +320,7 @@ Let’s see what we got:
 
     {"dataset": "quickstart", "gt_field": "ground_truth", "tmp datasetname": "detectron-run-sampsa-quickstart-2022-10-04-22-17-06-604353", "slice": "0:2", "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml", "compressai model": "bmshj2018_factorized", "custom model": null, "checkpoint": null, "vtm": false, "vtm_cache": null, "qpars": [1], "bpp": [0.18178251121076233], "map": [0.44477447744774484], "map_per_class": [{"bird": 0.100990099009901, "horse": 0.3333333333333334, "person": 0.9}]}
 
-Which is a single point on the mAP(bpp) curve
+Which is a single point on the mAP(bpp) curve. Next you need to produce
+some more points and then use ``plot`` subcommand. An explicit example
+of that is given in the mpeg-vcm section of this tutorial.
 
