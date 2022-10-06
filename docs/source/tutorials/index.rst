@@ -6,6 +6,8 @@ CLI Tutorial
    :caption: CLI HOWTO
 
    cli_tutorial_1
+   cli_tutorial_2
+   cli_tutorial_3
 
 
 Library Tutorial

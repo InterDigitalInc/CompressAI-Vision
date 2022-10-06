@@ -46,10 +46,19 @@ def add_subparser(subparsers, parents=[]):
 
 def main(p):
     # fiftyone
+    import numpy as np
+    from PIL import Image
     print("importing fiftyone")
     import fiftyone as fo
 
     print("fiftyone imported")
     print()
     dataset = fo.load_dataset(p.dataset_name)
+    print("dataset info:")
     print(dataset)
+    sample=dataset.first()
+    path=sample["filepath"]
+    print()
+    print("test-loading first image from", path)
+    img=Image.open(path)
+    print("loaded image with dimensions", np.array(img).shape, "ok")
