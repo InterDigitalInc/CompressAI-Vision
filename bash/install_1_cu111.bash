@@ -1,6 +1,7 @@
 #!/bin/bash
 # WARNING: keep consistent with ../compressai_vision/__init__.py:
-FO_VERSION="0.16.6" 
+FO_VERSION="0.16.6"
+COMPRESSAI_VERSION="1.2.0" # must be ge than this
 python3 -c "import sys; assert(sys.version_info.major>=3); assert(sys.version_info.minor>=8)"
 if [[ $? -gt 0 ]] 
 then
@@ -19,7 +20,8 @@ pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 -f https://download.py
 pip install pytorch-msssim
 python -m pip install detectron2 -f  https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.10/index.html
 pip3 install pybind11
-pip3 install compressai
+pip3 install "compressai>=$COMPRESSAI_VERSION"
+# .. needs "'s for some reason
 ## WARNING TODO: this wont work until CompressAI-Vision becomes all public:
 echo
 echo INSTALLING COMPRESSAI-VISION DIRECTLY FROM PUBLIC REPO

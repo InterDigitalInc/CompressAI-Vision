@@ -114,7 +114,7 @@ def add_subparser(subparsers, parents=[]):
         required=False,
         help="list of directories",
     )
-    """
+    """removed:
     subparser.add_argument(
         "--colors",
         action="store",
@@ -141,6 +141,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="mAP value without (de)compression and pyplot symbol",
     )
+    """removed:
     subparser.add_argument(
         "--show-baseline",
         action="store",
@@ -149,6 +150,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="show baseline at a certain scale",
     )
+    """
     # parsed_args, unparsed_args = parser.parse_known_args()
     # return parsed_args, unparsed_args
 
@@ -177,21 +179,43 @@ def main(p):
         sys.exit(2)
 
     # assert(parsed.colors is not None), "needs list of pyplot color codes"
-    assert parsed.symbols is not None, "needs list of pyplot symbol codes"
-    assert parsed.names is not None, "needs list of names for plots"
+    #assert parsed.symbols is not None, "needs list of pyplot symbol codes"
+    #assert parsed.names is not None, "needs list of names for plots"
+    # let's define some default dummy values instead
 
-    # colors=parsed.colors.split(",")
-    symbols = parsed.symbols.split(",")
-    names = parsed.names.split(",")
+    if parsed.symbols is None:
+        print("NOTE: you didn't provide a symbol list, will create one instead")
+        symbols=[]
+    else:
+        symbols = parsed.symbols.split(",")    
+    if parsed.names is None:
+        print("NOTE: you didn't provide a plot names, will create one instead")
+        names=[]
+    else:
+        names = parsed.names.split(",")
+
+    symbols_aux=["o--k","-g","*:r"]
+    for i, dir_ in enumerate(dirs):
+        if parsed.symbols is None:
+            # cyclic:
+            symbols.append(symbols_aux[i%len(symbols_aux)])
+        if parsed.names is None:
+            # names.append("plot"+str(i))
+            names.append(dir_.split(os.pathsep)[-1])
 
     assert (
         len(dirs) == len(symbols) == len(names)
     ), "dirs, symbols and names must have the same length"
 
     if parsed.eval:
-        eval_val, eval_symbol = parsed.eval.split(",")
+        eval_lis = parsed.eval.split(",")
+        if len(eval_lis) < 2:
+            print("NOTE: you didn't provide symbol for eval baseline, will make up one")
+            eval_lis.append("--c")
+        eval_val, eval_symbol = eval_lis
         eval_val = float(eval_val)
 
+    """removed: user has to give this explicitly
     if parsed.show_baseline:
         try:
             names.index("VTM")
@@ -204,6 +228,7 @@ def main(p):
         arrays.append(a)
         symbols.append("k--*")
         names.append("VTM")
+    """
 
     plt.figure(figsize=(6, 6))
 
@@ -230,7 +255,10 @@ def main(p):
     minx = plt.axis()[0]
     maxx = plt.axis()[1]
 
-    plt.plot((minx, maxx), (eval_val, eval_val), eval_symbol)
+    if parsed.eval:
+        plt.plot((minx, maxx), (eval_val, eval_val), eval_symbol)
+    else:
+        print("NOTE: you didn't provide evaluation baseline so will not plot it")
 
     plt.xlabel("bpp")
     plt.ylabel("mAP")
