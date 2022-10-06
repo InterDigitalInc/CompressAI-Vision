@@ -311,12 +311,14 @@ def main(p):  # noqa: C901
         qpars = p.compression_model_checkpoint
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
-        import compressai.zoo
+        from compressai.zoo import image_models as pretrained_models
 
         # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
-        compression_model = getattr(
-            compressai.zoo, p.compressai_model_name
-        )  # a function that returns a model instance or just a class
+        compression_model = pretrained_models[p.compressai_model_name]
+
+    # compressai.zoo. getattr(
+    #         compressai.zoo, p.compressai_model_name
+    #     )  # a function that returns a model instance or just a class
 
     elif (
         p.compression_model_path is not None
