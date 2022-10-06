@@ -29,7 +29,8 @@
 
 """cli detectron2_eval functionality
 """
-import os, json
+import json
+import os
 
 
 def add_subparser(subparsers, parents=[]):
@@ -157,15 +158,15 @@ def main(p):
     print("fiftyone imported")
 
     # compressai_vision
-    from compressai_vision.evaluation.fo import (
+    from compressai_vision.constant import vf_per_scale
+    from compressai_vision.evaluation.fo import (  # annex predictions from
         annexPredictions,
-    )  # annex predictions from
+    )
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
     from compressai_vision.tools import getDataFile
-    from compressai_vision.constant import vf_per_scale
 
     assert p.dataset_name is not None, "please provide dataset name"
     try:
@@ -237,9 +238,9 @@ def main(p):
 
     # use open image ids if avail
     if dataset.get_field("open_images_id"):
-        id_field_name="open_images_id"
+        id_field_name = "open_images_id"
     else:
-        id_field_name="id"
+        id_field_name = "id"
 
     if p.tags is not None:
         lis = p.tags.split(",")  # 0001eeaf4aed83f9,000a1249af2bc5f0
@@ -261,7 +262,7 @@ def main(p):
     if p.slice is not None:
         print("Using slice            :", str(fr) + ":" + str(to))
     if p.tags is not None:
-        print("WARNING: Picking samples, based on",id_field_name,"field")
+        print("WARNING: Picking samples, based on", id_field_name, "field")
     print("Number of samples      :", len(dataset))
     print("Progressbar            :", p.progressbar)
     print("Output file            :", p.output)

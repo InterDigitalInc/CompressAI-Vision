@@ -29,8 +29,9 @@
 
 """cli.py : Command-line interface tools for compressai-vision
 """
-import argparse, sys
+import argparse
 import logging
+import sys
 
 from compressai_vision.tools import getDataFile, quickLog
 

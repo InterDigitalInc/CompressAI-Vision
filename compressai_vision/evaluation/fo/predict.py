@@ -29,8 +29,8 @@
 
 import math
 import os
-
 import traceback
+
 import cv2
 
 from detectron2.data import MetadataCatalog
@@ -88,9 +88,9 @@ def annexPredictions(
 
     # use open image ids if avail
     if fo_dataset.get_field("open_images_id"):
-        id_field_name="open_images_id"
+        id_field_name = "open_images_id"
     else:
-        id_field_name="id"
+        id_field_name = "id"
 
     npix_sum = 0
     nbits_sum = 0
@@ -108,7 +108,7 @@ def annexPredictions(
             return -1
         # tag = path.split(os.path.sep)[-1].split(".")[0]  # i.e.: /path/to/some.jpg --> some.jpg --> some
         # if open_images_id is avail, then use it, otherwise use normal id
-        tag=sample[id_field_name]
+        tag = sample[id_field_name]
         if encoder_decoder is not None:
             # before using a detector, crunch through
             # encoder/decoder
