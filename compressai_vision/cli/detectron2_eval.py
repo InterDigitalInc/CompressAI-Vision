@@ -591,8 +591,9 @@ def main(p):  # noqa: C901
                     # e.g. compressai.zoo.bmshj2018_factorized
                     # or a custom model from a file
                 else:  # load a checkpoint,
-                    # make sure we load just trained models and pre-trained/ updated entropy parameters
+
                     net = compression_model()
+                    # make sure we load just trained models and pre-trained/ updated entropy parameters
                     try:
                         checkpoint = torch.load(quality)
                         if "network" in checkpoint:
@@ -619,7 +620,7 @@ def main(p):  # noqa: C901
                     decoderApp=vtm_decoder_app,
                     ffmpeg=p.ffmpeg,
                     vtm_cfg=vtm_cfg,
-                    qp=i,
+                    qp=quality,
                     cache=p.vtm_cache,
                     scale=p.scale,
                     warn=True,
