@@ -179,26 +179,26 @@ def main(p):
         sys.exit(2)
 
     # assert(parsed.colors is not None), "needs list of pyplot color codes"
-    #assert parsed.symbols is not None, "needs list of pyplot symbol codes"
-    #assert parsed.names is not None, "needs list of names for plots"
+    # assert parsed.symbols is not None, "needs list of pyplot symbol codes"
+    # assert parsed.names is not None, "needs list of names for plots"
     # let's define some default dummy values instead
 
     if parsed.symbols is None:
         print("NOTE: you didn't provide a symbol list, will create one instead")
-        symbols=[]
+        symbols = []
     else:
-        symbols = parsed.symbols.split(",")    
+        symbols = parsed.symbols.split(",")
     if parsed.names is None:
         print("NOTE: you didn't provide a plot names, will create one instead")
-        names=[]
+        names = []
     else:
         names = parsed.names.split(",")
 
-    symbols_aux=["o--k","-g","*:r"]
+    symbols_aux = ["o--k", "-g", "*:r"]
     for i, dir_ in enumerate(dirs):
         if parsed.symbols is None:
             # cyclic:
-            symbols.append(symbols_aux[i%len(symbols_aux)])
+            symbols.append(symbols_aux[i % len(symbols_aux)])
         if parsed.names is None:
             # names.append("plot"+str(i))
             names.append(dir_.split(os.pathsep)[-1])

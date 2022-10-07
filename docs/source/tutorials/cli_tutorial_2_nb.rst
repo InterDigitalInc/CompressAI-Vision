@@ -1,4 +1,8 @@
-In the previous tutorial we downloaded & registered the dataset
+In this chapter you will learn:
+
+-  registering and deregistering datasets into fiftyone
+
+In the previous chapter we downloaded & registered the dataset
 “quickstart” from the fiftyone model zoo:
 
 .. code:: ipython3
