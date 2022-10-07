@@ -112,7 +112,7 @@ def add_subparser(subparsers, parents=[]):
         action="store",
         type=str,
         required=False,
-        help="list of directories",
+        help="list of directories, each folder contains evaluation result (json files) of certain model done with detectron2-eval",
     )
     """removed:
     subparser.add_argument(
