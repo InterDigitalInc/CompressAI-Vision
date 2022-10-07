@@ -30,6 +30,7 @@
 """cli.py : Command-line interface tools for compressai-vision
 """
 import argparse
+from argparse import RawTextHelpFormatter
 import logging
 import sys
 
@@ -62,7 +63,9 @@ for key in COMMANDS:
 
 
 def setup_parser():
-    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser = argparse.ArgumentParser(add_help=False,
+    formatter_class=argparse.RawTextHelpFormatter
+    )
     common_parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )

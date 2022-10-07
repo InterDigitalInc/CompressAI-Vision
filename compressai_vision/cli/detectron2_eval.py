@@ -76,7 +76,11 @@ def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
     help="evaluate model with detectron2 using OpenImageV6")
-    subparser.add_argument(
+    required_group = subparser.add_argument_group('required arguments')
+    compressai_group = subparser.add_argument_group('compressai-zoo arguments')
+    vtm_group = subparser.add_argument_group('vtm arguments')
+    optional_group = subparser.add_argument_group('optional arguments')
+    required_group.add_argument(
         "--dataset-name",
         action="store",
         type=str,
@@ -92,7 +96,7 @@ def add_subparser(subparsers, parents=[]):
         default="detections",
         help="name of the ground truth field in the dataset.  Default: detections",
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--model",
         action="store",
         type=str,
@@ -100,7 +104,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="name of Detectron2 config model",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--output",
         action="store",
         type=str,
@@ -118,7 +122,7 @@ def add_subparser(subparsers, parents=[]):
         help="evaluation protocol",
     )
     """
-    subparser.add_argument(
+    compressai_group.add_argument(
         "--compressai-model-name",
         action="store",
         type=str,
@@ -126,7 +130,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="name of an existing model in compressai-zoo. Example: 'cheng2020-attn' ",
     )
-    subparser.add_argument(
+    compressai_group.add_argument(
         "--compression-model-path",
         action="store",
         type=str,
@@ -134,7 +138,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="a path to a directory containing model.py for custom development model",
     )
-    subparser.add_argument(
+    compressai_group.add_argument(
         "--compression-model-checkpoint",
         action="store",
         type=str,
@@ -143,8 +147,8 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="path to a compression model checkpoint(s)",
     )
-    subparser.add_argument("--vtm", action="store_true", default=False)
-    subparser.add_argument(
+    vtm_group.add_argument("--vtm", action="store_true", default=False, help="To enable vtm codec. default: False")
+    vtm_group.add_argument(
         "--vtm_dir",
         action="store",
         type=str,
@@ -152,7 +156,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
     )
-    subparser.add_argument(
+    vtm_group.add_argument(
         "--vtm_cfg",
         action="store",
         type=str,
@@ -160,7 +164,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="vtm config file. Example: 'encoder_intra_vtm.cfg' ",
     )
-    subparser.add_argument(
+    vtm_group.add_argument(
         "--vtm_cache",
         action="store",
         type=str,
@@ -168,7 +172,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="directory to cache vtm bitstreams",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--qpars",
         action="store",
         type=str,
@@ -176,7 +180,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer 1-8. For VTM, it should be integer from 0-51.",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--scale",
         action="store",
         type=int,
@@ -185,7 +189,7 @@ def add_subparser(subparsers, parents=[]):
         help="image scaling as per VCM working group docs. Default: 100",
     )
 
-    subparser.add_argument(
+    optional_group.add_argument(
         "--ffmpeg",
         action="store",
         type=str,
@@ -193,7 +197,7 @@ def add_subparser(subparsers, parents=[]):
         default="ffmpeg",
         help="path of ffmpeg executable. Default: ffmpeg",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--slice",
         action="store",
         type=str,
@@ -202,13 +206,13 @@ def add_subparser(subparsers, parents=[]):
         help="use a dataset slice instead of the complete dataset. Example: 0:2 for the first two images",
     )
     # subparser.add_argument("--debug", action="store_true", default=False) # not here
-    subparser.add_argument(
+    optional_group.add_argument(
         "--progressbar",
         action="store_true",
         default=False,
         help="show fancy progressbar. Default: False",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--progress",
         action="store",
         type=int,
@@ -216,7 +220,7 @@ def add_subparser(subparsers, parents=[]):
         default=1,
         help="Print progress this often",
     )
-    subparser.add_argument(
+    optional_group.add_argument(
         "--eval-method",
         action="store",
         type=str,
