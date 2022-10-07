@@ -8,7 +8,8 @@ CLI Tutorial
    cli_tutorial_1
    cli_tutorial_2
    cli_tutorial_3
-
+   cli_tutorial_4
+   cli_tutorial_5
 
 Library Tutorial
 ================

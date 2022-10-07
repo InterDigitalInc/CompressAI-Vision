@@ -126,51 +126,6 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # return self.__v0__(x)
         return self.__v1__(x)
 
-    def __v0__(self, x):
-        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
-
-        OLD / DEPRECATED VERSION
-
-        :param x: a FloatTensor with dimensions (batch, channels, y, x)
-
-        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
-        bpps is a list of bits per second of each compressed image in that batch
-        """
-        raise AssertionError("DONT USE")
-
-        self.logger.debug(
-            "feeding tensor to CompressAI: shape: %s, type: %s", x.shape, x.type()
-        )
-
-        with torch.no_grad():
-            out_net = self.net.forward(x)
-        """out_net keys: ['x_hat', 'likelihoods'])
-
-        ::
-
-            out_net["x_hat"] ==> tensor with torch.Size([1, 3, 512, 768]) # batch, channel, y, x .. the transformed image
-            out_net["likelihoods"] ==> dict with keys ["y"]
-            # .. what if we had fed a larger batch to the network.. .. would "likelihoods" be a list..?
-            out_net["likelihoods"]["y"] ==> tensor with torch.Size([1, 192, 32, 48]) # batch, channels, y, x # feature maps
-
-
-        """
-        x_hat = out_net["x_hat"].clamp_(0, 1)
-        size = out_net["x_hat"].size()
-        num_pixels = size[0] * size[2] * size[3]
-        bpps = []
-        for likelihood in out_net["likelihoods"]["y"]:
-            # likelihood / key: "y", value: tensor
-            # calculate bpp value
-            scaled = torch.log(likelihood).sum() / (-math.log(2) * num_pixels)
-            bpp = scaled.item()
-            # accumulate bpp_sum for mean value calculation
-            self.cc += 1
-            self.bpp_sum += bpp
-            # print("> cc, bpp_sum ", id(self), self.cc, self.bpp_sum)
-            bpps.append(bpp)
-        return bpps, x_hat
-
     def __v1__(self, x):
         """Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images
 
@@ -191,13 +146,15 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
 
         # TODO: out_enc["strings"][batch_index?][what?] .. for batch sizes > 1
-        bitstream = out_enc["strings"][0][0]  # _the_ compressed bitstream
-        x_hat = out_dec["x_hat"].clamp(0, 1)
+        bitstream = out_enc["strings"][0][0]  # type: bytes
+        # print("bitstream is>", type(bitstream))
+        x_hat = out_dec["x_hat"].clamp(0, 1)  # (batch, 3, H, W)
+        # print("x_hat is>", x_hat.shape)
         # num_pixels = x.shape[2] * x.shape[3]
         # print("num_pixels", num_pixels)
         nbits = 8 * len(bitstream)  # BITS not BYTES
         nbitslist = [nbits]
-        x_hat = out_dec["x_hat"] # reconstructed image
+        x_hat = out_dec["x_hat"]  # reconstructed image
         return nbitslist, x_hat
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:

@@ -266,14 +266,16 @@ class FactorizedPrior(CompressionModel):
         return net
 
     def compress(self, x):
-        y = self.g_a(x)
-        y_strings = self.entropy_bottleneck.compress(y)
+        # x: (batch, 3, H, W)
+        y = self.g_a(x) # (batch, FM, FM-H, FM-W)
+        y_strings = self.entropy_bottleneck.compress(y) # list: first element is bytes
         return {"strings": [y_strings], "shape": y.size()[-2:]}
+        # --> res["strings"][0][0] has the bytes, shape has the FM dimensions
 
     def decompress(self, strings, shape):
         assert isinstance(strings, list) and len(strings) == 1
         y_hat = self.entropy_bottleneck.decompress(strings[0], shape)
-        x_hat = self.g_s(y_hat).clamp_(0, 1)
+        x_hat = self.g_s(y_hat).clamp_(0, 1) # (batch, 3, H W)
         return {"x_hat": x_hat}
 
 
