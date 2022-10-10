@@ -170,7 +170,7 @@ def main(p):
     arrays = []
     for dir_ in dirs:
         dir_ = os.path.expanduser(os.path.join(dir_))
-        assert os.path.isdir(dir_), "nonexistent dir"
+        assert os.path.isdir(dir_), "nonexistent dir "+dir_
         arrays.append(jsonFilesToArray(dir_))
 
     if parsed.csv:

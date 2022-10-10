@@ -93,12 +93,12 @@ ground truths in field ``detections``:
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \\
-    --slice=0:2 \\
-    --gt-field=detections \\
-    --eval-method=open-images \\
-    --progressbar \\
-    --output=detectron2_mpeg_vcm.json \\
+    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    --slice=0:2 \
+    --gt-field=detections \
+    --eval-method=open-images \
+    --progressbar \
+    --output=detectron2_mpeg_vcm.json \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
 
@@ -136,7 +136,7 @@ ground truths in field ``detections``:
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 error: number of pixels sum < 1
-    Ignoring unsupported parameters {'compute_mAP'\} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
+    Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
      100% |███████████| 2/2 [38.8ms elapsed, 0s remaining, 51.5 samples/s] 
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-10-22-138077
@@ -150,14 +150,14 @@ pre-trained ``bmshj2018_factorized`` model:
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \\
-    --slice=0:2 \\
-    --gt-field=detections \\
-    --eval-method=open-images \\
-    --progressbar \\
-    --qpars=1,2 \\
-    --compressai-model-name=bmshj2018_factorized \\
-    --output=detectron2_mpeg_vcm_qpars.json \\
+    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    --slice=0:2 \
+    --gt-field=detections \
+    --eval-method=open-images \
+    --progressbar \
+    --qpars=1,2 \
+    --compressai-model-name=bmshj2018_factorized \
+    --output=detectron2_mpeg_vcm_qpars.json \
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
 
@@ -197,12 +197,12 @@ pre-trained ``bmshj2018_factorized`` model:
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
-     100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'\} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
+     100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
      100% |███████████| 2/2 [23.9ms elapsed, 0s remaining, 83.7 samples/s] 
     
     QUALITY PARAMETER:  2
-     100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'\} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
+     100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
      100% |███████████| 2/2 [26.6ms elapsed, 0s remaining, 75.2 samples/s] 
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-17-12-468267
@@ -216,5 +216,5 @@ argument. You can run all quality points (bpp values) in a single run,
 say by defining ``--qpars=1,2,3,4,5,6,7,8``, or if you want to
 parallelize, send the same command to your queue system several times,
 each time with a different quality parameter values,
-i.e. \\ ``--qpars=1``, ``--qpars=2``, etc.
+i.e. \ ``--qpars=1``, ``--qpars=2``, etc.
 

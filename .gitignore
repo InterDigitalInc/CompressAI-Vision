@@ -144,3 +144,4 @@ docs/source/tutorials/out.json
 tmp/
 Untitled*.ipynb
 docs/source/tutorials/*.json
+docs/source/tutorials/out.png
