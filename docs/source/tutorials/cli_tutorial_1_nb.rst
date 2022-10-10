@@ -1,3 +1,10 @@
+In this tutorial chapter you will learn:
+
+-  Checking the installed software stack with ``compressai-vision info``
+-  Downloading datasets with ``compressai-vision download``
+-  Evaluating datasets with ``compressai-vision detectron2-eval`` for
+   creating mAP(bpp) curves
+
 The command line interface (cli) has all the functionality for
 evaluating your deep-learning compression algorithm against standardized
 benchmarks.

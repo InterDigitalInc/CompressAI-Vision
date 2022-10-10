@@ -252,7 +252,7 @@ where the detectron results are saved:
         maps.append(per_class(res))
         with open("out.json","w") as f:
             f.write(json.dumps({
-                "bpp" : xs,
+                "bpp" : xs, 
                 "map" : ys,
                 "map_per_class" : maps
                 }, indent=2))

@@ -179,8 +179,8 @@ def main(p):
         sys.exit(2)
 
     # assert(parsed.colors is not None), "needs list of pyplot color codes"
-    #assert parsed.symbols is not None, "needs list of pyplot symbol codes"
-    #assert parsed.names is not None, "needs list of names for plots"
+    # assert parsed.symbols is not None, "needs list of pyplot symbol codes"
+    # assert parsed.names is not None, "needs list of names for plots"
     # let's define some default dummy values instead
 
     if parsed.symbols is None:

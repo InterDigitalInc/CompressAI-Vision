@@ -30,7 +30,6 @@
 """cli.py : Command-line interface tools for compressai-vision
 """
 import argparse
-from argparse import RawTextHelpFormatter
 import logging
 import sys
 

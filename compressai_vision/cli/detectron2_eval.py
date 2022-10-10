@@ -273,8 +273,9 @@ def main(p):  # noqa: C901
         return
 
     if p.slice is not None:
-        print("WARNING: using a dataset slice instead of full dataset")
-        print("SURE YOU WANT THIS?")
+        print(
+            "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
+        )
         # say, 0:100
         nums = p.slice.split(":")
         if len(nums) < 2:
@@ -290,19 +291,20 @@ def main(p):  # noqa: C901
         dataset = dataset[fr:to]
 
     compression = True
+    # print(">", p.compressai_model_name, p.vtm, p.compression_model_path, p.qpars)
     if (
         (p.compressai_model_name is None)
-        == p.vtm
-        == (p.compression_model_path is None)
-        == False
+        and (p.vtm == False)
+        and (p.compression_model_path is None)
     ):
         compression = False
         # no (de)compression, just eval
         assert (
-            qpars is None
+            p.qpars is None
         ), "you have provided quality pars but not a (de)compress model"
+        qpars = None  # this indicates no qpars/pure eval run downstream
 
-    if defined_codec != p.compression_model_path:
+    elif defined_codec != p.compression_model_path:
         # check quality parameter list
         assert p.qpars is not None, "need to provide integer quality parameters"
         try:
@@ -316,10 +318,15 @@ def main(p):  # noqa: C901
         qpars = p.compression_model_checkpoint
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
+        """
+        #NOTE: before you start using this section again, PLEASE RUN THE CLI TEST SUITE
+        # this doesn't find the "bmshj2018_factorized" model at all:
         from compressai.zoo import image_models as pretrained_models
-
-        # compressai_model = getattr(compressai.zoo, "bmshj2018_factorized")
         compression_model = pretrained_models[p.compressai_model_name]
+        """
+        from compressai import zoo
+
+        compression_model = getattr(zoo, p.compressai_model_name)
 
     # compressai.zoo. getattr(
     #         compressai.zoo, p.compressai_model_name
@@ -465,6 +472,12 @@ def main(p):  # noqa: C901
     # eval_method="open-images" # could be changeable in the future..
     # eval_method="coco"
     eval_method = p.eval_method
+    eval_methods = ["open-images", "coco"]
+    # must be checked at this stage so that the whole run doesn't crash in the end
+    # just because user has fat-fingered the evaluation method
+    assert eval_method in eval_methods, "ERROR: allowed eval methods:" + str(
+        eval_methods
+    )
 
     print()
     print("Using dataset          :", p.dataset_name)

@@ -56,9 +56,9 @@ def main(p):
     dataset = fo.load_dataset(p.dataset_name)
     print("dataset info:")
     print(dataset)
-    sample=dataset.first()
-    path=sample["filepath"]
+    sample = dataset.first()
+    path = sample["filepath"]
     print()
     print("test-loading first image from", path)
-    img=Image.open(path)
+    img = Image.open(path)
     print("loaded image with dimensions", np.array(img).shape, "ok")
