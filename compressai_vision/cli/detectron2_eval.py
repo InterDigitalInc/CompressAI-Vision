@@ -380,10 +380,11 @@ def main(p):  # noqa: C901
             vtm_dir = p.vtm_dir
         vtm_dir = os.path.expanduser(vtm_dir)
         if p.vtm_cfg is None:
-            vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-            print("WARNING: using VTM default config file", vtm_cfg)
+            # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
+            # print("WARNING: using VTM default config file", vtm_cfg)
+            raise BaseException("VTM config is not defined")
         else:
-            vtm_cfg = p.vtm_cfg
+            vtm_cfg = getDataFile(p.vtm_cfg)
         vtm_cfg = os.path.expanduser(
             vtm_cfg
         )  # some more systematic way of doing these..
