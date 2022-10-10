@@ -195,8 +195,9 @@ def main(p):
     vtm_dir = os.path.expanduser(vtm_dir)
 
     if p.vtm_cfg is None:
-        vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-        print("WARNING: using VTM default config file", vtm_cfg)
+        raise BaseException("Missing vtm_cfg")
+        # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
+        # print("WARNING: using VTM default config file", vtm_cfg)
     else:
         vtm_cfg = p.vtm_cfg
 
