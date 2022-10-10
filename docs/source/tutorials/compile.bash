@@ -5,6 +5,9 @@ dirnames="cli_tutorial_1 cli_tutorial_2 cli_tutorial_3 cli_tutorial_4 cli_tutori
 for dirname in $dirnames
 do
     #cd $dirname
-    jupyter nbconvert --to rst $dirname"_nb.ipynb" --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_cell_tags="['remove_cell']"
+    jupyter nbconvert --to rst $dirname"_nb.ipynb" \
+    --TagRemovePreprocessor.enabled=True \
+    --TagRemovePreprocessor.remove_cell_tags="['remove_cell']" \
+    --TagRemovePreprocessor.remove_input_tags="['remove_input']"
     #cd ..
 done

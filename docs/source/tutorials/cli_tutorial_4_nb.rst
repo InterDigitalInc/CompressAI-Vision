@@ -40,7 +40,7 @@ folder, where you have the following files:
    └── utils.py
 
 The ``.pth.tar`` files are the checkpoints of your model, while
-``model.py`` contains the pytorch/compressai custom code for your model.
+``model.py`` contains the pytorch/compressai custom code of your model.
 Other python files are whatever python code your custom model might
 require.
 
@@ -49,18 +49,29 @@ function:
 
 ::
 
-   getModel(quality=None, pretrained=False, **kwargs)
+   getModel(quality=None, **kwargs)
 
 which returns an instance of your model class. ``quality`` should be an
 integer parameter (it will be used by the ``--qpars`` command-line
-flag).
+flag). The quality parameter is mapped to a certain model checkpoint
+file in ``model.py``:
+
+::
+
+   qpoint_per_file = {
+       1 : "bmshj2018-factorized-prior-1-446d5c7f.pth.tar",
+       2 : "bmshj2018-factorized-prior-2-87279a02.pth.tar"
+   }
+
+i.e. if you define ``--qpars=1``, the model will use
+``bmshj2018-factorized-prior-1-446d5c7f.pth.tar`` from the directory.
 
 The requirement for the model class
 (``class FactorizedPrior(CompressionModel)`` in the example model.py)
-are also minimal. Your model class should have two methods, called
-``compress`` and ``decompress``: ``compress`` takes in an RGB image
-tensor and returns bitstream, while ``decompress`` takes in bitstream
-and returns a recovered image.
+are minimal: your model class should have two methods, called
+``compress`` and ``decompress``. Method ``compress`` takes in an RGB
+image tensor and returns bitstream, while ``decompress`` takes in
+bitstream and returns a recovered image.
 
 The exact signatures are:
 
@@ -79,19 +90,17 @@ The exact signatures are:
        return {"x_hat": x_hat}
        # where x_hat is a torch RGB image tensor (batch, 3, H, W)
 
-These signatures/interface is used by the compressai library models and
-they are used by the ``CompressAIEncoderDecoder`` class (see the
-tutorial on creating a EncoderDecoder class).
+This signature/interface is used by the compressai library models and by
+the ``CompressAIEncoderDecoder`` class (see the tutorial on creating a
+EncoderDecoder class) and we recommend that you implement the
+aforementioned methods into your custom model.
 
-If you want to use another kind of API, you need to define your own
-``EncoderDecoder`` class. Please refer to the example jpeg
-``EncoderDecoder`` class in the tutorial.
-
-TODO: in model.py user can define their own EncoderDecoder class if needed?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+However, if you want to use another kind of API in your model, you need
+to define your own ``EncoderDecoder`` class. Please refer to the example
+jpeg ``EncoderDecoder`` class in the tutorial.
 
 So, take a copy of the ``examples/models/bmshj2018-factorized/`` folder
-into your disk and then run:
+into your disk and run:
 
 ::
 
@@ -103,16 +112,11 @@ into your disk and then run:
    --eval-method=open-images \
    --progressbar \
    --compression-model-path /path/to/examples/models/bmshj2018-factorized/ \
-   --compression-model-checkpoint /path/to/examples/models/bmshj2018-factorized/bmshj2018-factorized-prior-1-446d5c7f.pth.tar \
+   --qpars=1,2 \
    --output=detectron2_bmshj2018-factorized.json \
    --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
-This will evaluate your custom model with Detectron2. Note that here the
-``--qpars`` quality parameters have been substituted with your custom
-model’s checkpoints.
-
-TODO: we want to have the possibility to use integer qpars also for custom models, right? The model.py allows for this (see the definition of getModel() up there)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This will evaluate your custom model with Detectron2.
 
 Again, for an actual production run, you would remove the ``--slice``
 argument.

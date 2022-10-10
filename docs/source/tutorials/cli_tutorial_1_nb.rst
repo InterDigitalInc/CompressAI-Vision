@@ -62,7 +62,7 @@ registered datasets:
     
     *** DATABASE ***
     info about your connection:
-    Database(MongoClient(host=['localhost:34001'], document_class=dict, tz_aware=False, connect=True, appname='fiftyone'), 'fiftyone')
+    Database(MongoClient(host=['localhost:40083'], document_class=dict, tz_aware=False, connect=True, appname='fiftyone'), 'fiftyone')
     
     
     *** DATASETS ***
@@ -72,8 +72,6 @@ registered datasets:
     mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
     mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    quickstart, 200, /home/sampsa/fiftyone/quickstart/data
-    quickstart-2-dummy, 1, /tmp/kokkelis/quickstart/data
     
 
 
@@ -96,7 +94,6 @@ datasets:
     mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
     mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    quickstart, 200, /home/sampsa/fiftyone/quickstart/data
 
 
 Datasets can be registered to and deregistered from fiftyone using the
@@ -124,7 +121,9 @@ with the ``download`` command. Let’s use ``download`` to get the
     Target dir      :     None
     
     Dataset already downloaded
-    Loading existing dataset 'quickstart'. To reload from disk, either delete the existing dataset or provide a custom `dataset_name` to use
+    Loading 'quickstart'
+     100% |███████| 200/200 [3.0s elapsed, 0s remaining, 52.1 samples/s]       
+    Dataset 'quickstart' created
 
 
 Nice, we have ourselves a dataset to play with. A note: the ``--y``
@@ -189,11 +188,10 @@ so please feel free to remove it.
 
     importing fiftyone
     fiftyone imported
-    WARNING: using a dataset slice instead of full dataset
-    SURE YOU WANT THIS?
+    WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     
     Using dataset          : quickstart
-    Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-04-22-04-02-138278
+    Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
     Image scaling          : 100
     WARNING: Using slice   : 0:2
     Number of samples      : 2
@@ -214,17 +212,17 @@ so please feel free to remove it.
     ['airplane', 'apple', 'backpack', 'banana', 'baseball bat'] ...
     Peek dataset classes   :
     ['bird', 'horse', 'person'] ...
-    cloning dataset quickstart to detectron-run-sampsa-quickstart-2022-10-04-22-04-02-138278
+    cloning dataset quickstart to detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
     instantiating Detectron2 predictor
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 error: number of pixels sum < 1
     Evaluating detections...
-     100% |███████████| 2/2 [9.7ms elapsed, 0s remaining, 206.0 samples/s] 
+     100% |███████████| 2/2 [9.5ms elapsed, 0s remaining, 211.5 samples/s] 
     Performing IoU sweep...
-     100% |███████████| 2/2 [15.8ms elapsed, 0s remaining, 126.8 samples/s] 
-    deleting tmp database detectron-run-sampsa-quickstart-2022-10-04-22-04-02-138278
+     100% |███████████| 2/2 [12.2ms elapsed, 0s remaining, 163.9 samples/s] 
+    deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
     
     HAVE A NICE DAY!
     
@@ -239,7 +237,28 @@ Let’s see what we got:
 
 .. parsed-literal::
 
-    {"dataset": "quickstart", "gt_field": "ground_truth", "tmp datasetname": "detectron-run-sampsa-quickstart-2022-10-04-22-04-02-138278", "slice": "0:2", "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml", "compressai model": null, "custom model": null, "checkpoint": null, "vtm": false, "vtm_cache": null, "qpars": null, "bpp": [-1], "map": [0.5676567656765678], "map_per_class": [{"bird": 0.30297029702970296, "horse": 0.5, "person": 0.9}]}
+    {
+      "dataset": "quickstart",
+      "gt_field": "ground_truth",
+      "tmp datasetname": "detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938",
+      "slice": "0:2",
+      "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml",
+      "codec": "",
+      "qpars": null,
+      "bpp": [
+        -1
+      ],
+      "map": [
+        0.5676567656765678
+      ],
+      "map_per_class": [
+        {
+          "bird": 0.30297029702970296,
+          "horse": 0.5,
+          "person": 0.9
+        }
+      ]
+    }
 
 Now we use again a Detectron2 predictor on our dataset. However, before
 passing the images to Detectron2 model, they are first compressed and
@@ -273,11 +292,10 @@ specifications (``--scale=100``). Again, remember to remove
 
     importing fiftyone
     fiftyone imported
-    WARNING: using a dataset slice instead of full dataset
-    SURE YOU WANT THIS?
+    WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     
     Using dataset          : quickstart
-    Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-04-22-17-06-604353
+    Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
     Image scaling          : 100
     WARNING: Using slice   : 0:2
     Number of samples      : 2
@@ -299,18 +317,18 @@ specifications (``--scale=100``). Again, remember to remove
     ['airplane', 'apple', 'backpack', 'banana', 'baseball bat'] ...
     Peek dataset classes   :
     ['bird', 'horse', 'person'] ...
-    cloning dataset quickstart to detectron-run-sampsa-quickstart-2022-10-04-22-17-06-604353
+    cloning dataset quickstart to detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
     instantiating Detectron2 predictor
     
-    QUALITY PARAMETER 1
+    QUALITY PARAMETER:  1
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 Evaluating detections...
-     100% |███████████| 2/2 [14.5ms elapsed, 0s remaining, 138.2 samples/s] 
+     100% |███████████| 2/2 [21.9ms elapsed, 0s remaining, 91.5 samples/s] 
     Performing IoU sweep...
-     100% |███████████| 2/2 [22.8ms elapsed, 0s remaining, 87.7 samples/s] 
-    deleting tmp database detectron-run-sampsa-quickstart-2022-10-04-22-17-06-604353
+     100% |███████████| 2/2 [30.0ms elapsed, 0s remaining, 66.8 samples/s] 
+    deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
     
     HAVE A NICE DAY!
     
@@ -325,7 +343,30 @@ Let’s see what we got:
 
 .. parsed-literal::
 
-    {"dataset": "quickstart", "gt_field": "ground_truth", "tmp datasetname": "detectron-run-sampsa-quickstart-2022-10-04-22-17-06-604353", "slice": "0:2", "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml", "compressai model": "bmshj2018_factorized", "custom model": null, "checkpoint": null, "vtm": false, "vtm_cache": null, "qpars": [1], "bpp": [0.18178251121076233], "map": [0.44477447744774484], "map_per_class": [{"bird": 0.100990099009901, "horse": 0.3333333333333334, "person": 0.9}]}
+    {
+      "dataset": "quickstart",
+      "gt_field": "ground_truth",
+      "tmp datasetname": "detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836",
+      "slice": "0:2",
+      "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml",
+      "codec": "bmshj2018_factorized",
+      "qpars": [
+        1
+      ],
+      "bpp": [
+        0.18178251121076233
+      ],
+      "map": [
+        0.44477447744774484
+      ],
+      "map_per_class": [
+        {
+          "bird": 0.100990099009901,
+          "horse": 0.3333333333333334,
+          "person": 0.9
+        }
+      ]
+    }
 
 Which is a single point on the mAP(bpp) curve. Next you need to produce
 some more points and then use ``plot`` subcommand. An explicit example
