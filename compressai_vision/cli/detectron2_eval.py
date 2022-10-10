@@ -71,7 +71,10 @@ def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
     """Convert state_dict keys."""
     state_dict = {rename_key(k): v for k, v in state_dict.items()}
     return state_dict
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1ceb427 (wip: fix eval for custom model with checkpoint)
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
