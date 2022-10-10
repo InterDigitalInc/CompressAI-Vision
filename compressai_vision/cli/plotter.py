@@ -105,14 +105,21 @@ def tx(ax, st, i, j, color):
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("plot", parents=parents)
-    subparser.add_argument("--csv", action="store_true", default=False)
+    subparser = subparsers.add_parser(
+        "plot", parents=parents, help="plot mAP-bpp curve"
+    )
+    subparser.add_argument(
+        "--csv",
+        action="store_true",
+        default=False,
+        help="output result as nicely formated csv table",
+    )
     subparser.add_argument(
         "--dirs",
         action="store",
         type=str,
         required=False,
-        help="list of directories",
+        help="list of directories, each folder contains evaluation result (json files) of certain model done with detectron2-eval",
     )
     """removed:
     subparser.add_argument(

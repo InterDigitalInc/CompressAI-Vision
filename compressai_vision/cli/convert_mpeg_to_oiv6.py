@@ -33,7 +33,11 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("convert-mpeg-to-oiv6", parents=[])
+    subparser = subparsers.add_parser(
+        "convert-mpeg-to-oiv6",
+        parents=[],
+        help="convert the files specified in MPEG/VCM CTC into proper OpenImageV6 format & directory structure",
+    )
     subparser.add_argument(
         "--lists",
         action="store",
@@ -64,7 +68,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted image-level labels",
+        help="mpeg_vcm-formatted image-level labels. Example: detection_validation_labels_5k.csv",
     )
     subparser.add_argument(
         "--bbox",
@@ -72,7 +76,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted bbox data",
+        help="mpeg_vcm-formatted bbox data. Example: detection_validation_5k_bbox.csv",
     )
     subparser.add_argument(
         "--mask",
@@ -80,7 +84,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="mpeg_vcm-formatted segmask data",
+        help="mpeg_vcm-formatted segmask data. Example: segmentation_validation_masks_5k.csv",
     )
 
 

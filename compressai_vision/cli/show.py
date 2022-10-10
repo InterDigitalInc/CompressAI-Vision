@@ -33,7 +33,7 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("show", parents=parents)
+    subparser = subparsers.add_parser("show", parents=parents, help="show dataset info")
     subparser.add_argument(
         "--dataset-name",
         action="store",

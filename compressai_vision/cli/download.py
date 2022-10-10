@@ -33,7 +33,11 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("download", parents=parents)
+    subparser = subparsers.add_parser(
+        "download",
+        parents=parents,
+        help="download an image set and register it to fiftyone.",
+    )
     subparser.add_argument(
         "--mock", action="store_true", default=False, help="mock tests"
     )
@@ -51,7 +55,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="comma-separated list of list files",
+        help="comma-separated list of list files. Example: detection_validation_input_5k.lst, segmentation_validation_input_5k.lst",
     )
     subparser.add_argument(
         "--split",
@@ -59,7 +63,7 @@ def add_subparser(subparsers, parents=[]):
         type=str,
         required=False,
         default=None,
-        help="database sub-name, say, 'train' or 'validation'",
+        help="database sub-name. Example: 'train' or 'validation'",
     )
     subparser.add_argument(
         "--dir",

@@ -103,7 +103,10 @@ def get_dir(dir_, txt="", make=True, check=False):
 
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
-        "mpeg-vcm-auto-import", parents=parents, help="kokkelis", description=help_st
+        "mpeg-vcm-auto-import",
+        parents=parents,
+        help="auto-imports mpeg-vcm working group files, downloads necessary images from the internet, imports them to fiftyone, etc.",
+        description=help_st,
     )
     # NOTE: help is something show without using this command
     # descriptions is shown when the command is used
@@ -123,6 +126,9 @@ def add_subparser(subparsers, parents=[]):
         action="store_true",
         default=True,
         help="Use mpeg-vcm files bundled with compressai-vision",
+    )
+    subparser = subparsers.add_parser(
+        "manual", parents=parents, help="shows complete manual"
     )
 
 
