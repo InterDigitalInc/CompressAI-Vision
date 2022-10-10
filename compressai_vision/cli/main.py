@@ -62,8 +62,8 @@ for key in COMMANDS:
 
 
 def setup_parser():
-    common_parser = argparse.ArgumentParser(add_help=False,
-    formatter_class=argparse.RawTextHelpFormatter
+    common_parser = argparse.ArgumentParser(
+        add_help=False, formatter_class=argparse.RawTextHelpFormatter
     )
     common_parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"

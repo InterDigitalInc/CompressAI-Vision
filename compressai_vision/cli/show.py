@@ -48,6 +48,7 @@ def main(p):
     # fiftyone
     import numpy as np
     from PIL import Image
+
     print("importing fiftyone")
     import fiftyone as fo
 

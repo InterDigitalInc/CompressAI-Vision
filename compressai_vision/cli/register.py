@@ -33,7 +33,11 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("register", parents=parents, help="register image set to fiftyone from local dir")
+    subparser = subparsers.add_parser(
+        "register",
+        parents=parents,
+        help="register image set to fiftyone from local dir",
+    )
     subparser.add_argument(
         "--dataset-name",
         action="store",

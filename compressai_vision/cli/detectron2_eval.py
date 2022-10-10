@@ -37,48 +37,18 @@ import os
 # import uuid
 
 from pathlib import Path
-from typing import Dict
 
-from torch import Tensor
-
-
-def rename_key(key: str) -> str:
-    """Rename state_dict key."""
-
-    # Deal with modules trained with DataParallel
-    if key.startswith("module."):
-        key = key[7:]
-
-    # ResidualBlockWithStride: 'downsample' -> 'skip'
-    if ".downsample." in key:
-        return key.replace("downsample", "skip")
-
-    # EntropyBottleneck: nn.ParameterList to nn.Parameters
-    if key.startswith("entropy_bottleneck."):
-        if key.startswith("entropy_bottleneck._biases."):
-            return f"entropy_bottleneck._bias{key[-1]}"
-
-        if key.startswith("entropy_bottleneck._matrices."):
-            return f"entropy_bottleneck._matrix{key[-1]}"
-
-        if key.startswith("entropy_bottleneck._factors."):
-            return f"entropy_bottleneck._factor{key[-1]}"
-
-    return key
-
-
-def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
-    """Convert state_dict keys."""
-    state_dict = {rename_key(k): v for k, v in state_dict.items()}
-    return state_dict
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
-    help="evaluate model with detectron2 using OpenImageV6")
-    required_group = subparser.add_argument_group('required arguments')
-    compressai_group = subparser.add_argument_group('compressai-zoo arguments')
-    vtm_group = subparser.add_argument_group('vtm arguments')
-    optional_group = subparser.add_argument_group('optional arguments')
+    subparser = subparsers.add_parser(
+        "detectron2-eval",
+        parents=parents,
+        help="evaluate model with detectron2 using OpenImageV6",
+    )
+    required_group = subparser.add_argument_group("required arguments")
+    compressai_group = subparser.add_argument_group("compressai-zoo arguments")
+    vtm_group = subparser.add_argument_group("vtm arguments")
+    optional_group = subparser.add_argument_group("optional arguments")
     required_group.add_argument(
         "--dataset-name",
         action="store",
@@ -137,6 +107,8 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="a path to a directory containing model.py for custom development model",
     )
+    """it's up to user to provide qpoint --> checkpoint mapping in model.py
+    subparser.add_argument(
     compressai_group.add_argument(
         "--compression-model-checkpoint",
         action="store",
@@ -146,7 +118,13 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="path to a compression model checkpoint(s)",
     )
-    vtm_group.add_argument("--vtm", action="store_true", default=False, help="To enable vtm codec. default: False")
+    """
+    vtm_group.add_argument(
+        "--vtm",
+        action="store_true",
+        default=False,
+        help="To enable vtm codec. default: False",
+    )
     vtm_group.add_argument(
         "--vtm_dir",
         action="store",
@@ -300,10 +278,10 @@ def main(p):  # noqa: C901
         # no (de)compression, just eval
         assert (
             p.qpars is None
-        ), "you have provided quality pars but not a (de)compress model"
+        ), "you have provided quality pars but not a (de)compress or vtm model"
         qpars = None  # this indicates no qpars/pure eval run downstream
 
-    elif defined_codec != p.compression_model_path:
+    else:
         # check quality parameter list
         assert p.qpars is not None, "need to provide integer quality parameters"
         try:
@@ -312,9 +290,13 @@ def main(p):  # noqa: C901
             print("problems with your quality parameter list")
             raise e
 
+    """nopes: always define quality points. besides, this is confusing:
+    qpoints are qpoints and paths are paths..!  Why stuff both into a variable
+    with the same name..!?
     else:
         # if model checkpoints provided, loop over the checkpoints
         qpars = p.compression_model_checkpoint
+    """
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         """
@@ -331,9 +313,8 @@ def main(p):  # noqa: C901
     #         compressai.zoo, p.compressai_model_name
     #     )  # a function that returns a model instance or just a class
 
-    elif (
-        p.compression_model_path is not None
-    ):  # compression from a custcom compression model
+    elif p.compression_model_path is not None:
+        # compression from a custcom compression model
         # TODO (fracape) why not asking for the full file path?
         model_file = Path(p.compression_model_path) / "model.py"
         if model_file.is_file():
@@ -359,7 +340,8 @@ def main(p):  # noqa: C901
                     module.getModel
                 )  # a function that returns a model instance or just a class
                 print("loaded custom model.py")
-            assert p.compression_model_checkpoint is not None
+            # assert p.compression_model_checkpoint is not None
+            # .. use quality points instead
             # for checkpoint_file in p.compression_model_checkpoint:
             #     try:
             #         _ = Path(checkpoint_file).resolve(strict=True)
@@ -378,25 +360,19 @@ def main(p):  # noqa: C901
                 return
         else:
             vtm_dir = p.vtm_dir
+
         vtm_dir = os.path.expanduser(vtm_dir)
-        vtm_parent_dir=os.path.split(vtm_dir)[0]
+
         if p.vtm_cfg is None:
             # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
             # print("WARNING: using VTM default config file", vtm_cfg)
             raise BaseException("VTM config is not defined")
         else:
-            # look into VTM folder
-            if os.path.isfile(os.path.join(vtm_parent_dir,'cfg',p.vtm_cfg)):
-                vtm_cfg = os.path.join(vtm_parent_dir,'cfg',p.vtm_cfg)
-            # look into compressai-vision folder
-            elif os.path.isfile(os.path.join(p.vtm_cfg)):
-                vtm_cfg = getDataFile(p.vtm_cfg)
-            else:
-                vtm_cfg = p.vtm_cfg
+            vtm_cfg = p.vtm_cfg
         vtm_cfg = os.path.expanduser(
             vtm_cfg
         )  # some more systematic way of doing these..
-        print('Looking for vtm config at: '+ vtm_cfg)
+        print("Reading vtm config from: " + vtm_cfg)
         assert os.path.isfile(vtm_cfg), "vtm config file not found"
         # try both filenames..
         vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
@@ -511,8 +487,10 @@ def main(p):  # noqa: C901
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     else:
         print("** Evaluation without Encoding/Decoding **")
+    """
     if p.compression_model_checkpoint:
-        print("WARN: using checkpoints")
+        print("WARN: using checkpoint files")
+    """
     if qpars is not None:
         print("Quality parameters     :", qpars)
     print("Ground truth data field name")
@@ -605,7 +583,7 @@ def main(p):  # noqa: C901
             enc_dec = None  # default: no encoding/decoding
             if (
                 p.compressai_model_name or p.compression_model_path
-            ):  # compressai model, either from the zoo or from a directory
+            ):  # compressai model, either from the zoo or from a directory:
                 if p.compressai_model_name is not None:
                     # e.g. "bmshj2018-factorized"
                     print("\nQUALITY PARAMETER: ", quality)
@@ -614,28 +592,10 @@ def main(p):  # noqa: C901
                         .eval()
                         .to(device)
                     )
-                    # or a custom model from a file
+                    # or a custom model from a file:
                 else:
-                    print("CHECKPOINT: ", Path(quality).stem)
-                    net = compression_model()
+                    net = compression_model(quality=quality).eval().to(device)
                     # make sure we load just trained models and pre-trained/ updated entropy parameters
-                    try:
-                        checkpoint = torch.load(quality)
-                        if "network" in checkpoint:
-                            state_dict = checkpoint["network"]
-                        elif "state_dict" in checkpoint:
-                            state_dict = checkpoint["state_dict"]
-                        else:
-                            state_dict = checkpoint
-
-                        state_dict = load_state_dict(state_dict)
-                        # For now, update is forced in case
-                        net = net.from_state_dict(state_dict)
-                        net.update(force=True)
-                        net = net.to(device).eval()
-                    except Exception as e:
-                        print("\nLoading checkpoint failed!\n")
-                        raise e
                 enc_dec = CompressAIEncoderDecoder(
                     net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
                 )

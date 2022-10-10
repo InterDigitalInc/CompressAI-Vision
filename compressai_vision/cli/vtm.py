@@ -34,7 +34,9 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("vtm", parents=parents, help="generate bitstream with the vtm video encoder")
+    subparser = subparsers.add_parser(
+        "vtm", parents=parents, help="generate bitstream with the vtm video encoder"
+    )
     subparser.add_argument(
         "--dataset-name",
         action="store",
@@ -203,6 +205,7 @@ def main(p):
 
     vtm_cfg = os.path.expanduser(vtm_cfg)  # some more systematic way of doing these..
 
+    print("reading VTM config from:", vtm_cfg)
     assert os.path.isfile(vtm_cfg), "vtm config file not found"
 
     # try both filenames..
