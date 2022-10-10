@@ -72,7 +72,6 @@ def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
     state_dict = {rename_key(k): v for k, v in state_dict.items()}
     return state_dict
 
-
 def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser("detectron2-eval", parents=parents, 
     help="evaluate model with detectron2 using OpenImageV6")
@@ -380,14 +379,24 @@ def main(p):  # noqa: C901
         else:
             vtm_dir = p.vtm_dir
         vtm_dir = os.path.expanduser(vtm_dir)
+        vtm_parent_dir=os.path.split(vtm_dir)[0]
         if p.vtm_cfg is None:
-            vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-            print("WARNING: using VTM default config file", vtm_cfg)
+            # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
+            # print("WARNING: using VTM default config file", vtm_cfg)
+            raise BaseException("VTM config is not defined")
         else:
-            vtm_cfg = p.vtm_cfg
+            # look into VTM folder
+            if os.path.isfile(os.path.join(vtm_parent_dir,'cfg',p.vtm_cfg)):
+                vtm_cfg = os.path.join(vtm_parent_dir,'cfg',p.vtm_cfg)
+            # look into compressai-vision folder
+            elif os.path.isfile(os.path.join(p.vtm_cfg)):
+                vtm_cfg = getDataFile(p.vtm_cfg)
+            else:
+                vtm_cfg = p.vtm_cfg
         vtm_cfg = os.path.expanduser(
             vtm_cfg
         )  # some more systematic way of doing these..
+        print('Looking for vtm config at: '+ vtm_cfg)
         assert os.path.isfile(vtm_cfg), "vtm config file not found"
         # try both filenames..
         vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
