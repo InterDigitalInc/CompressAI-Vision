@@ -32,7 +32,8 @@
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("dummy", parents=parents)
+    subparser = subparsers.add_parser("dummy", parents=parents
+    , help="create & register a dummy database with just the first sample")
     subparser.add_argument(
         "--dataset-name",
         action="store",

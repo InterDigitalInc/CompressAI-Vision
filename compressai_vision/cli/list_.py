@@ -33,7 +33,8 @@ import os
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("list", parents=parents)
+    subparser = subparsers.add_parser("list", parents=parents
+    , help="list all datasets registered to fiftyone")
 
 
 def main(p):

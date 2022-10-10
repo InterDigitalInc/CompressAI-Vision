@@ -105,14 +105,14 @@ def tx(ax, st, i, j, color):
 
 
 def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser("plot", parents=parents)
-    subparser.add_argument("--csv", action="store_true", default=False)
+    subparser = subparsers.add_parser("plot", parents=parents, help="plot mAP-bpp curve")
+    subparser.add_argument("--csv", action="store_true", default=False, help="output result as nicely formated csv table")
     subparser.add_argument(
         "--dirs",
         action="store",
         type=str,
         required=False,
-        help="list of directories",
+        help="list of directories, each folder contains evaluation result (json files) of certain model done with detectron2-eval",
     )
     """removed:
     subparser.add_argument(
@@ -185,20 +185,20 @@ def main(p):
 
     if parsed.symbols is None:
         print("NOTE: you didn't provide a symbol list, will create one instead")
-        symbols = []
+        symbols=[]
     else:
-        symbols = parsed.symbols.split(",")
+        symbols = parsed.symbols.split(",")    
     if parsed.names is None:
         print("NOTE: you didn't provide a plot names, will create one instead")
-        names = []
+        names=[]
     else:
         names = parsed.names.split(",")
 
-    symbols_aux = ["o--k", "-g", "*:r"]
+    symbols_aux=["o--k","-g","*:r"]
     for i, dir_ in enumerate(dirs):
         if parsed.symbols is None:
             # cyclic:
-            symbols.append(symbols_aux[i % len(symbols_aux)])
+            symbols.append(symbols_aux[i%len(symbols_aux)])
         if parsed.names is None:
             # names.append("plot"+str(i))
             names.append(dir_.split(os.pathsep)[-1])
