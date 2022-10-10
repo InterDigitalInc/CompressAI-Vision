@@ -29,13 +29,16 @@
 
 import warnings
 
+import os
 import torch
 import torch.nn as nn
+from torch import Tensor
+from typing import Dict
 
 # from compressai.ans import BufferedRansEncoder, RansDecoder
 from compressai.entropy_models import EntropyBottleneck
 from compressai.layers import GDN
-from compressai.registry import register_model
+# from compressai.registry import register_model # TODO: remove
 
 
 def conv(in_channels, out_channels, kernel_size=5, stride=2):
@@ -69,8 +72,6 @@ def find_named_buffer(module, query):
         torch.Tensor or None
     """
     return next((b for n, b in module.named_buffers() if n == query), None)
-
-
 
 def _update_registered_buffer(
     module,
@@ -201,7 +202,7 @@ class CompressionModel(nn.Module):
         super().load_state_dict(state_dict)
 
 
-@register_model("bmshj2018-factorized")
+# @register_model("bmshj2018-factorized") # TODO: remove
 class FactorizedPrior(CompressionModel):
     r"""Factorized Prior model from J. Balle, D. Minnen, S. Singh, S.J. Hwang,
     N. Johnston: `"Variational Image Compression with a Scale Hyperprior"
@@ -279,34 +280,82 @@ class FactorizedPrior(CompressionModel):
         return {"x_hat": x_hat}
 
 
-def getModel(quality=None, pretrained=False, **kwargs):
-    """How your model is instantiated.
+def rename_key(key: str) -> str:
+    """Rename state_dict key."""
+
+    # Deal with modules trained with DataParallel
+    if key.startswith("module."):
+        key = key[7:]
+
+    # ResidualBlockWithStride: 'downsample' -> 'skip'
+    if ".downsample." in key:
+        return key.replace("downsample", "skip")
+
+    # EntropyBottleneck: nn.ParameterList to nn.Parameters
+    if key.startswith("entropy_bottleneck."):
+        if key.startswith("entropy_bottleneck._biases."):
+            return f"entropy_bottleneck._bias{key[-1]}"
+
+        if key.startswith("entropy_bottleneck._matrices."):
+            return f"entropy_bottleneck._matrix{key[-1]}"
+
+        if key.startswith("entropy_bottleneck._factors."):
+            return f"entropy_bottleneck._factor{key[-1]}"
+
+    return key
+
+
+def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
+    """Convert state_dict keys."""
+    state_dict = {rename_key(k): v for k, v in state_dict.items()}
+    return state_dict
+
+
+def getModel(quality=None, **kwargs):
+    """Calling this function instantiates your model.
 
     All the quality of the compression should be adjustable with a single
-    integer quality parameters (which maps to several other parameters
-    ajusting the quality).
+    integer quality parameters which maps to a checkpoint file in this
+    very directory
     """
-    #assert(quality is not None), "provide a quality parameters"
-    return FactorizedPrior(128, 192)  # in this simple demo we won't be using quality parameter
+    assert(quality is not None), "provide a quality parameters"
 
+    qpoint_per_file = {
+        1 : "bmshj2018-factorized-prior-1-446d5c7f.pth.tar",
+        2 : "bmshj2018-factorized-prior-2-87279a02.pth.tar"
+    }
 
-"""NOTES
+    try:
+        cp_file = qpoint_per_file[quality]
+    except KeyError:
+        print("Invalid quality point", quality)
+        raise
 
-The user should provide a function that returns a model as
-per a single integer quality parameter
+    # path of _this_ directory:
+    pwd = os.path.dirname(__file__)
+    # correct filename paths:
+    cp_file = os.path.join(pwd, cp_file)
 
------
+    # instantiate the model:
+    net = FactorizedPrior(128, 192)
 
-about model instantiation in compressai:
+    try:
+        checkpoint = torch.load(cp_file)
+        if "network" in checkpoint:
+            state_dict = checkpoint["network"]
+        elif "state_dict" in checkpoint:
+            state_dict = checkpoint["state_dict"]
+        else:
+            state_dict = checkpoint
 
-::
+        state_dict = load_state_dict(state_dict)
+        # For now, update is forced in case
+        net = net.from_state_dict(state_dict)
+        net.update(force=True)
+        # net = net.to(device).eval() # done by the main program
+    except Exception as e:
+        print("\nLoading checkpoint failed!\n")
+        raise e
+    else:
+        return net
 
-    zoo.image.bmshj2018_factorized(quality, etc. parameters
-        --> _load_model("bmshj2018-factorized", etc. parameters)
-            --> inspects model_urls .. if pretrained requested & avail
-            for (quality + etc. parameters), the do load_state_dict_from_url etc.
-            --> model_architectures["bmshj2018-factorized"].from_state_dict
-            return
-            --> model_architectures["bmshj2018-factorized"](instantiate with quality+etc. parameters)
-
-"""

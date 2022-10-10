@@ -148,7 +148,8 @@ def main(p_):
 
     p = Namespace()
     p.mock = p_.mock
-    p.y = False
+    # p.y = False
+    p.y = p_.y
     p.dataset_name = "open-images-v6"
 
     if dirname is None:
@@ -158,7 +159,9 @@ def main(p_):
     else:
         dir_ = os.path.join(dirname, p.dataset_name)
 
-    dir_ = get_dir(dir_, "path to download (MPEG/VCM subset of) OpenImageV6 ")
+    if not p_.y:
+        dir_ = get_dir(dir_, "path to download (MPEG/VCM subset of) OpenImageV6 ")
+
     source_dir = os.path.join(
         dir_, "validation"
     )  # "~/fiftyone/open-images-v6/validation"
@@ -175,7 +178,8 @@ def main(p_):
 
     print("\n**CONVERTING MPEG/VCM DETECTION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
-    p.y = False
+    # p.y = False
+    p.y = p_.y
 
     if dirname is None:
         mpeg_vcm_dir = os.path.join(
@@ -183,9 +187,11 @@ def main(p_):
         )  # ~/fiftyone/mpeg-vcm-detection
     else:
         mpeg_vcm_dir = os.path.join(dirname, "mpeg-vcm-detection")
-    mpeg_vcm_dir = get_dir(
-        mpeg_vcm_dir, "imported detection dataset path", make=False, check=False
-    )
+
+    if not p_.y:
+        mpeg_vcm_dir = get_dir(
+            mpeg_vcm_dir, "imported detection dataset path", make=False, check=False
+        )
 
     p.lists = get_("detection_validation_input_5k.lst", load_dir)
     # p.dir = "~/fiftyone/open-images-v6/validation"
@@ -199,7 +205,8 @@ def main(p_):
 
     print("\n**CONVERTING MPEG/VCM SEGMENTATION DATA TO OPENIMAGEV6 FORMAT**\n")
     p = Namespace()
-    p.y = False
+    # p.y = False
+    p.y = p_.y
 
     if dirname is None:
         mpeg_vcm_dir_seg = os.path.join(
@@ -207,9 +214,13 @@ def main(p_):
         )  # ~/fiftyone/mpeg_vcm-segmentation
     else:
         mpeg_vcm_dir_seg = os.path.join(dirname, "mpeg-vcm-segmentation")
-    mpeg_vcm_dir_seg = get_dir(
-        mpeg_vcm_dir_seg, "imported segmentation dataset path", make=False, check=False
-    )
+    if not p_.y:
+        mpeg_vcm_dir_seg = get_dir(
+            mpeg_vcm_dir_seg,
+            "imported segmentation dataset path",
+            make=False,
+            check=False,
+        )
 
     p.lists = get_("segmentation_validation_input_5k.lst", load_dir)
     # p.dir = "~/fiftyone/open-images-v6/validation"
@@ -223,8 +234,11 @@ def main(p_):
 
     print("\n**REGISTERING MPEG/VCM DETECTION DATA INTO FIFTYONE**\n")
     p = Namespace()
-    p.y = False
-    dataset_name = get_inp("mpeg-vcm-detection", "name for detection dataset")
+    # p.y = False
+    p.y = p_.y
+    dataset_name = "mpeg-vcm-detection"
+    if p_.y == False:
+        dataset_name = get_inp(dataset_name, "name for detection dataset")
     p.dataset_name = dataset_name
     p.lists = get_("detection_validation_input_5k.lst", load_dir)
     p.dir = mpeg_vcm_dir
@@ -236,14 +250,18 @@ def main(p_):
 
     print("\n**CREATING DUMMY/MOCK DETECTION DATA FOR YOUR CONVENIENCE SIR**\n")
     p = Namespace()
-    p.y = False
+    # p.y = False
+    p.y = p_.y
     p.dataset_name = dataset_name
     dummy.main(p)
 
     print("\n**REGISTERING MPEG/VCM SEGMENTATION DATA INTO FIFTYONE**\n")
     p = Namespace()
-    p.y = False
-    dataset_name = get_inp("mpeg-vcm-segmentation", "name for segmentation dataset")
+    # p.y = False
+    p.y = p_.y
+    dataset_name = "mpeg-vcm-segmentation"
+    if p_.y == False:
+        dataset_name = get_inp(dataset_name, "name for segmentation dataset")
     p.dataset_name = dataset_name
     p.lists = get_("segmentation_validation_input_5k.lst", load_dir)
     p.dir = mpeg_vcm_dir_seg
