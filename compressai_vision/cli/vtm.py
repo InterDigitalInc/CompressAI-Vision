@@ -205,7 +205,7 @@ def main(p):
 
     vtm_cfg = os.path.expanduser(vtm_cfg)  # some more systematic way of doing these..
 
-    print("reading VTM config from:", vtm_cfg)
+    print("reading VTM config from '" + vtm_cfg + "'")
     assert os.path.isfile(vtm_cfg), "vtm config file not found"
 
     # try both filenames..
