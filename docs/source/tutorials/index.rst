@@ -10,6 +10,7 @@ CLI Tutorial
    cli_tutorial_3
    cli_tutorial_4
    cli_tutorial_5
+   cli_tutorial_6
 
 Library Tutorial
 ================
