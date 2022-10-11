@@ -27,7 +27,7 @@ Let’s generate some encoded bitstreams.
 
 .. code:: ipython3
 
-    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \\
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
