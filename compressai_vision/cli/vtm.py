@@ -37,7 +37,8 @@ def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
         "vtm", parents=parents, help="generate bitstream with the vtm video encoder"
     )
-    subparser.add_argument(
+    required_group = subparser.add_argument_group("required arguments")
+    required_group.add_argument(
         "--dataset-name",
         action="store",
         type=str,
@@ -62,7 +63,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="path to directory with executables EncoderAppStatic & DecoderAppStatic",
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--vtm_cfg",
         action="store",
         type=str,
@@ -70,7 +71,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="vtm config file",
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--vtm_cache",
         action="store",
         type=str,
@@ -78,7 +79,7 @@ def add_subparser(subparsers, parents=[]):
         default=None,
         help="directory to cache vtm bitstreams",
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--qpars",
         action="store",
         type=str,

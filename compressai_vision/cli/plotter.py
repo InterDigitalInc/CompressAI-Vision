@@ -108,13 +108,14 @@ def add_subparser(subparsers, parents=[]):
     subparser = subparsers.add_parser(
         "plot", parents=parents, help="plot mAP-bpp curve"
     )
+    required_group = subparser.add_argument_group("required arguments")
     subparser.add_argument(
         "--csv",
         action="store_true",
         default=False,
         help="output result as nicely formated csv table",
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--dirs",
         action="store",
         type=str,
