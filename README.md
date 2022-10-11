@@ -15,7 +15,23 @@ input video/image --> Encoding --> compressed bitstream --> Decoding --> Detecto
 ```
 
 TODO: Jacky had some nice diagrams for this..?
-
+```mermaid
+graph LR
+    A[input video/image] -->B
+    A --> B1
+    B[VTM Encoder] --> C
+    B1[E2E Encoder]:::cai--> C
+    C[Compressed bitstream] --> D
+    C --> D1
+    D[VTM Decoder]--> E
+    D1[E2E Decoder]:::cai-->E
+    E[Reconstructed video/image]--> F
+    E --> F1
+    F[Human consumption]:::cai --> G[Visual Quality Metrics]:::cai
+    F1[Computer vision task]:::cav --> G1[Task Metrics]:::cav
+    classDef cai fill:#ffffff,stroke:#4287f5,stroke-width:4px
+    classDef cav fill:#bfeeff,stroke:#000000,stroke-width:4px
+```
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean Average Precision (mAP) as a function of encoding/quality parameters:
 
 TODO: add a figure here
