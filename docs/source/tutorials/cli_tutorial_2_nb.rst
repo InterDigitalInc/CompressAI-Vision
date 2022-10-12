@@ -7,7 +7,7 @@ In the previous chapter we downloaded & registered the dataset
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
@@ -31,7 +31,7 @@ Let’s see what’s in there:
 
 .. code:: ipython3
 
-    !ls ~/fiftyone/quickstart
+    ls ~/fiftyone/quickstart
 
 
 .. parsed-literal::
@@ -45,7 +45,7 @@ Let’s take a look at that:
 
 .. code:: ipython3
 
-    !ls ~/fiftyone/quickstart/data
+    ls ~/fiftyone/quickstart/data
 
 
 .. parsed-literal::
@@ -96,7 +96,7 @@ In order to demo that, let’s create a copy of ``~/fiftyone/quickstart``:
 
 .. code:: ipython3
 
-    !cp -r ~/fiftyone/quickstart /tmp/my_data_set
+    cp -r ~/fiftyone/quickstart /tmp/my_data_set
 
 Let’s imagine ``/tmp/my_data_set`` is that custom dataset of yours you
 had already lying around.
@@ -105,7 +105,7 @@ We register it to fiftyone with:
 
 .. code:: ipython3
 
-    !compressai-vision register --y \
+    compressai-vision register --y \
     --dataset-name=my_dataset \
     --dir=/tmp/my_data_set \
     --type=FiftyOneDataset
@@ -419,7 +419,7 @@ Let’s check that the dataset got registered correctly:
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
@@ -441,7 +441,7 @@ A more detailed look into the dataset:
 
 .. code:: ipython3
 
-    !compressai-vision show --dataset-name=my_dataset
+    compressai-vision show --dataset-name=my_dataset
 
 
 .. parsed-literal::
@@ -472,7 +472,7 @@ Let’s deregister the dataset:
 
 .. code:: ipython3
 
-    !compressai-vision deregister --y --dataset-name=my_dataset
+    compressai-vision deregister --y --dataset-name=my_dataset
 
 
 .. parsed-literal::
@@ -486,7 +486,7 @@ Check it got removed:
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
@@ -507,5 +507,5 @@ Let’s remove the image data as well:
 
 .. code:: ipython3
 
-    !rm -rf /tmp/my_data_set
+    rm -rf /tmp/my_data_set
 

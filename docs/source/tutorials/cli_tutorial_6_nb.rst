@@ -27,7 +27,7 @@ Let’s generate some encoded bitstreams.
 
 .. code:: ipython3
 
-    !compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -74,7 +74,7 @@ same command again:
 
 .. code:: ipython3
 
-    !compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -120,13 +120,13 @@ Let’s fool around and corrupt one of the bitstreams:
 
 .. code:: ipython3
 
-    !echo " " > /tmp/bitstreams/100/47/bin_000a1249af2bc5f0
+    echo " " > /tmp/bitstreams/100/47/bin_000a1249af2bc5f0
 
 And run the command again:
 
 .. code:: ipython3
 
-    !compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -180,7 +180,7 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \

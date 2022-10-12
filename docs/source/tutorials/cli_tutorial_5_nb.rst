@@ -26,7 +26,7 @@ Now we can use ``compressai-vision plot`` to plot the results:
 
 .. code:: ipython3
 
-    !compressai-vision plot --dirs={path_to_examples}/data/interdigital/bmshj2018_factorized \
+    compressai-vision plot --dirs={path_to_examples}/data/interdigital/bmshj2018_factorized \
     --symbols=x--r --names=bmshj2018_factorized --eval=0.792,-k
 
 
@@ -56,7 +56,7 @@ accuracy from ``examples/data/interdigital/vtm_scale_100``:
 
 .. code:: ipython3
 
-    !compressai-vision plot --dirs={path_to_examples}/data/interdigital/bmshj2018_factorized,{path_to_examples}/data/interdigital/vtm_scale_100 \
+    compressai-vision plot --dirs={path_to_examples}/data/interdigital/bmshj2018_factorized,{path_to_examples}/data/interdigital/vtm_scale_100 \
     --symbols=x--r,*--k --names=bmshj2018_factorized,vtm --eval=0.792,-b
 
 
