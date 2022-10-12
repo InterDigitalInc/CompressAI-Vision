@@ -1,3 +1,6 @@
+In this chapter, we create an evaluation dataset as defined by the
+MPEG-VCM working group
+
 .. code:: ipython3
 
     # common libs
@@ -12,7 +15,7 @@
     homie=os.path.expanduser("~")
     print("your home path is", homie)
     fodir=os.path.join(homie,'fiftyone')
-    print("fiftyone dowloads data to", fodir)
+    print("fiftyone dowloads data by default to", fodir)
     try:
         os.mkdir(fodir)
     except FileExistsError:
@@ -22,7 +25,7 @@
 .. parsed-literal::
 
     your home path is /home/sampsa
-    fiftyone dowloads data to /home/sampsa/fiftyone
+    fiftyone dowloads data by default to /home/sampsa/fiftyone
 
 
 .. code:: ipython3
@@ -37,7 +40,7 @@
     from compressai_vision.conversion import MPEGVCMToOpenImageV6, imageIdFileList
 
 We expect that you have downloaded correct images and segmentation masks
-into open-images-v6 folder:
+into open-images-v6 folder (as instructed in the previous chapter)
 
 .. code:: ipython3
 
@@ -79,14 +82,13 @@ are:
 
 ::
 
-   detection_validation_5k_bbox.csv           detection bbox annotations
-   detection_validation_labels_5k.csv         image-level annotations
-   detection_validation_input_5k.lst          list of images used
+   detection_validation_5k_bbox.csv           = detection bbox annotations
+   detection_validation_labels_5k.csv         = image-level annotations
+   detection_validation_input_5k.lst          = list of images used
 
 .. code:: ipython3
 
-    ## TODO: DEFINE YOUR PARTICULAR PATHS
-    path_to_mpeg_vcm_files="/home/sampsa/silo/interdigital/siloai-playground/sampsa/mpeg_vcm/data5K"
+    # TODO: define path_to_mpeg_vcm_files
     path_to_images=os.path.join(fodir,"open-images-v6/validation/data")
     
     list_file=os.path.join(path_to_mpeg_vcm_files, "detection_validation_input_5k.lst")
@@ -97,7 +99,7 @@ are:
     assert(os.path.exists(validation_csv_file)), "can't find labels file"
     assert(os.path.exists(path_to_images)), "can't find image directory"
 
-Now we convert mpeg_vcm proprietary format annotation into proper
+Now we convert mpeg vmc proprietary format annotation into proper
 OpenImageV6 format dataset and place it into
 ``~/fiftyone/mpeg_vcm-detection``
 
@@ -105,7 +107,7 @@ First, remove any previously imported stuff:
 
 .. code:: ipython3
 
-    !rm -rf ~/fiftyone/mpeg_vcm-detection
+    !rm -rf ~/fiftyone/mpeg-vcm-*
 
 .. code:: ipython3
 
@@ -113,7 +115,7 @@ First, remove any previously imported stuff:
         validation_csv_file=validation_csv_file,
         list_file=list_file,
         bbox_csv_file=bbox_csv_file,
-        output_directory=os.path.join(fodir,"mpeg_vcm-detection"),
+        output_directory=os.path.join(fodir,"mpeg-vcm-detection"),
         data_dir=path_to_images
     )
 
@@ -121,12 +123,12 @@ let’s see what we got:
 
 .. code:: ipython3
 
-    !tree --filelimit=10 ~/fiftyone/mpeg_vcm-detection | cat
+    !tree --filelimit=10 ~/fiftyone/mpeg-vcm-detection | cat
 
 
 .. parsed-literal::
 
-    /home/sampsa/fiftyone/mpeg_vcm-detection
+    /home/sampsa/fiftyone/mpeg-vcm-detection
     ├── data -> /home/sampsa/fiftyone/open-images-v6/validation/data
     ├── labels
     │   ├── classifications.csv
@@ -151,27 +153,27 @@ formatted dataset into fiftyone:
 
     # remove the dataset in the case it was already registered in fiftyone
     try:
-        fo.delete_dataset("mpeg_vcm-detection")
+        fo.delete_dataset("mpeg-vcm-detection")
     except ValueError as e:
         print("could not delete because of", e)
 
 .. code:: ipython3
 
     dataset_type = fo.types.OpenImagesV6Dataset
-    dataset_dir = os.path.join(fodir,"mpeg_vcm-detection")
+    dataset_dir = os.path.join(fodir,"mpeg-vcm-detection")
     dataset = fo.Dataset.from_dir(
         dataset_dir=dataset_dir,
         dataset_type=dataset_type,
         label_types=("detections","classifications"),
         load_hierarchy=False,
-        name="mpeg_vcm-detection",
+        name="mpeg-vcm-detection",
         image_ids=imageIdFileList(list_file)
     )
 
 
 .. parsed-literal::
 
-     100% |███████████████| 5000/5000 [16.9s elapsed, 0s remaining, 290.3 samples/s]      
+     100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]      
 
 
 .. code:: ipython3
@@ -181,7 +183,7 @@ formatted dataset into fiftyone:
 .. code:: ipython3
 
     ## now, in the future, just do
-    dataset = fo.load_dataset("mpeg_vcm-detection")
+    dataset = fo.load_dataset("mpeg-vcm-detection")
 
 Finaly, let’s also create a dummy dataset for debugging and testing with
 only one sample:
@@ -189,11 +191,18 @@ only one sample:
 .. code:: ipython3
 
     try:
-        fo.delete_dataset("mpeg_vcm-detection-dummy")
+        fo.delete_dataset("mpeg-vcm-detection-dummy")
     except ValueError:
         print("no dummmy dataset yet..")
-    dummy_dataset=fo.Dataset("mpeg_vcm-detection-dummy")
+    dummy_dataset=fo.Dataset("mpeg-vcm-detection-dummy")
     for sample in dataset[0:1]:
         dummy_dataset.add_sample(sample)
     dummy_dataset.persistent=True
+    print("dummy dataset ok")
+
+
+.. parsed-literal::
+
+    dummy dataset ok
+
 

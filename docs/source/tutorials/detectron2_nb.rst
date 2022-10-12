@@ -1,8 +1,12 @@
 3. Detectron2
 -------------
 
-In this chapter we run a fiftyone dataset through Detectron2 predictor
-and evaluate the results using fiftyone.
+-  Going between detectron2 & fiftyone
+-  Annexing detectron2 results to fiftyone
+
+In this chapter we look into fiftyone/detectron2 interface, how to add
+detectron2 results into a fiftyone dataset and how to evaluate
+detectron2 results with fiftyone.
 
 .. code:: ipython3
 

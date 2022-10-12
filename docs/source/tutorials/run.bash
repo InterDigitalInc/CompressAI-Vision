@@ -1,6 +1,13 @@
 #!/bin/bash
-# dirnames="cli_tutorial_1 cli_tutorial_2 cli_tutorial_3 cli_tutorial_4 cli_tutorial_5"
-dirnames="cli_tutorial_1"
+
+if [ $# -lt 1 ]; then
+    dirnames="fiftyone download convert detectron2 evaluate encdec cli_tutorial_1 cli_tutorial_2 cli_tutorial_3 cli_tutorial_4 cli_tutorial_5 cli_tutorial_6"
+else
+    dirnames=$@
+fi
+
+echo $dirnames
+
 for dirname in $dirnames
 do
     fname=$dirname"_nb.ipynb"
