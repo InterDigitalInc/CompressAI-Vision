@@ -161,10 +161,14 @@ def annexPredictions(
 
     # calculate bpp as defined by the VCM working group:
     if npix_sum < 1:
-        print("error: number of pixels sum < 1")
-        return -1
+        if encoder_decoder: # alert user if EncoderDecoder class was requested
+            print("error: number of pixels sum < 1")
+            return -1
+        return None
     if nbits_sum < 1:
-        print("error: number of bits sum < 1")
-        return -1
+        if encoder_decoder: # alert user if EncoderDecoder class was requested
+            print("error: number of bits sum < 1")
+            return -1
+        return None
     bpp = nbits_sum / npix_sum
     return bpp
