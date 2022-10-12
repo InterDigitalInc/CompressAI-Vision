@@ -9,5 +9,4 @@ echo
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 compressai-vision plot --dirs="${SCRIPT_DIR}/../../examples/data/interdigital/vtm_scale_100" \
---symbols=x--r --names=vtm --eval=0.792
-#,--r --show-baseline=100
+--symbols=x--r --names=vtm --eval=0.792,--r
