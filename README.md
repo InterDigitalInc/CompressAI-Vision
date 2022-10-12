@@ -8,29 +8,30 @@ CompressAI-Vision helps you to develop, test and evaluate compression models wit
 
 End-to-end NN-based image and video coding models can be evaluated using various metrics, say SSIM and PNSR, like in [CompressAI](https://interdigitalinc.github.io/CompressAI), but also against image detection and segmentation tasks.
 
-The following template pipeline is then used in CompressAI-Vision:
 
-```
-input video/image --> Encoding --> compressed bitstream --> Decoding --> Detector
-```
+Following is a pipeline of video/image compression for machine vision task.
+End-to-end compression model for human consumption (components in blue box) are implemented with Interdigital CompressAI library. Our library is a companion of CompressAI and implements the computer vision task and corresponding evaluations (pink boxes). Furthermore, we also provide support for traditional codec (for example, VTM codec) so the user can benchmark their model with the performance of traditional codec. In the future, we are also going to include support of using feature map as input of computer vision tasks.
 
-TODO: Jacky had some nice diagrams for this..?
 ```mermaid
 graph LR
-    A[input video/image] -->B
+    A[input video/image]:::other -->B
     A --> B1
-    B[VTM Encoder] --> C
+    B[Traditional Encoder]:::other --> C
     B1[E2E Encoder]:::cai--> C
-    C[Compressed bitstream] --> D
+    C[Compressed bitstream]:::other --> D
     C --> D1
-    D[VTM Decoder]--> E
+    D[Traditional Decoder]:::other--> E
     D1[E2E Decoder]:::cai-->E
-    E[Reconstructed video/image]--> F
+    D1 -.-> H
+    E[Reconstructed video/image]:::other--> F
     E --> F1
     F[Human consumption]:::cai --> G[Visual Quality Metrics]:::cai
     F1[Computer vision task]:::cav --> G1[Task Metrics]:::cav
-    classDef cai fill:#ffffff,stroke:#4287f5,stroke-width:4px
-    classDef cav fill:#bfeeff,stroke:#000000,stroke-width:4px
+    H[Feature map]:::future -.-> F1
+    classDef cai stroke:#63C5DA,stroke-width:4px
+    classDef cav stroke:#FFC0CB,stroke-width:4px
+    classDef other stroke:#008000,stroke-width:4px
+    classDef future stroke:#FFBF00,stroke-width:4px
 ```
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean Average Precision (mAP) as a function of encoding/quality parameters:
 
