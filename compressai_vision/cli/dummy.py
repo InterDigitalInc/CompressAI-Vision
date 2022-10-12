@@ -37,7 +37,8 @@ def add_subparser(subparsers, parents=[]):
         parents=parents,
         help="create & register a dummy database with just the first sample",
     )
-    subparser.add_argument(
+    required_group = subparser.add_argument_group("required arguments")
+    required_group.add_argument(
         "--dataset-name",
         action="store",
         type=str,

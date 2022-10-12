@@ -38,10 +38,11 @@ def add_subparser(subparsers, parents=[]):
         parents=parents,
         help="download an image set and register it to fiftyone.",
     )
+    required_group = subparser.add_argument_group("required arguments")
     subparser.add_argument(
         "--mock", action="store_true", default=False, help="mock tests"
     )
-    subparser.add_argument(
+    required_group.add_argument(
         "--dataset-name",
         action="store",
         type=str,
