@@ -58,7 +58,7 @@ DEV_REQUIRES = TEST_REQUIRES + [
 def get_extra_requirements():
     extras_require = {
         "dev": DEV_REQUIRES,
-        "doc": ["sphinx", "furo"],
+        "doc": ["sphinx", "furo", "sphinxcontrib-mermaid"],
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
     return extras_require
