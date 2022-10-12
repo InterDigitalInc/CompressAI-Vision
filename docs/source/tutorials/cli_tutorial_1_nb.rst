@@ -25,7 +25,7 @@ registered datasets:
 
 .. code:: ipython3
 
-    !compressai-vision info
+    compressai-vision info
 
 
 .. parsed-literal::
@@ -80,7 +80,7 @@ datasets:
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
@@ -105,7 +105,7 @@ with the ``download`` command. Let’s use ``download`` to get the
 
 .. code:: ipython3
 
-    !compressai-vision download --dataset-name=quickstart --y
+    compressai-vision download --dataset-name=quickstart --y
 
 
 .. parsed-literal::
@@ -133,7 +133,7 @@ closer look at the fields that the samples have in this datafield with
 
 .. code:: ipython3
 
-    !compressai-vision show --dataset-name=quickstart --y
+    compressai-vision show --dataset-name=quickstart --y
 
 
 .. parsed-literal::
@@ -175,7 +175,7 @@ so please feel free to remove it.
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=quickstart \
+    compressai-vision detectron2-eval --y --dataset-name=quickstart \
     --slice=0:2 \
     --gt-field=ground_truth \
     --eval-method=coco \
@@ -232,7 +232,7 @@ Let’s see what we got:
 
 .. code:: ipython3
 
-    !cat detectron2_test.json
+    cat detectron2_test.json
 
 
 .. parsed-literal::
@@ -276,7 +276,7 @@ specifications (``--scale=100``). Again, remember to remove
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=quickstart \
+    compressai-vision detectron2-eval --y --dataset-name=quickstart \
     --slice=0:2 \
     --gt-field=ground_truth \
     --eval-method=coco \
@@ -338,7 +338,7 @@ Let’s see what we got:
 
 .. code:: ipython3
 
-    !cat compressai_detectron2_test.json
+    cat compressai_detectron2_test.json
 
 
 .. parsed-literal::

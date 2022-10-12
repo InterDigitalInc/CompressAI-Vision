@@ -12,3 +12,10 @@ do
     --TagRemovePreprocessor.remove_input_tags="['remove_input']"
     #cd ..
 done
+
+# substitute ! in front of CLI commands with a space
+for fname in cli_*_nb.rst
+do
+    echo $fname
+    sed -i -r "s/ \!/ /g" $fname
+done
