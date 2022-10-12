@@ -1,7 +1,8 @@
 #!/bin/bash
 # dirnames="download convert detectron2 evaluate encdec cli_tutorial_1 cli_tutorial_2 cli_tutorial_3"
 # dirnames="detectron2"
-dirnames="cli_tutorial_1 cli_tutorial_2 cli_tutorial_3 cli_tutorial_4 cli_tutorial_5 cli_tutorial_6"
+# dirnames="cli_tutorial_1 cli_tutorial_2 cli_tutorial_3 cli_tutorial_4 cli_tutorial_5 cli_tutorial_6"
+dirnames="fiftyone"
 for dirname in $dirnames
 do
     #cd $dirname
