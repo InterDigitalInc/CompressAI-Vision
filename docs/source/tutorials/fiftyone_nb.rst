@@ -1,137 +1,109 @@
-In this chapter you will learn:
+CompressAI-Vision uses fiftyone to handle datasets. Let’s take a closer
+look into what this means.
 
--  registering and deregistering datasets into fiftyone
+You are probably familiar with the COCO API and the like, i.e a
+directory structures that looks like this:
 
-In the previous chapter we downloaded & registered the dataset
-“quickstart” from the fiftyone model zoo:
+::
+
+   annotations/
+       json files
+   train2007_dataset/
+       image files
+   ...
+   ...
+
+Then you have an API that reads those json files which have image
+metadata, ground truths for images (bboxes, segmasks, etc.). Another
+such example is the
+`ImageFolder <https://pytorch.org/vision/stable/generated/torchvision.datasets.ImageFolder.html>`__
+directory structure.
+
+Fiftyone takes the obvious next step in handling datasets (metadata and
+ground truths) and **uses a database**!
+
+The datasets are saved into a *database* instead, namely into mongodb.
+The interface to mongodb is handles seamlessly through fiftyone API.
+
+Using a database has several obvious advantages. Some of these are: the
+ability to share data among your research group, creating copies of the
+dataset, adding more data to each sample (say detection results) etc.
+
+The complication in using a database is that you need a *database
+server*. Fiftyone makes this seamless as it start a stand-alone mongodb
+server each time you type “import fiftyone”. Alternatively, you can use
+a common (remote) mongodb server for your whole research group for
+sharing data and/or if you’re working in a supercomputing / grid
+environment.
+
+Let’s take a closer look:
 
 .. code:: ipython3
 
-    compressai-vision list
+    # image tool imports
+    from PIL import Image
+    import matplotlib.pyplot as plt
+
+.. code:: ipython3
+
+    # fiftyone
+    import fiftyone as fo
+    import fiftyone.zoo as foz
+
+Lets take a look at the datasets registered to fiftyone:
+
+.. code:: ipython3
+
+    fo.list_datasets()
+
+
 
 
 .. parsed-literal::
 
-    importing fiftyone
-    fiftyone imported
-    
-    datasets currently registered into fiftyone
-    name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
-    open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    quickstart, 200, /home/sampsa/fiftyone/quickstart/data
+    ['mpeg-vcm-detection',
+     'mpeg-vcm-detection-dummy',
+     'mpeg-vcm-segmentation',
+     'open-images-v6-validation',
+     'quickstart']
 
 
-All the metadata, ground truth bboxes, etc. reside now in the
-fiftyone/mongodb database at dataset “quickstart”. That data was read
-into the database originally from directory ``~/fiftyone/quickstart``.
-Let’s see what’s in there:
+
+Let’s get a handle to a dataset:
 
 .. code:: ipython3
 
-    ls ~/fiftyone/quickstart
+    dataset=fo.load_dataset("quickstart")
+
+Let’s see how many *samples* we have in it:
+
+.. code:: ipython3
+
+    len(dataset)
+
+
 
 
 .. parsed-literal::
 
-    data  info.json  metadata.json	samples.json
+    200
 
 
-Exactly. Note directory ``data``. That is where the sample images are
-(they are *not* in the database, but just on the disk as image files).
-Let’s take a look at that:
+
+Let’s take a look at the first sample:
 
 .. code:: ipython3
 
-    ls ~/fiftyone/quickstart/data
+    sample=dataset.first()
+    print(sample)
 
 
 .. parsed-literal::
 
-    000002.jpg  000889.jpg	001851.jpg  002598.jpg	003754.jpg  004416.jpg
-    000008.jpg  000890.jpg	001867.jpg  002640.jpg	003769.jpg  004431.jpg
-    000020.jpg  000939.jpg	001888.jpg  002645.jpg	003805.jpg  004510.jpg
-    000031.jpg  000957.jpg	001934.jpg  002660.jpg	003870.jpg  004514.jpg
-    000035.jpg  000998.jpg	001949.jpg  002671.jpg	003871.jpg  004517.jpg
-    000058.jpg  001047.jpg	001951.jpg  002748.jpg	003880.jpg  004525.jpg
-    000083.jpg  001057.jpg	001983.jpg  002799.jpg	003888.jpg  004534.jpg
-    000089.jpg  001073.jpg	002015.jpg  002823.jpg	003911.jpg  004535.jpg
-    000145.jpg  001078.jpg	002022.jpg  002869.jpg	003964.jpg  004546.jpg
-    000164.jpg  001118.jpg	002063.jpg  002905.jpg	003969.jpg  004548.jpg
-    000191.jpg  001133.jpg	002070.jpg  002906.jpg	003978.jpg  004557.jpg
-    000192.jpg  001147.jpg	002086.jpg  002939.jpg	004039.jpg  004585.jpg
-    000400.jpg  001154.jpg	002121.jpg  002953.jpg	004066.jpg  004590.jpg
-    000436.jpg  001191.jpg	002129.jpg  003084.jpg	004082.jpg  004610.jpg
-    000452.jpg  001227.jpg	002143.jpg  003087.jpg	004095.jpg  004627.jpg
-    000496.jpg  001289.jpg	002184.jpg  003107.jpg	004096.jpg  004651.jpg
-    000510.jpg  001312.jpg	002186.jpg  003132.jpg	004126.jpg  004656.jpg
-    000557.jpg  001348.jpg	002233.jpg  003148.jpg	004131.jpg  004702.jpg
-    000575.jpg  001394.jpg	002284.jpg  003154.jpg	004170.jpg  004713.jpg
-    000591.jpg  001429.jpg	002334.jpg  003254.jpg	004172.jpg  004743.jpg
-    000594.jpg  001430.jpg	002353.jpg  003316.jpg	004180.jpg  004755.jpg
-    000600.jpg  001586.jpg	002431.jpg  003344.jpg	004222.jpg  004775.jpg
-    000641.jpg  001587.jpg	002439.jpg  003391.jpg	004253.jpg  004781.jpg
-    000643.jpg  001599.jpg	002450.jpg  003420.jpg	004255.jpg  004831.jpg
-    000648.jpg  001614.jpg	002462.jpg  003486.jpg	004263.jpg  004852.jpg
-    000665.jpg  001624.jpg	002468.jpg  003502.jpg	004284.jpg  004939.jpg
-    000696.jpg  001631.jpg	002489.jpg  003541.jpg	004292.jpg  004941.jpg
-    000772.jpg  001634.jpg	002497.jpg  003614.jpg	004304.jpg  004965.jpg
-    000773.jpg  001645.jpg	002514.jpg  003659.jpg	004315.jpg  004978.jpg
-    000781.jpg  001685.jpg	002538.jpg  003662.jpg	004316.jpg  004981.jpg
-    000793.jpg  001698.jpg	002553.jpg  003665.jpg	004329.jpg
-    000807.jpg  001741.jpg	002586.jpg  003667.jpg	004330.jpg
-    000868.jpg  001744.jpg	002592.jpg  003713.jpg	004341.jpg
-    000880.jpg  001763.jpg	002597.jpg  003715.jpg	004371.jpg
-
-
-The fiftyone dataset “quickstart” has only the paths to these files.
-
-Next suppose you have a dataset already on your disk (say, on the
-ImageDir format, COCO format, whatever) and you wish to register it into
-fiftyone.
-
-In order to demo that, let’s create a copy of ``~/fiftyone/quickstart``:
-
-.. code:: ipython3
-
-    cp -r ~/fiftyone/quickstart /tmp/my_data_set
-
-Let’s imagine ``/tmp/my_data_set`` is that custom dataset of yours you
-had already lying around.
-
-We register it to fiftyone with:
-
-.. code:: ipython3
-
-    compressai-vision register --y \
-    --dataset-name=my_dataset \
-    --dir=/tmp/my_data_set \
-    --type=FiftyOneDataset
-
-
-.. parsed-literal::
-
-    importing fiftyone
-    fiftyone imported
-    
-    WARNING: using/registering with ALL images.  You should use the --lists option
-    From directory  :     /tmp/my_data_set
-    Using list file :     None
-    Number of images:     ?
-    Registering name:     my_dataset
-    
-    Ignoring unsupported parameter 'label_types' for importer type <class 'fiftyone.utils.data.importers.FiftyOneDatasetImporter'>
-    Ignoring unsupported parameter 'load_hierarchy' for importer type <class 'fiftyone.utils.data.importers.FiftyOneDatasetImporter'>
-     100% |███████| 200/200 [3.0s elapsed, 0s remaining, 65.3 samples/s]      
-    
-    ** Let's peek at the first sample - check that it looks ok:**
-    
     <Sample: {
-        'id': '633d499dad3c137e8ef16292',
+        'id': '634472860faf93a9a586c9c4',
         'media_type': 'image',
-        'filepath': '/tmp/my_data_set/data/000880.jpg',
+        'filepath': '/home/sampsa/fiftyone/quickstart/data/000880.jpg',
         'tags': BaseList(['validation']),
         'metadata': None,
         'ground_truth': <Detections: {
@@ -405,52 +377,46 @@ We register it to fiftyone with:
             ]),
         }>,
     }>
-    
 
 
-here ``--type`` depends on the directory/file structure your data
-directory has. Typical values are
-``FiftyOneDataset, OpenImagesV6Dataset, ImageDirectory``. Please take a
-look in
-`here <https://voxel51.com/docs/fiftyone/api/fiftyone.types.dataset_types.html>`__
-for more information.
+Here we can see that there are bbox ground truths. Please also note that
+fiftyone/mongodb does *not* save the images themselves but just their
+path. When running mAP evaluations on a dataset, detection results can
+be saved into the same database (say, with key “detections”) and then
+ground truths and detections can be compared within the same dataset
+(instead of writing lots of intermediate files on the disk like with
+COCO API or with the tensorflow tools).
 
-Let’s check that the dataset got registered correctly:
+Let’s load an image:
 
 .. code:: ipython3
 
-    compressai-vision list
+    plt.imshow(Image.open(sample["filepath"]))
+
+
 
 
 .. parsed-literal::
 
-    importing fiftyone
-    fiftyone imported
-    
-    datasets currently registered into fiftyone
-    name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
-    my_dataset, 200, /tmp/my_data_set/data
-    open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    quickstart, 200, /home/sampsa/fiftyone/quickstart/data
+    <matplotlib.image.AxesImage at 0x7fabd4fed430>
 
 
-A more detailed look into the dataset:
+
+
+.. image:: fiftyone_nb_files/fiftyone_nb_12_1.png
+
+
+Let’s see a summary of the dataset and what kind of fields each samples
+has:
 
 .. code:: ipython3
 
-    compressai-vision show --dataset-name=my_dataset
+    print(dataset)
 
 
 .. parsed-literal::
 
-    importing fiftyone
-    fiftyone imported
-    
-    dataset info:
-    Name:        my_dataset
+    Name:        quickstart
     Media type:  image
     Num samples: 200
     Persistent:  True
@@ -463,49 +429,14 @@ A more detailed look into the dataset:
         ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
         uniqueness:   fiftyone.core.fields.FloatField
         predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
-    
-    test-loading first image from /tmp/my_data_set/data/000880.jpg
-    loaded image with dimensions (480, 640, 3) ok
 
 
-Let’s deregister the dataset:
+You can visualize the whole dataset conveniently with:
 
-.. code:: ipython3
+::
 
-    compressai-vision deregister --y --dataset-name=my_dataset
+   session = fo.lauch_app(dataset)
 
-
-.. parsed-literal::
-
-    importing fiftyone
-    fiftyone imported
-    removing dataset my_dataset from fiftyone
-
-
-Check it got removed:
-
-.. code:: ipython3
-
-    compressai-vision list
-
-
-.. parsed-literal::
-
-    importing fiftyone
-    fiftyone imported
-    
-    datasets currently registered into fiftyone
-    name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
-    open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    quickstart, 200, /home/sampsa/fiftyone/quickstart/data
-
-
-Let’s remove the image data as well:
-
-.. code:: ipython3
-
-    rm -rf /tmp/my_data_set
+For more info, please visit `fiftyone
+documentation <https://voxel51.com/docs/fiftyone/>`__
 

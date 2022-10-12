@@ -29,7 +29,7 @@ registered into fiftyone (``mpeg-vcm-detection`` etc. datasets):
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
@@ -52,7 +52,7 @@ at the dataset ``mpeg-vcm-detection``:
 
 .. code:: ipython3
 
-    !compressai-vision show --dataset-name=mpeg-vcm-detection
+    compressai-vision show --dataset-name=mpeg-vcm-detection
 
 
 .. parsed-literal::
@@ -93,7 +93,7 @@ ground truths in field ``detections``:
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --gt-field=detections \
     --eval-method=open-images \
@@ -150,7 +150,7 @@ pre-trained ``bmshj2018_factorized`` model:
 
 .. code:: ipython3
 
-    !compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
     --slice=0:2 \
     --gt-field=detections \
     --eval-method=open-images \

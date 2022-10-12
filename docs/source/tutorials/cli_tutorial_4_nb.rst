@@ -8,7 +8,7 @@ As in the previous chapters, let’s first check we have the dataset
 
 .. code:: ipython3
 
-    !compressai-vision list
+    compressai-vision list
 
 
 .. parsed-literal::
