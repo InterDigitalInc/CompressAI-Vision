@@ -1,3 +1,7 @@
+In this tutorial we evaluate mAP values for a dataset with Detectron2
+and a deep-learning encoding model from the CompressAI library. We also
+show how to perform a baseline evaluation with VTM.
+
 .. code:: ipython3
 
     # common libs
@@ -17,7 +21,7 @@
     import detectron2
     from detectron2.utils.logger import setup_logger
     setup_logger()
-
+    
     # import some common detectron2 utilities
     from detectron2 import model_zoo
     from detectron2.engine import DefaultPredictor
@@ -58,7 +62,7 @@
     ## look here:
     ## https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md#faster-r-cnn
     ## for the line that says X101-FPN --> box AP is 43
-
+    
     ## MODEL B
     # model_name="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
 
@@ -103,20 +107,12 @@
 
     predictor = DefaultPredictor(cfg)
 
-
-.. parsed-literal::
-
-    [Checkpointer] Loading from https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl ...
-    URL https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl cached in /home/sampsa/.torch/iopath_cache/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl
-    Reading a file from 'Detectron2 Model Zoo'
-
-
 Get a handle to the dataset created in previous notebooks:
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("mpeg_vcm-detection")
-    # dataset = fo.load_dataset("mpeg_vcm-detection-dummy") # or use the dummy dataset for testing/debugging
+    # dataset = fo.load_dataset("mpeg-vcm-detection")
+    dataset = fo.load_dataset("mpeg-vcm-detection-dummy") # or use the dummy dataset for testing/debugging
 
 .. code:: ipython3
 
@@ -127,7 +123,7 @@ Get a handle to the dataset created in previous notebooks:
 
 .. parsed-literal::
 
-    Name:        mpeg_vcm-detection-dummy
+    Name:        mpeg-vcm-detection-dummy
     Media type:  image
     Num samples: 1
     Persistent:  True
@@ -205,8 +201,8 @@ parameters:
 
 .. code:: ipython3
 
-    # params=[1] # debugging
-    params=[1,2,3,4,5,6,7,8];
+    params=[1] # debugging
+    # params=[1,2,3,4,5,6,7,8]
 
 Detectron prediction results are saved during the run into the fiftyone
 (mongodb) database. Let’s define a unique name for the sample field
@@ -214,14 +210,7 @@ where the detectron results are saved:
 
 .. code:: ipython3
 
-    predictor_field='detectron-{0:%Y-%m-%d-%H-%M-%S-%f}'.format(datetime.datetime.now())
-    print(predictor_field)
-
-
-.. parsed-literal::
-
-    detectron-2022-09-01-17-02-30-310913
-
+    predictor_field='detectron-predictions'
 
 .. code:: ipython3
 
@@ -258,6 +247,27 @@ where the detectron results are saved:
                 }, indent=2))
     print("ready!")
 
+
+.. parsed-literal::
+
+    running the detector at 1
+
+
+.. parsed-literal::
+
+    /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
+    To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
+      return torch.floor_divide(self, other)
+
+
+.. parsed-literal::
+
+    sample:  1 / 1
+    Evaluating detections...
+     100% |█████████████████████| 1/1 [13.8ms elapsed, 0s remaining, 72.7 samples/s] 
+    ready!
+
+
 After the evaluation we can (and should!) remove the detectron results
 from the database:
 
@@ -271,35 +281,25 @@ Load results
 
     with open("out.json","r") as f:
         res=json.load(f)
-
-.. code:: ipython3
-
-    x=res["bpp"]
-    y=res["map"]
-
-.. code:: ipython3
-
-    x=np.array(xs); y=np.array(ys)
-    plt.plot(x,y,'.-')
-    plt.grid(True)
-    plt.savefig("out.png")
+    print(res)
 
 
+.. parsed-literal::
 
-.. image:: evaluate_nb_files/evaluate_nb_27_0.png
+    {'bpp': [0.10060123042505593], 'map': [1.0], 'map_per_class': [{'airplane': 1.0}]}
 
 
-In that loop over quality parameters above, you cam substitute the
+In that loop over quality parameters above, you can substitute the
 ``CompressAIEncoderDecoder`` with ``VTMEncoderDecoder``\ in order to
 produce the anchor/baseline results. Let’s first set some variables for
 the VTM program:
 
 .. code:: ipython3
 
-    path="/path/to/VVCSoftware_VTM/bin"
-    vtm_encoder_app=os.path.join(path, "EncoderAppStatic")
-    vtm_decoder_app=os.path.join(path, "DecoderAppStatic")
-    vtm_cfg=getDataFile("encoder_intra_vtm_1.cfg")
+    # NOTE: set path_to_vtm_software
+    vtm_encoder_app=os.path.join(path_to_vtm_software, "bin/EncoderAppStatic")
+    vtm_decoder_app=os.path.join(path_to_vtm_software, "bin/DecoderAppStatic")
+    vtm_cfg=os.path.join(path_to_vtm_software, "cfg/encoder_intra_vtm.cfg")
 
 If you’d want to see what the VTM is doing exactly, enable debugging
 output:
@@ -315,9 +315,20 @@ At each quality parameter in the loop, instantiate an
 
 .. code:: ipython3
 
-    enc_dec = VTMEncoderDecoder(encoderApp=vtm_encoder_app,
+    enc_dec = VTMEncoderDecoder(
+        encoderApp=vtm_encoder_app,
         decoderApp=vtm_decoder_app,
         ffmpeg="ffmpeg",
         vtm_cfg=vtm_cfg,
-        qp=47 # # changing value here
+        qp=47,
+        cache="/tmp/bitstreams",
+        scale=100,
+        warn=True
     )
+
+
+.. parsed-literal::
+
+    VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
+
+

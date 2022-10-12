@@ -1,3 +1,6 @@
+In this chapter we use fiftyone to download, inspect and visualize a
+subset of OpenImageV6 images
+
 .. code:: ipython3
 
     # common libs
@@ -23,7 +26,7 @@
     homie=os.path.expanduser("~")
     print("your home path is", homie)
     fodir=os.path.join(homie,'fiftyone')
-    print("fiftyone dowloads data to", fodir)
+    print("fiftyone dowloads data by default to", fodir)
     try:
         os.mkdir(fodir)
     except FileExistsError:
@@ -33,7 +36,7 @@
 .. parsed-literal::
 
     your home path is /home/sampsa
-    fiftyone dowloads data to /home/sampsa/fiftyone
+    fiftyone dowloads data by default to /home/sampsa/fiftyone
 
 
 List all datasets (already) registered to fiftyone
@@ -41,6 +44,19 @@ List all datasets (already) registered to fiftyone
 .. code:: ipython3
 
     fo.list_datasets()
+
+
+
+
+.. parsed-literal::
+
+    ['mpeg-vcm-detection',
+     'mpeg-vcm-detection-dummy',
+     'mpeg-vcm-segmentation',
+     'open-images-v6-validation',
+     'quickstart']
+
+
 
 Create a list of necessary images
 
@@ -52,10 +68,12 @@ into a list:
 
 .. code:: ipython3
 
-    # TODO: edit according to your paths
-    path="/home/sampsa/silo/interdigital/siloai-playground/sampsa/mpeg_vcm/"
-    det_lst=os.path.join(path, "data5K/detection_validation_input_5k.lst") # the images used for detection validation
-    seg_lst=os.path.join(path, "data5K_seg/segmentation_validation_input_5k.lst") # the images used for segmentation validation
+    path_to_mpeg_vcm_files="/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data"
+
+.. code:: ipython3
+
+    det_lst=os.path.join(path_to_mpeg_vcm_files,"detection_validation_input_5k.lst") # the images used for detection validation
+    seg_lst=os.path.join(path_to_mpeg_vcm_files, "segmentation_validation_input_5k.lst") # the images used for segmentation validation
     assert(os.path.exists(det_lst)), "missing file "+det_lst
     assert(os.path.exists(seg_lst)), "missing file "+seg_lst
     lis=imageIdFileList(det_lst, seg_lst)
@@ -138,7 +156,7 @@ Tell fiftyone to load the correct subset of OpenImageV6 dataset:
 .. parsed-literal::
 
     <Sample: {
-        'id': '62f17b8486a5a296ef346d7b',
+        'id': '63371f72ee3965dd2579b526',
         'media_type': 'image',
         'filepath': '/home/sampsa/fiftyone/open-images-v6/validation/data/0001eeaf4aed83f9.jpg',
         'tags': BaseList(['validation']),
@@ -146,7 +164,7 @@ Tell fiftyone to load the correct subset of OpenImageV6 dataset:
         'positive_labels': <Classifications: {
             'classifications': BaseList([
                 <Classification: {
-                    'id': '62f17b8486a5a296ef346d79',
+                    'id': '63371f72ee3965dd2579b524',
                     'tags': BaseList([]),
                     'label': 'Airplane',
                     'confidence': 1.0,
@@ -159,7 +177,7 @@ Tell fiftyone to load the correct subset of OpenImageV6 dataset:
         'detections': <Detections: {
             'detections': BaseList([
                 <Detection: {
-                    'id': '62f17b8486a5a296ef346d7a',
+                    'id': '63371f72ee3965dd2579b525',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'Airplane',
@@ -219,15 +237,14 @@ Let’s take a look where fiftyone downloaded the files
     5 directories, 10 files
 
 
-.. code:: ipython3
+if you’d like to remove it, do this:
 
-    ## if you'd like to remove it, do this:
-    ## CAREFULL 
-    # fo.delete_dataset("open-images-v6-validation")
+::
 
-visualize the dataset
+   fo.delete_dataset("open-images-v6-validation")
 
-.. code:: ipython3
+visualize the dataset with
 
-    ## starting the visualization "app" is as easy as this:
-    # session = fo.launch_app(dataset)
+::
+
+   session = fo.launch_app(dataset)

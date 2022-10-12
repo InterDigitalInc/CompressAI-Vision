@@ -1,3 +1,14 @@
+In this chapter we show how to create your very own EncoderDecoder
+class.
+
+In order to evaluate your model with our framework, you need a model
+that works with the ``CompressAIEncoderDecoder`` class. This was
+discussed in the CLI tutorial. If you need more flexibility, you can
+write your own ``EncoderDecoder`` class and this is quite simple.
+
+Here we demo a simple ``EncoderDecoder`` class that encodes & decodes
+using jpeg.
+
 .. code:: ipython3
 
     import logging, io, cv2
@@ -50,7 +61,7 @@ necessary transformations and calculates the bitrate.
 
 Once you define an ``EncoderDecoder`` class like this, you can use it
 with all the rest of the infrastructure provided by
-``CompressAI-Vision``.
+``CompressAI-Vision`` library.
 
 Next, let’s see ``JpegEncoderDecoder`` in action.
 
@@ -82,6 +93,6 @@ Print bits-per-pixel, compare original and transformed image
 
 
 
-.. image:: encdec_nb_files/encdec_nb_10_1.png
+.. image:: encdec_nb_files/encdec_nb_11_1.png
 
 
