@@ -8,7 +8,7 @@ The figure below shows supported pipelines of video/image compression for machin
 End-to-end compression model for human consumption (components in blue box) can for instance be implemented using the [CompressAI](https://interdigitalinc.github.io/CompressAI), but new custom models and pipeline can be easily added to the modular API.The library then manages datasets and runs the corresponding computer vision task and corresponding evaluations (pink boxes). Traditional codecs are also supported (currently the state-of-the-art H.266/VVC reference software VTM) so you can benchmark your model against relevant standards. In the future, we are also going to include support of using feature map as input of computer vision tasks.
 
 ```mermaid
-%%{init: {'themeVariables': { 'fontSize': '16px'}}}%%
+%%{init: {'themeVariables': { 'fontSize': '32px'}}}%%
 graph LR
     A[input<br>image/video]:::other -->B
     A --> B1

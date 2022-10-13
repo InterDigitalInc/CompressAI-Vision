@@ -6,25 +6,25 @@ CompressAI-Vision helps you to develop, test and evaluate compression models wit
 
 .. mermaid::
 
-graph LR
-    A[input]:::other -->B
-    A --> B1
-    B[Traditional Encoder]:::other --> C
-    B1[NN Encoder]:::cai--> C
-    C[bitstream]:::other --> D
-    C --> D1
-    D[Traditional Decoder]:::other--> E
-    D1[NN Decoder]:::cai-->E
-    D1 -.-> H
-    E[Reconstructed]:::other--> G
-    E --> F1
-    G[Visual Quality Metrics]:::cai
-    F1[Detector]:::cav --> G1[Task Metrics]:::cav
-    H[Feature Maps]:::future -.-> F1
-    classDef cai stroke:#63C5DA,stroke-width:4px
-    classDef cav stroke:#FFC0CB,stroke-width:4px
-    classDef other stroke:#008000,stroke-width:4px
-    classDef future stroke:#FFBF00,stroke-width:4px
+   graph LR
+      A[input<br>image/video]:::other -->B
+      A --> B1
+      B[Traditional<br>Encoder]:::other --> C
+      B1[NN<br>Encoder]:::cai--> C
+      C[Bitstream]:::other --> D
+      C --> D1
+      D[Traditional<br>Decoder]:::other--> E
+      D1[NN<br>Decoder]:::cai-->E
+      D1 -.-> H
+      E[Reconstructed<br>media]:::other--> G
+      E --> F1
+      G[Visual<br>Quality<br>Metrics]:::cai
+      F1[Detector]:::cav --> G1[Task<br>Metrics]:::cav
+      H[Feature<br>Maps]:::future -.-> F1
+      classDef cai stroke:#63C5DA,stroke-width:4px
+      classDef cav stroke:#FFC0CB,stroke-width:4px
+      classDef other stroke:#008000,stroke-width:4px
+      classDef future stroke:#FFBF00,stroke-width:4px
 
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task,
 is the mean average precision (mAP) as a function of encoding/quality parameters:
