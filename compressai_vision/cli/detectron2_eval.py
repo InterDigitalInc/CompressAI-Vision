@@ -39,7 +39,7 @@ import os
 from pathlib import Path
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "detectron2-eval",
         parents=parents,

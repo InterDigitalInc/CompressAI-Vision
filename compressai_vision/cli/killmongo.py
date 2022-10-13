@@ -87,10 +87,10 @@ def clearMongo():
         conn = mongoengine.connect(host=adr)
         conn.drop_database("fiftyone")
         conn.close()
-    print("Done! day!")
+    print("Done! !")
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "mongo", parents=parents, help="mongod management"
     )

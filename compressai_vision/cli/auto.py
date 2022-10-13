@@ -101,7 +101,7 @@ def get_dir(dir_, txt="", make=True, check=False):
     return dir_input
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "mpeg-vcm-auto-import",
         parents=parents,

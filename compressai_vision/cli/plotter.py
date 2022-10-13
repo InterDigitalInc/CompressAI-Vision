@@ -104,7 +104,7 @@ def tx(ax, st, i, j, color):
     )
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "plot", parents=parents, help="plot mAP-bpp curve"
     )

@@ -33,7 +33,7 @@ import json
 import os
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "vtm", parents=parents, help="generate bitstream with the vtm video encoder"
     )

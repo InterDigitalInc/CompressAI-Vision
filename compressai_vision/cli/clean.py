@@ -32,7 +32,7 @@
 import os
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparsers.add_parser("clean", parents=parents)
 
 
