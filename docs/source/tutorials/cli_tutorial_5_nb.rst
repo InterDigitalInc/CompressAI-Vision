@@ -41,7 +41,7 @@ Now we can use ``compressai-vision plot`` to plot the results:
     reading /home/sampsa/silo/interdigital/CompressAI-Vision/examples/data/interdigital/bmshj2018_factorized/5.json
     reading /home/sampsa/silo/interdigital/CompressAI-Vision/examples/data/interdigital/bmshj2018_factorized/3.json
     --> producing out.png to current path
-    have a nice day!
+    Done!!
 
 
 Let’s see how that looks like:
@@ -77,7 +77,7 @@ accuracy from ``examples/data/interdigital/vtm_scale_100``:
     reading /home/sampsa/silo/interdigital/CompressAI-Vision/examples/data/interdigital/vtm_scale_100/vtm_42.json
     reading /home/sampsa/silo/interdigital/CompressAI-Vision/examples/data/interdigital/vtm_scale_100/vtm_22.json
     --> producing out.png to current path
-    have a nice day!
+    Done!!
 
 
 That looks like:

@@ -3,7 +3,7 @@
 # import importhook # this module simply ...ks up everything (at least torch imports)
 from datetime import datetime
 
-import fiftyone  # importing god'damn fiftyone for the first time always takes time as it starts the mongodb
+import fiftyone  # importing fiftyone for the first time always takes time as it starts the mongodb
 import fiftyone.core.odm as foo
 
 

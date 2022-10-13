@@ -44,7 +44,7 @@ Let’s generate some encoded bitstreams.
     fiftyone imported
     reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
     WARNING: using a dataset slice instead of full dataset
-    
+
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
@@ -56,16 +56,16 @@ Let’s generate some encoded bitstreams.
     Progressbar            : False
     Output file            : vtm_out.json
     Print progress         : 1
-    
+
     QUALITY PARAMETER 47
     VTMEncoderDecoder - INFO - creating /tmp/bitstreams
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_0001eeaf4aed83f9 with VTMEncode from scratch
     sample:  1 / 2 tag: 0001eeaf4aed83f9
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
-    
-    HAVE A NICE DAY!
-    
+
+    Done!!
+
 
 
 As you can see, bitstreams we’re generated and cached into
@@ -91,7 +91,7 @@ same command again:
     fiftyone imported
     reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
     WARNING: using a dataset slice instead of full dataset
-    
+
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
@@ -103,14 +103,14 @@ same command again:
     Progressbar            : False
     Output file            : vtm_out.json
     Print progress         : 1
-    
+
     QUALITY PARAMETER 47
     VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
     sample:  1 / 2 tag: 0001eeaf4aed83f9
     sample:  2 / 2 tag: 000a1249af2bc5f0
-    
-    HAVE A NICE DAY!
-    
+
+    Done!!
+
 
 
 Instead of generating the bitstreams, the program found them cached on
@@ -143,7 +143,7 @@ And run the command again:
     fiftyone imported
     reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
     WARNING: using a dataset slice instead of full dataset
-    
+
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
@@ -155,20 +155,20 @@ And run the command again:
     Progressbar            : False
     Output file            : vtm_out.json
     Print progress         : 1
-    
+
     QUALITY PARAMETER 47
     VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
     sample:  1 / 2 tag: 0001eeaf4aed83f9
     VTMEncoderDecoder - CRITICAL - VTM encode failed with Warning: Attempt to decode an empty NAL unit
-    
+
     VTMEncoderDecoder - CRITICAL - VTMDecode failed: will skip image 000a1249af2bc5f0 & remove the bitstream file
     ERROR: Corrupt data for image id=633720fcee3965dd257f247c, tag=000a1249af2bc5f0, path=/home/sampsa/fiftyone/mpeg-vcm-detection/data/000a1249af2bc5f0.jpg
     ERROR: Trying to regenerate
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
-    
-    HAVE A NICE DAY!
-    
+
+    Done!!
+
 
 
 You can run the ``vtm`` command parallelized over *both* quality
@@ -199,7 +199,7 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     Reading vtm config from: /home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg
-    
+
     Using dataset          : mpeg-vcm-detection
     Dataset tmp clone      : detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
     Image scaling          : 100
@@ -208,7 +208,7 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
     Torch device           : cpu
     Detectron2 model       : COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
     Model was trained with : coco_2017_train
-    Using VTM               
+    Using VTM
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Quality parameters     : [47]
     Ground truth data field name
@@ -233,10 +233,10 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
     sample:  2 / 2
     Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
-     100% |███████████| 2/2 [19.0ms elapsed, 0s remaining, 105.1 samples/s] 
+     100% |███████████| 2/2 [19.0ms elapsed, 0s remaining, 105.1 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
-    
-    HAVE A NICE DAY!
-    
+
+    Done!!
+
 
 

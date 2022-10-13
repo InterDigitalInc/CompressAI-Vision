@@ -180,8 +180,7 @@ def main(p):
     assert p.vtm_cache is not None, "need to provide a cache directory"
     assert p.qpars is not None, "need to provide quality parameters for vtm"
     try:
-        # qpars = [float(i) for i in p.qpars.split(",")]
-        qpars = [int(i) for i in p.qpars.split(",")]  # integer for god's sake!
+        qpars = [int(i) for i in p.qpars.split(",")]
     except Exception as e:
         print("problems with your quality parameter list")
         raise e
@@ -199,8 +198,6 @@ def main(p):
 
     if p.vtm_cfg is None:
         raise BaseException("Missing vtm_cfg")
-        # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-        # print("WARNING: using VTM default config file", vtm_cfg)
     else:
         vtm_cfg = p.vtm_cfg
 
@@ -381,4 +378,4 @@ def main(p):
     with open(p.output, "w") as f:
         json.dump(metadata, f)
 
-    print("\nHAVE A NICE DAY!\n")
+    print("\nDone!!\n")

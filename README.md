@@ -75,11 +75,10 @@ bash bash/install.sh
 ```
 within your virtual environment.
 
-Please run
+For more otions, check:
 ```
 bash bash/install.sh --help
 ```
-for more .
 
 Docker images including the software stack are also provided (TODO: link).
 
@@ -92,36 +91,27 @@ Until a proper test pipeline is established, for the absolute minimal testing, y
 compressai-vision-info
 ```
 
+After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
+
+
 ### Contributing
 
-Code is formatted using black (install with ``pip3 install --user black``).
-
-The CI pipeline checks for your code formatting, so be sure that it conforms to black before committing.  To do that, run (in this directory):
-```
-black --check --diff compressai_vision
-```
-To apply the formatting, run
-```
-black compressai_vision
-```
-You might want to install the "black formatter" extension if you're into VSCode.
+Code is formatted using black and isort. Current checks at Pull Request also include flake8
 
 ### Compiling documentation
 
-You need to install the [furo theme](https://github.com/pradyunsg/furo).  A good idea is to install it into the same virtualenv as all the other stuff.
-
-You need also this:
+You need to install the [furo theme](https://github.com/pradyunsg/furo), as well as pandoc:
 ```
 sudo apt-get install pandoc
 ```
 
 Tutorials are produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  If you update the notebooks, first you need to run ``compile.bash`` therein.
 
-To produce the html documentation, run in [docs/](docs/):
+To produce the html documentation, from [docs/](docs/), run:
 ```
 make html
 ```
-The go with your browser to [docs/index.html](docs/index.html)
+To check the pages locally, open [docs/_build/html/index.html](docs/index.html)
 
 ## License
 

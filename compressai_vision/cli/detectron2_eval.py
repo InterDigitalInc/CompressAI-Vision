@@ -309,13 +309,8 @@ def main(p):  # noqa: C901
 
         compression_model = getattr(zoo, p.compressai_model_name)
 
-    # compressai.zoo. getattr(
-    #         compressai.zoo, p.compressai_model_name
-    #     )  # a function that returns a model instance or just a class
-
     elif p.compression_model_path is not None:
         # compression from a custcom compression model
-        # TODO (fracape) why not asking for the full file path?
         model_file = Path(p.compression_model_path) / "model.py"
         if model_file.is_file():
             import importlib.util
@@ -340,13 +335,7 @@ def main(p):  # noqa: C901
                     module.getModel
                 )  # a function that returns a model instance or just a class
                 print("loaded custom model.py")
-            # assert p.compression_model_checkpoint is not None
-            # .. use quality points instead
-            # for checkpoint_file in p.compression_model_checkpoint:
-            #     try:
-            #         _ = Path(checkpoint_file).resolve(strict=True)
-            #     except FileNotFoundError:
-            #         # doesn't exist
+
         else:
             raise FileNotFoundError(f"No model.py in {p.compression_model_path}")
 
@@ -409,7 +398,6 @@ def main(p):  # noqa: C901
     from detectron2.engine import DefaultPredictor
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    # print(device)
     model_name = p.model
 
     # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
@@ -454,8 +442,6 @@ def main(p):  # noqa: C901
         username=username, tmp_name0=tmp_name0
     )
 
-    # eval_method="open-images" # could be changeable in the future..
-    # eval_method="coco"
     eval_method = p.eval_method
     eval_methods = ["open-images", "coco"]
     # must be checked at this stage so that the whole run doesn't crash in the end
@@ -468,7 +454,7 @@ def main(p):  # noqa: C901
     print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
-    if p.slice is not None:  # woops.. can't use slicing
+    if p.slice is not None:  # can't use slicing
         print("WARNING: Using slice   :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
@@ -686,7 +672,7 @@ def main(p):  # noqa: C901
     print("deleting tmp database", tmp_name)
     fo.delete_dataset(tmp_name)
 
-    print("\nHAVE A NICE DAY!\n")
+    print("\nDone!\n")
     """load with:
     with open(p.output,"r") as f:
         res=json.load(f)

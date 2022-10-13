@@ -272,7 +272,7 @@ def main(p):
     plt.ylabel("mAP")
     print("--> producing out.png to current path")
     plt.savefig(os.path.join("out.png"))
-    print("have a nice day!")
+    print("Done!!")
     """from the notebook:
     plt.plot(vtm[:,0], vtm[:,1], '*-b', markersize=12)
     plt.plot(coai[:,0], coai[:,1], '.-r')

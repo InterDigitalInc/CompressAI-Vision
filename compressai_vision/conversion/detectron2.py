@@ -131,7 +131,7 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
             <Sample: {
                 'id': '62e55b386fa654ded87ece8e',
                 'media_type': 'image',
-                'filepath': '/tmp/kikkelis/data/83bf8172abed42d7.jpg',
+                'filepath': '/tmp/compressai-vision/data/83bf8172abed42d7.jpg',
                 'tags': BaseList([]),
                 'metadata': None,
                 'open_images_id': '83bf8172abed42d7',
@@ -187,8 +187,6 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
         }
 
         annotations = []
-        # detections = sample.detections.detections # so could that last one be detections, ground_truths, etc.?
-        # print(sample)
         detections = None
         if sample[self.detection_field] is not None:
             detections = sample[self.detection_field].detections
