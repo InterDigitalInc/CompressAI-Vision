@@ -2,11 +2,11 @@
 
 # CompressAI-Vision
 
-A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials)
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials)
 
 ## Synopsis
 
-CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (**VCM**), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
+CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
 End-to-end NN-based compression models as well as traditional codecs can be evaluated and compared using full pipelines including compression/decompression and task algorithm such that performances can be measured as bit-stream bit-rate vs. task accuracy.
 
@@ -15,20 +15,19 @@ End-to-end compression model for human consumption (components in blue box) can 
 
 ```mermaid
 graph LR
-    A[input video/image]:::other -->B
+    A[input]:::other -->B
     A --> B1
     B[Traditional Encoder]:::other --> C
-    B1[E2E Encoder]:::cai--> C
-    C[Compressed bitstream]:::other --> D
+    B1[NN Encoder]:::cai--> C
+    C[bitstream]:::other --> D
     C --> D1
     D[Traditional Decoder]:::other--> E
-    D1[E2E Decoder]:::cai-->E
+    D1[NN Decoder]:::cai-->E
     D1 -.-> H
-    E[Reconstructed video/image]:::other--> F
-    E --> F1
-    F[Human consumption]:::cai --> G[Visual Quality Metrics]:::cai
-    F1[Computer vision task]:::cav --> G1[Task Metrics]:::cav
-    H[Feature map]:::future -.-> F1
+    E[Reconstructed]:::other--> F
+    E --> H
+    F[Machine Task]:::cav --> G1[Task Metrics]:::cav
+    H[Feature Maps]:::future -.-> F
     classDef cai stroke:#63C5DA,stroke-width:4px
     classDef cav stroke:#FFC0CB,stroke-width:4px
     classDef other stroke:#008000,stroke-width:4px
