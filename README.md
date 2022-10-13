@@ -8,21 +8,22 @@ The figure below shows supported pipelines of video/image compression for machin
 End-to-end compression model for human consumption (components in blue box) can for instance be implemented using the [CompressAI](https://interdigitalinc.github.io/CompressAI), but new custom models and pipeline can be easily added to the modular API.The library then manages datasets and runs the corresponding computer vision task and corresponding evaluations (pink boxes). Traditional codecs are also supported (currently the state-of-the-art H.266/VVC reference software VTM) so you can benchmark your model against relevant standards. In the future, we are also going to include support of using feature map as input of computer vision tasks.
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontSize': '32px'}}}%%
 graph LR
-    A[input]:::other -->B
+    A[input<br>image/video]:::other -->B
     A --> B1
-    B[Traditional Encoder]:::other --> C
-    B1[NN Encoder]:::cai--> C
-    C[bitstream]:::other --> D
+    B[Traditional<br>Encoder]:::other --> C
+    B1[NN<br>Encoder]:::cai--> C
+    C[Bitstream]:::other --> D
     C --> D1
-    D[Traditional Decoder]:::other--> E
-    D1[NN Decoder]:::cai-->E
+    D[Traditional<br>Decoder]:::other--> E
+    D1[NN<br>Decoder]:::cai-->E
     D1 -.-> H
-    E[Reconstructed]:::other--> G
+    E[Reconstructed<br>media]:::other--> G
     E --> F1
-    G[Visual Quality Metrics]:::cai
-    F1[Detector]:::cav --> G1[Task Metrics]:::cav
-    H[Feature Maps]:::future -.-> F1
+    G[Visual<br>Quality<br>Metrics]:::cai
+    F1[Detector]:::cav --> G1[Task<br>Metrics]:::cav
+    H[Feature<br>Maps]:::future -.-> F1
     classDef cai stroke:#63C5DA,stroke-width:4px
     classDef cav stroke:#FFC0CB,stroke-width:4px
     classDef other stroke:#008000,stroke-width:4px
