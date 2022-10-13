@@ -1,11 +1,5 @@
 ![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
 
-# CompressAI-Vision
-
-A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials)
-
-## Synopsis
-
 CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
 End-to-end NN-based compression models as well as traditional codecs can be evaluated and compared using full pipelines including compression/decompression and task algorithm such that performances can be measured as bit-stream bit-rate vs. task accuracy.
@@ -24,18 +18,18 @@ graph LR
     D[Traditional Decoder]:::other--> E
     D1[NN Decoder]:::cai-->E
     D1 -.-> H
-    E[Reconstructed input]:::other--> G
+    E[Reconstructed]:::other--> G
     E --> F1
     G[Visual Quality Metrics]:::cai
-    F1[Machine Task]:::cav --> G1[Task Metrics]:::cav
-    H[Feature aps]:::future -.-> F1
+    F1[Detector]:::cav --> G1[Task Metrics]:::cav
+    H[Feature Maps]:::future -.-> F1
     classDef cai stroke:#63C5DA,stroke-width:4px
     classDef cav stroke:#FFC0CB,stroke-width:4px
     classDef other stroke:#008000,stroke-width:4px
     classDef future stroke:#FFBF00,stroke-width:4px
 ```
 
-CompressAI-Vision notably supports parts of the Common Test Conditions defined by the **MPEG/VCM** Ad-hoc Group, part of the ISO/MPEG working group 2, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+CompressAI-Vision notably supports parts of the Common Test Conditions defined by the ISO/MPEG VCM Ad-hoc Group, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
 ## Features
 
@@ -51,18 +45,13 @@ CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 
 - Docker images, including all required components (CompressAI, VTM, Detectron2, CUDA support) are provided to get you started
 
-- Currently supports the image detection pipeline as defined in the evaluation framework by MPEG/VCM?)
+- Currently supports the image detection pipeline as defined in the evaluation framework by MPEG/VCM)
 
-## Installation
+## Documentation
 
-The software stack looks like this (all with CUDA support):
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
 
-- [PyTorch](https://pytorch.org/)
-- [CompressAI](https://interdigitalinc.github.io/CompressAI)
-- [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html)
-- [fiftyone](https://voxel51.com/docs/fiftyone/)
-- [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
-- _This_ library (CompressAI-Vision)
+## installation
 
 ### Virtualenv
 
@@ -79,8 +68,18 @@ For more otions, check:
 ```
 bash bash/install.sh --help
 ```
+Docker files including the software stack are also provided
 
-Docker images including the software stack are also provided (TODO: link).
+### Dependencies
+
+The software stack includes (all with CUDA support):
+
+- [PyTorch](https://pytorch.org/)
+- [CompressAI](https://interdigitalinc.github.io/CompressAI)
+- [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html)
+- [fiftyone](https://voxel51.com/docs/fiftyone/)
+- [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
+- _This_ library (CompressAI-Vision)
 
 ## For developers
 
