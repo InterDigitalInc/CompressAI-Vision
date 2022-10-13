@@ -36,7 +36,7 @@ registered into fiftyone (``mpeg-vcm-detection`` etc. datasets):
 
     importing fiftyone
     fiftyone imported
-    
+
     datasets currently registered into fiftyone
     name, length, first sample path
     mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
@@ -59,7 +59,7 @@ at the dataset ``mpeg-vcm-detection``:
 
     importing fiftyone
     fiftyone imported
-    
+
     dataset info:
     Name:        mpeg-vcm-detection
     Media type:  image
@@ -75,7 +75,7 @@ at the dataset ``mpeg-vcm-detection``:
         negative_labels: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
         detections:      fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
         open_images_id:  fiftyone.core.fields.StringField
-    
+
     test-loading first image from /home/sampsa/fiftyone/mpeg-vcm-detection/data/0001eeaf4aed83f9.jpg
     loaded image with dimensions (447, 1024, 3) ok
 
@@ -107,7 +107,7 @@ ground truths in field ``detections``:
     importing fiftyone
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
-    
+
     Using dataset          : mpeg-vcm-detection
     Dataset tmp clone      : detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-10-22-138077
     Image scaling          : 100
@@ -138,11 +138,11 @@ ground truths in field ``detections``:
      100% |███████████████████████████████████████████████████████████████████| 2/2 error: number of pixels sum < 1
     Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
-     100% |███████████| 2/2 [38.8ms elapsed, 0s remaining, 51.5 samples/s] 
+     100% |███████████| 2/2 [38.8ms elapsed, 0s remaining, 51.5 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-10-22-138077
-    
-    HAVE A NICE DAY!
-    
+
+    Done!
+
 
 
 Next we create two points on the mAP(bbp) curve for the compressai
@@ -166,7 +166,7 @@ pre-trained ``bmshj2018_factorized`` model:
     importing fiftyone
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
-    
+
     Using dataset          : mpeg-vcm-detection
     Dataset tmp clone      : detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-17-12-468267
     Image scaling          : 100
@@ -192,23 +192,23 @@ pre-trained ``bmshj2018_factorized`` model:
     ['airplane', 'person'] ...
     cloning dataset mpeg-vcm-detection to detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-17-12-468267
     instantiating Detectron2 predictor
-    
+
     QUALITY PARAMETER:  1
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
-     100% |███████████| 2/2 [23.9ms elapsed, 0s remaining, 83.7 samples/s] 
-    
+     100% |███████████| 2/2 [23.9ms elapsed, 0s remaining, 83.7 samples/s]
+
     QUALITY PARAMETER:  2
      100% |███████████████████████████████████████████████████████████████████| 2/2 Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
-     100% |███████████| 2/2 [26.6ms elapsed, 0s remaining, 75.2 samples/s] 
+     100% |███████████| 2/2 [26.6ms elapsed, 0s remaining, 75.2 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-17-12-468267
-    
-    HAVE A NICE DAY!
-    
+
+    Done!
+
 
 
 Again, for an actual production run, you would remove the ``--slice``

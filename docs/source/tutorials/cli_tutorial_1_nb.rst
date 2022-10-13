@@ -30,16 +30,16 @@ registered datasets:
 
 .. parsed-literal::
 
-    
+
     *** TORCH, CUDA, DETECTRON2, COMPRESSAI ***
     torch version       : 1.9.1+cu102
     cuda version        : 10.2
     detectron2 version  : 0.6
     compressai version  : 1.2.0.dev0
-    
+
     *** CHECKING GPU AVAILABILITY ***
     device              : cpu
-    
+
     *** TESTING FFMPEG ***
     ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
     built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.1)
@@ -53,18 +53,18 @@ registered datasets:
     libswscale      5.  5.100 /  5.  5.100
     libswresample   3.  5.100 /  3.  5.100
     libpostproc    55.  5.100 / 55.  5.100
-    
+
     NOTICE: Using mongodb managed by fiftyone
     Be sure not to have extra mongod server(s) running on your system
     importing fiftyone..
     ..imported
     fiftyone version: 0.16.6
-    
+
     *** DATABASE ***
     info about your connection:
     Database(MongoClient(host=['localhost:40083'], document_class=dict, tz_aware=False, connect=True, appname='fiftyone'), 'fiftyone')
-    
-    
+
+
     *** DATASETS ***
     datasets currently registered into fiftyone
     name, length, first sample path
@@ -72,7 +72,7 @@ registered datasets:
     mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
     mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
-    
+
 
 
 Another basic command is ``list`` that just shows you the registered
@@ -87,7 +87,7 @@ datasets:
 
     importing fiftyone
     fiftyone imported
-    
+
     datasets currently registered into fiftyone
     name, length, first sample path
     mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
@@ -112,17 +112,17 @@ with the ``download`` command. Let’s use ``download`` to get the
 
     importing fiftyone
     fiftyone imported
-    
+
     WARNING: downloading ALL images.  You might want to use the --lists option to download only certain images
     Using list files:     None
     Number of images:     ?
     Database name   :     quickstart
     Subname/split   :     None
     Target dir      :     None
-    
+
     Dataset already downloaded
     Loading 'quickstart'
-     100% |███████| 200/200 [3.0s elapsed, 0s remaining, 52.1 samples/s]       
+     100% |███████| 200/200 [3.0s elapsed, 0s remaining, 52.1 samples/s]
     Dataset 'quickstart' created
 
 
@@ -140,7 +140,7 @@ closer look at the fields that the samples have in this datafield with
 
     importing fiftyone
     fiftyone imported
-    
+
     dataset info:
     Name:        quickstart
     Media type:  image
@@ -155,7 +155,7 @@ closer look at the fields that the samples have in this datafield with
         ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
         uniqueness:   fiftyone.core.fields.FloatField
         predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
-    
+
     test-loading first image from /home/sampsa/fiftyone/quickstart/data/000880.jpg
     loaded image with dimensions (480, 640, 3) ok
 
@@ -189,7 +189,7 @@ so please feel free to remove it.
     importing fiftyone
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
-    
+
     Using dataset          : quickstart
     Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
     Image scaling          : 100
@@ -219,13 +219,13 @@ so please feel free to remove it.
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 error: number of pixels sum < 1
     Evaluating detections...
-     100% |███████████| 2/2 [9.5ms elapsed, 0s remaining, 211.5 samples/s] 
+     100% |███████████| 2/2 [9.5ms elapsed, 0s remaining, 211.5 samples/s]
     Performing IoU sweep...
-     100% |███████████| 2/2 [12.2ms elapsed, 0s remaining, 163.9 samples/s] 
+     100% |███████████| 2/2 [12.2ms elapsed, 0s remaining, 163.9 samples/s]
     deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
-    
-    HAVE A NICE DAY!
-    
+
+    Done!
+
 
 
 Let’s see what we got:
@@ -293,7 +293,7 @@ specifications (``--scale=100``). Again, remember to remove
     importing fiftyone
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
-    
+
     Using dataset          : quickstart
     Dataset tmp clone      : detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
     Image scaling          : 100
@@ -319,19 +319,19 @@ specifications (``--scale=100``). Again, remember to remove
     ['bird', 'horse', 'person'] ...
     cloning dataset quickstart to detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
     instantiating Detectron2 predictor
-    
+
     QUALITY PARAMETER:  1
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
      100% |███████████████████████████████████████████████████████████████████| 2/2 Evaluating detections...
-     100% |███████████| 2/2 [21.9ms elapsed, 0s remaining, 91.5 samples/s] 
+     100% |███████████| 2/2 [21.9ms elapsed, 0s remaining, 91.5 samples/s]
     Performing IoU sweep...
-     100% |███████████| 2/2 [30.0ms elapsed, 0s remaining, 66.8 samples/s] 
+     100% |███████████| 2/2 [30.0ms elapsed, 0s remaining, 66.8 samples/s]
     deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
-    
-    HAVE A NICE DAY!
-    
+
+    Done!
+
 
 
 Let’s see what we got:

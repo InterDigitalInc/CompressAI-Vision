@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Kill / clear mongodb 
+"""Kill / clear mongodb
 
 If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
 
@@ -41,7 +41,7 @@ If there's a runaway mongodb process, etc. or mongodb was terminated unclean.
 
     https://github.com/voxel51/fiftyone/issues/1988     # related github issues
     https://github.com/voxel51/fiftyone/issues/1334
-    
+
 """
 
 import glob
@@ -87,10 +87,10 @@ def clearMongo():
         conn = mongoengine.connect(host=adr)
         conn.drop_database("fiftyone")
         conn.close()
-    print("have a nice day!")
+    print("Done! !")
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "mongo", parents=parents, help="mongod management"
     )

@@ -32,10 +32,10 @@
 import os
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "convert-mpeg-to-oiv6",
-        parents=[],
+        parents=parents,
         help="convert the files specified in MPEG/VCM CTC into proper OpenImageV6 format & directory structure",
     )
     subparser.add_argument(

@@ -28,14 +28,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
-import math
 import os
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 
-from PIL import Image
 from torchvision import transforms
 
 from compressai_vision.constant import vf_per_scale

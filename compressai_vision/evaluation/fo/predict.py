@@ -27,8 +27,6 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import math
-import os
 import traceback
 
 import cv2
@@ -161,12 +159,12 @@ def annexPredictions(
 
     # calculate bpp as defined by the VCM working group:
     if npix_sum < 1:
-        if encoder_decoder: # alert user if EncoderDecoder class was requested
+        if encoder_decoder:  # alert user if EncoderDecoder class was requested
             print("error: number of pixels sum < 1")
             return -1
         return None
     if nbits_sum < 1:
-        if encoder_decoder: # alert user if EncoderDecoder class was requested
+        if encoder_decoder:  # alert user if EncoderDecoder class was requested
             print("error: number of bits sum < 1")
             return -1
         return None

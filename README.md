@@ -1,12 +1,6 @@
 ![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
 
-# CompressAI-Vision
-
-A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials)
-
-## Synopsis
-
-CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (**VCM**), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
+CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
 End-to-end NN-based compression models as well as traditional codecs can be evaluated and compared using full pipelines including compression/decompression and task algorithm such that performances can be measured as bit-stream bit-rate vs. task accuracy.
 
@@ -15,27 +9,27 @@ End-to-end compression model for human consumption (components in blue box) can 
 
 ```mermaid
 graph LR
-    A[input video/image]:::other -->B
+    A[input]:::other -->B
     A --> B1
     B[Traditional Encoder]:::other --> C
-    B1[E2E Encoder]:::cai--> C
-    C[Compressed bitstream]:::other --> D
+    B1[NN Encoder]:::cai--> C
+    C[bitstream]:::other --> D
     C --> D1
     D[Traditional Decoder]:::other--> E
-    D1[E2E Decoder]:::cai-->E
+    D1[NN Decoder]:::cai-->E
     D1 -.-> H
-    E[Reconstructed video/image]:::other--> F
+    E[Reconstructed]:::other--> G
     E --> F1
-    F[Human consumption]:::cai --> G[Visual Quality Metrics]:::cai
-    F1[Computer vision task]:::cav --> G1[Task Metrics]:::cav
-    H[Feature map]:::future -.-> F1
+    G[Visual Quality Metrics]:::cai
+    F1[Detector]:::cav --> G1[Task Metrics]:::cav
+    H[Feature Maps]:::future -.-> F1
     classDef cai stroke:#63C5DA,stroke-width:4px
     classDef cav stroke:#FFC0CB,stroke-width:4px
     classDef other stroke:#008000,stroke-width:4px
     classDef future stroke:#FFBF00,stroke-width:4px
 ```
 
-CompressAI-Vision notably supports parts of the Common Test Conditions defined by the **MPEG/VCM** Ad-hoc Group, part of the ISO/MPEG working group 2, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+CompressAI-Vision notably supports parts of the Common Test Conditions defined by the ISO/MPEG VCM Ad-hoc Group, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
 ## Features
 
@@ -51,11 +45,28 @@ CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 
 - Docker images, including all required components (CompressAI, VTM, Detectron2, CUDA support) are provided to get you started
 
-- Currently supports the image detection pipeline as defined in the evaluation framework by MPEG/VCM?)
+- Currently supports the image detection pipeline as defined in the evaluation framework by MPEG/VCM)
 
-## Installation
+## Documentation
 
-The software stack looks like this (all with CUDA support):
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
+
+## installation
+
+To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
+
+Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
+```
+bash bash/install.sh
+```
+within your virtual environment.
+
+For more otions, check:
+```
+bash bash/install.sh --help
+```
+
+The software stack includes (all with CUDA support):
 
 - [PyTorch](https://pytorch.org/)
 - [CompressAI](https://interdigitalinc.github.io/CompressAI)
@@ -64,24 +75,7 @@ The software stack looks like this (all with CUDA support):
 - [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
 - _This_ library (CompressAI-Vision)
 
-### Virtualenv
-
-To get started locally and install the development version of CompressAI-Vision, run
-first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
-
-Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
-```
-bash bash/install.sh
-```
-within your virtual environment.
-
-Please run
-```
-bash bash/install.sh --help
-```
-for more .
-
-Docker images including the software stack are also provided (TODO: link).
+Docker files including the software stack are also provided!
 
 ## For developers
 
@@ -92,36 +86,27 @@ Until a proper test pipeline is established, for the absolute minimal testing, y
 compressai-vision-info
 ```
 
+After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
+
+
 ### Contributing
 
-Code is formatted using black (install with ``pip3 install --user black``).
-
-The CI pipeline checks for your code formatting, so be sure that it conforms to black before committing.  To do that, run (in this directory):
-```
-black --check --diff compressai_vision
-```
-To apply the formatting, run
-```
-black compressai_vision
-```
-You might want to install the "black formatter" extension if you're into VSCode.
+Code is formatted using black and isort. Current checks at Pull Request also include flake8
 
 ### Compiling documentation
 
-You need to install the [furo theme](https://github.com/pradyunsg/furo).  A good idea is to install it into the same virtualenv as all the other stuff.
-
-You need also this:
+You need to install the [furo theme](https://github.com/pradyunsg/furo), as well as pandoc:
 ```
 sudo apt-get install pandoc
 ```
 
 Tutorials are produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  If you update the notebooks, first you need to run ``compile.bash`` therein.
 
-To produce the html documentation, run in [docs/](docs/):
+To produce the html documentation, from [docs/](docs/), run:
 ```
 make html
 ```
-The go with your browser to [docs/index.html](docs/index.html)
+To check the pages locally, open [docs/_build/html/index.html](docs/index.html)
 
 ## License
 

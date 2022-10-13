@@ -35,9 +35,25 @@ import sys
 
 from compressai_vision.tools import getDataFile, quickLog
 
-from . import *
+from . import (
+    clean,
+    convert_mpeg_to_oiv6,
+    deregister,
+    detectron2_eval,
+    download,
+    dummy,
+    list_,
+    load_eval,
+    register,
+    vtm,
+    auto,
+    info,
+    killmongo,
+    plotter,
+    show,
+)
 
-COMMANDS = {
+COMMANDS = {  # noqa: F405
     "clean": clean.main,
     "convert-mpeg-to-oiv6": convert_mpeg_to_oiv6.main,
     "deregister": deregister.main,

@@ -33,8 +33,8 @@ import os
 import sys
 
 
-def add_subparser(subparsers, parents=[]):
-    subparser = subparsers.add_parser(
+def add_subparser(subparsers, parents):
+    _ = subparsers.add_parser(
         "info", parents=parents, help="shows info about your system"
     )
 

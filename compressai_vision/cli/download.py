@@ -32,7 +32,7 @@
 import os
 
 
-def add_subparser(subparsers, parents=[]):
+def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "download",
         parents=parents,
@@ -79,8 +79,6 @@ def add_subparser(subparsers, parents=[]):
 def main(p):
     # fiftyone
     print("importing fiftyone")
-    import fiftyone as fo
-
     from fiftyone import zoo as foz  # different fiftyone than the patched one.. eh
 
     print("fiftyone imported")
