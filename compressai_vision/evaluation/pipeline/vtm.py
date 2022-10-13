@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import glob
-import io
 import logging
 import os
 import shlex
@@ -36,10 +35,6 @@ import shutil
 import subprocess
 
 from uuid import uuid4 as uuid
-
-import numpy as np
-
-from PIL import Image
 
 from compressai_vision.constant import vf_per_scale
 from compressai_vision.ffmpeg import FFMpeg

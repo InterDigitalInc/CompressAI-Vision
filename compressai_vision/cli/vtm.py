@@ -162,14 +162,15 @@ def main(p):
 
     # compressai_vision
     from compressai_vision.constant import vf_per_scale
-    from compressai_vision.evaluation.fo import (  # annex predictions from
-        annexPredictions,
-    )
+
+    # from compressai_vision.evaluation.fo import (  # annex predictions from
+    #     annexPredictions,
+    # )
     from compressai_vision.evaluation.pipeline import (
-        CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
-    from compressai_vision.tools import getDataFile
+
+    # from compressai_vision.tools import getDataFile
 
     assert p.dataset_name is not None, "please provide dataset name"
     try:
@@ -323,7 +324,6 @@ def main(p):
         """
         npix_sum = 0
         nbits_sum = 0
-        missing = False
         for sample in dataset:
             cc += 1
             # sample.filepath
