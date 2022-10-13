@@ -378,4 +378,4 @@ def main(p):
     with open(p.output, "w") as f:
         json.dump(metadata, f)
 
-    print("\nDone!!\n")
+    print("\nDone!\n")

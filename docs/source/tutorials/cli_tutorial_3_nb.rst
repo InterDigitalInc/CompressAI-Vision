@@ -141,7 +141,7 @@ ground truths in field ``detections``:
      100% |███████████| 2/2 [38.8ms elapsed, 0s remaining, 51.5 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-10-22-138077
 
-    Done!!
+    Done!
 
 
 
@@ -207,7 +207,7 @@ pre-trained ``bmshj2018_factorized`` model:
      100% |███████████| 2/2 [26.6ms elapsed, 0s remaining, 75.2 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-07-16-17-12-468267
 
-    Done!!
+    Done!
 
 
 

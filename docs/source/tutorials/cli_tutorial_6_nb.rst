@@ -64,7 +64,7 @@ Let’s generate some encoded bitstreams.
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
 
-    Done!!
+    Done!
 
 
 
@@ -109,7 +109,7 @@ same command again:
     sample:  1 / 2 tag: 0001eeaf4aed83f9
     sample:  2 / 2 tag: 000a1249af2bc5f0
 
-    Done!!
+    Done!
 
 
 
@@ -167,7 +167,7 @@ And run the command again:
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
 
-    Done!!
+    Done!
 
 
 
@@ -236,7 +236,7 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
      100% |███████████| 2/2 [19.0ms elapsed, 0s remaining, 105.1 samples/s]
     deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
 
-    Done!!
+    Done!
 
 
 

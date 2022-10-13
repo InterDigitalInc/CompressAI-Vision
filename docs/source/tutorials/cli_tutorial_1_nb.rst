@@ -224,7 +224,7 @@ so please feel free to remove it.
      100% |███████████| 2/2 [12.2ms elapsed, 0s remaining, 163.9 samples/s]
     deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-27-260938
 
-    Done!!
+    Done!
 
 
 
@@ -330,7 +330,7 @@ specifications (``--scale=100``). Again, remember to remove
      100% |███████████| 2/2 [30.0ms elapsed, 0s remaining, 66.8 samples/s]
     deleting tmp database detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836
 
-    Done!!
+    Done!
 
 
 
