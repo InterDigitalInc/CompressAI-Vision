@@ -1,16 +1,17 @@
+![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
+
 # CompressAI-Vision
 
-*for complete documentation, please go directly to (TODO: link)*
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials)
 
 ## Synopsis
 
-CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "video coding for machines" (**VCM**), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors
+CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (**VCM**), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
-End-to-end NN-based image and video coding models can be evaluated using various metrics, say SSIM and PNSR, like in [CompressAI](https://interdigitalinc.github.io/CompressAI), but also against image detection and segmentation tasks.
+End-to-end NN-based compression models as well as traditional codecs can be evaluated and compared using full pipelines including compression/decompression and task algorithm such that performances can be measured as bit-stream bit-rate vs. task accuracy.
 
-
-Following is a pipeline of video/image compression for machine vision task.
-End-to-end compression model for human consumption (components in blue box) are implemented with Interdigital CompressAI library. Our library is a companion of CompressAI and implements the computer vision task and corresponding evaluations (pink boxes). Furthermore, we also provide support for traditional codec (for example, VTM codec) so the user can benchmark their model with the performance of traditional codec. In the future, we are also going to include support of using feature map as input of computer vision tasks.
+The figure below shows supported pipelines of video/image compression for machine vision task.
+End-to-end compression model for human consumption (components in blue box) can for instance be implemented using the [CompressAI](https://interdigitalinc.github.io/CompressAI), but new custom models and pipeline can be easily added to the modular API.The library then manages datasets and runs the corresponding computer vision task and corresponding evaluations (pink boxes). Traditional codecs are also supported (currently the state-of-the-art H.266/VVC reference software VTM) so you can benchmark your model against relevant standards. In the future, we are also going to include support of using feature map as input of computer vision tasks.
 
 ```mermaid
 graph LR
@@ -33,32 +34,24 @@ graph LR
     classDef other stroke:#008000,stroke-width:4px
     classDef future stroke:#FFBF00,stroke-width:4px
 ```
-A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task, is the mean Average Precision (mAP) as a function of encoding/quality parameters:
 
-TODO: add a figure here
-
-For testing VCM pipelines, various mAP measures (as in COCO or OpenImageV6 evaluation protocols) and datasets can be used, while the deep-learning CompressAI-based models are typically compared againts a well-known "anchor" pipeline, featuring a classical image/video codec, say, H266.
-
-In particular, CompressAI-Vision supports part of the Common Test Conditions defined by the Ad-hoc Group **MPEG/VCM**, part of the ISO/MPEG working group 3, including standardized data/image sets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+CompressAI-Vision notably supports parts of the Common Test Conditions defined by the **MPEG/VCM** Ad-hoc Group, part of the ISO/MPEG working group 2, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
 ## Features
 
 CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 
+- Single-shot CLI commands for fast input file import, image download and evaluation
+
 - It uses [fiftyone](https://voxel51.com/docs/fiftyone/) for dataset downloading, handling, visualization and evaluation protocols (fiftyone supports several evaluation protocols)
 
 - Currently supports [CompressAI](https://interdigitalinc.github.io/CompressAI), [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM) and custom modules for the encoding/decoding part. More to come!
 
-- Uses [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) as detector and image segmentation models
-
-# TODO (fracape) make it sound like it's one option
-- Supports official MPEG committee input files (TODO: link to MPEG/VCM document?)
-
-- Single-shot CLI commands for fast input file import, image download and evaluation
+- Currently uses [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) as detector and image segmentation models
 
 - Docker images, including all required components (CompressAI, VTM, Detectron2, CUDA support) are provided to get you started
 
-Tutorials, API documentation and notebook examples are provided so please, go to the documentation to get started (TODO: link here)
+- Currently supports the image detection pipeline as defined in the evaluation framework by MPEG/VCM?)
 
 ## Installation
 
