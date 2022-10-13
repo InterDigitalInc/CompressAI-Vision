@@ -24,10 +24,11 @@ graph LR
     D[Traditional Decoder]:::other--> E
     D1[NN Decoder]:::cai-->E
     D1 -.-> H
-    E[Reconstructed]:::other--> F
-    E --> H
-    F[Machine Task]:::cav --> G1[Task Metrics]:::cav
-    H[Feature Maps]:::future -.-> F
+    E[Reconstructed input]:::other--> G
+    E --> F1
+    G[Visual Quality Metrics]:::cai
+    F1[Machine Task]:::cav --> G1[Task Metrics]:::cav
+    H[Feature aps]:::future -.-> F1
     classDef cai stroke:#63C5DA,stroke-width:4px
     classDef cav stroke:#FFC0CB,stroke-width:4px
     classDef other stroke:#008000,stroke-width:4px
