@@ -20,9 +20,7 @@ No need to panic.  We provide a command-line tool for cleaning things up.  Just 
 
 ::
 
-    compressai-vision-mongo
-
-and follow the instruction
+    compressai-vision mongo stop
 
 2. Error: "you must have fiftyone>x.x.x installed"
 --------------------------------------------------
@@ -46,16 +44,7 @@ To wipe out the (incompatible) database, you can always do this:
 
 ::
 
-    compressai-vision-mongo clear
+    compressai-vision mongo clear
 
 To recap, use *only* the same virtualenv from where you created the database in the first place.  And be sure you don't have any "extra" mongodb servers running in your system.
-
-TODO: clear distinction between a separate mongodb server .. intentional (when using FIFTYONE_MONGODB_ADR or whatwasit) vs. accidental (mongodb daemon running in a port without user knowing it)
-clear should use mongoengine python API to clear the db (when intentional mongodb) or just wipe out the local directory under .fiftyone
-
-
-
-
-
-
 

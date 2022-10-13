@@ -74,12 +74,6 @@ To get started, please go to through the installation steps and then do the CLI 
 
 .. toctree::
   :maxdepth: 2
-  :caption: Utils
-
-  cli_usage
-
-.. toctree::
-  :maxdepth: 2
   :caption: faq
 
   faq
