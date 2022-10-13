@@ -53,10 +53,7 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 
 ## installation
 
-### Virtualenv
-
-To get started locally and install the development version of CompressAI-Vision, run
-first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
+To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
 
 Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
 ```
@@ -68,9 +65,6 @@ For more otions, check:
 ```
 bash bash/install.sh --help
 ```
-Docker files including the software stack are also provided
-
-### Dependencies
 
 The software stack includes (all with CUDA support):
 
@@ -80,6 +74,8 @@ The software stack includes (all with CUDA support):
 - [fiftyone](https://voxel51.com/docs/fiftyone/)
 - [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
 - _This_ library (CompressAI-Vision)
+
+Docker files including the software stack are also provided!
 
 ## For developers
 
