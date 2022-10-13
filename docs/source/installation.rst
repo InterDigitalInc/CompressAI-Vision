@@ -21,8 +21,8 @@ First, create and activate the virtualenv with:
 
 You might want to define the python version explicitly, i.e. with ``python3.8 -m venv venv``.  Python3.8+ is required.
 
-While in the activated virtualenv, run one of the ``install_*.bash`` bash scripts in
-`bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
+While in the activated virtualenv, run one of the ``install.bash`` bash scripts in
+`bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
 
 The script will install the following software stack:
 
@@ -37,7 +37,7 @@ PyTorch, Detectron2 and CUDA versions are different for each of the installation
 ==============  ======= ========== ====
 script          PyTorch Detectron2 CUDA
 ==============  ======= ========== ====
-install_1.bash  1.9.1   0.6        10.2
+install.bash    1.9.1   0.6        10.2
 ==============  ======= ========== ====
 
 2. VTM
@@ -74,7 +74,7 @@ Now there should be:
     DecoderAppStatic
     ...
 
-Now you can try the `standalone test <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/bash>`_
+Now you can try the `standalone test <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
 
 3. Other dependencies
 ---------------------
