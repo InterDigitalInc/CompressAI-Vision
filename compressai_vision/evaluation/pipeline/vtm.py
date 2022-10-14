@@ -304,7 +304,7 @@ class VTMEncoderDecoder(EncoderDecoder):
         else:
             return True
 
-    def BGR(self, bgr_image, tag=None) -> tuple:
+    def BGR(self, bgr_image, tag=None) -> tuple:  # noqa: C901
         """
         :param bgr_image: numpy BGR image (y,x,3)
         :param tag: a string that can be used to identify & cache images (optional).  Necessary if you're using caching

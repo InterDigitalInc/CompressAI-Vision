@@ -73,7 +73,7 @@ def add_subparser(subparsers, parents):
     )
 
 
-def main(p):
+def main(p):  # noqa: C901
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo

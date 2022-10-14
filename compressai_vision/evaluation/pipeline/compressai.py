@@ -168,11 +168,6 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # TO RGB & TENSOR
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
 
-        if self.dump:
-            dumpImageArray(
-                padded, self.save_folder, "original_" + str(self.imcount) + ".png"
-            )
-
         if self.scale is not None:
             # the padding for compressai is bigger than this one, so it is innecessary to do this
             # on the other hand, if we want to play strictly by the VCM working group book, then
@@ -189,6 +184,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
                 )
         else:
             padded = rgb_image
+
+        if self.dump:
+            dumpImageArray(
+                padded, self.save_folder, "original_" + str(self.imcount) + ".png"
+            )
 
         # padded (y,x,3) to FloatTensor (1,3,y,x):
         x = transforms.ToTensor()(padded).unsqueeze(0)

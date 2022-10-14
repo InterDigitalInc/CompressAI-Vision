@@ -36,21 +36,21 @@ import sys
 from compressai_vision.tools import getDataFile, quickLog
 
 from . import (
+    auto,
     clean,
     convert_mpeg_to_oiv6,
     deregister,
     detectron2_eval,
     download,
     dummy,
-    list_,
-    load_eval,
-    register,
-    vtm,
-    auto,
     info,
     killmongo,
+    list_,
+    load_eval,
     plotter,
+    register,
     show,
+    vtm,
 )
 
 COMMANDS = {  # noqa: F405
@@ -95,7 +95,7 @@ def setup_parser():
     subparsers = parser.add_subparsers(help="select command", dest="command")
 
     # MANUAL SUBCOMMAND:
-    manual_parser = subparsers.add_parser("manual")
+    # manual_parser = subparsers.add_parser("manual")
     """
     manual_parser.add_argument(
         "command", type=str,
