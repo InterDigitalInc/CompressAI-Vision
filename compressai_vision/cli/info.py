@@ -41,6 +41,11 @@ def add_subparser(subparsers, parents):
 
 # compressai_vision
 def main(p):
+    from importlib.metadata import version
+
+    print("\n*** YOUR VIRTUALENV ***")
+    print("--> running from    :", sys.executable)
+
     try:
         import torch
     except ModuleNotFoundError:
@@ -62,7 +67,13 @@ def main(p):
     print("torch version       :", torch.__version__)
     print("cuda version        :", torch.version.cuda)
     print("detectron2 version  :", detectron2.__version__)
+    print("--> running from    :", detectron2.__file__)
     print("compressai version  :", compressai.__version__)
+    print("--> running from    :", compressai.__file__)
+
+    print("\n*** COMPRESSAI-VISION ***")
+    print("version             :", version("compressai-vision"))
+    print("running from        :", __file__)
 
     print("\n*** CHECKING GPU AVAILABILITY ***")
     device = "cuda" if torch.cuda.is_available() else "cpu"
