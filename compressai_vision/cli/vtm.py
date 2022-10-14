@@ -148,14 +148,12 @@ def add_subparser(subparsers, parents):
     )
 
 
-def main(p):
+def main(p):  # noqa: C901
     import cv2
 
     print("importing fiftyone")
     # fiftyone
     import fiftyone as fo
-
-    from fiftyone import ProgressBar
 
     ProgressBar = fo.ProgressBar
     print("fiftyone imported")
@@ -166,9 +164,7 @@ def main(p):
     # from compressai_vision.evaluation.fo import (  # annex predictions from
     #     annexPredictions,
     # )
-    from compressai_vision.evaluation.pipeline import (
-        VTMEncoderDecoder,
-    )
+    from compressai_vision.evaluation.pipeline import VTMEncoderDecoder
 
     # from compressai_vision.tools import getDataFile
 
@@ -190,7 +186,7 @@ def main(p):
             vtm_dir = os.environ["VTM_DIR"]
         except KeyError as e:
             print("please define --vtm_dir or set environmental variable VTM_DIR")
-            # raise e
+            raise e
             return
     else:
         vtm_dir = p.vtm_dir

@@ -34,9 +34,9 @@ import datetime
 import json
 import os
 
-# import uuid
-
 from pathlib import Path
+
+# import uuid
 
 
 def add_subparser(subparsers, parents):
@@ -227,7 +227,8 @@ def main(p):  # noqa: C901
     print("importing fiftyone")
     import fiftyone as fo
 
-    from compressai_vision import patch  # dataset.clone needs this
+    # dataset.clone needs this
+    from compressai_vision import patch  # noqa: F401
 
     print("fiftyone imported")
 
@@ -241,7 +242,8 @@ def main(p):  # noqa: C901
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
-    from compressai_vision.tools import getDataFile
+
+    # from compressai_vision.tools import getDataFile
 
     try:
         dataset = fo.load_dataset(p.dataset_name)
@@ -271,7 +273,7 @@ def main(p):  # noqa: C901
     # print(">", p.compressai_model_name, p.vtm, p.compression_model_path, p.qpars)
     if (
         (p.compressai_model_name is None)
-        and (p.vtm == False)
+        and (p.vtm is False)
         and (p.compression_model_path is None)
     ):
         compression = False
@@ -345,8 +347,7 @@ def main(p):  # noqa: C901
                 vtm_dir = os.environ["VTM_DIR"]
             except KeyError as e:
                 print("please define --vtm_dir or set environmental variable VTM_DIR")
-                # raise e
-                return
+                raise e
         else:
             vtm_dir = p.vtm_dir
 
@@ -612,7 +613,7 @@ def main(p):  # noqa: C901
             if bpp is None or bpp < 0:
                 print()
                 print("Sorry, mAP calculation aborted")
-                ##TODO: implement:
+                # TODO: implement:
                 # print("If you want to resume, start again with:")
                 # print("--continue", predictor_field)
                 print()

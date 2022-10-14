@@ -163,7 +163,7 @@ def add_subparser(subparsers, parents):
     # return parsed_args, unparsed_args
 
 
-def main(p):
+def main(p):  # noqa: C901
     parsed = p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"

@@ -132,7 +132,7 @@ def add_subparser(subparsers, parents):
     )
 
 
-def main(p_):
+def main(p_):  # noqa: C901
     from compressai_vision.cli import convert_mpeg_to_oiv6, download, dummy, register
 
     dirname = p_.datadir
@@ -243,7 +243,7 @@ def main(p_):
     # p.y = False
     p.y = p_.y
     dataset_name = "mpeg-vcm-detection"
-    if p_.y == False:
+    if p_.y is False:
         dataset_name = get_inp(dataset_name, "name for detection dataset")
     p.dataset_name = dataset_name
     p.lists = get_("detection_validation_input_5k.lst", load_dir)
@@ -266,7 +266,7 @@ def main(p_):
     # p.y = False
     p.y = p_.y
     dataset_name = "mpeg-vcm-segmentation"
-    if p_.y == False:
+    if p_.y is False:
         dataset_name = get_inp(dataset_name, "name for segmentation dataset")
     p.dataset_name = dataset_name
     p.lists = get_("segmentation_validation_input_5k.lst", load_dir)

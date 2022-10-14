@@ -39,7 +39,7 @@ from compressai_vision.conversion.detectron2 import detectron251, findLabels
 from compressai_vision.evaluation.pipeline.base import EncoderDecoder
 
 
-def annexPredictions(
+def annexPredictions(  # noqa: C901
     predictor=None,
     fo_dataset: Dataset = None,
     gt_field: str = "detections",

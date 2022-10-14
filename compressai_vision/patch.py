@@ -34,6 +34,7 @@ from datetime import datetime
 
 import fiftyone  # importing fiftyone for the first time always takes time as it starts the mongodb
 
+
 def _make_sample_collection_name(patches=False, frames=False, clips=False):
     # as per
     # https://github.com/voxel51/fiftyone/blob/develop/fiftyone/core/dataset.py#L5616
@@ -51,8 +52,9 @@ def _make_sample_collection_name(patches=False, frames=False, clips=False):
     else:
         prefix = "samples"
 
-    create_name = lambda timestamp: ".".join([prefix, timestamp])
     # TODO (sampsa) E731 do not assign a lambda expression, use a def:
+    create_name = lambda timestamp: ".".join([prefix, timestamp])  # noqa: E731
+
     name = create_name(now.strftime("%Y.%m.%d.%H.%M.%S.%f"))
     # print(">PATCH") # checking that this method is picked up..
     return name
