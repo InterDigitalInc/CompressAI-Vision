@@ -6,6 +6,7 @@ your own architecture description within a model.py.
 
 This Folder contains an examplary model.py exactly reproducing the model
 "bmshj2018-factorized" from the CompressAI library.
+For your custom model, you can inherit all things from compressai library.
 
 You can test it by dowmloading a corresponding pre-trained model, e.g.
 ```bash
