@@ -88,7 +88,12 @@ def jsonFilesToArray(dir_):
         a.sort(0)
         return a
     a = np.array([xs, ys]).transpose()  # (2,6) --> (6,2)
-    a.sort(0)
+    #print(a)
+    # a.sort(0) # nopes! sorts separately a[:,0] & a[:,1]
+    inds=np.argsort(a[:,0]) # indices that sort according to a[:,0]
+    a=a[inds]
+    #print(">>")
+    #print(a)
     return a
 
 
