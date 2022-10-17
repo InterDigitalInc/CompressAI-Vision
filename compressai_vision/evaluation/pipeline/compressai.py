@@ -144,13 +144,15 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
 
         # TODO: out_enc["strings"][batch_index?][what?] .. for batch sizes > 1
-        bitstream = out_enc["strings"][0][0]  # type: bytes
+        total_strings = 0
+        for bitstream in out_enc["strings"]:
+            total_strings += len(bitstream[0])
         # print("bitstream is>", type(bitstream))
         x_hat = out_dec["x_hat"].clamp(0, 1)  # (batch, 3, H, W)
         # print("x_hat is>", x_hat.shape)
         # num_pixels = x.shape[2] * x.shape[3]
         # print("num_pixels", num_pixels)
-        nbits = 8 * len(bitstream)  # BITS not BYTES
+        nbits = 8 * total_strings  # BITS not BYTES
         nbitslist = [nbits]
         x_hat = out_dec["x_hat"]  # reconstructed image
         return nbitslist, x_hat
