@@ -620,6 +620,7 @@ def main(p):  # noqa: C901
                 return
 
             # print("evaluating dataset", dataset.name)
+            # https://voxel51.com/docs/fiftyone/api/fiftyone.core.collections.html#fiftyone.core.collections.SampleCollection.evaluate_detections
             res = dataset.evaluate_detections(
                 predictor_field,
                 **eval_args
