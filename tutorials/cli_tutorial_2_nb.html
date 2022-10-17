@@ -1,0 +1,746 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>&lt;no title&gt; - CompressAIVision</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #00aaee;
+  --color-brand-content: #00aaee;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">CompressAIVision</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Fiftyone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="fiftyone.html">Fiftyone and MongoDB</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#cli-tutorial">CLI Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../conversion/index.html">compressai_vision.conversion</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../evaluation/index.html">compressai_vision.evaluation</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/pipeline/index.html">compressai_vision.evaluation.pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">faq</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <p>In this chapter you will learn:</p>
+<ul class="simple">
+<li><p>registering and deregistering datasets into fiftyone</p></li>
+</ul>
+<p>In the previous chapter we downloaded &amp; registered the dataset
+“quickstart” from the fiftyone model zoo:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
+<span class="n">fiftyone</span> <span class="n">imported</span>
+
+<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
+<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
+<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
+<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+</pre></div>
+</div>
+<p>All the metadata, ground truth bboxes, etc. reside now in the
+fiftyone/mongodb database at dataset “quickstart”. That data was read
+into the database originally from directory <code class="docutils literal notranslate"><span class="pre">~/fiftyone/quickstart</span></code>.
+Let’s see what’s in there:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span>  <span class="n">info</span><span class="o">.</span><span class="n">json</span>  <span class="n">metadata</span><span class="o">.</span><span class="n">json</span>      <span class="n">samples</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Exactly. Note directory <code class="docutils literal notranslate"><span class="pre">data</span></code>. That is where the sample images are
+(they are <em>not</em> in the database, but just on the disk as image files).
+Let’s take a look at that:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart/data
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">000002.</span><span class="n">jpg</span>  <span class="mf">000889.</span><span class="n">jpg</span>      <span class="mf">001851.</span><span class="n">jpg</span>  <span class="mf">002598.</span><span class="n">jpg</span>  <span class="mf">003754.</span><span class="n">jpg</span>  <span class="mf">004416.</span><span class="n">jpg</span>
+<span class="mf">000008.</span><span class="n">jpg</span>  <span class="mf">000890.</span><span class="n">jpg</span>      <span class="mf">001867.</span><span class="n">jpg</span>  <span class="mf">002640.</span><span class="n">jpg</span>  <span class="mf">003769.</span><span class="n">jpg</span>  <span class="mf">004431.</span><span class="n">jpg</span>
+<span class="mf">000020.</span><span class="n">jpg</span>  <span class="mf">000939.</span><span class="n">jpg</span>      <span class="mf">001888.</span><span class="n">jpg</span>  <span class="mf">002645.</span><span class="n">jpg</span>  <span class="mf">003805.</span><span class="n">jpg</span>  <span class="mf">004510.</span><span class="n">jpg</span>
+<span class="mf">000031.</span><span class="n">jpg</span>  <span class="mf">000957.</span><span class="n">jpg</span>      <span class="mf">001934.</span><span class="n">jpg</span>  <span class="mf">002660.</span><span class="n">jpg</span>  <span class="mf">003870.</span><span class="n">jpg</span>  <span class="mf">004514.</span><span class="n">jpg</span>
+<span class="mf">000035.</span><span class="n">jpg</span>  <span class="mf">000998.</span><span class="n">jpg</span>      <span class="mf">001949.</span><span class="n">jpg</span>  <span class="mf">002671.</span><span class="n">jpg</span>  <span class="mf">003871.</span><span class="n">jpg</span>  <span class="mf">004517.</span><span class="n">jpg</span>
+<span class="mf">000058.</span><span class="n">jpg</span>  <span class="mf">001047.</span><span class="n">jpg</span>      <span class="mf">001951.</span><span class="n">jpg</span>  <span class="mf">002748.</span><span class="n">jpg</span>  <span class="mf">003880.</span><span class="n">jpg</span>  <span class="mf">004525.</span><span class="n">jpg</span>
+<span class="mf">000083.</span><span class="n">jpg</span>  <span class="mf">001057.</span><span class="n">jpg</span>      <span class="mf">001983.</span><span class="n">jpg</span>  <span class="mf">002799.</span><span class="n">jpg</span>  <span class="mf">003888.</span><span class="n">jpg</span>  <span class="mf">004534.</span><span class="n">jpg</span>
+<span class="mf">000089.</span><span class="n">jpg</span>  <span class="mf">001073.</span><span class="n">jpg</span>      <span class="mf">002015.</span><span class="n">jpg</span>  <span class="mf">002823.</span><span class="n">jpg</span>  <span class="mf">003911.</span><span class="n">jpg</span>  <span class="mf">004535.</span><span class="n">jpg</span>
+<span class="mf">000145.</span><span class="n">jpg</span>  <span class="mf">001078.</span><span class="n">jpg</span>      <span class="mf">002022.</span><span class="n">jpg</span>  <span class="mf">002869.</span><span class="n">jpg</span>  <span class="mf">003964.</span><span class="n">jpg</span>  <span class="mf">004546.</span><span class="n">jpg</span>
+<span class="mf">000164.</span><span class="n">jpg</span>  <span class="mf">001118.</span><span class="n">jpg</span>      <span class="mf">002063.</span><span class="n">jpg</span>  <span class="mf">002905.</span><span class="n">jpg</span>  <span class="mf">003969.</span><span class="n">jpg</span>  <span class="mf">004548.</span><span class="n">jpg</span>
+<span class="mf">000191.</span><span class="n">jpg</span>  <span class="mf">001133.</span><span class="n">jpg</span>      <span class="mf">002070.</span><span class="n">jpg</span>  <span class="mf">002906.</span><span class="n">jpg</span>  <span class="mf">003978.</span><span class="n">jpg</span>  <span class="mf">004557.</span><span class="n">jpg</span>
+<span class="mf">000192.</span><span class="n">jpg</span>  <span class="mf">001147.</span><span class="n">jpg</span>      <span class="mf">002086.</span><span class="n">jpg</span>  <span class="mf">002939.</span><span class="n">jpg</span>  <span class="mf">004039.</span><span class="n">jpg</span>  <span class="mf">004585.</span><span class="n">jpg</span>
+<span class="mf">000400.</span><span class="n">jpg</span>  <span class="mf">001154.</span><span class="n">jpg</span>      <span class="mf">002121.</span><span class="n">jpg</span>  <span class="mf">002953.</span><span class="n">jpg</span>  <span class="mf">004066.</span><span class="n">jpg</span>  <span class="mf">004590.</span><span class="n">jpg</span>
+<span class="mf">000436.</span><span class="n">jpg</span>  <span class="mf">001191.</span><span class="n">jpg</span>      <span class="mf">002129.</span><span class="n">jpg</span>  <span class="mf">003084.</span><span class="n">jpg</span>  <span class="mf">004082.</span><span class="n">jpg</span>  <span class="mf">004610.</span><span class="n">jpg</span>
+<span class="mf">000452.</span><span class="n">jpg</span>  <span class="mf">001227.</span><span class="n">jpg</span>      <span class="mf">002143.</span><span class="n">jpg</span>  <span class="mf">003087.</span><span class="n">jpg</span>  <span class="mf">004095.</span><span class="n">jpg</span>  <span class="mf">004627.</span><span class="n">jpg</span>
+<span class="mf">000496.</span><span class="n">jpg</span>  <span class="mf">001289.</span><span class="n">jpg</span>      <span class="mf">002184.</span><span class="n">jpg</span>  <span class="mf">003107.</span><span class="n">jpg</span>  <span class="mf">004096.</span><span class="n">jpg</span>  <span class="mf">004651.</span><span class="n">jpg</span>
+<span class="mf">000510.</span><span class="n">jpg</span>  <span class="mf">001312.</span><span class="n">jpg</span>      <span class="mf">002186.</span><span class="n">jpg</span>  <span class="mf">003132.</span><span class="n">jpg</span>  <span class="mf">004126.</span><span class="n">jpg</span>  <span class="mf">004656.</span><span class="n">jpg</span>
+<span class="mf">000557.</span><span class="n">jpg</span>  <span class="mf">001348.</span><span class="n">jpg</span>      <span class="mf">002233.</span><span class="n">jpg</span>  <span class="mf">003148.</span><span class="n">jpg</span>  <span class="mf">004131.</span><span class="n">jpg</span>  <span class="mf">004702.</span><span class="n">jpg</span>
+<span class="mf">000575.</span><span class="n">jpg</span>  <span class="mf">001394.</span><span class="n">jpg</span>      <span class="mf">002284.</span><span class="n">jpg</span>  <span class="mf">003154.</span><span class="n">jpg</span>  <span class="mf">004170.</span><span class="n">jpg</span>  <span class="mf">004713.</span><span class="n">jpg</span>
+<span class="mf">000591.</span><span class="n">jpg</span>  <span class="mf">001429.</span><span class="n">jpg</span>      <span class="mf">002334.</span><span class="n">jpg</span>  <span class="mf">003254.</span><span class="n">jpg</span>  <span class="mf">004172.</span><span class="n">jpg</span>  <span class="mf">004743.</span><span class="n">jpg</span>
+<span class="mf">000594.</span><span class="n">jpg</span>  <span class="mf">001430.</span><span class="n">jpg</span>      <span class="mf">002353.</span><span class="n">jpg</span>  <span class="mf">003316.</span><span class="n">jpg</span>  <span class="mf">004180.</span><span class="n">jpg</span>  <span class="mf">004755.</span><span class="n">jpg</span>
+<span class="mf">000600.</span><span class="n">jpg</span>  <span class="mf">001586.</span><span class="n">jpg</span>      <span class="mf">002431.</span><span class="n">jpg</span>  <span class="mf">003344.</span><span class="n">jpg</span>  <span class="mf">004222.</span><span class="n">jpg</span>  <span class="mf">004775.</span><span class="n">jpg</span>
+<span class="mf">000641.</span><span class="n">jpg</span>  <span class="mf">001587.</span><span class="n">jpg</span>      <span class="mf">002439.</span><span class="n">jpg</span>  <span class="mf">003391.</span><span class="n">jpg</span>  <span class="mf">004253.</span><span class="n">jpg</span>  <span class="mf">004781.</span><span class="n">jpg</span>
+<span class="mf">000643.</span><span class="n">jpg</span>  <span class="mf">001599.</span><span class="n">jpg</span>      <span class="mf">002450.</span><span class="n">jpg</span>  <span class="mf">003420.</span><span class="n">jpg</span>  <span class="mf">004255.</span><span class="n">jpg</span>  <span class="mf">004831.</span><span class="n">jpg</span>
+<span class="mf">000648.</span><span class="n">jpg</span>  <span class="mf">001614.</span><span class="n">jpg</span>      <span class="mf">002462.</span><span class="n">jpg</span>  <span class="mf">003486.</span><span class="n">jpg</span>  <span class="mf">004263.</span><span class="n">jpg</span>  <span class="mf">004852.</span><span class="n">jpg</span>
+<span class="mf">000665.</span><span class="n">jpg</span>  <span class="mf">001624.</span><span class="n">jpg</span>      <span class="mf">002468.</span><span class="n">jpg</span>  <span class="mf">003502.</span><span class="n">jpg</span>  <span class="mf">004284.</span><span class="n">jpg</span>  <span class="mf">004939.</span><span class="n">jpg</span>
+<span class="mf">000696.</span><span class="n">jpg</span>  <span class="mf">001631.</span><span class="n">jpg</span>      <span class="mf">002489.</span><span class="n">jpg</span>  <span class="mf">003541.</span><span class="n">jpg</span>  <span class="mf">004292.</span><span class="n">jpg</span>  <span class="mf">004941.</span><span class="n">jpg</span>
+<span class="mf">000772.</span><span class="n">jpg</span>  <span class="mf">001634.</span><span class="n">jpg</span>      <span class="mf">002497.</span><span class="n">jpg</span>  <span class="mf">003614.</span><span class="n">jpg</span>  <span class="mf">004304.</span><span class="n">jpg</span>  <span class="mf">004965.</span><span class="n">jpg</span>
+<span class="mf">000773.</span><span class="n">jpg</span>  <span class="mf">001645.</span><span class="n">jpg</span>      <span class="mf">002514.</span><span class="n">jpg</span>  <span class="mf">003659.</span><span class="n">jpg</span>  <span class="mf">004315.</span><span class="n">jpg</span>  <span class="mf">004978.</span><span class="n">jpg</span>
+<span class="mf">000781.</span><span class="n">jpg</span>  <span class="mf">001685.</span><span class="n">jpg</span>      <span class="mf">002538.</span><span class="n">jpg</span>  <span class="mf">003662.</span><span class="n">jpg</span>  <span class="mf">004316.</span><span class="n">jpg</span>  <span class="mf">004981.</span><span class="n">jpg</span>
+<span class="mf">000793.</span><span class="n">jpg</span>  <span class="mf">001698.</span><span class="n">jpg</span>      <span class="mf">002553.</span><span class="n">jpg</span>  <span class="mf">003665.</span><span class="n">jpg</span>  <span class="mf">004329.</span><span class="n">jpg</span>
+<span class="mf">000807.</span><span class="n">jpg</span>  <span class="mf">001741.</span><span class="n">jpg</span>      <span class="mf">002586.</span><span class="n">jpg</span>  <span class="mf">003667.</span><span class="n">jpg</span>  <span class="mf">004330.</span><span class="n">jpg</span>
+<span class="mf">000868.</span><span class="n">jpg</span>  <span class="mf">001744.</span><span class="n">jpg</span>      <span class="mf">002592.</span><span class="n">jpg</span>  <span class="mf">003713.</span><span class="n">jpg</span>  <span class="mf">004341.</span><span class="n">jpg</span>
+<span class="mf">000880.</span><span class="n">jpg</span>  <span class="mf">001763.</span><span class="n">jpg</span>      <span class="mf">002597.</span><span class="n">jpg</span>  <span class="mf">003715.</span><span class="n">jpg</span>  <span class="mf">004371.</span><span class="n">jpg</span>
+</pre></div>
+</div>
+<p>The fiftyone dataset “quickstart” has only the paths to these files.</p>
+<p>Next suppose you have a dataset already on your disk (say, on the
+ImageDir format, COCO format, whatever) and you wish to register it into
+fiftyone.</p>
+<p>In order to demo that, let’s create a copy of <code class="docutils literal notranslate"><span class="pre">~/fiftyone/quickstart</span></code>:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>cp -r ~/fiftyone/quickstart /tmp/my_data_set
+</pre></div>
+</div>
+<p>Let’s imagine <code class="docutils literal notranslate"><span class="pre">/tmp/my_data_set</span></code> is that custom dataset of yours you
+had already lying around.</p>
+<p>We register it to fiftyone with:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision register --y \
+--dataset-name=my_dataset \
+--dir=/tmp/my_data_set \
+--type=FiftyOneDataset
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
+
+WARNING: using/registering with ALL images.  You should use the --lists option
+From directory  :     /tmp/my_data_set
+Using list file :     None
+Number of images:     ?
+Registering name:     my_dataset
+
+Ignoring unsupported parameter &#39;label_types&#39; for importer type &lt;class &#39;fiftyone.utils.data.importers.FiftyOneDatasetImporter&#39;&gt;
+Ignoring unsupported parameter &#39;load_hierarchy&#39; for importer type &lt;class &#39;fiftyone.utils.data.importers.FiftyOneDatasetImporter&#39;&gt;
+ 100% |███████| 200/200 [3.0s elapsed, 0s remaining, 65.3 samples/s]
+
+** Let&#39;s peek at the first sample - check that it looks ok:**
+
+&lt;Sample: {
+    &#39;id&#39;: &#39;633d499dad3c137e8ef16292&#39;,
+    &#39;media_type&#39;: &#39;image&#39;,
+    &#39;filepath&#39;: &#39;/tmp/my_data_set/data/000880.jpg&#39;,
+    &#39;tags&#39;: BaseList([&#39;validation&#39;]),
+    &#39;metadata&#39;: None,
+    &#39;ground_truth&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53c8&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.21084375,
+                    0.0034375,
+                    0.46190625,
+                    0.9442083333333334,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 73790.37944999996,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53c9&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.74946875,
+                    0.489375,
+                    0.2164375,
+                    0.23183333333333334,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 3935.7593000000006,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53ca&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.044234375,
+                    0.5282083333333333,
+                    0.151390625,
+                    0.14145833333333335,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 4827.32605,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+        ]),
+    }&gt;,
+    &#39;uniqueness&#39;: 0.8175834390151201,
+    &#39;predictions&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9394&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.22192673683166503,
+                    0.06093006531397502,
+                    0.4808845520019531,
+                    0.8937615712483724,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.9750854969024658,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9395&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.3962469816207886,
+                    0.006943931678930918,
+                    0.27418792247772217,
+                    0.46793556213378906,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.759726881980896,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9396&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.02506386339664459,
+                    0.548487663269043,
+                    0.16438478231430054,
+                    0.16736234029134114,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.6569182276725769,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9397&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.4889101028442383,
+                    0.009576511383056641,
+                    0.13802199363708495,
+                    0.2093157132466634,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.2359301745891571,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9398&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.015171945095062256,
+                    0.555288823445638,
+                    0.1813342332839966,
+                    0.15938574473063152,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.221974179148674,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9399&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bear&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.017808181047439576,
+                    0.5488224665323893,
+                    0.17450940608978271,
+                    0.16891117095947267,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.1965726613998413,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939a&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.16558188199996948,
+                    0.5723957061767578,
+                    0.09993256330490112,
+                    0.10098978678385416,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.18904592096805573,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939b&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;sheep&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.213010573387146,
+                    0.05354320605595907,
+                    0.5153374671936035,
+                    0.8933518091837566,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.11480894684791565,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939c&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.29751906394958494,
+                    0.010790024201075237,
+                    0.3315577507019043,
+                    0.34026527404785156,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.11089690029621124,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939d&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.08351035118103027,
+                    0.5574632008870443,
+                    0.18209288120269776,
+                    0.1426785151163737,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.0971052274107933,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939e&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.4461814880371094,
+                    0.0007838249827424685,
+                    0.209574556350708,
+                    0.309667714436849,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.08403241634368896,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939f&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.5395165920257569,
+                    0.034476550420125325,
+                    0.07703280448913574,
+                    0.16296254793802897,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.07699568569660187,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad93a0&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bear&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.217216157913208,
+                    0.05954849322636922,
+                    0.49451656341552735,
+                    0.8721434275309244,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.058097004890441895,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad93a1&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;sheep&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.018094074726104737,
+                    0.5562847137451172,
+                    0.17362892627716064,
+                    0.15742950439453124,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.0519101656973362,
+                &#39;index&#39;: None,
+            }&gt;,
+        ]),
+    }&gt;,
+}&gt;
+</pre></div>
+</div>
+<p>here <code class="docutils literal notranslate"><span class="pre">--type</span></code> depends on the directory/file structure your data
+directory has. Typical values are
+<code class="docutils literal notranslate"><span class="pre">FiftyOneDataset,</span> <span class="pre">OpenImagesV6Dataset,</span> <span class="pre">ImageDirectory</span></code>. Please take a
+look in
+<a class="reference external" href="https://voxel51.com/docs/fiftyone/api/fiftyone.types.dataset_types.html">here</a>
+for more information.</p>
+<p>Let’s check that the dataset got registered correctly:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
+<span class="n">fiftyone</span> <span class="n">imported</span>
+
+<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
+<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
+<span class="n">my_dataset</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">my_data_set</span><span class="o">/</span><span class="n">data</span>
+<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
+<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+</pre></div>
+</div>
+<p>A more detailed look into the dataset:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision show --dataset-name=my_dataset
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
+<span class="n">fiftyone</span> <span class="n">imported</span>
+
+<span class="n">dataset</span> <span class="n">info</span><span class="p">:</span>
+<span class="n">Name</span><span class="p">:</span>        <span class="n">my_dataset</span>
+<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
+<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">200</span>
+<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
+<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
+<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
+    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
+    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
+    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+
+<span class="n">test</span><span class="o">-</span><span class="n">loading</span> <span class="n">first</span> <span class="n">image</span> <span class="kn">from</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">my_data_set</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="mf">000880.</span><span class="n">jpg</span>
+<span class="n">loaded</span> <span class="n">image</span> <span class="k">with</span> <span class="n">dimensions</span> <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="n">ok</span>
+</pre></div>
+</div>
+<p>Let’s deregister the dataset:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision deregister --y --dataset-name=my_dataset
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
+<span class="n">fiftyone</span> <span class="n">imported</span>
+<span class="n">removing</span> <span class="n">dataset</span> <span class="n">my_dataset</span> <span class="kn">from</span> <span class="nn">fiftyone</span>
+</pre></div>
+</div>
+<p>Check it got removed:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
+<span class="n">fiftyone</span> <span class="n">imported</span>
+
+<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
+<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
+<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
+<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
+<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+</pre></div>
+</div>
+<p>Let’s remove the image data as well:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rm -rf /tmp/my_data_set
+</pre></div>
+</div>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, InterDigital Communications, Inc.
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

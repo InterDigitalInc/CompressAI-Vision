@@ -1,0 +1,672 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>&lt;no title&gt; - CompressAIVision</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #00aaee;
+  --color-brand-content: #00aaee;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">CompressAIVision</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Fiftyone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="fiftyone.html">Fiftyone and MongoDB</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#cli-tutorial">CLI Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../conversion/index.html">compressai_vision.conversion</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../evaluation/index.html">compressai_vision.evaluation</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/pipeline/index.html">compressai_vision.evaluation.pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">faq</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <p>CompressAI-Vision uses fiftyone to handle datasets. Let’s take a closer
+look into what this means.</p>
+<p>You are probably familiar with the COCO API and the like, i.e a
+directory structures that looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">annotations</span><span class="o">/</span>
+    <span class="n">json</span> <span class="n">files</span>
+<span class="n">train2007_dataset</span><span class="o">/</span>
+    <span class="n">image</span> <span class="n">files</span>
+<span class="o">...</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Then you have an API that reads those json files which have image
+metadata, ground truths for images (bboxes, segmasks, etc.). Another
+such example is the
+<a class="reference external" href="https://pytorch.org/vision/stable/generated/torchvision.datasets.ImageFolder.html">ImageFolder</a>
+directory structure.</p>
+<p>Fiftyone takes the obvious next step in handling datasets (metadata and
+ground truths) and <strong>uses a database</strong>!</p>
+<p>The datasets are saved into a <em>database</em> instead, namely into mongodb.
+The interface to mongodb is handles seamlessly through fiftyone API.</p>
+<p>Using a database has several obvious advantages. Some of these are: the
+ability to share data among your research group, creating copies of the
+dataset, adding more data to each sample (say detection results) etc.</p>
+<p>The complication in using a database is that you need a <em>database
+server</em>. Fiftyone makes this seamless as it start a stand-alone mongodb
+server each time you type “import fiftyone”. Alternatively, you can use
+a common (remote) mongodb server for your whole research group for
+sharing data and/or if you’re working in a supercomputing / grid
+environment.</p>
+<p>Let’s take a closer look:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># image tool imports
+from PIL import Image
+import matplotlib.pyplot as plt
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
+import fiftyone as fo
+import fiftyone.zoo as foz
+</pre></div>
+</div>
+<p>Lets take a look at the datasets registered to fiftyone:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fo.list_datasets()
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;mpeg-vcm-detection&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;mpeg-vcm-detection-dummy&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;mpeg-vcm-segmentation&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;open-images-v6-validation&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;quickstart&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Let’s get a handle to a dataset:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset=fo.load_dataset(&quot;quickstart&quot;)
+</pre></div>
+</div>
+<p>Let’s see how many <em>samples</em> we have in it:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>len(dataset)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">200</span>
+</pre></div>
+</div>
+<p>Let’s take a look at the first sample:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sample=dataset.first()
+print(sample)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;634472860faf93a9a586c9c4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;media_type&#39;</span><span class="p">:</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;filepath&#39;</span><span class="p">:</span> <span class="s1">&#39;/home/sampsa/fiftyone/quickstart/data/000880.jpg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span><span class="s1">&#39;validation&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;ground_truth&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53c8&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.21084375</span><span class="p">,</span>
+                    <span class="mf">0.0034375</span><span class="p">,</span>
+                    <span class="mf">0.46190625</span><span class="p">,</span>
+                    <span class="mf">0.9442083333333334</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">73790.37944999996</span><span class="p">,</span>
+                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53c9&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.74946875</span><span class="p">,</span>
+                    <span class="mf">0.489375</span><span class="p">,</span>
+                    <span class="mf">0.2164375</span><span class="p">,</span>
+                    <span class="mf">0.23183333333333334</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">3935.7593000000006</span><span class="p">,</span>
+                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53ca&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.044234375</span><span class="p">,</span>
+                    <span class="mf">0.5282083333333333</span><span class="p">,</span>
+                    <span class="mf">0.151390625</span><span class="p">,</span>
+                    <span class="mf">0.14145833333333335</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">4827.32605</span><span class="p">,</span>
+                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="p">]),</span>
+    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s1">&#39;uniqueness&#39;</span><span class="p">:</span> <span class="mf">0.8175834390151201</span><span class="p">,</span>
+    <span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9394&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.22192673683166503</span><span class="p">,</span>
+                    <span class="mf">0.06093006531397502</span><span class="p">,</span>
+                    <span class="mf">0.4808845520019531</span><span class="p">,</span>
+                    <span class="mf">0.8937615712483724</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.9750854969024658</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9395&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.3962469816207886</span><span class="p">,</span>
+                    <span class="mf">0.006943931678930918</span><span class="p">,</span>
+                    <span class="mf">0.27418792247772217</span><span class="p">,</span>
+                    <span class="mf">0.46793556213378906</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.759726881980896</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9396&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.02506386339664459</span><span class="p">,</span>
+                    <span class="mf">0.548487663269043</span><span class="p">,</span>
+                    <span class="mf">0.16438478231430054</span><span class="p">,</span>
+                    <span class="mf">0.16736234029134114</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.6569182276725769</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9397&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.4889101028442383</span><span class="p">,</span>
+                    <span class="mf">0.009576511383056641</span><span class="p">,</span>
+                    <span class="mf">0.13802199363708495</span><span class="p">,</span>
+                    <span class="mf">0.2093157132466634</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2359301745891571</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9398&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.015171945095062256</span><span class="p">,</span>
+                    <span class="mf">0.555288823445638</span><span class="p">,</span>
+                    <span class="mf">0.1813342332839966</span><span class="p">,</span>
+                    <span class="mf">0.15938574473063152</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.221974179148674</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9399&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.017808181047439576</span><span class="p">,</span>
+                    <span class="mf">0.5488224665323893</span><span class="p">,</span>
+                    <span class="mf">0.17450940608978271</span><span class="p">,</span>
+                    <span class="mf">0.16891117095947267</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.1965726613998413</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939a&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.16558188199996948</span><span class="p">,</span>
+                    <span class="mf">0.5723957061767578</span><span class="p">,</span>
+                    <span class="mf">0.09993256330490112</span><span class="p">,</span>
+                    <span class="mf">0.10098978678385416</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.18904592096805573</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939b&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.213010573387146</span><span class="p">,</span>
+                    <span class="mf">0.05354320605595907</span><span class="p">,</span>
+                    <span class="mf">0.5153374671936035</span><span class="p">,</span>
+                    <span class="mf">0.8933518091837566</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.11480894684791565</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939c&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.29751906394958494</span><span class="p">,</span>
+                    <span class="mf">0.010790024201075237</span><span class="p">,</span>
+                    <span class="mf">0.3315577507019043</span><span class="p">,</span>
+                    <span class="mf">0.34026527404785156</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.11089690029621124</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939d&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.08351035118103027</span><span class="p">,</span>
+                    <span class="mf">0.5574632008870443</span><span class="p">,</span>
+                    <span class="mf">0.18209288120269776</span><span class="p">,</span>
+                    <span class="mf">0.1426785151163737</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.0971052274107933</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939e&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.4461814880371094</span><span class="p">,</span>
+                    <span class="mf">0.0007838249827424685</span><span class="p">,</span>
+                    <span class="mf">0.209574556350708</span><span class="p">,</span>
+                    <span class="mf">0.309667714436849</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.08403241634368896</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939f&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.5395165920257569</span><span class="p">,</span>
+                    <span class="mf">0.034476550420125325</span><span class="p">,</span>
+                    <span class="mf">0.07703280448913574</span><span class="p">,</span>
+                    <span class="mf">0.16296254793802897</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.07699568569660187</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad93a0&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.217216157913208</span><span class="p">,</span>
+                    <span class="mf">0.05954849322636922</span><span class="p">,</span>
+                    <span class="mf">0.49451656341552735</span><span class="p">,</span>
+                    <span class="mf">0.8721434275309244</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.058097004890441895</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad93a1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
+                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
+                    <span class="mf">0.018094074726104737</span><span class="p">,</span>
+                    <span class="mf">0.5562847137451172</span><span class="p">,</span>
+                    <span class="mf">0.17362892627716064</span><span class="p">,</span>
+                    <span class="mf">0.15742950439453124</span><span class="p">,</span>
+                <span class="p">]),</span>
+                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.0519101656973362</span><span class="p">,</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="p">]),</span>
+    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Here we can see that there are bbox ground truths. Please also note that
+fiftyone/mongodb does <em>not</em> save the images themselves but just their
+path. When running mAP evaluations on a dataset, detection results can
+be saved into the same database (say, with key “detections”) and then
+ground truths and detections can be compared within the same dataset
+(instead of writing lots of intermediate files on the disk like with
+COCO API or with the tensorflow tools).</p>
+<p>Let’s load an image:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(Image.open(sample[&quot;filepath&quot;]))
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span> <span class="n">at</span> <span class="mh">0x7fabd4fed430</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<img alt="../_images/fiftyone_nb_12_1.png" src="../_images/fiftyone_nb_12_1.png" />
+<p>Let’s see a summary of the dataset and what kind of fields each samples
+has:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(dataset)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">quickstart</span>
+<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
+<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">200</span>
+<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
+<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
+<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
+    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
+    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
+    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can visualize the whole dataset conveniently with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">session</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">lauch_app</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For more info, please visit <a class="reference external" href="https://voxel51.com/docs/fiftyone/">fiftyone
+documentation</a></p>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, InterDigital Communications, Inc.
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>
