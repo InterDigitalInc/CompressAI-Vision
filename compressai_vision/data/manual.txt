@@ -237,6 +237,56 @@ commands & parameters:
                 --label=detection_validation_labels_5k.csv \\
                 --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
+    plot
+
+        --dirs              list of directories with json files, produced by 
+                            detectron2-eval subcommand
+
+                            Each directory corresponds to an evaluation of a certain model
+                            done with detectron2-eval: each directory contains a list of json files, 
+                            produced by the subcommand detectron2-eval.
+
+                            Within one directory, you typically have json files, 
+                            produced in a parallel run for
+                            each quality point, for example: 1.json, 2.json, ..
+
+                            Or you can have a json files with several quality point results 
+                            in each file, say: 1_2_3.json, 4_5.json, ..
+
+                            The program knows how to combine these files.
+
+        --symbols           list of matplotlib symbols for each plot,
+                            for example: o--k,-g,*:r (optional)
+        --names             list of names to be included into the plot,
+                            for example: vtm,mymodel,mymodel2 (optional)
+        --eval              mAP value without (de)compress and maplotlib symbol,
+                            for example: 0.792,--c 
+        --csv               instead of plot, dump json results in csv format
+
+        instructions:
+
+            The compressai-vision detectron2-eval command has produced you json output files
+            to a certain directory (say, into "model1_results/")
+
+            In a single json file you can have multiple (bpp, mAP) results (for
+            each quality parameter)
+
+            You can also have several json files, each containing just one or more
+            (bpp, mAP) results (say, if you have parallelized compressai-vision run
+            over quality parameters)
+
+            This script handles both situations automatically, you just need to
+            provide the directory name(s)
+
+            Suppose you want to plot two (bpp, mAP) curves from two models
+            (results are in "model1_results" and "model2_results"), do this:
+
+            compressai-vision plot --dirs=model1_results,model2_results \\
+            --symbols=o--r,x-b --dataset-names=model1,model2 \\
+            --eval=0.792,--c
+
+
+
 
 NOTE 1: your normal workflow would be: download, convert_mpeg_to_oiv6, register, detectron2_eval
 the first three steps can be dealt with the compress-mpeg-vcm-auto-import command

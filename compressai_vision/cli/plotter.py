@@ -147,7 +147,7 @@ def add_subparser(subparsers, parents):
         type=str,
         required=False,
         default=None,
-        help="mAP value without (de)compression and pyplot symbol",
+        help="mAP value without (de)compression and pyplot symbol,for example: 0.792,--c ",
     )
     """removed:
     subparser.add_argument(
