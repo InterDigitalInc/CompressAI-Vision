@@ -27,7 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
+import logging, math
+import torch
+from pytorch_msssim import ms_ssim
 
 
 class EncoderDecoder:
@@ -39,6 +41,15 @@ class EncoderDecoder:
 
     The instance may (say, H266 video encoder+decoder) or may not (say, jpeg encoder+decoder) have an internal state.
     """
+
+    # helpers
+    def compute_psnr(self, a, b):
+        mse = torch.mean((a - b)**2).item()
+        return -10 * math.log10(mse)
+
+    def compute_msssim(self, a, b):
+        return ms_ssim(a, b, data_range=1.).item()
+
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)

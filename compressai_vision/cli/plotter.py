@@ -65,10 +65,14 @@ def getBaseline(scale):
     return a
 
 
-def jsonFilesToArray(dir_):
+def jsonFilesToArray(dir_, y_name="map"):
     """Reads all json files in a directory.
     The files should have key "qpars" and "bpp".
     Returns numpy array.
+
+    :param dir_: path to json files
+    :param y_name: str: "map", "psnr" or "mssim"
+
     """
     xs = []
     ys = []
@@ -80,8 +84,12 @@ def jsonFilesToArray(dir_):
             # res has two lists: res["bpp"] & res["map"]: bpp values and corresponding map values
             # assume there is at least res[”bpp"]
             xs += res["bpp"]
+            """generalize from map to map, psnr & mssim
             if "map" in res:
                 ys += res["map"]
+            """
+            if y_name in res:
+                ys += res[y_name]
             # print(xs, ys)
     if len(ys) < 1:
         a = np.array(xs).transpose()
@@ -111,31 +119,29 @@ def tx(ax, st, i, j, color):
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "plot", parents=parents, help="plot mAP-bpp curve"
+        "plot", parents=parents, help="plot y=y(bpp) curve, where y can be mAP, pnsr or ssim"
     )
     required_group = subparser.add_argument_group("required arguments")
     subparser.add_argument(
         "--csv",
-        action="store_true",
+        action="store",
         default=False,
         help="output result as nicely formated csv table",
+    )
+    subparser.add_argument(
+        "--target",
+        action="store",
+        default="map",
+        required=False,
+        help="y-value type: map, psnr or mssim"
     )
     required_group.add_argument(
         "--dirs",
         action="store",
         type=str,
         required=False,
-        help="list of directories, each folder contains evaluation result (json files) of certain model done with detectron2-eval",
+        help="list of directories, each folder contains evaluation result (json files) of certain model done with detectron2-eval or with metrics-eval",
     )
-    """removed:
-    subparser.add_argument(
-        "--colors",
-        action="store",
-        type=str,
-        required=False,
-        help="list of pyplot colors",
-    )
-    """
     subparser.add_argument(
         "--symbols",
         action="store",
@@ -154,36 +160,25 @@ def add_subparser(subparsers, parents):
         default=None,
         help="mAP value without (de)compression and pyplot symbol,for example: 0.792,--c ",
     )
-    """removed:
-    subparser.add_argument(
-        "--show-baseline",
-        action="store",
-        type=int,
-        required=False,
-        default=None,
-        help="show baseline at a certain scale",
-    )
-    """
-    # parsed_args, unparsed_args = parser.parse_known_args()
-    # return parsed_args, unparsed_args
-
+    
 
 def main(p):  # noqa: C901
     parsed = p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"
+    assert parsed.target in ["map", "psnr", "mssim"], "target must be map, psnr or mssim"
     dirs = parsed.dirs.split(",")
     arrays = []
     for dir_ in dirs:
         dir_ = os.path.expanduser(os.path.join(dir_))
         assert os.path.isdir(dir_), "nonexistent dir " + dir_
-        arrays.append(jsonFilesToArray(dir_))
+        arrays.append(jsonFilesToArray(dir_, y_name = p.target))
 
     if parsed.csv:
         for dir_, a in zip(dirs, arrays):
             print("\n" + dir_ + ":\n")
-            for bpp, map_ in a:
-                print(bpp, map_)
+            for bpp, y in a:
+                print(bpp, y)
         return
 
     if parsed.command != "plot":
@@ -249,7 +244,7 @@ def main(p):  # noqa: C901
     for a, symbol, name in zip(arrays, symbols, names):
         # print(a.shape, len(a.shape))
         if len(a.shape) < 2:
-            print("mAP value missing, will skip", name)
+            print(p.target +" value missing, will skip", name)
             continue
         plt.plot(a[:, 0], a[:, 1], symbol)
         ax = plt.gca()
@@ -274,7 +269,7 @@ def main(p):  # noqa: C901
         print("NOTE: you didn't provide evaluation baseline so will not plot it")
 
     plt.xlabel("bpp")
-    plt.ylabel("mAP")
+    plt.ylabel(p.target)
     print("--> producing out.png to current path")
     plt.savefig(os.path.join("out.png"))
     print("Done!")

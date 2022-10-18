@@ -85,6 +85,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         m: int = 64,
         ffmpeg="ffmpeg",
         scale: int = None,
+        compute_metrics: bool = False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.net = net
@@ -105,26 +106,17 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             except FileNotFoundError:
                 raise (AssertionError("cant find ffmpeg"))
             self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
+        self.compute_metrics = compute_metrics
 
     def reset(self):
         """Reset internal image counter"""
         super().reset()
         self.imcount = 0
+        self.latest_psnr = None
+        self.latest_msssim = None
+
 
     def __call__(self, x):
-        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
-
-        :param x: a FloatTensor with dimensions (batch, channels, y, x)
-
-        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
-        bpps is a list of bits per pixel of each compressed image in that batch
-
-        This method chooses either self.__v0__ or self.__v1__
-        """
-        # return self.__v0__(x)
-        return self.__v1__(x)
-
-    def __v1__(self, x):
         """Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images
 
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
@@ -156,7 +148,16 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         x_hat = (
             torch.round(out_dec["x_hat"].clamp(0, 1) * 255.0) / 255.0
         )  # (batch, 3, H, W)  # reconstructed image
+
+        if self.compute_metrics:
+            self.latest_psnr = self.compute_psnr(x, x_hat)
+            self.latest_msssim = self.compute_msssim(x, x_hat)
         return nbitslist, x_hat
+
+
+    def getMetrics(self):
+        return self.latest_psnr, self.latest_msssim
+
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:
         """Return transformed image and nbits for a BGR image
@@ -216,7 +217,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         # SAVE IMAGE IF
         if self.dump:
-            tmp = transforms.ToPILImage()(x_pad.squeeze(0))
+            tmp = np.array(transforms.ToPILImage()(x_pad.squeeze(0)))
             dumpImageArray(
                 tmp, self.save_folder, "compressai_pad_" + str(self.imcount) + ".png"
             )
