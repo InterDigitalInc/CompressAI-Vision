@@ -145,3 +145,4 @@ tmp/
 Untitled*.ipynb
 docs/source/tutorials/*.json
 docs/source/tutorials/out.png
+scripts/tests/out.png
