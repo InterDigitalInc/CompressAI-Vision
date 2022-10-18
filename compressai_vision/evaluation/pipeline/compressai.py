@@ -148,13 +148,14 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         for bitstream in out_enc["strings"]:
             total_strings += len(bitstream[0])
         # print("bitstream is>", type(bitstream))
-        x_hat = out_dec["x_hat"].clamp(0, 1)  # (batch, 3, H, W)
         # print("x_hat is>", x_hat.shape)
         # num_pixels = x.shape[2] * x.shape[3]
         # print("num_pixels", num_pixels)
         nbits = 8 * total_strings  # BITS not BYTES
         nbitslist = [nbits]
-        x_hat = out_dec["x_hat"]  # reconstructed image
+        x_hat = (
+            torch.round(out_dec["x_hat"].clamp(0, 1) * 255.0) / 255.0
+        )  # (batch, 3, H, W)  # reconstructed image
         return nbitslist, x_hat
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:
