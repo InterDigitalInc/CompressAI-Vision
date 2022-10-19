@@ -33,6 +33,7 @@
 #import datetime
 import json
 import os
+import math
 
 from pathlib import Path
 # import uuid
@@ -321,6 +322,8 @@ def main(p):  # noqa: C901
 
     import torch
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    if p.no_cuda:
+        device = "cpu"
     print()
     print("Using dataset          :", p.dataset_name)
     # print("Dataset tmp clone      :", tmp_name)
@@ -465,15 +468,20 @@ def main(p):  # noqa: C901
             npix_sum += im_.shape[0] * im_.shape[1]
             nbits_sum += nbits
             psnr, mssim = enc_dec.getMetrics()
-            print(">cc", cc)
-            print(">tag", tag)
-            print(">psnr, mssim", psnr, mssim)
+            #print(">cc", cc)
+            #print(">tag", tag)
+            #print(">psnr, mssim", psnr, mssim, type(psnr))
+
+            if math.isnan(psnr) or math.isnan(mssim):
+                print("getMetrics returned nan - you images are probably corrupt.  Will exit now.")
+                return
+
             psnr_sum += psnr
             mssim_sum += mssim
             if p.progressbar:
                 pb.update()
             elif p.progress > 0 and ((cc % p.progress) == 0):
-                print("sample: ", cc, "/", len(dataset))
+                print("sample: ", cc, "/", len(dataset)-1)
             cc+=1
 
         bpp = nbits_sum / npix_sum

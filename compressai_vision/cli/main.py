@@ -92,6 +92,9 @@ def setup_parser():
     common_parser.add_argument(
         "--dump", action="store_true", default=False, help="dump intermediate images whenever possible"
     )
+    common_parser.add_argument(
+        "--no-cuda", action="store_true", default=False, help="never use cuda, just cpu (when applicable)"
+    )
 
     parser = argparse.ArgumentParser(
         description="Includes several subcommands.  For full manual, type compressai-vision manual",
