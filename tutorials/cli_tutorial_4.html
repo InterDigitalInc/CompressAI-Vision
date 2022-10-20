@@ -184,7 +184,7 @@
 <li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -265,28 +265,27 @@ mpeg-vcm tests</p></li>
 <p>In order for your custom model to work with compressai-vision, it needs
 to be in a separate folder. The entry-point must be called <code class="docutils literal notranslate"><span class="pre">model.py</span></code>.
 We provide an example for this: please take a look at the
-<a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision-Internal/tree/main/examples/models/bmshj2018-factorized">examples/models/bmshj2018-factorized/</a>
+<a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/examples/models/bmshj2018-factorized">examples/models/bmshj2018-factorized/</a>
 folder, where you have the following files:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>├── bmshj2018-factorized-prior-1-446d5c7f.pth.tar
 ├── bmshj2018-factorized-prior-2-87279a02.pth.tar
-├── __init__.py
-├── model.py
-└── utils.py
+└── model.py
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">.pth.tar</span></code> files are the checkpoints of your model, while
-<code class="docutils literal notranslate"><span class="pre">model.py</span></code> contains the pytorch/compressai custom code of your model.
-Other python files are whatever python code your custom model might
-require.</p>
-<p>The requirement for <code class="docutils literal notranslate"><span class="pre">model.py</span></code> is simple. You simply define this
+<code class="docutils literal notranslate"><span class="pre">model.py</span></code> contains the pytorch/compressai custom code of your model.</p>
+<p>The requirement for <code class="docutils literal notranslate"><span class="pre">model.py</span></code> is simple. You need to define this
 function:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">getModel</span><span class="p">(</span><span class="n">quality</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">getEncoderDecoder</span><span class="p">(</span><span class="n">quality</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>which returns an instance of your model class. <code class="docutils literal notranslate"><span class="pre">quality</span></code> should be an
-integer parameter (it will be used by the <code class="docutils literal notranslate"><span class="pre">--qpars</span></code> command-line
-flag). The quality parameter is mapped to a certain model checkpoint
-file in <code class="docutils literal notranslate"><span class="pre">model.py</span></code>:</p>
+<p>which returns a subclass of an <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> instance.
+<code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> objects know how to do just that: encode and decode
+an image, and returning the final decoded image with bits-per-pixel
+value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">quality</span></code> should be an integer parameter (it will be used by the
+<code class="docutils literal notranslate"><span class="pre">--qpars</span></code> command-line flag). The quality parameter is mapped to a
+certain model checkpoint file in <code class="docutils literal notranslate"><span class="pre">model.py</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qpoint_per_file</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;bmshj2018-factorized-prior-1-446d5c7f.pth.tar&quot;</span><span class="p">,</span>
     <span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;bmshj2018-factorized-prior-2-87279a02.pth.tar&quot;</span>
@@ -295,6 +294,9 @@ file in <code class="docutils literal notranslate"><span class="pre">model.py</s
 </div>
 <p>i.e. if you define <code class="docutils literal notranslate"><span class="pre">--qpars=1</span></code>, the model will use
 <code class="docutils literal notranslate"><span class="pre">bmshj2018-factorized-prior-1-446d5c7f.pth.tar</span></code> from the directory.</p>
+<p>As you can learn from the code, <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> object uses an
+underlying (compressai-based) model to perform the actual
+encoding/decoding.</p>
 <p>The requirement for the model class
 (<code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">FactorizedPrior(CompressionModel)</span></code> in the example model.py)
 are minimal: your model class should have two methods, called
@@ -316,13 +318,13 @@ bitstream and returns a recovered image.</p>
     <span class="c1"># where x_hat is a torch RGB image tensor (batch, 3, H, W)</span>
 </pre></div>
 </div>
-<p>This signature/interface is used by the compressai library models and by
-the <code class="docutils literal notranslate"><span class="pre">CompressAIEncoderDecoder</span></code> class (see the tutorial on creating a
-EncoderDecoder class) and we recommend that you implement the
-aforementioned methods into your custom model.</p>
-<p>However, if you want to use another kind of API in your model, you need
-to define your own <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class. Please refer to the example
-jpeg <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class in the tutorial.</p>
+<p>This signature/interface is used by the compressai library models. When
+you have these same methods in <em>your</em> custom model, you can use the
+<code class="docutils literal notranslate"><span class="pre">CompressAIEncoderDecoder</span></code> straight out of the box with it.</p>
+<p>You can also implement your own <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class (say, for
+comparing results to classical codecs like jpeg, etc.). For this, please
+refer to the example jpeg <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class in the library
+tutorial.</p>
 <p>So, take a copy of the <code class="docutils literal notranslate"><span class="pre">examples/models/bmshj2018-factorized/</span></code> folder
 into your disk and run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2</span><span class="o">-</span><span class="nb">eval</span> <span class="o">--</span><span class="n">y</span> \

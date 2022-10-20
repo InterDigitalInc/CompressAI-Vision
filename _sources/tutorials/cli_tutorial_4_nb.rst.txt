@@ -28,33 +28,33 @@ As in the previous chapters, let’s first check we have the dataset
 In order for your custom model to work with compressai-vision, it needs
 to be in a separate folder. The entry-point must be called ``model.py``.
 We provide an example for this: please take a look at the
-`examples/models/bmshj2018-factorized/ <https://github.com/InterDigitalInc/CompressAI-Vision-Internal/tree/main/examples/models/bmshj2018-factorized>`__
+`examples/models/bmshj2018-factorized/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/examples/models/bmshj2018-factorized>`__
 folder, where you have the following files:
 
 ::
 
    ├── bmshj2018-factorized-prior-1-446d5c7f.pth.tar
    ├── bmshj2018-factorized-prior-2-87279a02.pth.tar
-   ├── __init__.py
-   ├── model.py
-   └── utils.py
+   └── model.py
 
 The ``.pth.tar`` files are the checkpoints of your model, while
 ``model.py`` contains the pytorch/compressai custom code of your model.
-Other python files are whatever python code your custom model might
-require.
 
-The requirement for ``model.py`` is simple. You simply define this
+The requirement for ``model.py`` is simple. You need to define this
 function:
 
 ::
 
-   getModel(quality=None, **kwargs)
+   getEncoderDecoder(quality=None, **kwargs)
 
-which returns an instance of your model class. ``quality`` should be an
-integer parameter (it will be used by the ``--qpars`` command-line
-flag). The quality parameter is mapped to a certain model checkpoint
-file in ``model.py``:
+which returns a subclass of an ``EncoderDecoder`` instance.
+``EncoderDecoder`` objects know how to do just that: encode and decode
+an image, and returning the final decoded image with bits-per-pixel
+value.
+
+``quality`` should be an integer parameter (it will be used by the
+``--qpars`` command-line flag). The quality parameter is mapped to a
+certain model checkpoint file in ``model.py``:
 
 ::
 
@@ -65,6 +65,10 @@ file in ``model.py``:
 
 i.e. if you define ``--qpars=1``, the model will use
 ``bmshj2018-factorized-prior-1-446d5c7f.pth.tar`` from the directory.
+
+As you can learn from the code, ``EncoderDecoder`` object uses an
+underlying (compressai-based) model to perform the actual
+encoding/decoding.
 
 The requirement for the model class
 (``class FactorizedPrior(CompressionModel)`` in the example model.py)
@@ -90,14 +94,14 @@ The exact signatures are:
        return {"x_hat": x_hat}
        # where x_hat is a torch RGB image tensor (batch, 3, H, W)
 
-This signature/interface is used by the compressai library models and by
-the ``CompressAIEncoderDecoder`` class (see the tutorial on creating a
-EncoderDecoder class) and we recommend that you implement the
-aforementioned methods into your custom model.
+This signature/interface is used by the compressai library models. When
+you have these same methods in *your* custom model, you can use the
+``CompressAIEncoderDecoder`` straight out of the box with it.
 
-However, if you want to use another kind of API in your model, you need
-to define your own ``EncoderDecoder`` class. Please refer to the example
-jpeg ``EncoderDecoder`` class in the tutorial.
+You can also implement your own ``EncoderDecoder`` class (say, for
+comparing results to classical codecs like jpeg, etc.). For this, please
+refer to the example jpeg ``EncoderDecoder`` class in the library
+tutorial.
 
 So, take a copy of the ``examples/models/bmshj2018-factorized/`` folder
 into your disk and run:
