@@ -96,12 +96,12 @@ def jsonFilesToArray(dir_, y_name="map"):
         a.sort(0)
         return a
     a = np.array([xs, ys]).transpose()  # (2,6) --> (6,2)
-    #print(a)
+    # print(a)
     # a.sort(0) # nopes! sorts separately a[:,0] & a[:,1]
-    inds=np.argsort(a[:,0]) # indices that sort according to a[:,0]
-    a=a[inds]
-    #print(">>")
-    #print(a)
+    inds = np.argsort(a[:, 0])  # indices that sort according to a[:,0]
+    a = a[inds]
+    # print(">>")
+    # print(a)
     return a
 
 
@@ -119,12 +119,14 @@ def tx(ax, st, i, j, color):
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "plot", parents=parents, help="plot y=y(bpp) curve, where y can be mAP, pnsr or ssim"
+        "plot",
+        parents=parents,
+        help="plot y=y(bpp) curve, where y can be mAP, pnsr or ssim",
     )
     required_group = subparser.add_argument_group("required arguments")
     subparser.add_argument(
         "--csv",
-        action="store",
+        action="store_true",
         default=False,
         help="output result as nicely formated csv table",
     )
@@ -133,7 +135,7 @@ def add_subparser(subparsers, parents):
         action="store",
         default="map",
         required=False,
-        help="y-value type: map, psnr or mssim"
+        help="y-value type: map, psnr or mssim",
     )
     required_group.add_argument(
         "--dirs",
@@ -160,19 +162,23 @@ def add_subparser(subparsers, parents):
         default=None,
         help="mAP value without (de)compression and pyplot symbol,for example: 0.792,--c ",
     )
-    
+
 
 def main(p):  # noqa: C901
     parsed = p
     # for csv and plot needs directory names
     assert parsed.dirs is not None, "needs list of directory names"
-    assert parsed.target in ["map", "psnr", "mssim"], "target must be map, psnr or mssim"
+    assert parsed.target in [
+        "map",
+        "psnr",
+        "mssim",
+    ], "target must be map, psnr or mssim"
     dirs = parsed.dirs.split(",")
     arrays = []
     for dir_ in dirs:
         dir_ = os.path.expanduser(os.path.join(dir_))
         assert os.path.isdir(dir_), "nonexistent dir " + dir_
-        arrays.append(jsonFilesToArray(dir_, y_name = p.target))
+        arrays.append(jsonFilesToArray(dir_, y_name=p.target))
 
     if parsed.csv:
         for dir_, a in zip(dirs, arrays):
@@ -244,7 +250,7 @@ def main(p):  # noqa: C901
     for a, symbol, name in zip(arrays, symbols, names):
         # print(a.shape, len(a.shape))
         if len(a.shape) < 2:
-            print(p.target +" value missing, will skip", name)
+            print(p.target + " value missing, will skip", name)
             continue
         plt.plot(a[:, 0], a[:, 1], symbol)
         ax = plt.gca()

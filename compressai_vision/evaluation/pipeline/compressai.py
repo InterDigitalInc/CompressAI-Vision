@@ -85,7 +85,6 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         m: int = 64,
         ffmpeg="ffmpeg",
         scale: int = None,
-        compute_metrics: bool = False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.net = net
@@ -106,7 +105,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             except FileNotFoundError:
                 raise (AssertionError("cant find ffmpeg"))
             self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
-        self.compute_metrics = compute_metrics
+        self.compute_metrics = True
+
+    # some parameters can also be set after ctor
+    def computeMetrics(self, state: bool):
+        self.compute_metrics = state
 
     def reset(self):
         """Reset internal image counter"""
@@ -114,7 +117,6 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         self.imcount = 0
         self.latest_psnr = None
         self.latest_msssim = None
-
 
     def __call__(self, x):
         """Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images
@@ -154,10 +156,8 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             self.latest_msssim = self.compute_msssim(x, x_hat)
         return nbitslist, x_hat
 
-
     def getMetrics(self):
         return self.latest_psnr, self.latest_msssim
-
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:
         """Return transformed image and nbits for a BGR image
@@ -193,17 +193,13 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             scaled = rgb_image
 
         if self.dump:
-            dumpImageArray(
-                scaled, self.save_folder, "original_" + tag_ + ".png"
-            )
+            dumpImageArray(scaled, self.save_folder, "original_" + tag_ + ".png")
 
         # https://ffmpeg.org/ffmpeg-filters.html#Examples-100
-        pad_vf="pad=ceil(iw/{S})*{S}:ceil(ih/{S})*{S}".format(
-            S=self.m
-        )
+        pad_vf = "pad=ceil(iw/{S})*{S}:ceil(ih/{S})*{S}".format(S=self.m)
         padded = self.ffmpeg.ff_op(rgb_image, pad_vf)
-        #print(">orig dims", scaled.shape)
-        #print(">padded dims", padded.shape)
+        # print(">orig dims", scaled.shape)
+        # print(">padded dims", padded.shape)
 
         """with hyperprior, results in corrupted image
         # padded (y,x,3) to FloatTensor (1,3,y,x):
@@ -231,9 +227,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # SAVE IMAGE IF
         if self.dump:
             tmp = np.array(transforms.ToPILImage()(x_pad.squeeze(0)))
-            dumpImageArray(
-                tmp, self.save_folder, "padded_" + tag_ + ".png"
-            )
+            dumpImageArray(tmp, self.save_folder, "padded_" + tag_ + ".png")
 
         # RUN COMPRESSAI
         x_pad = x_pad.to(self.device)
@@ -264,9 +258,9 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         else:
             rgb_image_hat = padded_hat
         """
-        rgb_image_hat = self.ffmpeg.ff_op( # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
+        rgb_image_hat = self.ffmpeg.ff_op(  # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
             padded_hat,
-            "crop={width}:{height}:0:0".format( # mpeg-vcm misses the 0:0 part --> would result in image that's cropped wrong
+            "crop={width}:{height}:0:0".format(  # mpeg-vcm misses the 0:0 part --> would result in image that's cropped wrong
                 width=rgb_image.shape[1], height=rgb_image.shape[0]
             ),
         )

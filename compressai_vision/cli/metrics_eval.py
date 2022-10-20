@@ -29,14 +29,13 @@
 
 """cli metrics-eval functionality
 """
-#import copy
-#import datetime
+# import copy
+# import datetime
 import json
 import os
 import math
+from .tools import loadEncoderDecoderFromPath, setupVTM
 
-from pathlib import Path
-# import uuid
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
@@ -175,6 +174,7 @@ def main(p):  # noqa: C901
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
+
     # dataset.clone needs this
     # from compressai_vision import patch  # noqa: F401
     print("fiftyone imported")
@@ -183,6 +183,7 @@ def main(p):  # noqa: C901
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
+
     try:
         dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
@@ -236,70 +237,10 @@ def main(p):  # noqa: C901
         compression_model = getattr(zoo, p.compressai_model_name)
 
     elif p.compression_model_path is not None:
-        # compression from a custcom compression model
-        model_file = Path(p.compression_model_path) / "model.py"
-        if model_file.is_file():
-            import importlib.util
-
-            try:
-                spec = importlib.util.spec_from_file_location("module", model_file)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            except Exception as e:
-                print(
-                    "loading model from directory",
-                    p.compression_model_path,
-                    "failed with",
-                    e,
-                )
-                raise
-            else:
-                assert hasattr(
-                    module, "getModel"
-                ), "your module is missing getModel function"
-                compression_model = (
-                    module.getModel
-                )  # a function that returns a model instance or just a class
-                print("loaded custom model.py")
-
-        else:
-            raise FileNotFoundError(f"No model.py in {p.compression_model_path}")
+        encoder_decoder_func = loadEncoderDecoderFromPath(p.compression_model_path)
 
     elif p.vtm:  # setup VTM
-        if p.vtm_dir is None:
-            try:
-                vtm_dir = os.environ["VTM_DIR"]
-            except KeyError as e:
-                print("please define --vtm_dir or set environmental variable VTM_DIR")
-                raise e
-        else:
-            vtm_dir = p.vtm_dir
-
-        vtm_dir = os.path.expanduser(vtm_dir)
-
-        if p.vtm_cfg is None:
-            # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-            # print("WARNING: using VTM default config file", vtm_cfg)
-            raise BaseException("VTM config is not defined")
-        else:
-            vtm_cfg = p.vtm_cfg
-        vtm_cfg = os.path.expanduser(
-            vtm_cfg
-        )  # some more systematic way of doing these..
-        print("Reading vtm config from: " + vtm_cfg)
-        assert os.path.isfile(vtm_cfg), "vtm config file not found"
-        # try both filenames..
-        vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
-        if not os.path.isfile(vtm_encoder_app):
-            vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStaticd")
-        if not os.path.isfile(vtm_encoder_app):
-            print("FATAL: can't find EncoderAppStatic(d) in", vtm_dir)
-        # try both filenames..
-        vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStatic")
-        if not os.path.isfile(vtm_decoder_app):
-            vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
-        if not os.path.isfile(vtm_decoder_app):
-            print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
+        vtm_encoder_app, vtm_decoder_app, vtm_cfg = setupVTM(p)
 
     # *** CHOOSE COMPRESSION SCHEME OK ***
 
@@ -321,6 +262,7 @@ def main(p):  # noqa: C901
     """
 
     import torch
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     if p.no_cuda:
         device = "cpu"
@@ -361,7 +303,7 @@ def main(p):  # noqa: C901
     print("Output file            :", p.output)
     if p.dump:
         print("WARNING - dump enabled : will dump intermediate images")
-    
+
     if not p.y:
         input("press enter to continue.. ")
 
@@ -384,11 +326,12 @@ def main(p):  # noqa: C901
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
     """
-    psnr_lis  = []
+    psnr_lis = []
     mssim_lis = []
     bpp_lis = []
 
     import cv2, traceback
+
     # use open image ids if avail
     if dataset.get_field("open_images_id"):
         id_field_name = "open_images_id"
@@ -407,16 +350,22 @@ def main(p):  # noqa: C901
                     .eval()
                     .to(device)
                 )
-                # or a custom model from a file:
-            else:
-                net = compression_model(quality=quality).eval().to(device)
+                enc_dec = CompressAIEncoderDecoder(
+                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump
+                )
+            else:  # or a custom model from a file:
+                enc_dec = encoder_decoder_func(
+                    quality=quality,
+                    device=device,
+                    scale=p.scale,
+                    ffmpeg=p.ffmpeg,
+                    dump=p.dump,
+                )
+                # net = compression_model(quality=quality).eval().to(device)
                 # make sure we load just trained models and pre-trained/ updated entropy parameters
-            enc_dec = CompressAIEncoderDecoder(
-                net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, 
-                compute_metrics = True, dump=p.dump
-            )
+
         elif p.vtm:
-            raise(BaseException("metrics calc for VTM not yet implemented"))
+            raise (BaseException("metrics calc for VTM not yet implemented"))
             enc_dec = VTMEncoderDecoder(
                 encoderApp=vtm_encoder_app,
                 decoderApp=vtm_decoder_app,
@@ -436,10 +385,11 @@ def main(p):  # noqa: C901
         mssim_sum = 0
 
         from fiftyone import ProgressBar
+
         if p.progressbar:
             pb = ProgressBar(dataset)
 
-        cc=0
+        cc = 0
         for sample in dataset:
             path = sample.filepath
             im = cv2.imread(path)
@@ -468,12 +418,13 @@ def main(p):  # noqa: C901
             npix_sum += im_.shape[0] * im_.shape[1]
             nbits_sum += nbits
             psnr, mssim = enc_dec.getMetrics()
-            #print(">cc", cc)
-            #print(">tag", tag)
-            #print(">psnr, mssim", psnr, mssim, type(psnr))
-
+            # print(">cc", cc)
+            # print(">tag", tag)
+            # print(">psnr, mssim", psnr, mssim, type(psnr))
             if math.isnan(psnr) or math.isnan(mssim):
-                print("getMetrics returned nan - you images are probably corrupt.  Will exit now.")
+                print(
+                    "getMetrics returned nan - you images are probably corrupt.  Will exit now."
+                )
                 return
 
             psnr_sum += psnr
@@ -481,16 +432,15 @@ def main(p):  # noqa: C901
             if p.progressbar:
                 pb.update()
             elif p.progress > 0 and ((cc % p.progress) == 0):
-                print("sample: ", cc, "/", len(dataset)-1)
-            cc+=1
+                print("sample: ", cc, "/", len(dataset) - 1)
+            cc += 1
 
         bpp = nbits_sum / npix_sum
         psnr = psnr_sum / len(dataset)
-        mssim = mssim_sum / len(dataset)            
+        mssim = mssim_sum / len(dataset)
         bpp_lis.append(bpp)
         psnr_lis.append(psnr)
-        mssim_lis.append(mssim)            
-
+        mssim_lis.append(mssim)
 
     # print(">>", metadata)
     metadata["bpp"] = bpp_lis

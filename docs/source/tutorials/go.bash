@@ -1,5 +1,5 @@
 #!/bin/bash
-./compile.bash
+./compile.bash $@
 save=$PWD
 cd ../..
 make html

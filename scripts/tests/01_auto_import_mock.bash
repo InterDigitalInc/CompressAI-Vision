@@ -6,4 +6,4 @@ echo
 echo 01
 echo
 
-compressai-vision mpeg-vcm-auto-import --mock
+compressai-vision mpeg-vcm-auto-import --mock --y
