@@ -89,7 +89,6 @@ compressai-vision-info
 
 After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
 
-
 ### Contributing
 
 Code is formatted using black and isort. Current checks at Pull Request also include flake8
@@ -116,3 +115,19 @@ CompressAI-Vision is licensed under the BSD 3-Clause Clear License
 ## Authors
 
 Sampsa Riikonen, Jacky Yat-Hong Lam, Fabien Racapé
+
+## Citation
+
+If you use this project, please cite the relevant original publications for the
+models and datasets, and cite this project as:
+
+```
+@inproceedings{racape2022compressaivision,
+	title={{CompressAI-Vision}: a library for building and evaluating Video Compression for Machines pipelines},
+	author={Racap{\'e}, Fabien and Riikonen, Sampsa and Lam, Kacky and Choi, Hyomin},
+    booktitle={ISO/IEC JTC 1/SC 29/WG 2, m61163},
+	year={2022},
+	month={Oct.},
+    key={mpeg}
+}
+```

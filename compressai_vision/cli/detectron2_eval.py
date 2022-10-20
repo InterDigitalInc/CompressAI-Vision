@@ -291,9 +291,13 @@ def main(p):  # noqa: C901
             raise e
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
-        from compressai import zoo
+        from compressai.zoo import models
 
-        compression_model = getattr(zoo, p.compressai_model_name)
+        try:
+            compression_model = models[p.compressai_model_name]
+        except Exception as e:
+            print(f"Supported model names are {models.keys()}")
+            raise e
 
     elif p.compression_model_path is not None:
         encoder_decoder_func = loadEncoderDecoderFromPath(p.compression_model_path)
