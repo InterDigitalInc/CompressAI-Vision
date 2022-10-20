@@ -78,7 +78,7 @@ def annexPredictions(  # noqa: C901
         _ = findLabels(fo_dataset, detection_field=gt_field)
     except ValueError:
         print(
-            "your ground truths suck: samples have no member '",
+            "your ground truths are empty: samples have no member '",
             gt_field,
             "' will set allowed_labels to empty list",
         )
