@@ -34,11 +34,11 @@ from typing import Dict
 
 import torch
 import torch.nn as nn
-from torch import Tensor
 
 from compressai.layers import GDN
 from compressai.models.google import CompressionModel
 from compressai.models.utils import conv, deconv
+from torch import Tensor
 
 from compressai_vision.evaluation.pipeline import CompressAIEncoderDecoder
 
@@ -108,15 +108,15 @@ class FactorizedPrior(CompressionModel):
 
     def compress(self, x):
         # x: (batch, 3, H, W)
-        y = self.g_a(x) # (batch, FM, FM-H, FM-W)
-        y_strings = self.entropy_bottleneck.compress(y) # list: first element is bytes
+        y = self.g_a(x)  # (batch, FM, FM-H, FM-W)
+        y_strings = self.entropy_bottleneck.compress(y)  # list: first element is bytes
         return {"strings": [y_strings], "shape": y.size()[-2:]}
         # --> res["strings"][0][0] has the bytes, shape has the FM dimensions
 
     def decompress(self, strings, shape):
         assert isinstance(strings, list) and len(strings) == 1
         y_hat = self.entropy_bottleneck.decompress(strings[0], shape)
-        x_hat = self.g_s(y_hat).clamp_(0, 1) # (batch, 3, H W)
+        x_hat = self.g_s(y_hat).clamp_(0, 1)  # (batch, 3, H W)
         return {"x_hat": x_hat}
 
 
@@ -151,21 +151,23 @@ def load_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
     return state_dict
 
 
-def getEncoderDecoder(quality=None, device="cpu", scale=None, ffmpeg="ffmpeg", dump=False, **kwargs):
+def getEncoderDecoder(
+    quality=None, device="cpu", scale=None, ffmpeg="ffmpeg", dump=False, **kwargs
+):
     """Returns CompressAIEncoderDecoder instance
 
     - Maps quality parameters to checkpoint files
     - Loads the model
     - Returns the EncoderDecoder instance
     """
-    assert(quality is not None), "please provide a quality parameters"
+    assert quality is not None, "please provide a quality parameters"
 
     for key, value in kwargs.items():
         print("WARNING: unused parameter", key, "with value", value)
 
     qpoint_per_file = {
-        1 : "bmshj2018-factorized-prior-1-446d5c7f.pth.tar",
-        2 : "bmshj2018-factorized-prior-2-87279a02.pth.tar"
+        1: "bmshj2018-factorized-prior-1-446d5c7f.pth.tar",
+        2: "bmshj2018-factorized-prior-2-87279a02.pth.tar",
     }
 
     try:
@@ -200,14 +202,12 @@ def getEncoderDecoder(quality=None, device="cpu", scale=None, ffmpeg="ffmpeg", d
         print("\nLoading checkpoint failed!\n")
         raise e
 
+    net.eval().to(device)
+
     """CompressAIEncoderDecoder knows how to handle standard CompressAI models.  It uses
     the compress and decompress methods (see above)
     """
     enc_dec = CompressAIEncoderDecoder(
-        net, device=device, scale=scale, 
-        ffmpeg=ffmpeg, 
-        dump=dump
+        net, device=device, scale=scale, ffmpeg=ffmpeg, dump=dump
     )
     return enc_dec
-
-
