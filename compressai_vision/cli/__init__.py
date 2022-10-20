@@ -56,11 +56,11 @@ from . import (
     killmongo,
     list_,
     load_eval,
+    metrics_eval,
     plotter,
     register,
     show,
     vtm,
-    metrics_eval,
 )
 
 __all__ = [
