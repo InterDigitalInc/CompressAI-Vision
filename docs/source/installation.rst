@@ -22,7 +22,7 @@ First, create and activate the virtualenv with:
 You might want to define the python version explicitly, i.e. with ``python3.8 -m venv venv``.  Python3.8+ is required.
 
 While in the activated virtualenv, run one of the ``install.bash`` bash scripts in
-`bash/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
+`scripts/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
 
 The script will install the following software stack:
 

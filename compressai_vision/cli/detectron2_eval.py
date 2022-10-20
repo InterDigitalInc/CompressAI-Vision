@@ -33,6 +33,7 @@ import copy
 import datetime
 import json
 import os
+
 from .tools import loadEncoderDecoderFromPath, setupVTM
 
 

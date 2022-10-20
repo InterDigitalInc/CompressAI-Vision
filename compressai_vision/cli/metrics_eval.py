@@ -32,8 +32,8 @@
 # import copy
 # import datetime
 import json
-import os
 import math
+
 from .tools import loadEncoderDecoderFromPath, setupVTM
 
 
@@ -330,7 +330,9 @@ def main(p):  # noqa: C901
     mssim_lis = []
     bpp_lis = []
 
-    import cv2, traceback
+    import traceback
+
+    import cv2
 
     # use open image ids if avail
     if dataset.get_field("open_images_id"):

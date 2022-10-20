@@ -27,8 +27,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging, math
+import logging
+import math
+
 import torch
+
 from pytorch_msssim import ms_ssim
 
 
