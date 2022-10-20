@@ -44,17 +44,24 @@ class EncoderDecoder:
 
     # helpers
     def compute_psnr(self, a, b):
-        mse = torch.mean((a - b)**2).item()
+        mse = torch.mean((a - b) ** 2).item()
         return -10 * math.log10(mse)
 
     def compute_msssim(self, a, b):
-        return ms_ssim(a, b, data_range=1.).item()
-
+        return ms_ssim(a, b, data_range=1.0).item()
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.reset()
+        self.compute_metrics = True
         raise (AssertionError("virtual"))
+
+    def computeMetrics(self, state: bool):
+        self.compute_metrics = state
+
+    def getMetrics(self):
+        """returns tuple with (psnr, mssim) from latest encode+decode calculation"""
+        return None, None
 
     def reset(self):
         """Reset the internal state of the encoder & decoder, if there is any"""

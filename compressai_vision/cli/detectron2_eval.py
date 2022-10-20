@@ -33,10 +33,8 @@ import copy
 import datetime
 import json
 import os
+from .tools import loadEncoderDecoderFromPath, setupVTM
 
-from pathlib import Path
-
-# import uuid
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
@@ -291,90 +289,16 @@ def main(p):  # noqa: C901
             print("problems with your quality parameter list")
             raise e
 
-    """nopes: always define quality points. besides, this is confusing:
-    qpoints are qpoints and paths are paths..!  Why stuff both into a variable
-    with the same name..!?
-    else:
-        # if model checkpoints provided, loop over the checkpoints
-        qpars = p.compression_model_checkpoint
-    """
-
     if p.compressai_model_name is not None:  # compression from compressai zoo
-        """
-        #NOTE: before you start using this section again, PLEASE RUN THE CLI TEST SUITE
-        # this doesn't find the "bmshj2018_factorized" model at all:
-        from compressai.zoo import image_models as pretrained_models
-        compression_model = pretrained_models[p.compressai_model_name]
-        """
         from compressai import zoo
 
         compression_model = getattr(zoo, p.compressai_model_name)
 
     elif p.compression_model_path is not None:
-        # compression from a custcom compression model
-        model_file = Path(p.compression_model_path) / "model.py"
-        if model_file.is_file():
-            import importlib.util
-
-            try:
-                spec = importlib.util.spec_from_file_location("module", model_file)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            except Exception as e:
-                print(
-                    "loading model from directory",
-                    p.compression_model_path,
-                    "failed with",
-                    e,
-                )
-                raise
-            else:
-                assert hasattr(
-                    module, "getModel"
-                ), "your module is missing getModel function"
-                compression_model = (
-                    module.getModel
-                )  # a function that returns a model instance or just a class
-                print("loaded custom model.py")
-
-        else:
-            raise FileNotFoundError(f"No model.py in {p.compression_model_path}")
+        encoder_decoder_func = loadEncoderDecoderFromPath(p.compression_model_path)
 
     elif p.vtm:  # setup VTM
-        if p.vtm_dir is None:
-            try:
-                vtm_dir = os.environ["VTM_DIR"]
-            except KeyError as e:
-                print("please define --vtm_dir or set environmental variable VTM_DIR")
-                raise e
-        else:
-            vtm_dir = p.vtm_dir
-
-        vtm_dir = os.path.expanduser(vtm_dir)
-
-        if p.vtm_cfg is None:
-            # vtm_cfg = getDataFile("encoder_intra_vtm_1.cfg")
-            # print("WARNING: using VTM default config file", vtm_cfg)
-            raise BaseException("VTM config is not defined")
-        else:
-            vtm_cfg = p.vtm_cfg
-        vtm_cfg = os.path.expanduser(
-            vtm_cfg
-        )  # some more systematic way of doing these..
-        print("Reading vtm config from: " + vtm_cfg)
-        assert os.path.isfile(vtm_cfg), "vtm config file not found"
-        # try both filenames..
-        vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
-        if not os.path.isfile(vtm_encoder_app):
-            vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStaticd")
-        if not os.path.isfile(vtm_encoder_app):
-            print("FATAL: can't find EncoderAppStatic(d) in", vtm_dir)
-        # try both filenames..
-        vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStatic")
-        if not os.path.isfile(vtm_decoder_app):
-            vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
-        if not os.path.isfile(vtm_decoder_app):
-            print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
+        vtm_encoder_app, vtm_decoder_app, vtm_cfg = setupVTM(p)
 
     # *** CHOOSE COMPRESSION SCHEME OK ***
 
@@ -398,8 +322,9 @@ def main(p):  # noqa: C901
     from detectron2.engine import DefaultPredictor
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    if p.no_cuda:
+        device = "cpu"
     model_name = p.model
-
     # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
     cfg = get_cfg()
     cfg.MODEL.DEVICE = device
@@ -559,12 +484,6 @@ def main(p):  # noqa: C901
     maps = []
 
     if compression:
-        # we perform compression before detectron2
-
-        # loglev=logging.DEBUG # this now set in main
-        # loglev = logging.INFO
-        # quickLog("CompressAIEncoderDecoder", loglev)
-        # quickLog("VTMEncoderDecoder", loglev)
         for quality in qpars:
             enc_dec = None  # default: no encoding/decoding
             if (
@@ -578,13 +497,17 @@ def main(p):  # noqa: C901
                         .eval()
                         .to(device)
                     )
-                    # or a custom model from a file:
-                else:
-                    net = compression_model(quality=quality).eval().to(device)
-                    # make sure we load just trained models and pre-trained/ updated entropy parameters
-                enc_dec = CompressAIEncoderDecoder(
-                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
-                )
+                    enc_dec = CompressAIEncoderDecoder(
+                        net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump
+                    )
+                else:  # or a custom model from a file:
+                    enc_dec = encoder_decoder_func(
+                        quality=quality,
+                        device=device,
+                        scale=p.scale,
+                        ffmpeg=p.ffmpeg,
+                        dump=p.dump,
+                    )
             elif p.vtm:
                 enc_dec = VTMEncoderDecoder(
                     encoderApp=vtm_encoder_app,
@@ -598,6 +521,7 @@ def main(p):  # noqa: C901
                 )
             else:
                 raise BaseException("program logic error")
+            enc_dec.computeMetrics(False)
 
             bpp = annexPredictions(
                 predictor=predictor,
@@ -618,6 +542,8 @@ def main(p):  # noqa: C901
                 print()
                 return
 
+            if not p.progressbar:
+                fo.config.show_progress_bars = False
             # print("evaluating dataset", dataset.name)
             # https://voxel51.com/docs/fiftyone/api/fiftyone.core.collections.html#fiftyone.core.collections.SampleCollection.evaluate_detections
             res = dataset.evaluate_detections(
