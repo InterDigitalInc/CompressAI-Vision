@@ -60,6 +60,7 @@ from . import (
     register,
     show,
     vtm,
+    metrics_eval
 )
 
 __all__ = [
@@ -78,4 +79,5 @@ __all__ = [
     "killmongo",
     "plotter",
     "show",
+    "metrics_eval"
 ]

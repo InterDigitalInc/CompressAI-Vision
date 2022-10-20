@@ -85,6 +85,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         m: int = 64,
         ffmpeg="ffmpeg",
         scale: int = None,
+        compute_metrics: bool = False
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.net = net
@@ -105,26 +106,17 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             except FileNotFoundError:
                 raise (AssertionError("cant find ffmpeg"))
             self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
+        self.compute_metrics = compute_metrics
 
     def reset(self):
         """Reset internal image counter"""
         super().reset()
         self.imcount = 0
+        self.latest_psnr = None
+        self.latest_msssim = None
+
 
     def __call__(self, x):
-        """Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images
-
-        :param x: a FloatTensor with dimensions (batch, channels, y, x)
-
-        Returns (bpps, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
-        bpps is a list of bits per pixel of each compressed image in that batch
-
-        This method chooses either self.__v0__ or self.__v1__
-        """
-        # return self.__v0__(x)
-        return self.__v1__(x)
-
-    def __v1__(self, x):
         """Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images
 
         :param x: a FloatTensor with dimensions (batch, channels, y, x)
@@ -156,7 +148,16 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         x_hat = (
             torch.round(out_dec["x_hat"].clamp(0, 1) * 255.0) / 255.0
         )  # (batch, 3, H, W)  # reconstructed image
+
+        if self.compute_metrics:
+            self.latest_psnr = self.compute_psnr(x, x_hat)
+            self.latest_msssim = self.compute_msssim(x, x_hat)
         return nbitslist, x_hat
+
+
+    def getMetrics(self):
+        return self.latest_psnr, self.latest_msssim
+
 
     def BGR(self, bgr_image: np.array, tag=None) -> tuple:
         """Return transformed image and nbits for a BGR image
@@ -171,31 +172,42 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         # TO RGB & TENSOR
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
 
-        if self.scale is not None:
+        tag_ = tag if tag else str(self.imcount)
+
+        if self.scale is None or self.scale != 100:
             # the padding for compressai is bigger than this one, so it is innecessary to do this
             # on the other hand, if we want to play strictly by the VCM working group book, then
             # this should be done..?
             #
             # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
+            #
             vf = vf_per_scale[self.scale]
-            padded = self.ffmpeg.ff_op(rgb_image, vf)
+            scaled = self.ffmpeg.ff_op(rgb_image, vf)
             if self.dump:
                 dumpImageArray(
-                    padded,
+                    scaled,
                     self.save_folder,
-                    "ffmpeg_scaled_" + str(self.imcount) + ".png",
+                    "ffmpeg_scaled_" + tag_ + ".png",
                 )
         else:
-            padded = rgb_image
+            scaled = rgb_image
 
         if self.dump:
             dumpImageArray(
-                padded, self.save_folder, "original_" + str(self.imcount) + ".png"
+                scaled, self.save_folder, "original_" + tag_ + ".png"
             )
 
+        # https://ffmpeg.org/ffmpeg-filters.html#Examples-100
+        pad_vf="pad=ceil(iw/{S})*{S}:ceil(ih/{S})*{S}".format(
+            S=self.m
+        )
+        padded = self.ffmpeg.ff_op(rgb_image, pad_vf)
+        #print(">orig dims", scaled.shape)
+        #print(">padded dims", padded.shape)
+
+        """with hyperprior, results in corrupted image
         # padded (y,x,3) to FloatTensor (1,3,y,x):
         x = transforms.ToTensor()(padded).unsqueeze(0)
-
         # ADD PADDING
         # padding in order to conform to compressai network
         # TODO: this should be a global singleton function defined in one place only
@@ -213,30 +225,33 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             mode="constant",
             value=0,
         )
+        """
+        x_pad = transforms.ToTensor()(padded).unsqueeze(0)
 
         # SAVE IMAGE IF
         if self.dump:
-            tmp = transforms.ToPILImage()(x_pad.squeeze(0))
+            tmp = np.array(transforms.ToPILImage()(x_pad.squeeze(0)))
             dumpImageArray(
-                tmp, self.save_folder, "compressai_pad_" + str(self.imcount) + ".png"
+                tmp, self.save_folder, "padded_" + tag_ + ".png"
             )
 
         # RUN COMPRESSAI
         x_pad = x_pad.to(self.device)
         nbitslist, x_hat_pad = self(x_pad)
         x_hat_pad = x_hat_pad.to("cpu")
-
+        """
         # REMOVE PADDING
         # unpad/recover original dimensions
         x_hat = F.pad(
             x_hat_pad, (-padding_left, -padding_right, -padding_top, -padding_bottom)
         )
         assert x.size() == x_hat.size(), "padding error"
+        """
 
         # TO NUMPY ARRAY & BGR IMAGE
-        x_hat = x_hat.squeeze(0)
-        padded_hat = np.array(transforms.ToPILImage()(x_hat))
-
+        x_hat_pad = x_hat_pad.squeeze(0)
+        padded_hat = np.array(transforms.ToPILImage()(x_hat_pad))
+        """
         if self.scale is not None:
             # was scaled, so need to backscale
             # 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
@@ -248,7 +263,13 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             )
         else:
             rgb_image_hat = padded_hat
-
+        """
+        rgb_image_hat = self.ffmpeg.ff_op( # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
+            padded_hat,
+            "crop={width}:{height}:0:0".format( # mpeg-vcm misses the 0:0 part --> would result in image that's cropped wrong
+                width=rgb_image.shape[1], height=rgb_image.shape[0]
+            ),
+        )
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
 
         # SAVE IMAGE IF
@@ -256,7 +277,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             dumpImageArray(
                 bgr_image_hat,
                 self.save_folder,
-                "final_" + str(self.imcount) + ".png",
+                "final_" + tag_ + ".png",
                 is_bgr=True,
             )
 

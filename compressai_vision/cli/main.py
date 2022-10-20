@@ -51,6 +51,7 @@ from . import (
     register,
     show,
     vtm,
+    metrics_eval
 )
 
 COMMANDS = {  # noqa: F405
@@ -70,6 +71,7 @@ COMMANDS = {  # noqa: F405
     "plot": plotter.main,
     "show": show.main,
     "manual": None,
+    "metrics-eval": metrics_eval.main
 }
 
 coms = ""
@@ -86,6 +88,12 @@ def setup_parser():
     )
     common_parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
+    )
+    common_parser.add_argument(
+        "--dump", action="store_true", default=False, help="dump intermediate images whenever possible"
+    )
+    common_parser.add_argument(
+        "--no-cuda", action="store_true", default=False, help="never use cuda, just cpu (when applicable)"
     )
 
     parser = argparse.ArgumentParser(
@@ -120,6 +128,8 @@ def setup_parser():
     killmongo.add_subparser(subparsers, parents=[common_parser])
     # PLOTTING:
     plotter.add_subparser(subparsers, parents=[common_parser])
+    # PNSR, MSSIM:
+    metrics_eval.add_subparser(subparsers, parents=[common_parser])
     return parser
 
 

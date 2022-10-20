@@ -27,22 +27,22 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""cli detectron2_eval functionality
+"""cli metrics-eval functionality
 """
-import copy
-import datetime
+#import copy
+#import datetime
 import json
 import os
+import math
 
 from pathlib import Path
-
 # import uuid
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "detectron2-eval",
+        "metrics-eval",
         parents=parents,
-        help="evaluate model with detectron2 using OpenImageV6",
+        help="evaluate model with psnr and mssim",
     )
     required_group = subparser.add_argument_group("required arguments")
     compressai_group = subparser.add_argument_group("compressai-zoo arguments")
@@ -56,22 +56,6 @@ def add_subparser(subparsers, parents):
         default=None,
         help="name of the dataset",
     )
-    subparser.add_argument(
-        "--gt-field",
-        action="store",
-        type=str,
-        required=False,
-        default="detections",
-        help="name of the ground truth field in the dataset.  Default: detections",
-    )
-    required_group.add_argument(
-        "--model",
-        action="store",
-        type=str,
-        required=True,
-        default=None,
-        help="name of Detectron2 config model",
-    )
     optional_group.add_argument(
         "--output",
         action="store",
@@ -80,16 +64,6 @@ def add_subparser(subparsers, parents):
         default="compressai-vision.json",
         help="outputfile. Default: compressai-vision.json",
     )
-    """TODO: not only oiv6 protocol, but coco etc.
-    subparser.add_argument(
-        "--proto",
-        action="store",
-        type=str,
-        required=False,
-        default=None,
-        help="evaluation protocol",
-    )
-    """
     compressai_group.add_argument(
         "--compressai-model-name",
         action="store",
@@ -106,18 +80,6 @@ def add_subparser(subparsers, parents):
         default=None,
         help="a path to a directory containing model.py for custom development model",
     )
-    """it's up to user to provide qpoint --> checkpoint mapping in model.py
-    subparser.add_argument(
-    compressai_group.add_argument(
-        "--compression-model-checkpoint",
-        action="store",
-        type=str,
-        nargs="*",
-        required=False,
-        default=None,
-        help="path to a compression model checkpoint(s)",
-    )
-    """
     vtm_group.add_argument(
         "--vtm",
         action="store_true",
@@ -164,7 +126,6 @@ def add_subparser(subparsers, parents):
         default=100,
         help="image scaling as per VCM working group docs. Default: 100",
     )
-
     optional_group.add_argument(
         "--ffmpeg",
         action="store",
@@ -196,19 +157,10 @@ def add_subparser(subparsers, parents):
         default=1,
         help="Print progress this often",
     )
-    optional_group.add_argument(
-        "--eval-method",
-        action="store",
-        type=str,
-        required=False,
-        default="open-images",
-        help="Evaluation method/protocol: open-images or coco.  Default: open-images",
-    )
     return subparser
 
 
 def main(p):  # noqa: C901
-
     # check that only one is defined
     defined_codec = ""
     for codec in [p.compressai_model_name, p.vtm, p.compression_model_path]:
@@ -220,30 +172,17 @@ def main(p):  # noqa: C901
             defined_codec = codec
 
     assert p.dataset_name is not None, "please provide dataset name"
-    assert p.model is not None, "provide Detectron2 model name"
-
     # fiftyone
     print("importing fiftyone")
     import fiftyone as fo
-
     # dataset.clone needs this
-    from compressai_vision import patch  # noqa: F401
-
+    # from compressai_vision import patch  # noqa: F401
     print("fiftyone imported")
-
     from compressai_vision.constant import vf_per_scale
-
-    # compressai_vision
-    from compressai_vision.evaluation.fo import (  # annex predictions from
-        annexPredictions,
-    )
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
-
-    # from compressai_vision.tools import getDataFile
-
     try:
         dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
@@ -268,36 +207,22 @@ def main(p):  # noqa: C901
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
 
-    compression = True
     # print(">", p.compressai_model_name, p.vtm, p.compression_model_path, p.qpars)
     if (
         (p.compressai_model_name is None)
         and (p.vtm is False)
         and (p.compression_model_path is None)
     ):
-        compression = False
-        # no (de)compression, just eval
-        assert (
-            p.qpars is None
-        ), "you have provided quality pars but not a (de)compress or vtm model"
-        qpars = None  # this indicates no qpars/pure eval run downstream
+        print("please provide compressai_model_name, compression_model_path or use vtm")
+        return
 
-    else:
-        # check quality parameter list
-        assert p.qpars is not None, "need to provide integer quality parameters"
-        try:
-            qpars = [int(i) for i in p.qpars.split(",")]
-        except Exception as e:
-            print("problems with your quality parameter list")
-            raise e
-
-    """nopes: always define quality points. besides, this is confusing:
-    qpoints are qpoints and paths are paths..!  Why stuff both into a variable
-    with the same name..!?
-    else:
-        # if model checkpoints provided, loop over the checkpoints
-        qpars = p.compression_model_checkpoint
-    """
+    # check quality parameter list
+    assert p.qpars is not None, "need to provide integer quality parameters"
+    try:
+        qpars = [int(i) for i in p.qpars.split(",")]
+    except Exception as e:
+        print("problems with your quality parameter list")
+        raise e
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         """
@@ -381,55 +306,7 @@ def main(p):  # noqa: C901
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
-    # *** Detectron imports ***
-    # Some basic setup:
-    # Setup detectron2 logger
-    # import detectron2
-    import torch
-
-    from detectron2.utils.logger import setup_logger
-
-    setup_logger()
-
-    # import some common detectron2 utilities
-    from detectron2 import model_zoo
-    from detectron2.config import get_cfg
-    from detectron2.data import MetadataCatalog  # , DatasetCatalog
-    from detectron2.engine import DefaultPredictor
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model_name = p.model
-
-    # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
-    cfg = get_cfg()
-    cfg.MODEL.DEVICE = device
-    # load config from a file:
-    cfg.merge_from_file(model_zoo.get_config_file(model_name))
-    # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-    # too big a threshold will cut the smallest values
-    # & affect the precision(recall) curves & evaluation results
-    # the default value is 0.05
-    # value of 0.01 saturates the results (they don't change at lower values)
-    # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-    # get weights
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_name)
-    # print("expected input colorspace:", cfg.INPUT.FORMAT)
-    # print("loaded datasets:", cfg.DATASETS)
-    model_dataset = cfg.DATASETS.TRAIN[0]
-    # print("model was trained with", model_dataset)
-    model_meta = MetadataCatalog.get(model_dataset)
-
-    predictor_field = "detectron-predictions"
-    # instead, create a unique identifier for the field
-    # in this run: this way parallel runs dont overwrite
-    # each other's field
-    # as the database is the same for each running instance/process
-    # ui=uuid.uuid1().hex # 'e84c73f029ee11ed9d19297752f91acd'
-    # predictor_field = "detectron-"+ui
-    # predictor_field = "detectron-{0:%Y-%m-%d-%H-%M-%S-%f}".format(
-    #    datetime.datetime.now()
-    # )
-    # even better idea: create a temporarily cloned database
+    """
     try:
         username = os.environ["USER"]
     except KeyError:
@@ -441,25 +318,20 @@ def main(p):  # noqa: C901
     tmp_name = "detectron-run-{username}-{tmp_name0}".format(
         username=username, tmp_name0=tmp_name0
     )
+    """
 
-    eval_method = p.eval_method
-    eval_methods = ["open-images", "coco"]
-    # must be checked at this stage so that the whole run doesn't crash in the end
-    # just because user has fat-fingered the evaluation method
-    assert eval_method in eval_methods, "ERROR: allowed eval methods:" + str(
-        eval_methods
-    )
-
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if p.no_cuda:
+        device = "cpu"
     print()
     print("Using dataset          :", p.dataset_name)
-    print("Dataset tmp clone      :", tmp_name)
+    # print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # can't use slicing
         print("WARNING: Using slice   :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
-    print("Detectron2 model       :", model_name)
-    print("Model was trained with :", model_dataset)
     if p.compressai_model_name is not None:
         print("Using compressai model :", p.compressai_model_name)
     elif p.compression_model_path is not None:
@@ -471,27 +343,15 @@ def main(p):  # noqa: C901
             # assert(os.path.isdir(p.vtm_cache)), "no such directory "+p.vtm_cache
             # ..created by the VTMEncoderDecoder class
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
-    else:
-        print("** Evaluation without Encoding/Decoding **")
+    print("Quality parameters     :", qpars)
     """
-    if p.compression_model_checkpoint:
-        print("WARN: using checkpoint files")
-    """
-    if qpars is not None:
-        print("Quality parameters     :", qpars)
-    print("Ground truth data field name")
-    print("                       :", p.gt_field)
-    print("Eval. results will be saved to datafield")
-    print("                       :", predictor_field)
-    print("Evaluation protocol    :", eval_method)
-
     dataset_ = fo.load_dataset(p.dataset_name)
     if dataset_.get_field(p.gt_field) is None:
         print("FATAL: your dataset does not have requested field '" + p.gt_field + "'")
         print("Dataset info:")
         print(dataset_)
         return
-
+    """
     # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
@@ -499,180 +359,151 @@ def main(p):  # noqa: C901
         p.progress = 0
     print("Print progress         :", p.progress)
     print("Output file            :", p.output)
-    classes = dataset.distinct("%s.detections.label" % (p.gt_field))
-    classes.sort()
-    detectron_classes = copy.deepcopy(model_meta.thing_classes)
-    detectron_classes.sort()
-    print("Peek model classes     :")
-    print(detectron_classes[0:5], "...")
-    print("Peek dataset classes   :")
-    print(classes[0:5], "...")
-
+    if p.dump:
+        print("WARNING - dump enabled : will dump intermediate images")
+    
     if not p.y:
         input("press enter to continue.. ")
 
     # save metadata about the run into the json file
     metadata = {
         "dataset": p.dataset_name,
-        "gt_field": p.gt_field,
-        "tmp datasetname": tmp_name,
+        # "tmp datasetname": tmp_name,
         "slice": p.slice,
-        "model": model_name,
         "codec": defined_codec,
         "qpars": qpars,
     }
     with open(p.output, "w") as f:
         f.write(json.dumps(metadata, indent=2))
 
+    """
     # please see ../monkey.py for problems I encountered when cloning datasets
     # simultaneously with various multiprocesses/batch jobs
     print("cloning dataset", p.dataset_name, "to", tmp_name)
     dataset = dataset.clone(tmp_name)
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
+    """
+    psnr_lis  = []
+    mssim_lis = []
+    bpp_lis = []
 
-    # parameters for dataset.evaluate_detections
-    eval_args = {"gt_field": p.gt_field, "method": eval_method, "compute_mAP": True}
-    if eval_method == "open-images":
-        if dataset.get_field("positive_labels"):
-            eval_args["pos_label_field"] = "positive_labels"
-        if dataset.get_field("negative_labels"):
-            eval_args["neg_label_field"] = "negative_labels"
-        eval_args["expand_pred_hierarchy"] = False
-        eval_args["expand_gt_hierarchy"] = False
+    import cv2, traceback
+    # use open image ids if avail
+    if dataset.get_field("open_images_id"):
+        id_field_name = "open_images_id"
+    else:
+        id_field_name = "id"
 
-    print("instantiating Detectron2 predictor")
-    predictor = DefaultPredictor(cfg)
-
-    # bpp, mAP values, mAP breakdown per class
-    def per_class(results_obj):
-        """take fiftyone/openimagev6 results object & spit
-        out mAP breakdown as per class
-        """
-        d = {}
-        for class_ in classes:
-            d[class_] = results_obj.mAP([class_])
-        return d
-
-    xs = []
-    ys = []
-    maps = []
-
-    if compression:
-        # we perform compression before detectron2
-
-        # loglev=logging.DEBUG # this now set in main
-        # loglev = logging.INFO
-        # quickLog("CompressAIEncoderDecoder", loglev)
-        # quickLog("VTMEncoderDecoder", loglev)
-        for quality in qpars:
-            enc_dec = None  # default: no encoding/decoding
-            if (
-                p.compressai_model_name or p.compression_model_path
-            ):  # compressai model, either from the zoo or from a directory:
-                if p.compressai_model_name is not None:
-                    # e.g. "bmshj2018-factorized"
-                    print("\nQUALITY PARAMETER: ", quality)
-                    net = (
-                        compression_model(quality=quality, pretrained=True)
-                        .eval()
-                        .to(device)
-                    )
-                    # or a custom model from a file:
-                else:
-                    net = compression_model(quality=quality).eval().to(device)
-                    # make sure we load just trained models and pre-trained/ updated entropy parameters
-                enc_dec = CompressAIEncoderDecoder(
-                    net, device=device, scale=p.scale, ffmpeg=p.ffmpeg
+    for quality in qpars:
+        if (
+            p.compressai_model_name or p.compression_model_path
+        ):  # compressai model, either from the zoo or from a directory:
+            if p.compressai_model_name is not None:
+                # e.g. "bmshj2018-factorized"
+                print("\nQUALITY PARAMETER: ", quality)
+                net = (
+                    compression_model(quality=quality, pretrained=True)
+                    .eval()
+                    .to(device)
                 )
-            elif p.vtm:
-                enc_dec = VTMEncoderDecoder(
-                    encoderApp=vtm_encoder_app,
-                    decoderApp=vtm_decoder_app,
-                    ffmpeg=p.ffmpeg,
-                    vtm_cfg=vtm_cfg,
-                    qp=quality,
-                    cache=p.vtm_cache,
-                    scale=p.scale,
-                    warn=True,
-                )
+                # or a custom model from a file:
             else:
-                raise BaseException("program logic error")
-
-            bpp = annexPredictions(
-                predictor=predictor,
-                fo_dataset=dataset,
-                encoder_decoder=enc_dec,
-                gt_field=p.gt_field,
-                predictor_field=predictor_field,
-                use_pb=p.progressbar,
-                use_print=p.progress,
+                net = compression_model(quality=quality).eval().to(device)
+                # make sure we load just trained models and pre-trained/ updated entropy parameters
+            enc_dec = CompressAIEncoderDecoder(
+                net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, 
+                compute_metrics = True, dump=p.dump
             )
+        elif p.vtm:
+            raise(BaseException("metrics calc for VTM not yet implemented"))
+            enc_dec = VTMEncoderDecoder(
+                encoderApp=vtm_encoder_app,
+                decoderApp=vtm_decoder_app,
+                ffmpeg=p.ffmpeg,
+                vtm_cfg=vtm_cfg,
+                qp=quality,
+                cache=p.vtm_cache,
+                scale=p.scale,
+                warn=True,
+            )
+        else:
+            raise BaseException("program logic error")
 
-            if bpp is None or bpp < 0:
-                print()
-                print("Sorry, mAP calculation aborted")
-                # TODO: implement:
-                # print("If you want to resume, start again with:")
-                # print("--continue", predictor_field)
-                print()
+        npix_sum = 0
+        nbits_sum = 0
+        psnr_sum = 0
+        mssim_sum = 0
+
+        from fiftyone import ProgressBar
+        if p.progressbar:
+            pb = ProgressBar(dataset)
+
+        cc=0
+        for sample in dataset:
+            path = sample.filepath
+            im = cv2.imread(path)
+            tag = sample[id_field_name]
+            if im is None:
+                print("FATAL: could not read the image file '" + path + "'")
+                return -1
+            try:
+                nbits, im_ = enc_dec.BGR(
+                    im, tag=tag
+                )  # include a tag for cases where EncoderDecoder uses caching
+            except Exception as e:
+                print("EncoderDecoder failed with '" + str(e) + "'")
+                print("Traceback:")
+                traceback.print_exc()
+                return -1
+            if nbits < 0:
+                # there's something wrong with the encoder/decoder process
+                # say, corrupt data from the VTMEncode bitstream etc.
+                print("EncoderDecoder returned error: will try using it once again")
+                nbits, im_ = enc_dec.BGR(im, tag=tag)
+            if nbits < 0:
+                print("EncoderDecoder returned error - again!  Will abort calculation")
+                return -1
+
+            npix_sum += im_.shape[0] * im_.shape[1]
+            nbits_sum += nbits
+            psnr, mssim = enc_dec.getMetrics()
+            #print(">cc", cc)
+            #print(">tag", tag)
+            #print(">psnr, mssim", psnr, mssim, type(psnr))
+
+            if math.isnan(psnr) or math.isnan(mssim):
+                print("getMetrics returned nan - you images are probably corrupt.  Will exit now.")
                 return
 
-            # print("evaluating dataset", dataset.name)
-            # https://voxel51.com/docs/fiftyone/api/fiftyone.core.collections.html#fiftyone.core.collections.SampleCollection.evaluate_detections
-            res = dataset.evaluate_detections(
-                predictor_field,
-                **eval_args
-                # gt_field=p.gt_field,
-                # method="open-images",
-                # pos_label_field="positive_labels",
-                # neg_label_field="negative_labels",
-                # expand_pred_hierarchy=False,
-                # expand_gt_hierarchy=False,
-            )
-            xs.append(bpp)
-            ys.append(res.mAP())
-            maps.append(per_class(res))
+            psnr_sum += psnr
+            mssim_sum += mssim
+            if p.progressbar:
+                pb.update()
+            elif p.progress > 0 and ((cc % p.progress) == 0):
+                print("sample: ", cc, "/", len(dataset)-1)
+            cc+=1
 
-    else:  # a pure evaluation without encoding/decoding
-        bpp = annexPredictions(
-            predictor=predictor,
-            fo_dataset=dataset,
-            gt_field=p.gt_field,
-            predictor_field=predictor_field,
-            use_pb=p.progressbar,
-            use_print=p.progress,
-        )
-        res = dataset.evaluate_detections(
-            predictor_field,
-            **eval_args
-            # gt_field=p.gt_field,
-            # method="open-images",
-            # pos_label_field="positive_labels",
-            # neg_label_field="negative_labels",
-            # expand_pred_hierarchy=False,
-            # expand_gt_hierarchy=False,
-        )
-        # print(res)
-        xs.append(bpp)
-        ys.append(res.mAP())
-        maps.append(per_class(res))
+        bpp = nbits_sum / npix_sum
+        psnr = psnr_sum / len(dataset)
+        mssim = mssim_sum / len(dataset)            
+        bpp_lis.append(bpp)
+        psnr_lis.append(psnr)
+        mssim_lis.append(mssim)            
+
 
     # print(">>", metadata)
-    metadata["bpp"] = xs
-    metadata["map"] = ys
-    metadata["map_per_class"] = maps
+    metadata["bpp"] = bpp_lis
+    metadata["psnr"] = psnr_lis
+    metadata["mssim"] = mssim_lis
     with open(p.output, "w") as f:
         f.write(json.dumps(metadata, indent=2))
 
-    """maybe not?
-    print("\nResult output:")
-    print(json.dumps(metadata, indent=2))
     """
     # remove the tmp database
     print("deleting tmp database", tmp_name)
     fo.delete_dataset(tmp_name)
-
+    """
     print("\nDone!\n")
     """load with:
     with open(p.output,"r") as f:
