@@ -41,7 +41,7 @@ install.bash    1.9.1   0.6        10.2
 2. VTM
 ------
 
-Use still need to install VTM from `here <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>`_.
+You still need to install VTM from `here <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>`_.
 VTM is used for anchor pipeline, i.e. for setting a baseline against which deep-learning encoders are tested.
 
 Before compiling VTM, you need at least:
@@ -77,7 +77,7 @@ Now you can try the `standalone test <https://github.com/InterDigitalInc/Compres
 3. Other dependencies
 ---------------------
 
-MPEG/VCM defines several ffmpeg commands for the anchor pipeline, so you need ffmeg:
+MPEG/VCM defines several ffmpeg commands for the anchor pipeline, so you need ffmpeg:
 
 ::
 

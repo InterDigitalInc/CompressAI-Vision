@@ -4,7 +4,7 @@ In this chapter you will learn:
 
 Some example results, produced with the ``detectron2-eval`` command for
 compressai zoo’s “bmshj2018-factorized” model have been archived into
-`examples/data/interdigital/bmshj2018-factorized/ <https://github.com/InterDigitalInc/CompressAI-Vision-Internal/tree/main/examples/data/interdigital/bmshj2018-factorized>`__,
+`examples/data/interdigital/bmshj2018-factorized/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/examples/data/interdigital/bmshj2018_factorized>`__,
 where we have:
 
 ::
