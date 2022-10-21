@@ -3,9 +3,6 @@
 Docker
 ======
 
-**TODO: dockerfiles try to pull CompressAI-Vision from the public repo: this does not work since the repo is not yet public**
-**So for the moment, use Dockerfile.2**
-
 Docker images are provided with the correct software stack:
 
 - `PyTorch <https://pytorch.org/>`_
