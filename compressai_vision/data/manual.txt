@@ -237,31 +237,61 @@ commands & parameters:
                 --label=detection_validation_labels_5k.csv \\
                 --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
-    plot
+    metrics-eval                        evaluate image quality of reconstructed images
 
-        --dirs              list of directories with json files, produced by 
-                            detectron2-eval subcommand
+            --dataset-name              name of the dataset
 
-                            Each directory corresponds to an evaluation of a certain model
-                            done with detectron2-eval: each directory contains a list of json files, 
-                            produced by the subcommand detectron2-eval.
+            compressai-zoo arguments:
+            --compressai-model-name     name of an existing model in compressai-zoo. Example: 'cheng2020-attn'
+            --compression-model-path    path to a directory containing model.py for custom development model
 
-                            Within one directory, you typically have json files, 
-                            produced in a parallel run for
-                            each quality point, for example: 1.json, 2.json, ..
+            vtm arguments:
+            --vtm                       To enable vtm codec. default: False
+            --vtm_dir                   path to directory with executables EncoderAppStatic & DecoderAppStatic
+            --vtm_cfg                   vtm config file. Example: 'encoder_intra_vtm.cfg'
+            --vtm_cache                 directory to cache vtm bitstreams
 
-                            Or you can have a json files with several quality point results 
-                            in each file, say: 1_2_3.json, 4_5.json, ..
+            optional arguments:
+            --Output            outputfile name
+                                Default: compressai-vision.json
+            --qpars             quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer
+                                1-8. For VTM, it should be integer from 0-51.
+                                Example: 1,2,3,4,5,6,7,8
+            --scale             image scaling as per VCM working group docs. 
+                                Default: 100
+            --ffmpeg            path of ffmpeg executable. 
+                                Default: ffmpeg
+            --slice             use a dataset slice instead of the complete dataset.
+                                Example: 0:2 for the first two images
+            --progressbar       show fancy progressbar. 
+                                Default: False
+            --progress          Print progress this often
 
-                            The program knows how to combine these files.
+    plot                        plot the json result of detectron2-eval and metrics-eval as mAP-bpp curves
 
-        --symbols           list of matplotlib symbols for each plot,
-                            for example: o--k,-g,*:r (optional)
-        --names             list of names to be included into the plot,
-                            for example: vtm,mymodel,mymodel2 (optional)
-        --eval              mAP value without (de)compress and maplotlib symbol,
-                            for example: 0.792,--c 
-        --csv               instead of plot, dump json results in csv format
+            --dirs              list of directories with json files, produced by 
+                                detectron2-eval subcommand
+
+                                Each directory corresponds to an evaluation of a certain model
+                                done with detectron2-eval: each directory contains a list of json files, 
+                                produced by the subcommand detectron2-eval.
+
+                                Within one directory, you typically have json files, 
+                                produced in a parallel run for
+                                each quality point, for example: 1.json, 2.json, ..
+
+                                Or you can have a json files with several quality point results 
+                                in each file, say: 1_2_3.json, 4_5.json, ..
+
+                                The program knows how to combine these files.
+
+            --symbols           list of matplotlib symbols for each plot,
+                                for example: o--k,-g,*:r (optional)
+            --names             list of names to be included into the plot,
+                                for example: vtm,mymodel,mymodel2 (optional)
+            --eval              mAP value without (de)compress and maplotlib symbol,
+                                for example: 0.792,--c 
+            --csv               instead of plot, dump json results in csv format
 
         instructions:
 
