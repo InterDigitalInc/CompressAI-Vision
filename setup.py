@@ -34,7 +34,7 @@ from setuptools import find_packages, setup
 # only way to import "fastentrypoint.py" from this directory:
 
 # The following line is modified by setver.bash
-version = "0.1.2"
+version = "0.1.2.dev0"
 
 this_folder = Path(__file__).resolve().parent
 
