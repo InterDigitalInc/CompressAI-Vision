@@ -13,6 +13,6 @@ compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
 --scale=100 \
 --progress=1 \
 --qpars=1 \
---compressai-model-name=bmshj2018_factorized \
+--compressai-model-name=bmshj2018-factorized \
 --output=detectron2_test.json \
 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml

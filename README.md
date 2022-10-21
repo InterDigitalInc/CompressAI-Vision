@@ -89,7 +89,6 @@ compressai-vision-info
 
 After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
 
-
 ### Contributing
 
 Code is formatted using black and isort. Current checks at Pull Request also include flake8
@@ -116,3 +115,4 @@ CompressAI-Vision is licensed under the BSD 3-Clause Clear License
 ## Authors
 
 Sampsa Riikonen, Jacky Yat-Hong Lam, Fabien Racapé
+
