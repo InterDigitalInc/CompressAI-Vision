@@ -124,8 +124,6 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         WARNING: we assume that batch=1
 
-        as per: https://github.com/InterDigitalInc/siloai-playground/blob/7b2fe5069abd9489d301647f53e0534f3a7fbfed/jacky/scripts/object_detection_mAP.py#L163
-
         Returns (nbitslist, x_hat), where x_hat is batch of images that have gone through the encoder/decoder process,
         nbitslist is a list of number of bits of each compressed image in that batch
         """
