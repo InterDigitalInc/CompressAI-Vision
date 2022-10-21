@@ -1,8 +1,6 @@
 Installation
 ============
 
-**TODO: install.bash(s) try to pull CompressAI-Vision from the public repo: this does not work since the repo is not yet public**
-
 This section explains how to install the required software stack *natively* on your system.
 However, you might prefer using CompressAIVision :ref:`via docker instead <docker>`.
 
