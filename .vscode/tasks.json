@@ -1,0 +1,8 @@
+{
+    "tasks": [
+        {
+            "label": "Kill_Mongod",
+            "type": "shell",
+            "command": "pkill mongod"
+        }
+]}s
