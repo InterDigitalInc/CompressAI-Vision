@@ -65,7 +65,8 @@ Lets take a look at the datasets registered to fiftyone:
      'mpeg-vcm-detection-dummy',
      'mpeg-vcm-segmentation',
      'open-images-v6-validation',
-     'quickstart']
+     'quickstart',
+     'quickstart-2-dummy']
 
 
 
@@ -398,7 +399,7 @@ Let’s load an image:
 
 .. parsed-literal::
 
-    <matplotlib.image.AxesImage at 0x7fabd4fed430>
+    <matplotlib.image.AxesImage at 0x7fdf5a7fc640>
 
 
 
@@ -439,4 +440,37 @@ You can visualize the whole dataset conveniently with:
 
 For more info, please visit `fiftyone
 documentation <https://voxel51.com/docs/fiftyone/>`__
+
+Here at the final, a small recompilation/cheatsheet of selected fiftyone
+features
+
+.. code:: ipython3
+
+    # Access by sample id
+    sample=dataset["634472860faf93a9a586c9c4"]
+
+.. code:: ipython3
+
+    # Search by a field value.  You might need this one with the with open_images_id field.
+    from fiftyone import ViewField as F
+    tmpset=dataset[F("filepath") == dataset.first().filepath]
+    print(tmpset)
+
+
+.. parsed-literal::
+
+    Dataset:     quickstart
+    Media type:  image
+    Num samples: 1
+    Sample fields:
+        id:           fiftyone.core.fields.ObjectIdField
+        filepath:     fiftyone.core.fields.StringField
+        tags:         fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+        metadata:     fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+        ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        uniqueness:   fiftyone.core.fields.FloatField
+        predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    View stages:
+        1. Match(filter={'$expr': {'$eq': [...]}})
+
 

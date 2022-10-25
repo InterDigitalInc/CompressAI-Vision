@@ -30,7 +30,9 @@
 """cli detectron2_eval functionality
 """
 import json
-import os
+
+from .tools import checkSlice, getQPars, setupVTM
+# import os
 
 
 def add_subparser(subparsers, parents):
@@ -176,11 +178,11 @@ def main(p):  # noqa: C901
         return
     assert p.vtm_cache is not None, "need to provide a cache directory"
     assert p.qpars is not None, "need to provide quality parameters for vtm"
-    try:
-        qpars = [int(i) for i in p.qpars.split(",")]
-    except Exception as e:
-        print("problems with your quality parameter list")
-        raise e
+    qpars = getQPars(p)
+
+    vtm_encoder_app, vtm_decoder_app, vtm_cfg = setupVTM(p)
+
+    """
     if p.vtm_dir is None:
         try:
             vtm_dir = os.environ["VTM_DIR"]
@@ -215,7 +217,11 @@ def main(p):  # noqa: C901
         vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
     if not os.path.isfile(vtm_decoder_app):
         print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
+    """
 
+    dataset, fr, to = checkSlice(p, dataset)
+
+    """
     if p.slice is not None:
         print("WARNING: using a dataset slice instead of full dataset")
         # say, 0:100
@@ -231,6 +237,7 @@ def main(p):  # noqa: C901
             return
         assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
         dataset = dataset[fr:to]
+    """
 
     # if p.d_list is not None:
     #    print("WARNING: using only certain images from the dataset/slice")
