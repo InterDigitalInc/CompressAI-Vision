@@ -23,8 +23,6 @@ fi
 VTM_DIR=$VTM_BASE"/bin"
 VTM_CFG=$VTM_BASE"/cfg/encoder_intra_vtm.cfg"
 
-
-
 compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
 --slice=0:2 \
 --scale=100 \

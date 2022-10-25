@@ -34,7 +34,14 @@ import datetime
 import json
 import os
 
-from .tools import loadEncoderDecoderFromPath, setupVTM
+from .tools import (
+    checkDataset,
+    checkSlice,
+    getQPars,
+    loadEncoderDecoderFromPath,
+    setupDetectron2,
+    setupVTM,
+)
 
 
 def add_subparser(subparsers, parents):
@@ -249,23 +256,7 @@ def main(p):  # noqa: C901
         print("FATAL: no such registered dataset", p.dataset_name)
         return
 
-    if p.slice is not None:
-        print(
-            "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
-        )
-        # say, 0:100
-        nums = p.slice.split(":")
-        if len(nums) < 2:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        try:
-            fr = int(nums[0])
-            to = int(nums[1])
-        except ValueError:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
-        dataset = dataset[fr:to]
+    dataset, fr, to = checkSlice(p, dataset)
 
     compression = True
     # print(">", p.compressai_model_name, p.vtm, p.compression_model_path, p.qpars)
@@ -284,11 +275,7 @@ def main(p):  # noqa: C901
     else:
         # check quality parameter list
         assert p.qpars is not None, "need to provide integer quality parameters"
-        try:
-            qpars = [int(i) for i in p.qpars.split(",")]
-        except Exception as e:
-            print("problems with your quality parameter list")
-            raise e
+        qpars = getQPars(p)
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         from compressai.zoo import models
@@ -310,44 +297,14 @@ def main(p):  # noqa: C901
     if p.scale is not None:
         assert p.scale in vf_per_scale.keys(), "invalid scale value"
 
-    # *** Detectron imports ***
-    # Some basic setup:
-    # Setup detectron2 logger
-    # import detectron2
     import torch
-
-    from detectron2.utils.logger import setup_logger
-
-    setup_logger()
-
-    # import some common detectron2 utilities
-    from detectron2 import model_zoo
-    from detectron2.config import get_cfg
-    from detectron2.data import MetadataCatalog  # , DatasetCatalog
-    from detectron2.engine import DefaultPredictor
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     if p.no_cuda:
         device = "cpu"
+
     model_name = p.model
-    # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
-    cfg = get_cfg()
-    cfg.MODEL.DEVICE = device
-    # load config from a file:
-    cfg.merge_from_file(model_zoo.get_config_file(model_name))
-    # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-    # too big a threshold will cut the smallest values
-    # & affect the precision(recall) curves & evaluation results
-    # the default value is 0.05
-    # value of 0.01 saturates the results (they don't change at lower values)
-    # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-    # get weights
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_name)
-    # print("expected input colorspace:", cfg.INPUT.FORMAT)
-    # print("loaded datasets:", cfg.DATASETS)
-    model_dataset = cfg.DATASETS.TRAIN[0]
-    # print("model was trained with", model_dataset)
-    model_meta = MetadataCatalog.get(model_dataset)
+    cfg, model_meta, model_dataset = setupDetectron2(model_name, device)
 
     predictor_field = "detectron-predictions"
     # instead, create a unique identifier for the field
@@ -380,6 +337,8 @@ def main(p):  # noqa: C901
         eval_methods
     )
 
+    detection_fields = checkDataset(dataset, fo.core.labels.Detections)
+
     print()
     print("Using dataset          :", p.dataset_name)
     print("Dataset tmp clone      :", tmp_name)
@@ -411,6 +370,10 @@ def main(p):  # noqa: C901
         print("Quality parameters     :", qpars)
     print("Ground truth data field name")
     print("                       :", p.gt_field)
+    if len(detection_fields) > 1:
+        print("--> WARNING: you have more than one detection field in your dataset:")
+        print(",".join(detection_fields))
+        print("be sure to choose the correct one (i.e. for detection or segmentation)")
     print("Eval. results will be saved to datafield")
     print("                       :", predictor_field)
     print("Evaluation protocol    :", eval_method)
@@ -462,7 +425,7 @@ def main(p):  # noqa: C901
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
 
     # parameters for dataset.evaluate_detections
-    eval_args = {"gt_field": p.gt_field, "method": eval_method, "compute_mAP": True}
+    eval_args = {"gt_field": p.gt_field, "method": eval_method}
     if eval_method == "open-images":
         if dataset.get_field("positive_labels"):
             eval_args["pos_label_field"] = "positive_labels"
@@ -470,8 +433,12 @@ def main(p):  # noqa: C901
             eval_args["neg_label_field"] = "negative_labels"
         eval_args["expand_pred_hierarchy"] = False
         eval_args["expand_gt_hierarchy"] = False
+    else:
+        eval_args["compute_mAP"] = True
 
     print("instantiating Detectron2 predictor")
+    from detectron2.engine import DefaultPredictor
+
     predictor = DefaultPredictor(cfg)
 
     # bpp, mAP values, mAP breakdown per class
