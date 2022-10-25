@@ -35,6 +35,13 @@ check-flake8: ## Run flake8 checks
 
 static-analysis: check-black check-isort check-flake8 # check-mypy ## Run all static checks
 
+code-format:
+	@echo "--> Running black"
+	@black --verbose --diff $(src_dirs)
+	@echo "--> Running isort"
+	@isort $(src_dirs)
+	@echo "--> Running flake8 (you need to edit files yourself after this)"
+	@flake8 $(src_dirs)
 
 # Apply styling
 .PHONY: style

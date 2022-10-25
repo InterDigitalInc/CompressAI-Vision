@@ -84,14 +84,21 @@ Docker files including the software stack are also provided!
 
 Until a proper test pipeline is established, for the absolute minimal testing, you can use this command to see that's nothing accutely broken:
 ```
-compressai-vision-info
+compressai-vision info
 ```
 
 After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
 
 ### Contributing
 
-Code is formatted using black and isort. Current checks at Pull Request also include flake8
+Code is formatted using black and isort. Current checks at Pull Request also include flake8.  To format code, type:
+```
+make code-format
+```
+Static checks with those same code formatters can be run manually with:
+```
+make static-analysis
+```
 
 ### Compiling documentation
 

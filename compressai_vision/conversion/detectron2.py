@@ -319,7 +319,7 @@ def detectron251(
             # print(bbox)
         # segmentation
         if hasattr(instances, "pred_masks"):
-            mask = instances.pred_masks[i].detach().numpy()
+            mask = instances.pred_masks[i].cpu().detach().numpy()
             x_ = floor(x)
             y_ = floor(y)
             x2_ = floor(x2)

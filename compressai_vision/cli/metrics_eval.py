@@ -34,7 +34,7 @@
 import json
 import math
 
-from .tools import loadEncoderDecoderFromPath, setupVTM
+from .tools import checkSlice, getQPars, loadEncoderDecoderFromPath, setupVTM
 
 
 def add_subparser(subparsers, parents):
@@ -190,23 +190,7 @@ def main(p):  # noqa: C901
         print("FATAL: no such registered dataset", p.dataset_name)
         return
 
-    if p.slice is not None:
-        print(
-            "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
-        )
-        # say, 0:100
-        nums = p.slice.split(":")
-        if len(nums) < 2:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        try:
-            fr = int(nums[0])
-            to = int(nums[1])
-        except ValueError:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
-        dataset = dataset[fr:to]
+    dataset, fr, to = checkSlice(p, dataset)
 
     # print(">", p.compressai_model_name, p.vtm, p.compression_model_path, p.qpars)
     if (
@@ -219,19 +203,9 @@ def main(p):  # noqa: C901
 
     # check quality parameter list
     assert p.qpars is not None, "need to provide integer quality parameters"
-    try:
-        qpars = [int(i) for i in p.qpars.split(",")]
-    except Exception as e:
-        print("problems with your quality parameter list")
-        raise e
+    qpars = getQPars(p)
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
-        """
-        #NOTE: before you start using this section again, PLEASE RUN THE CLI TEST SUITE
-        # this doesn't find the "bmshj2018_factorized" model at all:
-        from compressai.zoo import image_models as pretrained_models
-        compression_model = pretrained_models[p.compressai_model_name]
-        """
         from compressai import zoo
 
         compression_model = getattr(zoo, p.compressai_model_name)
@@ -260,7 +234,6 @@ def main(p):  # noqa: C901
         username=username, tmp_name0=tmp_name0
     )
     """
-
     import torch
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -286,15 +259,6 @@ def main(p):  # noqa: C901
             # ..created by the VTMEncoderDecoder class
             print("WARNING: VTM USES CACHE IN", p.vtm_cache)
     print("Quality parameters     :", qpars)
-    """
-    dataset_ = fo.load_dataset(p.dataset_name)
-    if dataset_.get_field(p.gt_field) is None:
-        print("FATAL: your dataset does not have requested field '" + p.gt_field + "'")
-        print("Dataset info:")
-        print(dataset_)
-        return
-    """
-    # print("(if aborted, start again with --resume=%s)" % predictor_field)
     print("Progressbar            :", p.progressbar)
     if p.progressbar and p.progress > 0:
         print("WARNING: progressbar enabled --> disabling normal progress print")
