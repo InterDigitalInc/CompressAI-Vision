@@ -31,7 +31,7 @@
 """
 import json
 
-from .tools import checkSlice, getQPars, setupVTM
+from .tools import checkSlice, getQPars, setupVTM, checkZoo
 # import os
 
 
@@ -181,63 +181,7 @@ def main(p):  # noqa: C901
     qpars = getQPars(p)
 
     vtm_encoder_app, vtm_decoder_app, vtm_cfg = setupVTM(p)
-
-    """
-    if p.vtm_dir is None:
-        try:
-            vtm_dir = os.environ["VTM_DIR"]
-        except KeyError as e:
-            print("please define --vtm_dir or set environmental variable VTM_DIR")
-            raise e
-            return
-    else:
-        vtm_dir = p.vtm_dir
-
-    vtm_dir = os.path.expanduser(vtm_dir)
-
-    if p.vtm_cfg is None:
-        raise BaseException("Missing vtm_cfg")
-    else:
-        vtm_cfg = p.vtm_cfg
-
-    vtm_cfg = os.path.expanduser(vtm_cfg)  # some more systematic way of doing these..
-
-    print("reading VTM config from '" + vtm_cfg + "'")
-    assert os.path.isfile(vtm_cfg), "vtm config file not found"
-
-    # try both filenames..
-    vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStatic")
-    if not os.path.isfile(vtm_encoder_app):
-        vtm_encoder_app = os.path.join(vtm_dir, "EncoderAppStaticd")
-    if not os.path.isfile(vtm_encoder_app):
-        print("FATAL: can't find EncoderAppStatic(d) in", vtm_dir)
-    # try both filenames..
-    vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStatic")
-    if not os.path.isfile(vtm_decoder_app):
-        vtm_decoder_app = os.path.join(vtm_dir, "DecoderAppStaticd")
-    if not os.path.isfile(vtm_decoder_app):
-        print("FATAL: can't find DecoderAppStatic(d) in", vtm_dir)
-    """
-
     dataset, fr, to = checkSlice(p, dataset)
-
-    """
-    if p.slice is not None:
-        print("WARNING: using a dataset slice instead of full dataset")
-        # say, 0:100
-        nums = p.slice.split(":")
-        if len(nums) < 2:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        try:
-            fr = int(nums[0])
-            to = int(nums[1])
-        except ValueError:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
-        dataset = dataset[fr:to]
-    """
 
     # if p.d_list is not None:
     #    print("WARNING: using only certain images from the dataset/slice")

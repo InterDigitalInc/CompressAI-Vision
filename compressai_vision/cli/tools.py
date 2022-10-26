@@ -81,6 +81,8 @@ def setupVTM(p):
 
 
 def checkSlice(p, dataset):
+    fr=None
+    to=None
     if p.slice is not None:
         print(
             "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
@@ -151,3 +153,13 @@ def checkDataset(dataset, doctype):
             # df.document_type == fiftyone.core.labels.Detections
             keys.append(key)
     return keys
+
+
+def checkZoo(p):
+    from compressai.zoo import models
+    try:
+        compression_model = models[p.compressai_model_name]
+    except KeyError:
+        print(f"Supported model names are {models.keys()}")
+        return
+    return compression_model
