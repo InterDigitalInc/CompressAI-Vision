@@ -50,6 +50,7 @@ bash ${SCRIPT_DIR}/10_detectron2_eval_seg.bash
 bash ${SCRIPT_DIR}/11_detectron2_eval_no_compress.bash
 bash ${SCRIPT_DIR}/12_metrics_eval_compressai.bash
 bash ${SCRIPT_DIR}/13_detectron2_eval_compressai.bash
+bash ${SCRIPT_DIR}/14_detectron2_eval_compressai_no_slice.bash
 
 echo "DONE, deleting temporary files"
 rm -r /tmp/compressai-vision
