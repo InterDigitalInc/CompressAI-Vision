@@ -289,7 +289,8 @@ import fiftyone.zoo as foz
  <span class="s1">&#39;mpeg-vcm-detection-dummy&#39;</span><span class="p">,</span>
  <span class="s1">&#39;mpeg-vcm-segmentation&#39;</span><span class="p">,</span>
  <span class="s1">&#39;open-images-v6-validation&#39;</span><span class="p">,</span>
- <span class="s1">&#39;quickstart&#39;</span><span class="p">]</span>
+ <span class="s1">&#39;quickstart&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;quickstart-2-dummy&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Let’s get a handle to a dataset:</p>
@@ -598,7 +599,7 @@ COCO API or with the tensorflow tools).</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(Image.open(sample[&quot;filepath&quot;]))
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span> <span class="n">at</span> <span class="mh">0x7fabd4fed430</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span> <span class="n">at</span> <span class="mh">0x7fdf5a7fc640</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <img alt="../_images/fiftyone_nb_12_1.png" src="../_images/fiftyone_nb_12_1.png" />
@@ -628,6 +629,33 @@ has:</p>
 </div>
 <p>For more info, please visit <a class="reference external" href="https://voxel51.com/docs/fiftyone/">fiftyone
 documentation</a></p>
+<p>Here at the final, a small recompilation/cheatsheet of selected fiftyone
+features</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Access by sample id
+sample=dataset[&quot;634472860faf93a9a586c9c4&quot;]
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Search by a field value.  You might need this one with the with open_images_id field.
+from fiftyone import ViewField as F
+tmpset=dataset[F(&quot;filepath&quot;) == dataset.first().filepath]
+print(tmpset)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dataset</span><span class="p">:</span>     <span class="n">quickstart</span>
+<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
+<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
+    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
+    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
+    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+<span class="n">View</span> <span class="n">stages</span><span class="p">:</span>
+    <span class="mf">1.</span> <span class="n">Match</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;$expr&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}})</span>
+</pre></div>
+</div>
 </section>
 
         </article>
