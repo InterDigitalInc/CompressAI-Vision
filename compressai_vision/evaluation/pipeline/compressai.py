@@ -130,7 +130,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         assert x.size()[0] == 1, "batch dimension must be 1"
         with torch.no_grad():
             # compression
-            x=x.half()
+            x = x.half()
             out_enc = self.net.compress(x)
             # decompression
             out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
