@@ -41,7 +41,7 @@ def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "metrics-eval",
         parents=parents,
-        help="evaluate model with psnr and mssim",
+        help="evaluate model with psnr and ms-ssim",
     )
     required_group = subparser.add_argument_group("required arguments")
     compressai_group = subparser.add_argument_group("compressai-zoo arguments")

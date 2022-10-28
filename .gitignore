@@ -149,3 +149,7 @@ scripts/tests/out.png
 scripts/tests/detectron2_metrics_test.json
 scripts/tests/*.json
 scripts/tests/*_.bash
+
+# VSCODE
+.vscode/
+.vscode/*
