@@ -500,7 +500,7 @@ def main(p):  # noqa: C901
                     net = (
                         compression_model(quality=quality, pretrained=True)
                         .eval()
-                        .to(device)
+                        .to(device).half()
                     )
                     enc_dec = CompressAIEncoderDecoder(
                         net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump
