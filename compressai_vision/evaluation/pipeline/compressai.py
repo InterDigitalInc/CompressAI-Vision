@@ -41,6 +41,9 @@ from compressai_vision.tools import dumpImageArray, test_command
 
 from .base import EncoderDecoder
 
+torch.backends.cudnn.deterministic = True
+torch.set_num_threads(1)
+
 
 class CompressAIEncoderDecoder(EncoderDecoder):
     """EncoderDecoder class for CompressAI
@@ -84,6 +87,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         m: int = 64,
         ffmpeg="ffmpeg",
         scale: int = None,
+        half=False,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.net = net
@@ -105,6 +109,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
                 raise (AssertionError("cant find ffmpeg"))
             self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
         self.compute_metrics = True
+        self.half = half
 
     # some parameters can also be set after ctor
     def computeMetrics(self, state: bool):
@@ -128,9 +133,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         nbitslist is a list of number of bits of each compressed image in that batch
         """
         assert x.size()[0] == 1, "batch dimension must be 1"
+        if self.half:
+            x = x.half()
+
         with torch.no_grad():
             # compression
-            x = x.half()
             out_enc = self.net.compress(x)
             # decompression
             out_dec = self.net.decompress(out_enc["strings"], out_enc["shape"])
