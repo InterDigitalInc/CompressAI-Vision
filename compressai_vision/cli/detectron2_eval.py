@@ -113,6 +113,13 @@ def add_subparser(subparsers, parents):
         default=None,
         help="a path to a directory containing model.py for custom development model",
     )
+    compressai_group.add_argument(
+        "--half",
+        action="store_true",
+        required=False,
+        default=False,
+        help="convert model to half floating point (fp16)",
+    )
     """it's up to user to provide qpoint --> checkpoint mapping in model.py
     subparser.add_argument(
     compressai_group.add_argument(
@@ -463,10 +470,11 @@ def main(p):  # noqa: C901
                         compression_model(quality=quality, pretrained=True)
                         .eval()
                         .to(device)
-                        .half()
                     )
+                    if p.half:
+                        net = net.half()
                     enc_dec = CompressAIEncoderDecoder(
-                        net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump
+                        net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump, half=p.half,
                     )
                 else:  # or a custom model from a file:
                     enc_dec = encoder_decoder_func(
@@ -475,6 +483,7 @@ def main(p):  # noqa: C901
                         scale=p.scale,
                         ffmpeg=p.ffmpeg,
                         dump=p.dump,
+                        half=p.half,
                     )
             elif p.vtm:
                 enc_dec = VTMEncoderDecoder(

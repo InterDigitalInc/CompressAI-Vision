@@ -35,7 +35,7 @@ import sys
 
 from compressai_vision.tools import getDataFile, quickLog
 
-from . import (
+from compressai_vision.cli import (
     auto,
     clean,
     convert_mpeg_to_oiv6,
