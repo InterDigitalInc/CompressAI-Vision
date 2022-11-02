@@ -59,6 +59,7 @@ def video_convert(basedir):
     Same thing for all .yuv files found in the directory tree
     """
     r=re.compile('^(.*)\_(\d*)x(\d*)\_(\d*).*\.yuv')
+    print("finding .yuv files from", basedir)
     for path in glob.glob(os.path.join(basedir,"*","*.yuv")):
         # print(path) # /home/sampsa/silo/interdigital/mock2/ClassA/BQTerrace_1920x1080_60Hz_8bit_P420.yuv
         fname=path.split(os.path.sep)[-1] # BQTerrace_1920x1080_60Hz_8bit_P420.yuv
@@ -79,6 +80,7 @@ def video_convert(basedir):
         )
         print(st)
         os.system(st)
+    print("video conversion done")
 
 def sfu_txt_files_to_list(basedir):
     """Looks from basedir for files 
@@ -172,18 +174,35 @@ def register(dirname, name="sfu-hw-objects-v1"):
         ...
 
     """
+    classdirs=os.path.join(dirname,"Class*")
+    print("searching for", classdirs)
+    dirlist=glob.glob(classdirs)
+    if len(dirlist) < 1:
+        print("no directories found, will exit.  Check your path")
+        return
+
     if name in fo.list_datasets():
         print("Dataset", name, "exists.  Will remove it first")
         fo.delete_dataset(name)
     dataset = fo.Dataset(name)
-    for classdir in glob.glob(os.path.join(dirname,"Class*")):
+    print("Dataset", name, "created")
+
+    for classdir in dirlist:
         # /path/to/ClassA
+        print("In class directory", classdir)
         class_tag = classdir.split(os.path.sep)[-1] # ClassA
-        for annotations_dir in glob.glob(os.path.join(classdir,"Annotations","*")):
+        annotation_dirs=os.path.join(classdir,"Annotations","*")
+        print("searching for", annotation_dirs)
+        annotation_dirlist=glob.glob(annotation_dirs)
+        if len(annotation_dirlist) < 1:
+            print("no directories found, will exit. Check your directory structure")
+            return
+        for annotations_dir in annotation_dirlist:
             # /path/to/ClassA/Annotations/PeopleOnStreet
             name_tag = annotations_dir.split(os.path.sep)[-1] # PeopleOnStreet
             filepath=os.path.join(annotations_dir, "video.webm")
             assert(os.path.exists(filepath)), "file "+filepath+" missing"
+            print("registering video", filepath)
             video_sample=fo.Sample(
                 media_type="video",
                 filepath=filepath,
@@ -199,8 +218,8 @@ def register(dirname, name="sfu-hw-objects-v1"):
             dataset.add_sample(video_sample)
             print("new video sample:", class_tag, name_tag, "with", len(n_filelist), "frames")
 
-    print("Dataset", name, "created")
     dataset.persistent=True
+    print("Dataset saved")
 
 
 """Example usage:
@@ -208,6 +227,7 @@ def register(dirname, name="sfu-hw-objects-v1"):
 ::
 
     import fiftyone as fo
+    from fiftyone import ViewField as F
     import cv2
     
     from compressai_vision.conversion.sfu_hw_objects_v1 import video_convert
