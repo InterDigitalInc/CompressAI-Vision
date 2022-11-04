@@ -4,7 +4,8 @@ from pathlib import Path
 import fiftyone as fo
 import csv
 
-classmap = {0: 'person',
+classmap = { # COCO-compatible
+ 0: 'person',
  1: 'bicycle',
  2: 'car',
  5: 'bus',
@@ -16,15 +17,16 @@ classmap = {0: 'person',
  25: 'umbrella',
  26: 'handbag',
  27: 'tie',
- 32: 'sports_ball',
+ 32: 'sports ball',
  41: 'cup',
  56: 'chair',
- 58: 'potted_plant',
- 60: 'dining_table',
+ 58: 'potted plant',
+ 60: 'dining table',
  63: 'laptop',
- 67: 'cell_phone',
+ 67: 'cell phone',
  74: 'clock',
- 77: 'teddy_bear'}
+ 77: 'teddy bear'
+ }
 
 
 def video_convert(basedir):
@@ -91,7 +93,9 @@ def sfu_txt_files_to_list(basedir):
 
     where N is an integer.
 
-    Returns a sorted list of tuples (index, filename)
+    The frame numbering starts from "000".
+
+    Returns a sorted list of tuples (index, filename), where indexes are taken (correctly) from the filenames.
     """
     p = Path(basedir)
     lis=[]
@@ -104,7 +108,7 @@ def sfu_txt_files_to_list(basedir):
         except IndexError:
             print("inconsistent filename", fname)
             continue
-        ind=int(itxt)
+        ind=int(itxt) # NOTE: index is taken from the filename
         lis.append((ind, fname))
     lis.sort()
     return lis
@@ -134,10 +138,13 @@ def read_detections(sample, lis):
                 # print(line)
                 n_class, x0, y0, w, h = line
                 n_class = int(n_class)
-                x0=float(x0)
+                x0=float(x0) 
                 y0=float(y0)
                 w=float(w)
                 h=float(h)
+                # not top-left but bbox center coords
+                x0=x0-w/2
+                y0=y0-h/2
                 label=classmap[n_class]
                 bbox = [
                     x0, y0, w, h
@@ -151,7 +158,8 @@ def read_detections(sample, lis):
             f=fo.Frame(
                 detections=detections
             )
-            sample.frames.add_frame(frame=f, frame_number=ind+1)
+            sample.frames.add_frame(frame=f, frame_number=ind+1) # NOTE: frame numbering starts from 1
+            # sample.frames.add_frame(frame=f, frame_number=ind+10) # TEST/DEBUG: inducing index mismatch
 
 
 def register(dirname, name="sfu-hw-objects-v1"):
@@ -203,11 +211,13 @@ def register(dirname, name="sfu-hw-objects-v1"):
             filepath=os.path.join(annotations_dir, "video.webm")
             assert(os.path.exists(filepath)), "file "+filepath+" missing"
             print("registering video", filepath)
+            custom_id = class_tag+"_"+name_tag
             video_sample=fo.Sample(
                 media_type="video",
                 filepath=filepath,
                 class_tag=class_tag,
-                name_tag=name_tag
+                name_tag=name_tag,
+                custom_id=custom_id
             )
             # print(annotations_dir, class_tag, name_tag)
             n_filelist=sfu_txt_files_to_list(annotations_dir)

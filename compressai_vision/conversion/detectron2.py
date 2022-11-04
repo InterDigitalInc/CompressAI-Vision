@@ -47,6 +47,39 @@ from PIL import Image
 def findLabels(dataset: Dataset, detection_field: str = "detections") -> list:
     return dataset.distinct("%s.detections.label" % detection_field)
 
+def findVideoLabels(dataset: Dataset, detection_field: str = "detections") -> list:
+    """
+
+    Video datasets look like this:
+
+    ::
+
+        Name:        sfu-hw-objects-v1
+        Media type:  video
+        Num samples: 1
+        Persistent:  True
+        Tags:        []
+        Sample fields:
+            id:         fiftyone.core.fields.ObjectIdField
+            filepath:   fiftyone.core.fields.StringField
+            tags:       fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+            metadata:   fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.VideoMetadata)
+            media_type: fiftyone.core.fields.StringField
+            class_tag:  fiftyone.core.fields.StringField
+            name_tag:   fiftyone.core.fields.StringField
+        Frame fields:
+            id:           fiftyone.core.fields.ObjectIdField
+            frame_number: fiftyone.core.fields.FrameNumberField
+            detections:   fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+        
+    Frame labels can be accessed like this:
+
+    ::
+
+        dataset.distinct("frames.%s.detections.label" % detection_field)
+    """
+    return dataset.distinct("frames.%s.detections.label" % detection_field)
+
 
 class FO2DetectronDataset(torch.utils.data.Dataset):
     """A class to construct a Detectron2 dataset from a FiftyOne dataset.
