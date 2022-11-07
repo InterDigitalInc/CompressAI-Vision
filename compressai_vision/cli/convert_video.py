@@ -27,61 +27,53 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Use this stub for adding new cli commands
 """
-# importing this takes quite a while!
-# ..not anymore since import fiftyone is inside the function
-# print("cli: import")
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-from compressai_vision.cli.deregister import main as deregister
-from compressai_vision.cli.detectron2_eval import main as detectron2_eval
-from compressai_vision.cli.download import main as download
-from compressai_vision.cli.dummy import main as dummy
-from compressai_vision.cli.list import main as list
-from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.register import main as register
-from compressai_vision.cli.vtm import main as vtm
+import os
 
-# print("cli: import end")
-"""
-from . import (
-    auto,
-    clean,
-    convert_mpeg_to_oiv6,
-    convert_video,
-    deregister,
-    detectron2_eval,
-    download,
-    dummy,
-    import_video,
-    info,
-    killmongo,
-    list_,
-    load_eval,
-    metrics_eval,
-    plotter,
-    register,
-    show,
-    vtm,
-)
 
-__all__ = [
-    "clean",
-    "convert_mpeg_to_oiv6",
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "dummy",
-    "list_",
-    "load_eval",
-    "register",
-    "vtm",
-    "auto",
-    "info",
-    "killmongo",
-    "plotter",
-    "show",
-    "metrics_eval",
-    "convert_video",
-    "import_video"
-]
+def add_subparser(subparsers, parents):
+    subparser = subparsers.add_parser(
+        "convert-video", parents=parents, help="Raw video formats to proper video container formats"
+    )
+    req_group = subparser.add_argument_group("required arguments")
+    req_group.add_argument(
+        "--dataset-type",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="dataset type, possible values: sfu-hw-objects-v1",
+    )
+    req_group.add_argument(
+        "--dir",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="root directory of the dataset",
+    )
+
+def main(p):
+    p.dir = os.path.expanduser(p.dir) # correct path in the case user uses POSIX "~"
+    possible_types = ["sfu-hw-objects-v1"]
+    assert p.dataset_type in possible_types, \
+        "dataset-type needs to be one of these:"+str(possible_types)
+    assert os.path.isdir(p.dir), \
+        "can find directory "+p.dir
+    print()
+    print("Converting raw video proper container format")
+    print()
+    print("Dataset type           : ", p.dataset_type)
+    print("Dataset root directory : ", p.dir)
+    print()
+    if not p.y:
+        input("press enter to continue.. ")
+        print()
+
+    # implement different (custom) datasets here
+    if p.dataset_type == "sfu-hw-objects-v1":
+        from compressai_vision.conversion.sfu_hw_objects_v1 import video_convert
+        video_convert(p.dir)
+
+    

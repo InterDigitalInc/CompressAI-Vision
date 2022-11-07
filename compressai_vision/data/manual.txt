@@ -59,6 +59,7 @@ commands & parameters:
         --dir               source directory
         --type              fiftyone.types name.  Default: OpenImagesV6Dataset
                             typical values:
+
                                 FiftyOneDataset
                                 OpenImagesV6Dataset
                                 ImageDirectory
@@ -211,7 +212,7 @@ commands & parameters:
             compressai-vision vtm
                 --y --dataset-name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
-    convert_mpeg_to_oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
+    convert-mpeg-to-oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
                             format & directory structure
 
         --lists             file listing necessary images, i.e.
@@ -236,6 +237,27 @@ commands & parameters:
                 --bbox=detection_validation_5k_bbox.csv
                 --label=detection_validation_labels_5k.csv \\
                 --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
+
+    convert-video           place concatenated YUV files into proper video container format
+                            Some popular video datasets provide short video samples/clips in raw (YUV) video format, missing
+                            video metadata (resolution, bits per pixel, frames per second)
+                            This command converts such raw videofiles into proper video container format (mp4 or webm)
+
+        --dataset-type      particular dataset in question.  Possible values are:
+                            
+                            sfu-hw-objects-v1
+
+        --dir               root dir of the dataset
+
+    import-video            imports popular video datasets directly into fiftyone.
+                            Before running this command, you need to run "convert-video" command
+        
+        --dataset-type      particular dataset in question.  Possible values are:
+                            
+                            sfu-hw-objects-v1
+
+        --dir               root dir of the dataset
+
 
     metrics-eval                        evaluate image quality of reconstructed images
 

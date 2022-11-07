@@ -36,15 +36,15 @@ import os
 
 from .tools import (
     checkDataset,
-    checkVideoDataset,
+    checkForField,
     checkSlice,
+    checkVideoDataset,
+    checkZoo,
     getQPars,
     loadEncoderDecoderFromPath,
+    makeEvalPars,
     setupDetectron2,
     setupVTM,
-    checkZoo,
-    checkForField,
-    makeEvalPars
 )
 
 
@@ -253,7 +253,7 @@ def main(p):  # noqa: C901
     # compressai_vision
     from compressai_vision.evaluation.fo import (  # annex predictions from
         annexPredictions,
-        annexVideoPredictions
+        annexVideoPredictions,
     )
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,

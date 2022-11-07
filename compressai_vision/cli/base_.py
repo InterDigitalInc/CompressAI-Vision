@@ -27,61 +27,56 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Use this stub for adding new cli commands
 """
-# importing this takes quite a while!
-# ..not anymore since import fiftyone is inside the function
-# print("cli: import")
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-from compressai_vision.cli.deregister import main as deregister
-from compressai_vision.cli.detectron2_eval import main as detectron2_eval
-from compressai_vision.cli.download import main as download
-from compressai_vision.cli.dummy import main as dummy
-from compressai_vision.cli.list import main as list
-from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.register import main as register
-from compressai_vision.cli.vtm import main as vtm
+import os
 
-# print("cli: import end")
-"""
-from . import (
-    auto,
-    clean,
-    convert_mpeg_to_oiv6,
-    convert_video,
-    deregister,
-    detectron2_eval,
-    download,
-    dummy,
-    import_video,
-    info,
-    killmongo,
-    list_,
-    load_eval,
-    metrics_eval,
-    plotter,
-    register,
-    show,
-    vtm,
-)
 
-__all__ = [
-    "clean",
-    "convert_mpeg_to_oiv6",
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "dummy",
-    "list_",
-    "load_eval",
-    "register",
-    "vtm",
-    "auto",
-    "info",
-    "killmongo",
-    "plotter",
-    "show",
-    "metrics_eval",
-    "convert_video",
-    "import_video"
-]
+def add_subparser(subparsers, parents):
+    subparser = subparsers.add_parser(
+        "YOUR_COMMAND", parents=parents, help="what is it about"
+    )
+    some_group = subparser.add_argument_group("required arguments for example")
+    some_group.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+    some_group.add_argument(
+        "--some-dir",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="path to somewhere",
+    )
+
+def main(p):
+    """Access arguments from namespace p, say: p.dataset_name
+    """
+    # fiftyone
+    if not p.y:
+        input("press enter to continue.. ")
+        print()
+
+    p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
+
+    print("importing fiftyone")
+    import fiftyone as fo
+
+    print("fiftyone imported")
+    print()
+    print("datasets currently registered into fiftyone")
+    print("name, length, first sample path")
+    for name in fo.list_datasets():
+        dataset = fo.load_dataset(name)
+        n = len(dataset)
+        if n > 0:
+            sample = dataset.first()
+            p = os.path.sep.join(sample["filepath"].split(os.path.sep)[:-1])
+        else:
+            p = "?"
+        print("%s, %i, %s" % (name, len(dataset), p))

@@ -35,7 +35,11 @@ from detectron2.data import MetadataCatalog
 from fiftyone import ProgressBar
 from fiftyone.core.dataset import Dataset
 
-from compressai_vision.conversion.detectron2 import detectron251, findLabels, findVideoLabels
+from compressai_vision.conversion.detectron2 import (
+    detectron251,
+    findLabels,
+    findVideoLabels,
+)
 from compressai_vision.evaluation.pipeline.base import EncoderDecoder
 
 
