@@ -155,6 +155,22 @@ def checkDataset(dataset, doctype):
     return keys
 
 
+def checkVideoDataset(dataset, doctype):
+    """Look for fields of certain type in the dataset, say, of type
+    fiftyone.core.labels.Detections.
+
+    Return a list of matching field names
+    """
+    keys = []
+    for key in dataset.get_frame_field_schema():
+        df = dataset.get_field(key)
+        if hasattr(df, "document_type") and df.document_type == doctype:
+            # print(df)
+            # df.document_type == fiftyone.core.labels.Detections
+            keys.append(key)
+    return keys
+
+
 def checkZoo(p):
     from compressai.zoo import models
     try:
@@ -163,3 +179,87 @@ def checkZoo(p):
         print(f"Supported model names are {models.keys()}")
         return
     return compression_model
+
+def checkForField(dataset, name):
+    if dataset.media_type == "image":
+        if dataset.get_field(name) is None:
+            print("FATAL: your dataset does not have requested field '" + name + "'")
+            print("Dataset info:")
+            print(dataset)
+            return False
+    elif dataset.media_type == "video":
+        if name in dataset.get_frame_field_schema():
+            pass
+        else:
+            print("FATAL: your video dataset's frames do not not have requested field '" + name + "'")
+            print("Dataset info:")
+            print(dataset)
+            return False
+    else:
+        print("FATAL: unknow media type", dataset.media_type)
+        return False
+    return True
+
+
+def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=None):
+    """Make parameters for Dataset.evaluate_detections method
+
+    Refs:
+
+    - https://voxel51.com/docs/fiftyone/api/fiftyone.core.collections.html#fiftyone.core.collections.SampleCollection.evaluate_detections
+    - https://voxel51.com/docs/fiftyone/user_guide/evaluation.html#evaluating-videos
+
+    For images & with open image protocol:
+
+    ::
+
+        dataset.evaluate_detections(
+            "predictions",
+            gt_field=p.gt_field,
+            method="open-images",
+            pos_label_field="positive_labels",
+            neg_label_field="negative_labels",
+            expand_pred_hierarchy=False,
+            expand_gt_hierarchy=False
+            )
+
+
+    For videos: note the extra "frames.":
+
+    ::
+
+        dataset.evaluate_detections(
+            "frames.predictions",
+            gt_field="frames.detections",
+            eval_key="eval"
+            )
+
+    returns args: str, kwargs: dict
+    """
+    if dataset.media_type == "image":
+        predictor_field = predictor_field
+        eval_args = {"gt_field": gt_field, "method": eval_method}
+        if eval_method == "open-images":
+            if dataset.get_field("positive_labels"):
+                eval_args["pos_label_field"] = "positive_labels"
+            if dataset.get_field("negative_labels"):
+                eval_args["neg_label_field"] = "negative_labels"
+            eval_args["expand_pred_hierarchy"] = False
+            eval_args["expand_gt_hierarchy"] = False
+        else:
+            eval_args["compute_mAP"] = True
+    
+    elif dataset.media_type == "video":
+        predictor_field = "frames."+predictor_field
+        eval_args = {"gt_field": "frames."+gt_field, "method": eval_method}
+        if eval_method == "open-images":
+            if "positive_labels" in dataset.get_frame_field_schema():
+                eval_args["pos_label_field"] = "positive_labels"
+            if "negative_label" in dataset.get_frame_field_schema():
+                eval_args["neg_label_field"] = "negative_labels"
+            eval_args["expand_pred_hierarchy"] = False
+            eval_args["expand_gt_hierarchy"] = False
+        else:
+            eval_args["compute_mAP"] = True
+    
+    return predictor_field, eval_args

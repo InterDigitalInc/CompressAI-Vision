@@ -31,7 +31,8 @@
 """
 import json
 
-from .tools import checkSlice, getQPars, setupVTM, checkZoo
+from .tools import checkSlice, checkZoo, getQPars, setupVTM
+
 # import os
 
 

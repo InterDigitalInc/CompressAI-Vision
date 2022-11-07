@@ -1,10 +1,19 @@
-import glob
-import os, re
-from pathlib import Path
-import fiftyone as fo
 import csv
+import glob
+import os
+import re
 
-classmap = {0: 'person',
+from pathlib import Path
+
+import fiftyone as fo
+
+# pick your choice..
+container_format = "mp4" # lossless H264 @ mp4
+# container_format = "webm" # lossless VP9 @ webm (i.e. matroska/mkv)
+
+
+classmap = { # COCO-compatible
+ 0: 'person',
  1: 'bicycle',
  2: 'car',
  5: 'bus',
@@ -16,15 +25,16 @@ classmap = {0: 'person',
  25: 'umbrella',
  26: 'handbag',
  27: 'tie',
- 32: 'sports_ball',
+ 32: 'sports ball',
  41: 'cup',
  56: 'chair',
- 58: 'potted_plant',
- 60: 'dining_table',
+ 58: 'potted plant',
+ 60: 'dining table',
  63: 'laptop',
- 67: 'cell_phone',
+ 67: 'cell phone',
  74: 'clock',
- 77: 'teddy_bear'}
+ 77: 'teddy bear'
+ }
 
 
 def video_convert(basedir):
@@ -60,7 +70,9 @@ def video_convert(basedir):
     """
     r=re.compile('^(.*)\_(\d*)x(\d*)\_(\d*).*\.yuv')
     print("finding .yuv files from", basedir)
+    foundsome=False
     for path in glob.glob(os.path.join(basedir,"*","*.yuv")):
+        foundsome=True
         # print(path) # /home/sampsa/silo/interdigital/mock2/ClassA/BQTerrace_1920x1080_60Hz_8bit_P420.yuv
         fname=path.split(os.path.sep)[-1] # BQTerrace_1920x1080_60Hz_8bit_P420.yuv
         fname.split("_")[0] # BQTerrace
@@ -73,13 +85,23 @@ def video_convert(basedir):
         x=int(x)
         y=int(y)
         fps=int(fps)
-        inpath=os.path.join(os.path.sep.join(path.split(os.path.sep)[0:-1]), nametag) # /home/sampsa/silo/interdigital/mock2/ClassA/BQTerrace
+        inpath=os.path.join(os.path.sep.join(path.split(os.path.sep)[0:-1]), "Annotations", nametag) # /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace
+        assert os.path.exists(inpath), "Check your directory structure! Missing path "+inpath
         # print(nametag, x, y, fps, inpath)
-        st="ffmpeg -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 -fps {fps} {output}".format(
-            x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "Annotations", "video.webm")
-        )
+        if container_format == "webm":
+            # webm (aka matrosk/mkv) accepts vp9, but not raw video
+            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 -r {fps} {output}".format(
+                x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.webm")
+            )
+        elif container_format == "mp4":
+            # lossless H264 @ mp4
+            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 -r {fps} {output}".format(
+                x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.mp4")
+            )
         print(st)
         os.system(st)
+    if not foundsome:
+        print("could not find any .yuv files: check your directory & file structure")
     print("video conversion done")
 
 def sfu_txt_files_to_list(basedir):
@@ -91,7 +113,9 @@ def sfu_txt_files_to_list(basedir):
 
     where N is an integer.
 
-    Returns a sorted list of tuples (index, filename)
+    The frame numbering starts from "000".
+
+    Returns a sorted list of tuples (index, filename), where indexes are taken (correctly) from the filenames.
     """
     p = Path(basedir)
     lis=[]
@@ -104,7 +128,7 @@ def sfu_txt_files_to_list(basedir):
         except IndexError:
             print("inconsistent filename", fname)
             continue
-        ind=int(itxt)
+        ind=int(itxt) # NOTE: index is taken from the filename
         lis.append((ind, fname))
     lis.sort()
     return lis
@@ -134,10 +158,13 @@ def read_detections(sample, lis):
                 # print(line)
                 n_class, x0, y0, w, h = line
                 n_class = int(n_class)
-                x0=float(x0)
+                x0=float(x0) 
                 y0=float(y0)
                 w=float(w)
                 h=float(h)
+                # not top-left but bbox center coords
+                x0=x0-w/2
+                y0=y0-h/2
                 label=classmap[n_class]
                 bbox = [
                     x0, y0, w, h
@@ -151,7 +178,8 @@ def read_detections(sample, lis):
             f=fo.Frame(
                 detections=detections
             )
-            sample.frames.add_frame(frame=f, frame_number=ind+1)
+            sample.frames.add_frame(frame=f, frame_number=ind+1) # NOTE: frame numbering starts from 1
+            # sample.frames.add_frame(frame=f, frame_number=ind+10) # TEST/DEBUG: inducing index mismatch
 
 
 def register(dirname, name="sfu-hw-objects-v1"):
@@ -189,7 +217,7 @@ def register(dirname, name="sfu-hw-objects-v1"):
 
     for classdir in dirlist:
         # /path/to/ClassA
-        print("In class directory", classdir)
+        print("\nIn class directory", classdir)
         class_tag = classdir.split(os.path.sep)[-1] # ClassA
         annotation_dirs=os.path.join(classdir,"Annotations","*")
         print("searching for", annotation_dirs)
@@ -200,14 +228,18 @@ def register(dirname, name="sfu-hw-objects-v1"):
         for annotations_dir in annotation_dirlist:
             # /path/to/ClassA/Annotations/PeopleOnStreet
             name_tag = annotations_dir.split(os.path.sep)[-1] # PeopleOnStreet
-            filepath=os.path.join(annotations_dir, "video.webm")
+            # filepath=os.path.join(annotations_dir, "video.webm")
+            # filepath=os.path.join(annotations_dir, "video.mp4")
+            filepath=os.path.join(annotations_dir, "video."+container_format)
             assert(os.path.exists(filepath)), "file "+filepath+" missing"
-            print("registering video", filepath)
+            print("--> registering video", filepath)
+            custom_id = class_tag+"_"+name_tag
             video_sample=fo.Sample(
                 media_type="video",
                 filepath=filepath,
                 class_tag=class_tag,
-                name_tag=name_tag
+                name_tag=name_tag,
+                custom_id=custom_id
             )
             # print(annotations_dir, class_tag, name_tag)
             n_filelist=sfu_txt_files_to_list(annotations_dir)
@@ -216,10 +248,10 @@ def register(dirname, name="sfu-hw-objects-v1"):
             read_detections(video_sample, n_filelist)
             # video_sample now has the detections
             dataset.add_sample(video_sample)
-            print("new video sample:", class_tag, name_tag, "with", len(n_filelist), "frames")
+            print("--> registered new video sample:", class_tag, name_tag, "with", len(n_filelist), "frames")
 
     dataset.persistent=True
-    print("Dataset saved")
+    print("\nDataset saved")
 
 
 """Example usage:

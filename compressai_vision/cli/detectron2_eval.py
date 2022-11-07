@@ -36,12 +36,15 @@ import os
 
 from .tools import (
     checkDataset,
+    checkForField,
     checkSlice,
+    checkVideoDataset,
+    checkZoo,
     getQPars,
     loadEncoderDecoderFromPath,
+    makeEvalPars,
     setupDetectron2,
     setupVTM,
-    checkZoo
 )
 
 
@@ -250,6 +253,7 @@ def main(p):  # noqa: C901
     # compressai_vision
     from compressai_vision.evaluation.fo import (  # annex predictions from
         annexPredictions,
+        annexVideoPredictions,
     )
     from compressai_vision.evaluation.pipeline import (
         CompressAIEncoderDecoder,
@@ -339,10 +343,19 @@ def main(p):  # noqa: C901
         eval_methods
     )
 
-    detection_fields = checkDataset(dataset, fo.core.labels.Detections)
+    if dataset.media_type == "image":
+        detection_fields = checkDataset(dataset, fo.core.labels.Detections)
+        annex_function =  annexPredictions
+    elif dataset.media_type == "video":
+        detection_fields = checkVideoDataset(dataset, fo.core.labels.Detections)
+        annex_function =  annexVideoPredictions
+    else:
+        print("unknown media type", dataset.media_type)
+        return
 
     print()
     print("Using dataset          :", p.dataset_name)
+    print("Dataset media type     :", dataset.media_type)
     print("Dataset tmp clone      :", tmp_name)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # can't use slicing
@@ -380,11 +393,9 @@ def main(p):  # noqa: C901
     print("                       :", predictor_field)
     print("Evaluation protocol    :", eval_method)
 
-    dataset_ = fo.load_dataset(p.dataset_name)
-    if dataset_.get_field(p.gt_field) is None:
-        print("FATAL: your dataset does not have requested field '" + p.gt_field + "'")
-        print("Dataset info:")
-        print(dataset_)
+    # dataset_ = fo.load_dataset(p.dataset_name) # done up there!
+    
+    if not checkForField(dataset, p.gt_field):
         return
 
     # print("(if aborted, start again with --resume=%s)" % predictor_field)
@@ -394,7 +405,10 @@ def main(p):  # noqa: C901
         p.progress = 0
     print("Print progress         :", p.progress)
     print("Output file            :", p.output)
-    classes = dataset.distinct("%s.detections.label" % (p.gt_field))
+    if dataset.media_type == "image":
+        classes = dataset.distinct("%s.detections.label" % (p.gt_field))
+    elif dataset.media_type == "video":
+        classes = dataset.distinct("frames.%s.detections.label" % (p.gt_field))
     classes.sort()
     detectron_classes = copy.deepcopy(model_meta.thing_classes)
     detectron_classes.sort()
@@ -426,7 +440,9 @@ def main(p):  # noqa: C901
     dataset.persistent = True
     # fo.core.odm.database.sync_database() # this would've helped? not sure..
 
+    """
     # parameters for dataset.evaluate_detections
+    # https://voxel51.com/docs/fiftyone/user_guide/evaluation.html#evaluating-videos
     eval_args = {"gt_field": p.gt_field, "method": eval_method}
     if eval_method == "open-images":
         if dataset.get_field("positive_labels"):
@@ -437,6 +453,15 @@ def main(p):  # noqa: C901
         eval_args["expand_gt_hierarchy"] = False
     else:
         eval_args["compute_mAP"] = True
+    """
+    predictor_field_, eval_args = makeEvalPars(
+        dataset = dataset,
+        gt_field = p.gt_field,
+        predictor_field = predictor_field,
+        eval_method = eval_method
+    )
+    # print(predictor_field_)
+    # print(eval_args)
 
     print("instantiating Detectron2 predictor")
     from detectron2.engine import DefaultPredictor
@@ -500,7 +525,7 @@ def main(p):  # noqa: C901
                 raise BaseException("program logic error")
             enc_dec.computeMetrics(False)
 
-            bpp = annexPredictions(
+            bpp = annex_function(
                 predictor=predictor,
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
@@ -522,9 +547,8 @@ def main(p):  # noqa: C901
             if not p.progressbar:
                 fo.config.show_progress_bars = False
             # print("evaluating dataset", dataset.name)
-            # https://voxel51.com/docs/fiftyone/api/fiftyone.core.collections.html#fiftyone.core.collections.SampleCollection.evaluate_detections
             res = dataset.evaluate_detections(
-                predictor_field,
+                predictor_field_,
                 **eval_args
                 # gt_field=p.gt_field,
                 # method="open-images",
@@ -538,7 +562,7 @@ def main(p):  # noqa: C901
             maps.append(per_class(res))
 
     else:  # a pure evaluation without encoding/decoding
-        bpp = annexPredictions(
+        bpp = annex_function(
             predictor=predictor,
             fo_dataset=dataset,
             gt_field=p.gt_field,
@@ -547,7 +571,7 @@ def main(p):  # noqa: C901
             use_print=p.progress,
         )
         res = dataset.evaluate_detections(
-            predictor_field,
+            predictor_field_,
             **eval_args
             # gt_field=p.gt_field,
             # method="open-images",
