@@ -103,7 +103,8 @@ def checkSlice(p, dataset):
     return dataset, fr, to
 
 
-def setupDetectron2(model_name, device):
+def setupDetectron2(model_names: list, device):
+    # Parsing a list of detectron2 models names and return instantiated model with meta information
     # *** Detectron imports ***
     # Some basic setup:
     # Setup detectron2 logger
@@ -116,27 +117,40 @@ def setupDetectron2(model_name, device):
     from detectron2 import model_zoo
     from detectron2.config import get_cfg
     from detectron2.data import MetadataCatalog  # , DatasetCatalog
+    from detectron2.engine import DefaultPredictor
 
-    # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
-    cfg = get_cfg()
-    cfg.MODEL.DEVICE = device
-    # load config from a file:
-    cfg.merge_from_file(model_zoo.get_config_file(model_name))
-    # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-    # too big a threshold will cut the smallest values
-    # & affect the precision(recall) curves & evaluation results
-    # the default value is 0.05
-    # value of 0.01 saturates the results (they don't change at lower values)
-    # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-    # get weights
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_name)
-    # print("expected input colorspace:", cfg.INPUT.FORMAT)
-    # print("loaded datasets:", cfg.DATASETS)
-    model_dataset = cfg.DATASETS.TRAIN[0]
-    # print("model was trained with", model_dataset)
-    model_meta = MetadataCatalog.get(model_dataset)
+    models = []
+    models_meta = []
+    pred_fields = []
+    for e, name in enumerate(model_names):
+        # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
+        cfg = get_cfg()
+        cfg.MODEL.DEVICE = device
+        # load config from a file:
+        cfg.merge_from_file(model_zoo.get_config_file(name))
+        # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
+        # too big a threshold will cut the smallest values
+        # & affect the precision(recall) curves & evaluation results
+        # the default value is 0.05
+        # value of 0.01 saturates the results (they don't change at lower values)
+        # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        # get weights
+        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(name)
+        # print("expected input colorspace:", cfg.INPUT.FORMAT)
+        # print("loaded datasets:", cfg.DATASETS)
 
-    return cfg, model_meta, model_dataset
+        model_dataset = cfg.DATASETS.TRAIN[0]
+        # print("model was trained with", model_dataset)
+        model_meta = MetadataCatalog.get(model_dataset)
+
+        print(f"instantiating Detectron2 predictor {e} : {name}")
+        predictor = DefaultPredictor(cfg)
+
+        models.append(predictor)
+        models_meta.append((model_dataset, model_meta))
+        pred_fields.append(f"detectron-predictions_v{e}")
+
+    return models, models_meta, pred_fields
 
 
 def checkDataset(dataset, doctype):
@@ -207,7 +221,7 @@ def checkForField(dataset, name):
     return True
 
 
-def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=None):
+def makeEvalPars(dataset=None, gt_field=None, predictor_fields=None, eval_method=None):
     """Make parameters for Dataset.evaluate_detections method
 
     Refs:
@@ -243,7 +257,7 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=
     returns args: str, kwargs: dict
     """
     if dataset.media_type == "image":
-        predictor_field = predictor_field
+        pred_fields_ = predictor_fields
         eval_args = {"gt_field": gt_field, "method": eval_method}
         if eval_method == "open-images":
             if dataset.get_field("positive_labels"):
@@ -256,7 +270,7 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=
             eval_args["compute_mAP"] = True
 
     elif dataset.media_type == "video":
-        predictor_field = "frames." + predictor_field
+        pred_fields_ = ["frames." + field for field in predictor_fields]
         eval_args = {"gt_field": "frames." + gt_field, "method": eval_method}
         if eval_method == "open-images":
             if "positive_labels" in dataset.get_frame_field_schema():
@@ -268,4 +282,4 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=
         else:
             eval_args["compute_mAP"] = True
 
-    return predictor_field, eval_args
+    return pred_fields_, eval_args

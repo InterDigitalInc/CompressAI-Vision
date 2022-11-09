@@ -97,6 +97,12 @@ commands & parameters:
         --model             name of the detectron2 model
                             for example:
                             COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+                            
+                            It can also be a list of the models for multi-task scenario
+                            for example:
+                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+                            COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+
         --eval-method       Evaluation method/protocol for mAP calculations: 
                             open-images or coco.  Default: open-images.
         --gt-field          Name of the ground truth field in the dataset.

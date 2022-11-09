@@ -44,32 +44,46 @@ from compressai_vision.evaluation.pipeline.base import EncoderDecoder
 
 
 def annexPredictions(  # noqa: C901
-    predictor=None,
+    predictors: list = None,
     fo_dataset: Dataset = None,
     gt_field: str = "detections",
-    predictor_field: str = "detectron-predictions",
+    predictor_fields: list = None,
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
     use_pb: bool = False,  # progressbar.  captures stdion
     use_print: int = 1,  # print progress at each n:th line.  good for batch jobs
 ):
     """Run detector and EncoderDecoder instance on a dataset.  Append detector results and bits-per-pixel to each sample.
 
-    :param predictor: A Detectron2 predictor
+    :param predictors: A list of Detectron2 predictor. It can be a single element list for a single task or multiple elements for multi-task scenario
     :param fo_dataset: Fiftyone dataset
     :param gt_field: Which dataset member to use for ground truths.  Default: "detections"
-    :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
+    :param predictor_fields: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions". It also can be a list when evaluating multiple vision tasks.
     :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
     :param use_pb: Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.
     :param use_print: Print progress at every n:th. step.  Default: 0 = no printing.
     """
-    assert predictor is not None, "provide Detectron2 predictor"
+
+    predictor_fields = (
+        [
+            "detectron-predictions",
+        ]
+        if predictor_fields is None
+        else predictor_fields
+    )
+
+    assert predictors is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
     if encoder_decoder is not None:
         assert issubclass(
             encoder_decoder.__class__, EncoderDecoder
         ), "encoder_decoder instances needs to be a subclass of EncoderDecoder"
 
-    model_meta = MetadataCatalog.get(predictor.cfg.DATASETS.TRAIN[0])
+    model_meta = None
+    for predictor in predictors:
+        curr_meta = MetadataCatalog.get(predictor.cfg.DATASETS.TRAIN[0])
+        if model_meta is not None:
+            assert model_meta == curr_meta
+        model_meta = curr_meta
 
     """we don't need this!
     d2_dataset = FO2DetectronDataset(
@@ -138,19 +152,22 @@ def annexPredictions(  # noqa: C901
         else:
             im_ = im
 
-        res = predictor(im_)
+        for e, predictor in enumerate(predictors):
+            res = predictor(im_)
 
-        predictions = detectron251(
-            res,
-            model_catids=model_meta.thing_classes,
-            # allowed_labels=allowed_labels # not needed, really
-        )  # --> fiftyone Detections object
+            field = predictor_fields[e]
+            predictions = detectron251(
+                res,
+                model_catids=model_meta.thing_classes,
+                # allowed_labels=allowed_labels # not needed, really
+            )  # --> fiftyone Detections object
 
-        """# could save nbits into each sample:
-        if encoder_decoder is not None:
-            predictions.nbits = nbits
-        """
-        sample[predictor_field] = predictions
+            """# could save nbits into each sample:
+            if encoder_decoder is not None:
+                predictions.nbits = nbits
+            """
+
+            sample[field] = predictions
 
         sample.save()
         if use_pb:
@@ -175,10 +192,10 @@ def annexPredictions(  # noqa: C901
 
 
 def annexVideoPredictions(  # noqa: C901
-    predictor=None,
+    predictors: list = None,
     fo_dataset: Dataset = None,  # video dataset
     gt_field: str = "detections",
-    predictor_field: str = "detectron-predictions",
+    predictor_fields: list = None,
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
     use_pb: bool = False,  # progressbar.  captures stdion
     use_print: int = 1,  # print progress at each n:th line.  good for batch jobs
@@ -187,10 +204,10 @@ def annexVideoPredictions(  # noqa: C901
 
     Dataset.Sample.Frames
 
-    :param predictor: A Detectron2 predictor
+    :param predictors: A list of Detectron2 predictor. It can be a single element list for a single task or multiple elements for multi-task scenario
     :param fo_dataset: A fiftyone video dataset
     :param gt_field: Which dataset member to use for ground truths.  Default: "detections"
-    :param predictor_field: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions"
+    :param predictor_fields: Which dataset member to use for saving the Detectron2 results.  Default: "detectron-predictions". It also can be a list when evaluating multiple vision tasks.
     :param encoder_decoder: (optional) a ``compressai_vision.evaluation.pipeline.EncoderDecoder`` subclass instance to apply on the image before detection
     :param use_pb: Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.
     :param use_print: Print progress at every n:th. step.  Default: 0 = no printing.
@@ -251,14 +268,27 @@ def annexVideoPredictions(  # noqa: C901
                     fields: id, ground-truths, detections, etc.
 
     """
-    assert predictor is not None, "provide Detectron2 predictor"
+    predictor_fields = (
+        [
+            "detectron-predictions",
+        ]
+        if predictor_fields is None
+        else predictor_fields
+    )
+
+    assert predictors is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
     if encoder_decoder is not None:
         assert issubclass(
             encoder_decoder.__class__, EncoderDecoder
         ), "encoder_decoder instances needs to be a subclass of EncoderDecoder"
 
-    model_meta = MetadataCatalog.get(predictor.cfg.DATASETS.TRAIN[0])
+    model_meta = None
+    for predictor in predictors:
+        curr_meta = MetadataCatalog.get(predictor.cfg.DATASETS.TRAIN[0])
+        if model_meta is not None:
+            assert model_meta == curr_meta
+        model_meta = curr_meta
 
     try:
         _ = findVideoLabels(fo_dataset, detection_field=gt_field)
@@ -369,19 +399,21 @@ def annexVideoPredictions(  # noqa: C901
             else:
                 im_ = im
 
-            res = predictor(im_)
+            for e, predictor in enumerate(predictors):
+                res = predictor(im_)
 
-            predictions = detectron251(
-                res,
-                model_catids=model_meta.thing_classes,
-                # allowed_labels=allowed_labels # not needed, really
-            )  # --> fiftyone Detections object
+                field = predictor_fields[e]
+                predictions = detectron251(
+                    res,
+                    model_catids=model_meta.thing_classes,
+                    # allowed_labels=allowed_labels # not needed, really
+                )  # --> fiftyone Detections object
 
-            """# could save nbits into each sample:
-            if encoder_decoder is not None:
-                predictions.nbits = nbits
-            """
-            frame[predictor_field] = predictions
+                """# could save nbits into each sample:
+                if encoder_decoder is not None:
+                    predictions.nbits = nbits
+                """
+                frame[field] = predictions
 
             frame.save()
             if use_pb:
