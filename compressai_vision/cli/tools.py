@@ -81,8 +81,8 @@ def setupVTM(p):
 
 
 def checkSlice(p, dataset):
-    fr=None
-    to=None
+    fr = None
+    to = None
     if p.slice is not None:
         print(
             "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
@@ -173,12 +173,14 @@ def checkVideoDataset(dataset, doctype):
 
 def checkZoo(p):
     from compressai.zoo import models
+
     try:
         compression_model = models[p.compressai_model_name]
     except KeyError:
         print(f"Supported model names are {models.keys()}")
         return
     return compression_model
+
 
 def checkForField(dataset, name):
     if dataset.media_type == "image":
@@ -191,7 +193,11 @@ def checkForField(dataset, name):
         if name in dataset.get_frame_field_schema():
             pass
         else:
-            print("FATAL: your video dataset's frames do not not have requested field '" + name + "'")
+            print(
+                "FATAL: your video dataset's frames do not not have requested field '"
+                + name
+                + "'"
+            )
             print("Dataset info:")
             print(dataset)
             return False
@@ -248,10 +254,10 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=
             eval_args["expand_gt_hierarchy"] = False
         else:
             eval_args["compute_mAP"] = True
-    
+
     elif dataset.media_type == "video":
-        predictor_field = "frames."+predictor_field
-        eval_args = {"gt_field": "frames."+gt_field, "method": eval_method}
+        predictor_field = "frames." + predictor_field
+        eval_args = {"gt_field": "frames." + gt_field, "method": eval_method}
         if eval_method == "open-images":
             if "positive_labels" in dataset.get_frame_field_schema():
                 eval_args["pos_label_field"] = "positive_labels"
@@ -261,5 +267,5 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_field=None, eval_method=
             eval_args["expand_gt_hierarchy"] = False
         else:
             eval_args["compute_mAP"] = True
-    
+
     return predictor_field, eval_args

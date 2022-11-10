@@ -36,7 +36,7 @@ def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
         "make-thumbnails", parents=parents, help="Create 'side-data' videos that work with the fiftyone webapp"
     )
-    some_group = subparser.add_argument_group("required arguments for example")
+    some_group = subparser.add_argument_group("required arguments")
     some_group.add_argument(
         "--dataset-name",
         action="store",
@@ -45,9 +45,21 @@ def add_subparser(subparsers, parents):
         default=None,
         help="name of the dataset",
     )
+    some_group.add_argument(
+        "--force",
+        action="store",
+        type=str,
+        required=False,
+        default=False,
+        help="encode files even if they already existed",
+    )
+
+
     
 def main(p):
-    """Access arguments from namespace p, say: p.dataset_name
+    """https://voxel51.com/docs/fiftyone/user_guide/app.html#multiple-media-fields
+
+    https://voxel51.com/docs/fiftyone/api/fiftyone.utils.video.html#fiftyone.utils.video.reencode_videos
     """
     # fiftyone
     #if not p.y:
@@ -71,6 +83,9 @@ def main(p):
     for sample in dataset.iter_samples(progress=True):
         sample_dir = os.path.dirname(sample.filepath)
         output_path = os.path.join(sample_dir, "web_"+sample.filename)
+        if (not p.force) and os.path.isfile(output_path):
+            print("WARNING: file", output_path, "already exists - will skip")
+            continue
         print("\nRe-encoding", sample.filepath,"to", output_path)
         fouv.reencode_video(sample.filepath, output_path)
         sample["web_filepath"] = output_path

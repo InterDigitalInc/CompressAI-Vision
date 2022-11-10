@@ -247,12 +247,13 @@ commands & parameters:
 
         --dir               root dir of the dataset
 
-    make-thumbnails         add videos that are compatible with browser-based applications to the dataset.
+    make-thumbnails         add "thumbnail" videos that are compatible with browser-based applications to the dataset.
                             this way you will have "side-data" video for visualization in the fiftyone app
                             while still performing training & evaluation with the original data
                             (that might not visualize correctly in the webapp)
 
         --dataset-name      name of the dataset
+        --force             force encoding even if the "thumbnail" videos already existed
 
     metrics-eval                        evaluate image quality of reconstructed images
 
