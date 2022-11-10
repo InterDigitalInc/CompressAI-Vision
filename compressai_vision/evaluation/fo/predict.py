@@ -176,7 +176,7 @@ def annexPredictions(  # noqa: C901
 
 def annexVideoPredictions(  # noqa: C901
     predictor=None,
-    fo_dataset: Dataset = None, # video dataset
+    fo_dataset: Dataset = None,  # video dataset
     gt_field: str = "detections",
     predictor_field: str = "detectron-predictions",
     encoder_decoder=None,  # compressai_vision.evaluation.pipeline.base.EncoderDecoder
@@ -282,36 +282,44 @@ def annexVideoPredictions(  # noqa: C901
         if use_pb:
             pb = ProgressBar(len(sample.frames))
         # read video!
-        vid=cv2.VideoCapture(sample.filepath)
+        vid = cv2.VideoCapture(sample.filepath)
         npix_sum = 0
         nbits_sum = 0
         cc = 0
         # ITERATE OVER FRAMES / START
-        for n_frame in sample.frames: # the iterator spits out frame numbers, nothing else
+        for (
+            n_frame
+        ) in sample.frames:  # the iterator spits out frame numbers, nothing else
             cc += 1
-            frame=sample.frames[n_frame] # Frame object
+            frame = sample.frames[n_frame]  # Frame object
             if frame.id is None:
                 # ghost frames are created if you do sample.frames[num] with non-existent frame numbers (!)
                 # https://github.com/voxel51/fiftyone/issues/2238
-                print("void frame in fiftyone video dataset at frame number", n_frame,"will skip")
+                print(
+                    "void frame in fiftyone video dataset at frame number",
+                    n_frame,
+                    "will skip",
+                )
                 continue
-                
-            n_frame_file = int(vid.get(cv2.CAP_PROP_POS_FRAMES))+1 # next frame number from next call to vid.read()
+
+            n_frame_file = (
+                int(vid.get(cv2.CAP_PROP_POS_FRAMES)) + 1
+            )  # next frame number from next call to vid.read()
             # print(frame.frame_number, n_frame_file)
-            
+
             if frame.frame_number != n_frame_file:
                 print("seeking to", frame.frame_number)
-                ok = vid.set(cv2.CAP_PROP_POS_FRAMES, frame.frame_number-1)
+                ok = vid.set(cv2.CAP_PROP_POS_FRAMES, frame.frame_number - 1)
                 if not ok:
                     vid.release()
-                    print("could not seek to", frame.frame_number-1)
+                    print("could not seek to", frame.frame_number - 1)
                     return -1
-                
+
             ok, arr = vid.read()
             if not ok:
-                print("read failed at",frame.frame_number,"will try again")
+                print("read failed at", frame.frame_number, "will try again")
                 print("seeking to", frame.frame_number)
-                ok = vid.set(cv2.CAP_PROP_POS_FRAMES, frame.frame_number-1)
+                ok = vid.set(cv2.CAP_PROP_POS_FRAMES, frame.frame_number - 1)
                 if not ok:
                     vid.release()
                     print("could not seek to", frame.frame_number)
@@ -321,13 +329,13 @@ def annexVideoPredictions(  # noqa: C901
                     vid.release()
                     print("could not read video at frame", frame.frame_number)
                     return -1
-            
+
             im = arr
             if im is None:
                 print("FATAL: error reading video: got None array")
                 vid.release()
                 return -1
-            
+
             # a unique tag for this frame image consists of video sample tag and the frame number
             tag = sample[id_field_name] + "_" + str(frame.frame_number)
 
@@ -350,7 +358,9 @@ def annexVideoPredictions(  # noqa: C901
                     print("EncoderDecoder returned error: will try using it once again")
                     nbits, im_ = encoder_decoder.BGR(im, tag=tag)
                 if nbits < 0:
-                    print("EncoderDecoder returned error - again!  Will abort calculation")
+                    print(
+                        "EncoderDecoder returned error - again!  Will abort calculation"
+                    )
                     vid.release()
                     return -1
                 # NOTE: use tranformed image im_
@@ -397,15 +407,15 @@ def annexVideoPredictions(  # noqa: C901
     # calculate final bpp
     # this can be calculated separately as well as we save the numbers
     # into the sample
-    bpp=None
+    bpp = None
     if encoder_decoder:
         npix_grand_sum = 0
         nbits_grand_sum = 0
         cc = 0
         for sample in fo_dataset:
             cc += 1
-            nbits_sum=sample["nbits_sum"]
-            npix_sum=sample["npix_sum"]
+            nbits_sum = sample["nbits_sum"]
+            npix_sum = sample["npix_sum"]
             if npix_sum < 1 or nbits_sum < 1:
                 print("WARNING: For bpp calculation, skipping video", sample.filepath)
                 continue
@@ -413,4 +423,3 @@ def annexVideoPredictions(  # noqa: C901
             nbits_grand_sum += nbits_sum
         bpp = nbits_grand_sum / npix_grand_sum
     return bpp
-

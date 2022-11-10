@@ -54,15 +54,17 @@ def add_subparser(subparsers, parents):
         help="path to somewhere",
     )
 
+
 def main(p):
-    """Access arguments from namespace p, say: p.dataset_name
-    """
+    """Access arguments from namespace p, say: p.dataset_name"""
     # fiftyone
     if not p.y:
         input("press enter to continue.. ")
         print()
 
-    p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
+    p.some_dir = os.path.expanduser(
+        p.some_dir
+    )  # correct path in the case user uses POSIX "~"
 
     print("importing fiftyone")
     import fiftyone as fo

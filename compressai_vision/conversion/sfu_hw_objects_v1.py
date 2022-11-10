@@ -8,33 +8,33 @@ from pathlib import Path
 import fiftyone as fo
 
 # pick your choice..
-container_format = "mp4" # lossless H264 @ mp4
+container_format = "mp4"  # lossless H264 @ mp4
 # container_format = "webm" # lossless VP9 @ webm (i.e. matroska/mkv)
 
 
-classmap = { # COCO-compatible
- 0: 'person',
- 1: 'bicycle',
- 2: 'car',
- 5: 'bus',
- 7: 'truck',
- 8: 'boat',
- 13: 'bench',
- 17: 'horse',
- 24: 'backpack',
- 25: 'umbrella',
- 26: 'handbag',
- 27: 'tie',
- 32: 'sports ball',
- 41: 'cup',
- 56: 'chair',
- 58: 'potted plant',
- 60: 'dining table',
- 63: 'laptop',
- 67: 'cell phone',
- 74: 'clock',
- 77: 'teddy bear'
- }
+classmap = {  # COCO-compatible
+    0: "person",
+    1: "bicycle",
+    2: "car",
+    5: "bus",
+    7: "truck",
+    8: "boat",
+    13: "bench",
+    17: "horse",
+    24: "backpack",
+    25: "umbrella",
+    26: "handbag",
+    27: "tie",
+    32: "sports ball",
+    41: "cup",
+    56: "chair",
+    58: "potted plant",
+    60: "dining table",
+    63: "laptop",
+    67: "cell phone",
+    74: "clock",
+    77: "teddy bear",
+}
 
 
 def video_convert(basedir):
@@ -68,25 +68,29 @@ def video_convert(basedir):
 
     Same thing for all .yuv files found in the directory tree
     """
-    r=re.compile('^(.*)\_(\d*)x(\d*)\_(\d*).*\.yuv')
+    r = re.compile(r"^(.*)\_(\d*)x(\d*)\_(\d*).*\.yuv")
     print("finding .yuv files from", basedir)
-    foundsome=False
-    for path in glob.glob(os.path.join(basedir,"*","*.yuv")):
-        foundsome=True
+    foundsome = False
+    for path in glob.glob(os.path.join(basedir, "*", "*.yuv")):
+        foundsome = True
         # print(path) # /home/sampsa/silo/interdigital/mock2/ClassA/BQTerrace_1920x1080_60Hz_8bit_P420.yuv
-        fname=path.split(os.path.sep)[-1] # BQTerrace_1920x1080_60Hz_8bit_P420.yuv
-        fname.split("_")[0] # BQTerrace
+        fname = path.split(os.path.sep)[-1]  # BQTerrace_1920x1080_60Hz_8bit_P420.yuv
+        fname.split("_")[0]  # BQTerrace
         # print(fname)
-        m=r.match(fname)
-        lis=m.groups()
+        m = r.match(fname)
+        lis = m.groups()
         if len(lis) < 3:
-            raise AssertionError("could not get x,y,fps from "+path)
-        nametag, x, y, fps = lis # BQTerrace 1920 1080 60
-        x=int(x)
-        y=int(y)
-        fps=int(fps)
-        inpath=os.path.join(os.path.sep.join(path.split(os.path.sep)[0:-1]), "Annotations", nametag) # /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace
-        assert os.path.exists(inpath), "Check your directory structure! Missing path "+inpath
+            raise AssertionError("could not get x,y,fps from " + path)
+        nametag, x, y, fps = lis  # BQTerrace 1920 1080 60
+        x = int(x)
+        y = int(y)
+        fps = int(fps)
+        inpath = os.path.join(
+            os.path.sep.join(path.split(os.path.sep)[0:-1]), "Annotations", nametag
+        )  # /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace
+        assert os.path.exists(inpath), (
+            "Check your directory structure! Missing path " + inpath
+        )
         """media formats that visualize nicely in the browser:
 
         container formats:
@@ -98,19 +102,23 @@ def video_convert(basedir):
         # print(nametag, x, y, fps, inpath)
         # -r {fps} ## DON'T USE!
         if container_format == "webm":
-            output=os.path.join(inpath, "video.webm")
+            output = os.path.join(inpath, "video.webm")
             # webm (aka matrosk/mkv) accepts vp9, but not raw video
-            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
+            st = f"ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
                 x=x, y=y, fps=fps, input=path, output=output
             )
         elif container_format == "mp4":
-            output=os.path.join(inpath, "video.mp4")
+            output = os.path.join(inpath, "video.mp4")
             # lossless H264 @ mp4
-            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
+            st = f"ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
                 x=x, y=y, fps=fps, input=path, output=output
             )
-        if os.path.exists(output): 
-            print("\nWARNING: converted video file", output,"exists already.  Will skip conversion.  Remove manually if needed\n")
+        if os.path.exists(output):
+            print(
+                "\nWARNING: converted video file",
+                output,
+                "exists already.  Will skip conversion.  Remove manually if needed\n",
+            )
         else:
             print(st)
             os.system(st)
@@ -118,8 +126,9 @@ def video_convert(basedir):
         print("could not find any .yuv files: check your directory & file structure")
     print("video conversion done")
 
+
 def sfu_txt_files_to_list(basedir):
-    """Looks from basedir for files 
+    """Looks from basedir for files
 
     ::
 
@@ -132,17 +141,17 @@ def sfu_txt_files_to_list(basedir):
     Returns a sorted list of tuples (index, filename), where indexes are taken (correctly) from the filenames.
     """
     p = Path(basedir)
-    lis=[]
-    r=re.compile(".*\_(\d\d\d)\.txt")
+    lis = []
+    r = re.compile(r".*\_(\d\d\d)\.txt")
     for fname in glob.glob(str(p / "*.txt")):
         # print(fname)
-        m=r.match(fname)
+        m = r.match(fname)
         try:
-            itxt=m.group(1)
+            itxt = m.group(1)
         except IndexError:
             print("inconsistent filename", fname)
             continue
-        ind=int(itxt) # NOTE: index is taken from the filename
+        ind = int(itxt)  # NOTE: index is taken from the filename
         lis.append((ind, fname))
     lis.sort()
     return lis
@@ -166,33 +175,29 @@ def read_detections(sample, lis):
     """
     for ind, fname in lis:
         # print("reading", fname)
-        with open(fname,"r") as csvfile: # per frame
-            dets=[]
-            for line in csv.reader(csvfile, delimiter=' '): # per detection
+        with open(fname, "r") as csvfile:  # per frame
+            dets = []
+            for line in csv.reader(csvfile, delimiter=" "):  # per detection
                 # print(line)
                 n_class, x0, y0, w, h = line
                 n_class = int(n_class)
-                x0=float(x0) 
-                y0=float(y0)
-                w=float(w)
-                h=float(h)
+                x0 = float(x0)
+                y0 = float(y0)
+                w = float(w)
+                h = float(h)
                 # not top-left but bbox center coords
-                x0=x0-w/2
-                y0=y0-h/2
-                label=classmap[n_class]
-                bbox = [
-                    x0, y0, w, h
-                ]
+                x0 = x0 - w / 2
+                y0 = y0 - h / 2
+                label = classmap[n_class]
+                bbox = [x0, y0, w, h]
                 dets.append(
-                    fo.Detection(
-                        label=label, confidence=1., bounding_box=bbox
-                    )
+                    fo.Detection(label=label, confidence=1.0, bounding_box=bbox)
                 )
             detections = fo.Detections(detections=dets)
-            f=fo.Frame(
-                detections=detections
-            )
-            sample.frames.add_frame(frame=f, frame_number=ind+1) # NOTE: frame numbering starts from 1
+            f = fo.Frame(detections=detections)
+            sample.frames.add_frame(
+                frame=f, frame_number=ind + 1
+            )  # NOTE: frame numbering starts from 1
             # sample.frames.add_frame(frame=f, frame_number=ind+10) # TEST/DEBUG: inducing index mismatch
 
 
@@ -207,18 +212,18 @@ def register(dirname, name="sfu-hw-objects-v1"):
         │       └── Traffic / .txt files, video.webm
         ├── ClassB
         │   ├── Annotations
-        │       ├── BasketballDrive 
-        │       ├── BQTerrace 
-        │       ├── Cactus 
+        │       ├── BasketballDrive
+        │       ├── BQTerrace
+        │       ├── Cactus
         │       ├── Kimono
         │       └── ParkScene
         ...
         ...
 
     """
-    classdirs=os.path.join(dirname,"Class*")
+    classdirs = os.path.join(dirname, "Class*")
     print("searching for", classdirs)
-    dirlist=glob.glob(classdirs)
+    dirlist = glob.glob(classdirs)
     if len(dirlist) < 1:
         print("no directories found, will exit.  Check your path")
         return
@@ -232,41 +237,48 @@ def register(dirname, name="sfu-hw-objects-v1"):
     for classdir in dirlist:
         # /path/to/ClassA
         print("\nIn class directory", classdir)
-        class_tag = classdir.split(os.path.sep)[-1] # ClassA
-        annotation_dirs=os.path.join(classdir,"Annotations","*")
+        class_tag = classdir.split(os.path.sep)[-1]  # ClassA
+        annotation_dirs = os.path.join(classdir, "Annotations", "*")
         print("searching for", annotation_dirs)
-        annotation_dirlist=glob.glob(annotation_dirs)
+        annotation_dirlist = glob.glob(annotation_dirs)
         if len(annotation_dirlist) < 1:
             print("no directories found, will exit. Check your directory structure")
             return
         for annotations_dir in annotation_dirlist:
             # /path/to/ClassA/Annotations/PeopleOnStreet
-            name_tag = annotations_dir.split(os.path.sep)[-1] # PeopleOnStreet
+            name_tag = annotations_dir.split(os.path.sep)[-1]  # PeopleOnStreet
             # filepath=os.path.join(annotations_dir, "video.webm")
             # filepath=os.path.join(annotations_dir, "video.mp4")
-            filepath=os.path.join(annotations_dir, "video."+container_format)
-            assert(os.path.exists(filepath)), "file "+filepath+" missing"
+            filepath = os.path.join(annotations_dir, "video." + container_format)
+            assert os.path.exists(filepath), "file " + filepath + " missing"
             print("--> registering video", filepath)
-            custom_id = class_tag+"_"+name_tag
+            custom_id = class_tag + "_" + name_tag
             # metadata=fo.VideoMetadata(frame_width=imWidth, frame_height=imHeight)
-            video_sample=fo.Sample(
+            video_sample = fo.Sample(
                 media_type="video",
                 filepath=filepath,
                 # metadata=metadata,
                 class_tag=class_tag,
                 name_tag=name_tag,
-                custom_id=custom_id
+                custom_id=custom_id,
             )
             # print(annotations_dir, class_tag, name_tag)
-            n_filelist=sfu_txt_files_to_list(annotations_dir)
-            #for n, filename in n_filelist:
-            #    print(n, filename)            
+            n_filelist = sfu_txt_files_to_list(annotations_dir)
+            # for n, filename in n_filelist:
+            #    print(n, filename)
             read_detections(video_sample, n_filelist)
             # video_sample now has the detections
             dataset.add_sample(video_sample)
-            print("--> registered new video sample:", class_tag, name_tag, "with", len(n_filelist), "frames")
+            print(
+                "--> registered new video sample:",
+                class_tag,
+                name_tag,
+                "with",
+                len(n_filelist),
+                "frames",
+            )
 
-    dataset.persistent=True
+    dataset.persistent = True
     print("\nDataset saved")
     # print(dataset)
 
@@ -278,7 +290,7 @@ def register(dirname, name="sfu-hw-objects-v1"):
     import fiftyone as fo
     from fiftyone import ViewField as F
     import cv2
-    
+
     from compressai_vision.conversion.sfu_hw_objects_v1 import video_convert
     from compressai_vision.conversion.sfu_hw_objects_v1 import register
 

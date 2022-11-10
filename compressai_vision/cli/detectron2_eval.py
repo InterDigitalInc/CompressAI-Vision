@@ -345,10 +345,10 @@ def main(p):  # noqa: C901
 
     if dataset.media_type == "image":
         detection_fields = checkDataset(dataset, fo.core.labels.Detections)
-        annex_function =  annexPredictions
+        annex_function = annexPredictions
     elif dataset.media_type == "video":
         detection_fields = checkVideoDataset(dataset, fo.core.labels.Detections)
-        annex_function =  annexVideoPredictions
+        annex_function = annexVideoPredictions
     else:
         print("unknown media type", dataset.media_type)
         return
@@ -394,7 +394,7 @@ def main(p):  # noqa: C901
     print("Evaluation protocol    :", eval_method)
 
     # dataset_ = fo.load_dataset(p.dataset_name) # done up there!
-    
+
     if not checkForField(dataset, p.gt_field):
         return
 
@@ -455,10 +455,10 @@ def main(p):  # noqa: C901
         eval_args["compute_mAP"] = True
     """
     predictor_field_, eval_args = makeEvalPars(
-        dataset = dataset,
-        gt_field = p.gt_field,
-        predictor_field = predictor_field,
-        eval_method = eval_method
+        dataset=dataset,
+        gt_field=p.gt_field,
+        predictor_field=predictor_field,
+        eval_method=eval_method,
     )
     # print(predictor_field_)
     # print(eval_args)
@@ -499,7 +499,12 @@ def main(p):  # noqa: C901
                     if p.half:
                         net = net.half()
                     enc_dec = CompressAIEncoderDecoder(
-                        net, device=device, scale=p.scale, ffmpeg=p.ffmpeg, dump=p.dump, half=p.half,
+                        net,
+                        device=device,
+                        scale=p.scale,
+                        ffmpeg=p.ffmpeg,
+                        dump=p.dump,
+                        half=p.half,
                     )
                 else:  # or a custom model from a file:
                     enc_dec = encoder_decoder_func(

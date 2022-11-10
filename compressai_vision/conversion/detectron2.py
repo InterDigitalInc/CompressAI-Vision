@@ -47,6 +47,7 @@ from PIL import Image
 def findLabels(dataset: Dataset, detection_field: str = "detections") -> list:
     return dataset.distinct("%s.detections.label" % detection_field)
 
+
 def findVideoLabels(dataset: Dataset, detection_field: str = "detections") -> list:
     """
 
@@ -71,7 +72,7 @@ def findVideoLabels(dataset: Dataset, detection_field: str = "detections") -> li
             id:           fiftyone.core.fields.ObjectIdField
             frame_number: fiftyone.core.fields.FrameNumberField
             detections:   fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
-        
+
     Frame labels can be accessed like this:
 
     ::
