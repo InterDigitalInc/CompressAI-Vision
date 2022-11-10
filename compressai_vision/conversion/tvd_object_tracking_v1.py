@@ -1,8 +1,9 @@
+import configparser
 import csv
 import glob
 import os
 import re
-import configparser
+
 # from pathlib import Path
 import fiftyone as fo
 

@@ -57,12 +57,12 @@ from . import (
     killmongo,
     list_,
     load_eval,
+    make_thumbnails,
     metrics_eval,
     plotter,
     register,
     show,
     vtm,
-    make_thumbnails
 )
 
 __all__ = [

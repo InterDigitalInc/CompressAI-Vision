@@ -90,7 +90,10 @@ def main(p):
 
     # implement different (custom) datasets here
     if p.dataset_type == "sfu-hw-objects-v1":
-        from compressai_vision.conversion.sfu_hw_objects_v1 import register, video_convert
+        from compressai_vision.conversion.sfu_hw_objects_v1 import (
+            register,
+            video_convert,
+        )
         video_convert(p.dir)
         register(p.dir)
     elif p.dataset_type == "tvd-object-tracking-v1":
