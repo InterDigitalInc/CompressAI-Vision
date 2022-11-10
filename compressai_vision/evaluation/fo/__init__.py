@@ -29,7 +29,4 @@
 
 from .predict import annexPredictions, annexVideoPredictions
 
-__all__ = [
-    "annexPredictions",
-    "annexVideoPredictions"
-]
+__all__ = ["annexPredictions", "annexVideoPredictions"]

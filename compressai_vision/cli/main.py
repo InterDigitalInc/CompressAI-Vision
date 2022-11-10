@@ -72,7 +72,7 @@ COMMANDS = {  # noqa: F405
     "show": show.main,
     "manual": None,
     "metrics-eval": metrics_eval.main,
-    "import-custom": import_custom.main
+    "import-custom": import_custom.main,
 }
 
 coms = ""
