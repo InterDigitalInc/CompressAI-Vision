@@ -48,12 +48,11 @@ from . import (
     auto,
     clean,
     convert_mpeg_to_oiv6,
-    convert_video,
     deregister,
     detectron2_eval,
     download,
     dummy,
-    import_video,
+    import_custom,
     info,
     killmongo,
     list_,
@@ -82,6 +81,5 @@ __all__ = [
     "plotter",
     "show",
     "metrics_eval",
-    "convert_video",
-    "import_video"
+    "import_custom"
 ]

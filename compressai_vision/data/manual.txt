@@ -238,26 +238,14 @@ commands & parameters:
                 --label=detection_validation_labels_5k.csv \\
                 --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
-    convert-video           place concatenated YUV files into proper video container format
-                            Some popular video datasets provide short video samples/clips in raw (YUV) video format, missing
-                            video metadata (resolution, bits per pixel, frames per second)
-                            This command converts such raw videofiles into proper video container format (mp4 or webm)
+    import-custom           imports some custom datasets (both image and video datasets) into fiftyone
 
         --dataset-type      particular dataset in question.  Possible values are:
                             
                             sfu-hw-objects-v1
+                            tvd_object_tracking_v1
 
         --dir               root dir of the dataset
-
-    import-video            imports popular video datasets directly into fiftyone.
-                            Before running this command, you need to run "convert-video" command
-        
-        --dataset-type      particular dataset in question.  Possible values are:
-                            
-                            sfu-hw-objects-v1
-
-        --dir               root dir of the dataset
-
 
     metrics-eval                        evaluate image quality of reconstructed images
 
