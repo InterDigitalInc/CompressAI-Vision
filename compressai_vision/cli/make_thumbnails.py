@@ -27,61 +27,51 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Use this stub for adding new cli commands
 """
-# importing this takes quite a while!
-# ..not anymore since import fiftyone is inside the function
-# print("cli: import")
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-from compressai_vision.cli.deregister import main as deregister
-from compressai_vision.cli.detectron2_eval import main as detectron2_eval
-from compressai_vision.cli.download import main as download
-from compressai_vision.cli.dummy import main as dummy
-from compressai_vision.cli.list import main as list
-from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.register import main as register
-from compressai_vision.cli.vtm import main as vtm
+import os
 
-# print("cli: import end")
-"""
-from . import (
-    auto,
-    clean,
-    convert_mpeg_to_oiv6,
-    deregister,
-    detectron2_eval,
-    download,
-    dummy,
-    import_custom,
-    info,
-    killmongo,
-    list_,
-    load_eval,
-    metrics_eval,
-    plotter,
-    register,
-    show,
-    vtm,
-    make_thumbnails
-)
 
-__all__ = [
-    "clean",
-    "convert_mpeg_to_oiv6",
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "dummy",
-    "list_",
-    "load_eval",
-    "register",
-    "vtm",
-    "auto",
-    "info",
-    "killmongo",
-    "plotter",
-    "show",
-    "metrics_eval",
-    "import_custom",
-    "make_thumbnails"
-]
+def add_subparser(subparsers, parents):
+    subparser = subparsers.add_parser(
+        "make-thumbnails", parents=parents, help="Create 'side-data' videos that work with the fiftyone webapp"
+    )
+    some_group = subparser.add_argument_group("required arguments for example")
+    some_group.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+    
+def main(p):
+    """Access arguments from namespace p, say: p.dataset_name
+    """
+    # fiftyone
+    #if not p.y:
+    #    input("press enter to continue.. ")
+    #    print()
+    # p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
+    print("importing fiftyone")
+    import fiftyone as fo
+    import fiftyone.utils.video as fouv
+    print("fiftyone imported")
+    print()
+    try:
+        dataset=fo.load_dataset(p.dataset_name)
+    except ValueError:
+        print("Sorry, could not find dataset", p.dataset_name)
+    assert dataset.media_type == "video", "this command works only for video datasets"
+    print("Will encode webapp-compatible versions of the videos")
+    print("This WILL take a while!")
+    if not p.y:
+        input("press enter to continue.. ")
+    for sample in dataset.iter_samples(progress=True):
+        sample_dir = os.path.dirname(sample.filepath)
+        output_path = os.path.join(sample_dir, "web_"+sample.filename)
+        print("\nRe-encoding", sample.filepath,"to", output_path)
+        fouv.reencode_video(sample.filepath, output_path)
+        sample["web_filepath"] = output_path
+        sample.save()
