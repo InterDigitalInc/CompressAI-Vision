@@ -37,12 +37,11 @@ from compressai_vision.cli import (
     auto,
     clean,
     convert_mpeg_to_oiv6,
-    convert_video,
     deregister,
     detectron2_eval,
     download,
     dummy,
-    import_video,
+    import_custom,
     info,
     killmongo,
     list_,
@@ -73,8 +72,7 @@ COMMANDS = {  # noqa: F405
     "show": show.main,
     "manual": None,
     "metrics-eval": metrics_eval.main,
-    "convert-video": convert_video.main,
-    "import-video": import_video.main
+    "import-custom": import_custom.main
 }
 
 coms = ""
@@ -140,8 +138,7 @@ def setup_parser():
     # PNSR, MSSIM:
     metrics_eval.add_subparser(subparsers, parents=[common_parser])
     # VIDEO:
-    convert_video.add_subparser(subparsers, parents=[common_parser])
-    import_video.add_subparser(subparsers, parents=[common_parser])
+    import_custom.add_subparser(subparsers, parents=[common_parser])
     #
     return parser
 

@@ -38,7 +38,7 @@ classmap = { # COCO-compatible
 
 
 def video_convert(basedir):
-    """Converts video from YUV to lossless VP9
+    """Converts video from YUV to lossless VP9@WEBM or H264@MP4
 
     Assumes this directory structure:
 
@@ -87,20 +87,33 @@ def video_convert(basedir):
         fps=int(fps)
         inpath=os.path.join(os.path.sep.join(path.split(os.path.sep)[0:-1]), "Annotations", nametag) # /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace
         assert os.path.exists(inpath), "Check your directory structure! Missing path "+inpath
+        """media formats that visualize nicely in the browser:
+
+        container formats:
+        https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers#index_of_media_container_formats_file_types
+
+        mp4 in particular:
+        https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers#mpeg-4_mp4
+        """
         # print(nametag, x, y, fps, inpath)
         # -r {fps} ## DON'T USE!
         if container_format == "webm":
+            output=os.path.join(inpath, "video.webm")
             # webm (aka matrosk/mkv) accepts vp9, but not raw video
             st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
-                x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.webm")
+                x=x, y=y, fps=fps, input=path, output=output
             )
         elif container_format == "mp4":
+            output=os.path.join(inpath, "video.mp4")
             # lossless H264 @ mp4
             st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
-                x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.mp4")
+                x=x, y=y, fps=fps, input=path, output=output
             )
-        print(st)
-        os.system(st)
+        if os.path.exists(output): 
+            print("\nWARNING: converted video file", output,"exists already.  Will skip conversion.  Remove manually if needed\n")
+        else:
+            print(st)
+            os.system(st)
     if not foundsome:
         print("could not find any .yuv files: check your directory & file structure")
     print("video conversion done")
@@ -235,9 +248,11 @@ def register(dirname, name="sfu-hw-objects-v1"):
             assert(os.path.exists(filepath)), "file "+filepath+" missing"
             print("--> registering video", filepath)
             custom_id = class_tag+"_"+name_tag
+            # metadata=fo.VideoMetadata(frame_width=imWidth, frame_height=imHeight)
             video_sample=fo.Sample(
                 media_type="video",
                 filepath=filepath,
+                # metadata=metadata,
                 class_tag=class_tag,
                 name_tag=name_tag,
                 custom_id=custom_id
@@ -253,7 +268,7 @@ def register(dirname, name="sfu-hw-objects-v1"):
 
     dataset.persistent=True
     print("\nDataset saved")
-    print(dataset)
+    # print(dataset)
 
 
 """Example usage:

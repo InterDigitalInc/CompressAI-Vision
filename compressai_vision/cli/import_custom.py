@@ -31,10 +31,14 @@
 """
 import os
 
+possible_types = [
+    "sfu-hw-objects-v1",
+    "tvd-object-tracking-v1"
+    ]
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "convert-video", parents=parents, help="Raw video formats to proper video container formats"
+        "import-custom", parents=parents, help="import some popular custom datasets into fiftyone"
     )
     req_group = subparser.add_argument_group("required arguments")
     req_group.add_argument(
@@ -43,7 +47,7 @@ def add_subparser(subparsers, parents):
         type=str,
         required=True,
         default=None,
-        help="dataset type, possible values: sfu-hw-objects-v1",
+        help="dataset type, possible values: "+",".join(possible_types),
     )
     req_group.add_argument(
         "--dir",
@@ -54,15 +58,28 @@ def add_subparser(subparsers, parents):
         help="root directory of the dataset",
     )
 
+
 def main(p):
     p.dir = os.path.expanduser(p.dir) # correct path in the case user uses POSIX "~"
-    possible_types = ["sfu-hw-objects-v1"]
     assert p.dataset_type in possible_types, \
         "dataset-type needs to be one of these:"+str(possible_types)
     assert os.path.isdir(p.dir), \
         "can find directory "+p.dir
+
+    print("importing fiftyone")
+    import fiftyone as fo
+
+    from fiftyone import ViewField as F
+    print("fiftyone imported")
+    try:
+        dataset=fo.load_dataset(p.dataset_type)
+    except ValueError:
+        pass
+    else:
+        print("WARNING: dataset %s already exists: will delete and rewrite" % (p.dataset_type))
+
     print()
-    print("Converting raw video proper container format")
+    print("Importing a custom video format into fiftyone")
     print()
     print("Dataset type           : ", p.dataset_type)
     print("Dataset root directory : ", p.dir)
@@ -73,7 +90,20 @@ def main(p):
 
     # implement different (custom) datasets here
     if p.dataset_type == "sfu-hw-objects-v1":
-        from compressai_vision.conversion.sfu_hw_objects_v1 import video_convert
+        from compressai_vision.conversion.sfu_hw_objects_v1 import register, video_convert
         video_convert(p.dir)
+        register(p.dir)
+    elif p.dataset_type == "tvd-object-tracking-v1":
+        from compressai_vision.conversion.tvd_object_tracking_v1 import register
+        register(p.dir)
 
-    
+    """maybe or maybe not?
+    print("creating sfu-hw-objects-v1-dummy for your convenience, sir!")
+    try:
+        fo.delete_dataset("sfu-hw-objects-v1-dummy")
+    except ValueError:
+        pass
+    # create a dummy dataset
+    dummyset=dataset[ (F("name_tag") == "BasketballDrill") & (F("class_tag") == "ClassX") ]
+    dummyset.clone("sfu-hw-objects-v1-dummy")
+    """
