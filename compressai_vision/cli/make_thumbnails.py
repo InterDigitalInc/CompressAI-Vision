@@ -31,87 +31,62 @@
 """
 import os
 
-possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1"]
-
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "import-custom",
-        parents=parents,
-        help="import some popular custom datasets into fiftyone",
+        "make-thumbnails", parents=parents, help="Create 'side-data' videos that work with the fiftyone webapp"
     )
-    req_group = subparser.add_argument_group("required arguments")
-    req_group.add_argument(
-        "--dataset-type",
+    some_group = subparser.add_argument_group("required arguments")
+    some_group.add_argument(
+        "--dataset-name",
         action="store",
         type=str,
         required=True,
         default=None,
-        help="dataset type, possible values: " + ",".join(possible_types),
+        help="name of the dataset",
     )
-    req_group.add_argument(
-        "--dir",
+    some_group.add_argument(
+        "--force",
         action="store",
         type=str,
-        required=True,
-        default=None,
-        help="root directory of the dataset",
+        required=False,
+        default=False,
+        help="encode files even if they already existed",
     )
 
 
+    
 def main(p):
-    p.dir = os.path.expanduser(p.dir)  # correct path in the case user uses POSIX "~"
-    assert (
-        p.dataset_type in possible_types
-    ), "dataset-type needs to be one of these:" + str(possible_types)
-    assert os.path.isdir(p.dir), "can find directory " + p.dir
+    """https://voxel51.com/docs/fiftyone/user_guide/app.html#multiple-media-fields
 
+    https://voxel51.com/docs/fiftyone/api/fiftyone.utils.video.html#fiftyone.utils.video.reencode_videos
+    """
+    # fiftyone
+    #if not p.y:
+    #    input("press enter to continue.. ")
+    #    print()
+    # p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
     print("importing fiftyone")
     import fiftyone as fo
-
-    # from fiftyone import ViewField as F
-
+    import fiftyone.utils.video as fouv
     print("fiftyone imported")
+    print()
     try:
-        dataset = fo.load_dataset(p.dataset_type)
-        assert dataset is not None  # dummy
+        dataset=fo.load_dataset(p.dataset_name)
     except ValueError:
-        pass
-    else:
-        print(
-            "WARNING: dataset %s already exists: will delete and rewrite"
-            % (p.dataset_type)
-        )
-
-    print()
-    print("Importing a custom video format into fiftyone")
-    print()
-    print("Dataset type           : ", p.dataset_type)
-    print("Dataset root directory : ", p.dir)
-    print()
+        print("Sorry, could not find dataset", p.dataset_name)
+    assert dataset.media_type == "video", "this command works only for video datasets"
+    print("Will encode webapp-compatible versions of the videos")
+    print("This WILL take a while!")
     if not p.y:
         input("press enter to continue.. ")
-        print()
-
-    # implement different (custom) datasets here
-    if p.dataset_type == "sfu-hw-objects-v1":
-        from compressai_vision.conversion.sfu_hw_objects_v1 import (
-            register,
-            video_convert,
-        )
-        video_convert(p.dir)
-        register(p.dir)
-    elif p.dataset_type == "tvd-object-tracking-v1":
-        from compressai_vision.conversion.tvd_object_tracking_v1 import register
-        register(p.dir)
-
-    """maybe or maybe not?
-    print("creating sfu-hw-objects-v1-dummy for your convenience, sir!")
-    try:
-        fo.delete_dataset("sfu-hw-objects-v1-dummy")
-    except ValueError:
-        pass
-    # create a dummy dataset
-    dummyset=dataset[ (F("name_tag") == "BasketballDrill") & (F("class_tag") == "ClassX") ]
-    dummyset.clone("sfu-hw-objects-v1-dummy")
-    """
+    for sample in dataset.iter_samples(progress=True):
+        sample_dir = os.path.dirname(sample.filepath)
+        output_path = os.path.join(sample_dir, "web_"+sample.filename)
+        if (not p.force) and os.path.isfile(output_path):
+            print("WARNING: file", output_path, "already exists - will skip")
+            continue
+        print("\nRe-encoding", sample.filepath,"to", output_path)
+        fouv.reencode_video(sample.filepath, output_path)
+        sample["web_filepath"] = output_path
+        sample.save()

@@ -57,6 +57,7 @@ from . import (
     killmongo,
     list_,
     load_eval,
+    make_thumbnails,
     metrics_eval,
     plotter,
     register,
@@ -82,4 +83,5 @@ __all__ = [
     "show",
     "metrics_eval",
     "import_custom",
+    "make_thumbnails"
 ]

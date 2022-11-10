@@ -46,6 +46,7 @@ from compressai_vision.cli import (
     killmongo,
     list_,
     load_eval,
+    make_thumbnails,
     metrics_eval,
     plotter,
     register,
@@ -73,6 +74,7 @@ COMMANDS = {  # noqa: F405
     "manual": None,
     "metrics-eval": metrics_eval.main,
     "import-custom": import_custom.main,
+    "make-thumbnails": make_thumbnails.main
 }
 
 coms = ""
@@ -139,6 +141,7 @@ def setup_parser():
     metrics_eval.add_subparser(subparsers, parents=[common_parser])
     # VIDEO:
     import_custom.add_subparser(subparsers, parents=[common_parser])
+    make_thumbnails.add_subparser(subparsers, parents=[common_parser])
     #
     return parser
 
