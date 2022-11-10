@@ -88,14 +88,15 @@ def video_convert(basedir):
         inpath=os.path.join(os.path.sep.join(path.split(os.path.sep)[0:-1]), "Annotations", nametag) # /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace
         assert os.path.exists(inpath), "Check your directory structure! Missing path "+inpath
         # print(nametag, x, y, fps, inpath)
+        # -r {fps} ## DON'T USE!
         if container_format == "webm":
             # webm (aka matrosk/mkv) accepts vp9, but not raw video
-            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 -r {fps} {output}".format(
+            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
                 x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.webm")
             )
         elif container_format == "mp4":
             # lossless H264 @ mp4
-            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 -r {fps} {output}".format(
+            st="ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
                 x=x, y=y, fps=fps, input=path, output=os.path.join(inpath, "video.mp4")
             )
         print(st)
@@ -252,6 +253,7 @@ def register(dirname, name="sfu-hw-objects-v1"):
 
     dataset.persistent=True
     print("\nDataset saved")
+    print(dataset)
 
 
 """Example usage:
