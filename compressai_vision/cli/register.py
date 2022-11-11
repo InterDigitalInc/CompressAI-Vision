@@ -153,7 +153,7 @@ def main(p):  # noqa: C901
             dataset_dir=dataset_dir,
             dataset_type=dataset_type,
             label_types=label_types,
-            load_hierarchy=False,  # screw hierarchies for the moment..
+            load_hierarchy=False,  # no hierarchies for the moment..
             name=p.dataset_name,
         )
     else:

@@ -31,7 +31,9 @@
 """
 import os
 
-possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1"]
+from pathlib import Path
+
+possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1", "tvd-image-v1"]
 
 
 def add_subparser(subparsers, parents):
@@ -89,29 +91,129 @@ def main(p):
     print("Dataset type           : ", p.dataset_type)
     print("Dataset root directory : ", p.dir)
     print()
-    if not p.y:
-        input("press enter to continue.. ")
-        print()
-
+    
     # implement different (custom) datasets here
     if p.dataset_type == "sfu-hw-objects-v1":
+        if not p.y:
+            input("press enter to continue.. ")
+            print()
         from compressai_vision.conversion.sfu_hw_objects_v1 import (
             register,
             video_convert,
         )
         video_convert(p.dir)
         register(p.dir)
+
     elif p.dataset_type == "tvd-object-tracking-v1":
+        if not p.y:
+            input("press enter to continue.. ")
+            print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
         register(p.dir)
 
-    """maybe or maybe not?
-    print("creating sfu-hw-objects-v1-dummy for your convenience, sir!")
-    try:
-        fo.delete_dataset("sfu-hw-objects-v1-dummy")
-    except ValueError:
-        pass
-    # create a dummy dataset
-    dummyset=dataset[ (F("name_tag") == "BasketballDrill") & (F("class_tag") == "ClassX") ]
-    dummyset.clone("sfu-hw-objects-v1-dummy")
-    """
+    elif p.dataset_type == "tvd-image-v1":
+        print("""
+        When extracting tencent zipfiles
+
+        TVD_Instance_Segmentation_Annotations.zip
+        TVD_Object_Detection_Dataset_and_Annotations.zip
+
+        You should have this directory structure:
+        /path/to/
+            TVD_Object_Detection_Dataset_And_Annotations/
+                tvd_detection_validation_bbox.csv
+                tvd_detection_validation_labels.csv
+                tvd_label_hierarchy.json
+                tvd_object_detection_dataset/ (IMAGES)
+            tvd_segmentation_validation_bbox.csv
+            tvd_segmentation_validation_labels.csv
+            tvd_segmentation_validation_masks.csv
+            tvd_validation_masks/ (SEGMASKS)
+        """)
+        print("you have defined /path/to = ", p.dir)
+        print()
+        print("""
+        OpenImageV6 formatted dir structure will be in
+
+        /path/to/TVD_images_detection_v1
+        /path/to/TVD_images_segmentation_v1
+        """)
+        if not p.y:
+            input("press enter to continue.. ")
+            print()
+
+        mainpath=Path(p.dir)
+        # bbox
+        bbox_path = mainpath / "TVD_Object_Detection_Dataset_And_Annotations"
+        bbox_validation_csv_file = bbox_path / "tvd_detection_validation_labels.csv"
+        bbox_csv_file = bbox_path / "tvd_detection_validation_bbox.csv"
+        img_dir = bbox_path / "tvd_object_detection_dataset"
+        bbox_target_dir = mainpath / "TVD_images_detection_v1"
+        # seg
+        seg_validation_csv_file = mainpath / "tvd_segmentation_validation_labels.csv"
+        seg_csv_file = mainpath / "tvd_segmentation_validation_bbox.csv"
+        seg_mask_csv_file = mainpath / "tvd_segmentation_validation_masks.csv"
+        seg_data_dir = mainpath / "tvd_validation_masks"
+        seg_target_dir = mainpath / "TVD_images_segmentation_v1"
+        #
+        from compressai_vision.conversion.mpeg_vcm import MPEGVCMToOpenImageV6
+
+        # detections
+        MPEGVCMToOpenImageV6(
+            validation_csv_file=str(bbox_validation_csv_file),
+            bbox_csv_file=str(bbox_csv_file),
+            output_directory = str(bbox_target_dir),
+            data_dir = str(img_dir),
+            link=True,
+            # link=False,
+            verbose=True
+        )
+
+        # segmentations
+        MPEGVCMToOpenImageV6(
+            validation_csv_file=str(seg_validation_csv_file),
+            bbox_csv_file=str(seg_csv_file),
+            segmentation_csv_file=str(seg_mask_csv_file),
+            output_directory=str(seg_target_dir),
+            mask_dir=str(seg_data_dir),
+            data_dir=str(img_dir),
+            # mask_dir: str = None,
+            link=True,
+            # link=False,
+            verbose=True
+        )
+
+        name="tvd-image-detection-v1"
+        print("\nRegistering", name)
+        try:
+            fo.delete_dataset(name)
+        except ValueError:
+            pass
+        else:
+            print("WARNING: deleted pre-existing", name)
+        dataset = fo.Dataset.from_dir(
+            name=name,
+            dataset_dir=str(bbox_target_dir),
+            dataset_type=fo.types.dataset_types.OpenImagesV6Dataset,
+            # label_types=("detections", "classifications", "relationships", "segmentations"),
+            label_types=("detections", "classifications"),
+            load_hierarchy=False
+        )
+
+        name="tvd-image-segmentation-v1"
+        print("\nRegistering", name)
+        try:
+            fo.delete_dataset(name)
+        except ValueError:
+            pass
+        else:
+            print("WARNING: deleted pre-existing", name)
+        dataset = fo.Dataset.from_dir(
+            name=name,
+            dataset_dir=str(seg_target_dir),
+            dataset_type=fo.types.dataset_types.OpenImagesV6Dataset,
+            # label_types=("detections", "classifications", "relationships", "segmentations"),
+            label_types=("detections", "segmentations", "classifications"),
+            load_hierarchy=False
+        )
+        print("HAVE A NICE DAY!")
