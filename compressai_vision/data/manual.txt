@@ -249,7 +249,8 @@ commands & parameters:
         --dataset-type      particular dataset in question.  Possible values are:
                             
                             sfu-hw-objects-v1
-                            tvd_object_tracking_v1
+                            tvd-object-tracking-v1
+                            tvd-image-v1
 
         --dir               root dir of the dataset
 
