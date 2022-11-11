@@ -160,6 +160,29 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         ...
 
 
+    ``validation_csv_file`` = ``detection_validation_labels_5k.csv`` looks like this:
+
+    ::
+
+        ImageID,LabelName,Confidence
+        0001eeaf4aed83f9,airplane,1
+        000a1249af2bc5f0,person,1
+        001083f05db4352b,car,1
+        00146ba1e50ed8d8,person,1
+        ...
+
+    --> Converted to proper OpenImageV6 format (into ``classifications.csv``):
+
+    ::
+
+        ImageID,Source,LabelName,Confidence
+        0001eeaf4aed83f9,verification,/m/0cmf2,1
+        0004886b7d043cfd,verification,/m/01g317,0
+        0004886b7d043cfd,verification,/m/04hgtk,0
+        0004886b7d043cfd,verification,/m/09j2d,0
+        ...
+
+
     ``output_directory``: Path to where the OpenImageV6 formatted files are dumped.  Files under that path are:
 
     ::
