@@ -30,6 +30,7 @@
 """Use this stub for adding new cli commands
 """
 import os
+
 from pathlib import Path
 
 possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1", "tvd-image-v1"]
