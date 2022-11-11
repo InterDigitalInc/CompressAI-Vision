@@ -80,7 +80,8 @@ def add_subparser(subparsers, parents):
         type=str,
         required=True,
         default=None,
-        help="name of Detectron2 config model",
+        nargs="+",
+        help="name of Detectron2 config model. It can also be possible to list multiple models.",
     )
     optional_group.add_argument(
         "--output",
@@ -309,10 +310,9 @@ def main(p):  # noqa: C901
     if p.no_cuda:
         device = "cpu"
 
-    model_name = p.model
-    cfg, model_meta, model_dataset = setupDetectron2(model_name, device)
+    model_names = p.model
+    predictors, models_meta, pred_fields = setupDetectron2(model_names, device)
 
-    predictor_field = "detectron-predictions"
     # instead, create a unique identifier for the field
     # in this run: this way parallel runs dont overwrite
     # each other's field
@@ -362,8 +362,29 @@ def main(p):  # noqa: C901
         print("WARNING: Using slice   :", str(fr) + ":" + str(to))
     print("Number of samples      :", len(dataset))
     print("Torch device           :", device)
-    print("Detectron2 model       :", model_name)
-    print("Model was trained with :", model_dataset)
+
+    assert len(model_names) == len(models_meta)
+    for e, model_info in enumerate(zip(model_names, models_meta)):
+        name, meta = model_info
+        print(f"=== Vision Model #{e} ====")
+        print("Detectron2 model       :", name)
+        print("Model was trained with :", meta[0])
+        print("Eval. results will be saved to datafield")
+        print("                       :", pred_fields[e])
+        print("Evaluation protocol    :", eval_method)
+
+    if dataset.media_type == "image":
+        classes = dataset.distinct("%s.detections.label" % (p.gt_field))
+    elif dataset.media_type == "video":
+        classes = dataset.distinct("frames.%s.detections.label" % (p.gt_field))
+    classes.sort()
+    detectron_classes = copy.deepcopy(meta[1].thing_classes)
+    detectron_classes.sort()
+    print("Peek model classes     :")
+    print(detectron_classes[0:5], "...")
+    print("Peek dataset classes   :")
+    print(classes[0:5], "...")
+
     if p.compressai_model_name is not None:
         print("Using compressai model :", p.compressai_model_name)
     elif p.compression_model_path is not None:
@@ -389,9 +410,6 @@ def main(p):  # noqa: C901
         print("--> WARNING: you have more than one detection field in your dataset:")
         print(",".join(detection_fields))
         print("be sure to choose the correct one (i.e. for detection or segmentation)")
-    print("Eval. results will be saved to datafield")
-    print("                       :", predictor_field)
-    print("Evaluation protocol    :", eval_method)
 
     # dataset_ = fo.load_dataset(p.dataset_name) # done up there!
 
@@ -405,17 +423,6 @@ def main(p):  # noqa: C901
         p.progress = 0
     print("Print progress         :", p.progress)
     print("Output file            :", p.output)
-    if dataset.media_type == "image":
-        classes = dataset.distinct("%s.detections.label" % (p.gt_field))
-    elif dataset.media_type == "video":
-        classes = dataset.distinct("frames.%s.detections.label" % (p.gt_field))
-    classes.sort()
-    detectron_classes = copy.deepcopy(model_meta.thing_classes)
-    detectron_classes.sort()
-    print("Peek model classes     :")
-    print(detectron_classes[0:5], "...")
-    print("Peek dataset classes   :")
-    print(classes[0:5], "...")
 
     if not p.y:
         input("press enter to continue.. ")
@@ -426,7 +433,7 @@ def main(p):  # noqa: C901
         "gt_field": p.gt_field,
         "tmp datasetname": tmp_name,
         "slice": p.slice,
-        "model": model_name,
+        "model": model_names,
         "codec": defined_codec,
         "qpars": qpars,
     }
@@ -454,19 +461,14 @@ def main(p):  # noqa: C901
     else:
         eval_args["compute_mAP"] = True
     """
-    predictor_field_, eval_args = makeEvalPars(
+    pred_fields_, eval_args = makeEvalPars(
         dataset=dataset,
         gt_field=p.gt_field,
-        predictor_field=predictor_field,
+        predictor_fields=pred_fields,
         eval_method=eval_method,
     )
     # print(predictor_field_)
     # print(eval_args)
-
-    print("instantiating Detectron2 predictor")
-    from detectron2.engine import DefaultPredictor
-
-    predictor = DefaultPredictor(cfg)
 
     # bpp, mAP values, mAP breakdown per class
     def per_class(results_obj):
@@ -531,11 +533,11 @@ def main(p):  # noqa: C901
             enc_dec.computeMetrics(False)
 
             bpp = annex_function(
-                predictor=predictor,
+                predictors=predictors,
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
                 gt_field=p.gt_field,
-                predictor_field=predictor_field,
+                predictor_fields=pred_fields_,
                 use_pb=p.progressbar,
                 use_print=p.progress,
             )
@@ -551,9 +553,47 @@ def main(p):  # noqa: C901
 
             if not p.progressbar:
                 fo.config.show_progress_bars = False
+
+            bpps = []
+            accs = []
+            accs_detail = []
+            for _, pred_field_ in enumerate(pred_fields_):
+                # print("evaluating dataset", dataset.name)
+                res = dataset.evaluate_detections(
+                    pred_field_,
+                    **eval_args
+                    # gt_field=p.gt_field,
+                    # method="open-images",
+                    # pos_label_field="positive_labels",
+                    # neg_label_field="negative_labels",
+                    # expand_pred_hierarchy=False,
+                    # expand_gt_hierarchy=False,
+                )
+                bpps.append(bpp)
+                accs.append(res.mAP())
+                accs_detail.append(per_class(res))
+
+            xs.append(bpps)
+            ys.append(accs)
+            maps.append(accs_detail)
+
+    else:  # a pure evaluation without encoding/decoding
+        bpp = annex_function(
+            predictors=predictors,
+            fo_dataset=dataset,
+            gt_field=p.gt_field,
+            predictor_fields=pred_fields_,
+            use_pb=p.progressbar,
+            use_print=p.progress,
+        )
+
+        bpps = []
+        accs = []
+        accs_detail = []
+        for _, pred_field_ in enumerate(pred_fields_):
             # print("evaluating dataset", dataset.name)
             res = dataset.evaluate_detections(
-                predictor_field_,
+                pred_field_,
                 **eval_args
                 # gt_field=p.gt_field,
                 # method="open-images",
@@ -562,33 +602,13 @@ def main(p):  # noqa: C901
                 # expand_pred_hierarchy=False,
                 # expand_gt_hierarchy=False,
             )
-            xs.append(bpp)
-            ys.append(res.mAP())
-            maps.append(per_class(res))
+            bpps.append(bpp)
+            accs.append(res.mAP())
+            accs_detail.append(per_class(res))
 
-    else:  # a pure evaluation without encoding/decoding
-        bpp = annex_function(
-            predictor=predictor,
-            fo_dataset=dataset,
-            gt_field=p.gt_field,
-            predictor_field=predictor_field,
-            use_pb=p.progressbar,
-            use_print=p.progress,
-        )
-        res = dataset.evaluate_detections(
-            predictor_field_,
-            **eval_args
-            # gt_field=p.gt_field,
-            # method="open-images",
-            # pos_label_field="positive_labels",
-            # neg_label_field="negative_labels",
-            # expand_pred_hierarchy=False,
-            # expand_gt_hierarchy=False,
-        )
-        # print(res)
-        xs.append(bpp)
-        ys.append(res.mAP())
-        maps.append(per_class(res))
+        xs.append(bpps)
+        ys.append(accs)
+        maps.append(accs_detail)
 
     # print(">>", metadata)
     metadata["bpp"] = xs

@@ -361,6 +361,7 @@ def detectron251(
             small_mask = mask[y_:y2_, x_:x2_]
 
         if bbox is not None:
+            # TODO: What if we need both metrics when using Mask R-CNN?
             if mask is None:
                 dets.append(
                     Detection(
