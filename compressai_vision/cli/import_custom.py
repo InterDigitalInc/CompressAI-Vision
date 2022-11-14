@@ -33,7 +33,12 @@ import os
 
 from pathlib import Path
 
-possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1", "tvd-image-v1"]
+possible_types = [
+    "sfu-hw-objects-v1", 
+    "tvd-object-tracking-v1", 
+    "tvd-image-v1",
+    "flir-image-rgb-v1"
+    ]
 
 
 def add_subparser(subparsers, parents):
@@ -102,18 +107,18 @@ def main(p):
             video_convert,
         )
         video_convert(p.dir)
-        register(p.dir)
+        register(p.dir) # dataset persistent
 
     elif p.dataset_type == "tvd-object-tracking-v1":
         if not p.y:
             input("press enter to continue.. ")
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
-        register(p.dir)
+        register(p.dir) # dataset persistent
 
     elif p.dataset_type == "tvd-image-v1":
         print("""
-        When extracting tencent zipfiles
+        After extracting tencent zipfiles:
 
         TVD_Instance_Segmentation_Annotations.zip
         TVD_Object_Detection_Dataset_and_Annotations.zip
@@ -133,7 +138,7 @@ def main(p):
         print("you have defined /path/to = ", p.dir)
         print()
         print("""
-        OpenImageV6 formatted dir structure will be in
+        OpenImageV6 formatted files and directory structures will be in
 
         /path/to/TVD_images_detection_v1
         /path/to/TVD_images_segmentation_v1
@@ -199,6 +204,7 @@ def main(p):
             label_types=("detections", "classifications"),
             load_hierarchy=False
         )
+        dataset.persistent=True
 
         name="tvd-image-segmentation-v1"
         print("\nRegistering", name)
@@ -216,4 +222,49 @@ def main(p):
             label_types=("detections", "segmentations", "classifications"),
             load_hierarchy=False
         )
-        print("HAVE A NICE DAY!")
+        dataset.persistent=True
+
+    elif p.dataset_type == "flir-image-rgb-v1":
+        name = p.dataset_type
+        print("""
+        After extracting 
+        
+        FLIR_ADAS_v2.zip
+
+        You should have the following (COCO-formatted) directory/file structure:
+
+        images_rgb_train/
+            coco.json
+            data/ [IMAGES]
+        images_rgb_val/
+            coco.json
+            data/ [IMAGES]
+        images_thermal_train/
+            coco.json
+            data/ [IMAGES]
+        images_thermal_val/
+            ...
+        video_rgb_test/
+            ...
+        video_thermal_test/
+            ...
+        rgb_to_thermal_vid_map.json
+        
+        Will import 
+            %s/images_rgb_train 
+            into dataset flir-image-rgb-v1
+        """ % (p.dir))
+        if not p.y:
+            input("press enter to continue.. ")
+            print() 
+        dataset_dir = os.path.join(p.dir, "images_rgb_train")
+        dataset = fo.Dataset.from_dir(
+            name=name,
+            dataset_type = fo.types.COCODetectionDataset,
+            data_path=os.path.join(dataset_dir), #, "data"),
+            labels_path=os.path.join(dataset_dir, "coco.json"),
+            # image_ids = [] # TODO
+        )
+        dataset.persistent=True
+
+    print("HAVE A NICE DAY!")
