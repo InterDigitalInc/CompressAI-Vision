@@ -83,5 +83,5 @@ __all__ = [
     "show",
     "metrics_eval",
     "import_custom",
-    "make_thumbnails"
+    "make_thumbnails",
 ]

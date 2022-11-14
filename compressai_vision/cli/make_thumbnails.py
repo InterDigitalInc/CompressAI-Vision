@@ -34,7 +34,9 @@ import os
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "make-thumbnails", parents=parents, help="Create 'side-data' videos that work with the fiftyone webapp"
+        "make-thumbnails",
+        parents=parents,
+        help="Create 'side-data' videos that work with the fiftyone webapp",
     )
     some_group = subparser.add_argument_group("required arguments")
     some_group.add_argument(
@@ -55,24 +57,24 @@ def add_subparser(subparsers, parents):
     )
 
 
-    
 def main(p):
     """https://voxel51.com/docs/fiftyone/user_guide/app.html#multiple-media-fields
 
     https://voxel51.com/docs/fiftyone/api/fiftyone.utils.video.html#fiftyone.utils.video.reencode_videos
     """
     # fiftyone
-    #if not p.y:
+    # if not p.y:
     #    input("press enter to continue.. ")
     #    print()
     # p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
     print("importing fiftyone")
     import fiftyone as fo
     import fiftyone.utils.video as fouv
+
     print("fiftyone imported")
     print()
     try:
-        dataset=fo.load_dataset(p.dataset_name)
+        dataset = fo.load_dataset(p.dataset_name)
     except ValueError:
         print("Sorry, could not find dataset", p.dataset_name)
     assert dataset.media_type == "video", "this command works only for video datasets"
@@ -82,11 +84,11 @@ def main(p):
         input("press enter to continue.. ")
     for sample in dataset.iter_samples(progress=True):
         sample_dir = os.path.dirname(sample.filepath)
-        output_path = os.path.join(sample_dir, "web_"+sample.filename)
+        output_path = os.path.join(sample_dir, "web_" + sample.filename)
         if (not p.force) and os.path.isfile(output_path):
             print("WARNING: file", output_path, "already exists - will skip")
             continue
-        print("\nRe-encoding", sample.filepath,"to", output_path)
+        print("\nRe-encoding", sample.filepath, "to", output_path)
         fouv.reencode_video(sample.filepath, output_path)
         sample["web_filepath"] = output_path
         sample.save()
