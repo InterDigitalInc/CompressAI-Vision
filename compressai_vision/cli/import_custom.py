@@ -234,8 +234,8 @@ def main(p):
         name = p.dataset_type
         print(
             """
-        After extracting 
-        
+        After extracting
+
         FLIR_ADAS_v2.zip
 
         You should have the following (COCO-formatted) directory/file structure:
@@ -256,9 +256,9 @@ def main(p):
         video_thermal_test/
             ...
         rgb_to_thermal_vid_map.json
-        
-        Will import 
-            %s/images_rgb_train 
+
+        Will import
+            %s/images_rgb_train
             into dataset flir-image-rgb-v1
         """
             % (p.dir)
