@@ -34,10 +34,10 @@ import os
 from pathlib import Path
 
 possible_types = [
-    "sfu-hw-objects-v1", 
-    "tvd-object-tracking-v1", 
-    "tvd-image-v1",
-    "flir-image-rgb-v1"
+    "tvd-object-tracking-v1",  # TVD
+    "tvd-image-v1", # TVD
+    "sfu-hw-objects-v1", # SFU-HW
+    "flir-image-rgb-v1" # FLIR
     ]
 
 
