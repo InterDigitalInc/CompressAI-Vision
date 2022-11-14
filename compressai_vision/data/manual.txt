@@ -219,7 +219,8 @@ commands & parameters:
                 --y --dataset-name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
     convert-mpeg-to-oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
-                            format & directory structure
+                            format & directory structure.  
+                            See also the "mpeg-vcm-auto-import" subcommand
 
         --lists             file listing necessary images, i.e.
                             "detection_validation_input_5k.lst" or
@@ -249,8 +250,12 @@ commands & parameters:
         --dataset-type      particular dataset in question.  Possible values are:
                             
                             sfu-hw-objects-v1
-                            tvd_object_tracking_v1
+                            tvd-object-tracking-v1
+                            tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
+                            flir-image-rgb-v1 # TODO: needs filelists
 
+        --lists             file listing for using only a subset of the main dataset
+                            # TODO: special value: "default" -> fetches mpeg-vcm list from data/
         --dir               root dir of the dataset
 
     make-thumbnails         add "thumbnail" videos that are compatible with browser-based applications to the dataset.

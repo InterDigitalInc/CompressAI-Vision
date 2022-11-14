@@ -33,7 +33,12 @@ import os
 
 from pathlib import Path
 
-possible_types = ["sfu-hw-objects-v1", "tvd-object-tracking-v1", "tvd-image-v1"]
+possible_types = [
+    "tvd-object-tracking-v1",  # TVD
+    "tvd-image-v1",  # TVD
+    "sfu-hw-objects-v1",  # SFU-HW
+    "flir-image-rgb-v1",  # FLIR
+]
 
 
 def add_subparser(subparsers, parents):
@@ -91,7 +96,7 @@ def main(p):
     print("Dataset type           : ", p.dataset_type)
     print("Dataset root directory : ", p.dir)
     print()
-    
+
     # implement different (custom) datasets here
     if p.dataset_type == "sfu-hw-objects-v1":
         if not p.y:
@@ -101,19 +106,22 @@ def main(p):
             register,
             video_convert,
         )
+
         video_convert(p.dir)
-        register(p.dir)
+        register(p.dir)  # dataset persistent
 
     elif p.dataset_type == "tvd-object-tracking-v1":
         if not p.y:
             input("press enter to continue.. ")
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
-        register(p.dir)
+
+        register(p.dir)  # dataset persistent
 
     elif p.dataset_type == "tvd-image-v1":
-        print("""
-        When extracting tencent zipfiles
+        print(
+            """
+        After extracting tencent zipfiles:
 
         TVD_Instance_Segmentation_Annotations.zip
         TVD_Object_Detection_Dataset_and_Annotations.zip
@@ -129,20 +137,23 @@ def main(p):
             tvd_segmentation_validation_labels.csv
             tvd_segmentation_validation_masks.csv
             tvd_validation_masks/ (SEGMASKS)
-        """)
+        """
+        )
         print("you have defined /path/to = ", p.dir)
         print()
-        print("""
-        OpenImageV6 formatted dir structure will be in
+        print(
+            """
+        OpenImageV6 formatted files and directory structures will be in
 
         /path/to/TVD_images_detection_v1
         /path/to/TVD_images_segmentation_v1
-        """)
+        """
+        )
         if not p.y:
             input("press enter to continue.. ")
             print()
 
-        mainpath=Path(p.dir)
+        mainpath = Path(p.dir)
         # bbox
         bbox_path = mainpath / "TVD_Object_Detection_Dataset_And_Annotations"
         bbox_validation_csv_file = bbox_path / "tvd_detection_validation_labels.csv"
@@ -162,11 +173,11 @@ def main(p):
         MPEGVCMToOpenImageV6(
             validation_csv_file=str(bbox_validation_csv_file),
             bbox_csv_file=str(bbox_csv_file),
-            output_directory = str(bbox_target_dir),
-            data_dir = str(img_dir),
+            output_directory=str(bbox_target_dir),
+            data_dir=str(img_dir),
             link=True,
             # link=False,
-            verbose=True
+            verbose=True,
         )
 
         # segmentations
@@ -180,10 +191,10 @@ def main(p):
             # mask_dir: str = None,
             link=True,
             # link=False,
-            verbose=True
+            verbose=True,
         )
 
-        name="tvd-image-detection-v1"
+        name = "tvd-image-detection-v1"
         print("\nRegistering", name)
         try:
             fo.delete_dataset(name)
@@ -197,10 +208,11 @@ def main(p):
             dataset_type=fo.types.dataset_types.OpenImagesV6Dataset,
             # label_types=("detections", "classifications", "relationships", "segmentations"),
             label_types=("detections", "classifications"),
-            load_hierarchy=False
+            load_hierarchy=False,
         )
+        dataset.persistent = True
 
-        name="tvd-image-segmentation-v1"
+        name = "tvd-image-segmentation-v1"
         print("\nRegistering", name)
         try:
             fo.delete_dataset(name)
@@ -214,6 +226,54 @@ def main(p):
             dataset_type=fo.types.dataset_types.OpenImagesV6Dataset,
             # label_types=("detections", "classifications", "relationships", "segmentations"),
             label_types=("detections", "segmentations", "classifications"),
-            load_hierarchy=False
+            load_hierarchy=False,
         )
-        print("HAVE A NICE DAY!")
+        dataset.persistent = True
+
+    elif p.dataset_type == "flir-image-rgb-v1":
+        name = p.dataset_type
+        print(
+            """
+        After extracting 
+        
+        FLIR_ADAS_v2.zip
+
+        You should have the following (COCO-formatted) directory/file structure:
+
+        images_rgb_train/
+            coco.json
+            data/ [IMAGES]
+        images_rgb_val/
+            coco.json
+            data/ [IMAGES]
+        images_thermal_train/
+            coco.json
+            data/ [IMAGES]
+        images_thermal_val/
+            ...
+        video_rgb_test/
+            ...
+        video_thermal_test/
+            ...
+        rgb_to_thermal_vid_map.json
+        
+        Will import 
+            %s/images_rgb_train 
+            into dataset flir-image-rgb-v1
+        """
+            % (p.dir)
+        )
+        if not p.y:
+            input("press enter to continue.. ")
+            print()
+        dataset_dir = os.path.join(p.dir, "images_rgb_train")
+        dataset = fo.Dataset.from_dir(
+            name=name,
+            dataset_type=fo.types.COCODetectionDataset,
+            data_path=os.path.join(dataset_dir),  # , "data"),
+            labels_path=os.path.join(dataset_dir, "coco.json"),
+            # image_ids = [] # TODO
+        )
+        dataset.persistent = True
+
+    print("HAVE A NICE DAY!")

@@ -474,15 +474,15 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
 
     if os.path.exists(target_data_dir):
         print(
-                "WARNING: the target data_dir (image directory) already exists.  Will leave as is"
-            )
+            "WARNING: the target data_dir (image directory) already exists.  Will leave as is"
+        )
         print("DONE!")
         return
-    
+
     if (segmentation_csv_file is not None) and os.path.exists(target_mask_dir):
         print(
-                "WARNING: the target mask_dir (segmentation mask image directory) already exists.  Will leave as is"
-            )
+            "WARNING: the target mask_dir (segmentation mask image directory) already exists.  Will leave as is"
+        )
         print("DONE!")
         return
 

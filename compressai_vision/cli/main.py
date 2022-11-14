@@ -74,7 +74,7 @@ COMMANDS = {  # noqa: F405
     "manual": None,
     "metrics-eval": metrics_eval.main,
     "import-custom": import_custom.main,
-    "make-thumbnails": make_thumbnails.main
+    "make-thumbnails": make_thumbnails.main,
 }
 
 coms = ""
