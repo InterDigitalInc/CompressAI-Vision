@@ -59,6 +59,12 @@ commands & parameters:
         --dataset-name      name of the original dataset
                             name of the new dataset will be appended with "-dummy"
 
+    app                     start the awesome fiftyone webapp for dataset visualization
+
+        --address           (optional) interface address 
+        --port              (optional) port
+        --dataset-name      name of the dataset
+
     clean                   remove temporary datasets.
                             detectron2-eval creates temporary clones of the dataset per each run.
                             These dataset are automatically cleaned up after detectron2_eval run.
@@ -91,6 +97,11 @@ commands & parameters:
         --gt-field          Name of the ground truth field in the dataset.
                             Default: detections
         --output            outputfile, default: compressai-vision.json
+        --keep              when you run detectron2-eval, the original dataset is copied to a 
+                            tmp dataset where both the ground-truths and detection results are saved.
+                            Normally the tmp dataset is removed after the evaluation is finished, but you
+                            might want to keep & visualize it in order to see how well the gts and dets
+                            compare to each other.  Using this flag keeps the tmp database after evaluation.
 
         compression models:
 
