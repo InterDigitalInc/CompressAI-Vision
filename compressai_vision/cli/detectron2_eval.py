@@ -124,18 +124,6 @@ def add_subparser(subparsers, parents):
         default=False,
         help="convert model to half floating point (fp16)",
     )
-    """it's up to user to provide qpoint --> checkpoint mapping in model.py
-    subparser.add_argument(
-    compressai_group.add_argument(
-        "--compression-model-checkpoint",
-        action="store",
-        type=str,
-        nargs="*",
-        required=False,
-        default=None,
-        help="path to a compression model checkpoint(s)",
-    )
-    """
     vtm_group.add_argument(
         "--vtm",
         action="store_true",
@@ -222,11 +210,16 @@ def add_subparser(subparsers, parents):
         default="open-images",
         help="Evaluation method/protocol: open-images or coco.  Default: open-images",
     )
+    optional_group.add_argument(
+        "--keep",
+        action="store_true",
+        default=False,
+        help="Keep tmp databased saved or not.  Default: False"
+    )
     return subparser
 
 
 def main(p):  # noqa: C901
-
     # check that only one is defined
     defined_codec = ""
     for codec in [p.compressai_model_name, p.vtm, p.compression_model_path]:
@@ -357,6 +350,7 @@ def main(p):  # noqa: C901
     print("Using dataset          :", p.dataset_name)
     print("Dataset media type     :", dataset.media_type)
     print("Dataset tmp clone      :", tmp_name)
+    print("Keep tmp dataset?      :", p.keep)
     print("Image scaling          :", p.scale)
     if p.slice is not None:  # can't use slicing
         print("WARNING: Using slice   :", str(fr) + ":" + str(to))
@@ -431,7 +425,7 @@ def main(p):  # noqa: C901
     metadata = {
         "dataset": p.dataset_name,
         "gt_field": p.gt_field,
-        "tmp datasetname": tmp_name,
+        "tmp-dataset": tmp_name,
         "slice": p.slice,
         "model": model_names,
         "codec": defined_codec,
@@ -621,9 +615,12 @@ def main(p):  # noqa: C901
     print("\nResult output:")
     print(json.dumps(metadata, indent=2))
     """
-    # remove the tmp database
-    print("deleting tmp database", tmp_name)
-    fo.delete_dataset(tmp_name)
+    if not p.keep:
+        # remove the tmp database
+        print("deleting tmp database", tmp_name)
+        fo.delete_dataset(tmp_name)
+    else:
+        print("keeping tmp database", tmp_name)
 
     print("\nDone!\n")
     """load with:

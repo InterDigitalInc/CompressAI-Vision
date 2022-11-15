@@ -63,6 +63,7 @@ from . import (
     register,
     show,
     vtm,
+    app
 )
 
 __all__ = [
@@ -84,4 +85,5 @@ __all__ = [
     "metrics_eval",
     "import_custom",
     "make_thumbnails",
+    "app"
 ]

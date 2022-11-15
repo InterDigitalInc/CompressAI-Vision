@@ -52,6 +52,7 @@ from compressai_vision.cli import (
     register,
     show,
     vtm,
+    app
 )
 from compressai_vision.tools import getDataFile, quickLog
 
@@ -75,6 +76,7 @@ COMMANDS = {  # noqa: F405
     "metrics-eval": metrics_eval.main,
     "import-custom": import_custom.main,
     "make-thumbnails": make_thumbnails.main,
+    "app": app.main
 }
 
 coms = ""
@@ -142,7 +144,8 @@ def setup_parser():
     # VIDEO:
     import_custom.add_subparser(subparsers, parents=[common_parser])
     make_thumbnails.add_subparser(subparsers, parents=[common_parser])
-    #
+    # APP:
+    app.add_subparser(subparsers, parents=[common_parser])
     return parser
 
 
