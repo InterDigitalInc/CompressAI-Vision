@@ -283,3 +283,22 @@ def makeEvalPars(dataset=None, gt_field=None, predictor_fields=None, eval_method
             eval_args["compute_mAP"] = True
 
     return pred_fields_, eval_args
+
+
+def makeVideoThumbnails(dataset, force=False):
+    """
+    :param dataset: video dataset
+    """
+    import fiftyone.utils.video as fouv
+
+    for sample in dataset.iter_samples(progress=True):
+        sample_dir = os.path.dirname(sample.filepath)
+        output_path = os.path.join(sample_dir, "web_" + sample.filename)
+        if (not force) and os.path.isfile(output_path):
+            print("WARNING: file", output_path, "already exists - will skip")
+            continue
+        print("\nRe-encoding", sample.filepath, "to", output_path)
+        fouv.reencode_video(sample.filepath, output_path)
+        sample["web_filepath"] = output_path
+        sample.save()
+

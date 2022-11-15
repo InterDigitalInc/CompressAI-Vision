@@ -52,10 +52,12 @@ def main(p):  # noqa: C901
     print("fiftyone imported")
 
     # dataset = fo.load_dataset(p.dataset_name)
-    print("removing dataset %s from fiftyone" % (p.dataset_name))
+    print("removing dataset(s) %s from fiftyone" % (p.dataset_name))
     if not p.y:
         input("press enter to continue.. ")
-    try:
-        fo.delete_dataset(p.dataset_name)
-    except ValueError as e:
-        print("could not deregister because of", e)
+
+    for name in p.dataset_name.split(","):
+        try:
+            fo.delete_dataset(name)
+        except ValueError as e:
+            print("could not deregister", name, ":", e)

@@ -30,6 +30,7 @@
 """Use this stub for adding new cli commands
 """
 import os
+from .tools import makeVideoThumbnails
 
 
 def add_subparser(subparsers, parents):
@@ -69,8 +70,7 @@ def main(p):
     # p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
     print("importing fiftyone")
     import fiftyone as fo
-    import fiftyone.utils.video as fouv
-
+    
     print("fiftyone imported")
     print()
     try:
@@ -82,13 +82,5 @@ def main(p):
     print("This WILL take a while!")
     if not p.y:
         input("press enter to continue.. ")
-    for sample in dataset.iter_samples(progress=True):
-        sample_dir = os.path.dirname(sample.filepath)
-        output_path = os.path.join(sample_dir, "web_" + sample.filename)
-        if (not p.force) and os.path.isfile(output_path):
-            print("WARNING: file", output_path, "already exists - will skip")
-            continue
-        print("\nRe-encoding", sample.filepath, "to", output_path)
-        fouv.reencode_video(sample.filepath, output_path)
-        sample["web_filepath"] = output_path
-        sample.save()
+    makeVideoThumbnails(dataset, force=p.force)
+

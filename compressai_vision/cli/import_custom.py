@@ -32,6 +32,7 @@
 import os
 
 from pathlib import Path
+from .tools import makeVideoThumbnails
 
 possible_types = [
     "tvd-object-tracking-v1",  # TVD
@@ -106,17 +107,33 @@ def main(p):
             register,
             video_convert,
         )
-
         video_convert(p.dir)
         register(p.dir)  # dataset persistent
+        """NOTE: not required for this dataset
+        print()
+        print("Will create thumbnails for fiftyone app visualization")
+        print("for your convenience, Sir")
+        if not p.y:
+            input("press enter to continue.. (or CTRL-C to abort)")
+            print()
+        dataset=fo.load_dataset("sfu-hw-objects-v1")
+        makeVideoThumbnails(dataset, force=True)
+        """
 
     elif p.dataset_type == "tvd-object-tracking-v1":
         if not p.y:
             input("press enter to continue.. ")
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
-
         register(p.dir)  # dataset persistent
+        print()
+        print("Will create thumbnails for fiftyone app visualization")
+        print("for your convenience, Sir")
+        if not p.y:
+            input("press enter to continue.. (or CTRL-C to abort)")
+            print()
+        dataset=fo.load_dataset("tvd-object-tracking-v1")
+        makeVideoThumbnails(dataset, force=True)
 
     elif p.dataset_type == "tvd-image-v1":
         print(

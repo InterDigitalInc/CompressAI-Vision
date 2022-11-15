@@ -472,6 +472,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
 
     # pathlib.Path(target_data_dir).mkdir(parents=True, exist_ok=True) # not this
 
+    """
     if os.path.exists(target_data_dir):
         print(
             "WARNING: the target data_dir (image directory) already exists.  Will leave as is"
@@ -485,12 +486,19 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         )
         print("DONE!")
         return
+    """
 
     if link:
         if verbose:
             print("linking image dir", data_dir, "to", target_data_dir)
+        if os.path.islink(target_data_dir):
+            print("WARNING: link", target_data_dir, "exist already.  Will remove")
+            os.remove(target_data_dir)
         os.symlink(data_dir, target_data_dir)
         if segmentation_csv_file is not None:
+            if os.path.islink(target_mask_dir):
+                print("WARNING: link", target_mask_dir, "exist already.  Will remove")
+                os.remove(target_mask_dir)
             os.symlink(mask_dir, target_mask_dir)
     else:
         if verbose:

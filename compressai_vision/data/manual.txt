@@ -53,6 +53,7 @@ commands & parameters:
     deregister              de-register image set from fiftyone
 
         --dataset-name      name of the dataset, for example "open-image-v6-validation"
+                            can also be a comma-separated list of dataset names
 
     dummy                   create & register a dummy dataset with just the first sample
 
@@ -78,9 +79,6 @@ commands & parameters:
     detectron2-eval         evaluate model with detectron2 using OpenImageV6
                             evaluation protocol optionally with no (de)compression or
                             with compressai or vtm.
-
-                            WARNING/TODO : currently works only for detections
-                            (not for segmentations)
 
         --dataset-name      name of the fiftyone registered dataset
         --model             name of the detectron2 model
@@ -315,10 +313,10 @@ commands & parameters:
                             this way you will have "side-data" video for visualization in the fiftyone app
                             while still performing training & evaluation with the original data
                             (that might not visualize correctly in the webapp)
+                            NOTE: import-custom command performs this step automagically if necessary
 
         --dataset-name      name of the dataset
         --force             force encoding even if the "thumbnail" videos already existed
-
 
     ***** PLOTTING ***************************************************************************************************
 
