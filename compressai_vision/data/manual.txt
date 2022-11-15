@@ -3,6 +3,9 @@ commands & parameters:
     --y                     non-interactive
     --debug                 debug verbosity (for some cases)
 
+
+    ******** BASIC COMMANDS ****************************************************************************
+
     manual                  shows this manual
 
     info                    shows info about your system
@@ -13,22 +16,6 @@ commands & parameters:
         clean               like stop, but additionally, removes all
                             fiftyone data from the mongod servers
 
-    mpeg-vcm-auto-import    auto-imports mpeg-vcm working group files
-                            downloads necessary images from the internet
-                            imports them to fiftyone, etc.
-                            (combines download, convert-mpeg-to-oiv6, register, 
-                            etc. commands, see below)
-
-                            You should have these files in the running directory:
-
-                            detection_validation_input_5k.lst
-                            detection_validation_5k_bbox.csv
-                            detection_validation_labels_5k.csv
-                            segmentation_validation_input_5k.lst
-                            segmentation_validation_bbox_5k.csv
-                            segmentation_validation_labels_5k.csv
-                            segmentation_validation_masks_5k.csv
-
     download                download an image set and register it to fiftyone.
 
         --dataset-name      name of the dataset.  Default: "open-images-v6".
@@ -38,8 +25,7 @@ commands & parameters:
         --dir               directory where the dataset (images, annotations, etc.) is downloaded
                             Default: $HOME/fiftyone/dataset-name
 
-        example (downloads images corresponding the Common Test Conditions (CTC) of MPEG/VCM for
-        the detection & segmentation tasks):
+        example:
 
             compressai-vision download \\
             --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
@@ -64,12 +50,6 @@ commands & parameters:
                                 OpenImagesV6Dataset
                                 ImageDirectory
 
-        example (register converted MPEG/VCM files into fiftyone):
-
-            compressai-vision register
-                --dataset-name=mpeg_vcm-import
-                --dir=~/somedir/mpeg_vcm-import
-
     deregister              de-register image set from fiftyone
 
         --dataset-name      name of the dataset, for example "open-image-v6-validation"
@@ -85,6 +65,9 @@ commands & parameters:
                             If your run crashed, the temporary dataset might be left in the database
                             (you can see them with the list command where they appear with the name
                             "detectron-run-*".)
+
+
+    ******** EVALUATION ************************************************************************
 
     detectron2-eval         evaluate model with detectron2 using OpenImageV6
                             evaluation protocol optionally with no (de)compression or
@@ -156,21 +139,54 @@ commands & parameters:
 
         example 2 (calculate mAP=mAP(bpp) with a model from CompressAI zoo):
 
-            compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \\
+            compressai-vision detectron2_eval --y --dataset-name=mpeg-vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
 
         example 3 (calculate mAP=mAP(bpp) with a custom development model):
 
-            compressai-vision detectron2_eval --y --dataset-name=mpeg_vcm-detection \\
+            compressai-vision detectron2_eval --y --dataset-name=mpeg-vcm-detection \\
                 --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
                 --modelpath=/path/to/directory --qpars=1
+
+    metrics-eval                        evaluate image quality of reconstructed images
+                                        using PNSR and SSIM
+
+            --dataset-name              name of the dataset
+
+            compressai-zoo arguments:
+            --compressai-model-name     name of an existing model in compressai-zoo. Example: 'cheng2020-attn'
+            --compression-model-path    path to a directory containing model.py for custom development model
+
+            vtm arguments:
+            --vtm                       To enable vtm codec. default: False
+            --vtm_dir                   path to directory with executables EncoderAppStatic & DecoderAppStatic
+            --vtm_cfg                   vtm config file. Example: 'encoder_intra_vtm.cfg'
+            --vtm_cache                 directory to cache vtm bitstreams
+
+            optional arguments:
+            --Output            outputfile name
+                                Default: compressai-vision.json
+            --qpars             quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer
+                                1-8. For VTM, it should be integer from 0-51.
+                                Example: 1,2,3,4,5,6,7,8
+            --scale             image scaling as per VCM working group docs. 
+                                Default: 100
+            --ffmpeg            path of ffmpeg executable. 
+                                Default: ffmpeg
+            --slice             use a dataset slice instead of the complete dataset.
+                                Example: 0:2 for the first two images
+            --progressbar       show fancy progressbar. 
+                                Default: False
+            --progress          Print progress this often
+
+
+    ******** VTM ***************************************************************************
 
     vtm                 generate bitstream with the vtm video encoder
                         this is done also by the command detectron2_eval, but you
                         can do the bitstream generation step separately.
                         The following options are same as in "detectron2_eval" command:
-
 
         --dataset-name      name of the fiftyone registered dataset
         --output            outputfile, default: compressai-vision.json
@@ -218,9 +234,45 @@ commands & parameters:
             compressai-vision vtm
                 --y --dataset-name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
 
+
+    ****** MPEG-VCM DATASET IMPORTS *******************************************************************************
+
+    import-custom           imports some custom datasets (both image and video datasets) into fiftyone
+
+        --dataset-type      particular dataset in question.  Possible values are:
+                            
+                            sfu-hw-objects-v1
+                            tvd-object-tracking-v1
+                            tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
+                            flir-image-rgb-v1 # TODO: needs filelists
+
+        --lists             file listing for using only a subset of the main dataset
+                            # TODO: special value: "default" -> fetches mpeg-vcm list from data/
+        --dir               root dir of the dataset
+
+    mpeg-vcm-auto-import    auto-imports mpeg-vcm working group files
+                            downloads necessary images from the internet
+                            imports them to fiftyone, etc.
+                            (combines download, convert-mpeg-to-oiv6, register, 
+                            etc. commands, see below)
+                            # TODO: rename this to "oiv6-mpeg-auto-import" ?
+
+                            You should have these files in the running directory:
+
+                            detection_validation_input_5k.lst
+                            detection_validation_5k_bbox.csv
+                            detection_validation_labels_5k.csv
+                            segmentation_validation_input_5k.lst
+                            segmentation_validation_bbox_5k.csv
+                            segmentation_validation_labels_5k.csv
+                            segmentation_validation_masks_5k.csv
+
+    TODO: do we need to expose this auxiliary command at all?:
+
     convert-mpeg-to-oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
                             format & directory structure.  
                             See also the "mpeg-vcm-auto-import" subcommand
+                            # TODO: rename this to mpeg convert-oiv6-mpeg
 
         --lists             file listing necessary images, i.e.
                             "detection_validation_input_5k.lst" or
@@ -245,18 +297,8 @@ commands & parameters:
                 --label=detection_validation_labels_5k.csv \\
                 --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
 
-    import-custom           imports some custom datasets (both image and video datasets) into fiftyone
 
-        --dataset-type      particular dataset in question.  Possible values are:
-                            
-                            sfu-hw-objects-v1
-                            tvd-object-tracking-v1
-                            tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
-                            flir-image-rgb-v1 # TODO: needs filelists
-
-        --lists             file listing for using only a subset of the main dataset
-                            # TODO: special value: "default" -> fetches mpeg-vcm list from data/
-        --dir               root dir of the dataset
+    ***** VIDEO SPECIFIC ********************************************************************************************
 
     make-thumbnails         add "thumbnail" videos that are compatible with browser-based applications to the dataset.
                             this way you will have "side-data" video for visualization in the fiftyone app
@@ -266,35 +308,8 @@ commands & parameters:
         --dataset-name      name of the dataset
         --force             force encoding even if the "thumbnail" videos already existed
 
-    metrics-eval                        evaluate image quality of reconstructed images
 
-            --dataset-name              name of the dataset
-
-            compressai-zoo arguments:
-            --compressai-model-name     name of an existing model in compressai-zoo. Example: 'cheng2020-attn'
-            --compression-model-path    path to a directory containing model.py for custom development model
-
-            vtm arguments:
-            --vtm                       To enable vtm codec. default: False
-            --vtm_dir                   path to directory with executables EncoderAppStatic & DecoderAppStatic
-            --vtm_cfg                   vtm config file. Example: 'encoder_intra_vtm.cfg'
-            --vtm_cache                 directory to cache vtm bitstreams
-
-            optional arguments:
-            --Output            outputfile name
-                                Default: compressai-vision.json
-            --qpars             quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer
-                                1-8. For VTM, it should be integer from 0-51.
-                                Example: 1,2,3,4,5,6,7,8
-            --scale             image scaling as per VCM working group docs. 
-                                Default: 100
-            --ffmpeg            path of ffmpeg executable. 
-                                Default: ffmpeg
-            --slice             use a dataset slice instead of the complete dataset.
-                                Example: 0:2 for the first two images
-            --progressbar       show fancy progressbar. 
-                                Default: False
-            --progress          Print progress this often
+    ***** PLOTTING ***************************************************************************************************
 
     plot                        plot the json result of detectron2-eval and metrics-eval as mAP-bpp curves
 
@@ -344,11 +359,3 @@ commands & parameters:
             --symbols=o--r,x-b --dataset-names=model1,model2 \\
             --eval=0.792,--c
 
-
-
-
-NOTE 1: your normal workflow would be: download, convert_mpeg_to_oiv6, register, detectron2_eval
-the first three steps can be dealt with the compress-mpeg-vcm-auto-import command
-
-NOTE 2: for vtm, you would typically produce bitstream with the vtm command and only after that,
-launch detectron2-eval.  Be sure not to send several parallel (batch) jobs using the same dataset slices.
