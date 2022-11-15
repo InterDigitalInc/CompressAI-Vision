@@ -29,7 +29,7 @@
 
 """cli list functionality
 """
-
+import os
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser("show", parents=parents, help="show dataset info")
@@ -57,9 +57,23 @@ def main(p):
     dataset = fo.load_dataset(p.dataset_name)
     print("dataset info:")
     print(dataset)
+    print()
     sample = dataset.first()
     path = sample["filepath"]
-    print()
-    print("test-loading first image from", path)
-    img = Image.open(path)
-    print("loaded image with dimensions", np.array(img).shape, "ok")
+    if not os.path.exists(path):
+        print("WARNING: could not find file", path)
+        return 2
+    if dataset.media_type == "image":
+        print("test-loading first image from", path)
+        img = Image.open(path)
+        print("loaded image with dimensions", np.array(img).shape, "ok")
+    elif dataset.media_type == "video":
+        import cv2
+        print("test-loading first frame from", path)
+        vid=cv2.VideoCapture(path)
+        ok, img = vid.read()
+        if ok:
+            print("loaded image with dimensions", np.array(img).shape, "ok")
+        else:
+            print("WARNING: could not read a frame from the video file")
+        vid.release()

@@ -8,7 +8,8 @@ from pathlib import Path
 import fiftyone as fo
 
 # pick your choice..
-container_format = "mp4"  # lossless H264 @ mp4
+# container_format = "y4m"  # yuv @ y4m 
+container_format = "mp4"  # lossless H264 @ mp4 # USE THIS!
 # container_format = "webm" # lossless VP9 @ webm (i.e. matroska/mkv)
 
 
@@ -38,7 +39,7 @@ classmap = {  # COCO-compatible
 
 
 def video_convert(basedir):
-    """Converts video from YUV to lossless VP9@WEBM or H264@MP4
+    """Converts video from YUV to lossless RAW@MP4
 
     Assumes this directory structure:
 
@@ -104,15 +105,23 @@ def video_convert(basedir):
         if container_format == "webm":
             output = os.path.join(inpath, "video.webm")
             # webm (aka matrosk/mkv) accepts vp9, but not raw video
-            st = f"ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
-                x=x, y=y, fps=fps, input=path, output=output
+            st = "ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -c:v libvpx-vp9 -lossless 1 {output}".format(
+                x=x, y=y, input=path, output=output
             )
         elif container_format == "mp4":
             output = os.path.join(inpath, "video.mp4")
-            # lossless H264 @ mp4
-            st = f"ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
-                x=x, y=y, fps=fps, input=path, output=output
+            # lossless H264 @ mp4 .. did this work in the browser or not..?
+            st = "ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v h264 -q 0 {output}".format(
+                x=x, y=y, input=path, output=output
             )
+            # NOTE: raw yuv @ mp4 is not allowed
+        elif container_format == "y4m":
+            # WARNING: does not work
+            output = os.path.join(inpath, "video.y4m")
+            st = "ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size {x}x{y} -i {input} -an -c:v copy -q 0 {output}".format(
+                x=x, y=y, input=path, output=output
+            )
+        """
         if os.path.exists(output):
             print(
                 "\nWARNING: converted video file",
@@ -120,8 +129,9 @@ def video_convert(basedir):
                 "exists already.  Will skip conversion.  Remove manually if needed\n",
             )
         else:
-            print(st)
-            os.system(st)
+        """
+        print(st)
+        os.system(st)
     if not foundsome:
         print("could not find any .yuv files: check your directory & file structure")
     print("video conversion done")
