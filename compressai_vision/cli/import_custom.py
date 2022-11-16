@@ -35,6 +35,7 @@ from pathlib import Path
 from .tools import makeVideoThumbnails
 
 possible_types = [
+    "oiv6-mpeg-v1", # as provided by nokia
     "tvd-object-tracking-v1",  # TVD
     "tvd-image-v1",  # TVD
     "sfu-hw-objects-v1",  # SFU-HW
@@ -61,19 +62,35 @@ def add_subparser(subparsers, parents):
         "--dir",
         action="store",
         type=str,
-        required=True,
+        required=False,
         default=None,
         help="root directory of the dataset",
     )
+    mpeg_group = subparser.add_argument_group("arguments for oiv6-mpeg")
+    mpeg_group.add_argument(
+        "--datadir",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="directory where all datasets are downloaded by default (optional)",
+    )
+    mpeg_group.add_argument(
+        "--mock", action="store_true", default=False, help="debugging switch: don't use"
+    )
+    mpeg_group.add_argument(
+        "--use-vcm",
+        action="store_true",
+        default=True,
+        help="Use mpeg-vcm files bundled with compressai-vision",
+    )
+
 
 
 def main(p):
-    p.dir = os.path.expanduser(p.dir)  # correct path in the case user uses POSIX "~"
     assert (
         p.dataset_type in possible_types
     ), "dataset-type needs to be one of these:" + str(possible_types)
-    assert os.path.isdir(p.dir), "can find directory " + p.dir
-
     print("importing fiftyone")
     import fiftyone as fo
 
@@ -90,15 +107,29 @@ def main(p):
             "WARNING: dataset %s already exists: will delete and rewrite"
             % (p.dataset_type)
         )
+    
+    # oiv-mpeg-v1 doesn't need to --dir (p.dir) since it downloads the file itself
+    if p.dataset_type == "oiv6-mpeg-v1":
+        # this is the most "ancient" part in this library
+        # (all started by trying to import oiv-mpeg-v1)
+        from .auto import main
+        # see func add_subparser up there
+        # main is using the parameters in mpeg_group
+        main(p)
+        return
+
+    # rest of the importers require the user to download the files themselves
+    assert p.dir is not None, "please provide root directory with the --dir argument"
+    p.dir = os.path.expanduser(p.dir)  # correct path in the case user uses POSIX "~"
+    assert os.path.isdir(p.dir), "can find directory " + p.dir
 
     print()
-    print("Importing a custom video format into fiftyone")
+    print("Importing custom dataset into fiftyone")
     print()
     print("Dataset type           : ", p.dataset_type)
     print("Dataset root directory : ", p.dir)
     print()
 
-    # implement different (custom) datasets here
     if p.dataset_type == "sfu-hw-objects-v1":
         if not p.y:
             input("press enter to continue.. ")

@@ -5,13 +5,13 @@ Datasets
 
 MPEG-VCM working group defines several evaluation datasets.
 
-1. MPEG-VCM
------------
+1. OIV6-MPEG
+------------
 
 Custom-modified `OpenImageV6 dataset <https://storage.googleapis.com/openimages/web/factsfigures_v6.html>`_:
 hand-picked images and modified annotations in a custom format.
 
-Required input files (bundled with CompressAI-Vision):
+Required input files (don't worry - bundled with CompressAI-Vision):
 
 .. code-block:: text
 
@@ -23,17 +23,16 @@ Required input files (bundled with CompressAI-Vision):
     segmentation_validation_labels_5k.csv
     segmentation_validation_masks_5k.csv
 
-
 Commands to import:
 
 .. code-block:: bash
 
-    compressai-vision mpeg-vcm-auto-import
+    compressai-vision import-custom oiv6-mpeg-v1
 
 Final fiftyone dataset names:
 
-- ``mpeg-vcm-detection``
-- ``mpeg-vcm-segmentation``
+- ``oiv6-mpeg-detection-v1``
+- ``oiv6-mpeg-segmentation-v1``
 
 2. TVD
 ------
@@ -149,7 +148,6 @@ Download following input files from `here <https://adas-dataset-v2.flirconservat
     FLIR_ADAS_v2.zip
 
 After unpacking, following input directory/file structure (call it ``/path/to/dir``):
-)
 
 .. code-block:: text
 

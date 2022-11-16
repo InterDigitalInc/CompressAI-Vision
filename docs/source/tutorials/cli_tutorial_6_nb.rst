@@ -27,7 +27,7 @@ Let’s generate some encoded bitstreams.
 
 .. code:: ipython3
 
-    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -38,18 +38,18 @@ Let’s generate some encoded bitstreams.
     --output=vtm_out.json
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
-    reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
-    WARNING: using a dataset slice instead of full dataset
+    Reading vtm config from: /home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg
+    WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
     Quality points/subdirs : [47]
-    Using dataset          : mpeg-vcm-detection
+    Using dataset          : oiv6-mpeg-detection-v1
     Image Scaling          : 100
     Using slice            : 0:2
     Number of samples      : 2
@@ -64,7 +64,7 @@ Let’s generate some encoded bitstreams.
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
     
-    HAVE A NICE DAY!
+    Done!
     
 
 
@@ -74,7 +74,7 @@ same command again:
 
 .. code:: ipython3
 
-    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -85,18 +85,18 @@ same command again:
     --output=vtm_out.json
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
-    reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
-    WARNING: using a dataset slice instead of full dataset
+    Reading vtm config from: /home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg
+    WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
     Quality points/subdirs : [47]
-    Using dataset          : mpeg-vcm-detection
+    Using dataset          : oiv6-mpeg-detection-v1
     Image Scaling          : 100
     Using slice            : 0:2
     Number of samples      : 2
@@ -109,7 +109,7 @@ same command again:
     sample:  1 / 2 tag: 0001eeaf4aed83f9
     sample:  2 / 2 tag: 000a1249af2bc5f0
     
-    HAVE A NICE DAY!
+    Done!
     
 
 
@@ -126,7 +126,7 @@ And run the command again:
 
 .. code:: ipython3
 
-    compressai-vision vtm --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -137,18 +137,18 @@ And run the command again:
     --output=vtm_out.json
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
-    reading VTM config from '/home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg'
-    WARNING: using a dataset slice instead of full dataset
+    Reading vtm config from: /home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg
+    WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     
     VTM bitstream generation
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Target dir             : /tmp/bitstreams
     Quality points/subdirs : [47]
-    Using dataset          : mpeg-vcm-detection
+    Using dataset          : oiv6-mpeg-detection-v1
     Image Scaling          : 100
     Using slice            : 0:2
     Number of samples      : 2
@@ -162,12 +162,12 @@ And run the command again:
     VTMEncoderDecoder - CRITICAL - VTM encode failed with Warning: Attempt to decode an empty NAL unit
     
     VTMEncoderDecoder - CRITICAL - VTMDecode failed: will skip image 000a1249af2bc5f0 & remove the bitstream file
-    ERROR: Corrupt data for image id=633720fcee3965dd257f247c, tag=000a1249af2bc5f0, path=/home/sampsa/fiftyone/mpeg-vcm-detection/data/000a1249af2bc5f0.jpg
+    ERROR: Corrupt data for image id=6374fc19f8beb066665b85be, tag=000a1249af2bc5f0, path=/home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data/000a1249af2bc5f0.jpg
     ERROR: Trying to regenerate
     VTMEncoderDecoder - WARNING - creating bitstream /tmp/bitstreams/100/47/bin_000a1249af2bc5f0 with VTMEncode from scratch
     sample:  2 / 2 tag: 000a1249af2bc5f0
     
-    HAVE A NICE DAY!
+    Done!
     
 
 
@@ -180,7 +180,7 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
 
 .. code:: ipython3
 
-    compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection \
+    compressai-vision detectron2-eval --y --dataset-name=oiv6-mpeg-detection-v1 \
     --slice=0:2 \
     --scale=100 \
     --progress=1 \
@@ -193,50 +193,51 @@ Finally, you can run ``detectron2-eval`` for the VTM case like this:
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
     WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
     Reading vtm config from: /home/sampsa/silo/interdigital/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg
+    instantiating Detectron2 predictor 0 : COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
     
-    Using dataset          : mpeg-vcm-detection
-    Dataset tmp clone      : detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
+    Using dataset          : oiv6-mpeg-detection-v1
+    Dataset media type     : image
+    Dataset tmp clone      : detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-47-58-858646
+    Keep tmp dataset?      : False
     Image scaling          : 100
     WARNING: Using slice   : 0:2
     Number of samples      : 2
     Torch device           : cpu
+    === Vision Model #0 ====
     Detectron2 model       : COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
     Model was trained with : coco_2017_train
+    Eval. results will be saved to datafield
+                           : detectron-predictions_v0
+    Evaluation protocol    : open-images
+    Peek model classes     :
+    ['airplane', 'apple', 'backpack', 'banana', 'baseball bat'] ...
+    Peek dataset classes   :
+    ['airplane', 'person'] ...
     Using VTM               
     WARNING: VTM USES CACHE IN /tmp/bitstreams
     Quality parameters     : [47]
     Ground truth data field name
                            : detections
-    Eval. results will be saved to datafield
-                           : detectron-predictions
-    Evaluation protocol    : open-images
     Progressbar            : False
     Print progress         : 1
     Output file            : detectron2_vtm.json
-    Peek model classes     :
-    ['airplane', 'apple', 'backpack', 'banana', 'baseball bat'] ...
-    Peek dataset classes   :
-    ['airplane', 'person'] ...
-    cloning dataset mpeg-vcm-detection to detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
-    instantiating Detectron2 predictor
+    cloning dataset oiv6-mpeg-detection-v1 to detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-47-58-858646
     VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
     sample:  1 / 2
     sample:  2 / 2
-    Ignoring unsupported parameters {'compute_mAP'} for <class 'fiftyone.utils.eval.openimages.OpenImagesEvaluationConfig'>
     Evaluating detections...
-     100% |███████████| 2/2 [19.0ms elapsed, 0s remaining, 105.1 samples/s] 
-    deleting tmp database detectron-run-sampsa-mpeg-vcm-detection-2022-10-11-18-21-25-081407
+    deleting tmp database detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-47-58-858646
     
-    HAVE A NICE DAY!
+    Done!
     
 
 

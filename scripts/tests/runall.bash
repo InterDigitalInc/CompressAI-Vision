@@ -37,6 +37,7 @@ if [ "${CODEC}" = "" ]; then
     CODEC=${DEFAULT_CODEC}
 fi
 
+# 01: custom import of oiv6-mpeg
 bash ${SCRIPT_DIR}/01_auto_import_mock.bash
 bash ${SCRIPT_DIR}/02_info_list.bash
 bash ${SCRIPT_DIR}/03_download_register_dummy_deregister.bash
@@ -51,6 +52,12 @@ bash ${SCRIPT_DIR}/11_detectron2_eval_no_compress.bash
 bash ${SCRIPT_DIR}/12_metrics_eval_compressai.bash
 bash ${SCRIPT_DIR}/13_detectron2_eval_compressai.bash
 bash ${SCRIPT_DIR}/14_detectron2_eval_compressai_no_slice.bash
-
+bash ${SCRIPT_DIR}/15_detectron2_eval_video_no_compress.bash
+# TODO: custom imports, other than oiv6-mpeg are here
+# problem here: all these commands need you to download custom datasets:
+bash ${SCRIPT_DIR}/16_sfu_hw_objects_v1.bash
+bash ${SCRIPT_DIR}/17_tvd_object_tracking_v1.bash
+bash ${SCRIPT_DIR}/18_tvd_image_v1.bash
+bash ${SCRIPT_DIR}/19_flir_v1.bash
 echo "DONE, deleting temporary files"
 rm -r /tmp/compressai-vision

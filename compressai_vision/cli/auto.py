@@ -127,9 +127,9 @@ def add_subparser(subparsers, parents):
         default=True,
         help="Use mpeg-vcm files bundled with compressai-vision",
     )
-    subparser = subparsers.add_parser(
-        "manual", parents=parents, help="shows complete manual"
-    )
+    #subparser = subparsers.add_parser(
+    #    "manual", parents=parents, help="shows complete manual"
+    #)
 
 
 def main(p_):  # noqa: C901
@@ -189,10 +189,10 @@ def main(p_):  # noqa: C901
 
     if dirname is None:
         mpeg_vcm_dir = os.path.join(
-            "~", "fiftyone", "mpeg-vcm-detection"
-        )  # ~/fiftyone/mpeg-vcm-detection
+            "~", "fiftyone", "oiv6-mpeg-detection-v1"
+        )  # ~/fiftyone/oiv6-mpeg-detection-v1
     else:
-        mpeg_vcm_dir = os.path.join(dirname, "mpeg-vcm-detection")
+        mpeg_vcm_dir = os.path.join(dirname, "oiv6-mpeg-detection-v1")
 
     if not p_.y:
         mpeg_vcm_dir = get_dir(
@@ -202,7 +202,7 @@ def main(p_):  # noqa: C901
     p.lists = get_("detection_validation_input_5k.lst", load_dir)
     # p.dir = "~/fiftyone/open-images-v6/validation"
     p.dir = source_dir
-    # p.target_dir = "~/fiftyone/mpeg-vcm-detection"
+    # p.target_dir = "~/fiftyone/oiv6-mpeg-detection-v1"
     p.target_dir = mpeg_vcm_dir
     p.label = get_("detection_validation_labels_5k.csv", load_dir)
     p.bbox = get_("detection_validation_5k_bbox.csv", load_dir)
@@ -216,10 +216,10 @@ def main(p_):  # noqa: C901
 
     if dirname is None:
         mpeg_vcm_dir_seg = os.path.join(
-            "~", "fiftyone", "mpeg-vcm-segmentation"
+            "~", "fiftyone", "oiv6-mpeg-segmentation-v1"
         )  # ~/fiftyone/mpeg_vcm-segmentation
     else:
-        mpeg_vcm_dir_seg = os.path.join(dirname, "mpeg-vcm-segmentation")
+        mpeg_vcm_dir_seg = os.path.join(dirname, "oiv6-mpeg-segmentation-v1")
     if not p_.y:
         mpeg_vcm_dir_seg = get_dir(
             mpeg_vcm_dir_seg,
@@ -242,7 +242,7 @@ def main(p_):  # noqa: C901
     p = Namespace()
     # p.y = False
     p.y = p_.y
-    dataset_name = "mpeg-vcm-detection"
+    dataset_name = "oiv6-mpeg-detection-v1"
     if p_.y is False:
         dataset_name = get_inp(dataset_name, "name for detection dataset")
     p.dataset_name = dataset_name
@@ -265,7 +265,7 @@ def main(p_):  # noqa: C901
     p = Namespace()
     # p.y = False
     p.y = p_.y
-    dataset_name = "mpeg-vcm-segmentation"
+    dataset_name = "oiv6-mpeg-segmentation-v1"
     if p_.y is False:
         dataset_name = get_inp(dataset_name, "name for segmentation dataset")
     p.dataset_name = dataset_name

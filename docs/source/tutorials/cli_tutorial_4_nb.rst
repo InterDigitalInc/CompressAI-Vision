@@ -4,25 +4,33 @@ In this chapter you will learn:
    mpeg-vcm tests
 
 As in the previous chapters, let’s first check we have the dataset
-``mpeg-vcm-detection`` available:
+``oiv6-mpeg-detection-v1`` available:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision list
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
     
     datasets currently registered into fiftyone
     name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+    detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-22-40-319395, 2, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-24-14-478278, 2, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    flir-image-rgb-v1, 10318, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/flir/images_rgb_train/data
+    oiv6-mpeg-detection-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-detection-v1-dummy, 1, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-segmentation-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-segmentation-v1/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
     quickstart, 200, /home/sampsa/fiftyone/quickstart/data
+    quickstart-video, 10, /home/sampsa/fiftyone/quickstart-video/data
+    sfu-hw-objects-v1, 2, /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill
+    tvd-image-detection-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_detection_v1/data
+    tvd-image-segmentation-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_segmentation_v1/data
+    tvd-object-tracking-v1, 3, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_object_tracking_dataset_and_annotations
 
 
 In order for your custom model to work with compressai-vision, it needs
@@ -109,7 +117,7 @@ into your disk and run:
 ::
 
    compressai-vision detectron2-eval --y \
-   --dataset-name mpeg-vcm-detection \
+   --dataset-name oiv6-mpeg-detection-v1 \
    --slice=0:2 \
    --scale=100 \
    --gt-field=detections \
@@ -124,3 +132,4 @@ This will evaluate your custom model with Detectron2.
 
 Again, for an actual production run, you would remove the ``--slice``
 argument.
+

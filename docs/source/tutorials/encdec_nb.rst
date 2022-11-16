@@ -87,7 +87,7 @@ Print bits-per-pixel, compare original and transformed image
     plt.subplot(1,2,2); plt.imshow(transformed_bgr_image[:,:,::-1]); _=plt.axis('off')
 
 
-.. parsed-literal::
+.. code-block:: text
 
     BPP= 0.16878255208333334
 
