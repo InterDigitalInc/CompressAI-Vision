@@ -31,6 +31,7 @@
 """
 import os
 
+
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser("show", parents=parents, help="show dataset info")
     subparser.add_argument(
@@ -69,8 +70,9 @@ def main(p):
         print("loaded image with dimensions", np.array(img).shape, "ok")
     elif dataset.media_type == "video":
         import cv2
+
         print("test-loading first frame from", path)
-        vid=cv2.VideoCapture(path)
+        vid = cv2.VideoCapture(path)
         ok, img = vid.read()
         if ok:
             print("loaded image with dimensions", np.array(img).shape, "ok")

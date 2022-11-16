@@ -34,6 +34,7 @@ import logging
 import sys
 
 from compressai_vision.cli import (
+    app,
     auto,
     clean,
     convert_mpeg_to_oiv6,
@@ -52,7 +53,6 @@ from compressai_vision.cli import (
     register,
     show,
     vtm,
-    app
 )
 from compressai_vision.tools import getDataFile, quickLog
 
@@ -76,7 +76,7 @@ COMMANDS = {  # noqa: F405
     "metrics-eval": metrics_eval.main,
     "import-custom": import_custom.main,
     "make-thumbnails": make_thumbnails.main,
-    "app": app.main
+    "app": app.main,
 }
 
 coms = ""

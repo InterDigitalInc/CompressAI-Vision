@@ -214,7 +214,7 @@ def add_subparser(subparsers, parents):
         "--keep",
         action="store_true",
         default=False,
-        help="Keep tmp databased saved or not.  Default: False"
+        help="Keep tmp databased saved or not.  Default: False",
     )
     return subparser
 

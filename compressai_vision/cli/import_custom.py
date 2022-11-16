@@ -32,10 +32,11 @@
 import os
 
 from pathlib import Path
+
 from .tools import makeVideoThumbnails
 
 possible_types = [
-    "oiv6-mpeg-v1", # as provided by nokia
+    "oiv6-mpeg-v1",  # as provided by nokia
     "tvd-object-tracking-v1",  # TVD
     "tvd-image-v1",  # TVD
     "sfu-hw-objects-v1",  # SFU-HW
@@ -86,7 +87,6 @@ def add_subparser(subparsers, parents):
     )
 
 
-
 def main(p):
     assert (
         p.dataset_type in possible_types
@@ -107,12 +107,13 @@ def main(p):
             "WARNING: dataset %s already exists: will delete and rewrite"
             % (p.dataset_type)
         )
-    
+
     # oiv-mpeg-v1 doesn't need to --dir (p.dir) since it downloads the file itself
     if p.dataset_type == "oiv6-mpeg-v1":
         # this is the most "ancient" part in this library
         # (all started by trying to import oiv-mpeg-v1)
         from .auto import main
+
         # see func add_subparser up there
         # main is using the parameters in mpeg_group
         main(p)
@@ -138,6 +139,7 @@ def main(p):
             register,
             video_convert,
         )
+
         video_convert(p.dir)
         register(p.dir)  # dataset persistent
         """NOTE: not required for this dataset
@@ -156,6 +158,7 @@ def main(p):
             input("press enter to continue.. ")
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
+
         register(p.dir)  # dataset persistent
         print()
         print("Will create thumbnails for fiftyone app visualization")
@@ -163,7 +166,7 @@ def main(p):
         if not p.y:
             input("press enter to continue.. (or CTRL-C to abort)")
             print()
-        dataset=fo.load_dataset("tvd-object-tracking-v1")
+        dataset = fo.load_dataset("tvd-object-tracking-v1")
         makeVideoThumbnails(dataset, force=True)
 
     elif p.dataset_type == "tvd-image-v1":

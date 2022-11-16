@@ -45,6 +45,7 @@ from compressai_vision.cli.vtm import main as vtm
 # print("cli: import end")
 """
 from . import (
+    app,
     auto,
     clean,
     convert_mpeg_to_oiv6,
@@ -63,7 +64,6 @@ from . import (
     register,
     show,
     vtm,
-    app
 )
 
 __all__ = [
@@ -85,5 +85,5 @@ __all__ = [
     "metrics_eval",
     "import_custom",
     "make_thumbnails",
-    "app"
+    "app",
 ]
