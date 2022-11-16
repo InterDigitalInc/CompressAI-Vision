@@ -107,12 +107,12 @@ show how to perform a baseline evaluation with VTM.
 
     predictor = DefaultPredictor(cfg)
 
-Get a handle to the dataset created in previous notebooks:
+Get handle to a dataset. We will be using the ``oiv6-mpeg-v1`` dataset.
+Please go through the CLI Tutorials in order to produce this dataset.
 
 .. code:: ipython3
 
-    # dataset = fo.load_dataset("mpeg-vcm-detection")
-    dataset = fo.load_dataset("mpeg-vcm-detection-dummy") # or use the dummy dataset for testing/debugging
+    dataset = fo.load_dataset("oiv6-mpeg-detection-v1-dummy") # or use the dummy dataset for testing/debugging
 
 .. code:: ipython3
 
@@ -123,7 +123,7 @@ Get a handle to the dataset created in previous notebooks:
 
 .. parsed-literal::
 
-    Name:        mpeg-vcm-detection-dummy
+    Name:        oiv6-mpeg-detection-v1-dummy
     Media type:  image
     Num samples: 1
     Persistent:  True
@@ -223,7 +223,7 @@ where the detectron results are saved:
         # before the predictor is used, the image is crunched through the encoding/decoding process & the bitrate is recorded
         # you could substitute CompressAIEncoderDecoder with VTMEncoderDecoder if you'd like to (see also the end of this tutorial)
         print("running the detector at", i)
-        bpp = annexPredictions(predictor=predictor, fo_dataset=dataset, encoder_decoder=enc_dec, predictor_field=predictor_field)
+        bpp = annexPredictions(predictors=[predictor], fo_dataset=dataset, encoder_decoder=enc_dec, predictor_fields=[predictor_field])
         # .. now detectron's results are in each sample at the "detectron-predictions"  field
         res = dataset.evaluate_detections(
             predictor_field,
@@ -264,7 +264,7 @@ where the detectron results are saved:
 
     sample:  1 / 1
     Evaluating detections...
-     100% |█████████████████████| 1/1 [13.8ms elapsed, 0s remaining, 72.7 samples/s] 
+     100% |█████████████████████| 1/1 [11.6ms elapsed, 0s remaining, 85.9 samples/s] 
     ready!
 
 

@@ -25,3 +25,23 @@ Both scripts accept as a parameter a single notebook name or various names.  Nam
 without the ``_nb.ipynb`` termination, i.e. just ``cli_tutorial_1``, ``detectron2``, etc.
 
 If no argument is provided, all notebooks are done.
+
+### Files
+
+```
+cli_tutorial_1_nb.ipynb
+cli_tutorial_2_nb.ipynb
+cli_tutorial_3_nb.ipynb
+cli_tutorial_4_nb.ipynb
+cli_tutorial_5_nb.ipynb
+cli_tutorial_6_nb.ipynb
+cli_tutorial_7_nb.ipynb
+
+fiftyone_nb.ipynb
+
+1: download_nb.ipynb
+# 2: convert_nb.ipynb # DEPRECATED
+3: detectron2_nb.ipynb
+4: evaluate_nb.ipynb
+5: encdec_nb.ipynb
+```

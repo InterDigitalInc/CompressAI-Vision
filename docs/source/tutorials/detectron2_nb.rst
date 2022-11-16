@@ -1,9 +1,3 @@
-3. Detectron2
--------------
-
--  Going between detectron2 & fiftyone
--  Annexing detectron2 results to fiftyone
-
 In this chapter we look into fiftyone/detectron2 interface, how to add
 detectron2 results into a fiftyone dataset and how to evaluate
 detectron2 results with fiftyone.
@@ -127,11 +121,12 @@ Let’s pick up correct Detectron2 model
 
     predictor = DefaultPredictor(cfg)
 
-Get a handle to the dataset created in previous notebooks
+Get handle to a dataset. We will be using the ``oiv6-mpeg-v1`` dataset.
+Please go through the CLI Tutorials in order to produce this dataset.
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("mpeg-vcm-detection")
+    dataset = fo.load_dataset("oiv6-mpeg-detection-v1")
 
 .. code:: ipython3
 
@@ -142,10 +137,10 @@ Get a handle to the dataset created in previous notebooks
 
 .. parsed-literal::
 
-    Name:        mpeg-vcm-detection
+    Name:        oiv6-mpeg-detection-v1
     Media type:  image
     Num samples: 5000
-    Persistent:  False
+    Persistent:  True
     Tags:        []
     Sample fields:
         id:              fiftyone.core.fields.ObjectIdField
@@ -184,7 +179,7 @@ We can visualize that sample also with Detectron2 library tools
 
 
 
-.. image:: detectron2_nb_files/detectron2_nb_21_0.png
+.. image:: detectron2_nb_files/detectron2_nb_20_0.png
 
 
 Let’s try the Detectron2 predictor:
@@ -219,7 +214,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
     <Detections: {
         'detections': BaseList([
             <Detection: {
-                'id': '6346dd58f9f8269320fa1e9b',
+                'id': '63750fcfd2aa2609d8d60bdb',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -234,7 +229,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1e9c',
+                'id': '63750fcfd2aa2609d8d60bdc',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -249,7 +244,7 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1e9d',
+                'id': '63750fcfd2aa2609d8d60bdd',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -264,22 +259,22 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1e9e',
+                'id': '63750fcfd2aa2609d8d60bde',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'motorcycle',
                 'bounding_box': BaseList([
-                    0.485452800989151,
-                    0.016184425594527062,
-                    0.40658149123191833,
-                    0.8690680952420902,
+                    0.4854528307914734,
+                    0.01618434862711691,
+                    0.40658146142959595,
+                    0.8690683261443206,
                 ]),
                 'mask': None,
-                'confidence': 0.7087109684944153,
+                'confidence': 0.7087108492851257,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1e9f',
+                'id': '63750fcfd2aa2609d8d60bdf',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -294,52 +289,52 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea0',
+                'id': '63750fcfd2aa2609d8d60be0',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
                 'bounding_box': BaseList([
-                    0.2356555312871933,
+                    0.2356555163860321,
                     0.4367165102483646,
-                    0.26028211414813995,
+                    0.2602821886539459,
                     0.4146875138541338,
                 ]),
                 'mask': None,
-                'confidence': 0.3441943824291229,
+                'confidence': 0.3441937565803528,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea1',
+                'id': '63750fcfd2aa2609d8d60be1',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'bicycle',
                 'bounding_box': BaseList([
-                    0.4535953998565674,
-                    0.006116752215622352,
-                    0.4246022701263428,
-                    0.9400808730011179,
+                    0.453595370054245,
+                    0.006116790699327428,
+                    0.4246024787425995,
+                    0.9400808345174128,
                 ]),
                 'mask': None,
                 'confidence': 0.291936993598938,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea2',
+                'id': '63750fcfd2aa2609d8d60be2',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
                 'bounding_box': BaseList([
                     0.7321376204490662,
                     0.8158130621699637,
-                    0.10273182392120361,
+                    0.10273158550262451,
                     0.1786184226729981,
                 ]),
                 'mask': None,
-                'confidence': 0.251709520816803,
+                'confidence': 0.2517068088054657,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea3',
+                'id': '63750fcfd2aa2609d8d60be3',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'cell phone',
@@ -354,37 +349,37 @@ We can convert from Detectron2 format to fiftyone detection objects:
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea4',
+                'id': '63750fcfd2aa2609d8d60be4',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
                 'bounding_box': BaseList([
-                    0.29376694560050964,
+                    0.29376691579818726,
                     0.46854041774215793,
-                    0.1675676703453064,
+                    0.16756772994995117,
                     0.29636893927825503,
                 ]),
                 'mask': None,
-                'confidence': 0.15639427304267883,
+                'confidence': 0.15639421343803406,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea5',
+                'id': '63750fcfd2aa2609d8d60be5',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
                 'bounding_box': BaseList([
-                    0.004228693433105946,
-                    0.0767963404613365,
-                    0.37698595505207777,
-                    0.630363829950667,
+                    0.004228678997606039,
+                    0.07679635970318904,
+                    0.3769859694875777,
+                    0.6303638107088144,
                 ]),
                 'mask': None,
                 'confidence': 0.11882766336202621,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea6',
+                'id': '63750fcfd2aa2609d8d60be6',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
@@ -395,67 +390,67 @@ We can convert from Detectron2 format to fiftyone detection objects:
                     0.13247769176584173,
                 ]),
                 'mask': None,
-                'confidence': 0.09884662926197052,
+                'confidence': 0.09884653985500336,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea7',
+                'id': '63750fcfd2aa2609d8d60be7',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'person',
                 'bounding_box': BaseList([
-                    0.08518574386835098,
-                    0.3548633628354548,
-                    0.4390302523970604,
-                    0.5531069357488375,
+                    0.08518577367067337,
+                    0.35486332435174966,
+                    0.43903016299009323,
+                    0.5531068972651324,
                 ]),
                 'mask': None,
-                'confidence': 0.0946485623717308,
+                'confidence': 0.09464847296476364,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea8',
+                'id': '63750fcfd2aa2609d8d60be8',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'motorcycle',
                 'bounding_box': BaseList([
-                    0.1718100905418396,
-                    0.0204875556397408,
-                    0.6795393824577332,
-                    0.8203254449562948,
+                    0.17181020975112915,
+                    0.020487594123445873,
+                    0.6795392632484436,
+                    0.8203254834399999,
                 ]),
                 'mask': None,
-                'confidence': 0.08924849331378937,
+                'confidence': 0.08924885094165802,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1ea9',
+                'id': '63750fcfd2aa2609d8d60be9',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'truck',
                 'bounding_box': BaseList([
-                    0.23365649580955505,
+                    0.23365622758865356,
                     0.0,
-                    0.7420808374881744,
+                    0.7420811653137207,
                     0.9733538826056116,
                 ]),
                 'mask': None,
-                'confidence': 0.07246677577495575,
+                'confidence': 0.07246675342321396,
                 'index': None,
             }>,
             <Detection: {
-                'id': '6346dd58f9f8269320fa1eaa',
+                'id': '63750fcfd2aa2609d8d60bea',
                 'attributes': BaseDict({}),
                 'tags': BaseList([]),
                 'label': 'baseball bat',
                 'bounding_box': BaseList([
                     0.8032967448234558,
-                    0.2696970185596134,
+                    0.269697037801466,
                     0.07617664337158203,
-                    0.2461811272523743,
+                    0.24618110801052176,
                 ]),
                 'mask': None,
-                'confidence': 0.06142522394657135,
+                'confidence': 0.061425335705280304,
                 'index': None,
             }>,
         ]),
@@ -465,12 +460,13 @@ We can convert from Detectron2 format to fiftyone detection objects:
 
 Let’s run each image in a fiftyone dataset through the predictor.
 Results from the predictor will be annexed to the same fiftyone dataset.
-We use the dummy single-sample dataset ``mpeg-vcm-detection-dummy``
-created in previous chapters for testing:
+We use the dummy single-sample dataset ``oiv6-mpeg-detection-v1-dummy``
+created in the CLI tutorials with the
+``compressai-vision import-custom`` command
 
 .. code:: ipython3
 
-    dataset = fo.load_dataset("mpeg-vcm-detection-dummy")
+    dataset = fo.load_dataset("oiv6-mpeg-detection-v1-dummy")
 
 Detectron prediction results are saved during the run into the fiftyone
 (mongodb) database. Let’s define a unique name for the sample field
@@ -482,7 +478,7 @@ where the detectron results will be saved:
 
 .. code:: ipython3
 
-    annexPredictions(predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field)
+    annexPredictions(predictors=[predictor], fo_dataset=dataset, predictor_fields=[predictor_field])
 
 
 .. code-block:: text
@@ -500,7 +496,7 @@ extra field ``detectron-predictions`` has appeared into the dataset:
 
 .. code-block:: text
 
-    Name:        mpeg-vcm-detection-dummy
+    Name:        oiv6-mpeg-detection-v1-dummy
     Media type:  image
     Num samples: 1
     Persistent:  True
@@ -531,15 +527,15 @@ Let’s peek at the first sample:
 .. code-block:: text
 
     <Sample: {
-        'id': '6346d4246b7dd87eda0f2b04',
+        'id': '637508a927397b4737d44468',
         'media_type': 'image',
-        'filepath': '/home/sampsa/fiftyone/mpeg-vcm-detection/data/0001eeaf4aed83f9.jpg',
+        'filepath': '/home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data/0001eeaf4aed83f9.jpg',
         'tags': BaseList([]),
         'metadata': None,
         'positive_labels': <Classifications: {
             'classifications': BaseList([
                 <Classification: {
-                    'id': '6346d4246b7dd87eda0f2b02',
+                    'id': '637508a927397b4737d44466',
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'confidence': 1.0,
@@ -552,7 +548,7 @@ Let’s peek at the first sample:
         'detections': <Detections: {
             'detections': BaseList([
                 <Detection: {
-                    'id': '6346d4246b7dd87eda0f2b03',
+                    'id': '637508a927397b4737d44467',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -577,22 +573,22 @@ Let’s peek at the first sample:
         'detectron-predictions': <Detections: {
             'detections': BaseList([
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1efd',
+                    'id': '637510a8d2aa2609d8d60bed',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
                         0.12768225371837616,
-                        0.027486978227926846,
-                        0.8119979053735733,
-                        0.76541841536827,
+                        0.027486952625931777,
+                        0.8119977861642838,
+                        0.7654184409702651,
                     ]),
                     'mask': None,
                     'confidence': 0.9963523149490356,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1efe',
+                    'id': '637510a8d2aa2609d8d60bee',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -607,7 +603,7 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1eff',
+                    'id': '637510a8d2aa2609d8d60bef',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -622,22 +618,22 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f00',
+                    'id': '637510a8d2aa2609d8d60bf0',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
-                        0.11006083339452744,
+                        0.11006084829568863,
                         0.3412696787174916,
-                        0.19038165360689163,
+                        0.19038160890340805,
                         0.19853596185944491,
                     ]),
                     'mask': None,
-                    'confidence': 0.7442840933799744,
+                    'confidence': 0.7442839741706848,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f01',
+                    'id': '637510a8d2aa2609d8d60bf1',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -648,26 +644,26 @@ Let’s peek at the first sample:
                         0.07823143602750979,
                     ]),
                     'mask': None,
-                    'confidence': 0.6773070096969604,
+                    'confidence': 0.6773068308830261,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f02',
+                    'id': '637510a8d2aa2609d8d60bf2',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
                     'bounding_box': BaseList([
                         0.19424161314964294,
-                        0.5731003865832984,
+                        0.5731005231272721,
                         0.03333866596221924,
-                        0.04234303724045722,
+                        0.0423429006964835,
                     ]),
                     'mask': None,
-                    'confidence': 0.49123454093933105,
+                    'confidence': 0.4912344217300415,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f03',
+                    'id': '637510a8d2aa2609d8d60bf3',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'car',
@@ -678,26 +674,26 @@ Let’s peek at the first sample:
                         0.040624153427362975,
                     ]),
                     'mask': None,
-                    'confidence': 0.49095118045806885,
+                    'confidence': 0.4909511208534241,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f04',
+                    'id': '637510a8d2aa2609d8d60bf4',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
-                        0.11007525771856308,
+                        0.11007526516914368,
                         0.34265331293912543,
-                        0.10588719695806503,
+                        0.10588721930980682,
                         0.17782678113421072,
                     ]),
                     'mask': None,
-                    'confidence': 0.4769124388694763,
+                    'confidence': 0.47691264748573303,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f05',
+                    'id': '637510a8d2aa2609d8d60bf5',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -708,26 +704,26 @@ Let’s peek at the first sample:
                         0.031434061276566,
                     ]),
                     'mask': None,
-                    'confidence': 0.39503416419029236,
+                    'confidence': 0.3950338661670685,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f06',
+                    'id': '637510a8d2aa2609d8d60bf6',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'car',
                     'bounding_box': BaseList([
-                        0.11215677112340927,
+                        0.11215673387050629,
                         0.5923443480626048,
-                        0.04038272053003311,
+                        0.04038277268409729,
                         0.033441189418169745,
                     ]),
                     'mask': None,
-                    'confidence': 0.38696712255477905,
+                    'confidence': 0.3869660496711731,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f07',
+                    'id': '637510a8d2aa2609d8d60bf7',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -738,11 +734,11 @@ Let’s peek at the first sample:
                         0.05472764392827181,
                     ]),
                     'mask': None,
-                    'confidence': 0.36884164810180664,
+                    'confidence': 0.36884140968322754,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f08',
+                    'id': '637510a8d2aa2609d8d60bf8',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -753,11 +749,11 @@ Let’s peek at the first sample:
                         0.13064667362494756,
                     ]),
                     'mask': None,
-                    'confidence': 0.3492622375488281,
+                    'confidence': 0.3492617607116699,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f09',
+                    'id': '637510a8d2aa2609d8d60bf9',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -768,26 +764,26 @@ Let’s peek at the first sample:
                         0.08753325528479795,
                     ]),
                     'mask': None,
-                    'confidence': 0.33867529034614563,
+                    'confidence': 0.33867546916007996,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0a',
+                    'id': '637510a8d2aa2609d8d60bfa',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'car',
                     'bounding_box': BaseList([
                         0.19401228427886963,
-                        0.5745964989032788,
+                        0.5745965671752656,
                         0.033640727400779724,
-                        0.04079626710622903,
+                        0.04079613056225531,
                     ]),
                     'mask': None,
-                    'confidence': 0.30962127447128296,
+                    'confidence': 0.3096212148666382,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0b',
+                    'id': '637510a8d2aa2609d8d60bfb',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -802,7 +798,7 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0c',
+                    'id': '637510a8d2aa2609d8d60bfc',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -810,14 +806,14 @@ Let’s peek at the first sample:
                         0.14766937494277954,
                         0.35212325196404853,
                         0.07240810990333557,
-                        0.1256532605062395,
+                        0.12565319223425267,
                     ]),
                     'mask': None,
-                    'confidence': 0.2942286729812622,
+                    'confidence': 0.2942284643650055,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0d',
+                    'id': '637510a8d2aa2609d8d60bfd',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -828,11 +824,11 @@ Let’s peek at the first sample:
                         0.042288283106998045,
                     ]),
                     'mask': None,
-                    'confidence': 0.2310165911912918,
+                    'confidence': 0.23101691901683807,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0e',
+                    'id': '637510a8d2aa2609d8d60bfe',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -847,22 +843,22 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f0f',
+                    'id': '637510a8d2aa2609d8d60bff',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
                     'bounding_box': BaseList([
-                        0.10813499987125397,
+                        0.10813498497009277,
                         0.5906133801078369,
-                        0.04447351396083832,
+                        0.044473543763160706,
                         0.03619398420022371,
                     ]),
                     'mask': None,
-                    'confidence': 0.20025715231895447,
+                    'confidence': 0.20025701820850372,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f10',
+                    'id': '637510a8d2aa2609d8d60c00',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -873,26 +869,26 @@ Let’s peek at the first sample:
                         0.035827704990736856,
                     ]),
                     'mask': None,
-                    'confidence': 0.1864553838968277,
+                    'confidence': 0.1864553689956665,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f11',
+                    'id': '637510a8d2aa2609d8d60c01',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
-                        0.15734650194644928,
+                        0.15734654664993286,
                         0.34015182734069144,
-                        0.09979219734668732,
-                        0.17215952350522581,
+                        0.09979215264320374,
+                        0.17215945523323894,
                     ]),
                     'mask': None,
                     'confidence': 0.16270428895950317,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f12',
+                    'id': '637510a8d2aa2609d8d60c02',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'car',
@@ -907,7 +903,7 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f13',
+                    'id': '637510a8d2aa2609d8d60c03',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -918,26 +914,26 @@ Let’s peek at the first sample:
                         0.07955963339581586,
                     ]),
                     'mask': None,
-                    'confidence': 0.14320485293865204,
+                    'confidence': 0.1432049572467804,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f14',
+                    'id': '637510a8d2aa2609d8d60c04',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
-                        0.10666287690401077,
-                        0.2859448597201832,
-                        0.2402758225798607,
-                        0.3414595431129404,
+                        0.10666283965110779,
+                        0.2859449109241733,
+                        0.24027583003044128,
+                        0.34145956018093715,
                     ]),
                     'mask': None,
-                    'confidence': 0.1379343718290329,
+                    'confidence': 0.13793428242206573,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f15',
+                    'id': '637510a8d2aa2609d8d60c05',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
@@ -948,11 +944,11 @@ Let’s peek at the first sample:
                         0.054390312041212245,
                     ]),
                     'mask': None,
-                    'confidence': 0.13730646669864655,
+                    'confidence': 0.137306347489357,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f16',
+                    'id': '637510a8d2aa2609d8d60c06',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'car',
@@ -963,18 +959,18 @@ Let’s peek at the first sample:
                         0.06279070212003636,
                     ]),
                     'mask': None,
-                    'confidence': 0.13430571556091309,
+                    'confidence': 0.13430561125278473,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f17',
+                    'id': '637510a8d2aa2609d8d60c07',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
                     'bounding_box': BaseList([
-                        0.028436832129955292,
+                        0.028436819091439247,
                         0.3380399699712493,
-                        0.22196123749017715,
+                        0.2219612803310156,
                         0.25432984354245314,
                     ]),
                     'mask': None,
@@ -982,37 +978,37 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f18',
+                    'id': '637510a8d2aa2609d8d60c08',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
                     'bounding_box': BaseList([
                         0.8357962965965271,
-                        0.6915914719003425,
+                        0.6915915401723294,
                         0.00689089298248291,
                         0.029422905087737695,
                     ]),
                     'mask': None,
-                    'confidence': 0.12231158465147018,
+                    'confidence': 0.12230963259935379,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f19',
+                    'id': '637510a8d2aa2609d8d60c09',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
                     'bounding_box': BaseList([
                         0.8622568249702454,
-                        0.6034765734235179,
+                        0.6034765051515311,
                         0.09968775510787964,
-                        0.06998854942236438,
+                        0.06998868596633809,
                     ]),
                     'mask': None,
-                    'confidence': 0.1009499728679657,
+                    'confidence': 0.1009497195482254,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1a',
+                    'id': '637510a8d2aa2609d8d60c0a',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -1023,18 +1019,18 @@ Let’s peek at the first sample:
                         0.033792312246574384,
                     ]),
                     'mask': None,
-                    'confidence': 0.09404828399419785,
+                    'confidence': 0.09404819458723068,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1b',
+                    'id': '637510a8d2aa2609d8d60c0b',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
                     'bounding_box': BaseList([
-                        0.8381629586219788,
+                        0.8381630778312683,
                         0.690306183475776,
-                        0.007335245609283447,
+                        0.007335186004638672,
                         0.029042561848958332,
                     ]),
                     'mask': None,
@@ -1042,7 +1038,7 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1c',
+                    'id': '637510a8d2aa2609d8d60c0c',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -1053,11 +1049,11 @@ Let’s peek at the first sample:
                         0.021766270033731824,
                     ]),
                     'mask': None,
-                    'confidence': 0.09292487055063248,
+                    'confidence': 0.09292470663785934,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1d',
+                    'id': '637510a8d2aa2609d8d60c0d',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'airplane',
@@ -1068,11 +1064,11 @@ Let’s peek at the first sample:
                         0.14197770701158766,
                     ]),
                     'mask': None,
-                    'confidence': 0.08922168612480164,
+                    'confidence': 0.08922138065099716,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1e',
+                    'id': '637510a8d2aa2609d8d60c0e',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -1087,37 +1083,37 @@ Let’s peek at the first sample:
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f1f',
+                    'id': '637510a8d2aa2609d8d60c0f',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'truck',
                     'bounding_box': BaseList([
-                        0.09427589178085327,
+                        0.09427587687969208,
                         0.5730622225426454,
-                        0.127224862575531,
+                        0.1272248774766922,
                         0.046534322785584455,
                     ]),
                     'mask': None,
-                    'confidence': 0.06778866797685623,
+                    'confidence': 0.0677887350320816,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f20',
+                    'id': '637510a8d2aa2609d8d60c10',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
                     'bounding_box': BaseList([
                         0.8454108834266663,
-                        0.6975023239784326,
+                        0.6975023922504194,
                         0.006599128246307373,
                         0.019551595052083332,
                     ]),
                     'mask': None,
-                    'confidence': 0.06577832251787186,
+                    'confidence': 0.06578096002340317,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f21',
+                    'id': '637510a8d2aa2609d8d60c11',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -1128,11 +1124,11 @@ Let’s peek at the first sample:
                         0.03676426010643876,
                     ]),
                     'mask': None,
-                    'confidence': 0.05755734071135521,
+                    'confidence': 0.05755738914012909,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f22',
+                    'id': '637510a8d2aa2609d8d60c12',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -1143,11 +1139,11 @@ Let’s peek at the first sample:
                         0.03343163134000979,
                     ]),
                     'mask': None,
-                    'confidence': 0.05496569350361824,
+                    'confidence': 0.05496574565768242,
                     'index': None,
                 }>,
                 <Detection: {
-                    'id': '6346df3ef9f8269320fa1f23',
+                    'id': '637510a8d2aa2609d8d60c13',
                     'attributes': BaseDict({}),
                     'tags': BaseList([]),
                     'label': 'person',
@@ -1158,7 +1154,7 @@ Let’s peek at the first sample:
                         0.036160940558585014,
                     ]),
                     'mask': None,
-                    'confidence': 0.05112108960747719,
+                    'confidence': 0.05112104117870331,
                     'index': None,
                 }>,
             ]),
@@ -1187,7 +1183,7 @@ truth and the predictor results:
 .. code-block:: text
 
     Evaluating detections...
-     100% |█████████████████████| 1/1 [31.8ms elapsed, 0s remaining, 31.4 samples/s] 
+     100% |█████████████████████| 1/1 [25.5ms elapsed, 0s remaining, 39.2 samples/s] 
 
 
 After the evaluation we can should remove the detectron results from the

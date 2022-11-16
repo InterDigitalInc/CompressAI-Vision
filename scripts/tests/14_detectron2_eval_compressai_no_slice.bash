@@ -8,7 +8,7 @@ echo
 echo 14
 echo
 
-compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-detection-dummy \
+compressai-vision detectron2-eval --y --dataset-name=oiv6-mpeg-detection-v1-dummy \
 --scale=100 \
 --progress=1 \
 --compressai-model-name=bmshj2018-factorized \

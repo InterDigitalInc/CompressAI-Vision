@@ -75,10 +75,10 @@ tutorial a “mock” version of the dataset with only two video classes:
     6 directories, 7 files
 
 
-Importing `mpeg-vcom custom
-datasets <file:///home/sampsa/silo/interdigital/CompressAI-Vision/docs/_build/html/datasets.html>`__
-can be done with ``import-custom`` command. For ``sfu-hw-objects-v1`` it
-also converts on-the-fly the raw YUV images into proper video format:
+Importing mpeg-vcom custom datasets (for more info see Dataset section
+of the documentation) can be done with ``import-custom`` command. For
+``sfu-hw-objects-v1`` it also converts on-the-fly the raw YUV images
+into proper video format:
 
 .. code:: bash
 

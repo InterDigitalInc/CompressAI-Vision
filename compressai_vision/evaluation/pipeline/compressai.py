@@ -35,7 +35,7 @@ import torch
 
 from torchvision import transforms
 
-from compressai_vision.constant import vf_per_scale
+from compressai_vision.constant import vf_per_scale, inv_vf_per_scale
 from compressai_vision.ffmpeg import FFMpeg
 from compressai_vision.tools import dumpImageArray, test_command
 
@@ -103,11 +103,11 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         self.scale = scale
         if self.scale is not None:
             assert self.scale in vf_per_scale.keys(), "incorrect scaling constant"
-            try:
-                self.ffmpeg_comm = test_command(ffmpeg)
-            except FileNotFoundError:
-                raise (AssertionError("cant find ffmpeg"))
-            self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
+        try:
+            self.ffmpeg_comm = test_command(ffmpeg)
+        except FileNotFoundError:
+            raise (AssertionError("cant find ffmpeg"))
+        self.ffmpeg = FFMpeg(self.ffmpeg_comm, self.logger)
         self.compute_metrics = True
         self.half = half
 
@@ -172,14 +172,34 @@ class CompressAIEncoderDecoder(EncoderDecoder):
 
         Returns number of bits and transformed BGR image that has gone through compressai encoding+decoding.
 
+        - Scales the image if scaling is requested (1) [with ffmpeg]
+        - Pads the image for CompressAI (2) [with ffmpeg - feel free to switch to torch if you want]
+        - Runs the image through CompressAI model
+        - Removes padding (2) [with ffmpeg]
+        - Backscales (1) [with ffmpeg]
+
         Necessary padding for compressai is added and removed on-the-fly
         """
         # TO RGB & TENSOR
         rgb_image = bgr_image[:, :, [2, 1, 0]]  # BGR --> RGB
 
+        """
+        rgb_image       original img
+        scaled          scaled (if requested) (1)
+        padded          padded for compressai (2)
+        padded_hat      encoded & decoded with compressai
+        scaled_hat      padding removed (2)
+        rgb_image_hat   scaling removed (1)
+        """
+
         tag_ = tag if tag else str(self.imcount)
 
-        if self.scale is None or self.scale != 100:
+        if self.dump:
+            dumpImageArray(rgb_image, self.save_folder, "original_" + tag_ + ".png")
+
+        do_scaling = (self.scale is not None) and self.scale != 100
+
+        if do_scaling:
             # the padding for compressai is bigger than this one, so it is innecessary to do this
             # on the other hand, if we want to play strictly by the VCM working group book, then
             # this should be done..?
@@ -188,97 +208,62 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             #
             vf = vf_per_scale[self.scale]
             scaled = self.ffmpeg.ff_op(rgb_image, vf)
-            if self.dump:
-                dumpImageArray(
-                    scaled,
-                    self.save_folder,
-                    "ffmpeg_scaled_" + tag_ + ".png",
-                )
         else:
             scaled = rgb_image
 
         if self.dump:
-            dumpImageArray(scaled, self.save_folder, "original_" + tag_ + ".png")
+            dumpImageArray(scaled, self.save_folder, "scaled_" + tag_ + ".png")
 
+        # *** Add padding for CompressAI ***
         # https://ffmpeg.org/ffmpeg-filters.html#Examples-100
         pad_vf = "pad=ceil(iw/{S})*{S}:ceil(ih/{S})*{S}".format(S=self.m)
-        padded = self.ffmpeg.ff_op(rgb_image, pad_vf)
+        padded = self.ffmpeg.ff_op(scaled, pad_vf)
+        if self.dump:
+            dumpImageArray(padded, self.save_folder, "padded_" + tag_ + ".png")
+
         # print(">orig dims", scaled.shape)
         # print(">padded dims", padded.shape)
-
-        """with hyperprior, results in corrupted image
-        # padded (y,x,3) to FloatTensor (1,3,y,x):
-        x = transforms.ToTensor()(padded).unsqueeze(0)
-        # ADD PADDING
-        # padding in order to conform to compressai network
-        # TODO: this should be a global singleton function defined in one place only
-        h, w = x.size(2), x.size(3)
-        p = self.m  # maximum 6 strides of 2
-        new_h = (h + p - 1) // p * p
-        new_w = (w + p - 1) // p * p
-        padding_left = (new_w - w) // 2
-        padding_right = new_w - w - padding_left
-        padding_top = (new_h - h) // 2
-        padding_bottom = new_h - h - padding_top
-        x_pad = F.pad(
-            x,
-            (padding_left, padding_right, padding_top, padding_bottom),
-            mode="constant",
-            value=0,
-        )
-        """
         x_pad = transforms.ToTensor()(padded).unsqueeze(0)
-
-        # SAVE IMAGE IF
-        if self.dump:
-            tmp = np.array(transforms.ToPILImage()(x_pad.squeeze(0)))
-            dumpImageArray(tmp, self.save_folder, "padded_" + tag_ + ".png")
 
         # RUN COMPRESSAI
         x_pad = x_pad.to(self.device)
         nbitslist, x_hat_pad = self(x_pad)
         x_hat_pad = x_hat_pad.to("cpu")
-        """
-        # REMOVE PADDING
-        # unpad/recover original dimensions
-        x_hat = F.pad(
-            x_hat_pad, (-padding_left, -padding_right, -padding_top, -padding_bottom)
-        )
-        assert x.size() == x_hat.size(), "padding error"
-        """
-
+        
         # TO NUMPY ARRAY & BGR IMAGE
         x_hat_pad = x_hat_pad.squeeze(0)
         padded_hat = np.array(transforms.ToPILImage()(x_hat_pad))
-        """
-        if self.scale is not None:
+        if self.dump:
+            dumpImageArray(padded_hat, self.save_folder, "padded_hat_" + tag_ + ".png")
+
+        # *** Remove CompressAI padding ***
+        scaled_hat = self.ffmpeg.ff_op(  # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
+            padded_hat,
+            "crop={width}:{height}:0:0".format(
+                width=scaled.shape[1], height=scaled.shape[0]
+            ),
+        )
+        if self.dump:
+            dumpImageArray(scaled_hat, self.save_folder, "scaled_hat_" + tag_ + ".png")
+
+        # *** Remove scaling ***
+        if do_scaling:
             # was scaled, so need to backscale
-            # 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
+            vf = inv_vf_per_scale[self.scale]
             rgb_image_hat = self.ffmpeg.ff_op(
-                padded_hat,
-                "crop={width}:{height}".format(
+                scaled_hat,
+                vf.format(
                     width=rgb_image.shape[1], height=rgb_image.shape[0]
                 ),
             )
         else:
-            rgb_image_hat = padded_hat
-        """
-        rgb_image_hat = self.ffmpeg.ff_op(  # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
-            padded_hat,
-            "crop={width}:{height}:0:0".format(  # mpeg-vcm misses the 0:0 part --> would result in image that's cropped wrong
-                width=rgb_image.shape[1], height=rgb_image.shape[0]
-            ),
-        )
-        bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
+            rgb_image_hat = scaled_hat
 
         # SAVE IMAGE IF
         if self.dump:
-            dumpImageArray(
-                bgr_image_hat,
-                self.save_folder,
-                "final_" + tag_ + ".png",
-                is_bgr=True,
-            )
+            dumpImageArray(rgb_image_hat, self.save_folder, "rgb_image_hat_" + tag_ + ".png")
+
+        bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
 
         self.logger.debug(
             "input & output sizes: %s %s. nbits = %s",

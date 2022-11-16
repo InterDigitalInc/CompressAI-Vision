@@ -50,30 +50,55 @@ List all datasets (already) registered to fiftyone
 
 .. parsed-literal::
 
-    ['mpeg-vcm-detection',
-     'mpeg-vcm-detection-dummy',
-     'mpeg-vcm-segmentation',
+    ['detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-22-40-319395',
+     'detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-24-14-478278',
+     'flir-image-rgb-v1',
+     'oiv6-mpeg-detection-v1',
+     'oiv6-mpeg-detection-v1-dummy',
+     'oiv6-mpeg-segmentation-v1',
      'open-images-v6-validation',
-     'quickstart']
+     'quickstart',
+     'quickstart-video',
+     'sfu-hw-objects-v1',
+     'tvd-image-detection-v1',
+     'tvd-image-segmentation-v1',
+     'tvd-object-tracking-v1']
 
 
 
-Create a list of necessary images
+We use files listing image ids in order to download a subset of
+OpenImageV6.
 
-MPEG/VCM working group and mpeg_vcm provides you with files listing the
-necessary images for detection and segmentation validation, namely
-``detection_validation_input_5k.lst`` and
-``segmentation_validation_input_5k.lst``. Let’s combine those two files
-into a list:
+Let’s use two files: ``detection_validation_input_5k.lst`` and
+``segmentation_validation_input_5k.lst``
 
 .. code:: ipython3
 
-    path_to_mpeg_vcm_files="/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data"
+    path_to_list_file="/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data"
 
 .. code:: ipython3
 
-    det_lst=os.path.join(path_to_mpeg_vcm_files,"detection_validation_input_5k.lst") # the images used for detection validation
-    seg_lst=os.path.join(path_to_mpeg_vcm_files, "segmentation_validation_input_5k.lst") # the images used for segmentation validation
+    !head -n10 {path_to_list_file}/detection_validation_input_5k.lst
+
+
+.. code-block:: text
+
+    bef50424c62d12c5.jpg
+    c540d9c96b6a79a2.jpg
+    a1b20ed591193c06.jpg
+    945d6f685752e31b.jpg
+    d18700eda95548c8.jpg
+    e2c7ea356ccf3729.jpg
+    44cee71a77765756.jpg
+    a63d569332c49ee5.jpg
+    16774edaeacc5aed.jpg
+    2e96665b867c4d0f.jpg
+
+
+.. code:: ipython3
+
+    det_lst=os.path.join(path_to_mpeg_vcm_files,"detection_validation_input_5k.lst")
+    seg_lst=os.path.join(path_to_mpeg_vcm_files, "segmentation_validation_input_5k.lst")
     assert(os.path.exists(det_lst)), "missing file "+det_lst
     assert(os.path.exists(seg_lst)), "missing file "+seg_lst
     lis=imageIdFileList(det_lst, seg_lst)
@@ -248,3 +273,4 @@ visualize the dataset with
 ::
 
    session = fo.launch_app(dataset)
+
