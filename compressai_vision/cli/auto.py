@@ -127,9 +127,9 @@ def add_subparser(subparsers, parents):
         default=True,
         help="Use mpeg-vcm files bundled with compressai-vision",
     )
-    #subparser = subparsers.add_parser(
+    # subparser = subparsers.add_parser(
     #    "manual", parents=parents, help="shows complete manual"
-    #)
+    # )
 
 
 def main(p_):  # noqa: C901

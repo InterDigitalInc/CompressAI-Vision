@@ -301,4 +301,3 @@ def makeVideoThumbnails(dataset, force=False):
         fouv.reencode_video(sample.filepath, output_path)
         sample["web_filepath"] = output_path
         sample.save()
-

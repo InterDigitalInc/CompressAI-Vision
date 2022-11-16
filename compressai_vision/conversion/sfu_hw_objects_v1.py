@@ -8,7 +8,7 @@ from pathlib import Path
 import fiftyone as fo
 
 # pick your choice..
-# container_format = "y4m"  # yuv @ y4m 
+# container_format = "y4m"  # yuv @ y4m
 container_format = "mp4"  # lossless H264 @ mp4 # USE THIS!
 # container_format = "webm" # lossless VP9 @ webm (i.e. matroska/mkv)
 

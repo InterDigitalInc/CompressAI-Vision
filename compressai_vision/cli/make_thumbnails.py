@@ -29,7 +29,8 @@
 
 """Use this stub for adding new cli commands
 """
-import os
+# import os
+
 from .tools import makeVideoThumbnails
 
 
@@ -70,7 +71,7 @@ def main(p):
     # p.some_dir = os.path.expanduser(p.some_dir) # correct path in the case user uses POSIX "~"
     print("importing fiftyone")
     import fiftyone as fo
-    
+
     print("fiftyone imported")
     print()
     try:
@@ -83,4 +84,3 @@ def main(p):
     if not p.y:
         input("press enter to continue.. ")
     makeVideoThumbnails(dataset, force=p.force)
-

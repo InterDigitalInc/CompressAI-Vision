@@ -29,11 +29,15 @@
 
 """Launch fiftyone app
 """
-import os, time
+# import os
+import time
+
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
-        "app", parents=parents, help="launch the celebrated fiftyone app for dataset visualization"
+        "app",
+        parents=parents,
+        help="launch the celebrated fiftyone app for dataset visualization",
     )
     req_group = subparser.add_argument_group("required arguments")
     req_group.add_argument(
@@ -66,25 +70,26 @@ def add_subparser(subparsers, parents):
 def main(p):
     print("importing fiftyone")
     import fiftyone as fo
+
     print("fiftyone imported")
     print()
 
     if p.dataset_name not in fo.list_datasets():
         print("No such dataset", p.dataset_name)
         return 2
-    dataset=fo.load_dataset(p.dataset_name)
+    dataset = fo.load_dataset(p.dataset_name)
 
     if p.address is None:
-        p.address=fo.config.default_app_address
+        p.address = fo.config.default_app_address
     if p.port is None:
-        p.port=fo.config.default_app_port
+        p.port = fo.config.default_app_port
     print("Launching app at address %s port %i" % (p.address, p.port))
     print("press CTRL-C to terminate")
     print()
-    #print("Here is your link:")
-    #print()
-    #print("https://%s:%i" % (p.address, p.port))
-    #print()
+    # print("Here is your link:")
+    # print()
+    # print("https://%s:%i" % (p.address, p.port))
+    # print()
     fo.launch_app(dataset=dataset, address=p.address, port=p.port)
     while True:
         try:
