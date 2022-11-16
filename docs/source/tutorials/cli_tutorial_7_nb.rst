@@ -12,7 +12,7 @@ datasets to fiftyone with the ``compressai-vision register`` command.
 
 Exactly the same command works for video datasets:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision download --dataset-name=quickstart-video --y
 
@@ -50,7 +50,7 @@ This format consists raw YUV video files and annotations. Let’s see how
 the folder structure is roughly organized. We’ll be using in this
 tutorial a “mock” version of the dataset with only two video classes:
 
-.. code:: ipython3
+.. code:: bash
 
     tree {path_to_sfu_hw_objects_v1} --filelimit=10 | cat
 
@@ -75,11 +75,12 @@ tutorial a “mock” version of the dataset with only two video classes:
     6 directories, 7 files
 
 
-Importing custom dataset can be done with ``import-custom`` command. For
-``sfu-hw-objects-v1`` it also converts on-the-fly the raw YUV images
-into proper video format:
+Importing `mpeg-vcom custom
+datasets <file:///home/sampsa/silo/interdigital/CompressAI-Vision/docs/_build/html/datasets.html>`__
+can be done with ``import-custom`` command. For ``sfu-hw-objects-v1`` it
+also converts on-the-fly the raw YUV images into proper video format:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision import-custom --dataset-type=sfu-hw-objects-v1 --dir={path_to_sfu_hw_objects_v1} --y
 
@@ -492,11 +493,22 @@ Let’s define a small helper function:
 .. image:: cli_tutorial_7_nb_files/cli_tutorial_7_nb_22_0.png
 
 
-Visualize video and annotations in the fiftyone app:
+For now, let’s get back to terminal command line.
 
-.. code:: ipython3
+Everything that you learned for image datasets, applies for video
+datasets as well: ``compressai-vision import-custom`` can be used to
+import mpeg-vcm datasets. ``compressai-vision app`` can be used to
+visualize interactively datasets.
 
-    # fo.launch_app(dataset)
+When using the fiftyone app, there is a small catch though. Web-browsers
+are picky on the type of video they can play. For some video datasets,
+in order to view them in the app, you need to create separate
+“side-data” videos for visualization. These you can generate these
+automagically with the ``compressai-vision make-thumbnails`` command.
+Note that ``compressai-vision import-custom`` generates you these
+thumbnails on-the-go when you import new video sets. Switching between
+the main video and “side-data” video is demoed in `this
+animation <https://voxel51.com/docs/fiftyone/_images/app-multiple-media-fields.gif>`__
 
 In chapters 3 and 4 you learned how to evaluate models (in serial and
 parallel) with the ``compressai-vision detectron2-eval`` command.
@@ -506,7 +518,7 @@ the parameter ``--slice`` refers to videos, not individual image (as
 usual, for a production run, you would remove the ``--slice``
 parameter):
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision detectron2-eval --y --dataset-name=sfu-hw-objects-v1 \
     --slice=1:2 \

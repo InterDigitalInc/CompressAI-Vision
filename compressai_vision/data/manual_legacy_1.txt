@@ -1,0 +1,49 @@
+ 
+mpeg-vcm-auto-import    auto-imports mpeg-vcm working group files
+                            downloads necessary images from the internet
+                            imports them to fiftyone, etc.
+                            (combines download, convert-mpeg-to-oiv6, register, 
+                            etc. commands, see below)
+                            # TODO: rename this to "oiv6-mpeg-auto-import" ?
+
+                            You should have these files in the running directory:
+
+                            detection_validation_input_5k.lst
+                            detection_validation_5k_bbox.csv
+                            detection_validation_labels_5k.csv
+                            segmentation_validation_input_5k.lst
+                            segmentation_validation_bbox_5k.csv
+                            segmentation_validation_labels_5k.csv
+                            segmentation_validation_masks_5k.csv
+
+    TODO: do we need to expose this auxiliary command at all?:
+
+    convert-mpeg-to-oiv6    convert the files specified in MPEG/VCM CTC into proper OpenImageV6
+                            format & directory structure.  
+                            See also the "mpeg-vcm-auto-import" subcommand
+                            # TODO: rename this to mpeg convert-oiv6-mpeg
+
+        --lists             file listing necessary images, i.e.
+                            "detection_validation_input_5k.lst" or
+                            "segmentation_validation_input_5k.lst"
+        --dir               a base OpenImageV6 dataset dir:
+                            images are taken from "[dir]/data/" and masks from
+                            "[dir]/labels/masks/"
+        --target_dir        target directory directory for the converted format
+        --label             image-level labels, i.e.
+                            "detection_validation_labels_5k.csv" or
+                            "segmentation_validation_labels_5k.csv"
+        --bbox              bbox data, i.e.
+                            "detection_validation_5k_bbox.csv" or
+                            "segmentation_validation_bbox_5k.csv"
+        --mask              segmentation masks,
+                            i.e. "segmentation_validation_masks_5k.csv"
+        example:
+
+            compressai-vision convert_mpeg_to_oiv6
+                --lists=detection_validation_input_5k.lst \\
+                --bbox=detection_validation_5k_bbox.csv
+                --label=detection_validation_labels_5k.csv \\
+                --dir=~/fiftyone/open-image-v6/validation --target_dir=/path/to/dir
+
+                

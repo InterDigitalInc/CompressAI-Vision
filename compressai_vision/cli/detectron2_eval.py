@@ -285,6 +285,9 @@ def main(p):  # noqa: C901
 
     if p.compressai_model_name is not None:  # compression from compressai zoo
         compression_model = checkZoo(p)
+        if compression_model is None:
+            print("Can't find compression model")
+            return 2
 
     elif p.compression_model_path is not None:
         encoder_decoder_func = loadEncoderDecoderFromPath(p.compression_model_path)

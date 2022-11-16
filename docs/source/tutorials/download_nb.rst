@@ -33,7 +33,7 @@ subset of OpenImageV6 images
         pass
 
 
-.. parsed-literal::
+.. code-block:: text
 
     your home path is /home/sampsa
     fiftyone dowloads data by default to /home/sampsa/fiftyone
@@ -80,7 +80,7 @@ into a list:
     print(len(lis))
 
 
-.. parsed-literal::
+.. code-block:: text
 
     8189
 
@@ -98,7 +98,7 @@ Tell fiftyone to load the correct subset of OpenImageV6 dataset:
     )
 
 
-.. parsed-literal::
+.. code-block:: text
 
     Downloading split 'validation' to '/home/sampsa/fiftyone/open-images-v6/validation' if necessary
     Necessary images already downloaded
@@ -214,7 +214,7 @@ Let’s take a look where fiftyone downloaded the files
     !tree --filelimit=10 $dir_ | cat
 
 
-.. parsed-literal::
+.. code-block:: text
 
     contents of /home/sampsa/fiftyone/open-images-v6 :
     /home/sampsa/fiftyone/open-images-v6

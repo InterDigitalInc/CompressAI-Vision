@@ -50,7 +50,7 @@ show how to perform a baseline evaluation with VTM.
     print(device)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     cpu
 
@@ -87,7 +87,7 @@ show how to perform a baseline evaluation with VTM.
     model_meta=MetadataCatalog.get(model_dataset)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     expected input colorspace: BGR
     loaded datasets: PRECOMPUTED_PROPOSAL_TOPK_TEST: 1000
@@ -167,7 +167,7 @@ Get a list of labels in the dataset:
     print(classes)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     ['airplane']
 
@@ -248,19 +248,19 @@ where the detectron results are saved:
     print("ready!")
 
 
-.. parsed-literal::
+.. code-block:: text
 
     running the detector at 1
 
 
-.. parsed-literal::
+.. code-block:: text
 
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
       return torch.floor_divide(self, other)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     sample:  1 / 1
     Evaluating detections...
@@ -284,7 +284,7 @@ Load results
     print(res)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     {'bpp': [0.10060123042505593], 'map': [1.0], 'map_per_class': [{'airplane': 1.0}]}
 
@@ -327,7 +327,7 @@ At each quality parameter in the loop, instantiate an
     )
 
 
-.. parsed-literal::
+.. code-block:: text
 
     VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
 

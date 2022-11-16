@@ -63,7 +63,7 @@ detectron2 results with fiftyone.
     print(device)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     cpu
 
@@ -73,7 +73,7 @@ detectron2 results with fiftyone.
     print("torch:", torch.__version__, "/ cuda:", torch.version.cuda, "/ detectron2:", detectron2.__version__)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     torch: 1.9.1+cu102 / cuda: 10.2 / detectron2: 0.6
 
@@ -111,7 +111,7 @@ Let’s pick up correct Detectron2 model
     model_meta=MetadataCatalog.get(model_dataset)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     expected input colorspace: BGR
     loaded datasets: PRECOMPUTED_PROPOSAL_TOPK_TEST: 1000
@@ -194,7 +194,7 @@ Let’s try the Detectron2 predictor:
     res=predictor(img)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
     To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
@@ -485,7 +485,7 @@ where the detectron results will be saved:
     annexPredictions(predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     sample:  1 / 1
 
@@ -498,7 +498,7 @@ extra field ``detectron-predictions`` has appeared into the dataset:
     print(dataset)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     Name:        mpeg-vcm-detection-dummy
     Media type:  image
@@ -528,7 +528,7 @@ Let’s peek at the first sample:
     print(sample)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     <Sample: {
         'id': '6346d4246b7dd87eda0f2b04',
@@ -1184,7 +1184,7 @@ truth and the predictor results:
     )
 
 
-.. parsed-literal::
+.. code-block:: text
 
     Evaluating detections...
      100% |█████████████████████| 1/1 [31.8ms elapsed, 0s remaining, 31.4 samples/s] 
@@ -1223,7 +1223,7 @@ Per class mAP:
         print(class_, results.mAP([class_]))
 
 
-.. parsed-literal::
+.. code-block:: text
 
     airplane 1.0
 
