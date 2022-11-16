@@ -5,8 +5,8 @@ In this chapter you will learn:
 
 The mpeg-vcm working group defines several custom datasets for
 evaluating the performance of your deep-learning de/compression
-algorithm. For more details, please see
-`here <file:///home/sampsa/silo/interdigital/CompressAI-Vision/docs/_build/html/datasets.html>`__.
+algorithm. For more details, please see the Datasets section of the
+documentation.
 
 The tricky part is importing all that data into fiftyone. Once we have
 done that, we can use the CLI tools to evaluate the de/compression model

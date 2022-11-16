@@ -8,7 +8,7 @@ echo
 echo 13
 echo
 
-compressai-vision detectron2-eval --y --dataset-name=mpeg-vcm-segmentation \
+compressai-vision detectron2-eval --y --dataset-name=oiv6-mpeg-segmentation-v1 \
 --slice=0:2 \
 --scale=100 \
 --progress=1 \

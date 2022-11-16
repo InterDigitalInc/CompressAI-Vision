@@ -1,6 +1,6 @@
 .. _evaluate:
 
-4. Evaluate
+3. Evaluate
 -----------
 
 :download:`[download tutorial as notebook]<evaluate_nb.ipynb>`

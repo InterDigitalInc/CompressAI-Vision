@@ -38,7 +38,6 @@ Here we take a look how to use CompressAI-Vision as a python library.  This is a
    :caption: LIB HOWTO
 
    download
-   convert
    detectron2
    evaluate
    encdec

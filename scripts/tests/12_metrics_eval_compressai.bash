@@ -10,7 +10,7 @@ echo
 
 # --progress=1 \
 # --progressbar \
-compressai-vision metrics-eval --y --dataset-name=mpeg-vcm-detection \
+compressai-vision metrics-eval --y --dataset-name=oiv6-mpeg-detection-v1 \
 --slice=0:2 \
 --scale=100 \
 --progress=1 \

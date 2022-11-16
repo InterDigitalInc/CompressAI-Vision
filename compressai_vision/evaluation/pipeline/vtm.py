@@ -36,7 +36,7 @@ import subprocess
 
 from uuid import uuid4 as uuid
 
-from compressai_vision.constant import vf_per_scale
+from compressai_vision.constant import vf_per_scale, inv_vf_per_scale
 from compressai_vision.ffmpeg import FFMpeg
 from compressai_vision.tools import dumpImageArray, test_command
 
@@ -404,12 +404,17 @@ class VTMEncoderDecoder(EncoderDecoder):
         # apply ffmpeg commands as defined in MPEG/VCM group docs
         # each submethod should cite the correct command
 
+        do_scaling = self.scale is not None
+        """
+        rgb_image       original img
+        padded          scaled image (1)
+        padded_hat      encoded & decoded with compressai
+        rgb_image_hat   scaling removed (1)
+        """
         if self.dump:
-            dumpImageArray(
-                rgb_image, self.save_folder, "original_" + str(self.imcount) + ".png"
-            )
+            dumpImageArray(rgb_image, self.save_folder, "original_" + uid + ".png")
 
-        if self.scale is not None:
+        if do_scaling:
             # 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}
             vf = vf_per_scale[self.scale]
             padded = self.ffmpeg.ff_op(rgb_image, vf)
@@ -418,14 +423,11 @@ class VTMEncoderDecoder(EncoderDecoder):
                     "ffmpeg scale operation failed: will skip image %s", tag
                 )
                 return -1, None
-            if self.dump:
-                dumpImageArray(
-                    padded,
-                    self.save_folder,
-                    "ffmpeg_scaled_" + str(self.imcount) + ".png",
-                )
         else:
             padded = rgb_image
+
+        if self.dump:
+            dumpImageArray(padded, self.save_folder, "padded_" + uid + ".png")
 
         if (not self.caching) or (not os.path.isfile(fname_bin)):
             self.logger.debug("Creating file %s with ffmpeg", fname_yuv)
@@ -541,14 +543,18 @@ class VTMEncoderDecoder(EncoderDecoder):
             removeFileIf(fname_bin)
             return -1, None
 
-        if self.scale is not None and self.scale == 100:
+        if self.dump:
+            dumpImageArray(padded_hat, self.save_folder, "padded_hat_" + uid + ".png")
+
+        if do_scaling:
             # was scaled, so need to backscale
             # NOTE: this can only be done to the 100% "scaling" which is nothing else than just cropping
             # so we "backcrop" & remove the added borders
             # 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf "crop={width}:{height}" {rec_image_path}
+            vf = inv_vf_per_scale[self.scale]
             rgb_image_hat = self.ffmpeg.ff_op(
                 padded_hat,
-                "crop={width}:{height}".format(
+                vf.format(
                     width=rgb_image.shape[1], height=rgb_image.shape[0]
                 ),
             )
@@ -562,6 +568,9 @@ class VTMEncoderDecoder(EncoderDecoder):
         else:
             rgb_image_hat = padded_hat
 
+        if self.dump:
+            dumpImageArray(rgb_image_hat, self.save_folder, "rgb_image_hat_" + uid + ".png")
+
         if self.save:
             self.saved = {
                 "rgb_image": rgb_image,
@@ -571,11 +580,6 @@ class VTMEncoderDecoder(EncoderDecoder):
             }
         else:
             self.saved = {}
-
-        if self.dump:
-            dumpImageArray(
-                rgb_image_hat, self.save_folder, "final_" + str(self.imcount) + ".png"
-            )
 
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
         self.logger.debug(

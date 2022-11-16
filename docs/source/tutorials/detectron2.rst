@@ -1,4 +1,4 @@
-3. Run Detectron2
+2. Run Detectron2
 -----------------
 
 :download:`[download tutorial as notebook]<detectron2_nb.ipynb>`
