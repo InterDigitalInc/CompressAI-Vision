@@ -40,6 +40,7 @@ possible_types = [
     "tvd-object-tracking-v1",  # TVD
     "tvd-image-v1",  # TVD
     "sfu-hw-objects-v1",  # SFU-HW
+    "flir-mpeg-v1",
     "flir-image-rgb-v1",  # FLIR
 ]
 
@@ -281,6 +282,49 @@ def main(p):
         )
         dataset.persistent = True
 
+    elif p.dataset_type == "flir-mpeg-v1":
+        name = "flir-mpeg-detection-v1"
+        print(
+            """
+        After extraing mpeg-vcm provided zipfile, you should have this directory/file structure:
+
+        /path/to/
+        |   ├── anchor_results
+        │   ├── FLIR_anchor_vtm12_bitdepth10.xlsx
+        │   └── VCM-reporting-template-FLIR_vtm12_d10.xlsm
+        ├── dataset
+        │   ├── coco_format_json_annotation
+        │   │   ├── FLIR_val_thermal_coco_format_jpg.json
+        │   │   ├── FLIR_val_thermal_coco_format_png.json
+        │   │   └── Two files differ only in image file format whithin the file, and the rest are the same..txt
+        │   ├── fine_tuned_model
+        │   │   └── model_final.pth
+        │   └── thermal_images [300 entries exceeds filelimit, not opening dir]
+        ├── mAP_coco.py
+        └── Readme.txt
+
+        You provided /path/to = %s
+            """ % (p.dir)
+        )
+        if not p.y:
+            input("press enter to continue.. ")
+            print()
+        print("\nRegistering", name)
+        try:
+            fo.delete_dataset(name)
+        except ValueError:
+            pass
+        else:
+            print("WARNING: deleted pre-existing", name)
+        # https://voxel51.com/docs/fiftyone/user_guide/dataset_creation/datasets.html#basic-recipe
+        dataset = fo.Dataset.from_dir(
+            name=name,
+            dataset_type = fo.types.COCODetectionDataset,
+            data_path=os.path.join(p.dir,"dataset","thermal_images"),
+            labels_path=os.path.join(p.dir, "dataset","coco_format_json_annotation","FLIR_val_thermal_coco_format_jpg.json")
+        )
+        dataset.persistent = True
+
     elif p.dataset_type == "flir-image-rgb-v1":
         name = p.dataset_type
         print(
@@ -317,6 +361,13 @@ def main(p):
         if not p.y:
             input("press enter to continue.. ")
             print()
+        print("\nRegistering", name)
+        try:
+            fo.delete_dataset(name)
+        except ValueError:
+            pass
+        else:
+            print("WARNING: deleted pre-existing", name)
         dataset_dir = os.path.join(p.dir, "images_rgb_train")
         dataset = fo.Dataset.from_dir(
             name=name,

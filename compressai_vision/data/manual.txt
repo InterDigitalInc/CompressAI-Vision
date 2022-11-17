@@ -254,7 +254,8 @@ commands & parameters:
                             sfu-hw-objects-v1
                             tvd-object-tracking-v1
                             tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
-                            flir-image-rgb-v1 # TODO: needs filelists
+                            flir-mpeg-v1
+                            flir-image-rgb-v1
 
                             oiv6-mpeg-v1 downloads automagically the OpenImageV6 data.  For other
                             dataset types you need to download the files yourself.  Refer to documentation
