@@ -1,7 +1,7 @@
 .. _dataset:
 
-Datasets
-========
+MPEG-VCM Datasets
+=================
 
 MPEG-VCM working group defines several evaluation datasets.
 
@@ -132,16 +132,47 @@ Final fiftyone dataset names:
 
 - ``sfu-hw-objects-v1``
 
-4. FLIR
--------
 
-Nightime and infrared images.  Some of the images are hand-picked from the dataset.
+5. FLIR-MPEG
+------------
 
-A list defining the subset is required (bundled with CompressAI-Vision):
+Use the zipfile provided by the mpeg-vcm working group.  
+After unpacking, you have the following input directory/file structure (call it ``/path/to/dir``):
 
 .. code-block:: text
 
-    TODO
+    ├── anchor_results
+    │   ├── FLIR_anchor_vtm12_bitdepth10.xlsx
+    │   └── VCM-reporting-template-FLIR_vtm12_d10.xlsm
+    ├── dataset
+    │   ├── coco_format_json_annotation
+    │   │   ├── FLIR_val_thermal_coco_format_jpg.json
+    │   │   ├── FLIR_val_thermal_coco_format_png.json
+    │   │   └── Two files differ only in image file format whithin the file, and the rest are the same..txt
+    │   ├── fine_tuned_model
+    │   │   └── model_final.pth
+    │   └── thermal_images [300 entries exceeds filelimit, not opening dir]
+    ├── mAP_coco.py
+    └── Readme.txt
+
+Commands to import:
+
+.. code-block:: bash
+
+    compressai-vision import-custom --dataset-type=flir-mpeg-v1 --dir=/path/to/dir
+
+Final fiftyone dataset names:
+
+- ``flir-mpeg-detection-v1``
+
+
+Other Datasets
+==============
+
+6. FLIR
+-------
+
+Nightime and infrared images.
 
 Download following input files from `here <https://adas-dataset-v2.flirconservator.com/#downloadguide>`_:
 
@@ -149,7 +180,7 @@ Download following input files from `here <https://adas-dataset-v2.flirconservat
     
     FLIR_ADAS_v2.zip
 
-After unpacking, following input directory/file structure (call it ``/path/to/dir``):
+After unpacking, you have the following input directory/file structure (call it ``/path/to/dir``):
 
 .. code-block:: text
 
