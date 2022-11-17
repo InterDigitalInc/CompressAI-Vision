@@ -12,4 +12,3 @@ inv_vf_per_scale = {
     50: "scale={width}:{height}",
     25: "scale={width}:{height}",
 }
-

@@ -95,14 +95,14 @@ def jsonFilesToArray(dir_, y_name="map"):
         a = np.array(xs).transpose()
         a.sort(0)
         return a
-    
+
     a = np.array([xs, ys]).transpose()  # (2,6) --> (6,2)
-    
+
     print("shape:", a.shape)
     if len(a.shape) == 3:
         if a.shape[0] <= 1:
             print("WARNING: will squeeze the extra dimension at 0")
-            a=a.squeeze(0)
+            a = a.squeeze(0)
         else:
             print("FATAL: don't know what to do, please contact Hyomin!")
             sys.exit(2)
