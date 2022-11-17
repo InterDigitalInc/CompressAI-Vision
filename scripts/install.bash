@@ -69,5 +69,8 @@ else
     pip install -e ${COMPRESSAI}
 fi
 
+# fix the virtualenv to include a mongodb name for fiftyone
+python3 ${SCRIPT_DIR}/insert_venv.py
+
 # install compressai-vision
 pip install -e ${SCRIPT_DIR}/..
