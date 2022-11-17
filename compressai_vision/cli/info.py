@@ -31,6 +31,7 @@
 """
 import os
 import sys
+from importlib.metadata import version
 
 
 def add_subparser(subparsers, parents):
@@ -63,6 +64,7 @@ def main(p):
         print("\nCOMPRESSAI NOT INSTALLED")
         sys.exit(2)
 
+    
     print("\n*** TORCH, CUDA, DETECTRON2, COMPRESSAI ***")
     print("torch version       :", torch.__version__)
     print("cuda version        :", torch.version.cuda)
@@ -70,6 +72,14 @@ def main(p):
     print("--> running from    :", detectron2.__file__)
     print("compressai version  :", compressai.__version__)
     print("--> running from    :", compressai.__file__)
+
+    print("\n*** FIFTYONE ***")
+    from importlib.metadata import files, version
+    util = [p for p in files('fiftyone') if '__init__.py' in str(p)][0]
+    fo_path=str(util.locate())
+    fo_version=version("fiftyone")
+    print("fiftyone version    :", fo_version)
+    print("--> running from    :", fo_path)
 
     print("\n*** COMPRESSAI-VISION ***")
     print("version             :", version("compressai-vision"))
@@ -92,12 +102,22 @@ def main(p):
         print("Be sure not to have extra mongod server(s) running on your system")
     else:
         print("NOTICE: You have external mongodb server configured with", adr)
+
+    try:
+        db_name = os.environ["FIFTYONE_DATABASE_NAME"]
+    except KeyError:
+        print("""
+        WARNING: You should set the environment variable FIFTYONE_DATABASE_NAME
+        in your virtual environment.  Different virtual environments (with different
+        fiftyone versions) should NOT write to the SAME database in the same mongodb server. 
+        """)
+    else:
+        print("Fiftyone database name in mongodb:", db_name)
+
     # fiftyone
     print("importing fiftyone..")
     import fiftyone as fo
-
     print("..imported")
-    print("fiftyone version:", fo.__version__)
 
     print("\n*** DATABASE ***")
     print("info about your connection:")
