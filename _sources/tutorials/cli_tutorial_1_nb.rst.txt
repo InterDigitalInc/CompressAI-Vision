@@ -4,6 +4,7 @@ In this tutorial chapter you will learn:
 -  Downloading datasets with ``compressai-vision download``
 -  Evaluating datasets with ``compressai-vision detectron2-eval`` for
    creating mAP(bpp) curves
+-  Visualize dataset annotations
 
 The command line interface (cli) has all the functionality for
 evaluating your deep-learning compression algorithm against standardized
@@ -23,19 +24,28 @@ The very first subcommand you should try is ``info``. It gives you
 information about the installed software stack, library versions and
 registered datasets:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision info
 
 
-.. parsed-literal::
+.. code-block:: text
 
+    
+    *** YOUR VIRTUALENV ***
+    --> running from    : /home/sampsa/silo/interdigital/venv_all/bin/python
     
     *** TORCH, CUDA, DETECTRON2, COMPRESSAI ***
     torch version       : 1.9.1+cu102
     cuda version        : 10.2
     detectron2 version  : 0.6
+    --> running from    : /home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/detectron2/__init__.py
     compressai version  : 1.2.0.dev0
+    --> running from    : /home/sampsa/silo/interdigital/CompressAI/compressai/__init__.py
+    
+    *** COMPRESSAI-VISION ***
+    version             : 0.0.0
+    running from        : /home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/cli/info.py
     
     *** CHECKING GPU AVAILABILITY ***
     device              : cpu
@@ -62,38 +72,50 @@ registered datasets:
     
     *** DATABASE ***
     info about your connection:
-    Database(MongoClient(host=['localhost:40083'], document_class=dict, tz_aware=False, connect=True, appname='fiftyone'), 'fiftyone')
+    Database(MongoClient(host=['localhost:42889'], document_class=dict, tz_aware=False, connect=True, appname='fiftyone'), 'fiftyone')
     
     
     *** DATASETS ***
     datasets currently registered into fiftyone
     name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+    flir-image-rgb-v1, 10318, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/flir/images_rgb_train/data
+    oiv6-mpeg-detection-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-detection-v1-dummy, 1, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-segmentation-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-segmentation-v1/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+    quickstart-video, 10, /home/sampsa/fiftyone/quickstart-video/data
+    sfu-hw-objects-v1, 2, /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill
+    tvd-image-detection-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_detection_v1/data
+    tvd-image-segmentation-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_segmentation_v1/data
+    tvd-object-tracking-v1, 3, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_object_tracking_dataset_and_annotations
     
 
 
 Another basic command is ``list`` that just shows you the registered
 datasets:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision list
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
     
     datasets currently registered into fiftyone
     name, length, first sample path
-    mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
-    mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+    flir-image-rgb-v1, 10318, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/flir/images_rgb_train/data
+    oiv6-mpeg-detection-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-detection-v1-dummy, 1, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+    oiv6-mpeg-segmentation-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-segmentation-v1/data
     open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+    quickstart-video, 10, /home/sampsa/fiftyone/quickstart-video/data
+    sfu-hw-objects-v1, 2, /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill
+    tvd-image-detection-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_detection_v1/data
+    tvd-image-segmentation-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_segmentation_v1/data
+    tvd-object-tracking-v1, 3, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_object_tracking_dataset_and_annotations
 
 
 Datasets can be registered to and deregistered from fiftyone using the
@@ -103,12 +125,12 @@ zoo <https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#data
 with the ``download`` command. Let’s use ``download`` to get the
 “quickstart” dataset:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision download --dataset-name=quickstart --y
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -122,7 +144,7 @@ with the ``download`` command. Let’s use ``download`` to get the
     
     Dataset already downloaded
     Loading 'quickstart'
-     100% |███████| 200/200 [3.0s elapsed, 0s remaining, 52.1 samples/s]       
+     100% |███████| 200/200 [2.6s elapsed, 0s remaining, 72.6 samples/s]      
     Dataset 'quickstart' created
 
 
@@ -131,12 +153,12 @@ switch makes the command to run in non-interactive mode. Let’s take a
 closer look at the fields that the samples have in this datafield with
 ``show``:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision show --dataset-name=quickstart --y
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -170,10 +192,10 @@ predictor and evaluate the results using the COCO evaluation protocol:
 as a result, we’ll get a mAP accuracy for the Detectron2 model. Note
 that we have to indicate the ground truth field with
 ``--gt-field=ground_truth``. Option ``--slice=0:2`` takes only the first
-two samples from the dataset for this run: its only for debugging run,
-so please feel free to remove it.
+two samples from the dataset for this demo run. For production runs you
+should remove it.
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision detectron2-eval --y --dataset-name=quickstart \
     --slice=0:2 \
@@ -184,7 +206,7 @@ so please feel free to remove it.
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -230,12 +252,12 @@ so please feel free to remove it.
 
 Let’s see what we got:
 
-.. code:: ipython3
+.. code:: bash
 
     cat detectron2_test.json
 
 
-.. parsed-literal::
+.. code-block:: text
 
     {
       "dataset": "quickstart",
@@ -274,7 +296,7 @@ A scaling can be applied on the images, as defined by the mpeg-vcm
 specifications (``--scale=100``). Again, remember to remove
 ``--slice=0:2`` for an actual run.
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision detectron2-eval --y --dataset-name=quickstart \
     --slice=0:2 \
@@ -288,7 +310,7 @@ specifications (``--scale=100``). Again, remember to remove
     --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -336,12 +358,12 @@ specifications (``--scale=100``). Again, remember to remove
 
 Let’s see what we got:
 
-.. code:: ipython3
+.. code:: bash
 
     cat compressai_detectron2_test.json
 
 
-.. parsed-literal::
+.. code-block:: text
 
     {
       "dataset": "quickstart",
@@ -369,6 +391,36 @@ Let’s see what we got:
     }
 
 Which is a single point on the mAP(bpp) curve. Next you need to produce
-some more points and then use ``plot`` subcommand. An explicit example
-of that is given in the mpeg-vcm section of this tutorial.
+some more points and then use ``plot`` subcommand. Please refer to the
+following chapters in this tutorial.
+
+Fiftyone comes with a webapp for visualizing your dataset and its
+annotations (ground truths and predictions). You can launch it from
+command line with:
+
+.. code:: bash
+
+    compressai-vision app --dataset-name=quickstart
+
+
+.. code-block:: text
+
+    importing fiftyone
+    fiftyone imported
+    
+    Launching app at address localhost port 5151
+    press CTRL-C to terminate
+    
+    App launched. Point your web browser to http://localhost:5151
+    ^C
+    Have a nice day!
+
+
+We could also visualize how well the Detectron2 results (calculated
+above) fit in with the ground truths. In order to do this we should
+visualize the temporary dataset
+``detectron-run-sampsa-quickstart-2022-10-10-22-29-49-246836`` (see
+above). By default, temporary databases are removed after the evaluation
+is finished in the ``detectron2-eval`` command. You can preseve them by
+using the ``--keep`` flag for the ``detectron2-eval`` command.
 

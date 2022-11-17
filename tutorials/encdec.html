@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="compressai_vision.conversion" href="../conversion/index.html" /><link rel="prev" title="4. Evaluate" href="evaluate.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="compressai_vision.conversion" href="../conversion/index.html" /><link rel="prev" title="3. Evaluate" href="evaluate.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>5. Creating an EncoderDecoder class - CompressAIVision</title>
+        <title>4. Creating an EncoderDecoder class - CompressAIVision</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -240,7 +243,7 @@
         </div>
         <article role="main">
           <section id="creating-an-encoderdecoder-class">
-<span id="encdec"></span><h1>5. Creating an EncoderDecoder class<a class="headerlink" href="#creating-an-encoderdecoder-class" title="Permalink to this heading">#</a></h1>
+<span id="encdec"></span><h1>4. Creating an EncoderDecoder class<a class="headerlink" href="#creating-an-encoderdecoder-class" title="Permalink to this heading">#</a></h1>
 <p>In this tutorial we create a custom <a class="reference internal" href="../evaluation/pipeline/index.html#pipeline"><span class="std std-ref">EncoderDecoder class</span></a> to use with <code class="docutils literal notranslate"><span class="pre">CompressAI-Vision</span></code> <a class="reference internal" href="evaluate.html#evaluate"><span class="std std-ref">evaluation pipelines</span></a>.</p>
 <p>In this chapter we show how to create your very own EncoderDecoder
 class.</p>
@@ -314,7 +317,7 @@ plt.subplot(1,2,1); plt.imshow(bgr_image[:,:,::-1]); _=plt.axis(&#39;off&#39;)
 plt.subplot(1,2,2); plt.imshow(transformed_bgr_image[:,:,::-1]); _=plt.axis(&#39;off&#39;)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BPP</span><span class="o">=</span> <span class="mf">0.16878255208333334</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BPP= 0.16878255208333334
 </pre></div>
 </div>
 <img alt="../_images/encdec_nb_11_1.png" src="../_images/encdec_nb_11_1.png" />
@@ -341,7 +344,7 @@ plt.subplot(1,2,2); plt.imshow(transformed_bgr_image[:,:,::-1]); _=plt.axis(&#39
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">4. Evaluate</div>
+                <div class="title">3. Evaluate</div>
                 
               </div>
             </a>

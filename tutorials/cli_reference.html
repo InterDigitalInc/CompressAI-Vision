@@ -1,0 +1,635 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="1. Download Images" href="download.html" /><link rel="prev" title="7. Importing and Using Video" href="cli_tutorial_7.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>CLI Reference - CompressAIVision</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #00aaee;
+  --color-brand-content: #00aaee;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">CompressAIVision</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Fiftyone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="fiftyone.html">Fiftyone and MongoDB</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html#cli-tutorial">CLI Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">CLI Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../conversion/index.html">compressai_vision.conversion</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../evaluation/index.html">compressai_vision.evaluation</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/pipeline/index.html">compressai_vision.evaluation.pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">faq</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="cli-reference">
+<h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading">#</a></h1>
+<p>You can get the reference with <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">manual</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>commands &amp; parameters:
+
+    --y                     non-interactive
+    --debug                 debug verbosity (for some cases)
+
+
+    ******** BASIC COMMANDS ****************************************************************************
+
+    manual                  shows this manual
+
+    info                    shows info about your system
+
+    mongo                   mongod management
+        
+        stop                kills all local mongod servers
+        clean               like stop, but additionally, removes all
+                            fiftyone data from the mongod servers
+
+    download                download an image set and register it to fiftyone.
+
+        --dataset-name      name of the dataset.  Default: &quot;open-images-v6&quot;.
+        --lists             list files that define the subset of images to download.
+        --split             typically &quot;train&quot; or &quot;validation&quot;.  Default: None
+                            (final dataset name is then for example &quot;open-images-v6-validation&quot;
+        --dir               directory where the dataset (images, annotations, etc.) is downloaded
+                            Default: $HOME/fiftyone/dataset-name
+
+        example:
+
+            compressai-vision download \\
+            --lists=detection_validation_input_5k.lst,segmentation_validation_input_5k.lst \\
+            --dataset-name=open-image-v6 --split=validation
+
+    list                    list all datasets registered to fiftyone
+
+    show                    show info about the dataset
+
+        --dataset-name      dataset registered name
+    
+
+    register                register image set to fiftyone from local dir
+
+        --dataset-name      dataset registered name
+        --lists             lst files that define the subset of images to register
+        --dir               source directory
+        --type              fiftyone.types name.  Default: OpenImagesV6Dataset
+                            typical values:
+
+                                FiftyOneDataset
+                                OpenImagesV6Dataset
+                                ImageDirectory
+
+    deregister              de-register image set from fiftyone
+
+        --dataset-name      name of the dataset, for example &quot;open-image-v6-validation&quot;
+                            can also be a comma-separated list of dataset names
+
+    dummy                   create &amp; register a dummy dataset with just the first sample
+
+        --dataset-name      name of the original dataset
+                            name of the new dataset will be appended with &quot;-dummy&quot;
+
+    app                     start the awesome fiftyone webapp for dataset visualization
+
+        --address           (optional) interface address 
+        --port              (optional) port
+        --dataset-name      name of the dataset
+
+    clean                   remove temporary datasets.
+                            detectron2-eval creates temporary clones of the dataset per each run.
+                            These dataset are automatically cleaned up after detectron2_eval run.
+                            If your run crashed, the temporary dataset might be left in the database
+                            (you can see them with the list command where they appear with the name
+                            &quot;detectron-run-*&quot;.)
+
+
+    ******** EVALUATION ************************************************************************
+
+    detectron2-eval         evaluate model with detectron2 using OpenImageV6
+                            evaluation protocol optionally with no (de)compression or
+                            with compressai or vtm.
+
+        --dataset-name      name of the fiftyone registered dataset
+        --model             name of the detectron2 model
+                            for example:
+                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+                            
+                            It can also be a list of the models for multi-task scenario
+                            for example:
+                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+                            COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+
+        --eval-method       Evaluation method/protocol for mAP calculations: 
+                            open-images or coco.  Default: open-images.
+        --gt-field          Name of the ground truth field in the dataset.
+                            Default: detections
+        --output            outputfile, default: compressai-vision.json
+        --keep              when you run detectron2-eval, the original dataset is copied to a 
+                            tmp dataset where both the ground-truths and detection results are saved.
+                            Normally the tmp dataset is removed after the evaluation is finished, but you
+                            might want to keep &amp; visualize it in order to see how well the gts and dets
+                            compare to each other.  Using this flag keeps the tmp database after evaluation.
+
+        compression models:
+
+        you can choose a compression model from compressai zoo, use vtm
+        or a model you&#39;re currently developing.  If no model is chosen, then no (de)compression is
+        done before passing the image to detectron
+
+        --compressai-model-name     CompressAI model from the zoo, for example: bmshj2018_factorized
+                                    can be a model name from the CompressAI model zoo (optional)
+        --compression-model-path    load a custom model. Defines a path to directory with a custom development model.
+                                    The directory should contain a properly formatted &quot;model.py&quot; file (optional)
+        --compression-model-checkpoint
+                                    a torch checkpoint file for loading the model state (.pth.tar file)
+        --vtm                       use vtm (optional)
+        --vtm_dir                   specify path to directory &quot;VVCSoftware_VTM/bin&quot;, i.e. to the
+                                    directory where there are executables &quot;EncoderAppStatic&quot; and
+                                    &quot;DecoderAppStatic&quot;.  If not specified, tries to use the
+                                    environmental variable VTM_DIR
+        --vtm_cfg                   path to vtm config file.  If not specified uses an internal
+                                    default file.
+        --vtm_cache                 specify a path to directory where the bitstreams are cached.
+                                    The program saves bitstream to disk and tries to recycle the
+                                    bitstreams saved earlier.
+                                    Default: no caching.
+                                    NOTE: the path is automatically appended with
+                                    &quot;scale/quality-parameter/&quot; (see --scale)
+        --qpars                     a quality parameters to be used with either compressai or vtm
+        --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
+                                    values can be: 100 (original size), 75, 50, 25.
+                                    0 = no scaling applied
+        --ffmpeg                    specify ffmpeg command.  If not specified, uses &quot;ffmpeg&quot;.
+        --slice                     instead of using the complete dataset, just use a slice of the
+                                    dataset: good for parallelizing the VTM encoder.
+                                    Normal python slicing indexes are used.
+        --debug                     enable debug verbosity
+        --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress                  show progress every n:th step, i.e. --progress=10 would print out
+                                    progress every tenth step.  0: don&#39;t print anything. Default: 1.
+                                    Nice for batch jobs.
+
+        example 1 (calculate mAP):
+
+            compressai-vision detectron2_eval
+                --y --dataset-name=mpeg_vcm-detection \\
+                --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+
+        example 2 (calculate mAP=mAP(bpp) with a model from CompressAI zoo):
+
+            compressai-vision detectron2_eval --y --dataset-name=mpeg-vcm-detection \\
+                --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
+                --compressai=bmshj2018_factorized --qpars=1,2,3,4,5,6,7,8
+
+        example 3 (calculate mAP=mAP(bpp) with a custom development model):
+
+            compressai-vision detectron2_eval --y --dataset-name=mpeg-vcm-detection \\
+                --model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml \\
+                --modelpath=/path/to/directory --qpars=1
+
+    metrics-eval                        evaluate image quality of reconstructed images
+                                        using PNSR and SSIM
+
+            --dataset-name              name of the dataset
+
+            compressai-zoo arguments:
+            --compressai-model-name     name of an existing model in compressai-zoo. Example: &#39;cheng2020-attn&#39;
+            --compression-model-path    path to a directory containing model.py for custom development model
+
+            vtm arguments:
+            --vtm                       To enable vtm codec. default: False
+            --vtm_dir                   path to directory with executables EncoderAppStatic &amp; DecoderAppStatic
+            --vtm_cfg                   vtm config file. Example: &#39;encoder_intra_vtm.cfg&#39;
+            --vtm_cache                 directory to cache vtm bitstreams
+
+            optional arguments:
+            --Output            outputfile name
+                                Default: compressai-vision.json
+            --qpars             quality parameters for compressai model or vtm. For compressai-zoo model, it should be integer
+                                1-8. For VTM, it should be integer from 0-51.
+                                Example: 1,2,3,4,5,6,7,8
+            --scale             image scaling as per VCM working group docs. 
+                                Default: 100
+            --ffmpeg            path of ffmpeg executable. 
+                                Default: ffmpeg
+            --slice             use a dataset slice instead of the complete dataset.
+                                Example: 0:2 for the first two images
+            --progressbar       show fancy progressbar. 
+                                Default: False
+            --progress          Print progress this often
+
+
+    ******** VTM ***************************************************************************
+
+    vtm                 generate bitstream with the vtm video encoder
+                        this is done also by the command detectron2_eval, but you
+                        can do the bitstream generation step separately.
+                        The following options are same as in &quot;detectron2_eval&quot; command:
+
+        --dataset-name      name of the fiftyone registered dataset
+        --output            outputfile, default: compressai-vision.json
+
+        --vtm_dir           specify path to directory &quot;VVCSoftware_VTM/bin&quot;, i.e. to the
+                            directory where there are executables &quot;EncoderAppStatic&quot; and
+                            &quot;DecoderAppStatic&quot;.  If not specified, tries to use the
+                             environmental variable VTM_DIR
+        --vtm_cfg           path to vtm config file.  If not specified uses an internal
+                            default file.
+        --vtm_cache         specify a path to directory where the bitstreams are cached.
+                            The program saves bitstream to disk and tries to recycle the
+                            bitstreams saved earlier.
+                            Default: no caching.
+                            NOTE: the path is automatically appended with
+                            &quot;scale/quality-parameter/&quot; (see --scale)
+        --qpars             a quality parameters to be used with either compressai or vtm
+        --scale             ffmpeg scaling applied to the image as defined per VCM working group.
+                            values can be: 100 (original size), 75, 50, 25.
+                            0 = no scaling applied
+        --ffmpeg            specify ffmpeg command.  If not specified, uses &quot;ffmpeg&quot;.
+        --slice             instead of using the complete dataset, just use a slice of the
+                            dataset: good for parallelizing the VTM encoder.
+                            Normal python slicing indexes are used.
+        --debug             enable debug verbosity
+        --progressbar       show a fancy progressbar.  Default: false.  Nice for interactive runs.
+        --progress          show progress every n:th step, i.e. --progress=10 would print out
+                            progress every tenth step.  0: don&#39;t print anything. Default: 1.
+                            Nice for batch jobs.
+
+        --tags              pick certain images from the dataset/slice
+                            for example: --tags=0001eeaf4aed83f9,000a1249af2bc5f0
+                            the tags correspond to _open image ids_
+        --keep              keep all intermediate files (for debugging)
+        --check             simply reports which bitstream files are missing from the cache
+                            if you enable this, no bitstream verification is done
+
+        example 1:
+
+            compressai-vision vtm
+                --y --dataset-name=mpeg_vcm-detection --qpars=38,47 --vtm_cache=/path/to/dir
+
+        example 2 (calculate bitstream for first 100 samples in the dataset):
+
+            compressai-vision vtm
+                --y --dataset-name=mpeg_vcm-detection --qpars=22 --vtm_cache=/path/to/dir --slice=0:100
+
+
+    ****** MPEG-VCM DATASET IMPORTS *******************************************************************************
+
+    import-custom           imports some custom datasets (both image and video datasets) into fiftyone
+
+        --dataset-type      particular dataset in question.  Possible values are:
+                            
+                            oiv6-mpeg-v1
+                            sfu-hw-objects-v1
+                            tvd-object-tracking-v1
+                            tvd-image-v1 # TODO: resulting OpenImageV6 doesn&#39;t work with fiftyone
+                            flir-image-rgb-v1 # TODO: needs filelists
+
+        --lists             file listing for using only a subset of the main dataset
+                            # TODO: special value: &quot;default&quot; -&gt; fetches mpeg-vcm list from data/
+        --dir               root dir of the dataset
+
+    ***** VIDEO SPECIFIC ********************************************************************************************
+
+    make-thumbnails         add &quot;thumbnail&quot; videos that are compatible with browser-based applications to the dataset.
+                            this way you will have &quot;side-data&quot; video for visualization in the fiftyone app
+                            while still performing training &amp; evaluation with the original data
+                            (that might not visualize correctly in the webapp)
+                            NOTE: import-custom command performs this step automagically if necessary
+
+        --dataset-name      name of the dataset
+        --force             force encoding even if the &quot;thumbnail&quot; videos already existed
+
+    ***** PLOTTING ***************************************************************************************************
+
+    plot                        plot the json result of detectron2-eval and metrics-eval as mAP-bpp curves
+
+            --dirs              list of directories with json files, produced by 
+                                detectron2-eval subcommand
+
+                                Each directory corresponds to an evaluation of a certain model
+                                done with detectron2-eval: each directory contains a list of json files, 
+                                produced by the subcommand detectron2-eval.
+
+                                Within one directory, you typically have json files, 
+                                produced in a parallel run for
+                                each quality point, for example: 1.json, 2.json, ..
+
+                                Or you can have a json files with several quality point results 
+                                in each file, say: 1_2_3.json, 4_5.json, ..
+
+                                The program knows how to combine these files.
+
+            --symbols           list of matplotlib symbols for each plot,
+                                for example: o--k,-g,*:r (optional)
+            --names             list of names to be included into the plot,
+                                for example: vtm,mymodel,mymodel2 (optional)
+            --eval              mAP value without (de)compress and maplotlib symbol,
+                                for example: 0.792,--c 
+            --csv               instead of plot, dump json results in csv format
+
+        instructions:
+
+            The compressai-vision detectron2-eval command has produced you json output files
+            to a certain directory (say, into &quot;model1_results/&quot;)
+
+            In a single json file you can have multiple (bpp, mAP) results (for
+            each quality parameter)
+
+            You can also have several json files, each containing just one or more
+            (bpp, mAP) results (say, if you have parallelized compressai-vision run
+            over quality parameters)
+
+            This script handles both situations automatically, you just need to
+            provide the directory name(s)
+
+            Suppose you want to plot two (bpp, mAP) curves from two models
+            (results are in &quot;model1_results&quot; and &quot;model2_results&quot;), do this:
+
+            compressai-vision plot --dirs=model1_results,model2_results \\
+            --symbols=o--r,x-b --dataset-names=model1,model2 \\
+            --eval=0.792,--c
+
+</pre></div>
+</div>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="download.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">1. Download Images</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="cli_tutorial_7.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">7. Importing and Using Video</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, InterDigital Communications, Inc.
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -245,20 +248,28 @@
 mpeg-vcm tests</p></li>
 </ul>
 <p>As in the previous chapters, let’s first check we have the dataset
-<code class="docutils literal notranslate"><span class="pre">mpeg-vcm-detection</span></code> available:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+<code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-detection-v1</span></code> available:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision list
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
 
-<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
-<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
-<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
-<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+datasets currently registered into fiftyone
+name, length, first sample path
+detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-22-40-319395, 2, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-24-14-478278, 2, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+flir-image-rgb-v1, 10318, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/flir/images_rgb_train/data
+oiv6-mpeg-detection-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+oiv6-mpeg-detection-v1-dummy, 1, /home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data
+oiv6-mpeg-segmentation-v1, 5000, /home/sampsa/fiftyone/oiv6-mpeg-segmentation-v1/data
+open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+quickstart, 200, /home/sampsa/fiftyone/quickstart/data
+quickstart-video, 10, /home/sampsa/fiftyone/quickstart-video/data
+sfu-hw-objects-v1, 2, /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill
+tvd-image-detection-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_detection_v1/data
+tvd-image-segmentation-v1, 167, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_images_segmentation_v1/data
+tvd-object-tracking-v1, 3, /media/sampsa/4d0dff98-8e61-4a0b-a97e-ceb6bc7ccb4b/datasets/tvd/TVD_object_tracking_dataset_and_annotations
 </pre></div>
 </div>
 <p>In order for your custom model to work with compressai-vision, it needs
@@ -327,7 +338,7 @@ tutorial.</p>
 <p>So, take a copy of the <code class="docutils literal notranslate"><span class="pre">examples/models/bmshj2018-factorized/</span></code> folder
 into your disk and run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2</span><span class="o">-</span><span class="nb">eval</span> <span class="o">--</span><span class="n">y</span> \
-<span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span> <span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span> \
+<span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span> <span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span> \
 <span class="o">--</span><span class="nb">slice</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span> \
 <span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mi">100</span> \
 <span class="o">--</span><span class="n">gt</span><span class="o">-</span><span class="n">field</span><span class="o">=</span><span class="n">detections</span> \

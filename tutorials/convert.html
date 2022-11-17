@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="3. Run Detectron2" href="detectron2.html" /><link rel="prev" title="1. Download Images" href="download.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>2. Input file conversion - CompressAIVision</title>
@@ -164,7 +164,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Fiftyone</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="fiftyone.html">Fiftyone and MongoDB</a></li>
 </ul>
@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -264,8 +267,8 @@ except FileExistsError:
     pass
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">your</span> <span class="n">home</span> <span class="n">path</span> <span class="ow">is</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span>
-<span class="n">fiftyone</span> <span class="n">dowloads</span> <span class="n">data</span> <span class="n">by</span> <span class="n">default</span> <span class="n">to</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>your home path is /home/sampsa
+fiftyone dowloads data by default to /home/sampsa/fiftyone
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
@@ -284,7 +287,7 @@ print(&quot;contents of&quot;, dir_,&quot;:&quot;)
 !tree --filelimit=10 $dir_ | cat
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
 /home/sampsa/fiftyone/open-images-v6
 ├── info.json
 └── validation
@@ -348,7 +351,7 @@ OpenImageV6 format dataset and place it into
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!tree --filelimit=10 ~/fiftyone/mpeg-vcm-detection | cat
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/home/sampsa/fiftyone/mpeg-vcm-detection
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/fiftyone/mpeg-vcm-detection
 ├── data -&gt; /home/sampsa/fiftyone/open-images-v6/validation/data
 ├── labels
 │   ├── classifications.csv
@@ -386,7 +389,7 @@ dataset = fo.Dataset.from_dir(
 )
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset.persistent=True # without this, your dabatase will disappear!
@@ -409,7 +412,7 @@ dummy_dataset.persistent=True
 print(&quot;dummy dataset ok&quot;)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dummy</span> <span class="n">dataset</span> <span class="n">ok</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dummy dataset ok
 </pre></div>
 </div>
 </section>
@@ -419,26 +422,8 @@ print(&quot;dummy dataset ok&quot;)
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="detectron2.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">3. Run Detectron2</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="download.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">1. Download Images</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">

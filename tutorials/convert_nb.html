@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -259,8 +262,8 @@ except FileExistsError:
     pass
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">your</span> <span class="n">home</span> <span class="n">path</span> <span class="ow">is</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span>
-<span class="n">fiftyone</span> <span class="n">dowloads</span> <span class="n">data</span> <span class="n">by</span> <span class="n">default</span> <span class="n">to</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>your home path is /home/sampsa
+fiftyone dowloads data by default to /home/sampsa/fiftyone
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
@@ -279,7 +282,7 @@ print(&quot;contents of&quot;, dir_,&quot;:&quot;)
 !tree --filelimit=10 $dir_ | cat
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
 /home/sampsa/fiftyone/open-images-v6
 ├── info.json
 └── validation
@@ -343,7 +346,7 @@ OpenImageV6 format dataset and place it into
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!tree --filelimit=10 ~/fiftyone/mpeg-vcm-detection | cat
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/home/sampsa/fiftyone/mpeg-vcm-detection
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/fiftyone/mpeg-vcm-detection
 ├── data -&gt; /home/sampsa/fiftyone/open-images-v6/validation/data
 ├── labels
 │   ├── classifications.csv
@@ -381,7 +384,7 @@ dataset = fo.Dataset.from_dir(
 )
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset.persistent=True # without this, your dabatase will disappear!
@@ -404,7 +407,7 @@ dummy_dataset.persistent=True
 print(&quot;dummy dataset ok&quot;)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dummy</span> <span class="n">dataset</span> <span class="n">ok</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dummy dataset ok
 </pre></div>
 </div>
 

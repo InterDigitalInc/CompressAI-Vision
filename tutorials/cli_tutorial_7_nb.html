@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -251,7 +254,7 @@ results</p></li>
 <p>In chapter 2 of this tutorial you learned how to download and register
 datasets to fiftyone with the <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">register</span></code> command.</p>
 <p>Exactly the same command works for video datasets:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision download --dataset-name=quickstart-video --y
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision download --dataset-name<span class="o">=</span>quickstart-video --y
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -265,9 +268,7 @@ Subname/split   :     None
 Target dir      :     None
 
 Dataset already downloaded
-Loading &#39;quickstart-video&#39;
- 100% |█████████| 10/10 [5.4s elapsed, 0s remaining, 1.8 samples/s]
-Dataset &#39;quickstart-video&#39; created
+Loading existing dataset &#39;quickstart-video&#39;. To reload from disk, either delete the existing dataset or provide a custom `dataset_name` to use
 </pre></div>
 </div>
 <p>If you have your video dataset arranged in one of the standard <a class="reference external" href="https://voxel51.com/docs/fiftyone/api/fiftyone.types.dataset_types.html">video
@@ -283,7 +284,7 @@ fiftyone.</p>
 <p>This format consists raw YUV video files and annotations. Let’s see how
 the folder structure is roughly organized. We’ll be using in this
 tutorial a “mock” version of the dataset with only two video classes:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>tree {path_to_sfu_hw_objects_v1} --filelimit=10 | cat
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tree <span class="o">{</span>path_to_sfu_hw_objects_v1<span class="o">}</span> --filelimit<span class="o">=</span><span class="m">10</span> <span class="p">|</span> cat
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1
@@ -304,124 +305,11 @@ tutorial a “mock” version of the dataset with only two video classes:</p>
 6 directories, 7 files
 </pre></div>
 </div>
-<p>In order to facilitate things, we first encapsulate the raw video into
-proper video format (webm or mp4) that includes video metadata. The
-performed encoding is lossless:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision convert-video --dataset-type<span class="o">=</span>sfu-hw-objects-v1 --dir<span class="o">={</span>path_to_sfu_hw_objects_v1<span class="o">}</span> --y
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Converting raw video proper container format
-
-Dataset type           :  sfu-hw-objects-v1
-Dataset root directory :  /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1
-
-finding .yuv files from /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1
-ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size 832x480 -i /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/BasketballDrill_832x480_50Hz_8bit_P420.yuv -an -c:v h264 -q 0 -r 50 /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill/video.mp4
-ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
-  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.1)
-  configuration: --prefix=/usr --extra-version=0ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
-  libavutil      56. 31.100 / 56. 31.100
-  libavcodec     58. 54.100 / 58. 54.100
-  libavformat    58. 29.100 / 58. 29.100
-  libavdevice    58.  8.100 / 58.  8.100
-  libavfilter     7. 57.100 /  7. 57.100
-  libavresample   4.  0.  0 /  4.  0.  0
-  libswscale      5.  5.100 /  5.  5.100
-  libswresample   3.  5.100 /  3.  5.100
-  libpostproc    55.  5.100 / 55.  5.100
-[0;35m[rawvideo @ 0x560fd80fb7c0] [0m[0;33mEstimating duration from bitrate, this may be inaccurate
-[0mInput #0, rawvideo, from &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/BasketballDrill_832x480_50Hz_8bit_P420.yuv&#39;:
-  Duration: 00:00:20.04, start: 0.000000, bitrate: 119808 kb/s
-    Stream #0:0: Video: rawvideo (I420 / 0x30323449), yuv420p, 832x480, 119808 kb/s, 25 tbr, 25 tbn, 25 tbc
-Stream mapping:
-  Stream #0:0 -&gt; #0:0 (rawvideo (native) -&gt; h264 (libx264))
-Press [q] to stop, [?] for help
-[1;36m[libx264 @ 0x560fd8109000] [0musing cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[1;36m[libx264 @ 0x560fd8109000] [0mprofile High, level 3.1
-[1;36m[libx264 @ 0x560fd8109000] [0m264 - core 155 r2917 0a84d98 - H.264/MPEG-4 AVC codec - Copyleft 2003-2018 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill/video.mp4&#39;:
-  Metadata:
-    encoder         : Lavf58.29.100
-    Stream #0:0: Video: h264 (libx264) (avc1 / 0x31637661), yuv420p, 832x480, q=-1--1, 50 fps, 12800 tbn, 50 tbc
-    Metadata:
-      encoder         : Lavc58.54.100 libx264
-    Side data:
-      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: -1
-frame= 1002 fps=206 q=-1.0 Lsize=    4188kB time=00:00:19.98 bitrate=1717.2kbits/s dup=501 drop=0 speed= 4.1x
-video:4176kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.301671%
-[1;36m[libx264 @ 0x560fd8109000] [0mframe I:5     Avg QP:23.20  size: 57827
-[1;36m[libx264 @ 0x560fd8109000] [0mframe P:253   Avg QP:25.76  size: 11964
-[1;36m[libx264 @ 0x560fd8109000] [0mframe B:744   Avg QP:30.21  size:  1289
-[1;36m[libx264 @ 0x560fd8109000] [0mconsecutive B-frames:  1.0%  0.0%  0.0% 99.0%
-[1;36m[libx264 @ 0x560fd8109000] [0mmb I  I16..4:  7.5% 42.0% 50.5%
-[1;36m[libx264 @ 0x560fd8109000] [0mmb P  I16..4:  0.1%  5.8%  2.6%  P16..4: 42.8% 16.3% 11.0%  0.0%  0.0%    skip:21.4%
-[1;36m[libx264 @ 0x560fd8109000] [0mmb B  I16..4:  0.0%  0.1%  0.0%  B16..8: 25.2%  2.8%  1.0%  direct: 0.8%  skip:70.1%  L0:62.4% L1:31.1% BI: 6.6%
-[1;36m[libx264 @ 0x560fd8109000] [0m8x8 transform intra:63.8% inter:66.2%
-[1;36m[libx264 @ 0x560fd8109000] [0mcoded y,uvDC,uvAC intra: 86.7% 85.4% 59.9% inter: 11.9% 9.7% 2.4%
-[1;36m[libx264 @ 0x560fd8109000] [0mi16 v,h,dc,p: 52% 13%  8% 27%
-[1;36m[libx264 @ 0x560fd8109000] [0mi8 v,h,dc,ddl,ddr,vr,hd,vl,hu:  9%  7% 10%  6% 22% 19% 10%  8%  9%
-[1;36m[libx264 @ 0x560fd8109000] [0mi4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 14%  8% 14%  6% 21% 16%  8%  6%  6%
-[1;36m[libx264 @ 0x560fd8109000] [0mi8c dc,h,v,p: 50% 16% 22% 12%
-[1;36m[libx264 @ 0x560fd8109000] [0mWeighted P-Frames: Y:0.0% UV:0.0%
-[1;36m[libx264 @ 0x560fd8109000] [0mref P L0: 51.0% 27.4% 13.5%  8.1%
-[1;36m[libx264 @ 0x560fd8109000] [0mref B L0: 87.1%  8.9%  4.0%
-[1;36m[libx264 @ 0x560fd8109000] [0mref B L1: 96.1%  3.9%
-[1;36m[libx264 @ 0x560fd8109000] [0mkb/s:1706.65
-ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size 832x480 -i /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/BasketballDrill_832x480_50Hz_8bit_P420.yuv -an -c:v h264 -q 0 -r 50 /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/Annotations/BasketballDrill/video.mp4
-ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
-  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.1)
-  configuration: --prefix=/usr --extra-version=0ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
-  libavutil      56. 31.100 / 56. 31.100
-  libavcodec     58. 54.100 / 58. 54.100
-  libavformat    58. 29.100 / 58. 29.100
-  libavdevice    58.  8.100 / 58.  8.100
-  libavfilter     7. 57.100 /  7. 57.100
-  libavresample   4.  0.  0 /  4.  0.  0
-  libswscale      5.  5.100 /  5.  5.100
-  libswresample   3.  5.100 /  3.  5.100
-  libpostproc    55.  5.100 / 55.  5.100
-[0;35m[rawvideo @ 0x562024b7a7c0] [0m[0;33mEstimating duration from bitrate, this may be inaccurate
-[0mInput #0, rawvideo, from &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/BasketballDrill_832x480_50Hz_8bit_P420.yuv&#39;:
-  Duration: 00:00:20.04, start: 0.000000, bitrate: 119808 kb/s
-    Stream #0:0: Video: rawvideo (I420 / 0x30323449), yuv420p, 832x480, 119808 kb/s, 25 tbr, 25 tbn, 25 tbc
-Stream mapping:
-  Stream #0:0 -&gt; #0:0 (rawvideo (native) -&gt; h264 (libx264))
-Press [q] to stop, [?] for help
-[1;36m[libx264 @ 0x562024b88000] [0musing cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[1;36m[libx264 @ 0x562024b88000] [0mprofile High, level 3.1
-[1;36m[libx264 @ 0x562024b88000] [0m264 - core 155 r2917 0a84d98 - H.264/MPEG-4 AVC codec - Copyleft 2003-2018 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/Annotations/BasketballDrill/video.mp4&#39;:
-  Metadata:
-    encoder         : Lavf58.29.100
-    Stream #0:0: Video: h264 (libx264) (avc1 / 0x31637661), yuv420p, 832x480, q=-1--1, 50 fps, 12800 tbn, 50 tbc
-    Metadata:
-      encoder         : Lavc58.54.100 libx264
-    Side data:
-      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: -1
-frame= 1002 fps=205 q=-1.0 Lsize=    4188kB time=00:00:19.98 bitrate=1717.2kbits/s dup=501 drop=0 speed=4.09x
-video:4176kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.301671%
-[1;36m[libx264 @ 0x562024b88000] [0mframe I:5     Avg QP:23.20  size: 57827
-[1;36m[libx264 @ 0x562024b88000] [0mframe P:253   Avg QP:25.76  size: 11964
-[1;36m[libx264 @ 0x562024b88000] [0mframe B:744   Avg QP:30.21  size:  1289
-[1;36m[libx264 @ 0x562024b88000] [0mconsecutive B-frames:  1.0%  0.0%  0.0% 99.0%
-[1;36m[libx264 @ 0x562024b88000] [0mmb I  I16..4:  7.5% 42.0% 50.5%
-[1;36m[libx264 @ 0x562024b88000] [0mmb P  I16..4:  0.1%  5.8%  2.6%  P16..4: 42.8% 16.3% 11.0%  0.0%  0.0%    skip:21.4%
-[1;36m[libx264 @ 0x562024b88000] [0mmb B  I16..4:  0.0%  0.1%  0.0%  B16..8: 25.2%  2.8%  1.0%  direct: 0.8%  skip:70.1%  L0:62.4% L1:31.1% BI: 6.6%
-[1;36m[libx264 @ 0x562024b88000] [0m8x8 transform intra:63.8% inter:66.2%
-[1;36m[libx264 @ 0x562024b88000] [0mcoded y,uvDC,uvAC intra: 86.7% 85.4% 59.9% inter: 11.9% 9.7% 2.4%
-[1;36m[libx264 @ 0x562024b88000] [0mi16 v,h,dc,p: 52% 13%  8% 27%
-[1;36m[libx264 @ 0x562024b88000] [0mi8 v,h,dc,ddl,ddr,vr,hd,vl,hu:  9%  7% 10%  6% 22% 19% 10%  8%  9%
-[1;36m[libx264 @ 0x562024b88000] [0mi4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 14%  8% 14%  6% 21% 16%  8%  6%  6%
-[1;36m[libx264 @ 0x562024b88000] [0mi8c dc,h,v,p: 50% 16% 22% 12%
-[1;36m[libx264 @ 0x562024b88000] [0mWeighted P-Frames: Y:0.0% UV:0.0%
-[1;36m[libx264 @ 0x562024b88000] [0mref P L0: 51.0% 27.4% 13.5%  8.1%
-[1;36m[libx264 @ 0x562024b88000] [0mref B L0: 87.1%  8.9%  4.0%
-[1;36m[libx264 @ 0x562024b88000] [0mref B L1: 96.1%  3.9%
-[1;36m[libx264 @ 0x562024b88000] [0mkb/s:1706.65
-video conversion done
-</pre></div>
-</div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision import-video --dataset-type=sfu-hw-objects-v1 --dir={path_to_sfu_hw_objects_v1} --y
+<p>Importing mpeg-vcom custom datasets (for more info see Dataset section
+of the documentation) can be done with <code class="docutils literal notranslate"><span class="pre">import-custom</span></code> command. For
+<code class="docutils literal notranslate"><span class="pre">sfu-hw-objects-v1</span></code> it also converts on-the-fly the raw YUV images
+into proper video format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>sfu-hw-objects-v1 --dir<span class="o">={</span>path_to_sfu_hw_objects_v1<span class="o">}</span> --y
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -433,6 +321,110 @@ Importing a custom video format into fiftyone
 Dataset type           :  sfu-hw-objects-v1
 Dataset root directory :  /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1
 
+finding .yuv files from /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1
+ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size 832x480 -i /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/BasketballDrill_832x480_50Hz_8bit_P420.yuv -an -c:v h264 -q 0 /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill/video.mp4
+ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.1)
+  configuration: --prefix=/usr --extra-version=0ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+[0;35m[rawvideo @ 0x561a0d3c17c0] [0m[0;33mEstimating duration from bitrate, this may be inaccurate
+[0mInput #0, rawvideo, from &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/BasketballDrill_832x480_50Hz_8bit_P420.yuv&#39;:
+  Duration: 00:00:20.04, start: 0.000000, bitrate: 119808 kb/s
+    Stream #0:0: Video: rawvideo (I420 / 0x30323449), yuv420p, 832x480, 119808 kb/s, 25 tbr, 25 tbn, 25 tbc
+Stream mapping:
+  Stream #0:0 -&gt; #0:0 (rawvideo (native) -&gt; h264 (libx264))
+Press [q] to stop, [?] for help
+[1;36m[libx264 @ 0x561a0d3cf300] [0musing cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[1;36m[libx264 @ 0x561a0d3cf300] [0mprofile High, level 3.0
+[1;36m[libx264 @ 0x561a0d3cf300] [0m264 - core 155 r2917 0a84d98 - H.264/MPEG-4 AVC codec - Copyleft 2003-2018 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill/video.mp4&#39;:
+  Metadata:
+    encoder         : Lavf58.29.100
+    Stream #0:0: Video: h264 (libx264) (avc1 / 0x31637661), yuv420p, 832x480, q=-1--1, 25 fps, 12800 tbn, 25 tbc
+    Metadata:
+      encoder         : Lavc58.54.100 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: -1
+frame=  501 fps=143 q=-1.0 Lsize=    3979kB time=00:00:19.92 bitrate=1636.2kbits/s speed=5.67x
+video:3972kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.169325%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mframe I:3     Avg QP:22.61  size: 56539
+[1;36m[libx264 @ 0x561a0d3cf300] [0mframe P:126   Avg QP:24.67  size: 17479
+[1;36m[libx264 @ 0x561a0d3cf300] [0mframe B:372   Avg QP:28.66  size:  4556
+[1;36m[libx264 @ 0x561a0d3cf300] [0mconsecutive B-frames:  1.0%  0.0%  0.0% 99.0%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mmb I  I16..4: 13.3% 37.2% 49.4%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mmb P  I16..4:  0.1% 11.2%  6.3%  P16..4: 42.9% 16.1% 11.6%  0.0%  0.0%    skip:11.7%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mmb B  I16..4:  0.0%  0.7%  0.4%  B16..8: 35.6%  9.2%  3.6%  direct: 3.0%  skip:47.6%  L0:43.7% L1:43.7% BI:12.7%
+[1;36m[libx264 @ 0x561a0d3cf300] [0m8x8 transform intra:60.9% inter:67.7%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mcoded y,uvDC,uvAC intra: 87.9% 88.2% 66.7% inter: 22.5% 18.1% 4.7%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mi16 v,h,dc,p: 57% 13%  8% 22%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mi8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 11%  8%  9%  7% 19% 17% 10%  9%  9%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mi4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 14%  9% 13%  7% 19% 15%  8%  7%  6%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mi8c dc,h,v,p: 48% 17% 22% 13%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mWeighted P-Frames: Y:0.0% UV:0.0%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mref P L0: 44.5% 27.1% 14.9% 13.6%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mref B L0: 85.6% 10.0%  4.4%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mref B L1: 94.4%  5.6%
+[1;36m[libx264 @ 0x561a0d3cf300] [0mkb/s:1623.41
+ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size 832x480 -i /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/BasketballDrill_832x480_50Hz_8bit_P420.yuv -an -c:v h264 -q 0 /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/Annotations/BasketballDrill/video.mp4
+ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.1)
+  configuration: --prefix=/usr --extra-version=0ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+[0;35m[rawvideo @ 0x559c0f4467c0] [0m[0;33mEstimating duration from bitrate, this may be inaccurate
+[0mInput #0, rawvideo, from &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/BasketballDrill_832x480_50Hz_8bit_P420.yuv&#39;:
+  Duration: 00:00:20.04, start: 0.000000, bitrate: 119808 kb/s
+    Stream #0:0: Video: rawvideo (I420 / 0x30323449), yuv420p, 832x480, 119808 kb/s, 25 tbr, 25 tbn, 25 tbc
+Stream mapping:
+  Stream #0:0 -&gt; #0:0 (rawvideo (native) -&gt; h264 (libx264))
+Press [q] to stop, [?] for help
+[1;36m[libx264 @ 0x559c0f454300] [0musing cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[1;36m[libx264 @ 0x559c0f454300] [0mprofile High, level 3.0
+[1;36m[libx264 @ 0x559c0f454300] [0m264 - core 155 r2917 0a84d98 - H.264/MPEG-4 AVC codec - Copyleft 2003-2018 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to &#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/Annotations/BasketballDrill/video.mp4&#39;:
+  Metadata:
+    encoder         : Lavf58.29.100
+    Stream #0:0: Video: h264 (libx264) (avc1 / 0x31637661), yuv420p, 832x480, q=-1--1, 25 fps, 12800 tbn, 25 tbc
+    Metadata:
+      encoder         : Lavc58.54.100 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: -1
+frame=  501 fps=131 q=-1.0 Lsize=    3979kB time=00:00:19.92 bitrate=1636.2kbits/s speed= 5.2x
+video:3972kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.169325%
+[1;36m[libx264 @ 0x559c0f454300] [0mframe I:3     Avg QP:22.61  size: 56539
+[1;36m[libx264 @ 0x559c0f454300] [0mframe P:126   Avg QP:24.67  size: 17479
+[1;36m[libx264 @ 0x559c0f454300] [0mframe B:372   Avg QP:28.66  size:  4556
+[1;36m[libx264 @ 0x559c0f454300] [0mconsecutive B-frames:  1.0%  0.0%  0.0% 99.0%
+[1;36m[libx264 @ 0x559c0f454300] [0mmb I  I16..4: 13.3% 37.2% 49.4%
+[1;36m[libx264 @ 0x559c0f454300] [0mmb P  I16..4:  0.1% 11.2%  6.3%  P16..4: 42.9% 16.1% 11.6%  0.0%  0.0%    skip:11.7%
+[1;36m[libx264 @ 0x559c0f454300] [0mmb B  I16..4:  0.0%  0.7%  0.4%  B16..8: 35.6%  9.2%  3.6%  direct: 3.0%  skip:47.6%  L0:43.7% L1:43.7% BI:12.7%
+[1;36m[libx264 @ 0x559c0f454300] [0m8x8 transform intra:60.9% inter:67.7%
+[1;36m[libx264 @ 0x559c0f454300] [0mcoded y,uvDC,uvAC intra: 87.9% 88.2% 66.7% inter: 22.5% 18.1% 4.7%
+[1;36m[libx264 @ 0x559c0f454300] [0mi16 v,h,dc,p: 57% 13%  8% 22%
+[1;36m[libx264 @ 0x559c0f454300] [0mi8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 11%  8%  9%  7% 19% 17% 10%  9%  9%
+[1;36m[libx264 @ 0x559c0f454300] [0mi4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 14%  9% 13%  7% 19% 15%  8%  7%  6%
+[1;36m[libx264 @ 0x559c0f454300] [0mi8c dc,h,v,p: 48% 17% 22% 13%
+[1;36m[libx264 @ 0x559c0f454300] [0mWeighted P-Frames: Y:0.0% UV:0.0%
+[1;36m[libx264 @ 0x559c0f454300] [0mref P L0: 44.5% 27.1% 14.9% 13.6%
+[1;36m[libx264 @ 0x559c0f454300] [0mref B L0: 85.6% 10.0%  4.4%
+[1;36m[libx264 @ 0x559c0f454300] [0mref B L1: 94.4%  5.6%
+[1;36m[libx264 @ 0x559c0f454300] [0mkb/s:1623.41
+video conversion done
 searching for /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/Class*
 Dataset sfu-hw-objects-v1 exists.  Will remove it first
 Dataset sfu-hw-objects-v1 created
@@ -456,6 +448,7 @@ python notebook:</p>
 import matplotlib.pyplot as plt
 import fiftyone as fo
 from fiftyone import ViewField as F
+from math import floor
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset=fo.load_dataset(&quot;sfu-hw-objects-v1&quot;)
@@ -490,7 +483,7 @@ sample corresponds to a video:</p>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a220dec&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe83dd3cdcdcd97f0f64&#39;</span><span class="p">,</span>
     <span class="s1">&#39;media_type&#39;</span><span class="p">:</span> <span class="s1">&#39;video&#39;</span><span class="p">,</span>
     <span class="s1">&#39;filepath&#39;</span><span class="p">:</span> <span class="s1">&#39;/home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassC/Annotations/BasketballDrill/video.mp4&#39;</span><span class="p">,</span>
     <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
@@ -517,12 +510,12 @@ indices start from 1):</p>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">FrameView</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c5a8fd2e0b6600bf854&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe832c777ac161910233&#39;</span><span class="p">,</span>
     <span class="s1">&#39;frame_number&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa3b&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb3&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -532,7 +525,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa3c&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb4&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -542,7 +535,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa3d&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb5&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -557,7 +550,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa3e&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb6&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -567,7 +560,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa3f&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb7&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sports ball&#39;</span><span class="p">,</span>
@@ -582,7 +575,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa40&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb8&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sports ball&#39;</span><span class="p">,</span>
@@ -597,7 +590,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa41&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbb9&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;chair&#39;</span><span class="p">,</span>
@@ -612,7 +605,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa42&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbba&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;chair&#39;</span><span class="p">,</span>
@@ -627,7 +620,7 @@ indices start from 1):</p>
                 <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636a1c59019462347a21fa43&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;636cfe82dd3cdcdcd97efbbb&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
                 <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;chair&#39;</span><span class="p">,</span>
@@ -650,15 +643,23 @@ indices start from 1):</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>vid=cv2.VideoCapture(sample.filepath)
 </pre></div>
 </div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;number of frames:&quot;,int(vid.get(cv2.CAP_PROP_FRAME_COUNT)))
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>number of frames: 501
+</pre></div>
+</div>
 <p>Let’s define a small helper function:</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def draw_detections(sample: fo.Sample, vid: cv2.VideoCapture, nframe: int):
-    from math import floor
+    nmax=int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+    if nframe &gt; nmax:
+        raise AssertionError(&quot;max frame is &quot; + str(nmax))
     ok = vid.set(cv2.CAP_PROP_POS_FRAMES, nframe-1)
     if not ok:
-        AssertionError(&quot;seek failed&quot;)
+        raise AssertionError(&quot;seek failed&quot;)
     ok, arr = vid.read() # BGR image in arr
     if not ok:
-        AssertionError(&quot;no image&quot;)
+        raise AssertionError(&quot;no image&quot;)
     for detection in sample.frames[nframe].detections.detections:
         x0, y0, w, h = detection.bounding_box # rel coords
         x1, y1, x2, y2 = floor(x0*arr.shape[1]), floor(y0*arr.shape[0]), floor((x0+w)*arr.shape[1]), floor((y0+h)*arr.shape[0])
@@ -666,36 +667,41 @@ indices start from 1):</p>
     return arr
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>img=draw_detections(sample, vid, 2)
-img = img[:,:,::-1] # BGR -&gt; RGB
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>img=draw_detections(sample, vid, 200)
+img_ = img[:,:,::-1] # BGR -&gt; RGB
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(img)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(img_)
+vid.release()
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span> <span class="n">at</span> <span class="mh">0x7f711c12b4f0</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<img alt="../_images/cli_tutorial_7_nb_22_1.png" src="../_images/cli_tutorial_7_nb_22_1.png" />
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>vid.release()
-</pre></div>
-</div>
-<p>Visualize video and annotations in the fiftyone app:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fo.launch_app(dataset)
-</pre></div>
-</div>
+<img alt="../_images/cli_tutorial_7_nb_22_0.png" src="../_images/cli_tutorial_7_nb_22_0.png" />
+<p>For now, let’s get back to terminal command line.</p>
+<p>Everything that you learned for image datasets, applies for video
+datasets as well: <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">import-custom</span></code> can be used to
+import mpeg-vcm datasets. <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">app</span></code> can be used to
+visualize interactively datasets.</p>
+<p>When using the fiftyone app, there is a small catch though. Web-browsers
+are picky on the type of video they can play. For some video datasets,
+in order to view them in the app, you need to create separate
+“side-data” videos for visualization. These you can generate these
+automagically with the <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">make-thumbnails</span></code> command.
+Note that <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">import-custom</span></code> generates you these
+thumbnails on-the-go when you import new video sets. Switching between
+the main video and “side-data” video is demoed in <a class="reference external" href="https://voxel51.com/docs/fiftyone/_images/app-multiple-media-fields.gif">this
+animation</a></p>
 <p>In chapters 3 and 4 you learned how to evaluate models (in serial and
 parallel) with the <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">detectron2-eval</span></code> command.</p>
 <p>The same command can be used to evaluate video datasets as well. Here
 the parameter <code class="docutils literal notranslate"><span class="pre">--slice</span></code> refers to videos, not individual image (as
 usual, for a production run, you would remove the <code class="docutils literal notranslate"><span class="pre">--slice</span></code>
 parameter):</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision detectron2-eval --y --dataset-name=sfu-hw-objects-v1 \
---slice=1:2 \
---scale=100 \
---progressbar \
---output=detectron2_test.json \
---model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision detectron2-eval --y --dataset-name<span class="o">=</span>sfu-hw-objects-v1 <span class="se">\</span>
+--slice<span class="o">=</span><span class="m">1</span>:2 <span class="se">\</span>
+--scale<span class="o">=</span><span class="m">100</span> <span class="se">\</span>
+--progressbar <span class="se">\</span>
+--output<span class="o">=</span>detectron2_test.json <span class="se">\</span>
+--model<span class="o">=</span>COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -704,7 +710,7 @@ WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?
 
 Using dataset          : sfu-hw-objects-v1
 Dataset media type     : video
-Dataset tmp clone      : detectron-run-sampsa-sfu-hw-objects-v1-2022-11-08-11-16-05-422965
+Dataset tmp clone      : detectron-run-sampsa-sfu-hw-objects-v1-2022-11-10-15-37-24-746313
 Image scaling          : 100
 WARNING: Using slice   : 1:2
 Number of samples      : 1
@@ -725,7 +731,7 @@ Peek model classes     :
 [&#39;airplane&#39;, &#39;apple&#39;, &#39;backpack&#39;, &#39;banana&#39;, &#39;baseball bat&#39;] ...
 Peek dataset classes   :
 [&#39;chair&#39;, &#39;person&#39;, &#39;sports ball&#39;] ...
-cloning dataset sfu-hw-objects-v1 to detectron-run-sampsa-sfu-hw-objects-v1-2022-11-08-11-16-05-422965
+cloning dataset sfu-hw-objects-v1 to detectron-run-sampsa-sfu-hw-objects-v1-2022-11-10-15-37-24-746313
 instantiating Detectron2 predictor
 USING VIDEO /home/sampsa/silo/interdigital/mock/SFU-HW-Objects-v1/ClassX/Annotations/BasketballDrill/video.mp4
 seeking to 2
@@ -733,8 +739,8 @@ seeking to 2
 To keep the current behavior, use torch.div(a, b, rounding_mode=&#39;trunc&#39;), or for actual floor division, use torch.div(a, b, rounding_mode=&#39;floor&#39;). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
   return torch.floor_divide(self, other)
  100% |███████████████████████████████████████████████████████████████████| 4/4 Evaluating detections...
- 100% |███████████| 1/1 [51.7ms elapsed, 0s remaining, 19.3 samples/s]
-deleting tmp database detectron-run-sampsa-sfu-hw-objects-v1-2022-11-08-11-16-05-422965
+ 100% |███████████| 1/1 [71.8ms elapsed, 0s remaining, 13.9 samples/s]
+deleting tmp database detectron-run-sampsa-sfu-hw-objects-v1-2022-11-10-15-37-24-746313
 
 Done!
 </pre></div>
@@ -746,7 +752,7 @@ Done!
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{
   &quot;dataset&quot;: &quot;sfu-hw-objects-v1&quot;,
   &quot;gt_field&quot;: &quot;detections&quot;,
-  &quot;tmp datasetname&quot;: &quot;detectron-run-sampsa-sfu-hw-objects-v1-2022-11-08-11-16-05-422965&quot;,
+  &quot;tmp datasetname&quot;: &quot;detectron-run-sampsa-sfu-hw-objects-v1-2022-11-10-15-37-24-746313&quot;,
   &quot;slice&quot;: &quot;1:2&quot;,
   &quot;model&quot;: &quot;COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml&quot;,
   &quot;codec&quot;: &quot;&quot;,
@@ -755,13 +761,13 @@ Done!
     null
   ],
   &quot;map&quot;: [
-    0.36689814814814814
+    0.5370370370370371
   ],
   &quot;map_per_class&quot;: [
     {
       &quot;chair&quot;: 0.1111111111111111,
-      &quot;person&quot;: 0.6145833333333334,
-      &quot;sports ball&quot;: 0.375
+      &quot;person&quot;: 1.0,
+      &quot;sports ball&quot;: 0.5
     }
   ]
 }

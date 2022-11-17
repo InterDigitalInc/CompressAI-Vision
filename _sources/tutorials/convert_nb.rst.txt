@@ -22,7 +22,7 @@ MPEG-VCM working group
         pass
 
 
-.. parsed-literal::
+.. code-block:: text
 
     your home path is /home/sampsa
     fiftyone dowloads data by default to /home/sampsa/fiftyone
@@ -49,7 +49,7 @@ into open-images-v6 folder (as instructed in the previous chapter)
     !tree --filelimit=10 $dir_ | cat
 
 
-.. parsed-literal::
+.. code-block:: text
 
     contents of /home/sampsa/fiftyone/open-images-v6 :
     /home/sampsa/fiftyone/open-images-v6
@@ -126,7 +126,7 @@ let’s see what we got:
     !tree --filelimit=10 ~/fiftyone/mpeg-vcm-detection | cat
 
 
-.. parsed-literal::
+.. code-block:: text
 
     /home/sampsa/fiftyone/mpeg-vcm-detection
     ├── data -> /home/sampsa/fiftyone/open-images-v6/validation/data
@@ -171,7 +171,7 @@ formatted dataset into fiftyone:
     )
 
 
-.. parsed-literal::
+.. code-block:: text
 
      100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]      
 
@@ -201,7 +201,7 @@ only one sample:
     print("dummy dataset ok")
 
 
-.. parsed-literal::
+.. code-block:: text
 
     dummy dataset ok
 

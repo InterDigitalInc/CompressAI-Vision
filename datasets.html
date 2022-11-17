@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Datasets" href="datasets.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="FAQ" href="faq.html" /><link rel="prev" title="compressai_vision.evaluation.fo" href="evaluation/fo/index.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>FAQ - CompressAIVision</title>
+        <title>Datasets - CompressAIVision</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -198,12 +198,12 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
-<ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">FAQ</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -242,39 +242,153 @@
           </label>
         </div>
         <article role="main">
-          <section id="faq">
-<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this heading">#</a></h1>
-<section id="error-failed-to-bind">
-<h2>1. Error: “failed to bind”<a class="headerlink" href="#error-failed-to-bind" title="Permalink to this heading">#</a></h2>
-<p>You can get this error message if fiftyone has a problem in connecting
-to the mongodb server:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">ServiceListenTimeout</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">DatabaseService</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">bind</span> <span class="n">to</span> <span class="n">port</span>
+          <section id="datasets">
+<span id="dataset"></span><h1>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading">#</a></h1>
+<p>MPEG-VCM working group defines several evaluation datasets.</p>
+<section id="oiv6-mpeg">
+<h2>1. OIV6-MPEG<a class="headerlink" href="#oiv6-mpeg" title="Permalink to this heading">#</a></h2>
+<p>Custom-modified <a class="reference external" href="https://storage.googleapis.com/openimages/web/factsfigures_v6.html">OpenImageV6 dataset</a>:
+hand-picked images and modified annotations in a custom format.</p>
+<p>Required input files (don’t worry - bundled with CompressAI-Vision):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>detection_validation_5k_bbox.csv
+detection_validation_input_5k.lst
+detection_validation_labels_5k.csv
+segmentation_validation_bbox_5k.csv
+segmentation_validation_input_5k.lst
+segmentation_validation_labels_5k.csv
+segmentation_validation_masks_5k.csv
 </pre></div>
 </div>
-<p>If you haven’t defined an external mongodb server, each time the python code imports
-fiftyone for the first time, an “internal” mongodb server instance is started - on some occasions that internal mongodb
-server might have exited in a “dirty” manner.</p>
-<p>No need to panic.  We provide a command-line tool for cleaning things up.  Just type:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">mongo</span> <span class="n">stop</span>
+<p>Commands to import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom oiv6-mpeg-v1
 </pre></div>
 </div>
+<p>Final fiftyone dataset names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-detection-v1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-segmentation-v1</span></code></p></li>
+</ul>
 </section>
-<section id="error-you-must-have-fiftyone-x-x-x-installed">
-<h2>2. Error: “you must have fiftyone&gt;x.x.x installed”<a class="headerlink" href="#error-you-must-have-fiftyone-x-x-x-installed" title="Permalink to this heading">#</a></h2>
-<p>If you get an error of this kind:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">You</span> <span class="n">must</span> <span class="n">have</span> <span class="n">fiftyone</span><span class="o">&gt;=</span><span class="mf">0.17.2</span> <span class="n">installed</span> <span class="ow">in</span> <span class="n">order</span> <span class="n">to</span> <span class="n">migrate</span> <span class="kn">from</span> <span class="nn">v0.</span><span class="mf">17.2</span> <span class="n">to</span> <span class="n">v0</span><span class="mf">.16.6</span><span class="p">,</span> <span class="n">but</span> <span class="n">you</span> <span class="n">are</span> <span class="n">currently</span> <span class="n">running</span> <span class="n">fiftyone</span><span class="o">==</span><span class="mf">0.16.6</span><span class="o">.</span>
+<section id="tvd">
+<h2>2. TVD<a class="headerlink" href="#tvd" title="Permalink to this heading">#</a></h2>
+<p>Aka. Tencent Video Dataset.  Videos and images.  Annotations come in
+a custom format identical to (1).</p>
+<p>Download following input files from <a class="reference external" href="https://multimedia.tencent.com/resources/tvd">TVD page</a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TVD_Object_Detection_Dataset_and_Annotations.zip  # object detection annotations &amp; images in a tar file
+TVD_Instance_Segmentation_Annotations.zip  # segmentations annotations &amp; segmasks
+TVD.zip  # videos for object tracking
+TVD_Object_Tracking_Dataset_and_Annotations.zip  # annotations for videos
 </pre></div>
 </div>
-<p>First of all, make sure that you are <strong>not running a mongodb server on your linux box</strong>, as fiftyone starts its own (internal) mongodb server instance!</p>
-<p>Each version of fiftyone comes bundled with a mongodb server binary.  That server binary is version is compatible with the fiftyone version in question.</p>
-<p>The above error occurs typically, when you have created the database with a certain version of fiftyone (say, v0.16.6), but then try to access it with a different version of fiftyone
-(for example 0.17.2).</p>
-<p>A typical confusion is that you use two different versions of fiftyone, each from a different virtualenv.</p>
-<p>To wipe out the (incompatible) database, you can always do this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">mongo</span> <span class="n">clear</span>
+<p>After unpacking everything, you should have the following input directory/file structure
+(call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TVD_Object_Detection_Dataset_And_Annotations/ [IMAGE DETECTION]
+    tvd_object_detection_dataset/ [IMAGES]
+    tvd_detection_validation_bbox.csv
+    tvd_detection_validation_labels.csv
+
+tvd_segmentation_validation_bbox.csv
+tvd_segmentation_validation_labels.csv
+tvd_segmentation_validation_masks.csv
+tvd_validation_masks/ [VALIDATION MASK IMAGES]
+
+TVD_object_tracking_dataset_and_annotations/ [OBJECT TRACKING VIDEOS]
+    TVD-01.mp4
+    TVD-02.mp4
+    TVD-03.mp4
+    TVD-01/
+        gt/gt.txt [ANNOTATIONS]
+    TVD-02/
+        gt/gt.txt [ANNOTATIONS]
+    TVD-03/
+        gt/gt.txt [ANNOTATIONS]
 </pre></div>
 </div>
-<p>To recap, use <em>only</em> the same virtualenv from where you created the database in the first place.  And be sure you don’t have any “extra” mongodb servers running in your system.</p>
+<p>Commands to import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>tvd-object-tracking-v1 <span class="se">\</span>
+--dir<span class="o">=</span>/path/to/dir/TVD_object_tracking_dataset_and_annotations
+
+compressai-vision import-custom --dataset-type<span class="o">=</span>tvd-image-v1 --dir<span class="o">=</span>/path/to/dir
+</pre></div>
+</div>
+<p>Final fiftyone dataset names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tvd-image-detection-v1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tvd-image-segmentation-v1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tvd-object-tracking-v1</span></code></p></li>
+</ul>
+</section>
+<section id="sfu-hw-objects-v1">
+<h2>3. SFU-HW-Objects-V1<a class="headerlink" href="#sfu-hw-objects-v1" title="Permalink to this heading">#</a></h2>
+<p>Dataset consisting of raw YUV videofiles with video metadata in the filename.  Annotations
+come in per-frame text files.</p>
+<p>Download following input files from <a class="reference external" href="https://www.frdr-dfdr.ca/repo/dataset/59931535-9ffd-4cc3-a3c2-4b06d06603d1">here</a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>SFU-HW-Objects-v1.zip
+</pre></div>
+</div>
+<p>After unpacking, following input directory/file structure (call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ClassA/
+    PeopleOnStreet_2560x1600_30_crop.yuv
+    Traffic_2560x1600_30_crop.yuv
+    Annotations/
+        PeopleOnStreet/
+        Traffic/
+ClassB/
+    ...
+    ...
+...
+...
+</pre></div>
+</div>
+<p>You must get the <code class="docutils literal notranslate"><span class="pre">.yuv</span></code> from someplace else &amp; put the in-place as described above.</p>
+<p>Commands to import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>sfu-hw-objects-v1 --dir<span class="o">=</span>/path/to/dir
+</pre></div>
+</div>
+<p>Final fiftyone dataset names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sfu-hw-objects-v1</span></code></p></li>
+</ul>
+</section>
+<section id="flir">
+<h2>4. FLIR<a class="headerlink" href="#flir" title="Permalink to this heading">#</a></h2>
+<p>Nightime and infrared images.  Some of the images are hand-picked from the dataset.</p>
+<p>A list defining the subset is required (bundled with CompressAI-Vision):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TODO
+</pre></div>
+</div>
+<p>Download following input files from <a class="reference external" href="https://adas-dataset-v2.flirconservator.com/#downloadguide">here</a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>FLIR_ADAS_v2.zip
+</pre></div>
+</div>
+<p>After unpacking, following input directory/file structure (call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rgb_to_thermal_vid_map.json
+images_rgb_train/
+    coco_annotation_counts.tsv
+    coco_annotation_counts.txt
+    coco.json # Annotations in COCO format
+    index.json
+    data/ [IMAGES]
+images_rgb_val/
+    ...
+images_thermal_train/
+    ...
+images_thermal_val/
+    ...
+video_rgb_test/
+    ...
+video_thermal_test/
+    ...
+</pre></div>
+</div>
+<p>Commands to import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>flir-image-rgb-v1 --dir<span class="o">=</span>/path/to/dir
+</pre></div>
+</div>
+<p>Final fiftyone dataset names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">flir-image-rgb-v1</span></code></p></li>
+</ul>
 </section>
 </section>
 
@@ -283,15 +397,23 @@ server might have exited in a “dirty” manner.</p>
       <footer>
         
         <div class="related-pages">
-          
-          <a class="prev-page" href="datasets.html">
+          <a class="next-page" href="faq.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">FAQ</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="evaluation/fo/index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Datasets</div>
+                <div class="title">compressai_vision.evaluation.fo</div>
                 
               </div>
             </a>
@@ -326,9 +448,11 @@ server might have exited in a “dirty” manner.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">FAQ</a><ul>
-<li><a class="reference internal" href="#error-failed-to-bind">1. Error: “failed to bind”</a></li>
-<li><a class="reference internal" href="#error-you-must-have-fiftyone-x-x-x-installed">2. Error: “you must have fiftyone&gt;x.x.x installed”</a></li>
+<li><a class="reference internal" href="#">Datasets</a><ul>
+<li><a class="reference internal" href="#oiv6-mpeg">1. OIV6-MPEG</a></li>
+<li><a class="reference internal" href="#tvd">2. TVD</a></li>
+<li><a class="reference internal" href="#sfu-hw-objects-v1">3. SFU-HW-Objects-V1</a></li>
+<li><a class="reference internal" href="#flir">4. FLIR</a></li>
 </ul>
 </li>
 </ul>

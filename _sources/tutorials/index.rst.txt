@@ -26,6 +26,7 @@ encoder/decoder according to the standards set by the MPEG-VCM working group.
    cli_tutorial_5
    cli_tutorial_6
    cli_tutorial_7
+   cli_reference
 
 Library Tutorial
 ================
@@ -37,7 +38,6 @@ Here we take a look how to use CompressAI-Vision as a python library.  This is a
    :caption: LIB HOWTO
 
    download
-   convert
    detectron2
    evaluate
    encdec

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="5. Creating an EncoderDecoder class" href="encdec.html" /><link rel="prev" title="3. Run Detectron2" href="detectron2.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="4. Creating an EncoderDecoder class" href="encdec.html" /><link rel="prev" title="2. Run Detectron2" href="detectron2.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>4. Evaluate - CompressAIVision</title>
+        <title>3. Evaluate - CompressAIVision</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -240,7 +243,7 @@
         </div>
         <article role="main">
           <section id="evaluate">
-<span id="id1"></span><h1>4. Evaluate<a class="headerlink" href="#evaluate" title="Permalink to this heading">#</a></h1>
+<span id="id1"></span><h1>3. Evaluate<a class="headerlink" href="#evaluate" title="Permalink to this heading">#</a></h1>
 <p><a class="reference download internal" download="" href="../_downloads/1dc4a9a58f6c009d13e7af048b3f5d69/evaluate_nb.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">[download</span> <span class="pre">tutorial</span> <span class="pre">as</span> <span class="pre">notebook]</span></code></a></p>
 <p>Evaluate detector results for images that have been gone through the encoding+decoding process for various quality parameters.</p>
 <p>Produces <code class="docutils literal notranslate"><span class="pre">mAP(q)</span></code> curve for quality parameters <code class="docutils literal notranslate"><span class="pre">q</span></code>.</p>
@@ -289,7 +292,7 @@ import fiftyone.zoo as foz
 print(device)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cpu</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cpu
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>## MODEL A
@@ -321,14 +324,14 @@ print(&quot;model was trained with&quot;, model_dataset)
 model_meta=MetadataCatalog.get(model_dataset)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">expected</span> <span class="nb">input</span> <span class="n">colorspace</span><span class="p">:</span> <span class="n">BGR</span>
-<span class="n">loaded</span> <span class="n">datasets</span><span class="p">:</span> <span class="n">PRECOMPUTED_PROPOSAL_TOPK_TEST</span><span class="p">:</span> <span class="mi">1000</span>
-<span class="n">PRECOMPUTED_PROPOSAL_TOPK_TRAIN</span><span class="p">:</span> <span class="mi">2000</span>
-<span class="n">PROPOSAL_FILES_TEST</span><span class="p">:</span> <span class="p">()</span>
-<span class="n">PROPOSAL_FILES_TRAIN</span><span class="p">:</span> <span class="p">()</span>
-<span class="n">TEST</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;coco_2017_val&#39;</span><span class="p">,)</span>
-<span class="n">TRAIN</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;coco_2017_train&#39;</span><span class="p">,)</span>
-<span class="n">model</span> <span class="n">was</span> <span class="n">trained</span> <span class="k">with</span> <span class="n">coco_2017_train</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>expected input colorspace: BGR
+loaded datasets: PRECOMPUTED_PROPOSAL_TOPK_TEST: 1000
+PRECOMPUTED_PROPOSAL_TOPK_TRAIN: 2000
+PROPOSAL_FILES_TEST: ()
+PROPOSAL_FILES_TRAIN: ()
+TEST: (&#39;coco_2017_val&#39;,)
+TRAIN: (&#39;coco_2017_train&#39;,)
+model was trained with coco_2017_train
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># model_meta.thing_classes # check class labels this was trained with
@@ -337,15 +340,15 @@ model_meta=MetadataCatalog.get(model_dataset)
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor = DefaultPredictor(cfg)
 </pre></div>
 </div>
-<p>Get a handle to the dataset created in previous notebooks:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># dataset = fo.load_dataset(&quot;mpeg-vcm-detection&quot;)
-dataset = fo.load_dataset(&quot;mpeg-vcm-detection-dummy&quot;) # or use the dummy dataset for testing/debugging
+<p>Get handle to a dataset. We will be using the <code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-v1</span></code> dataset.
+Please go through the CLI Tutorials in order to produce this dataset.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;oiv6-mpeg-detection-v1-dummy&quot;) # or use the dummy dataset for testing/debugging
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span><span class="o">-</span><span class="n">dummy</span>
 <span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
 <span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">1</span>
 <span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
@@ -377,7 +380,7 @@ quickLog(&quot;CompressAIEncoderDecoder&quot;, loglev)
 print(classes)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;airplane&#39;</span><span class="p">]</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[&#39;airplane&#39;]
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def per_class(results_obj):
@@ -421,7 +424,7 @@ for i in params:
     # before the predictor is used, the image is crunched through the encoding/decoding process &amp; the bitrate is recorded
     # you could substitute CompressAIEncoderDecoder with VTMEncoderDecoder if you&#39;d like to (see also the end of this tutorial)
     print(&quot;running the detector at&quot;, i)
-    bpp = annexPredictions(predictor=predictor, fo_dataset=dataset, encoder_decoder=enc_dec, predictor_field=predictor_field)
+    bpp = annexPredictions(predictors=[predictor], fo_dataset=dataset, encoder_decoder=enc_dec, predictor_fields=[predictor_field])
     # .. now detectron&#39;s results are in each sample at the &quot;detectron-predictions&quot;  field
     res = dataset.evaluate_detections(
         predictor_field,
@@ -446,17 +449,17 @@ for i in params:
 print(&quot;ready!&quot;)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">running</span> <span class="n">the</span> <span class="n">detector</span> <span class="n">at</span> <span class="mi">1</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>running the detector at 1
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">silo</span><span class="o">/</span><span class="n">interdigital</span><span class="o">/</span><span class="n">venv_all</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.8</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">torch</span><span class="o">/</span><span class="n">_tensor</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">575</span><span class="p">:</span> <span class="ne">UserWarning</span><span class="p">:</span> <span class="n">floor_divide</span> <span class="ow">is</span> <span class="n">deprecated</span><span class="p">,</span> <span class="ow">and</span> <span class="n">will</span> <span class="n">be</span> <span class="n">removed</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">future</span> <span class="n">version</span> <span class="n">of</span> <span class="n">pytorch</span><span class="o">.</span> <span class="n">It</span> <span class="n">currently</span> <span class="n">rounds</span> <span class="n">toward</span> <span class="mi">0</span> <span class="p">(</span><span class="n">like</span> <span class="n">the</span> <span class="s1">&#39;trunc&#39;</span> <span class="n">function</span> <span class="n">NOT</span> <span class="s1">&#39;floor&#39;</span><span class="p">)</span><span class="o">.</span> <span class="n">This</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">incorrect</span> <span class="n">rounding</span> <span class="k">for</span> <span class="n">negative</span> <span class="n">values</span><span class="o">.</span>
-<span class="n">To</span> <span class="n">keep</span> <span class="n">the</span> <span class="n">current</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">use</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s1">&#39;trunc&#39;</span><span class="p">),</span> <span class="ow">or</span> <span class="k">for</span> <span class="n">actual</span> <span class="n">floor</span> <span class="n">division</span><span class="p">,</span> <span class="n">use</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s1">&#39;floor&#39;</span><span class="p">)</span><span class="o">.</span> <span class="p">(</span><span class="n">Triggered</span> <span class="n">internally</span> <span class="n">at</span>  <span class="o">../</span><span class="n">aten</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">ATen</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">BinaryOps</span><span class="o">.</span><span class="n">cpp</span><span class="p">:</span><span class="mf">467.</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">floor_divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the &#39;trunc&#39; function NOT &#39;floor&#39;). This results in incorrect rounding for negative values.
+To keep the current behavior, use torch.div(a, b, rounding_mode=&#39;trunc&#39;), or for actual floor division, use torch.div(a, b, rounding_mode=&#39;floor&#39;). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
+  return torch.floor_divide(self, other)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sample:  1 / 1
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sample:  1 / 1
 Evaluating detections...
- 100% |█████████████████████| 1/1 [13.8ms elapsed, 0s remaining, 72.7 samples/s]
+ 100% |█████████████████████| 1/1 [11.6ms elapsed, 0s remaining, 85.9 samples/s]
 ready!
 </pre></div>
 </div>
@@ -471,7 +474,7 @@ from the database:</p>
 print(res)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;bpp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.10060123042505593</span><span class="p">],</span> <span class="s1">&#39;map&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="s1">&#39;map_per_class&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;airplane&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}]}</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&#39;bpp&#39;: [0.10060123042505593], &#39;map&#39;: [1.0], &#39;map_per_class&#39;: [{&#39;airplane&#39;: 1.0}]}
 </pre></div>
 </div>
 <p>In that loop over quality parameters above, you can substitute the
@@ -505,7 +508,7 @@ log=quickLog(&quot;VTMEncoderDecoder&quot;, loglev) # VTMEncoderDecoder
 )
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">VTMEncoderDecoder</span> <span class="o">-</span> <span class="n">WARNING</span> <span class="o">-</span> <span class="n">folder</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span><span class="o">/</span><span class="mi">100</span><span class="o">/</span><span class="mi">47</span> <span class="n">exists</span> <span class="n">already</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>VTMEncoderDecoder - WARNING - folder /tmp/bitstreams/100/47 exists already
 </pre></div>
 </div>
 <p>For more information about the <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> classes, please see <a class="reference internal" href="encdec.html#encdec"><span class="std std-ref">here</span></a>.</p>
@@ -521,7 +524,7 @@ log=quickLog(&quot;VTMEncoderDecoder&quot;, loglev) # VTMEncoderDecoder
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">5. Creating an EncoderDecoder class</div>
+                <div class="title">4. Creating an EncoderDecoder class</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -532,7 +535,7 @@ log=quickLog(&quot;VTMEncoderDecoder&quot;, loglev) # VTMEncoderDecoder
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">3. Run Detectron2</div>
+                <div class="title">2. Run Detectron2</div>
                 
               </div>
             </a>

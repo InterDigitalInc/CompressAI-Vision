@@ -99,7 +99,7 @@ Let’s take a look at the first sample:
     print(sample)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     <Sample: {
         'id': '634472860faf93a9a586c9c4',
@@ -415,7 +415,7 @@ has:
     print(dataset)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     Name:        quickstart
     Media type:  image
@@ -457,7 +457,7 @@ features
     print(tmpset)
 
 
-.. parsed-literal::
+.. code-block:: text
 
     Dataset:     quickstart
     Media type:  image

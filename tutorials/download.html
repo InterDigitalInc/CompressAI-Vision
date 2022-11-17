@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="2. Input file conversion" href="convert.html" /><link rel="prev" title="7. Importing and Using Video" href="cli_tutorial_7.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="2. Run Detectron2" href="detectron2.html" /><link rel="prev" title="CLI Reference" href="cli_reference.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>1. Download Images - CompressAIVision</title>
@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -272,39 +275,60 @@ except FileExistsError:
     pass
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">your</span> <span class="n">home</span> <span class="n">path</span> <span class="ow">is</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span>
-<span class="n">fiftyone</span> <span class="n">dowloads</span> <span class="n">data</span> <span class="n">by</span> <span class="n">default</span> <span class="n">to</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>your home path is /home/sampsa
+fiftyone dowloads data by default to /home/sampsa/fiftyone
 </pre></div>
 </div>
 <p>List all datasets (already) registered to fiftyone</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fo.list_datasets()
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;mpeg-vcm-detection&#39;</span><span class="p">,</span>
- <span class="s1">&#39;mpeg-vcm-detection-dummy&#39;</span><span class="p">,</span>
- <span class="s1">&#39;mpeg-vcm-segmentation&#39;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-22-40-319395&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-24-14-478278&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;flir-image-rgb-v1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;oiv6-mpeg-detection-v1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;oiv6-mpeg-detection-v1-dummy&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;oiv6-mpeg-segmentation-v1&#39;</span><span class="p">,</span>
  <span class="s1">&#39;open-images-v6-validation&#39;</span><span class="p">,</span>
- <span class="s1">&#39;quickstart&#39;</span><span class="p">]</span>
+ <span class="s1">&#39;quickstart&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;quickstart-video&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;sfu-hw-objects-v1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;tvd-image-detection-v1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;tvd-image-segmentation-v1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;tvd-object-tracking-v1&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Create a list of necessary images</p>
-<p>MPEG/VCM working group and mpeg_vcm provides you with files listing the
-necessary images for detection and segmentation validation, namely
-<code class="docutils literal notranslate"><span class="pre">detection_validation_input_5k.lst</span></code> and
-<code class="docutils literal notranslate"><span class="pre">segmentation_validation_input_5k.lst</span></code>. Let’s combine those two files
-into a list:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>path_to_mpeg_vcm_files=&quot;/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data&quot;
+<p>We use files listing image ids in order to download a subset of
+OpenImageV6.</p>
+<p>Let’s use two files: <code class="docutils literal notranslate"><span class="pre">detection_validation_input_5k.lst</span></code> and
+<code class="docutils literal notranslate"><span class="pre">segmentation_validation_input_5k.lst</span></code></p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>path_to_list_file=&quot;/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data&quot;
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>det_lst=os.path.join(path_to_mpeg_vcm_files,&quot;detection_validation_input_5k.lst&quot;) # the images used for detection validation
-seg_lst=os.path.join(path_to_mpeg_vcm_files, &quot;segmentation_validation_input_5k.lst&quot;) # the images used for segmentation validation
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!head -n10 {path_to_list_file}/detection_validation_input_5k.lst
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>bef50424c62d12c5.jpg
+c540d9c96b6a79a2.jpg
+a1b20ed591193c06.jpg
+945d6f685752e31b.jpg
+d18700eda95548c8.jpg
+e2c7ea356ccf3729.jpg
+44cee71a77765756.jpg
+a63d569332c49ee5.jpg
+16774edaeacc5aed.jpg
+2e96665b867c4d0f.jpg
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>det_lst=os.path.join(path_to_mpeg_vcm_files,&quot;detection_validation_input_5k.lst&quot;)
+seg_lst=os.path.join(path_to_mpeg_vcm_files, &quot;segmentation_validation_input_5k.lst&quot;)
 assert(os.path.exists(det_lst)), &quot;missing file &quot;+det_lst
 assert(os.path.exists(seg_lst)), &quot;missing file &quot;+seg_lst
 lis=imageIdFileList(det_lst, seg_lst)
 print(len(lis))
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">8189</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>8189
 </pre></div>
 </div>
 <p>Tell fiftyone to load the correct subset of OpenImageV6 dataset:</p>
@@ -317,10 +341,12 @@ dataset = foz.load_zoo_dataset(
 )
 </pre></div>
 </div>
-<pre class="literal-block">Downloading split 'validation' to '/home/sampsa/fiftyone/open-images-v6/validation' if necessary
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Downloading split &#39;validation&#39; to &#39;/home/sampsa/fiftyone/open-images-v6/validation&#39; if necessary
 Necessary images already downloaded
-Existing download of split 'validation' is sufficient
-Loading existing dataset 'open-images-v6-validation'. To reload from disk, either delete the existing dataset or provide a custom <cite>dataset_name</cite> to use</pre>
+Existing download of split &#39;validation&#39; is sufficient
+Loading existing dataset &#39;open-images-v6-validation&#39;. To reload from disk, either delete the existing dataset or provide a custom `dataset_name` to use
+</pre></div>
+</div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># take a look at the dataset
 dataset
 </pre></div>
@@ -410,7 +436,7 @@ print(&quot;contents of&quot;, dir_,&quot;:&quot;)
 !tree --filelimit=10 $dir_ | cat
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
 /home/sampsa/fiftyone/open-images-v6
 ├── info.json
 └── validation
@@ -446,23 +472,23 @@ print(&quot;contents of&quot;, dir_,&quot;:&quot;)
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="convert.html">
+          <a class="next-page" href="detectron2.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">2. Input file conversion</div>
+                <div class="title">2. Run Detectron2</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="cli_tutorial_7.html">
+          <a class="prev-page" href="cli_reference.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">7. Importing and Using Video</div>
+                <div class="title">CLI Reference</div>
                 
               </div>
             </a>

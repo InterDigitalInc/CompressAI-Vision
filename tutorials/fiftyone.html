@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -310,283 +313,283 @@ import fiftyone.zoo as foz
 print(sample)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;634472860faf93a9a586c9c4&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;media_type&#39;</span><span class="p">:</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;filepath&#39;</span><span class="p">:</span> <span class="s1">&#39;/home/sampsa/fiftyone/quickstart/data/000880.jpg&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span><span class="s1">&#39;validation&#39;</span><span class="p">]),</span>
-    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="s1">&#39;ground_truth&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53c8&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.21084375</span><span class="p">,</span>
-                    <span class="mf">0.0034375</span><span class="p">,</span>
-                    <span class="mf">0.46190625</span><span class="p">,</span>
-                    <span class="mf">0.9442083333333334</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">73790.37944999996</span><span class="p">,</span>
-                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53c9&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.74946875</span><span class="p">,</span>
-                    <span class="mf">0.489375</span><span class="p">,</span>
-                    <span class="mf">0.2164375</span><span class="p">,</span>
-                    <span class="mf">0.23183333333333334</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">3935.7593000000006</span><span class="p">,</span>
-                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452471ef00e6374aac53ca&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.044234375</span><span class="p">,</span>
-                    <span class="mf">0.5282083333333333</span><span class="p">,</span>
-                    <span class="mf">0.151390625</span><span class="p">,</span>
-                    <span class="mf">0.14145833333333335</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">4827.32605</span><span class="p">,</span>
-                <span class="s1">&#39;iscrowd&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="p">]),</span>
-    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s1">&#39;uniqueness&#39;</span><span class="p">:</span> <span class="mf">0.8175834390151201</span><span class="p">,</span>
-    <span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9394&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.22192673683166503</span><span class="p">,</span>
-                    <span class="mf">0.06093006531397502</span><span class="p">,</span>
-                    <span class="mf">0.4808845520019531</span><span class="p">,</span>
-                    <span class="mf">0.8937615712483724</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.9750854969024658</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9395&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.3962469816207886</span><span class="p">,</span>
-                    <span class="mf">0.006943931678930918</span><span class="p">,</span>
-                    <span class="mf">0.27418792247772217</span><span class="p">,</span>
-                    <span class="mf">0.46793556213378906</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.759726881980896</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9396&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.02506386339664459</span><span class="p">,</span>
-                    <span class="mf">0.548487663269043</span><span class="p">,</span>
-                    <span class="mf">0.16438478231430054</span><span class="p">,</span>
-                    <span class="mf">0.16736234029134114</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.6569182276725769</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9397&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.4889101028442383</span><span class="p">,</span>
-                    <span class="mf">0.009576511383056641</span><span class="p">,</span>
-                    <span class="mf">0.13802199363708495</span><span class="p">,</span>
-                    <span class="mf">0.2093157132466634</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2359301745891571</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9398&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.015171945095062256</span><span class="p">,</span>
-                    <span class="mf">0.555288823445638</span><span class="p">,</span>
-                    <span class="mf">0.1813342332839966</span><span class="p">,</span>
-                    <span class="mf">0.15938574473063152</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.221974179148674</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad9399&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.017808181047439576</span><span class="p">,</span>
-                    <span class="mf">0.5488224665323893</span><span class="p">,</span>
-                    <span class="mf">0.17450940608978271</span><span class="p">,</span>
-                    <span class="mf">0.16891117095947267</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.1965726613998413</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939a&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.16558188199996948</span><span class="p">,</span>
-                    <span class="mf">0.5723957061767578</span><span class="p">,</span>
-                    <span class="mf">0.09993256330490112</span><span class="p">,</span>
-                    <span class="mf">0.10098978678385416</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.18904592096805573</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939b&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.213010573387146</span><span class="p">,</span>
-                    <span class="mf">0.05354320605595907</span><span class="p">,</span>
-                    <span class="mf">0.5153374671936035</span><span class="p">,</span>
-                    <span class="mf">0.8933518091837566</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.11480894684791565</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939c&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.29751906394958494</span><span class="p">,</span>
-                    <span class="mf">0.010790024201075237</span><span class="p">,</span>
-                    <span class="mf">0.3315577507019043</span><span class="p">,</span>
-                    <span class="mf">0.34026527404785156</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.11089690029621124</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939d&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.08351035118103027</span><span class="p">,</span>
-                    <span class="mf">0.5574632008870443</span><span class="p">,</span>
-                    <span class="mf">0.18209288120269776</span><span class="p">,</span>
-                    <span class="mf">0.1426785151163737</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.0971052274107933</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939e&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.4461814880371094</span><span class="p">,</span>
-                    <span class="mf">0.0007838249827424685</span><span class="p">,</span>
-                    <span class="mf">0.209574556350708</span><span class="p">,</span>
-                    <span class="mf">0.309667714436849</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.08403241634368896</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad939f&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.5395165920257569</span><span class="p">,</span>
-                    <span class="mf">0.034476550420125325</span><span class="p">,</span>
-                    <span class="mf">0.07703280448913574</span><span class="p">,</span>
-                    <span class="mf">0.16296254793802897</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.07699568569660187</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad93a0&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.217216157913208</span><span class="p">,</span>
-                    <span class="mf">0.05954849322636922</span><span class="p">,</span>
-                    <span class="mf">0.49451656341552735</span><span class="p">,</span>
-                    <span class="mf">0.8721434275309244</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.058097004890441895</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;5f452c60ef00e6374aad93a1&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.018094074726104737</span><span class="p">,</span>
-                    <span class="mf">0.5562847137451172</span><span class="p">,</span>
-                    <span class="mf">0.17362892627716064</span><span class="p">,</span>
-                    <span class="mf">0.15742950439453124</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.0519101656973362</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="p">]),</span>
-    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">}</span><span class="o">&gt;</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;Sample: {
+    &#39;id&#39;: &#39;634472860faf93a9a586c9c4&#39;,
+    &#39;media_type&#39;: &#39;image&#39;,
+    &#39;filepath&#39;: &#39;/home/sampsa/fiftyone/quickstart/data/000880.jpg&#39;,
+    &#39;tags&#39;: BaseList([&#39;validation&#39;]),
+    &#39;metadata&#39;: None,
+    &#39;ground_truth&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53c8&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.21084375,
+                    0.0034375,
+                    0.46190625,
+                    0.9442083333333334,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 73790.37944999996,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53c9&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.74946875,
+                    0.489375,
+                    0.2164375,
+                    0.23183333333333334,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 3935.7593000000006,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452471ef00e6374aac53ca&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.044234375,
+                    0.5282083333333333,
+                    0.151390625,
+                    0.14145833333333335,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;area&#39;: 4827.32605,
+                &#39;iscrowd&#39;: 0.0,
+            }&gt;,
+        ]),
+    }&gt;,
+    &#39;uniqueness&#39;: 0.8175834390151201,
+    &#39;predictions&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9394&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.22192673683166503,
+                    0.06093006531397502,
+                    0.4808845520019531,
+                    0.8937615712483724,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.9750854969024658,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9395&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.3962469816207886,
+                    0.006943931678930918,
+                    0.27418792247772217,
+                    0.46793556213378906,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.759726881980896,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9396&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.02506386339664459,
+                    0.548487663269043,
+                    0.16438478231430054,
+                    0.16736234029134114,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.6569182276725769,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9397&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.4889101028442383,
+                    0.009576511383056641,
+                    0.13802199363708495,
+                    0.2093157132466634,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.2359301745891571,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9398&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.015171945095062256,
+                    0.555288823445638,
+                    0.1813342332839966,
+                    0.15938574473063152,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.221974179148674,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad9399&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bear&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.017808181047439576,
+                    0.5488224665323893,
+                    0.17450940608978271,
+                    0.16891117095947267,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.1965726613998413,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939a&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.16558188199996948,
+                    0.5723957061767578,
+                    0.09993256330490112,
+                    0.10098978678385416,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.18904592096805573,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939b&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;sheep&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.213010573387146,
+                    0.05354320605595907,
+                    0.5153374671936035,
+                    0.8933518091837566,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.11480894684791565,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939c&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.29751906394958494,
+                    0.010790024201075237,
+                    0.3315577507019043,
+                    0.34026527404785156,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.11089690029621124,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939d&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;elephant&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.08351035118103027,
+                    0.5574632008870443,
+                    0.18209288120269776,
+                    0.1426785151163737,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.0971052274107933,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939e&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.4461814880371094,
+                    0.0007838249827424685,
+                    0.209574556350708,
+                    0.309667714436849,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.08403241634368896,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad939f&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bird&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.5395165920257569,
+                    0.034476550420125325,
+                    0.07703280448913574,
+                    0.16296254793802897,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.07699568569660187,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad93a0&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;bear&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.217216157913208,
+                    0.05954849322636922,
+                    0.49451656341552735,
+                    0.8721434275309244,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.058097004890441895,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;5f452c60ef00e6374aad93a1&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;sheep&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.018094074726104737,
+                    0.5562847137451172,
+                    0.17362892627716064,
+                    0.15742950439453124,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.0519101656973362,
+                &#39;index&#39;: None,
+            }&gt;,
+        ]),
+    }&gt;,
+}&gt;
 </pre></div>
 </div>
 <p>Here we can see that there are bbox ground truths. Please also note that
@@ -609,19 +612,19 @@ has:</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(dataset)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">quickstart</span>
-<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
-<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">200</span>
-<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
-<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
-<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
-    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
-    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
-    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
-    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
-    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
-    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name:        quickstart
+Media type:  image
+Num samples: 200
+Persistent:  True
+Tags:        []
+Sample fields:
+    id:           fiftyone.core.fields.ObjectIdField
+    filepath:     fiftyone.core.fields.StringField
+    tags:         fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+    metadata:     fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+    ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    uniqueness:   fiftyone.core.fields.FloatField
+    predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
 </pre></div>
 </div>
 <p>You can visualize the whole dataset conveniently with:</p>
@@ -642,19 +645,19 @@ tmpset=dataset[F(&quot;filepath&quot;) == dataset.first().filepath]
 print(tmpset)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dataset</span><span class="p">:</span>     <span class="n">quickstart</span>
-<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
-<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
-    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
-    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
-    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
-    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
-    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
-    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
-<span class="n">View</span> <span class="n">stages</span><span class="p">:</span>
-    <span class="mf">1.</span> <span class="n">Match</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;$expr&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}})</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Dataset:     quickstart
+Media type:  image
+Num samples: 1
+Sample fields:
+    id:           fiftyone.core.fields.ObjectIdField
+    filepath:     fiftyone.core.fields.StringField
+    tags:         fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+    metadata:     fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+    ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    uniqueness:   fiftyone.core.fields.FloatField
+    predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+View stages:
+    1. Match(filter={&#39;$expr&#39;: {&#39;$eq&#39;: [...]}})
 </pre></div>
 </div>
 </section>

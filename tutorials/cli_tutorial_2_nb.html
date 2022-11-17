@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -245,71 +248,71 @@
 </ul>
 <p>In the previous chapter we downloaded &amp; registered the dataset
 “quickstart” from the fiftyone model zoo:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision list
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
 
-<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
-<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
-<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
-<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+datasets currently registered into fiftyone
+name, length, first sample path
+mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+quickstart, 200, /home/sampsa/fiftyone/quickstart/data
 </pre></div>
 </div>
 <p>All the metadata, ground truth bboxes, etc. reside now in the
 fiftyone/mongodb database at dataset “quickstart”. That data was read
 into the database originally from directory <code class="docutils literal notranslate"><span class="pre">~/fiftyone/quickstart</span></code>.
 Let’s see what’s in there:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span>  <span class="n">info</span><span class="o">.</span><span class="n">json</span>  <span class="n">metadata</span><span class="o">.</span><span class="n">json</span>      <span class="n">samples</span><span class="o">.</span><span class="n">json</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>data  info.json  metadata.json      samples.json
 </pre></div>
 </div>
 <p>Exactly. Note directory <code class="docutils literal notranslate"><span class="pre">data</span></code>. That is where the sample images are
 (they are <em>not</em> in the database, but just on the disk as image files).
 Let’s take a look at that:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart/data
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls ~/fiftyone/quickstart/data
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">000002.</span><span class="n">jpg</span>  <span class="mf">000889.</span><span class="n">jpg</span>      <span class="mf">001851.</span><span class="n">jpg</span>  <span class="mf">002598.</span><span class="n">jpg</span>  <span class="mf">003754.</span><span class="n">jpg</span>  <span class="mf">004416.</span><span class="n">jpg</span>
-<span class="mf">000008.</span><span class="n">jpg</span>  <span class="mf">000890.</span><span class="n">jpg</span>      <span class="mf">001867.</span><span class="n">jpg</span>  <span class="mf">002640.</span><span class="n">jpg</span>  <span class="mf">003769.</span><span class="n">jpg</span>  <span class="mf">004431.</span><span class="n">jpg</span>
-<span class="mf">000020.</span><span class="n">jpg</span>  <span class="mf">000939.</span><span class="n">jpg</span>      <span class="mf">001888.</span><span class="n">jpg</span>  <span class="mf">002645.</span><span class="n">jpg</span>  <span class="mf">003805.</span><span class="n">jpg</span>  <span class="mf">004510.</span><span class="n">jpg</span>
-<span class="mf">000031.</span><span class="n">jpg</span>  <span class="mf">000957.</span><span class="n">jpg</span>      <span class="mf">001934.</span><span class="n">jpg</span>  <span class="mf">002660.</span><span class="n">jpg</span>  <span class="mf">003870.</span><span class="n">jpg</span>  <span class="mf">004514.</span><span class="n">jpg</span>
-<span class="mf">000035.</span><span class="n">jpg</span>  <span class="mf">000998.</span><span class="n">jpg</span>      <span class="mf">001949.</span><span class="n">jpg</span>  <span class="mf">002671.</span><span class="n">jpg</span>  <span class="mf">003871.</span><span class="n">jpg</span>  <span class="mf">004517.</span><span class="n">jpg</span>
-<span class="mf">000058.</span><span class="n">jpg</span>  <span class="mf">001047.</span><span class="n">jpg</span>      <span class="mf">001951.</span><span class="n">jpg</span>  <span class="mf">002748.</span><span class="n">jpg</span>  <span class="mf">003880.</span><span class="n">jpg</span>  <span class="mf">004525.</span><span class="n">jpg</span>
-<span class="mf">000083.</span><span class="n">jpg</span>  <span class="mf">001057.</span><span class="n">jpg</span>      <span class="mf">001983.</span><span class="n">jpg</span>  <span class="mf">002799.</span><span class="n">jpg</span>  <span class="mf">003888.</span><span class="n">jpg</span>  <span class="mf">004534.</span><span class="n">jpg</span>
-<span class="mf">000089.</span><span class="n">jpg</span>  <span class="mf">001073.</span><span class="n">jpg</span>      <span class="mf">002015.</span><span class="n">jpg</span>  <span class="mf">002823.</span><span class="n">jpg</span>  <span class="mf">003911.</span><span class="n">jpg</span>  <span class="mf">004535.</span><span class="n">jpg</span>
-<span class="mf">000145.</span><span class="n">jpg</span>  <span class="mf">001078.</span><span class="n">jpg</span>      <span class="mf">002022.</span><span class="n">jpg</span>  <span class="mf">002869.</span><span class="n">jpg</span>  <span class="mf">003964.</span><span class="n">jpg</span>  <span class="mf">004546.</span><span class="n">jpg</span>
-<span class="mf">000164.</span><span class="n">jpg</span>  <span class="mf">001118.</span><span class="n">jpg</span>      <span class="mf">002063.</span><span class="n">jpg</span>  <span class="mf">002905.</span><span class="n">jpg</span>  <span class="mf">003969.</span><span class="n">jpg</span>  <span class="mf">004548.</span><span class="n">jpg</span>
-<span class="mf">000191.</span><span class="n">jpg</span>  <span class="mf">001133.</span><span class="n">jpg</span>      <span class="mf">002070.</span><span class="n">jpg</span>  <span class="mf">002906.</span><span class="n">jpg</span>  <span class="mf">003978.</span><span class="n">jpg</span>  <span class="mf">004557.</span><span class="n">jpg</span>
-<span class="mf">000192.</span><span class="n">jpg</span>  <span class="mf">001147.</span><span class="n">jpg</span>      <span class="mf">002086.</span><span class="n">jpg</span>  <span class="mf">002939.</span><span class="n">jpg</span>  <span class="mf">004039.</span><span class="n">jpg</span>  <span class="mf">004585.</span><span class="n">jpg</span>
-<span class="mf">000400.</span><span class="n">jpg</span>  <span class="mf">001154.</span><span class="n">jpg</span>      <span class="mf">002121.</span><span class="n">jpg</span>  <span class="mf">002953.</span><span class="n">jpg</span>  <span class="mf">004066.</span><span class="n">jpg</span>  <span class="mf">004590.</span><span class="n">jpg</span>
-<span class="mf">000436.</span><span class="n">jpg</span>  <span class="mf">001191.</span><span class="n">jpg</span>      <span class="mf">002129.</span><span class="n">jpg</span>  <span class="mf">003084.</span><span class="n">jpg</span>  <span class="mf">004082.</span><span class="n">jpg</span>  <span class="mf">004610.</span><span class="n">jpg</span>
-<span class="mf">000452.</span><span class="n">jpg</span>  <span class="mf">001227.</span><span class="n">jpg</span>      <span class="mf">002143.</span><span class="n">jpg</span>  <span class="mf">003087.</span><span class="n">jpg</span>  <span class="mf">004095.</span><span class="n">jpg</span>  <span class="mf">004627.</span><span class="n">jpg</span>
-<span class="mf">000496.</span><span class="n">jpg</span>  <span class="mf">001289.</span><span class="n">jpg</span>      <span class="mf">002184.</span><span class="n">jpg</span>  <span class="mf">003107.</span><span class="n">jpg</span>  <span class="mf">004096.</span><span class="n">jpg</span>  <span class="mf">004651.</span><span class="n">jpg</span>
-<span class="mf">000510.</span><span class="n">jpg</span>  <span class="mf">001312.</span><span class="n">jpg</span>      <span class="mf">002186.</span><span class="n">jpg</span>  <span class="mf">003132.</span><span class="n">jpg</span>  <span class="mf">004126.</span><span class="n">jpg</span>  <span class="mf">004656.</span><span class="n">jpg</span>
-<span class="mf">000557.</span><span class="n">jpg</span>  <span class="mf">001348.</span><span class="n">jpg</span>      <span class="mf">002233.</span><span class="n">jpg</span>  <span class="mf">003148.</span><span class="n">jpg</span>  <span class="mf">004131.</span><span class="n">jpg</span>  <span class="mf">004702.</span><span class="n">jpg</span>
-<span class="mf">000575.</span><span class="n">jpg</span>  <span class="mf">001394.</span><span class="n">jpg</span>      <span class="mf">002284.</span><span class="n">jpg</span>  <span class="mf">003154.</span><span class="n">jpg</span>  <span class="mf">004170.</span><span class="n">jpg</span>  <span class="mf">004713.</span><span class="n">jpg</span>
-<span class="mf">000591.</span><span class="n">jpg</span>  <span class="mf">001429.</span><span class="n">jpg</span>      <span class="mf">002334.</span><span class="n">jpg</span>  <span class="mf">003254.</span><span class="n">jpg</span>  <span class="mf">004172.</span><span class="n">jpg</span>  <span class="mf">004743.</span><span class="n">jpg</span>
-<span class="mf">000594.</span><span class="n">jpg</span>  <span class="mf">001430.</span><span class="n">jpg</span>      <span class="mf">002353.</span><span class="n">jpg</span>  <span class="mf">003316.</span><span class="n">jpg</span>  <span class="mf">004180.</span><span class="n">jpg</span>  <span class="mf">004755.</span><span class="n">jpg</span>
-<span class="mf">000600.</span><span class="n">jpg</span>  <span class="mf">001586.</span><span class="n">jpg</span>      <span class="mf">002431.</span><span class="n">jpg</span>  <span class="mf">003344.</span><span class="n">jpg</span>  <span class="mf">004222.</span><span class="n">jpg</span>  <span class="mf">004775.</span><span class="n">jpg</span>
-<span class="mf">000641.</span><span class="n">jpg</span>  <span class="mf">001587.</span><span class="n">jpg</span>      <span class="mf">002439.</span><span class="n">jpg</span>  <span class="mf">003391.</span><span class="n">jpg</span>  <span class="mf">004253.</span><span class="n">jpg</span>  <span class="mf">004781.</span><span class="n">jpg</span>
-<span class="mf">000643.</span><span class="n">jpg</span>  <span class="mf">001599.</span><span class="n">jpg</span>      <span class="mf">002450.</span><span class="n">jpg</span>  <span class="mf">003420.</span><span class="n">jpg</span>  <span class="mf">004255.</span><span class="n">jpg</span>  <span class="mf">004831.</span><span class="n">jpg</span>
-<span class="mf">000648.</span><span class="n">jpg</span>  <span class="mf">001614.</span><span class="n">jpg</span>      <span class="mf">002462.</span><span class="n">jpg</span>  <span class="mf">003486.</span><span class="n">jpg</span>  <span class="mf">004263.</span><span class="n">jpg</span>  <span class="mf">004852.</span><span class="n">jpg</span>
-<span class="mf">000665.</span><span class="n">jpg</span>  <span class="mf">001624.</span><span class="n">jpg</span>      <span class="mf">002468.</span><span class="n">jpg</span>  <span class="mf">003502.</span><span class="n">jpg</span>  <span class="mf">004284.</span><span class="n">jpg</span>  <span class="mf">004939.</span><span class="n">jpg</span>
-<span class="mf">000696.</span><span class="n">jpg</span>  <span class="mf">001631.</span><span class="n">jpg</span>      <span class="mf">002489.</span><span class="n">jpg</span>  <span class="mf">003541.</span><span class="n">jpg</span>  <span class="mf">004292.</span><span class="n">jpg</span>  <span class="mf">004941.</span><span class="n">jpg</span>
-<span class="mf">000772.</span><span class="n">jpg</span>  <span class="mf">001634.</span><span class="n">jpg</span>      <span class="mf">002497.</span><span class="n">jpg</span>  <span class="mf">003614.</span><span class="n">jpg</span>  <span class="mf">004304.</span><span class="n">jpg</span>  <span class="mf">004965.</span><span class="n">jpg</span>
-<span class="mf">000773.</span><span class="n">jpg</span>  <span class="mf">001645.</span><span class="n">jpg</span>      <span class="mf">002514.</span><span class="n">jpg</span>  <span class="mf">003659.</span><span class="n">jpg</span>  <span class="mf">004315.</span><span class="n">jpg</span>  <span class="mf">004978.</span><span class="n">jpg</span>
-<span class="mf">000781.</span><span class="n">jpg</span>  <span class="mf">001685.</span><span class="n">jpg</span>      <span class="mf">002538.</span><span class="n">jpg</span>  <span class="mf">003662.</span><span class="n">jpg</span>  <span class="mf">004316.</span><span class="n">jpg</span>  <span class="mf">004981.</span><span class="n">jpg</span>
-<span class="mf">000793.</span><span class="n">jpg</span>  <span class="mf">001698.</span><span class="n">jpg</span>      <span class="mf">002553.</span><span class="n">jpg</span>  <span class="mf">003665.</span><span class="n">jpg</span>  <span class="mf">004329.</span><span class="n">jpg</span>
-<span class="mf">000807.</span><span class="n">jpg</span>  <span class="mf">001741.</span><span class="n">jpg</span>      <span class="mf">002586.</span><span class="n">jpg</span>  <span class="mf">003667.</span><span class="n">jpg</span>  <span class="mf">004330.</span><span class="n">jpg</span>
-<span class="mf">000868.</span><span class="n">jpg</span>  <span class="mf">001744.</span><span class="n">jpg</span>      <span class="mf">002592.</span><span class="n">jpg</span>  <span class="mf">003713.</span><span class="n">jpg</span>  <span class="mf">004341.</span><span class="n">jpg</span>
-<span class="mf">000880.</span><span class="n">jpg</span>  <span class="mf">001763.</span><span class="n">jpg</span>      <span class="mf">002597.</span><span class="n">jpg</span>  <span class="mf">003715.</span><span class="n">jpg</span>  <span class="mf">004371.</span><span class="n">jpg</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>000002.jpg  000889.jpg      001851.jpg  002598.jpg  003754.jpg  004416.jpg
+000008.jpg  000890.jpg      001867.jpg  002640.jpg  003769.jpg  004431.jpg
+000020.jpg  000939.jpg      001888.jpg  002645.jpg  003805.jpg  004510.jpg
+000031.jpg  000957.jpg      001934.jpg  002660.jpg  003870.jpg  004514.jpg
+000035.jpg  000998.jpg      001949.jpg  002671.jpg  003871.jpg  004517.jpg
+000058.jpg  001047.jpg      001951.jpg  002748.jpg  003880.jpg  004525.jpg
+000083.jpg  001057.jpg      001983.jpg  002799.jpg  003888.jpg  004534.jpg
+000089.jpg  001073.jpg      002015.jpg  002823.jpg  003911.jpg  004535.jpg
+000145.jpg  001078.jpg      002022.jpg  002869.jpg  003964.jpg  004546.jpg
+000164.jpg  001118.jpg      002063.jpg  002905.jpg  003969.jpg  004548.jpg
+000191.jpg  001133.jpg      002070.jpg  002906.jpg  003978.jpg  004557.jpg
+000192.jpg  001147.jpg      002086.jpg  002939.jpg  004039.jpg  004585.jpg
+000400.jpg  001154.jpg      002121.jpg  002953.jpg  004066.jpg  004590.jpg
+000436.jpg  001191.jpg      002129.jpg  003084.jpg  004082.jpg  004610.jpg
+000452.jpg  001227.jpg      002143.jpg  003087.jpg  004095.jpg  004627.jpg
+000496.jpg  001289.jpg      002184.jpg  003107.jpg  004096.jpg  004651.jpg
+000510.jpg  001312.jpg      002186.jpg  003132.jpg  004126.jpg  004656.jpg
+000557.jpg  001348.jpg      002233.jpg  003148.jpg  004131.jpg  004702.jpg
+000575.jpg  001394.jpg      002284.jpg  003154.jpg  004170.jpg  004713.jpg
+000591.jpg  001429.jpg      002334.jpg  003254.jpg  004172.jpg  004743.jpg
+000594.jpg  001430.jpg      002353.jpg  003316.jpg  004180.jpg  004755.jpg
+000600.jpg  001586.jpg      002431.jpg  003344.jpg  004222.jpg  004775.jpg
+000641.jpg  001587.jpg      002439.jpg  003391.jpg  004253.jpg  004781.jpg
+000643.jpg  001599.jpg      002450.jpg  003420.jpg  004255.jpg  004831.jpg
+000648.jpg  001614.jpg      002462.jpg  003486.jpg  004263.jpg  004852.jpg
+000665.jpg  001624.jpg      002468.jpg  003502.jpg  004284.jpg  004939.jpg
+000696.jpg  001631.jpg      002489.jpg  003541.jpg  004292.jpg  004941.jpg
+000772.jpg  001634.jpg      002497.jpg  003614.jpg  004304.jpg  004965.jpg
+000773.jpg  001645.jpg      002514.jpg  003659.jpg  004315.jpg  004978.jpg
+000781.jpg  001685.jpg      002538.jpg  003662.jpg  004316.jpg  004981.jpg
+000793.jpg  001698.jpg      002553.jpg  003665.jpg  004329.jpg
+000807.jpg  001741.jpg      002586.jpg  003667.jpg  004330.jpg
+000868.jpg  001744.jpg      002592.jpg  003713.jpg  004341.jpg
+000880.jpg  001763.jpg      002597.jpg  003715.jpg  004371.jpg
 </pre></div>
 </div>
 <p>The fiftyone dataset “quickstart” has only the paths to these files.</p>
@@ -317,19 +320,19 @@ Let’s take a look at that:</p>
 ImageDir format, COCO format, whatever) and you wish to register it into
 fiftyone.</p>
 <p>In order to demo that, let’s create a copy of <code class="docutils literal notranslate"><span class="pre">~/fiftyone/quickstart</span></code>:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>cp -r ~/fiftyone/quickstart /tmp/my_data_set
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp -r ~/fiftyone/quickstart /tmp/my_data_set
 </pre></div>
 </div>
 <p>Let’s imagine <code class="docutils literal notranslate"><span class="pre">/tmp/my_data_set</span></code> is that custom dataset of yours you
 had already lying around.</p>
 <p>We register it to fiftyone with:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision register --y \
---dataset-name=my_dataset \
---dir=/tmp/my_data_set \
---type=FiftyOneDataset
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision register --y <span class="se">\</span>
+--dataset-name<span class="o">=</span>my_dataset <span class="se">\</span>
+--dir<span class="o">=</span>/tmp/my_data_set <span class="se">\</span>
+--type<span class="o">=</span>FiftyOneDataset
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
 fiftyone imported
 
 WARNING: using/registering with ALL images.  You should use the --lists option
@@ -630,71 +633,71 @@ look in
 <a class="reference external" href="https://voxel51.com/docs/fiftyone/api/fiftyone.types.dataset_types.html">here</a>
 for more information.</p>
 <p>Let’s check that the dataset got registered correctly:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision list
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
 
-<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
-<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
-<span class="n">my_dataset</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">my_data_set</span><span class="o">/</span><span class="n">data</span>
-<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
-<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+datasets currently registered into fiftyone
+name, length, first sample path
+mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+my_dataset, 200, /tmp/my_data_set/data
+open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+quickstart, 200, /home/sampsa/fiftyone/quickstart/data
 </pre></div>
 </div>
 <p>A more detailed look into the dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision show --dataset-name=my_dataset
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision show --dataset-name<span class="o">=</span>my_dataset
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
 
-<span class="n">dataset</span> <span class="n">info</span><span class="p">:</span>
-<span class="n">Name</span><span class="p">:</span>        <span class="n">my_dataset</span>
-<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
-<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">200</span>
-<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
-<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
-<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
-    <span class="n">filepath</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
-    <span class="n">tags</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
-    <span class="n">metadata</span><span class="p">:</span>     <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
-    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
-    <span class="n">uniqueness</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FloatField</span>
-    <span class="n">predictions</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+dataset info:
+Name:        my_dataset
+Media type:  image
+Num samples: 200
+Persistent:  True
+Tags:        []
+Sample fields:
+    id:           fiftyone.core.fields.ObjectIdField
+    filepath:     fiftyone.core.fields.StringField
+    tags:         fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+    metadata:     fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+    ground_truth: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    uniqueness:   fiftyone.core.fields.FloatField
+    predictions:  fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
 
-<span class="n">test</span><span class="o">-</span><span class="n">loading</span> <span class="n">first</span> <span class="n">image</span> <span class="kn">from</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">my_data_set</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="mf">000880.</span><span class="n">jpg</span>
-<span class="n">loaded</span> <span class="n">image</span> <span class="k">with</span> <span class="n">dimensions</span> <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="n">ok</span>
+test-loading first image from /tmp/my_data_set/data/000880.jpg
+loaded image with dimensions (480, 640, 3) ok
 </pre></div>
 </div>
 <p>Let’s deregister the dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision deregister --y --dataset-name=my_dataset
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision deregister --y --dataset-name<span class="o">=</span>my_dataset
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
-<span class="n">removing</span> <span class="n">dataset</span> <span class="n">my_dataset</span> <span class="kn">from</span> <span class="nn">fiftyone</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
+removing dataset my_dataset from fiftyone
 </pre></div>
 </div>
 <p>Check it got removed:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision list
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision list
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">importing</span> <span class="n">fiftyone</span>
-<span class="n">fiftyone</span> <span class="n">imported</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
+fiftyone imported
 
-<span class="n">datasets</span> <span class="n">currently</span> <span class="n">registered</span> <span class="n">into</span> <span class="n">fiftyone</span>
-<span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">first</span> <span class="n">sample</span> <span class="n">path</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">/</span><span class="n">data</span>
-<span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">data</span>
-<span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span><span class="p">,</span> <span class="mi">8189</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">/</span><span class="n">validation</span><span class="o">/</span><span class="n">data</span>
-<span class="n">quickstart</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">fiftyone</span><span class="o">/</span><span class="n">quickstart</span><span class="o">/</span><span class="n">data</span>
+datasets currently registered into fiftyone
+name, length, first sample path
+mpeg-vcm-detection, 5000, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-detection-dummy, 1, /home/sampsa/fiftyone/mpeg-vcm-detection/data
+mpeg-vcm-segmentation, 5000, /home/sampsa/fiftyone/mpeg-vcm-segmentation/data
+open-images-v6-validation, 8189, /home/sampsa/fiftyone/open-images-v6/validation/data
+quickstart, 200, /home/sampsa/fiftyone/quickstart/data
 </pre></div>
 </div>
 <p>Let’s remove the image data as well:</p>

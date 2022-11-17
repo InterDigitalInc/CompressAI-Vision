@@ -5,12 +5,12 @@ In this chapter you will learn:
 In the previous chapter we downloaded & registered the dataset
 “quickstart” from the fiftyone model zoo:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision list
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -29,12 +29,12 @@ fiftyone/mongodb database at dataset “quickstart”. That data was read
 into the database originally from directory ``~/fiftyone/quickstart``.
 Let’s see what’s in there:
 
-.. code:: ipython3
+.. code:: bash
 
     ls ~/fiftyone/quickstart
 
 
-.. parsed-literal::
+.. code-block:: text
 
     data  info.json  metadata.json	samples.json
 
@@ -43,12 +43,12 @@ Exactly. Note directory ``data``. That is where the sample images are
 (they are *not* in the database, but just on the disk as image files).
 Let’s take a look at that:
 
-.. code:: ipython3
+.. code:: bash
 
     ls ~/fiftyone/quickstart/data
 
 
-.. parsed-literal::
+.. code-block:: text
 
     000002.jpg  000889.jpg	001851.jpg  002598.jpg	003754.jpg  004416.jpg
     000008.jpg  000890.jpg	001867.jpg  002640.jpg	003769.jpg  004431.jpg
@@ -94,7 +94,7 @@ fiftyone.
 
 In order to demo that, let’s create a copy of ``~/fiftyone/quickstart``:
 
-.. code:: ipython3
+.. code:: bash
 
     cp -r ~/fiftyone/quickstart /tmp/my_data_set
 
@@ -103,7 +103,7 @@ had already lying around.
 
 We register it to fiftyone with:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision register --y \
     --dataset-name=my_dataset \
@@ -111,7 +111,7 @@ We register it to fiftyone with:
     --type=FiftyOneDataset
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -417,12 +417,12 @@ for more information.
 
 Let’s check that the dataset got registered correctly:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision list
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -439,12 +439,12 @@ Let’s check that the dataset got registered correctly:
 
 A more detailed look into the dataset:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision show --dataset-name=my_dataset
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -470,12 +470,12 @@ A more detailed look into the dataset:
 
 Let’s deregister the dataset:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision deregister --y --dataset-name=my_dataset
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported
@@ -484,12 +484,12 @@ Let’s deregister the dataset:
 
 Check it got removed:
 
-.. code:: ipython3
+.. code:: bash
 
     compressai-vision list
 
 
-.. parsed-literal::
+.. code-block:: text
 
     importing fiftyone
     fiftyone imported

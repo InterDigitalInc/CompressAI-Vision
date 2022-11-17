@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>3. Detectron2 - CompressAIVision</title>
+        <title>&lt;no title&gt; - CompressAIVision</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -177,15 +177,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_5.html">5. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_6.html">6. VTM benchmark generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="index.html#library-tutorial">Library Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert.html">2. Input file conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html">3. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="detectron2.html#detectron2">3. Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="evaluate.html">4. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encdec.html">5. Creating an EncoderDecoder class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encdec.html">4. Creating an EncoderDecoder class</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +196,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../evaluation/fo/index.html">compressai_vision.evaluation.fo</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -239,13 +242,7 @@
           </label>
         </div>
         <article role="main">
-          <section id="detectron2">
-<h1>3. Detectron2<a class="headerlink" href="#detectron2" title="Permalink to this heading">#</a></h1>
-<ul class="simple">
-<li><p>Going between detectron2 &amp; fiftyone</p></li>
-<li><p>Annexing detectron2 results to fiftyone</p></li>
-</ul>
-<p>In this chapter we look into fiftyone/detectron2 interface, how to add
+          <p>In this chapter we look into fiftyone/detectron2 interface, how to add
 detectron2 results into a fiftyone dataset and how to evaluate
 detectron2 results with fiftyone.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># common libs
@@ -296,13 +293,13 @@ import fiftyone.zoo as foz
 print(device)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cpu</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cpu
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;torch:&quot;, torch.__version__, &quot;/ cuda:&quot;, torch.version.cuda, &quot;/ detectron2:&quot;, detectron2.__version__)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="p">:</span> <span class="mf">1.9.1</span><span class="o">+</span><span class="n">cu102</span> <span class="o">/</span> <span class="n">cuda</span><span class="p">:</span> <span class="mf">10.2</span> <span class="o">/</span> <span class="n">detectron2</span><span class="p">:</span> <span class="mf">0.6</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>torch: 1.9.1+cu102 / cuda: 10.2 / detectron2: 0.6
 </pre></div>
 </div>
 <p>Let’s pick up correct Detectron2 model</p>
@@ -334,30 +331,31 @@ print(&quot;model was trained with&quot;, model_dataset)
 model_meta=MetadataCatalog.get(model_dataset)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">expected</span> <span class="nb">input</span> <span class="n">colorspace</span><span class="p">:</span> <span class="n">BGR</span>
-<span class="n">loaded</span> <span class="n">datasets</span><span class="p">:</span> <span class="n">PRECOMPUTED_PROPOSAL_TOPK_TEST</span><span class="p">:</span> <span class="mi">1000</span>
-<span class="n">PRECOMPUTED_PROPOSAL_TOPK_TRAIN</span><span class="p">:</span> <span class="mi">2000</span>
-<span class="n">PROPOSAL_FILES_TEST</span><span class="p">:</span> <span class="p">()</span>
-<span class="n">PROPOSAL_FILES_TRAIN</span><span class="p">:</span> <span class="p">()</span>
-<span class="n">TEST</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;coco_2017_val&#39;</span><span class="p">,)</span>
-<span class="n">TRAIN</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;coco_2017_train&#39;</span><span class="p">,)</span>
-<span class="n">model</span> <span class="n">was</span> <span class="n">trained</span> <span class="k">with</span> <span class="n">coco_2017_train</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>expected input colorspace: BGR
+loaded datasets: PRECOMPUTED_PROPOSAL_TOPK_TEST: 1000
+PRECOMPUTED_PROPOSAL_TOPK_TRAIN: 2000
+PROPOSAL_FILES_TEST: ()
+PROPOSAL_FILES_TRAIN: ()
+TEST: (&#39;coco_2017_val&#39;,)
+TRAIN: (&#39;coco_2017_train&#39;,)
+model was trained with coco_2017_train
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor = DefaultPredictor(cfg)
 </pre></div>
 </div>
-<p>Get a handle to the dataset created in previous notebooks</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;mpeg-vcm-detection&quot;)
+<p>Get handle to a dataset. We will be using the <code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-v1</span></code> dataset.
+Please go through the CLI Tutorials in order to produce this dataset.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;oiv6-mpeg-detection-v1&quot;)
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span>
 <span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
 <span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">5000</span>
-<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">False</span>
+<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
 <span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
 <span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
     <span class="nb">id</span><span class="p">:</span>              <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
@@ -387,14 +385,14 @@ out = visualizer.draw_dataset_dict(d)
 cv2_imshow(out.get_image()[:, :, ::-1])
 </pre></div>
 </div>
-<img alt="../_images/detectron2_nb_21_0.png" src="../_images/detectron2_nb_21_0.png" />
+<img alt="../_images/detectron2_nb_20_0.png" src="../_images/detectron2_nb_20_0.png" />
 <p>Let’s try the Detectron2 predictor:</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>res=predictor(img)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">sampsa</span><span class="o">/</span><span class="n">silo</span><span class="o">/</span><span class="n">interdigital</span><span class="o">/</span><span class="n">venv_all</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.8</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">torch</span><span class="o">/</span><span class="n">_tensor</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">575</span><span class="p">:</span> <span class="ne">UserWarning</span><span class="p">:</span> <span class="n">floor_divide</span> <span class="ow">is</span> <span class="n">deprecated</span><span class="p">,</span> <span class="ow">and</span> <span class="n">will</span> <span class="n">be</span> <span class="n">removed</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">future</span> <span class="n">version</span> <span class="n">of</span> <span class="n">pytorch</span><span class="o">.</span> <span class="n">It</span> <span class="n">currently</span> <span class="n">rounds</span> <span class="n">toward</span> <span class="mi">0</span> <span class="p">(</span><span class="n">like</span> <span class="n">the</span> <span class="s1">&#39;trunc&#39;</span> <span class="n">function</span> <span class="n">NOT</span> <span class="s1">&#39;floor&#39;</span><span class="p">)</span><span class="o">.</span> <span class="n">This</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">incorrect</span> <span class="n">rounding</span> <span class="k">for</span> <span class="n">negative</span> <span class="n">values</span><span class="o">.</span>
-<span class="n">To</span> <span class="n">keep</span> <span class="n">the</span> <span class="n">current</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">use</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s1">&#39;trunc&#39;</span><span class="p">),</span> <span class="ow">or</span> <span class="k">for</span> <span class="n">actual</span> <span class="n">floor</span> <span class="n">division</span><span class="p">,</span> <span class="n">use</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s1">&#39;floor&#39;</span><span class="p">)</span><span class="o">.</span> <span class="p">(</span><span class="n">Triggered</span> <span class="n">internally</span> <span class="n">at</span>  <span class="o">../</span><span class="n">aten</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">ATen</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">BinaryOps</span><span class="o">.</span><span class="n">cpp</span><span class="p">:</span><span class="mf">467.</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">floor_divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the &#39;trunc&#39; function NOT &#39;floor&#39;). This results in incorrect rounding for negative values.
+To keep the current behavior, use torch.div(a, b, rounding_mode=&#39;trunc&#39;), or for actual floor division, use torch.div(a, b, rounding_mode=&#39;floor&#39;). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
+  return torch.floor_divide(self, other)
 </pre></div>
 </div>
 <p>We can convert from Detectron2 format to fiftyone detection objects:</p>
@@ -407,7 +405,7 @@ cv2_imshow(out.get_image()[:, :, ::-1])
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1e9b&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bdb&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -422,7 +420,7 @@ cv2_imshow(out.get_image()[:, :, ::-1])
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1e9c&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bdc&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -437,7 +435,7 @@ cv2_imshow(out.get_image()[:, :, ::-1])
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1e9d&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bdd&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -452,22 +450,22 @@ cv2_imshow(out.get_image()[:, :, ::-1])
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1e9e&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bde&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;motorcycle&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.485452800989151</span><span class="p">,</span>
-                <span class="mf">0.016184425594527062</span><span class="p">,</span>
-                <span class="mf">0.40658149123191833</span><span class="p">,</span>
-                <span class="mf">0.8690680952420902</span><span class="p">,</span>
+                <span class="mf">0.4854528307914734</span><span class="p">,</span>
+                <span class="mf">0.01618434862711691</span><span class="p">,</span>
+                <span class="mf">0.40658146142959595</span><span class="p">,</span>
+                <span class="mf">0.8690683261443206</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.7087109684944153</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.7087108492851257</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1e9f&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bdf&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -482,52 +480,52 @@ cv2_imshow(out.get_image()[:, :, ::-1])
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea0&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be0&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.2356555312871933</span><span class="p">,</span>
+                <span class="mf">0.2356555163860321</span><span class="p">,</span>
                 <span class="mf">0.4367165102483646</span><span class="p">,</span>
-                <span class="mf">0.26028211414813995</span><span class="p">,</span>
+                <span class="mf">0.2602821886539459</span><span class="p">,</span>
                 <span class="mf">0.4146875138541338</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.3441943824291229</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.3441937565803528</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be1&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;bicycle&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.4535953998565674</span><span class="p">,</span>
-                <span class="mf">0.006116752215622352</span><span class="p">,</span>
-                <span class="mf">0.4246022701263428</span><span class="p">,</span>
-                <span class="mf">0.9400808730011179</span><span class="p">,</span>
+                <span class="mf">0.453595370054245</span><span class="p">,</span>
+                <span class="mf">0.006116790699327428</span><span class="p">,</span>
+                <span class="mf">0.4246024787425995</span><span class="p">,</span>
+                <span class="mf">0.9400808345174128</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.291936993598938</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea2&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be2&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
                 <span class="mf">0.7321376204490662</span><span class="p">,</span>
                 <span class="mf">0.8158130621699637</span><span class="p">,</span>
-                <span class="mf">0.10273182392120361</span><span class="p">,</span>
+                <span class="mf">0.10273158550262451</span><span class="p">,</span>
                 <span class="mf">0.1786184226729981</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.251709520816803</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2517068088054657</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be3&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;cell phone&#39;</span><span class="p">,</span>
@@ -542,37 +540,37 @@ cv2_imshow(out.get_image()[:, :, ::-1])
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea4&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be4&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.29376694560050964</span><span class="p">,</span>
+                <span class="mf">0.29376691579818726</span><span class="p">,</span>
                 <span class="mf">0.46854041774215793</span><span class="p">,</span>
-                <span class="mf">0.1675676703453064</span><span class="p">,</span>
+                <span class="mf">0.16756772994995117</span><span class="p">,</span>
                 <span class="mf">0.29636893927825503</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.15639427304267883</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.15639421343803406</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea5&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be5&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.004228693433105946</span><span class="p">,</span>
-                <span class="mf">0.0767963404613365</span><span class="p">,</span>
-                <span class="mf">0.37698595505207777</span><span class="p">,</span>
-                <span class="mf">0.630363829950667</span><span class="p">,</span>
+                <span class="mf">0.004228678997606039</span><span class="p">,</span>
+                <span class="mf">0.07679635970318904</span><span class="p">,</span>
+                <span class="mf">0.3769859694875777</span><span class="p">,</span>
+                <span class="mf">0.6303638107088144</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.11882766336202621</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea6&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be6&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
@@ -583,67 +581,67 @@ cv2_imshow(out.get_image()[:, :, ::-1])
                 <span class="mf">0.13247769176584173</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09884662926197052</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09884653985500336</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea7&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be7&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.08518574386835098</span><span class="p">,</span>
-                <span class="mf">0.3548633628354548</span><span class="p">,</span>
-                <span class="mf">0.4390302523970604</span><span class="p">,</span>
-                <span class="mf">0.5531069357488375</span><span class="p">,</span>
+                <span class="mf">0.08518577367067337</span><span class="p">,</span>
+                <span class="mf">0.35486332435174966</span><span class="p">,</span>
+                <span class="mf">0.43903016299009323</span><span class="p">,</span>
+                <span class="mf">0.5531068972651324</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.0946485623717308</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09464847296476364</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea8&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be8&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;motorcycle&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.1718100905418396</span><span class="p">,</span>
-                <span class="mf">0.0204875556397408</span><span class="p">,</span>
-                <span class="mf">0.6795393824577332</span><span class="p">,</span>
-                <span class="mf">0.8203254449562948</span><span class="p">,</span>
+                <span class="mf">0.17181020975112915</span><span class="p">,</span>
+                <span class="mf">0.020487594123445873</span><span class="p">,</span>
+                <span class="mf">0.6795392632484436</span><span class="p">,</span>
+                <span class="mf">0.8203254834399999</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.08924849331378937</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.08924885094165802</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1ea9&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60be9&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                <span class="mf">0.23365649580955505</span><span class="p">,</span>
+                <span class="mf">0.23365622758865356</span><span class="p">,</span>
                 <span class="mf">0.0</span><span class="p">,</span>
-                <span class="mf">0.7420808374881744</span><span class="p">,</span>
+                <span class="mf">0.7420811653137207</span><span class="p">,</span>
                 <span class="mf">0.9733538826056116</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.07246677577495575</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.07246675342321396</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346dd58f9f8269320fa1eaa&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;63750fcfd2aa2609d8d60bea&#39;</span><span class="p">,</span>
             <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
             <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;baseball bat&#39;</span><span class="p">,</span>
             <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
                 <span class="mf">0.8032967448234558</span><span class="p">,</span>
-                <span class="mf">0.2696970185596134</span><span class="p">,</span>
+                <span class="mf">0.269697037801466</span><span class="p">,</span>
                 <span class="mf">0.07617664337158203</span><span class="p">,</span>
-                <span class="mf">0.2461811272523743</span><span class="p">,</span>
+                <span class="mf">0.24618110801052176</span><span class="p">,</span>
             <span class="p">]),</span>
             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.06142522394657135</span><span class="p">,</span>
+            <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.061425335705280304</span><span class="p">,</span>
             <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="p">]),</span>
@@ -652,9 +650,10 @@ cv2_imshow(out.get_image()[:, :, ::-1])
 </div>
 <p>Let’s run each image in a fiftyone dataset through the predictor.
 Results from the predictor will be annexed to the same fiftyone dataset.
-We use the dummy single-sample dataset <code class="docutils literal notranslate"><span class="pre">mpeg-vcm-detection-dummy</span></code>
-created in previous chapters for testing:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;mpeg-vcm-detection-dummy&quot;)
+We use the dummy single-sample dataset <code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-detection-v1-dummy</span></code>
+created in the CLI tutorials with the
+<code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">import-custom</span></code> command</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;oiv6-mpeg-detection-v1-dummy&quot;)
 </pre></div>
 </div>
 <p>Detectron prediction results are saved during the run into the fiftyone
@@ -663,10 +662,10 @@ where the detectron results will be saved:</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor_field=&#39;detectron-predictions&#39;
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>annexPredictions(predictor=predictor, fo_dataset=dataset, predictor_field=predictor_field)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>annexPredictions(predictors=[predictor], fo_dataset=dataset, predictor_fields=[predictor_field])
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="p">:</span>  <span class="mi">1</span> <span class="o">/</span> <span class="mi">1</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sample:  1 / 1
 </pre></div>
 </div>
 <p>After that one, the dataset looks slightly different. Take note that an
@@ -674,21 +673,21 @@ extra field <code class="docutils literal notranslate"><span class="pre">detectr
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(dataset)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">mpeg</span><span class="o">-</span><span class="n">vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span>
-<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">image</span>
-<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
-<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
-<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span>                    <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
-    <span class="n">filepath</span><span class="p">:</span>              <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
-    <span class="n">tags</span><span class="p">:</span>                  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
-    <span class="n">metadata</span><span class="p">:</span>              <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">)</span>
-    <span class="n">positive_labels</span><span class="p">:</span>       <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Classifications</span><span class="p">)</span>
-    <span class="n">negative_labels</span><span class="p">:</span>       <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Classifications</span><span class="p">)</span>
-    <span class="n">detections</span><span class="p">:</span>            <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
-    <span class="n">open_images_id</span><span class="p">:</span>        <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
-    <span class="n">detectron</span><span class="o">-</span><span class="n">predictions</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name:        oiv6-mpeg-detection-v1-dummy
+Media type:  image
+Num samples: 1
+Persistent:  True
+Tags:        []
+Sample fields:
+    id:                    fiftyone.core.fields.ObjectIdField
+    filepath:              fiftyone.core.fields.StringField
+    tags:                  fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)
+    metadata:              fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.ImageMetadata)
+    positive_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+    negative_labels:       fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Classifications)
+    detections:            fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
+    open_images_id:        fiftyone.core.fields.StringField
+    detectron-predictions: fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)
 </pre></div>
 </div>
 <p>Let’s peek at the first sample:</p>
@@ -698,640 +697,640 @@ extra field <code class="docutils literal notranslate"><span class="pre">detectr
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(sample)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346d4246b7dd87eda0f2b04&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;media_type&#39;</span><span class="p">:</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;filepath&#39;</span><span class="p">:</span> <span class="s1">&#39;/home/sampsa/fiftyone/mpeg-vcm-detection/data/0001eeaf4aed83f9.jpg&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="s1">&#39;positive_labels&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Classifications</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;classifications&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-            <span class="o">&lt;</span><span class="n">Classification</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346d4246b7dd87eda0f2b02&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-                <span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="p">]),</span>
-        <span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s1">&#39;negative_labels&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Classifications</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;classifications&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span> <span class="s1">&#39;logits&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346d4246b7dd87eda0f2b03&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.022673031</span><span class="p">,</span>
-                    <span class="mf">0.07103825</span><span class="p">,</span>
-                    <span class="mf">0.9415274690000001</span><span class="p">,</span>
-                    <span class="mf">0.72950822</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;IsOccluded&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;IsTruncated&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;IsGroupOf&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;IsDepiction&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;IsInside&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="p">]),</span>
-    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s1">&#39;open_images_id&#39;</span><span class="p">:</span> <span class="s1">&#39;0001eeaf4aed83f9&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;detectron-predictions&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;detections&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1efd&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.12768225371837616</span><span class="p">,</span>
-                    <span class="mf">0.027486978227926846</span><span class="p">,</span>
-                    <span class="mf">0.8119979053735733</span><span class="p">,</span>
-                    <span class="mf">0.76541841536827</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.9963523149490356</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1efe&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.9190815091133118</span><span class="p">,</span>
-                    <span class="mf">0.6016124750943792</span><span class="p">,</span>
-                    <span class="mf">0.0368688702583313</span><span class="p">,</span>
-                    <span class="mf">0.07163922952058864</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.9494412541389465</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1eff&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8702287077903748</span><span class="p">,</span>
-                    <span class="mf">0.6155941683707354</span><span class="p">,</span>
-                    <span class="mf">0.050144076347351074</span><span class="p">,</span>
-                    <span class="mf">0.055400259542785234</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.9203835725784302</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f00&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.11006083339452744</span><span class="p">,</span>
-                    <span class="mf">0.3412696787174916</span><span class="p">,</span>
-                    <span class="mf">0.19038165360689163</span><span class="p">,</span>
-                    <span class="mf">0.19853596185944491</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.7442840933799744</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f01&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.7966880202293396</span><span class="p">,</span>
-                    <span class="mf">0.6970266730460011</span><span class="p">,</span>
-                    <span class="mf">0.08078855276107788</span><span class="p">,</span>
-                    <span class="mf">0.07823143602750979</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.6773070096969604</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f02&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.19424161314964294</span><span class="p">,</span>
-                    <span class="mf">0.5731003865832984</span><span class="p">,</span>
-                    <span class="mf">0.03333866596221924</span><span class="p">,</span>
-                    <span class="mf">0.04234303724045722</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.49123454093933105</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f03&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8586535453796387</span><span class="p">,</span>
-                    <span class="mf">0.6244919198738115</span><span class="p">,</span>
-                    <span class="mf">0.013080716133117676</span><span class="p">,</span>
-                    <span class="mf">0.040624153427362975</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.49095118045806885</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f04&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.11007525771856308</span><span class="p">,</span>
-                    <span class="mf">0.34265331293912543</span><span class="p">,</span>
-                    <span class="mf">0.10588719695806503</span><span class="p">,</span>
-                    <span class="mf">0.17782678113421072</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.4769124388694763</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f05&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8444294929504395</span><span class="p">,</span>
-                    <span class="mf">0.6848512517259159</span><span class="p">,</span>
-                    <span class="mf">0.006960868835449219</span><span class="p">,</span>
-                    <span class="mf">0.031434061276566</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.39503416419029236</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f06&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.11215677112340927</span><span class="p">,</span>
-                    <span class="mf">0.5923443480626048</span><span class="p">,</span>
-                    <span class="mf">0.04038272053003311</span><span class="p">,</span>
-                    <span class="mf">0.033441189418169745</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.38696712255477905</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f07&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.10338009148836136</span><span class="p">,</span>
-                    <span class="mf">0.5782626363255033</span><span class="p">,</span>
-                    <span class="mf">0.05053221434354782</span><span class="p">,</span>
-                    <span class="mf">0.05472764392827181</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.36884164810180664</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f08&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.0255854744464159</span><span class="p">,</span>
-                    <span class="mf">0.5004235935424531</span><span class="p">,</span>
-                    <span class="mf">0.2138556968420744</span><span class="p">,</span>
-                    <span class="mf">0.13064667362494756</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.3492622375488281</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f09&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.14727365970611572</span><span class="p">,</span>
-                    <span class="mf">0.34949549732592283</span><span class="p">,</span>
-                    <span class="mf">0.054032012820243835</span><span class="p">,</span>
-                    <span class="mf">0.08753325528479795</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.33867529034614563</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0a&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.19401228427886963</span><span class="p">,</span>
-                    <span class="mf">0.5745964989032788</span><span class="p">,</span>
-                    <span class="mf">0.033640727400779724</span><span class="p">,</span>
-                    <span class="mf">0.04079626710622903</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.30962127447128296</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0b&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.9722632169723511</span><span class="p">,</span>
-                    <span class="mf">0.6104661228939458</span><span class="p">,</span>
-                    <span class="mf">0.02353382110595703</span><span class="p">,</span>
-                    <span class="mf">0.032473229188513704</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.3069209158420563</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0c&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.14766937494277954</span><span class="p">,</span>
-                    <span class="mf">0.35212325196404853</span><span class="p">,</span>
-                    <span class="mf">0.07240810990333557</span><span class="p">,</span>
-                    <span class="mf">0.1256532605062395</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2942286729812622</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0d&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8577467799186707</span><span class="p">,</span>
-                    <span class="mf">0.6242693531966583</span><span class="p">,</span>
-                    <span class="mf">0.013565301895141602</span><span class="p">,</span>
-                    <span class="mf">0.042288283106998045</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2310165911912918</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0e&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8507804274559021</span><span class="p">,</span>
-                    <span class="mf">0.6853243083228467</span><span class="p">,</span>
-                    <span class="mf">0.007759749889373779</span><span class="p">,</span>
-                    <span class="mf">0.027981273813269016</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.2067108452320099</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f0f&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.10813499987125397</span><span class="p">,</span>
-                    <span class="mf">0.5906133801078369</span><span class="p">,</span>
-                    <span class="mf">0.04447351396083832</span><span class="p">,</span>
-                    <span class="mf">0.03619398420022371</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.20025715231895447</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f10&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.1583663523197174</span><span class="p">,</span>
-                    <span class="mf">0.5795836309991961</span><span class="p">,</span>
-                    <span class="mf">0.015417307615280151</span><span class="p">,</span>
-                    <span class="mf">0.035827704990736856</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.1864553838968277</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f11&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.15734650194644928</span><span class="p">,</span>
-                    <span class="mf">0.34015182734069144</span><span class="p">,</span>
-                    <span class="mf">0.09979219734668732</span><span class="p">,</span>
-                    <span class="mf">0.17215952350522581</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.16270428895950317</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f12&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.9724457263946533</span><span class="p">,</span>
-                    <span class="mf">0.6110104554451552</span><span class="p">,</span>
-                    <span class="mf">0.022782206535339355</span><span class="p">,</span>
-                    <span class="mf">0.03191920201517058</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.14726606011390686</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f13&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.9310635328292847</span><span class="p">,</span>
-                    <span class="mf">0.46706545699629476</span><span class="p">,</span>
-                    <span class="mf">0.06893646717071533</span><span class="p">,</span>
-                    <span class="mf">0.07955963339581586</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.14320485293865204</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f14&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.10666287690401077</span><span class="p">,</span>
-                    <span class="mf">0.2859448597201832</span><span class="p">,</span>
-                    <span class="mf">0.2402758225798607</span><span class="p">,</span>
-                    <span class="mf">0.3414595431129404</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.1379343718290329</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f15&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8471341729164124</span><span class="p">,</span>
-                    <span class="mf">0.616852284544533</span><span class="p">,</span>
-                    <span class="mf">0.05158036947250366</span><span class="p">,</span>
-                    <span class="mf">0.054390312041212245</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.13730646669864655</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f16&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.9190192222595215</span><span class="p">,</span>
-                    <span class="mf">0.6098847186538731</span><span class="p">,</span>
-                    <span class="mf">0.0384480357170105</span><span class="p">,</span>
-                    <span class="mf">0.06279070212003636</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.13430571556091309</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f17&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.028436832129955292</span><span class="p">,</span>
-                    <span class="mf">0.3380399699712493</span><span class="p">,</span>
-                    <span class="mf">0.22196123749017715</span><span class="p">,</span>
-                    <span class="mf">0.25432984354245314</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.12494388967752457</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f18&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8357962965965271</span><span class="p">,</span>
-                    <span class="mf">0.6915914719003425</span><span class="p">,</span>
-                    <span class="mf">0.00689089298248291</span><span class="p">,</span>
-                    <span class="mf">0.029422905087737695</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.12231158465147018</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f19&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8622568249702454</span><span class="p">,</span>
-                    <span class="mf">0.6034765734235179</span><span class="p">,</span>
-                    <span class="mf">0.09968775510787964</span><span class="p">,</span>
-                    <span class="mf">0.06998854942236438</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.1009499728679657</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1a&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.11483647674322128</span><span class="p">,</span>
-                    <span class="mf">0.5900956736315017</span><span class="p">,</span>
-                    <span class="mf">0.0387362465262413</span><span class="p">,</span>
-                    <span class="mf">0.033792312246574384</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09404828399419785</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1b&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8381629586219788</span><span class="p">,</span>
-                    <span class="mf">0.690306183475776</span><span class="p">,</span>
-                    <span class="mf">0.007335245609283447</span><span class="p">,</span>
-                    <span class="mf">0.029042561848958332</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09348491579294205</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1c&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8437240719795227</span><span class="p">,</span>
-                    <span class="mf">0.6959601280673239</span><span class="p">,</span>
-                    <span class="mf">0.005839407444000244</span><span class="p">,</span>
-                    <span class="mf">0.021766270033731824</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.09292487055063248</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1d&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.19413751363754272</span><span class="p">,</span>
-                    <span class="mf">0.3352931148520519</span><span class="p">,</span>
-                    <span class="mf">0.06308001279830933</span><span class="p">,</span>
-                    <span class="mf">0.14197770701158766</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.08922168612480164</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1e&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8467901349067688</span><span class="p">,</span>
-                    <span class="mf">0.6858217380190855</span><span class="p">,</span>
-                    <span class="mf">0.00686413049697876</span><span class="p">,</span>
-                    <span class="mf">0.03015614622657998</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.07978574186563492</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f1f&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.09427589178085327</span><span class="p">,</span>
-                    <span class="mf">0.5730622225426454</span><span class="p">,</span>
-                    <span class="mf">0.127224862575531</span><span class="p">,</span>
-                    <span class="mf">0.046534322785584455</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.06778866797685623</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f20&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8454108834266663</span><span class="p">,</span>
-                    <span class="mf">0.6975023239784326</span><span class="p">,</span>
-                    <span class="mf">0.006599128246307373</span><span class="p">,</span>
-                    <span class="mf">0.019551595052083332</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.06577832251787186</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f21&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.8358362317085266</span><span class="p">,</span>
-                    <span class="mf">0.6818531556950853</span><span class="p">,</span>
-                    <span class="mf">0.01932704448699951</span><span class="p">,</span>
-                    <span class="mf">0.03676426010643876</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.05755734071135521</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f22&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.13454458117485046</span><span class="p">,</span>
-                    <span class="mf">0.6153508470095778</span><span class="p">,</span>
-                    <span class="mf">0.009050920605659485</span><span class="p">,</span>
-                    <span class="mf">0.03343163134000979</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.05496569350361824</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">Detection</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;6346df3ef9f8269320fa1f23&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">BaseDict</span><span class="p">({}),</span>
-                <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([]),</span>
-                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bounding_box&#39;</span><span class="p">:</span> <span class="n">BaseList</span><span class="p">([</span>
-                    <span class="mf">0.10967192053794861</span><span class="p">,</span>
-                    <span class="mf">0.5790209332835221</span><span class="p">,</span>
-                    <span class="mf">0.009264662861824036</span><span class="p">,</span>
-                    <span class="mf">0.036160940558585014</span><span class="p">,</span>
-                <span class="p">]),</span>
-                <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.05112108960747719</span><span class="p">,</span>
-                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="p">]),</span>
-    <span class="p">}</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">}</span><span class="o">&gt;</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;Sample: {
+    &#39;id&#39;: &#39;637508a927397b4737d44468&#39;,
+    &#39;media_type&#39;: &#39;image&#39;,
+    &#39;filepath&#39;: &#39;/home/sampsa/fiftyone/oiv6-mpeg-detection-v1/data/0001eeaf4aed83f9.jpg&#39;,
+    &#39;tags&#39;: BaseList([]),
+    &#39;metadata&#39;: None,
+    &#39;positive_labels&#39;: &lt;Classifications: {
+        &#39;classifications&#39;: BaseList([
+            &lt;Classification: {
+                &#39;id&#39;: &#39;637508a927397b4737d44466&#39;,
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;confidence&#39;: 1.0,
+                &#39;logits&#39;: None,
+            }&gt;,
+        ]),
+        &#39;logits&#39;: None,
+    }&gt;,
+    &#39;negative_labels&#39;: &lt;Classifications: {&#39;classifications&#39;: BaseList([]), &#39;logits&#39;: None}&gt;,
+    &#39;detections&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637508a927397b4737d44467&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.022673031,
+                    0.07103825,
+                    0.9415274690000001,
+                    0.72950822,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: None,
+                &#39;index&#39;: None,
+                &#39;IsOccluded&#39;: False,
+                &#39;IsTruncated&#39;: False,
+                &#39;IsGroupOf&#39;: False,
+                &#39;IsDepiction&#39;: False,
+                &#39;IsInside&#39;: False,
+            }&gt;,
+        ]),
+    }&gt;,
+    &#39;open_images_id&#39;: &#39;0001eeaf4aed83f9&#39;,
+    &#39;detectron-predictions&#39;: &lt;Detections: {
+        &#39;detections&#39;: BaseList([
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bed&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.12768225371837616,
+                    0.027486952625931777,
+                    0.8119977861642838,
+                    0.7654184409702651,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.9963523149490356,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bee&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.9190815091133118,
+                    0.6016124750943792,
+                    0.0368688702583313,
+                    0.07163922952058864,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.9494412541389465,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bef&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8702287077903748,
+                    0.6155941683707354,
+                    0.050144076347351074,
+                    0.055400259542785234,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.9203835725784302,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf0&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.11006084829568863,
+                    0.3412696787174916,
+                    0.19038160890340805,
+                    0.19853596185944491,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.7442839741706848,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf1&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.7966880202293396,
+                    0.6970266730460011,
+                    0.08078855276107788,
+                    0.07823143602750979,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.6773068308830261,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf2&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.19424161314964294,
+                    0.5731005231272721,
+                    0.03333866596221924,
+                    0.0423429006964835,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.4912344217300415,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf3&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;car&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8586535453796387,
+                    0.6244919198738115,
+                    0.013080716133117676,
+                    0.040624153427362975,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.4909511208534241,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf4&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.11007526516914368,
+                    0.34265331293912543,
+                    0.10588721930980682,
+                    0.17782678113421072,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.47691264748573303,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf5&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8444294929504395,
+                    0.6848512517259159,
+                    0.006960868835449219,
+                    0.031434061276566,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.3950338661670685,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf6&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;car&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.11215673387050629,
+                    0.5923443480626048,
+                    0.04038277268409729,
+                    0.033441189418169745,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.3869660496711731,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf7&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.10338009148836136,
+                    0.5782626363255033,
+                    0.05053221434354782,
+                    0.05472764392827181,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.36884140968322754,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf8&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.0255854744464159,
+                    0.5004235935424531,
+                    0.2138556968420744,
+                    0.13064667362494756,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.3492617607116699,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bf9&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.14727365970611572,
+                    0.34949549732592283,
+                    0.054032012820243835,
+                    0.08753325528479795,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.33867546916007996,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bfa&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;car&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.19401228427886963,
+                    0.5745965671752656,
+                    0.033640727400779724,
+                    0.04079613056225531,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.3096212148666382,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bfb&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.9722632169723511,
+                    0.6104661228939458,
+                    0.02353382110595703,
+                    0.032473229188513704,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.3069209158420563,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bfc&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.14766937494277954,
+                    0.35212325196404853,
+                    0.07240810990333557,
+                    0.12565319223425267,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.2942284643650055,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bfd&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8577467799186707,
+                    0.6242693531966583,
+                    0.013565301895141602,
+                    0.042288283106998045,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.23101691901683807,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bfe&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8507804274559021,
+                    0.6853243083228467,
+                    0.007759749889373779,
+                    0.027981273813269016,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.2067108452320099,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60bff&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.10813498497009277,
+                    0.5906133801078369,
+                    0.044473543763160706,
+                    0.03619398420022371,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.20025701820850372,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c00&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.1583663523197174,
+                    0.5795836309991961,
+                    0.015417307615280151,
+                    0.035827704990736856,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.1864553689956665,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c01&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.15734654664993286,
+                    0.34015182734069144,
+                    0.09979215264320374,
+                    0.17215945523323894,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.16270428895950317,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c02&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;car&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.9724457263946533,
+                    0.6110104554451552,
+                    0.022782206535339355,
+                    0.03191920201517058,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.14726606011390686,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c03&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.9310635328292847,
+                    0.46706545699629476,
+                    0.06893646717071533,
+                    0.07955963339581586,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.1432049572467804,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c04&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.10666283965110779,
+                    0.2859449109241733,
+                    0.24027583003044128,
+                    0.34145956018093715,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.13793428242206573,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c05&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8471341729164124,
+                    0.616852284544533,
+                    0.05158036947250366,
+                    0.054390312041212245,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.137306347489357,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c06&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;car&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.9190192222595215,
+                    0.6098847186538731,
+                    0.0384480357170105,
+                    0.06279070212003636,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.13430561125278473,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c07&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.028436819091439247,
+                    0.3380399699712493,
+                    0.2219612803310156,
+                    0.25432984354245314,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.12494388967752457,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c08&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8357962965965271,
+                    0.6915915401723294,
+                    0.00689089298248291,
+                    0.029422905087737695,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.12230963259935379,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c09&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8622568249702454,
+                    0.6034765051515311,
+                    0.09968775510787964,
+                    0.06998868596633809,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.1009497195482254,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0a&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.11483647674322128,
+                    0.5900956736315017,
+                    0.0387362465262413,
+                    0.033792312246574384,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.09404819458723068,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0b&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8381630778312683,
+                    0.690306183475776,
+                    0.007335186004638672,
+                    0.029042561848958332,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.09348491579294205,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0c&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8437240719795227,
+                    0.6959601280673239,
+                    0.005839407444000244,
+                    0.021766270033731824,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.09292470663785934,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0d&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;airplane&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.19413751363754272,
+                    0.3352931148520519,
+                    0.06308001279830933,
+                    0.14197770701158766,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.08922138065099716,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0e&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8467901349067688,
+                    0.6858217380190855,
+                    0.00686413049697876,
+                    0.03015614622657998,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.07978574186563492,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c0f&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;truck&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.09427587687969208,
+                    0.5730622225426454,
+                    0.1272248774766922,
+                    0.046534322785584455,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.0677887350320816,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c10&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8454108834266663,
+                    0.6975023922504194,
+                    0.006599128246307373,
+                    0.019551595052083332,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.06578096002340317,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c11&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.8358362317085266,
+                    0.6818531556950853,
+                    0.01932704448699951,
+                    0.03676426010643876,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.05755738914012909,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c12&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.13454458117485046,
+                    0.6153508470095778,
+                    0.009050920605659485,
+                    0.03343163134000979,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.05496574565768242,
+                &#39;index&#39;: None,
+            }&gt;,
+            &lt;Detection: {
+                &#39;id&#39;: &#39;637510a8d2aa2609d8d60c13&#39;,
+                &#39;attributes&#39;: BaseDict({}),
+                &#39;tags&#39;: BaseList([]),
+                &#39;label&#39;: &#39;person&#39;,
+                &#39;bounding_box&#39;: BaseList([
+                    0.10967192053794861,
+                    0.5790209332835221,
+                    0.009264662861824036,
+                    0.036160940558585014,
+                ]),
+                &#39;mask&#39;: None,
+                &#39;confidence&#39;: 0.05112104117870331,
+                &#39;index&#39;: None,
+            }&gt;,
+        ]),
+    }&gt;,
+}&gt;
 </pre></div>
 </div>
 <p>Each sample in the dataset contains “detections” (ground truths) and
@@ -1349,8 +1348,8 @@ truth and the predictor results:</p>
 )
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Evaluating detections...
- 100% |█████████████████████| 1/1 [31.8ms elapsed, 0s remaining, 31.4 samples/s]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Evaluating detections...
+ 100% |█████████████████████| 1/1 [25.5ms elapsed, 0s remaining, 39.2 samples/s]
 </pre></div>
 </div>
 <p>After the evaluation we can should remove the detectron results from the
@@ -1373,7 +1372,7 @@ for class_ in classes:
     print(class_, results.mAP([class_]))
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">airplane</span> <span class="mf">1.0</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>airplane 1.0
 </pre></div>
 </div>
 <p>In practice (and what the CLI program does) it is a better idea to
@@ -1382,7 +1381,6 @@ appending detection results (especially if you are sharing datasets in
 your grid/cluster) and after getting the mAP results to remove the
 temporary dataset. On how to do this, please refer to the fiftyone
 documentation.</p>
-</section>
 
         </article>
       </div>
