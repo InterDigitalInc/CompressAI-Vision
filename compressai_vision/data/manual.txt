@@ -256,9 +256,16 @@ commands & parameters:
                             tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
                             flir-image-rgb-v1 # TODO: needs filelists
 
+                            oiv6-mpeg-v1 downloads automagically the OpenImageV6 data.  For other
+                            dataset types you need to download the files yourself.  Refer to documentation
+                            for more details
+
         --lists             file listing for using only a subset of the main dataset
                             # TODO: special value: "default" -> fetches mpeg-vcm list from data/
-        --dir               root dir of the dataset
+        --dir               root dir of the dataset (where you placed the files)
+        --datadir           works with oiv6-mpeg-v1 to indicate where the OpenImageV6 subset is donwloaded
+                            (default is ~/fiftyone)
+
 
     ***** VIDEO SPECIFIC ********************************************************************************************
 

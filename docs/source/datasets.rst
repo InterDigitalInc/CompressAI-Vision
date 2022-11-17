@@ -27,7 +27,9 @@ Commands to import:
 
 .. code-block:: bash
 
-    compressai-vision import-custom oiv6-mpeg-v1
+    compressai-vision import-custom --dataset-type=oiv6-mpeg-v1
+
+You can also define an additional argument ``--datadir=`` to indicate where the OpenImageV6 dataset is downloaded (by default to ``~/fiftyone``).
 
 Final fiftyone dataset names:
 
