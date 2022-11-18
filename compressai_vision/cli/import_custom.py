@@ -160,7 +160,9 @@ def main(p):
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
 
-        register(p.dir)  # dataset persistent
+        res=register(p.dir)  # dataset persistent
+        if res is not None:
+            return 2
         print()
         print("Will create thumbnails for fiftyone app visualization")
         print("for your convenience, Sir")

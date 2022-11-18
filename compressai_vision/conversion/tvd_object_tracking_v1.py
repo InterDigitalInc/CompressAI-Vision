@@ -121,7 +121,7 @@ def register(dirname, name="tvd-object-tracking-v1"):
     dirlist = glob.glob(dirs)
     if len(dirlist) < 1:
         print("no directories found, will exit.  Check your path")
-        # return
+        return -1
     # print(dirlist)
     if name in fo.list_datasets():
         print("Dataset", name, "exists.  Will remove it first")
