@@ -351,6 +351,14 @@ def main(p):  # noqa: C901
 
     print()
     print("Using dataset          :", p.dataset_name)
+
+    if not p.gt_field in detection_fields:
+        print("FATAL: you have requested field '%s' for ground truths" % (p.gt_field))
+        print("     : but it doesn't appear in the dataset samples")
+        print("     : please use compressai-vision show to peek at the fields")
+        print()
+        return 2
+
     print("Dataset media type     :", dataset.media_type)
     print("Dataset tmp clone      :", tmp_name)
     print("Keep tmp dataset?      :", p.keep)

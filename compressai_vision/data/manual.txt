@@ -50,6 +50,9 @@ commands & parameters:
                                 OpenImagesV6Dataset
                                 ImageDirectory
 
+                            try "dir(fiftyone.types.dataset_types)" in python
+                            see all of them
+
     deregister              de-register image set from fiftyone
 
         --dataset-name      name of the dataset, for example "open-image-v6-validation"
@@ -251,8 +254,8 @@ commands & parameters:
         --dataset-type      particular dataset in question.  Possible values are:
                             
                             oiv6-mpeg-v1
-                            sfu-hw-objects-v1
-                            tvd-object-tracking-v1
+                            sfu-hw-objects-v1 # NOTE: video dataset
+                            tvd-object-tracking-v1 # NOTE: video dataset
                             tvd-image-v1 # TODO: resulting OpenImageV6 doesn't work with fiftyone
                             flir-mpeg-v1
                             flir-image-rgb-v1
