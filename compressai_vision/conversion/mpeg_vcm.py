@@ -64,7 +64,8 @@ For minimal bbox detection problem, this is sufficient:
 
 
 """
-import os
+import os, glob
+from pathlib import Path
 import pathlib
 import shutil
 
@@ -110,6 +111,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
     mask_dir: str = None,
     link=True,
     verbose=False,
+    append_mask_dir=None
 ):
     """From MPEG/VCM input file format to proper OpenImageV6 format
 
@@ -255,6 +257,15 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
 
     target_data_dir = os.path.join(output_directory, "data")
     target_mask_dir = os.path.join(output_directory, "labels", "masks")
+    if append_mask_dir is not None:
+        """For custom formats, user might provide a segmask dir without
+        the 0/, 1/, etc. subdirectories
+
+        So let's create labels/masks and link from labels/masks/0 -> segmask dir
+        """
+        os.makedirs(target_mask_dir, exist_ok=True) # labels/masks
+        # new link: labels/masks/0
+        target_mask_dir=os.path.join(output_directory, "labels", "masks", append_mask_dir)
 
     if verbose:
         print("creating dirs")
@@ -337,7 +348,50 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                         )
                         + "\n"
                     )
-
+    else: # no list file provided! but we still need image_ids.json
+        with open(image_ids_csv, "w") as target:
+            target.write(
+                "ImageID,Subset,OriginalURL,OriginalLandingURL,License,AuthorProfileURL,Author,Title,OriginalSize,OriginalMD5,Thumbnail300KURL,Rotation\n"
+            )
+            # print(">>>", data_dir)
+            for img_file_path in glob.glob(os.path.join(data_dir,"*")):
+                p = Path(img_file_path) # /path/to/some.jpg
+                ImageID = p.stem # some
+                suffix = p.suffix # .jpg
+                # print(">>>>>", ImageID, suffix)
+                if suffix not in [".png", ".jpg"]:
+                    print("WARNING: omitting file", img_file_path)
+                    continue
+                Subset = "nada"
+                OriginalURL = "nada"
+                OriginalLandingURL = "nada"
+                License = "nada"
+                AuthorProfileURL = "nada"
+                Author = "John Doe"
+                Title = "nada"
+                OriginalSize = "nada"
+                OriginalMD5 = "nada"
+                Thumbnail300KURL = "nada"
+                Rotation = "0.0"
+                target.write(
+                    ",".join(
+                        (
+                            ImageID,
+                            Subset,
+                            OriginalURL,
+                            OriginalLandingURL,
+                            License,
+                            AuthorProfileURL,
+                            Author,
+                            Title,
+                            OriginalSize,
+                            OriginalMD5,
+                            Thumbnail300KURL,
+                            Rotation,
+                        )
+                    )
+                    + "\n"
+                )
     if verbose:
         print("reading", validation_csv_file, "and writing", classifications_csv)
     with open(validation_csv_file, "r") as source:
@@ -487,7 +541,6 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         print("DONE!")
         return
     """
-
     if link:
         if verbose:
             print("linking image dir", data_dir, "to", target_data_dir)
