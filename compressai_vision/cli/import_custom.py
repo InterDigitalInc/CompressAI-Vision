@@ -94,8 +94,8 @@ def main(p):  # noqa: C901
     ), "dataset-type needs to be one of these:" + str(possible_types)
     print("importing fiftyone")
     import fiftyone as fo
-    from compressai_vision import patch  # required by tvd-image-v1 import
 
+    # from compressai_vision import patch  # required by tvd-image-v1 import
     # from fiftyone import ViewField as F
 
     print("fiftyone imported")
@@ -161,7 +161,7 @@ def main(p):  # noqa: C901
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
 
-        res=register(p.dir)  # dataset persistent
+        res = register(p.dir)  # dataset persistent
         if res is not None:
             return 2
         print()
