@@ -88,14 +88,14 @@ def add_subparser(subparsers, parents):
     )
 
 
-def main(p):
+def main(p):  # noqa: C901
     assert (
         p.dataset_type in possible_types
     ), "dataset-type needs to be one of these:" + str(possible_types)
     print("importing fiftyone")
     import fiftyone as fo
-    from compressai_vision import patch  # required by tvd-image-v1 import
 
+    # from compressai_vision import patch  # required by tvd-image-v1 import
     # from fiftyone import ViewField as F
 
     print("fiftyone imported")
@@ -161,7 +161,7 @@ def main(p):
             print()
         from compressai_vision.conversion.tvd_object_tracking_v1 import register
 
-        res=register(p.dir)  # dataset persistent
+        res = register(p.dir)  # dataset persistent
         if res is not None:
             return 2
         print()
@@ -311,7 +311,8 @@ def main(p):
         └── Readme.txt
 
         You provided /path/to = %s
-            """ % (p.dir)
+            """
+            % (p.dir)
         )
         if not p.y:
             input("press enter to continue.. ")
@@ -326,9 +327,14 @@ def main(p):
         # https://voxel51.com/docs/fiftyone/user_guide/dataset_creation/datasets.html#basic-recipe
         dataset = fo.Dataset.from_dir(
             name=name,
-            dataset_type = fo.types.COCODetectionDataset,
-            data_path=os.path.join(p.dir,"dataset","thermal_images"),
-            labels_path=os.path.join(p.dir, "dataset","coco_format_json_annotation","FLIR_val_thermal_coco_format_jpg.json")
+            dataset_type=fo.types.COCODetectionDataset,
+            data_path=os.path.join(p.dir, "dataset", "thermal_images"),
+            labels_path=os.path.join(
+                p.dir,
+                "dataset",
+                "coco_format_json_annotation",
+                "FLIR_val_thermal_coco_format_jpg.json",
+            ),
         )
         dataset.persistent = True
 
