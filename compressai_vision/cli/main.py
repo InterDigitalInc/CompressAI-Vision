@@ -116,13 +116,8 @@ def setup_parser():
     subparsers = parser.add_subparsers(help="select command", dest="command")
 
     # MANUAL SUBCOMMAND:
-    # manual_parser = subparsers.add_parser("manual")
-    """
-    manual_parser.add_argument(
-        "command", type=str,
-        help="show manual"
-    )
-    """
+    _ = subparsers.add_parser("manual")
+
     clean.add_subparser(subparsers, parents=[common_parser])
     convert_mpeg_to_oiv6.add_subparser(subparsers, parents=[common_parser])
     deregister.add_subparser(subparsers, parents=[common_parser])

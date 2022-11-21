@@ -31,7 +31,6 @@
 """
 import os
 import sys
-from importlib.metadata import version
 
 
 def add_subparser(subparsers, parents):
@@ -41,8 +40,7 @@ def add_subparser(subparsers, parents):
 
 
 # compressai_vision
-def main(p):
-    from importlib.metadata import version
+def main(p):  # noqa: C901
 
     print("\n*** YOUR VIRTUALENV ***")
     print("--> running from    :", sys.executable)

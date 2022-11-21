@@ -58,13 +58,13 @@ To get started locally and install the development version of CompressAI-Vision,
 
 Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
 ```
-bash scripts/install.sh
+bash scripts/install.bash
 ```
 within your virtual environment.
 
 For more otions, check:
 ```
-bash scritps/install.sh --help
+bash scritps/install.bash --help
 ```
 
 The software stack includes (all with CUDA support):

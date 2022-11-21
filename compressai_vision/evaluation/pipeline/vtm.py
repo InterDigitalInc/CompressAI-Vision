@@ -36,7 +36,7 @@ import subprocess
 
 from uuid import uuid4 as uuid
 
-from compressai_vision.constant import vf_per_scale, inv_vf_per_scale
+from compressai_vision.constant import inv_vf_per_scale, vf_per_scale
 from compressai_vision.ffmpeg import FFMpeg
 from compressai_vision.tools import dumpImageArray, test_command
 

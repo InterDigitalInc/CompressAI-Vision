@@ -29,11 +29,16 @@
 
 """monkey-patching for https://github.com/voxel51/fiftyone/issues/2096
 """
+import csv
+
 # import importhook # this module simply ...ks up everything (at least torch imports)
 from datetime import datetime
 from importlib.metadata import version
-import fiftyone as fo  # importing fiftyone for the first time always takes time as it starts the mongodb
 
+import fiftyone as fo  # importing fiftyone for the first time always takes time as it starts the mongodb
+import fiftyone.utils.openimages as fouo
+import pandas as pd
+import csv
 
 if version("fiftyone") != "0.16.6":
     print("")
@@ -72,15 +77,11 @@ def _make_sample_collection_name(patches=False, frames=False, clips=False):
     return name
 
 
-"""as per 
+"""as per
 https://github.com/voxel51/fiftyone/issues/2291
 
 relevant when importing non-canonical OpenImageV6 formats into fiftyone
 """
-import csv
-import pandas as pd
-
-
 def _parse_csv(filename, dataframe=False, index_col=None):
     if dataframe:
         data = pd.read_csv(filename, index_col=index_col, dtype={"ImageID": str})
@@ -93,13 +94,11 @@ def _parse_csv(filename, dataframe=False, index_col=None):
             else:
                 reader = csv.reader(csvfile)
 
-            data = [row for row in reader]
+            data = list(reader)
 
     return data
 
 
 # apply patches
 fo.core.dataset._make_sample_collection_name = _make_sample_collection_name
-import fiftyone.utils.openimages as fouo
-
 fouo._parse_csv = _parse_csv

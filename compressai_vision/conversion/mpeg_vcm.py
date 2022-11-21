@@ -64,10 +64,12 @@ For minimal bbox detection problem, this is sufficient:
 
 
 """
-import os, glob
-from pathlib import Path
+import glob
+import os
 import pathlib
 import shutil
+
+from pathlib import Path
 
 
 def imageIdFileList(*args):

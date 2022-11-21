@@ -7,11 +7,11 @@ set -eu
 TORCH="1.9.1"
 TORCHVISION="0.10.1"
 CUDA="cu102"
-DETECTRON2="https://dl.fbaipublicfiles.com/detectron2/wheels/${CUDA}/torch${TORCH::-2}/index.html"
+DETECTRON2=""
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 COMPRESSAI=""
 # WARNING: keep consistent with ../compressai_vision/__init__.py:
-FO_VERSION="0.16.6" 
+FO_VERSION="0.16.6"
 
 #test python version>3.8
 python3 -c "import sys; assert(sys.version_info.major>=3); assert(sys.version_info.minor>=8)"
@@ -37,11 +37,13 @@ $ source venv/bin/activate
 
 RUN OPTIONS:    [-t|--torch torch version, default="1.9.1"]
                 [-v|--torchvision torchvision version, default="0.10.1"]
-                [--detectron2_url location of proper pre-built detectron2 (find at
+                [--cuda) provide cuda version in the form "cu111" for cuda 11.1, or "cpu", default: "cu102")]
+                [--detectron2_url use this if you want to soecify a pre-built detectron2 (find at
                     "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
-                    if not provided, cuda and="https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
+                    not required for regular versions derived from cuda and torch versions above.
+                    default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--compressai) provide path to compressai source code for import (in editable mode), default: install compressai from PyPI)]
-                [--cuda) provide cuda version in the form cu11.1 for cuda 11.1, or "cpu", default: "cu102")]
+
 
 EXAMPLE         [bash install.sh -t "1.9.1" --cuda "cu102" --compressai /path/to/compressai]
 _EOF_
@@ -49,13 +51,16 @@ _EOF_
             ;;
         -t|--torch) shift; TORCH="$1"; shift; ;;
         -v|--torchvision) shift; TORCHVISION="$1"; shift; ;;
+        --cuda) shift; CUDA="$1"; shift; ;;
         --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
         -c|--compressai) shift; COMPRESSAI="$1"; shift; ;;
-        --cuda) shift; CUDA="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
 
+if [ "${DETECTRON2}" = "" ]; then
+    DETECTRON2="https://dl.fbaipublicfiles.com/detectron2/wheels/${CUDA}/torch${TORCH::-2}/index.html"
+fi
 
 pip install -U pip
 pip install fiftyone==$FO_VERSION jupyter ipython
