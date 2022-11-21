@@ -83,7 +83,11 @@ def jsonFilesToArray(dir_, y_name="map"):
             # print(res)
             # res has two lists: res["bpp"] & res["map"]: bpp values and corresponding map values
             # assume there is at least res[”bpp"]
-            xs += res["bpp"]
+            try:
+                xs += res["bpp"]
+            except KeyError:
+                print("WARNING: skipping file", path)
+                continue
             """generalize from map to map, psnr & mssim
             if "map" in res:
                 ys += res["map"]

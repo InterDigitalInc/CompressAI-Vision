@@ -38,6 +38,7 @@ from importlib.metadata import version
 import fiftyone as fo  # importing fiftyone for the first time always takes time as it starts the mongodb
 import fiftyone.utils.openimages as fouo
 import pandas as pd
+import csv
 
 if version("fiftyone") != "0.16.6":
     print("")
@@ -81,8 +82,6 @@ https://github.com/voxel51/fiftyone/issues/2291
 
 relevant when importing non-canonical OpenImageV6 formats into fiftyone
 """
-
-
 def _parse_csv(filename, dataframe=False, index_col=None):
     if dataframe:
         data = pd.read_csv(filename, index_col=index_col, dtype={"ImageID": str})
@@ -102,6 +101,4 @@ def _parse_csv(filename, dataframe=False, index_col=None):
 
 # apply patches
 fo.core.dataset._make_sample_collection_name = _make_sample_collection_name
-
-
 fouo._parse_csv = _parse_csv

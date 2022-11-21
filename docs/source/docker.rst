@@ -3,6 +3,8 @@
 Docker
 ======
 
+*WARNING: as for the moment, docker images are not supported / up-to-date*
+
 Docker images are provided with the correct software stack:
 
 - `PyTorch <https://pytorch.org/>`_
