@@ -53,6 +53,7 @@ from compressai_vision.cli import (
     register,
     show,
     vtm,
+    copy,
 )
 from compressai_vision.tools import getDataFile, quickLog
 
@@ -77,6 +78,7 @@ COMMANDS = {  # noqa: F405
     "import-custom": import_custom.main,
     "make-thumbnails": make_thumbnails.main,
     "app": app.main,
+    "copy": copy.main,
 }
 
 coms = ""
@@ -131,6 +133,7 @@ def setup_parser():
     show.add_subparser(subparsers, parents=[common_parser])
     register.add_subparser(subparsers, parents=[common_parser])
     vtm.add_subparser(subparsers, parents=[common_parser])
+    copy.add_subparser(subparsers, parents=[common_parser])
     # AUTO IMPORT:
     auto.add_subparser(subparsers, parents=[common_parser])
     # INFO:

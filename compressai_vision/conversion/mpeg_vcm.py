@@ -111,7 +111,7 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
     mask_dir: str = None,
     link=True,
     verbose=False,
-    append_mask_dir=None
+    append_mask_dir=None,
 ):
     """From MPEG/VCM input file format to proper OpenImageV6 format
 
@@ -263,9 +263,11 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
 
         So let's create labels/masks and link from labels/masks/0 -> segmask dir
         """
-        os.makedirs(target_mask_dir, exist_ok=True) # labels/masks
+        os.makedirs(target_mask_dir, exist_ok=True)  # labels/masks
         # new link: labels/masks/0
-        target_mask_dir=os.path.join(output_directory, "labels", "masks", append_mask_dir)
+        target_mask_dir = os.path.join(
+            output_directory, "labels", "masks", append_mask_dir
+        )
 
     if verbose:
         print("creating dirs")
@@ -348,16 +350,16 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
                         )
                         + "\n"
                     )
-    else: # no list file provided! but we still need image_ids.json
+    else:  # no list file provided! but we still need image_ids.json
         with open(image_ids_csv, "w") as target:
             target.write(
                 "ImageID,Subset,OriginalURL,OriginalLandingURL,License,AuthorProfileURL,Author,Title,OriginalSize,OriginalMD5,Thumbnail300KURL,Rotation\n"
             )
             # print(">>>", data_dir)
-            for img_file_path in glob.glob(os.path.join(data_dir,"*")):
-                p = Path(img_file_path) # /path/to/some.jpg
-                ImageID = p.stem # some
-                suffix = p.suffix # .jpg
+            for img_file_path in glob.glob(os.path.join(data_dir, "*")):
+                p = Path(img_file_path)  # /path/to/some.jpg
+                ImageID = p.stem  # some
+                suffix = p.suffix  # .jpg
                 # print(">>>>>", ImageID, suffix)
                 if suffix not in [".png", ".jpg"]:
                     print("WARNING: omitting file", img_file_path)

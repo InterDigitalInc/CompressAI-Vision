@@ -64,7 +64,6 @@ def main(p):
         print("\nCOMPRESSAI NOT INSTALLED")
         sys.exit(2)
 
-    
     print("\n*** TORCH, CUDA, DETECTRON2, COMPRESSAI ***")
     print("torch version       :", torch.__version__)
     print("cuda version        :", torch.version.cuda)
@@ -75,9 +74,10 @@ def main(p):
 
     print("\n*** FIFTYONE ***")
     from importlib.metadata import files, version
-    util = [p for p in files('fiftyone') if '__init__.py' in str(p)][0]
-    fo_path=str(util.locate())
-    fo_version=version("fiftyone")
+
+    util = [p for p in files("fiftyone") if "__init__.py" in str(p)][0]
+    fo_path = str(util.locate())
+    fo_version = version("fiftyone")
     print("fiftyone version    :", fo_version)
     print("--> running from    :", fo_path)
 
@@ -106,17 +106,20 @@ def main(p):
     try:
         db_name = os.environ["FIFTYONE_DATABASE_NAME"]
     except KeyError:
-        print("""
+        print(
+            """
         WARNING: You should set the environment variable FIFTYONE_DATABASE_NAME
         in your virtual environment.  Different virtual environments (with different
         fiftyone versions) should NOT write to the SAME database in the same mongodb server. 
-        """)
+        """
+        )
     else:
         print("Fiftyone database name in mongodb:", db_name)
 
     # fiftyone
     print("importing fiftyone..")
     import fiftyone as fo
+
     print("..imported")
 
     print("\n*** DATABASE ***")

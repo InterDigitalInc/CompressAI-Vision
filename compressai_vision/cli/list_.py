@@ -45,6 +45,20 @@ def main(p):
 
     print("fiftyone imported")
     print()
+    infost = ""
+    try:
+        adr = os.environ["FIFTYONE_DATABASE_URI"]
+    except KeyError:
+        infost += "mongodb managed by fiftyone, "
+    else:
+        infost += "external mongodb server at " + adr + ", "
+    try:
+        db_name = os.environ["FIFTYONE_DATABASE_NAME"]
+    except KeyError:
+        infost += "default database name 'fiftyone'"
+    else:
+        infost += "database name '" + db_name + "'"
+    print(infost)
     print("datasets currently registered into fiftyone")
     print("name, length, first sample path")
     for name in fo.list_datasets():

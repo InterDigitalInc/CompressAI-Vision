@@ -229,7 +229,7 @@ class CompressAIEncoderDecoder(EncoderDecoder):
         x_pad = x_pad.to(self.device)
         nbitslist, x_hat_pad = self(x_pad)
         x_hat_pad = x_hat_pad.to("cpu")
-        
+
         # TO NUMPY ARRAY & BGR IMAGE
         x_hat_pad = x_hat_pad.squeeze(0)
         padded_hat = np.array(transforms.ToPILImage()(x_hat_pad))
@@ -237,11 +237,13 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             dumpImageArray(padded_hat, self.save_folder, "padded_hat_" + tag_ + ".png")
 
         # *** Remove CompressAI padding ***
-        scaled_hat = self.ffmpeg.ff_op(  # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
-            padded_hat,
-            "crop={width}:{height}:0:0".format(
-                width=scaled.shape[1], height=scaled.shape[0]
-            ),
+        scaled_hat = (
+            self.ffmpeg.ff_op(  # https://ffmpeg.org/ffmpeg-filters.html#Examples-60
+                padded_hat,
+                "crop={width}:{height}:0:0".format(
+                    width=scaled.shape[1], height=scaled.shape[0]
+                ),
+            )
         )
         if self.dump:
             dumpImageArray(scaled_hat, self.save_folder, "scaled_hat_" + tag_ + ".png")
@@ -252,16 +254,16 @@ class CompressAIEncoderDecoder(EncoderDecoder):
             vf = inv_vf_per_scale[self.scale]
             rgb_image_hat = self.ffmpeg.ff_op(
                 scaled_hat,
-                vf.format(
-                    width=rgb_image.shape[1], height=rgb_image.shape[0]
-                ),
+                vf.format(width=rgb_image.shape[1], height=rgb_image.shape[0]),
             )
         else:
             rgb_image_hat = scaled_hat
 
         # SAVE IMAGE IF
         if self.dump:
-            dumpImageArray(rgb_image_hat, self.save_folder, "rgb_image_hat_" + tag_ + ".png")
+            dumpImageArray(
+                rgb_image_hat, self.save_folder, "rgb_image_hat_" + tag_ + ".png"
+            )
 
         bgr_image_hat = rgb_image_hat[:, :, [2, 1, 0]]  # RGB --> BGR
 

@@ -27,65 +27,58 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Create a copy of a dataset for an individual user
 """
-# importing this takes quite a while!
-# ..not anymore since import fiftyone is inside the function
-# print("cli: import")
-from compressai_vision.cli.clean import main as clean
-from compressai_vision.cli.convert_mpeg_to_oiv6 import main as convert_mpeg_to_oiv6
-from compressai_vision.cli.deregister import main as deregister
-from compressai_vision.cli.detectron2_eval import main as detectron2_eval
-from compressai_vision.cli.download import main as download
-from compressai_vision.cli.dummy import main as dummy
-from compressai_vision.cli.list import main as list
-from compressai_vision.cli.load_eval import main as load_eval
-from compressai_vision.cli.register import main as register
-from compressai_vision.cli.vtm import main as vtm
+import os
 
-# print("cli: import end")
-"""
-from . import (
-    app,
-    auto,
-    clean,
-    convert_mpeg_to_oiv6,
-    deregister,
-    detectron2_eval,
-    download,
-    dummy,
-    import_custom,
-    info,
-    killmongo,
-    list_,
-    load_eval,
-    make_thumbnails,
-    metrics_eval,
-    plotter,
-    register,
-    show,
-    vtm,
-    copy,
-)
 
-__all__ = [
-    "clean",
-    "convert_mpeg_to_oiv6",
-    "deregister",
-    "detectron2_eval",
-    "download",
-    "dummy",
-    "list_",
-    "load_eval",
-    "register",
-    "vtm",
-    "auto",
-    "info",
-    "killmongo",
-    "plotter",
-    "show",
-    "metrics_eval",
-    "import_custom",
-    "make_thumbnails",
-    "app",
-    "copy",
-]
+def add_subparser(subparsers, parents):
+    subparser = subparsers.add_parser(
+        "copy", parents=parents, help="create a copy of the dataset"
+    )
+    req_group = subparser.add_argument_group("required arguments")
+    req_group.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset or a comma-separated list of dataset names",
+    )
+    opt_group = subparser.add_argument_group("optional arguments")
+    opt_group.add_argument(
+        "--username",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="user name to prepend the dataset names with.  default: posix username from env variable USER",
+    )
+
+
+def main(p):
+    if p.username is None:
+        p.username = os.environ["USER"]
+
+    print("importing fiftyone")
+    import fiftyone as fo
+
+    print("fiftyone imported")
+
+    for dataset_name in p.dataset_name.split(","):
+        new_name = p.username + "-" + dataset_name
+        print("cloning", dataset_name, "into", new_name)
+        try:
+            dataset = fo.load_dataset(dataset_name)
+        except ValueError:
+            print("WARNING: dataset", dataset_name, "not found - will skip")
+            continue
+        # delete new_name if exists already
+        try:
+            fo.delete_dataset(new_name)
+        except ValueError:
+            pass
+        else:
+            print("NOTE: dataset", new_name, "was already there - removed it")
+        new_dataset = dataset.clone(new_name)
+        new_dataset.persistent = True

@@ -554,9 +554,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             vf = inv_vf_per_scale[self.scale]
             rgb_image_hat = self.ffmpeg.ff_op(
                 padded_hat,
-                vf.format(
-                    width=rgb_image.shape[1], height=rgb_image.shape[0]
-                ),
+                vf.format(width=rgb_image.shape[1], height=rgb_image.shape[0]),
             )
             if rgb_image_hat is None:
                 self.logger.fatal(
@@ -569,7 +567,9 @@ class VTMEncoderDecoder(EncoderDecoder):
             rgb_image_hat = padded_hat
 
         if self.dump:
-            dumpImageArray(rgb_image_hat, self.save_folder, "rgb_image_hat_" + uid + ".png")
+            dumpImageArray(
+                rgb_image_hat, self.save_folder, "rgb_image_hat_" + uid + ".png"
+            )
 
         if self.save:
             self.saved = {
