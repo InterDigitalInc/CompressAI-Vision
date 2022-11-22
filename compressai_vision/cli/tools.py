@@ -88,18 +88,38 @@ def checkSlice(p, dataset):
             "WARNING: using a dataset slice instead of full dataset: SURE YOU WANT THIS?"
         )
         # say, 0:100
-        nums = p.slice.split(":")
+        nums = p.slice.split(":")  # python slicing?
+        """
         if len(nums) < 2:
             print("invalid slicing: use normal python slicing, say, 0:100")
             return
-        try:
-            fr = int(nums[0])
-            to = int(nums[1])
-        except ValueError:
-            print("invalid slicing: use normal python slicing, say, 0:100")
-            return
-        assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
-        dataset = dataset[fr:to]
+        """
+        filepaths = p.slice.split(",")  # list of filepaths?
+        if len(nums) >= 2:
+            # looks like 0:N slice
+            try:
+                fr = int(nums[0])
+                to = int(nums[1])
+            except ValueError:
+                print("invalid slicing: use normal python slicing, say, 0:100")
+                raise
+            assert to > fr, "invalid slicing: use normal python slicing, say, 0:100"
+            dataset = dataset[fr:to]
+        elif len(filepaths) >= 1:
+            from fiftyone import ViewField as F
+
+            query_list = []
+            # looks like list of filenames
+            for filepath in filepaths:
+                p = Path(filepath).expanduser().absolute()
+                if not p.is_file():
+                    print("FATAL: file", str(p), "does not exist")
+                    raise AttributeError("file not found or --slice misinterpretation")
+                query_list.append(F("filepath") == str(p))
+            dataset = dataset[F.any(query_list)]
+        else:
+            print("could not interprete --slice")
+            raise AttributeError("could not interprete --slice")
     return dataset, fr, to
 
 
@@ -109,42 +129,77 @@ def setupDetectron2(model_names: list, device):
     # Some basic setup:
     # Setup detectron2 logger
     # import detectron2
+    import logging
     from detectron2.utils.logger import setup_logger
 
-    setup_logger()
+    logger = setup_logger()
+    logger.setLevel(logging.WARNING)
 
     # import some common detectron2 utilities
     from detectron2 import model_zoo
     from detectron2.config import get_cfg
     from detectron2.data import MetadataCatalog  # , DatasetCatalog
     from detectron2.engine import DefaultPredictor
+    from detectron2.data.datasets import register_coco_instances
 
     models = []
     models_meta = []
     pred_fields = []
     for e, name in enumerate(model_names):
-        # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
-        cfg = get_cfg()
-        cfg.MODEL.DEVICE = device
-        # load config from a file:
-        cfg.merge_from_file(model_zoo.get_config_file(name))
-        # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-        # too big a threshold will cut the smallest values
-        # & affect the precision(recall) curves & evaluation results
-        # the default value is 0.05
-        # value of 0.01 saturates the results (they don't change at lower values)
-        # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-        # get weights
-        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(name)
-        # print("expected input colorspace:", cfg.INPUT.FORMAT)
-        # print("loaded datasets:", cfg.DATASETS)
+        if ".py" in name:
+            # *** LOAD cfg and predictor from an external .py file ***
+            pyfile = name
+            print("Trying to load custom Detectron2 model from local file", pyfile)
+            assert os.path.exists(pyfile), "Can't find " + str(pyfile)
+            import importlib.util
 
-        model_dataset = cfg.DATASETS.TRAIN[0]
-        # print("model was trained with", model_dataset)
-        model_meta = MetadataCatalog.get(model_dataset)
-
-        print(f"instantiating Detectron2 predictor {e} : {name}")
-        predictor = DefaultPredictor(cfg)
+            try:
+                spec = importlib.util.spec_from_file_location(
+                    "detectron2_module", pyfile
+                )
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+            except Exception as e:
+                print("Importing custom detectron model from", pyfile, "failed")
+                raise
+            assert hasattr(module, "getCfgPredictor"), (
+                "file " + pyfile + " is missing function getCfgPredictor"
+            )
+            print("Loading custom Detectron2 predictor from", pyfile)
+            """
+            cfg, predictor = module.getCfgPredictor(
+                get_cfg,
+                model_zoo,
+                register_coco_instances,
+                DefaultPredictor,
+                MetadataCatalog
+            )
+            """
+            cfg, predictor = module.getCfgPredictor()
+            model_dataset = cfg.DATASETS.TRAIN[0]
+            model_meta = MetadataCatalog.get(model_dataset)
+        else:
+            # *** LOAD cfg and predictor from the Detectron2 zoo ***
+            # cfg encapsulates the model architecture & weights, also threshold parameter, metadata, etc.
+            cfg = get_cfg()
+            cfg.MODEL.DEVICE = device
+            # load config from a file:
+            cfg.merge_from_file(model_zoo.get_config_file(name))
+            # DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
+            # too big a threshold will cut the smallest values
+            # & affect the precision(recall) curves & evaluation results
+            # the default value is 0.05
+            # value of 0.01 saturates the results (they don't change at lower values)
+            # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+            # get weights
+            cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(name)
+            # print("expected input colorspace:", cfg.INPUT.FORMAT)
+            # print("loaded datasets:", cfg.DATASETS)
+            model_dataset = cfg.DATASETS.TRAIN[0]
+            # print("model was trained with", model_dataset)
+            model_meta = MetadataCatalog.get(model_dataset)
+            print(f"instantiating Detectron2 predictor {e} : {name}")
+            predictor = DefaultPredictor(cfg)
 
         models.append(predictor)
         models_meta.append((model_dataset, model_meta))

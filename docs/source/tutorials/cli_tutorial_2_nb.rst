@@ -509,3 +509,11 @@ Let’s remove the image data as well:
 
     rm -rf /tmp/my_data_set
 
+A final note/observation before moving to the next tutorial.
+
+If you work with an external, shared mongodb and several people are
+working on the same datasets, after registering/exporting, each user
+might want to use the ``compressai-vision copy`` command to create a
+personal copy of the dataset in order to avoid conflicts (for a more pro
+multiuser environment you might want to contact voxel51 for their
+premium version of fiftyone).
