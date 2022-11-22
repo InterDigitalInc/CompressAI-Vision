@@ -4,7 +4,7 @@ compressai_vision.conversion
 .. currentmodule:: compressai_vision.conversion
 
 mpeg_vcm input file conversion
----------------------------
+------------------------------
 
 .. autofunction:: MPEGVCMToOpenImageV6
 

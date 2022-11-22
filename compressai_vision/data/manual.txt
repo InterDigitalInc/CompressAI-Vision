@@ -95,14 +95,18 @@ commands & parameters:
                             with compressai or vtm.
 
         --dataset-name      name of the fiftyone registered dataset
-        --model             name of the detectron2 model
-                            for example:
-                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+        --model             name of the detectron2 model from the zoo, for example: 
+                                COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
                             
-                            It can also be a list of the models for multi-task scenario
-                            for example:
-                            COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
-                            COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+                            It can also be a comma-separated list of the models for 
+                            multi-task scenario, for example:
+                                COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml, \
+                                COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+
+                            Instead if a zoo model, you can also define a python .py file,
+                            from where the detectron2.Predictor is loaded.  The .py file
+                            should have method "getCfgPredictor" that returns cfg, Predictor
+                            For an example, please see examples/detectron2/flir.py in the main repo
 
         --eval-method       Evaluation method/protocol for mAP calculations: 
                             open-images or coco.  Default: open-images.
@@ -127,6 +131,9 @@ commands & parameters:
                                     The directory should contain a properly formatted "model.py" file (optional)
         --compression-model-checkpoint
                                     a torch checkpoint file for loading the model state (.pth.tar file)
+
+        vtm usage:
+
         --vtm                       use vtm (optional)
         --vtm_dir                   specify path to directory "VVCSoftware_VTM/bin", i.e. to the
                                     directory where there are executables "EncoderAppStatic" and
@@ -140,14 +147,21 @@ commands & parameters:
                                     Default: no caching.
                                     NOTE: the path is automatically appended with
                                     "scale/quality-parameter/" (see --scale)
+
+        quality parameters etc:
+
         --qpars                     a quality parameters to be used with either compressai or vtm
         --scale                     ffmpeg scaling applied to the image as defined per VCM working group.
                                     values can be: 100 (original size), 75, 50, 25.
                                     0 = no scaling applied
         --ffmpeg                    specify ffmpeg command.  If not specified, uses "ffmpeg".
         --slice                     instead of using the complete dataset, just use a slice of the
-                                    dataset: good for parallelizing the VTM encoder.
-                                    Normal python slicing indexes are used.
+                                    dataset: recommended use-case: parallelizing the VTM bitstream production.
+                                    Normal python slicing indexes are used, i.e. 0:2 
+                                    Can also be a comma-separated list of filepaths in the datasets, i.e.:
+                                    /path/to/image1.png,/path/to/image2.png
+        output:
+
         --debug                     enable debug verbosity
         --progressbar               show a fancy progressbar.  Default: false.  Nice for interactive runs.
         --progress                  show progress every n:th step, i.e. --progress=10 would print out
@@ -199,6 +213,8 @@ commands & parameters:
                                 Default: ffmpeg
             --slice             use a dataset slice instead of the complete dataset.
                                 Example: 0:2 for the first two images
+                                Can also be a comma-separated list of filepaths in the datasets, i.e.:
+                                /path/to/image1.png,/path/to/image2.png
             --progressbar       show fancy progressbar. 
                                 Default: False
             --progress          Print progress this often
@@ -232,8 +248,10 @@ commands & parameters:
                             0 = no scaling applied
         --ffmpeg            specify ffmpeg command.  If not specified, uses "ffmpeg".
         --slice             instead of using the complete dataset, just use a slice of the
-                            dataset: good for parallelizing the VTM encoder.
-                            Normal python slicing indexes are used.
+                            dataset: good for parallelizing the VTM bitstream production
+                            Normal python slicing indexes are used, i.e. 0:2
+                            Can also be a comma-separated list of filepaths in the datasets, i.e.:
+                            /path/to/image1.png,/path/to/image2.png
         --debug             enable debug verbosity
         --progressbar       show a fancy progressbar.  Default: false.  Nice for interactive runs.
         --progress          show progress every n:th step, i.e. --progress=10 would print out

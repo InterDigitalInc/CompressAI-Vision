@@ -112,7 +112,7 @@ def add_subparser(subparsers, parents):
         type=str,
         required=False,
         default=None,
-        help="use a dataset slice instead of the complete dataset",
+        help="use a dataset slice instead of the complete dataset. Example: 0:2 for the first two images.  Instead of python slicing string, this can also be a list of sample filepaths in the dataset",
     )
     subparser.add_argument(
         "--progressbar",
