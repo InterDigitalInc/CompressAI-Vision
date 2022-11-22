@@ -82,6 +82,8 @@ https://github.com/voxel51/fiftyone/issues/2291
 
 relevant when importing non-canonical OpenImageV6 formats into fiftyone
 """
+
+
 def _parse_csv(filename, dataframe=False, index_col=None):
     if dataframe:
         data = pd.read_csv(filename, index_col=index_col, dtype={"ImageID": str})

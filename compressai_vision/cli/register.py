@@ -118,7 +118,7 @@ def main(p):  # noqa: C901
     print()
     if p.lists is None:
         print(
-            "WARNING: using/registering with ALL images.  You should use the --lists option"
+            "WARNING: using/registering with ALL images.  You might want to use the --lists option insted"
         )
         n_images = "?"
         image_ids = None
@@ -129,17 +129,33 @@ def main(p):  # noqa: C901
         image_ids = imageIdFileList(*fnames)
         n_images = str(len(image_ids))
 
-    label_types = [
-        "classifications"
-    ]  # at least image-level classifications required..!
-    # let's check what data user has imported
-    if pathExists(os.path.join(p.dir, "labels", "segmentations.csv")):
-        # segmentations are there allright
-        label_types.append("segmentations")
-    if pathExists(os.path.join(p.dir, "labels", "detections.csv")):
-        # segmentations are there allright
-        label_types.append("detections")
-    # .. in fact, could just list with all .csv files in that dir
+    # this was originally written only for OpenImageV6..
+    # common args for all dataset types:
+    kwargs = {
+        "dataset_dir": dataset_dir,
+        "dataset_type": dataset_type,
+        "name": p.dataset_name,
+    }
+    if image_ids is not None:
+        kwargs["image_ids"] = image_ids
+
+    if dataset_type == fo.types.dataset_types.OpenImagesV6Dataset:
+        label_types = [
+            "classifications"
+        ]  # at least image-level classifications required..!
+        # let's check what data user has imported
+        if pathExists(os.path.join(p.dir, "labels", "segmentations.csv")):
+            # segmentations are there allright
+            label_types.append("segmentations")
+            print("OpenImagesV6: found segmentations")
+        if pathExists(os.path.join(p.dir, "labels", "detections.csv")):
+            # segmentations are there allright
+            label_types.append("detections")
+            print("OpenImagesV6: found detections")
+        # .. in fact, could just list with all .csv files in that dir
+        kwargs["label_types"] = label_types
+        print("OpenImagesV6: skipping hierarchies")
+        kwargs["load_hierarchy"] = False
 
     print("From directory  :    ", p.dir)
     print("Using list file :    ", p.lists)
@@ -147,26 +163,18 @@ def main(p):  # noqa: C901
     print("Registering name:    ", p.dataset_name)
     if not p.y:
         input("press enter to continue.. ")
-    print()
-    if image_ids is None:
-        dataset = fo.Dataset.from_dir(
-            dataset_dir=dataset_dir,
-            dataset_type=dataset_type,
-            label_types=label_types,
-            load_hierarchy=False,  # no hierarchies for the moment..
-            name=p.dataset_name,
-        )
-    else:
-        dataset = fo.Dataset.from_dir(
-            dataset_dir=dataset_dir,
-            dataset_type=dataset_type,
-            label_types=label_types,
-            load_hierarchy=False,
-            name=p.dataset_name,
-            image_ids=image_ids,
-        )
+    print("working..")
+    try:
+        dataset = fo.Dataset.from_dir(**kwargs)
+    except Exception as e:
+        print("FATAL: registering failed")
+        print("     : if you need more control on registering please")
+        print("     : use fiftyone from python interpreter")
+        print("Exception:")
+        print(e)
+        return 2
+    print("register: SUCCESS")
     dataset.persistent = True  # don't forget!
-
     print()
     print("** Let's peek at the first sample - check that it looks ok:**")
     print()
