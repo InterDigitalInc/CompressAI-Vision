@@ -537,12 +537,21 @@ def main(p):  # noqa: C901
                 raise BaseException("program logic error")
             enc_dec.computeMetrics(False)
 
+            # append pred_fields_ with the quality point tag
+            # i.e. detectron-eval_v0 ==> detectron-eval_v0-qp-1
+            # this way, if we use the --keep flag, we can
+            # see detection results for different qpoints
+            # in the fo app
+            pred_fields_qp = []
+            for pred_field_ in pred_fields_:
+                pred_fields_qp.append(pred_field_ + "-qp-" + str(quality))
+
             bpp = annex_function(
                 predictors=predictors,
                 fo_dataset=dataset,
                 encoder_decoder=enc_dec,
                 gt_field=p.gt_field,
-                predictor_fields=pred_fields_,
+                predictor_fields=pred_fields_qp,
                 use_pb=p.progressbar,
                 use_print=p.progress,
             )
@@ -562,18 +571,9 @@ def main(p):  # noqa: C901
             bpps = []
             accs = []
             accs_detail = []
-            for _, pred_field_ in enumerate(pred_fields_):
+            for _, pred_field_ in enumerate(pred_fields_qp):
                 # print("evaluating dataset", dataset.name)
-                res = dataset.evaluate_detections(
-                    pred_field_,
-                    **eval_args
-                    # gt_field=p.gt_field,
-                    # method="open-images",
-                    # pos_label_field="positive_labels",
-                    # neg_label_field="negative_labels",
-                    # expand_pred_hierarchy=False,
-                    # expand_gt_hierarchy=False,
-                )
+                res = dataset.evaluate_detections(pred_field_, **eval_args)
                 bpps.append(bpp)
                 accs.append(res.mAP())
                 accs_detail.append(per_class(res))
