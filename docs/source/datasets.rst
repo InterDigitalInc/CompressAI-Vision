@@ -41,14 +41,14 @@ Final fiftyone dataset names:
 Aka. Tencent Video Dataset.  Videos and images.  Annotations come in
 a custom format identical to (1).
 
-Download following input files from `TVD page <https://multimedia.tencent.com/resources/tvd>`_:
+Download these files from `TVD page <https://multimedia.tencent.com/resources/tvd>`_:
 
 .. code-block:: text
 
     TVD_Object_Detection_Dataset_and_Annotations.zip  # object detection annotations & images in a tar file
     TVD_Instance_Segmentation_Annotations.zip  # segmentations annotations & segmasks
-    TVD.zip  # videos for object tracking
-    TVD_Object_Tracking_Dataset_and_Annotations.zip  # annotations for videos
+    TVD.zip  # videos where the images were taken from - in fact, not required for using the datasets
+    TVD_Object_Tracking_Dataset_and_Annotations.zip  # object tracking videos & annotations
 
 After unpacking everything, you should have the following input directory/file structure
 (call it ``/path/to/dir``):
