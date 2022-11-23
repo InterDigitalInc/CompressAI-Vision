@@ -29,11 +29,11 @@ CompressAI-Vision helps you to develop, test and evaluate compression models wit
 A typical metric for evaluating the encoder's efficiency for serving a detection/segmentation task,
 is the mean average precision (mAP) as a function of encoding/quality parameters:
 
+.. image:: ../../assets/results.png
 
 For testing the VCM pipeline, various mAP measures (as in COCO or OpenImageV6 evaluation protocols) and datasets can be used,
 while the deep-learning CompressAI-based models are typically compared againts a well-known "anchor" pipeline, featuring a
 classical image/video codec like H266/VVC.
-
 
 You can use a single command-line interface (CLI) tool to evaluate your custom deep-learning model according to the
 standards set up by the MPEG-VCM working group.
