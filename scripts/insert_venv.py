@@ -11,4 +11,4 @@ print("patching environmental variables with")
 print("FIFTYONE_DATABASE_NAME="+val)
 
 with open(os.path.join(sys.prefix,"bin","activate"), "a") as f:
-    f.write("export FIFTYONE_DATABASE_NAME="+val+"\n")
+    f.write('export FIFTYONE_DATABASE_NAME='+val+'\n')
