@@ -130,6 +130,7 @@ def setupDetectron2(model_names: list, device):
     # Setup detectron2 logger
     # import detectron2
     import logging
+
     from detectron2.utils.logger import setup_logger
 
     logger = setup_logger()
@@ -139,8 +140,9 @@ def setupDetectron2(model_names: list, device):
     from detectron2 import model_zoo
     from detectron2.config import get_cfg
     from detectron2.data import MetadataCatalog  # , DatasetCatalog
+
+    # from detectron2.data.datasets import register_coco_instances
     from detectron2.engine import DefaultPredictor
-    from detectron2.data.datasets import register_coco_instances
 
     models = []
     models_meta = []
@@ -160,6 +162,8 @@ def setupDetectron2(model_names: list, device):
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
             except Exception as e:
+                if hasattr(e, "message"):
+                    print(str(e))
                 print("Importing custom detectron model from", pyfile, "failed")
                 raise
             assert hasattr(module, "getCfgPredictor"), (

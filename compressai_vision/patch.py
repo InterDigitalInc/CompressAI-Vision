@@ -38,7 +38,6 @@ from importlib.metadata import version
 import fiftyone as fo  # importing fiftyone for the first time always takes time as it starts the mongodb
 import fiftyone.utils.openimages as fouo
 import pandas as pd
-import csv
 
 if version("fiftyone") != "0.16.6":
     print("")
