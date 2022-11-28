@@ -38,6 +38,7 @@ from compressai_vision.cli import (
     auto,
     clean,
     convert_mpeg_to_oiv6,
+    copy,
     deregister,
     detectron2_eval,
     download,
@@ -53,7 +54,6 @@ from compressai_vision.cli import (
     register,
     show,
     vtm,
-    copy,
 )
 from compressai_vision.tools import getDataFile, quickLog
 

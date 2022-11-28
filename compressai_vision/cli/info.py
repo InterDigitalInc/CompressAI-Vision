@@ -106,10 +106,10 @@ def main(p):  # noqa: C901
     except KeyError:
         print(
             """
-        WARNING: You should set the environment variable FIFTYONE_DATABASE_NAME
-        in your virtual environment.  Different virtual environments (with different
-        fiftyone versions) should NOT write to the SAME database in the same mongodb server. 
-        """
+            WARNING: You should set the environment variable FIFTYONE_DATABASE_NAME
+            in your virtual environment.  Different virtual environments (with different
+            fiftyone versions) should NOT write to the SAME database in the same mongodb server.
+            """
         )
     else:
         print("Fiftyone database name in mongodb:", db_name)
