@@ -19,7 +19,7 @@ First, create and activate the virtualenv with:
 
 You might want to define the python version explicitly, i.e. with ``python3.8 -m venv venv``.  Python3.8+ is required.
 
-While in the activated virtualenv, run one of the ``install.bash`` bash scripts in
+**While in the activated virtualenv**, run one of the ``install.bash`` bash scripts in
 `scripts/ <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
 
 The script will install the following software stack:
@@ -29,6 +29,11 @@ The script will install the following software stack:
 - `Detectron2 <https://detectron2.readthedocs.io/en/latest/index.html>`_
 - `fiftyone <https://voxel51.com/docs/fiftyone/>`_
 - *This* library (CompressAI-Vision)
+
+The script also inserts ``FIFTYONE_DATABASE_NAME`` env variable into the virtual environment.  This
+tells fiftyone to use a database name including the particular fiftyone version (i.e. ``fiftyone-0.16.6``).
+
+After running the script within the virtualenv, ``deactivate`` and ``activate`` the virtualenv once again for the effects to take place.
 
 PyTorch, Detectron2 and CUDA versions are different for each of the installation scripts:
 

@@ -498,7 +498,11 @@ For now, let’s get back to terminal command line.
 Everything that you learned for image datasets, applies for video
 datasets as well: ``compressai-vision import-custom`` can be used to
 import mpeg-vcm datasets. ``compressai-vision app`` can be used to
-visualize interactively datasets.
+visualize video datasets interactively. For visualizing videos in the
+fiftyone app a small tip: when you play video and then stop it, the
+bboxes might seem to be off. However, when you click the timeline
+(i.e. seek) to a certain point, they match the video again (seems to be
+a small bug in the fiftyone video visualization app).
 
 When using the fiftyone app, there is a small catch though. Web-browsers
 are picky on the type of video they can play. For some video datasets,

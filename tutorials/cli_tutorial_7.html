@@ -199,7 +199,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">MPEG-VCM Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html#other-datasets">Other Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -682,7 +683,11 @@ vid.release()
 <p>Everything that you learned for image datasets, applies for video
 datasets as well: <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">import-custom</span></code> can be used to
 import mpeg-vcm datasets. <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">app</span></code> can be used to
-visualize interactively datasets.</p>
+visualize video datasets interactively. For visualizing videos in the
+fiftyone app a small tip: when you play video and then stop it, the
+bboxes might seem to be off. However, when you click the timeline
+(i.e. seek) to a certain point, they match the video again (seems to be
+a small bug in the fiftyone video visualization app).</p>
 <p>When using the fiftyone app, there is a small catch though. Web-browsers
 are picky on the type of video they can play. For some video datasets,
 in order to view them in the app, you need to create separate

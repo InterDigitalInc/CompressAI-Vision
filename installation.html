@@ -199,7 +199,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">MPEG-VCM Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html#other-datasets">Other Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -256,7 +257,7 @@ pip install -U pip
 </pre></div>
 </div>
 <p>You might want to define the python version explicitly, i.e. with <code class="docutils literal notranslate"><span class="pre">python3.8</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code>.  Python3.8+ is required.</p>
-<p>While in the activated virtualenv, run one of the <code class="docutils literal notranslate"><span class="pre">install.bash</span></code> bash scripts in
+<p><strong>While in the activated virtualenv</strong>, run one of the <code class="docutils literal notranslate"><span class="pre">install.bash</span></code> bash scripts in
 <a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts">scripts/</a></p>
 <p>The script will install the following software stack:</p>
 <ul class="simple">
@@ -266,6 +267,9 @@ pip install -U pip
 <li><p><a class="reference external" href="https://voxel51.com/docs/fiftyone/">fiftyone</a></p></li>
 <li><p><em>This</em> library (CompressAI-Vision)</p></li>
 </ul>
+<p>The script also inserts <code class="docutils literal notranslate"><span class="pre">FIFTYONE_DATABASE_NAME</span></code> env variable into the virtual environment.  This
+tells fiftyone to use a database name including the particular fiftyone version (i.e. <code class="docutils literal notranslate"><span class="pre">fiftyone-0.16.6</span></code>).</p>
+<p>After running the script within the virtualenv, <code class="docutils literal notranslate"><span class="pre">deactivate</span></code> and <code class="docutils literal notranslate"><span class="pre">activate</span></code> the virtualenv once again for the effects to take place.</p>
 <p>PyTorch, Detectron2 and CUDA versions are different for each of the installation scripts:</p>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">

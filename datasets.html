@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="FAQ" href="faq.html" /><link rel="prev" title="compressai_vision.evaluation.fo" href="evaluation/fo/index.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>Datasets - CompressAIVision</title>
+        <title>MPEG-VCM Datasets - CompressAIVision</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -199,7 +199,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Datasets</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">MPEG-VCM Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#other-datasets">Other Datasets</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">faq</span></p>
 <ul>
@@ -242,8 +243,8 @@
           </label>
         </div>
         <article role="main">
-          <section id="datasets">
-<span id="dataset"></span><h1>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading">#</a></h1>
+          <section id="mpeg-vcm-datasets">
+<span id="dataset"></span><h1>MPEG-VCM Datasets<a class="headerlink" href="#mpeg-vcm-datasets" title="Permalink to this heading">#</a></h1>
 <p>MPEG-VCM working group defines several evaluation datasets.</p>
 <section id="oiv6-mpeg">
 <h2>1. OIV6-MPEG<a class="headerlink" href="#oiv6-mpeg" title="Permalink to this heading">#</a></h2>
@@ -260,9 +261,10 @@ segmentation_validation_masks_5k.csv
 </pre></div>
 </div>
 <p>Commands to import:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom oiv6-mpeg-v1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>oiv6-mpeg-v1
 </pre></div>
 </div>
+<p>You can also define an additional argument <code class="docutils literal notranslate"><span class="pre">--datadir=</span></code> to indicate where the OpenImageV6 dataset is downloaded (by default to <code class="docutils literal notranslate"><span class="pre">~/fiftyone</span></code>).</p>
 <p>Final fiftyone dataset names:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-detection-v1</span></code></p></li>
@@ -273,11 +275,11 @@ segmentation_validation_masks_5k.csv
 <h2>2. TVD<a class="headerlink" href="#tvd" title="Permalink to this heading">#</a></h2>
 <p>Aka. Tencent Video Dataset.  Videos and images.  Annotations come in
 a custom format identical to (1).</p>
-<p>Download following input files from <a class="reference external" href="https://multimedia.tencent.com/resources/tvd">TVD page</a>:</p>
+<p>Download these files from <a class="reference external" href="https://multimedia.tencent.com/resources/tvd">TVD page</a>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TVD_Object_Detection_Dataset_and_Annotations.zip  # object detection annotations &amp; images in a tar file
 TVD_Instance_Segmentation_Annotations.zip  # segmentations annotations &amp; segmasks
-TVD.zip  # videos for object tracking
-TVD_Object_Tracking_Dataset_and_Annotations.zip  # annotations for videos
+TVD.zip  # videos where the images were taken from - in fact, not required for using the datasets
+TVD_Object_Tracking_Dataset_and_Annotations.zip  # object tracking videos &amp; annotations
 </pre></div>
 </div>
 <p>After unpacking everything, you should have the following input directory/file structure
@@ -350,18 +352,45 @@ ClassB/
 <li><p><code class="docutils literal notranslate"><span class="pre">sfu-hw-objects-v1</span></code></p></li>
 </ul>
 </section>
-<section id="flir">
-<h2>4. FLIR<a class="headerlink" href="#flir" title="Permalink to this heading">#</a></h2>
-<p>Nightime and infrared images.  Some of the images are hand-picked from the dataset.</p>
-<p>A list defining the subset is required (bundled with CompressAI-Vision):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TODO
+<section id="flir-mpeg">
+<h2>5. FLIR-MPEG<a class="headerlink" href="#flir-mpeg" title="Permalink to this heading">#</a></h2>
+<p>Use the zipfile provided by the mpeg-vcm working group.
+After unpacking, you have the following input directory/file structure (call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>├── anchor_results
+│   ├── FLIR_anchor_vtm12_bitdepth10.xlsx
+│   └── VCM-reporting-template-FLIR_vtm12_d10.xlsm
+├── dataset
+│   ├── coco_format_json_annotation
+│   │   ├── FLIR_val_thermal_coco_format_jpg.json
+│   │   ├── FLIR_val_thermal_coco_format_png.json
+│   │   └── Two files differ only in image file format whithin the file, and the rest are the same..txt
+│   ├── fine_tuned_model
+│   │   └── model_final.pth
+│   └── thermal_images [300 entries exceeds filelimit, not opening dir]
+├── mAP_coco.py
+└── Readme.txt
 </pre></div>
 </div>
+<p>Commands to import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compressai-vision import-custom --dataset-type<span class="o">=</span>flir-mpeg-v1 --dir<span class="o">=</span>/path/to/dir
+</pre></div>
+</div>
+<p>Final fiftyone dataset names:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">flir-mpeg-detection-v1</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="other-datasets">
+<h1>Other Datasets<a class="headerlink" href="#other-datasets" title="Permalink to this heading">#</a></h1>
+<section id="flir">
+<h2>6. FLIR<a class="headerlink" href="#flir" title="Permalink to this heading">#</a></h2>
+<p>Nightime and infrared images.</p>
 <p>Download following input files from <a class="reference external" href="https://adas-dataset-v2.flirconservator.com/#downloadguide">here</a>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>FLIR_ADAS_v2.zip
 </pre></div>
 </div>
-<p>After unpacking, following input directory/file structure (call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
+<p>After unpacking, you have the following input directory/file structure (call it <code class="docutils literal notranslate"><span class="pre">/path/to/dir</span></code>):</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rgb_to_thermal_vid_map.json
 images_rgb_train/
     coco_annotation_counts.tsv
@@ -448,11 +477,15 @@ video_thermal_test/
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Datasets</a><ul>
+<li><a class="reference internal" href="#">MPEG-VCM Datasets</a><ul>
 <li><a class="reference internal" href="#oiv6-mpeg">1. OIV6-MPEG</a></li>
 <li><a class="reference internal" href="#tvd">2. TVD</a></li>
 <li><a class="reference internal" href="#sfu-hw-objects-v1">3. SFU-HW-Objects-V1</a></li>
-<li><a class="reference internal" href="#flir">4. FLIR</a></li>
+<li><a class="reference internal" href="#flir-mpeg">5. FLIR-MPEG</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-datasets">Other Datasets</a><ul>
+<li><a class="reference internal" href="#flir">6. FLIR</a></li>
 </ul>
 </li>
 </ul>

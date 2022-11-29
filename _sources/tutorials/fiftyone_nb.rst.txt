@@ -436,7 +436,7 @@ You can visualize the whole dataset conveniently with:
 
 ::
 
-   session = fo.lauch_app(dataset)
+   session = fo.launch_app(dataset)
 
 For more info, please visit `fiftyone
 documentation <https://voxel51.com/docs/fiftyone/>`__
