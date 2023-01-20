@@ -161,7 +161,9 @@ def setupDetectron2(model_names: list, device):
                 )
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
-            except Exception:  # as e:
+            except Exception as e:
+                if hasattr(e, "message"):
+                    print(str(e))
                 print("Importing custom detectron model from", pyfile, "failed")
                 raise
             assert hasattr(module, "getCfgPredictor"), (
