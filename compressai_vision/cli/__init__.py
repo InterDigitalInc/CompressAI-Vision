@@ -49,6 +49,7 @@ from . import (
     auto,
     clean,
     convert_mpeg_to_oiv6,
+    copy,
     deregister,
     detectron2_eval,
     download,
@@ -64,7 +65,6 @@ from . import (
     register,
     show,
     vtm,
-    copy,
 )
 
 __all__ = [

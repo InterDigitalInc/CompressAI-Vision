@@ -74,6 +74,15 @@ def add_subparser(subparsers, parents):
         default=None,
         help="directory where the dataset (images, annotations, etc.) is downloaded. default uses fiftyone default, i.e. ~/fiftyone/",
     )
+    subparser.add_argument(
+        "--label-types",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        nargs="+",
+        help="a label type or list of label types to download. Supported label types are listed at 'https://docs.voxel51.com/user_guide/dataset_zoo/datasets.html#dataset-zoo-coco-2017'. i.e. coco-2017 supports ('detections', 'segmentations'). By default, only detections are loaded",
+    )
 
 
 def main(p):
@@ -108,13 +117,15 @@ def main(p):
     print("Using list files:    ", p.lists)
     print("Number of images:    ", n_images)
     print("Database name   :    ", p.dataset_name)
+    if p.label_types is not None:
+        print("Loaded labels   :    ", p.label_types)
     print("Subname/split   :    ", p.split)
     print("Target dir      :    ", p.dir)
+
     if not p.y:
         input("press enter to continue.. ")
     print()
-    # return
-    # https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6
+
     kwargs = {}
     if p.split is not None:
         kwargs["split"] = p.split
@@ -123,7 +134,9 @@ def main(p):
     if p.dir is not None:
         p.dir = os.path.expanduser(p.dir)
         kwargs["dataset_dir"] = p.dir
+    if p.label_types is not None:
+        kwargs["label_types"] = p.label_types
+
     # print(">>>", p.dir)
     dataset = foz.load_zoo_dataset(p.dataset_name, **kwargs)
-    # label_types=("detections", "classifications", "relationships", "segmentations") # default
     dataset.persistent = True
