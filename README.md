@@ -123,5 +123,5 @@ CompressAI-Vision is licensed under the BSD 3-Clause Clear License
 
 ## Authors
 
-Sampsa Riikonen, Jacky Yat-Hong Lam, Fabien Racapé
+Sampsa Riikonen, Jacky Yat-Hong Lam, Fabien Racapé, Hyomin Choi
 
