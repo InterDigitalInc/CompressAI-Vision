@@ -33,11 +33,11 @@ import argparse
 import logging
 import sys
 
-# from compressai_vision.cli.prep_data import convert_mpeg_to_oiv6
 from compressai_vision.cli.eval import (
     split_inference,
 )
-from compressai_vision.tools import getDataFile, quickLog
+
+# from compressai_vision.tools import getDataFile, quickLog
 
 COMMANDS = {  # noqa: F405
     "split-inference": split_inference.main,
@@ -92,22 +92,16 @@ def main():
         print("invalid argument", weird)
         raise SystemExit(2)
 
-    # assert args.command in COMMANDS.keys(), "unknown command"
     if args.command not in COMMANDS.keys():
         print("invalid command", args.command)
         print("subcommands: " + coms)
         sys.exit(2)
 
-    if args.command == "manual":
-        with open(getDataFile("manual.txt"), "r") as f:
-            print(f.read())
-        return
-
-    if args.debug:
-        loglev = logging.DEBUG
-    else:
-        loglev = logging.INFO
-    quickLog("split_inference", loglev)
+    # if args.debug:
+    #     loglev = logging.DEBUG
+    # else:
+    #     loglev = logging.INFO
+    # quickLog("split_inference", loglev)
 
     func = COMMANDS[args.command]
     func(args)  # pass cli args to the function in question

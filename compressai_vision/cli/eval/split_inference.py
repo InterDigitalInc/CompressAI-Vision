@@ -30,3 +30,35 @@
 """Compression Split inference: Compression of intermediate data:
    Feature Compression for Video Coding for Machines (FC-VCM pipeline)
 """
+
+
+def add_subparser(subparsers, parents):
+    subparser = subparsers.add_parser(
+        "split-inference",
+        parents=parents,
+        help="split inference scenario",
+    )
+    required_group = subparser.add_argument_group("required arguments")
+    required_group.add_argument(
+        "--dataset-name",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        help="name of the dataset",
+    )
+    required_group.add_argument(
+        "--model",
+        action="store",
+        type=str,
+        required=True,
+        default=None,
+        nargs="+",
+        help="name of model.",
+    )
+
+
+def main(args):
+    # check that only one is defined
+    assert args.dataset_name is not None, "please provide dataset name"
+    assert args.model is not None, "please provide model name"
