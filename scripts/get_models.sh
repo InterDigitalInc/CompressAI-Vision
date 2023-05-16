@@ -17,6 +17,10 @@ cd models/detectron2
 
 # to be compatible with MPEG FCVCM
 git checkout 175b2453c2bc4227b8039118c01494ee75b08136
+
+# pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
+# is there a way this script capture the current nvcc version and depending on
+# the version, propose a specific version torch installation?
 python3 -m pip install -U torch
 python3 -m pip install .
 
