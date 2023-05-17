@@ -68,7 +68,6 @@ def add_subparser(subparsers, parents):
         type=str,
         required=True,
         default="full",
-        nargs="+",
         help="Part of the pipeline to run (default: %(default)s).",
     )
     required_group.add_argument(
