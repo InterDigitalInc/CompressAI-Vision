@@ -31,6 +31,12 @@
    Feature Compression for Video Coding for Machines (FC-VCM pipeline)
 """
 
+# (fracape) WORK IN PROGRESS!
+# probably need more modes and sub options about dumping results / tensors or not
+MODES = [
+    "full, network_first_part, network_second_part, feature_encode, feature_decode"
+]
+
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
@@ -56,9 +62,47 @@ def add_subparser(subparsers, parents):
         nargs="+",
         help="name of model.",
     )
+    required_group.add_argument(
+        "--mode",
+        action="store",
+        type=str,
+        required=True,
+        default="full",
+        nargs="+",
+        help="Part of the pipeline to run (default: %(default)s).",
+    )
+    required_group.add_argument(
+        "--compression",
+        action="store",
+        type=str,
+        required=True,
+        default="full",
+        nargs="+",
+        help="Part of the pipeline to run (default: %(default)s).",
+    )
 
 
 def main(args):
     # check that only one is defined
     assert args.dataset_name is not None, "please provide dataset name"
     assert args.model is not None, "please provide model name"
+
+    # (fracape) WORK IN PROGRESS!
+
+    # get dataset, read folders of PNG files for now
+
+    # if first_part:
+    # run first part
+    #
+    #
+    # if compression:
+    # get / read intermediate features
+    # for quality in qpars:
+    # run feature compression
+    # run decompression (can be conditional)
+
+    # if second part
+    # get / read intermediate features  (decompressed or original)
+    # run second part
+    #
+    # get results / analyze results
