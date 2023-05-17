@@ -197,3 +197,7 @@ class Detectron2Split(ModelSplit):
         r2 = self.fromInput2R2(image.tensor)
         features = self.fromR22FPNFeatures(r2)
         return features
+
+
+
+class Faster_Rcnn_X_101_32x8d_FPN_3x()
