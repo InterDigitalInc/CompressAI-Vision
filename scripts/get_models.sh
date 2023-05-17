@@ -5,16 +5,15 @@ set -eu
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-MODELS_DIR="${SCRIPT_DIR}/../models"
-mkdir -p ${MODELS_DIR}
+mkdir -p "${SCRIPT_DIR}/../models"
 
 ## Detectron2
 
 # clone
-if [ -z "$(ls -A ${MODELS_DIR}/detectron2)" ]; then
-    git clone https://github.com/facebookresearch/detectron2.git ${MODELS_DIR}/detectron2
+if [ -z "$(ls -A models/detectron2)" ]; then
+    git clone https://github.com/facebookresearch/detectron2.git models/detectron2
 fi
-cd ${MODELS_DIR}/detectron2
+cd models/detectron2
 
 # to be compatible with MPEG FCVCM
 git checkout 175b2453c2bc4227b8039118c01494ee75b08136
@@ -35,15 +34,12 @@ fi
 
 python3 -m pip install .
 
-cd ../../
-
 #downaload weights
-WEIGHT_DIR="weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
-mkdir -p ${WEIGHT_DIR}
+mkdir -p "detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
 wget https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl \
- ${WEIGHT_DIR}
+ weights/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657
 
-
+cd ../../
 
 ## JDE
 # mkdir -p "${SCRIPT_DIR}/../models/jde"
