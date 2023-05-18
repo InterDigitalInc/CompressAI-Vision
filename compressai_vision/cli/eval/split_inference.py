@@ -31,14 +31,19 @@
    Feature Compression for Video Coding for Machines (FC-VCM pipeline)
 """
 
+import os
+from compressai_vision.model_wrappers import *
+
+
 # (fracape) WORK IN PROGRESS!
 # probably need more modes and sub options about dumping results / tensors or not
 MODES = [
     "full, network_first_part, network_second_part, feature_encode, feature_decode"
 ]
 
-import os
-import compressai_vision.model_wrappers
+directory = os.getcwd()
+MODELS={'faster_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl'},
+        }
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
@@ -61,7 +66,7 @@ def add_subparser(subparsers, parents):
         type=str,
         required=True,
         default=None,
-        nargs="+",
+        #nargs="+",
         help="name of model.",
     )
     required_group.add_argument(
@@ -91,10 +96,13 @@ def main(args):
     device = 'cuda'
 
     #to get the current working directory
-    directory = os.getcwd()
+    
 
-    print(directory)
-    #test = Rcnn_X_101_FPN(device, {'cfg_name': })
+    kargs = MODELS[args.model]
+    test = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    
+
+    
     # (fracape) WORK IN PROGRESS!
 
     # get dataset, read folders of PNG files for now

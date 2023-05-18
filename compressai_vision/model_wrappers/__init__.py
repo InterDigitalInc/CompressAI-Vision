@@ -27,12 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<<<<<<< HEAD
-from .detectron2 import Rcnn_X_101_FPN
+from .detectron2 import faster_rcnn_X_101_32x8d_FPN_3x
 
 __all__ = [
-    "Rcnn_X_101_FPN",
+    "faster_rcnn_X_101_32x8d_FPN_3x",
 ]
-=======
->>>>>>> 537498f9abd0f3caad1a9513cdc2d076947340cc
 

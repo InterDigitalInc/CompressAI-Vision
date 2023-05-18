@@ -29,22 +29,21 @@
 
 
 
-class BaseWrapper():
+class BaseWrapper:
     """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
 
     An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames. 
     """
 
-    def __init__(self,  device='cpu'):
-        self.reset()
-        self.device = device
+    def __init__(self):
+        #self.reset()
         raise (AssertionError("virtual"))
 
-    def front_end(self, x):
+    def input_to_features(self, x):
         """Computes deep features at the intermediate layer(s) all the way from the input"""
         raise NotImplementedError
 
-    def back_end(self, x):
+    def features_to_output(self, x):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
 
@@ -52,10 +51,10 @@ class BaseWrapper():
         """Complete the downstream task with end-to-end manner all the way from the input"""
         raise NotImplementedError
 
-    def tensor2frame(self, x, num_channels_in_width, num_channels_in_height):
+    def channels2frame(self, x, num_channels_in_width, num_channels_in_height):
         """rehape tensor channels to a frame"""
         raise NotImplemented
     
-    def frame2tensor(self, x, tensor_shape):
+    def frame2channels(self, x, tensor_shape):
         """reshape frames of channels into tensor(s)"""
         raise NotImplemented

@@ -30,25 +30,54 @@
 import torch
 from .base_wrapper import BaseWrapper
 
-from detectron2 import model_zoo
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 
-class Rcnn_X_101_FPN(BaseWrapper):
-    def __init__(self, running_on='cpu', **kwargs):
-        super().__init__(running_on)
 
-        cfg = get_cfg()
-        #cfg.merge_from_file(model_zoo.get_config_file(cfg_file))
-        #self.model = 
-        # self.aug = aug
-        self.backbone = model.backbone
-        self.proposal_generator = model.proposal_generator
-        self.roi_heads = model.roi_heads
-        self.postprocess = model._postprocess
+class Rcnn_X_101_FPN(BaseWrapper):
+    def __init__(self, device='cpu', **kwargs):
+        self.cfg = get_cfg()
+        self.cfg.merge_from_file(kwargs['cfg'])
+        self.model = build_model(self.cfg).to(device)
+        
+        self.backbone = self.model.backbone
+        self.proposal_generator = self.model.proposal_generator
+        self.roi_heads = self.model.roi_heads
+        self.postprocess = self.model._postprocess
+        DetectionCheckpointer(self.model).load(kwargs['weight'])
 
         assert self.proposal_generator is not None
+
+    def input_to_features(self, x):
+        """Computes deep features at the intermediate layer(s) all the way from the input"""
+        x = self.model.preprocess_image(x)
+        return self.backbone(x)
+
+    def features_to_output(self, x):
+        """Complete the downstream task from the intermediate deep features"""
+        images = self.model.preprocess_image(inputs)
+        proposals, _ = self.proposal_generator(images, x, None)
+        results, _ = self.roi_heads(images, x, proposals, None)
+
+        assert (
+            not torch.jit.is_scripting()
+        ), "Scripting is not supported for postprocess."
+        return self.model._postprocess(results, inputs, images.image_sizes)
+
+    def end_to_end(self, x):
+        """Complete the downstream task with end-to-end manner all the way from the input"""
+        x = self.model.preprocess_image(x)
+        return self.model(x)
+
+    def channels2frame(self, x, num_channels_in_width, num_channels_in_height):
+        """rehape tensor channels to a frame"""
+        raise NotImplemented
+    
+    def frame2channels(self, x, tensor_shape):
+        """reshape frames of channels into tensor(s)"""
+        raise NotImplemented
+
 
     def preInputTensor(self, img, img_id):
         """
@@ -70,109 +99,6 @@ class Rcnn_X_101_FPN(BaseWrapper):
         return [
             inputs,
         ]
-
-    def fromInput2R2(self, x):
-        # [batch, channel, height, width]
-        # Resnet FPN
-        stem_out = self.backbone.bottom_up.stem(x)
-        r2_out = self.backbone.bottom_up.res2(stem_out)
-        return r2_out
-
-    def fromR22FPNFeatures(self, x):
-        lateral_convs = [
-            self.backbone.fpn_lateral5,
-            self.backbone.fpn_lateral4,
-            self.backbone.fpn_lateral3,
-            self.backbone.fpn_lateral2,
-        ]
-        output_convs = [
-            self.backbone.fpn_output5,
-            self.backbone.fpn_output4,
-            self.backbone.fpn_output3,
-            self.backbone.fpn_output2,
-        ]
-
-        # Resnet FPN
-        r2_out = x
-        r3_out = self.backbone.bottom_up.res3(r2_out)
-        r4_out = self.backbone.bottom_up.res4(r3_out)
-        r5_out = self.backbone.bottom_up.res5(r4_out)
-
-        bottom_up_features = {
-            "res2": r2_out,
-            "res3": r3_out,
-            "res4": r4_out,
-            "res5": r5_out,
-        }
-        # End
-
-        results = []
-        prev_features = lateral_convs[0](
-            bottom_up_features[self.backbone.in_features[-1]]
-        )
-        results.append(output_convs[0](prev_features))
-
-        # Reverse feature maps into top-down order (from low to high resolution)
-        for features, lateral_conv, output_conv in zip(
-            self.backbone.in_features[-2::-1],
-            lateral_convs[1:],
-            output_convs[1:],
-        ):
-            features = bottom_up_features[features]
-            top_down_features = F.interpolate(
-                prev_features, scale_factor=2.0, mode="nearest"
-            )
-
-            # Has to use explicit forward due to https://github.com/pytorch/pytorch/issues/47336
-            lateral_features = lateral_conv.forward(features)
-            prev_features = lateral_features + top_down_features
-            if self.backbone._fuse_type == "avg":
-                prev_features /= 2
-            results.insert(0, output_conv.forward(prev_features))
-
-        if self.backbone.top_block is not None:
-            if self.backbone.top_block.in_feature in bottom_up_features:
-                top_block_in_feature = bottom_up_features[
-                    self.backbone.top_block.in_feature
-                ]
-            else:
-                top_block_in_feature = results[
-                    self.backbone._out_features.index(
-                        self.backbone.top_block.in_feature
-                    )
-                ]
-
-            results.extend(self.backbone.top_block(top_block_in_feature))
-
-        assert len(self.backbone._out_features) == len(results)
-
-        features = {f: res for f, res in zip(self.backbone._out_features, results)}
-
-        return features
-
-    def inferenceFromFPN(self, inputs, features):
-        """
-            Run inference on input features.
-
-        inputs:
-        - iput images are required
-        - features
-
-        Returns:
-            When do_postprocess=True, same as in :meth:`forward`.
-            Otherwise, a list[Instances] containing raw network outputs.
-        """
-
-        images = self.model.preprocess_image(inputs)
-
-        proposals, _ = self.proposal_generator(images, features, None)
-
-        results, _ = self.roi_heads(images, features, proposals, None)
-
-        assert (
-            not torch.jit.is_scripting()
-        ), "Scripting is not supported for postprocess."
-        return self.model._postprocess(results, inputs, images.image_sizes)
 
     def InputSize(self, inputs):
         return self.model.preprocess_image(inputs).tensor.size()
@@ -205,4 +131,8 @@ class Rcnn_X_101_FPN(BaseWrapper):
 
 
 
-#class Faster_Rcnn_X_101_32x8d_FPN_3x()
+class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_X_101_FPN):
+    def __init__(self, device='cpu', **kwargs):
+        super().__init__(device,  **kwargs)
+
+
