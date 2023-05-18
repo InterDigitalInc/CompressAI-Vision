@@ -27,9 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+<<<<<<< HEAD
 from .detectron2 import Rcnn_X_101_FPN
 
 __all__ = [
     "Rcnn_X_101_FPN",
 ]
+=======
+>>>>>>> 537498f9abd0f3caad1a9513cdc2d076947340cc
 
