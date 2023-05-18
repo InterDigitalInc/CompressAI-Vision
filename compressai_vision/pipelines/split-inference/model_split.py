@@ -44,6 +44,8 @@ class ModelSplit:
     """
 
     def __init__(self):
+        # Compression - 
+        # Inference model -
         self.logger = logging.getLogger(self.__class__.__name__)
         self.compute_metrics = True
         self.reset()

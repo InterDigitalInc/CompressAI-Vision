@@ -37,6 +37,8 @@ MODES = [
     "full, network_first_part, network_second_part, feature_encode, feature_decode"
 ]
 
+import os
+import compressai_vision.model_wrappers
 
 def add_subparser(subparsers, parents):
     subparser = subparsers.add_parser(
@@ -86,6 +88,13 @@ def main(args):
     assert args.dataset_name is not None, "please provide dataset name"
     assert args.model is not None, "please provide model name"
 
+    device = 'cuda'
+
+    #to get the current working directory
+    directory = os.getcwd()
+
+    print(directory)
+    #test = Rcnn_X_101_FPN(device, {'cfg_name': })
     # (fracape) WORK IN PROGRESS!
 
     # get dataset, read folders of PNG files for now

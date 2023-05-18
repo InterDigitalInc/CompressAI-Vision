@@ -28,15 +28,20 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import torch
-from detectron2.evaluation import COCOEvaluator
-from model_split import ModelSplit
+from .base_wrapper import BaseWrapper
 
+from detectron2 import model_zoo
+from detectron2.checkpoint import DetectionCheckpointer
+from detectron2.config import get_cfg
+from detectron2.modeling import build_model
 
-class Detectron2Split(ModelSplit):
-    def __init__(self, model, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class Rcnn_X_101_FPN(BaseWrapper):
+    def __init__(self, running_on='cpu', **kwargs):
+        super().__init__(running_on)
 
-        self.model = model
+        cfg = get_cfg()
+        #cfg.merge_from_file(model_zoo.get_config_file(cfg_file))
+        #self.model = 
         # self.aug = aug
         self.backbone = model.backbone
         self.proposal_generator = model.proposal_generator
@@ -200,4 +205,4 @@ class Detectron2Split(ModelSplit):
 
 
 
-class Faster_Rcnn_X_101_32x8d_FPN_3x()
+#class Faster_Rcnn_X_101_32x8d_FPN_3x()
