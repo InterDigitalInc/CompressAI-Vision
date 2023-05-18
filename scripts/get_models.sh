@@ -5,15 +5,16 @@ set -eu
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-mkdir -p "${SCRIPT_DIR}/../models"
+MODELS_DIR="${SCRIPT_DIR}/../models"
+mkdir -p ${MODELS_DIR}
 
 ## Detectron2
 
 # clone
-if [ -z "$(ls -A models/detectron2)" ]; then
-    git clone https://github.com/facebookresearch/detectron2.git ${SCRIPT_DIR}/models/detectron2
+if [ -z "$(ls -A ${MODELS_DIR}/detectron2)" ]; then
+    git clone https://github.com/facebookresearch/detectron2.git ${MODELS_DIR}/detectron2
 fi
-cd ${SCRIPT_DIR}/models/detectron2
+cd ${MODELS_DIR}/detectron2
 
 # to be compatible with MPEG FCVCM
 git checkout 175b2453c2bc4227b8039118c01494ee75b08136
