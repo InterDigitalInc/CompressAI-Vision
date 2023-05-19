@@ -27,4 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .detectron2 import *
+from .image import ImageFolder, SFU_HW_ImageFolder
+
+__all__ = [
+    "ImageFolder",
+    "SFU_HW_ImageFolder",
+]

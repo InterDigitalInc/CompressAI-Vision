@@ -33,7 +33,12 @@
 
 import os
 from compressai_vision.model_wrappers import *
+from compressai_vision.datasets import ImageFolder, SFU_HW_ImageFolder
+from torchvision import transforms
 
+from torch.utils.data import DataLoader
+
+from tqdm import tqdm
 
 # (fracape) WORK IN PROGRESS!
 # probably need more modes and sub options about dumping results / tensors or not
@@ -43,6 +48,7 @@ MODES = [
 
 directory = os.getcwd()
 MODELS={'faster_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl'},
+        'mask_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl'},
         }
 
 def add_subparser(subparsers, parents):
@@ -99,10 +105,26 @@ def main(args):
     
 
     kargs = MODELS[args.model]
-    test = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    #model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     
+    test_dataset = SFU_HW_ImageFolder(args.dataset_name, model.cfg)
 
-    
+    test_dataloader = DataLoader(
+        test_dataset,
+        batch_size=1,
+        num_workers=1,
+        sampler= test_dataset.sampler,
+        collate_fn=test_dataset.collate_fn,
+        shuffle=False,
+        pin_memory=(device == "cuda"),
+    )
+    for d in tqdm(test_dataloader):
+        #features = model.input_to_features(d)
+        results = model(d)
+        print(type(results))
+       
+       
     # (fracape) WORK IN PROGRESS!
 
     # get dataset, read folders of PNG files for now
