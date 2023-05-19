@@ -84,9 +84,16 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     cd ../../
 
     #downaload weights
+
+    # FASTER R-CNN
     WEIGHT_DIR="weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
     mkdir -p ${WEIGHT_DIR}
     wget -N https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl ${WEIGHT_DIR}
+
+    # MASK R-CNN
+    WEIGHT_DIR="weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
+    mkdir -p ${WEIGHT_DIR}
+    wget https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl ${WEIGHT_DIR}
 fi
 
 
