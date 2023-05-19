@@ -35,6 +35,7 @@ from torch.utils.data import Dataset
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
 from detectron2.data.samplers import InferenceSampler
+from detectron2.data.datasets import load_coco_json
 
 import json
 #from compressai.registry import register_dataset
@@ -105,8 +106,8 @@ class ImageFolder(BaseDataset):
     def __len__(self):
         return len(self.samples)
 
-#@register_dataset("Detectron2ImageFolder")
-class SFU_HW_ImageFolder(MapDataset):
+#@register_dataset("SFUHW_ImageFolder")
+class SFUHW_ImageFolder(MapDataset):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -172,6 +173,60 @@ class SFU_HW_ImageFolder(MapDataset):
 
                 dataset[idx]['annotations'].append(annotation)
         
+        self.sampler = InferenceSampler(len(dataset))
+
+        def bypass_collator(batch):
+            return batch
+
+        self.collate_fn = bypass_collator
+        dataset = DatasetFromList(dataset, copy=False)
+        mapper = DatasetMapper(cfg, False)
+
+        super().__init__(dataset, mapper)
+
+
+
+#@register_dataset("COCO_ImageFolder")
+class COCO_ImageFolder(MapDataset):
+    """Load an image folder database with Detectron2 Cfg. testing image samples
+    and annotations are respectively stored in separate directories
+    (Currently this class supports none of training related operation ):
+
+    .. code-block::
+        - rootdir/
+            - [train_folder]
+                - img000.jpg
+                - img001.jpg
+                - imgxxx.jpg
+            - [validation_folder]
+                - img000.jpg
+                - img001.jpg
+                - imgxxx.jpg
+            - [test_folder]
+                - img000.jpg
+                - img001.jpg
+                - imgxxx.jpg
+            - annotations
+                - [instances_val].json
+                - [captions_val].json
+                - ...
+            
+    Args:
+        root (string): root directory of the dataset
+
+    """
+
+    def __init__(self, root, cfg, img_path='val2017', annot_path='annotations/instances_val2017.json'):
+        images_dir = Path(root) / img_path
+        annotations_file = Path(root) / annot_path
+
+        if not images_dir.is_dir():
+            raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
+        
+        if not annotations_file.is_file():
+            raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
+
+        dataset = load_coco_json(annotations_file, images_dir, dataset_name='coco')
         self.sampler = InferenceSampler(len(dataset))
 
         def bypass_collator(batch):

@@ -79,7 +79,6 @@ class Rcnn_X_101_FPN(BaseWrapper):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         return self.model(x)
 
-
     def channels2frame(self, x, num_channels_in_width, num_channels_in_height):
         """rehape tensor channels to a frame"""
         raise NotImplemented
@@ -109,33 +108,6 @@ class Rcnn_X_101_FPN(BaseWrapper):
         return [
             inputs,
         ]
-
-    def InputSize(self, inputs):
-        return self.model.preprocess_image(inputs).tensor.size()
-
-    #@torch.no_grad()
-    #def forward(self, inputs):
-    #    """
-    #    :param img: numpy BGR image (h,w,3)
-    #    """
-    #    # whether the model expects BGR inputs or RGB
-    #    image = self.model.preprocess_image(inputs)
-    #    r2 = self.fromInput2R2(image.tensor)
-    #    features = self.fromR22FPNFeatures(r2)
-        # compress
-        # call feature compression module here
-
-        # infer heads
-    #    results = self.inferenceFromFPN(features)
-    #    return results
-
-    def from_input_to_features(self, inputs):
-        image = self.model.preprocess_image(inputs)
-        r2 = self.fromInput2R2(image.tensor)
-        features = self.fromR22FPNFeatures(r2)
-        return features
-
-
 
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_X_101_FPN):
     def __init__(self, device='cpu', **kwargs):

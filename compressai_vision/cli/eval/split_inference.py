@@ -33,7 +33,7 @@
 
 import os
 from compressai_vision.model_wrappers import *
-from compressai_vision.datasets import ImageFolder, SFU_HW_ImageFolder
+from compressai_vision.datasets import ImageFolder, SFUHW_ImageFolder, COCO_ImageFolder
 from torchvision import transforms
 
 from torch.utils.data import DataLoader
@@ -108,7 +108,8 @@ def main(args):
     model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     #model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     
-    test_dataset = SFU_HW_ImageFolder(args.dataset_name, model.cfg)
+    #test_dataset = SFUHW_ImageFolder(args.dataset_name, model.cfg)
+    test_dataset = COCO_ImageFolder(args.dataset_name, model.cfg)
 
     test_dataloader = DataLoader(
         test_dataset,
@@ -119,6 +120,7 @@ def main(args):
         shuffle=False,
         pin_memory=(device == "cuda"),
     )
+    
     for d in tqdm(test_dataloader):
         #features = model.input_to_features(d)
         results = model(d)
