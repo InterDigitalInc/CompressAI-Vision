@@ -3,6 +3,7 @@
 # This clones and build model architectures and gets pretrained weights
 set -eu
 
+# default values taken from MPEG FCVCM documents
 TORCH_VERSION="1.10.2" # "2.0.1"
 TORCHVISION_VERSION="0.11.3" # "1.15.1"
 TORCHAUDIO_VERSION="0.10.2" # "2.0.2"
@@ -84,10 +85,10 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     else
         echo "cuda version: $CUDA_VERSION"
-        python3 -m pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} torchaudio==${TORCHAUDIO_VERSION}+cu${CUDA_VERSION//./} --index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} torchaudio==${TORCHAUDIO_VERSION}+cu${CUDA_VERSION//./} --index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
     fi
 
-    python3 -m pip install .
+    pip install .
 
     cd ../../
 
