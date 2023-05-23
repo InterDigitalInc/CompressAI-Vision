@@ -27,7 +27,6 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
 
 from pathlib import Path
 
@@ -35,6 +34,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 import json
 
+from compressai_vision.utils import logger
 
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
@@ -44,8 +44,6 @@ from detectron2.data import DatasetCatalog
 
 #from compressai.registry import register_dataset
 
-
-logging.basicConfig(format='%(message)s')
 
 
 class BaseDataset(Dataset):
@@ -67,9 +65,7 @@ class Detectron2BasedDataset(MapDataset):
         try:
             DatasetCatalog.get(dataset_name)
         except KeyError: 
-            log = logging.getLogger(__name__)
-            log.warning(f'Warning: It seems a new dataset. Let me register the new dataset \"{dataset_name}\" for you')
-
+            logger.warning(__name__, f'It seems a new dataset. Let me register the new dataset \"{dataset_name}\" for you')
             register_coco_instances(dataset_name, {}, self.annotation_path, self.images_folder)
     
 

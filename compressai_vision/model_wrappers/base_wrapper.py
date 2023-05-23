@@ -29,6 +29,8 @@
 
 import torch.nn as nn
 
+from typing import Dict, List
+
 class BaseWrapper(nn.Module):
     """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
 
@@ -41,15 +43,31 @@ class BaseWrapper(nn.Module):
     def features_to_output(self, x):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
+    
+    def input_to_feature_pyramid(self, x):
+        """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
+        raise NotImplementedError
+
+    def feature_pyramid_to_output(self, x, org_img_size: Dict, input_img_size: List):
+        """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5'] """
+        raise NotImplementedError
 
     def forward(self, x):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         raise NotImplementedError
 
-    def channels2frame(self, x, num_channels_in_width, num_channels_in_height):
-        """rehape tensor channels to a frame"""
+    def reshape_feature_to_frame(self, x):
+        """rehape feature tensor channels to a frame"""
         raise NotImplemented
     
-    def frame2channels(self, x, tensor_shape):
-        """reshape frames of channels into tensor(s)"""
+    def reshape_frame_to_feature(self, x, tensor_shape):
+        """reshape a frame of channels into feature tensor(s)"""
+        raise NotImplemented
+
+    def reshape_feature_pyramid_to_frame(self, x):
+        """rehape the feature pyramid to a frame"""
+        raise NotImplemented
+    
+    def reshape_frame_to_feature_pyramid(self, x, tensor_shape):
+        """reshape a frame of channels into the feature pyramid"""
         raise NotImplemented

@@ -111,14 +111,9 @@ def main(args):
     #model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     
     #test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
-
-    from detectron2.data import DatasetCatalog, MetadataCatalog 
-    
-    dataset_name="mpeg-coco"
-
     test_dataset = COCO_ImageFolder(args.dataset_folder, model.cfg)
-        #(dataset_name=dataset_name, args.dataset_folder, model.cfg)
-
+    dataset_name = test_dataset.get_dataset_name()
+    
     test_dataloader = DataLoader(
         test_dataset,
         batch_size=1,
@@ -137,8 +132,13 @@ def main(args):
     for d in tqdm(test_dataloader):
         org_img_size = {'height': d[0]['height'], 'width': d[0]['width']}
 
-        features, input_img_size = model.input_to_features(d)
-        results = model.features_to_output(features, org_img_size, input_img_size)
+        features, input_img_size = model.input_to_feature_pyramid(d)
+
+        frame, feature_size = model.reshape_feature_pyramid_to_frame(features, packing_all_in_one=False)
+
+        back_to_features = model.reshape_frame_to_feature_pyramid(frame, feature_size)
+
+        results = model.feature_pyramid_to_output(back_to_features, org_img_size, input_img_size)
 
         #results = model(d)
         #print(type(results))

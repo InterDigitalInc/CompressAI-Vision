@@ -30,6 +30,7 @@
 # TODO (racapef) check/add detectron2 license header
 
 import torch
+
 from typing import Dict, List
 
 from .base_wrapper import BaseWrapper
@@ -37,7 +38,7 @@ from .base_wrapper import BaseWrapper
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
-
+from .utils import *
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -45,6 +46,7 @@ __all__ = [
     "faster_rcnn_R_50_FPN_3x",
     "mask_rcnn_R_50_FPN_3x",
 ]
+
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device='cpu', **kwargs):
@@ -63,13 +65,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         assert self.proposal_generator is not None
 
     @torch.no_grad()
-    def input_to_features(self, x):
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
+    def input_to_feature_pyramid(self, x):
+        """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         imgs = self.model.preprocess_image(x)
         return self.backbone(imgs.tensor), imgs.image_sizes
 
     @torch.no_grad()
-    def features_to_output(self, x, org_img_size: Dict, input_img_size: List):
+    def feature_pyramid_to_output(self, x, org_img_size: Dict, input_img_size: List):
         """
 
         Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
@@ -80,7 +82,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         """
 
-        """Complete the downstream task from the intermediate deep features"""
+        """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5'] """
         
         class dummy:
             def __init__(self, img_size:list):
@@ -100,13 +102,48 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         return self.model(x)
 
-    def channels2frame(self, x, num_channels_in_width, num_channels_in_height):
-        """rehape tensor channels to a frame"""
-        raise NotImplemented
+    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
+        """rehape the feature pyramid to a frame"""
+
+        # 'p2' is the base for the size of to-be-formed frame
+
+        _, C, H, W = x['p2'].size()
+        _, fixedW = compute_frame_resolution(C, H, W)
+
+        tiled_frame = {}
+        feature_size = {}
+        for key, tensor in x.items():
+            N, C, H, W = tensor.size()
+
+            assert N == 1, f"the batch size shall be one, but got {N}"
+
+            frmH, frmW = compute_frame_resolution(C, H, W)
+
+            rescale = fixedW // frmW if packing_all_in_one else 1
+
+            new_frmH = frmH // rescale
+            new_frmW = frmW * rescale
+
+            frame = _tensor_to_tiled(tensor, (new_frmH, new_frmW))
+
+            tiled_frame.update({key: frame})
+            feature_size.update({key: tensor.size()})
+
+        return tiled_frame, feature_size
     
-    def frame2channels(self, x, tensor_shape):
-        """reshape frames of channels into tensor(s)"""
-        raise NotImplemented
+    def reshape_frame_to_feature_pyramid(self, x: Dict, tensor_shape: Dict):
+        """reshape a frame of channels into the feature pyramid"""
+
+        feature_tensor = {}
+        for key, frame in x.items():
+            _, numChs, chH, chW = tensor_shape[key]
+            tensor = _tiled_to_tensor(frame, (chH, chW))
+            
+            assert tensor.size(1) == numChs
+
+            feature_tensor.update({key: tensor})
+
+        return feature_tensor
     
     def get_cfg(self):
         return self.cfg
