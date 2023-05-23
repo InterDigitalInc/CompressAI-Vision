@@ -27,24 +27,73 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
 
 from pathlib import Path
 
 from PIL import Image
 from torch.utils.data import Dataset
+import json
+
+
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
 from detectron2.data.samplers import InferenceSampler
-from detectron2.data.datasets import load_coco_json
+from detectron2.data.datasets import load_coco_json, register_coco_instances
+from detectron2.data import DatasetCatalog 
 
-import json
 #from compressai.registry import register_dataset
 
 
+logging.basicConfig(format='%(message)s')
+
+
 class BaseDataset(Dataset):
-    def __init__(self):
+    def __init__(self, dataset_name):
         self.sampler = None
         self.collate_fn = None
+        self.dataset_name = dataset_name
+    
+    def get_dataset_name(self):
+        return self.dataset_name
+    
+class Detectron2BasedDataset(MapDataset):
+    def __init__(self, dataset_name, dataset, cfg, images_folder, annotation_path):
+        self.dataset_name = dataset_name
+
+        self.annotation_path = annotation_path
+        self.images_folder = images_folder
+
+        try:
+            DatasetCatalog.get(dataset_name)
+        except KeyError: 
+            log = logging.getLogger(__name__)
+            log.warning(f'Warning: It seems a new dataset. Let me register the new dataset \"{dataset_name}\" for you')
+
+            register_coco_instances(dataset_name, {}, self.annotation_path, self.images_folder)
+    
+
+        self.sampler = InferenceSampler(len(dataset))
+        def bypass_collator(batch):
+            return batch
+
+        self.collate_fn = bypass_collator
+
+        dataset = DatasetFromList(dataset, copy=False)
+        mapper = DatasetMapper(cfg, False)
+
+        super().__init__(dataset, mapper)
+    
+    def get_dataset_name(self):
+        return self.dataset_name
+    
+    def get_annotation_path(self):
+        return self.annotation_path
+    
+    def get_images_folder(self):
+        return self.images_folder
+    
+
 
 #@register_dataset("ImageFolder")
 class ImageFolder(BaseDataset):
@@ -64,8 +113,8 @@ class ImageFolder(BaseDataset):
         use_BGR (Bool): if True the color order of the sample is BGR otherwise RGB returned 
     """
 
-    def __init__(self, root, transform=None, ret_name=False, use_BGR=False):
-        super().__init__()
+    def __init__(self, dataset_name, root, transform=None, ret_name=False, use_BGR=False):
+        super().__init__(dataset_name)
         
         splitdir = Path(root)
 
@@ -107,7 +156,7 @@ class ImageFolder(BaseDataset):
         return len(self.samples)
 
 #@register_dataset("SFUHW_ImageFolder")
-class SFUHW_ImageFolder(MapDataset):
+class SFUHW_ImageFolder(Detectron2BasedDataset):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -126,7 +175,9 @@ class SFUHW_ImageFolder(MapDataset):
 
     """
 
-    def __init__(self, root, cfg):
+    def __init__(self, root, cfg, 
+                 dataset_name='sfu-hw-object-v1',
+                 **kwargs):
         images_dir = Path(root) / "images"
         annotations_dir = Path(root) / "annotations"
 
@@ -142,7 +193,7 @@ class SFUHW_ImageFolder(MapDataset):
 
         if len(annotations) != 1:
             raise RuntimeError(f"The number of json file for the samples annotations must be 1, but got {len(annotations)}")
-        
+
         # merge annotation and sample list
         with open(annotations[0]) as f:
             data = json.load(f)
@@ -172,22 +223,12 @@ class SFUHW_ImageFolder(MapDataset):
                 del annotation['id']
 
                 dataset[idx]['annotations'].append(annotation)
-        
-        self.sampler = InferenceSampler(len(dataset))
 
-        def bypass_collator(batch):
-            return batch
-
-        self.collate_fn = bypass_collator
-        dataset = DatasetFromList(dataset, copy=False)
-        mapper = DatasetMapper(cfg, False)
-
-        super().__init__(dataset, mapper)
-
+        super().__init__(dataset_name, dataset, cfg, images_dir, annotations[0])
 
 
 #@register_dataset("COCO_ImageFolder")
-class COCO_ImageFolder(MapDataset):
+class COCO_ImageFolder(Detectron2BasedDataset):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -216,7 +257,11 @@ class COCO_ImageFolder(MapDataset):
 
     """
 
-    def __init__(self, root, cfg, img_path='val2017', annot_path='annotations/instances_val2017.json'):
+    def __init__(self, root, cfg, 
+                 dataset_name='mpeg-coco', 
+                 img_path='val2017', 
+                 annot_path='annotations/instances_val2017.json',
+                 **kwargs):
         images_dir = Path(root) / img_path
         annotations_file = Path(root) / annot_path
 
@@ -225,15 +270,7 @@ class COCO_ImageFolder(MapDataset):
         
         if not annotations_file.is_file():
             raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
+        
+        dataset = load_coco_json(annotations_file, images_dir, dataset_name=dataset_name)
 
-        dataset = load_coco_json(annotations_file, images_dir, dataset_name='coco')
-        self.sampler = InferenceSampler(len(dataset))
-
-        def bypass_collator(batch):
-            return batch
-
-        self.collate_fn = bypass_collator
-        dataset = DatasetFromList(dataset, copy=False)
-        mapper = DatasetMapper(cfg, False)
-
-        super().__init__(dataset, mapper)
+        super().__init__(dataset_name, dataset, cfg, images_dir, annotations_file)

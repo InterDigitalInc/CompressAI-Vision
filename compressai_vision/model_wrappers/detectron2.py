@@ -38,6 +38,7 @@ from detectron2.modeling import build_model
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
     "mask_rcnn_X_101_32x8d_FPN_3x",
+    #"faster_rcnn_R_50_FPN_3x",
 ]
 
 class Rcnn_X_101_FPN(BaseWrapper):
@@ -86,6 +87,9 @@ class Rcnn_X_101_FPN(BaseWrapper):
     def frame2channels(self, x, tensor_shape):
         """reshape frames of channels into tensor(s)"""
         raise NotImplemented
+    
+    def get_cfg(self):
+        return self.cfg
 
 
     def preInputTensor(self, img, img_id):

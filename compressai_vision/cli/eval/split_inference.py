@@ -47,7 +47,8 @@ MODES = [
 ]
 
 directory = os.getcwd()
-MODELS={'faster_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl'},
+MODELS={'faster_rcnn_R_50_FPN_3x': {'cfg': f'{directory}//compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl'},
+        'faster_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl'},
         'mask_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl'},
         }
 
@@ -59,7 +60,7 @@ def add_subparser(subparsers, parents):
     )
     required_group = subparser.add_argument_group("required arguments")
     required_group.add_argument(
-        "--dataset-name",
+        "--dataset-folder",
         action="store",
         type=str,
         required=True,
@@ -96,7 +97,7 @@ def add_subparser(subparsers, parents):
 
 def main(args):
     # check that only one is defined
-    assert args.dataset_name is not None, "please provide dataset name"
+    assert args.dataset_folder is not None, "please provide dataset name"
     assert args.model is not None, "please provide model name"
 
     device = 'cuda'
@@ -108,8 +109,14 @@ def main(args):
     model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     #model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     
-    #test_dataset = SFUHW_ImageFolder(args.dataset_name, model.cfg)
-    test_dataset = COCO_ImageFolder(args.dataset_name, model.cfg)
+    #test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
+
+    from detectron2.data import DatasetCatalog, MetadataCatalog 
+    
+    dataset_name="mpeg-coco"
+
+    test_dataset = COCO_ImageFolder(args.dataset_folder, model.cfg)
+        #(dataset_name=dataset_name, args.dataset_folder, model.cfg)
 
     test_dataloader = DataLoader(
         test_dataset,
@@ -121,14 +128,21 @@ def main(args):
         pin_memory=(device == "cuda"),
     )
     
+    #temporary
+    from detectron2.evaluation import COCOEvaluator
+    evaluator = COCOEvaluator(dataset_name, model.get_cfg(), False, output_dir='./vision_output/', use_fast_impl=False)
+
+    evaluator.reset()
     for d in tqdm(test_dataloader):
         #features = model.input_to_features(d)
         results = model(d)
-        print(type(results))
-       
-       
-    # (fracape) WORK IN PROGRESS!
+        #print(type(results))
 
+        evaluator.process(d, results)
+       
+    results = evaluator.evaluate() 
+    print(results)
+    # (fracape) WORK IN PROGRESS!
     # get dataset, read folders of PNG files for now
 
     # if first_part:
