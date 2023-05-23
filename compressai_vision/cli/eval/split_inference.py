@@ -47,7 +47,8 @@ MODES = [
 ]
 
 directory = os.getcwd()
-MODELS={'faster_rcnn_R_50_FPN_3x': {'cfg': f'{directory}//compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl'},
+MODELS={'faster_rcnn_R_50_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl'},
+        'master_rcnn_R_50_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl'},
         'faster_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl'},
         'mask_rcnn_X_101_32x8d_FPN_3x': {'cfg': f'{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml', 'weight': f'{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl'},
         }
@@ -134,8 +135,12 @@ def main(args):
 
     evaluator.reset()
     for d in tqdm(test_dataloader):
-        #features = model.input_to_features(d)
-        results = model(d)
+        org_img_size = {'height': d[0]['height'], 'width': d[0]['width']}
+
+        features, input_img_size = model.input_to_features(d)
+        results = model.features_to_output(features, org_img_size, input_img_size)
+
+        #results = model(d)
         #print(type(results))
 
         evaluator.process(d, results)
