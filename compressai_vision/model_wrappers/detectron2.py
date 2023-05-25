@@ -31,6 +31,7 @@
 
 import torch
 
+from torch import Tensor
 from typing import Dict, List
 
 from .base_wrapper import BaseWrapper
@@ -57,21 +58,26 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.model = build_model(self.cfg).to(device).eval()
         
         self.backbone = self.model.backbone
+        self.top_block = self.model.backbone.top_block
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
         DetectionCheckpointer(self.model).load(kwargs['weight'])
 
+        assert self.top_block is not None
         assert self.proposal_generator is not None
 
     @torch.no_grad()
     def input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         imgs = self.model.preprocess_image(x)
-        return self.backbone(imgs.tensor), imgs.image_sizes
+        feature_pyramid = self.backbone(imgs.tensor) 
+        del feature_pyramid['p6']
+
+        return feature_pyramid, imgs.image_sizes
 
     @torch.no_grad()
-    def feature_pyramid_to_output(self, x, org_img_size: Dict, input_img_size: List):
+    def feature_pyramid_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
         """
 
         Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
@@ -88,6 +94,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             def __init__(self, img_size:list):
                 self.image_sizes = img_size
         cdummy = dummy(input_img_size)
+        
+        x.update({'p6': self.top_block(x['p5'])[0]})
 
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
@@ -112,6 +120,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         tiled_frame = {}
         feature_size = {}
+        subframe_heights = {}
         for key, tensor in x.items():
             N, C, H, W = tensor.size()
 
@@ -128,14 +137,35 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
             tiled_frame.update({key: frame})
             feature_size.update({key: tensor.size()})
+            subframe_heights.update({key: new_frmH})
 
-        return tiled_frame, feature_size
+        if packing_all_in_one:
+            for key, subframe in tiled_frame.items():
+                if key == 'p2':
+                    out = subframe
+                else:
+                    out = torch.cat([out, subframe], dim=0)
+            tiled_frame = out
+
+        return tiled_frame, feature_size, subframe_heights
     
-    def reshape_frame_to_feature_pyramid(self, x: Dict, tensor_shape: Dict):
+    def reshape_frame_to_feature_pyramid(self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False):
         """reshape a frame of channels into the feature pyramid"""
 
+        assert isinstance(x, (Tensor, Dict))
+
+        top_y = 0
+        tiled_frame = {}
+        if packing_all_in_one:
+            for key, height in subframe_height.items():
+                tiled_frame.update({key: x[top_y:top_y+height,:]})
+                top_y = top_y + height
+        else:
+            assert isinstance(x, Dict)
+            tiled_frame = x
+
         feature_tensor = {}
-        for key, frame in x.items():
+        for key, frame in tiled_frame.items():
             _, numChs, chH, chW = tensor_shape[key]
             tensor = _tiled_to_tensor(frame, (chH, chW))
             

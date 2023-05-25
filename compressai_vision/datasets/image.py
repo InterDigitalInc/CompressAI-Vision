@@ -65,7 +65,7 @@ class Detectron2BasedDataset(MapDataset):
         try:
             DatasetCatalog.get(dataset_name)
         except KeyError: 
-            logger.warning(__name__, f'It seems a new dataset. Let me register the new dataset \"{dataset_name}\" for you')
+            logger.warning(__name__, f'It looks a new dataset. The new dataset \"{dataset_name}\" is successfully registred in DataCatalog now.')
             register_coco_instances(dataset_name, {}, self.annotation_path, self.images_folder)
     
 
@@ -221,6 +221,13 @@ class SFUHW_ImageFolder(Detectron2BasedDataset):
                 dataset[idx]['annotations'].append(annotation)
 
         super().__init__(dataset_name, dataset, cfg, images_dir, annotations[0])
+
+    @staticmethod
+    def get_min_max_across_tensors():
+        # from mpeg-fcvcm
+        minv = -17.884761810302734
+        maxv = 16.694171905517578
+        return (minv, maxv)
 
 
 #@register_dataset("COCO_ImageFolder")
