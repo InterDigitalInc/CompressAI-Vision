@@ -28,3 +28,14 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import logging
+
+
+logging.basicConfig(format='%(message)s')
+
+
+
+def warning(name, message):
+    log = logging.getLogger(name)
+    log.warning(f'Warning!!: {message}')
+

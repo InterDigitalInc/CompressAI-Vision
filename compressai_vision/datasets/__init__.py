@@ -27,4 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .image import ImageFolder, SFUHW_ImageFolder, COCO_ImageFolder
 
+__all__ = [
+    "ImageFolder",
+    "SFUHW_ImageFolder",
+    "COCO_ImageFolder",
+]
