@@ -31,6 +31,7 @@ import argparse
 import json
 from pathlib import Path
 import os
+import shutil
 import sys
 
 
@@ -38,6 +39,9 @@ def setup_args():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         "-o", "--outputdir", default="", type=str, help="Output directory"
+    )
+    parser.add_argument(
+        "-i", "--inputdir", default="/data/datasets/jctvc/", type=str, help="Input dataset directory (default: %(default)s)"
     )
     parser.add_argument(
         "--ffmpeg",
@@ -56,7 +60,7 @@ def main(argv):
 
     # get sequence info
     sfu_sequences_info = Path(
-        f"{Path(__file__).resolve().parent}/../data/mpeg-fcvcm/sfu-configs.json"
+        f"{Path(__file__).resolve().parent}/sfu-configs.json"
     )
     with sfu_sequences_info.open("r") as f:
         try:
@@ -68,7 +72,7 @@ def main(argv):
     # output directory for PNGs and labels
     if args.outputdir == "":
         sfu_png_dir = Path(
-            f"{Path(__file__).resolve().parent}/../data/mpeg-fcvcm/SFU_pngs"
+            f"{Path(__file__).resolve().parent}/SFU_pngs"
         )
     else:
         sfu_png_dir = Path(args.outputdir)
@@ -86,10 +90,17 @@ def main(argv):
             annotations_dir = seq_dir / "annotations"
             annotations_dir.mkdir(parents=True, exist_ok=True)
             images_dir.mkdir(parents=True, exist_ok=True)
-            print(args.ffmpeg)
-            cmd = f'{args.ffmpeg} -s {width}x{height} -r {seq_data["FrameRate"]} -pix_fmt yuv420p -i {seq_data["path"]} -vf select="gte(n\, {seq_data["FirstFrame"]})" -start_number 0 -vframes {nb_frames} {images_dir.resolve()}/{seq_name}_%3d.png'
-            print(cmd)
+
+            # convert selected frames from input yuv to lists of png files 
+            cmd = f'{args.ffmpeg} -s {width}x{height} -r {seq_data["FrameRate"]} -pix_fmt yuv420p -i {args.inputdir}/{seq_data["path"]} -vf select="gte(n\, {seq_data["FirstFrame"]})" -start_number 0 -vframes {nb_frames} {images_dir.resolve()}/{seq_name}_%3d.png'
             os.system(cmd)
+
+            mpeg_annotations_dir = Path(
+                f"{Path(__file__).resolve().parent}/sfu-annotations-from-m59143"
+            )
+            # copy corresponding mpeg-vcm json file from repo to output annotation directory
+            shutil.copy(f"{mpeg_annotations_dir}/{seq_name}.json", f"{annotations_dir}")
+
 
 
 if __name__ == "__main__":
