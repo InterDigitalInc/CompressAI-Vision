@@ -60,16 +60,16 @@ class BaseWrapper(nn.Module):
 
     def reshape_feature_to_frame(self, x):
         """rehape feature tensor channels to a frame"""
-        raise NotImplemented
+        raise NotImplementedError
 
     def reshape_frame_to_feature(self, x, tensor_shape):
         """reshape a frame of channels into feature tensor(s)"""
-        raise NotImplemented
+        raise NotImplementedError
 
     def reshape_feature_pyramid_to_frame(self, x):
         """rehape the feature pyramid to a frame"""
-        raise NotImplemented
+        raise NotImplementedError
 
     def reshape_frame_to_feature_pyramid(self, x, tensor_shape):
         """reshape a frame of channels into the feature pyramid"""
-        raise NotImplemented
+        raise NotImplementedError

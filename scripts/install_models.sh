@@ -58,12 +58,11 @@ done;
 
 
 ## Detectron2
-
 if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
-    echo 
+    echo
     echo "Install detectron2"
-    echo 
+    echo
 
     # clone
     if [ -z "$(ls -A ${MODELS_DIR}/detectron2)" ]; then
@@ -76,7 +75,7 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
     if [ CUDA_VERSION == "" ] && [ $CPU == "False" ]; then
         CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [ CUDA_VERSION == "" ]; then 
+        if [ CUDA_VERSION == "" ]; then
             echo "error with cuda, check your system or specify cuda version as argument."
         fi
     fi
@@ -94,9 +93,9 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
     #download weights
 
-    echo 
+    echo
     echo "Downloading weights"
-    echo 
+    echo
 
     # FASTER R-CNN
     WEIGHT_DIR="weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"

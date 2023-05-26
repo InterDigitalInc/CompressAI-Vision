@@ -34,10 +34,13 @@
 import os
 
 from torch.utils.data import DataLoader
-from torchvision import transforms
+
+# from torchvision import transforms
 from tqdm import tqdm
 
-from compressai_vision.datasets import COCO_ImageFolder, ImageFolder, SFUHW_ImageFolder
+from compressai_vision.datasets import (
+    SFUHW_ImageFolder,
+)  # COCO_ImageFolder, ImageFolder,
 from compressai_vision.model_wrappers import *
 from compressai_vision.utils import PixelFormat, readwriteYUV
 
@@ -50,18 +53,22 @@ MODES = [
 directory = os.getcwd()
 MODELS = {
     "faster_rcnn_R_50_FPN_3x": {
+        "arch": faster_rcnn_R_50_FPN_3x,
         "cfg": f"{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml",
         "weight": f"{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl",
     },
-    "master_rcnn_R_50_FPN_3x": {
+    "mask_rcnn_R_50_FPN_3x": {
+        "arch": mask_rcnn_R_50_FPN_3x,
         "cfg": f"{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
         "weight": f"{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl",
     },
     "faster_rcnn_X_101_32x8d_FPN_3x": {
+        "arch": faster_rcnn_X_101_32x8d_FPN_3x,
         "cfg": f"{directory}/compressai-fcvcm/models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml",
         "weight": f"{directory}/compressai-fcvcm/weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl",
     },
     "mask_rcnn_X_101_32x8d_FPN_3x": {
+        "arch": mask_rcnn_X_101_32x8d_FPN_3x,
         "cfg": f"{directory}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml",
         "weight": f"{directory}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl",
     },
@@ -121,9 +128,8 @@ def main(args):
     # to get the current working directory
     rwYUV = readwriteYUV(device, format=PixelFormat.YUV400_10le, align=16)
 
-    kargs = MODELS[args.model]
-    model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
-    # model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    kwargs = MODELS[args.model]
+    model = MODELS[args.model]["arch"](device, **kwargs)
 
     bitdepth = 10
 
