@@ -28,22 +28,20 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import json
 from pathlib import Path
 
+from detectron2.data import DatasetCatalog
+from detectron2.data.common import DatasetFromList, MapDataset
+from detectron2.data.dataset_mapper import DatasetMapper
+from detectron2.data.datasets import load_coco_json, register_coco_instances
+from detectron2.data.samplers import InferenceSampler
 from PIL import Image
 from torch.utils.data import Dataset
-import json
 
 from compressai_vision.utils import logger
 
-from detectron2.data.common import DatasetFromList, MapDataset
-from detectron2.data.dataset_mapper import DatasetMapper
-from detectron2.data.samplers import InferenceSampler
-from detectron2.data.datasets import load_coco_json, register_coco_instances
-from detectron2.data import DatasetCatalog 
-
-#from compressai.registry import register_dataset
-
+# from compressai.registry import register_dataset
 
 
 class BaseDataset(Dataset):
@@ -51,10 +49,11 @@ class BaseDataset(Dataset):
         self.sampler = None
         self.collate_fn = None
         self.dataset_name = dataset_name
-    
+
     def get_dataset_name(self):
         return self.dataset_name
-    
+
+
 class Detectron2BasedDataset(MapDataset):
     def __init__(self, dataset_name, dataset, cfg, images_folder, annotation_path):
         self.dataset_name = dataset_name
@@ -64,12 +63,17 @@ class Detectron2BasedDataset(MapDataset):
 
         try:
             DatasetCatalog.get(dataset_name)
-        except KeyError: 
-            logger.warning(__name__, f'It looks a new dataset. The new dataset \"{dataset_name}\" is successfully registred in DataCatalog now.')
-            register_coco_instances(dataset_name, {}, self.annotation_path, self.images_folder)
-    
+        except KeyError:
+            logger.warning(
+                __name__,
+                f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
+            )
+            register_coco_instances(
+                dataset_name, {}, self.annotation_path, self.images_folder
+            )
 
         self.sampler = InferenceSampler(len(dataset))
+
         def bypass_collator(batch):
             return batch
 
@@ -79,19 +83,18 @@ class Detectron2BasedDataset(MapDataset):
         mapper = DatasetMapper(cfg, False)
 
         super().__init__(dataset, mapper)
-    
+
     def get_dataset_name(self):
         return self.dataset_name
-    
+
     def get_annotation_path(self):
         return self.annotation_path
-    
+
     def get_images_folder(self):
         return self.images_folder
-    
 
 
-#@register_dataset("ImageFolder")
+# @register_dataset("ImageFolder")
 class ImageFolder(BaseDataset):
     """Load an image folder database. testing image samples
     are respectively stored in separate directories
@@ -101,17 +104,19 @@ class ImageFolder(BaseDataset):
         - rootdir/
             - img000.png
             - img001.png
-            
+
     Args:
         root (string): root directory of the dataset
         transform (callable, optional): a function or transform that takes in a
             PIL image and returns a transformed version
-        use_BGR (Bool): if True the color order of the sample is BGR otherwise RGB returned 
+        use_BGR (Bool): if True the color order of the sample is BGR otherwise RGB returned
     """
 
-    def __init__(self, dataset_name, root, transform=None, ret_name=False, use_BGR=False):
+    def __init__(
+        self, dataset_name, root, transform=None, ret_name=False, use_BGR=False
+    ):
         super().__init__(dataset_name)
-        
+
         splitdir = Path(root)
 
         if not splitdir.is_dir():
@@ -122,7 +127,6 @@ class ImageFolder(BaseDataset):
         self.use_BGR = use_BGR
         self.transform = transform
         self.ret_name = ret_name
-
 
     def __getitem__(self, index):
         """
@@ -136,7 +140,7 @@ class ImageFolder(BaseDataset):
 
         if self.use_BGR is True:
             r, g, b = img.split()
-            img = Image.merge('RGB', (b,g,r))
+            img = Image.merge("RGB", (b, g, r))
 
         if self.transform:
             if self.ret_name is True:
@@ -151,7 +155,8 @@ class ImageFolder(BaseDataset):
     def __len__(self):
         return len(self.samples)
 
-#@register_dataset("SFUHW_ImageFolder")
+
+# @register_dataset("SFUHW_ImageFolder")
 class SFUHW_ImageFolder(Detectron2BasedDataset):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
@@ -165,60 +170,68 @@ class SFUHW_ImageFolder(Detectron2BasedDataset):
                 - imgxxx.png
             - annotations
                 - xxxx.json
-            
+
     Args:
         root (string): root directory of the dataset
 
     """
 
-    def __init__(self, root, cfg, 
-                 dataset_name='sfu-hw-object-v1',
-                 **kwargs):
+    def __init__(self, root, cfg, dataset_name="sfu-hw-object-v1", **kwargs):
         images_dir = Path(root) / "images"
         annotations_dir = Path(root) / "annotations"
 
         if not images_dir.is_dir():
             raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
-        
+
         if not annotations_dir.is_dir():
             raise RuntimeError(f'Invalid annotation directory "{annotations_dir}"')
 
         # load samples and annotations
         samples = [f for f in sorted(images_dir.iterdir()) if f.is_file()]
-        annotations = [f for f in sorted(annotations_dir.iterdir()) if f.is_file() and f.suffix[1:] == 'json']
+        annotations = [
+            f
+            for f in sorted(annotations_dir.iterdir())
+            if f.is_file() and f.suffix[1:] == "json"
+        ]
 
         if len(annotations) != 1:
-            raise RuntimeError(f"The number of json file for the samples annotations must be 1, but got {len(annotations)}")
+            raise RuntimeError(
+                f"The number of json file for the samples annotations must be 1, but got {len(annotations)}"
+            )
 
         # merge annotation and sample list
         with open(annotations[0]) as f:
             data = json.load(f)
-            dataset = data['images']
-            del data['images']
+            dataset = data["images"]
+            del data["images"]
 
-            assert len(dataset) == len(samples), "Number of samples listed in json is different with the number of samples in the image folder"
+            assert len(dataset) == len(
+                samples
+            ), "Number of samples listed in json is different with the number of samples in the image folder"
 
             # update file addresses
             convert_image_id_to_list_idx = {}
             for e, addr in enumerate(samples):
                 ds = dataset[e]
-                if ds['file_name'] != addr.name:
-                    raise RuntimeError(f"File name mismatch. Expect to get {ds['file_name']}, but we've got {addr.name}")
-                ds['file_name'] = str(addr)
-                ds['image_id'] = ds['id']
+                if ds["file_name"] != addr.name:
+                    raise RuntimeError(
+                        f"File name mismatch. Expect to get {ds['file_name']}, but we've got {addr.name}"
+                    )
+                ds["file_name"] = str(addr)
+                ds["image_id"] = ds["id"]
                 convert_image_id_to_list_idx.update({f"{ds['id']}": e})
-                del ds['id']
+                del ds["id"]
                 # create an empty list for annotations
-                ds.update({"annotations":[]})
-            
-            # merge annotations into dataset
-            for annotation in data['annotations']:
-                idx = convert_image_id_to_list_idx[f"{annotation['image_id']}"]
-                
-                del annotation['image_id']
-                del annotation['id']
+                ds.update({"annotations": []})
 
-                dataset[idx]['annotations'].append(annotation)
+            # merge annotations into dataset
+            for annotation in data["annotations"]:
+                idx = convert_image_id_to_list_idx[f"{annotation['image_id']}"]
+
+                del annotation["image_id"]
+                del annotation["id"]
+
+                dataset[idx]["annotations"].append(annotation)
 
         super().__init__(dataset_name, dataset, cfg, images_dir, annotations[0])
 
@@ -230,7 +243,7 @@ class SFUHW_ImageFolder(Detectron2BasedDataset):
         return (minv, maxv)
 
 
-#@register_dataset("COCO_ImageFolder")
+# @register_dataset("COCO_ImageFolder")
 class COCO_ImageFolder(Detectron2BasedDataset):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
@@ -254,26 +267,32 @@ class COCO_ImageFolder(Detectron2BasedDataset):
                 - [instances_val].json
                 - [captions_val].json
                 - ...
-            
+
     Args:
         root (string): root directory of the dataset
 
     """
 
-    def __init__(self, root, cfg, 
-                 dataset_name='mpeg-coco', 
-                 img_path='val2017', 
-                 annot_path='annotations/instances_val2017.json',
-                 **kwargs):
+    def __init__(
+        self,
+        root,
+        cfg,
+        dataset_name="mpeg-coco",
+        img_path="val2017",
+        annot_path="annotations/instances_val2017.json",
+        **kwargs,
+    ):
         images_dir = Path(root) / img_path
         annotations_file = Path(root) / annot_path
 
         if not images_dir.is_dir():
             raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
-        
+
         if not annotations_file.is_file():
             raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
-        
-        dataset = load_coco_json(annotations_file, images_dir, dataset_name=dataset_name)
+
+        dataset = load_coco_json(
+            annotations_file, images_dir, dataset_name=dataset_name
+        )
 
         super().__init__(dataset_name, dataset, cfg, images_dir, annotations_file)

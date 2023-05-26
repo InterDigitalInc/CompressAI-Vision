@@ -30,9 +30,7 @@
 """
 """
 
-from . import (
-    split_inference,
-)
+from . import split_inference
 
 __all__ = [
     "split_inference",

@@ -27,15 +27,17 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from typing import Dict, List
+
 import torch.nn as nn
 
-from typing import Dict, List
 
 class BaseWrapper(nn.Module):
     """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
 
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames. 
+    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
     """
+
     def input_to_features(self, x):
         """Computes deep features at the intermediate layer(s) all the way from the input"""
         raise NotImplementedError
@@ -43,13 +45,13 @@ class BaseWrapper(nn.Module):
     def features_to_output(self, x):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
-    
+
     def input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         raise NotImplementedError
 
     def feature_pyramid_to_output(self, x, org_img_size: Dict, input_img_size: List):
-        """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5'] """
+        """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5']"""
         raise NotImplementedError
 
     def forward(self, x):
@@ -58,16 +60,16 @@ class BaseWrapper(nn.Module):
 
     def reshape_feature_to_frame(self, x):
         """rehape feature tensor channels to a frame"""
-        raise NotImplemented
-    
+        raise NotImplementedError
+
     def reshape_frame_to_feature(self, x, tensor_shape):
         """reshape a frame of channels into feature tensor(s)"""
-        raise NotImplemented
+        raise NotImplementedError
 
     def reshape_feature_pyramid_to_frame(self, x):
         """rehape the feature pyramid to a frame"""
-        raise NotImplemented
-    
+        raise NotImplementedError
+
     def reshape_frame_to_feature_pyramid(self, x, tensor_shape):
         """reshape a frame of channels into the feature pyramid"""
-        raise NotImplemented
+        raise NotImplementedError

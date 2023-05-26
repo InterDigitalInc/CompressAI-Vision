@@ -27,32 +27,35 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import io
-import yuvio
 import enum
-import torch
-from torch import Tensor
-import torch.nn.functional as F
+from pathlib import Path
 from typing import Tuple
+
 import numpy as np
+import torch
+import torch.nn.functional as F
+import yuvio
+from torch import Tensor
+
 from .logger import warning
 
-from pathlib import Path
 
 class PixelFormat(enum.Enum):
-    """ assigned strings are compatiable with YUVIO library pixel format"""
-    YUV400      = ("gray", 8)         # planar 4:0:0 YUV 8-bit
-    YUV400_10le = ("gray10le", 10)    # planar 4:0:0 YUV 10-bit
+    """assigned strings are compatiable with YUVIO library pixel format"""
+
+    YUV400 = ("gray", 8)  # planar 4:0:0 YUV 8-bit
+    YUV400_10le = ("gray10le", 10)  # planar 4:0:0 YUV 10-bit
 
     # Not supported yet
     # (TODO: (choih) Support other formats)
-    #YUV420      = ("yuv420p", 8)      # planar 4:2:0 YUV 8-bit
-    #YUV420_10le = ('yuv420p10le', 10) # planar 4:2:0 YUV 10-bit
-    #YUV422      = ("yuv422p", 8)      # planar 4:2:2 YUV 8-bit
-    #YUV422_10le = ('yuv422p10le', 10) # planar 4:2:2 YUV 10-bit
-    #YUV444      = ("yuv444p", 8)      # planar 4:4:4 YUV 8-bit
-    #YUV444_10le = ('yuv444p10le', 10) # planar 4:4:4 YUV 10-bit
-    #RGB         = ("yuv444p", 8)      # planar 4:4:4 RGB 8-bit
+    # YUV420      = ("yuv420p", 8)      # planar 4:2:0 YUV 8-bit
+    # YUV420_10le = ('yuv420p10le', 10) # planar 4:2:0 YUV 10-bit
+    # YUV422      = ("yuv422p", 8)      # planar 4:2:2 YUV 8-bit
+    # YUV422_10le = ('yuv422p10le', 10) # planar 4:2:2 YUV 10-bit
+    # YUV444      = ("yuv444p", 8)      # planar 4:4:4 YUV 8-bit
+    # YUV444_10le = ('yuv444p10le', 10) # planar 4:4:4 YUV 10-bit
+    # RGB         = ("yuv444p", 8)      # planar 4:4:4 RGB 8-bit
+
 
 bitdepth_to_dtype = {
     8: np.uint8,
@@ -72,14 +75,12 @@ bitdepth_to_mid_level = {
 
 
 class readwriteYUV:
-    """"
-    
-    """
-    def __init__(self, device, format: PixelFormat=PixelFormat.YUV400, align=2, surround=False):
-        """
+    """ " """
 
-
-        """
+    def __init__(
+        self, device, format: PixelFormat = PixelFormat.YUV400, align=2, surround=False
+    ):
+        """ """
         self._device = device
         self._format = format
         self._align = align
@@ -92,15 +93,15 @@ class readwriteYUV:
     @property
     def format(self):
         return self._format
-    
+
     @property
     def bitdepth(self):
         return self._format[1]
-    
+
     @property
     def resolution_multiple_of_(self):
         return self._align
-        
+
     @staticmethod
     def _compute_new_frame_resolution(frmWidth, frmHeight, align):
         # recalculate frame resolution with alignment factor for to-be-saved YUVs
@@ -112,7 +113,7 @@ class readwriteYUV:
     def _path_check(path):
         if not Path(path).exists() or not Path(path).is_file():
             raise RuntimeError(f'Invalid file "{path}"')
-    
+
     @staticmethod
     def _path_create(path):
         wp = Path(path).parent
@@ -120,7 +121,7 @@ class readwriteYUV:
         if not wp.exists() or not wp.is_dir():
             raise RuntimeError(f'Invalid file "{wp}"')
 
-    @staticmethod    
+    @staticmethod
     def pad(x, p=2, mid=0, surround=False):
         h, w = x.size(1), x.size(2)
         H = (h + p - 1) // p * p
@@ -131,7 +132,7 @@ class readwriteYUV:
             padding_top = (H - h) // 2
         else:
             padding_left = padding_top = 0
-        
+
         padding_right = W - w - padding_left
         padding_bottom = H - h - padding_top
 
@@ -140,7 +141,7 @@ class readwriteYUV:
             (padding_left, padding_right, padding_top, padding_bottom),
             mode="constant",
             value=mid,
-            )
+        )
 
     @staticmethod
     def crop(x, size, surround=False):
@@ -162,36 +163,55 @@ class readwriteYUV:
             value=0,
         )
 
-    def setReader(self, read_path: str, frmWidth, frmHeight, format=None, align=None, surround=None):
-        """
-        """
+    def setReader(
+        self,
+        read_path: str,
+        frmWidth,
+        frmHeight,
+        format=None,
+        align=None,
+        surround=None,
+    ):
+        """ """
 
         format = self._format if format is None else format
         align = self._align if align is None else align
         surround = self._surround if surround is None else surround
 
         self._path_check(read_path)
-        _frmWidth, _frmHeight = self._compute_new_frame_resolution(frmWidth, frmHeight, align)
+        _frmWidth, _frmHeight = self._compute_new_frame_resolution(
+            frmWidth, frmHeight, align
+        )
 
-        # save resolution difference in width and height 
+        # save resolution difference in width and height
         # between the original frame and padded frame
         self._gap_in_width = _frmWidth - frmWidth
         self._gap_in_height = _frmHeight - frmHeight
 
-        self.reader = yuvio.get_reader(read_path, _frmWidth, _frmHeight, format.value[0])
+        self.reader = yuvio.get_reader(
+            read_path, _frmWidth, _frmHeight, format.value[0]
+        )
         self.pixel_bitdepth = format.value[1]
-    
 
-    def setWriter(self, write_path: str, frmWidth, frmHeight, format=None, align=None, surround=None):
-        """
-        """
+    def setWriter(
+        self,
+        write_path: str,
+        frmWidth,
+        frmHeight,
+        format=None,
+        align=None,
+        surround=None,
+    ):
+        """ """
 
         format = self._format if format is None else format
         align = self._align if align is None else align
         surround = self._surround if surround is None else surround
 
         self._path_create(write_path)
-        frmWidth, frmHeight = self._compute_new_frame_resolution(frmWidth, frmHeight, align) 
+        frmWidth, frmHeight = self._compute_new_frame_resolution(
+            frmWidth, frmHeight, align
+        )
         self.writer = yuvio.get_writer(write_path, frmWidth, frmHeight, format.value[0])
         self.pixel_bitdepth = format.value[1]
 
@@ -199,20 +219,29 @@ class readwriteYUV:
         if self.writer is None:
             raise RuntimeError("Please first setup the writer")
 
-        assert frame.dim() >= 2 and frame.dim() <=4, "Dimension of the input frame tensor shall be greater than 1 and less than 5"
+        assert (
+            frame.dim() >= 2 and frame.dim() <= 4
+        ), "Dimension of the input frame tensor shall be greater than 1 and less than 5"
 
         if frame.dim() == 4:
             if frame.size(0) > 1:
-                warning(f"Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid")
-            frame = frame[0,::]
+                warning(
+                    "Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
+                )
+            frame = frame[0, ::]
 
         if frame.dim() == 3:
             if frame.size(0) > 3:
-                warning(f"Number of color channels is greater than 3. Only the first three color component are valid")
-                frame = frame[0:3,::]
-        
+                warning(
+                    "Number of color channels is greater than 3. Only the first three color components are valid"
+                )
+                frame = frame[0:3, ::]
+
         if frame.dim() == 2:
-            assert self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le, f"Input Dimension mismatches with format {self.format}"
+            assert (
+                self.format == PixelFormat.YUV400
+                or self.format == PixelFormat.YUV400_10le
+            ), f"Input Dimension mismatches with format {self.format}"
             frame = frame.unsqueeze(0)
 
         dtype = bitdepth_to_dtype[self.pixel_bitdepth]
@@ -222,23 +251,22 @@ class readwriteYUV:
 
         frame = self.pad(frame, self._align, mid_level, surround=self._surround)
 
-        if self.format == PixelFormat.YUV400 \
-        or self.format == PixelFormat.YUV400_10le:
+        if self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le:
             y_channel = np.array(frame[0].numpy(force=True), dtype=dtype)
             frame = yuvio.frame((y_channel, None, None), self._format.value[0])
         else:
             # TODO: (choih) Support other formats
-            #components = []
-            #for c in frame:
+            # components = []
+            # for c in frame:
             #    channel = np.array(c.numpy(force=True), dtype=dtype)
             #    channel = channel.swapaxes(0, 1)
             raise NotImplementedError
-        
+
         self.writer.write(frame)
 
     def write_multiple_frames(self, frames: Tensor, alignment=2):
         raise NotImplementedError
-    
+
     def read_single_frame(self, frm_idx=0):
         """
         arguments:
@@ -247,37 +275,37 @@ class readwriteYUV:
         frame = self.reader.read(index=frm_idx, count=1)[0]
         y, u, v = frame.split()
 
-        if self.format == PixelFormat.YUV400 \
-        or self.format == PixelFormat.YUV400_10le:
-            assert u == v == None
-            out = torch.from_numpy(y.astype('float32')).to(self._device)
-            out = self.crop(out, (self._gap_in_width, self._gap_in_height) , self._surround)
+        if self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le:
+            assert u == v is None
+            out = torch.from_numpy(y.astype("float32")).to(self._device)
+            out = self.crop(
+                out, (self._gap_in_width, self._gap_in_height), self._surround
+            )
         else:
             # TODO: (choih) Support other formats
-            #components = []
-            #for c in frame:
+            # components = []
+            # for c in frame:
             #    channel = np.array(c.numpy(force=True), dtype=dtype)
             #    channel = channel.swapaxes(0, 1)
             raise NotImplementedError
-        
-        return out
 
+        return out
 
     def read_multiple_frames(self, crop: Tuple):
         raise NotImplementedError
 
-        
-#y = 255 * np.ones((1920, 1080), dtype=np.uint8)
-#u = np.zeros((960, 540), dtype=np.uint8)
-#v = np.zeros((960, 540), dtype=np.uint8)
-#frame_420 = yuvio.frame((y, u, v), "yuv420p")
-#frame_400 = yuvio.frame((y, None, None), "gray")
 
-#for yuv_frame in reader:
+# y = 255 * np.ones((1920, 1080), dtype=np.uint8)
+# u = np.zeros((960, 540), dtype=np.uint8)
+# v = np.zeros((960, 540), dtype=np.uint8)
+# frame_420 = yuvio.frame((y, u, v), "yuv420p")
+# frame_400 = yuvio.frame((y, None, None), "gray")
+
+# for yuv_frame in reader:
 #    writer.write(yuv_frame)
 
-#yuv_frame = yuvio.imread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
-#yuvio.imwrite("example_yuv420p_copy.yuv", yuv_frame)
+# yuv_frame = yuvio.imread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
+# yuvio.imwrite("example_yuv420p_copy.yuv", yuv_frame)
 
-#yuv_frames = yuvio.mimread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
-#yuvio.mimwrite("example_yuv420p_copy.yuv", yuv_frames)
+# yuv_frames = yuvio.mimread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
+# yuvio.mimwrite("example_yuv420p_copy.yuv", yuv_frames)
