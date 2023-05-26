@@ -1,0 +1,44 @@
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - "$CI_PROJECT_DIR/.cache/pip"
+
+stages:
+  - static-analysis
+
+
+flake8:
+  stage: static-analysis
+  image: registry.gitlab.com/mafda/python-linting
+  before_script:
+    - python --version
+  script:
+    - flake8 --max-line-length 88 compressai_vision data/mpeg-fcvcm
+  tags:
+    - docker
+
+
+
+black:
+  stage: static-analysis
+  image: python:3.8-buster
+  before_script:
+    - python --version
+    - pip install black
+  script:
+    - black --check compressai_vision data/mpeg-fcvcm
+  tags:
+    - docker
+
+isort:
+  stage: static-analysis
+  image: python:3.8-buster
+  before_script:
+    - python --version
+    - pip install isort
+  script:
+    - isort compressai_vision data/mpeg-fcvcm --check-only
+  tags:
+    - docker
