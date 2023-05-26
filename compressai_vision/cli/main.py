@@ -30,7 +30,8 @@
 """ Main Command-line interface tools for compressai-vision
 """
 import argparse
-import logging
+
+# import logging
 import sys
 
 from compressai_vision.cli.eval import split_inference

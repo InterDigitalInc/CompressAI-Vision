@@ -92,7 +92,7 @@ def main(argv):
             images_dir.mkdir(parents=True, exist_ok=True)
 
             # convert selected frames from input yuv to lists of png files
-            cmd = f'{args.ffmpeg} -s {width}x{height} -r {seq_data["FrameRate"]} -pix_fmt yuv420p -i {args.inputdir}/{seq_data["path"]} -vf select="gte(n\, {seq_data["FirstFrame"]})" -start_number 0 -vframes {nb_frames} {images_dir.resolve()}/{seq_name}_%3d.png'
+            cmd = f'{args.ffmpeg} -s {width}x{height} -r {seq_data["FrameRate"]} -pix_fmt yuv420p -i {args.inputdir}/{seq_data["path"]} -vf select="gte(n\, {seq_data["FirstFrame"]})" -start_number 0 -vframes {nb_frames} {images_dir.resolve()}/{seq_name}_%3d.png'  # noqa: W605
             os.system(cmd)
 
             mpeg_annotations_dir = Path(

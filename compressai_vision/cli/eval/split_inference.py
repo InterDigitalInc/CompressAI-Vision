@@ -38,10 +38,15 @@ from torch.utils.data import DataLoader
 # from torchvision import transforms
 from tqdm import tqdm
 
-from compressai_vision.datasets import (
+from compressai_vision.datasets import (  # COCO_ImageFolder, ImageFolder,
     SFUHW_ImageFolder,
-)  # COCO_ImageFolder, ImageFolder,
-from compressai_vision.model_wrappers import *
+)
+from compressai_vision.model_wrappers import (
+    faster_rcnn_R_50_FPN_3x,
+    faster_rcnn_X_101_32x8d_FPN_3x,
+    mask_rcnn_R_50_FPN_3x,
+    mask_rcnn_X_101_32x8d_FPN_3x,
+)
 from compressai_vision.utils import PixelFormat, readwriteYUV
 
 # (fracape) WORK IN PROGRESS!
@@ -173,9 +178,9 @@ def main(args):
     )
 
     evaluator.reset()
-    setWriter = False
+    # setWriter = False
     setReader = False
-    for e, d in enumerate(tqdm(test_dataloader)):
+    for _e, d in enumerate(tqdm(test_dataloader)):
         org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
 
         features, input_img_size = model.input_to_feature_pyramid(d)
@@ -190,7 +195,7 @@ def main(args):
                 frame, minv, maxv, bitdepth=bitdepth
             )
 
-            ## dump yuv
+            # # dump yuv
             # if setWriter is False:
             #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
             #    #setWriter = True
@@ -207,7 +212,7 @@ def main(args):
                 #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
                 setReader = True
 
-            loaded_normalized_frame = rwYUV.read_single_frame(e)
+            # loaded_normalized_frame = rwYUV.read_single_frame(e)
             # normalized_frame = rwYUV.read_single_frame(0)
 
             # diff = normalized_frame - loaded_normalized_frame

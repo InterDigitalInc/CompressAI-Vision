@@ -38,7 +38,7 @@ from detectron2.modeling import build_model
 from torch import Tensor
 
 from .base_wrapper import BaseWrapper
-from .utils import *
+from .utils import _tensor_to_tiled, _tiled_to_tensor, compute_frame_resolution
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",

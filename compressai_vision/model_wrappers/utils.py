@@ -29,7 +29,6 @@
 
 import math
 
-import torch
 from torch import Tensor
 
 from compressai_vision.utils import logger

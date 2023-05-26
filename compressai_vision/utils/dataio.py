@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import enum
-import io
 from pathlib import Path
 from typing import Tuple
 
@@ -227,14 +226,14 @@ class readwriteYUV:
         if frame.dim() == 4:
             if frame.size(0) > 1:
                 warning(
-                    f"Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
+                    "Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
                 )
             frame = frame[0, ::]
 
         if frame.dim() == 3:
             if frame.size(0) > 3:
                 warning(
-                    f"Number of color channels is greater than 3. Only the first three color component are valid"
+                    "Number of color channels is greater than 3. Only the first three color components are valid"
                 )
                 frame = frame[0:3, ::]
 
@@ -277,7 +276,7 @@ class readwriteYUV:
         y, u, v = frame.split()
 
         if self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le:
-            assert u == v == None
+            assert u == v is None
             out = torch.from_numpy(y.astype("float32")).to(self._device)
             out = self.crop(
                 out, (self._gap_in_width, self._gap_in_height), self._surround
