@@ -29,16 +29,15 @@
 
 # TODO (racapef) check/add detectron2 license header
 
-import torch
-
-from torch import Tensor
 from typing import Dict, List
 
-from .base_wrapper import BaseWrapper
-
+import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
+from torch import Tensor
+
+from .base_wrapper import BaseWrapper
 from .utils import *
 
 __all__ = [
@@ -50,19 +49,19 @@ __all__ = [
 
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
-    def __init__(self, device='cpu', **kwargs):
+    def __init__(self, device="cpu", **kwargs):
         super().__init__()
 
         self.cfg = get_cfg()
-        self.cfg.merge_from_file(kwargs['cfg'])
+        self.cfg.merge_from_file(kwargs["cfg"])
         self.model = build_model(self.cfg).to(device).eval()
-        
+
         self.backbone = self.model.backbone
         self.top_block = self.model.backbone.top_block
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(kwargs['weight'])
+        DetectionCheckpointer(self.model).load(kwargs["weight"])
 
         assert self.top_block is not None
         assert self.proposal_generator is not None
@@ -71,17 +70,19 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         imgs = self.model.preprocess_image(x)
-        feature_pyramid = self.backbone(imgs.tensor) 
-        del feature_pyramid['p6']
+        feature_pyramid = self.backbone(imgs.tensor)
+        del feature_pyramid["p6"]
 
         return feature_pyramid, imgs.image_sizes
 
     @torch.no_grad()
-    def feature_pyramid_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+    def feature_pyramid_to_output(
+        self, x: Dict, org_img_size: Dict, input_img_size: List
+    ):
         """
 
         Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
-        Unnecessary parts for split inference are removed or modified properly. 
+        Unnecessary parts for split inference are removed or modified properly.
 
         Please find the license statement in the downloaded original Detectron2 source codes or at here:
         https://github.com/facebookresearch/detectron2/blob/main/LICENSE
@@ -89,13 +90,14 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """
 
         """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5'] """
-        
+
         class dummy:
-            def __init__(self, img_size:list):
+            def __init__(self, img_size: list):
                 self.image_sizes = img_size
+
         cdummy = dummy(input_img_size)
-        
-        x.update({'p6': self.top_block(x['p5'])[0]})
+
+        x.update({"p6": self.top_block(x["p5"])[0]})
 
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
@@ -103,7 +105,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         assert (
             not torch.jit.is_scripting()
         ), "Scripting is not supported for postprocess."
-        return self.model._postprocess(results, [org_img_size,], input_img_size)
+        return self.model._postprocess(
+            results,
+            [
+                org_img_size,
+            ],
+            input_img_size,
+        )
 
     @torch.no_grad()
     def forward(self, x):
@@ -115,7 +123,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         # 'p2' is the base for the size of to-be-formed frame
 
-        _, C, H, W = x['p2'].size()
+        _, C, H, W = x["p2"].size()
         _, fixedW = compute_frame_resolution(C, H, W)
 
         tiled_frame = {}
@@ -141,15 +149,17 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if packing_all_in_one:
             for key, subframe in tiled_frame.items():
-                if key == 'p2':
+                if key == "p2":
                     out = subframe
                 else:
                     out = torch.cat([out, subframe], dim=0)
             tiled_frame = out
 
         return tiled_frame, feature_size, subframe_heights
-    
-    def reshape_frame_to_feature_pyramid(self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False):
+
+    def reshape_frame_to_feature_pyramid(
+        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
+    ):
         """reshape a frame of channels into the feature pyramid"""
 
         assert isinstance(x, (Tensor, Dict))
@@ -158,7 +168,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         tiled_frame = {}
         if packing_all_in_one:
             for key, height in subframe_height.items():
-                tiled_frame.update({key: x[top_y:top_y+height,:]})
+                tiled_frame.update({key: x[top_y : top_y + height, :]})
                 top_y = top_y + height
         else:
             assert isinstance(x, Dict)
@@ -168,17 +178,17 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         for key, frame in tiled_frame.items():
             _, numChs, chH, chW = tensor_shape[key]
             tensor = _tiled_to_tensor(frame, (chH, chW))
-            
+
             assert tensor.size(1) == numChs
 
             feature_tensor.update({key: tensor})
 
         return feature_tensor
-    
+
     def get_cfg(self):
         return self.cfg
 
-    #[TODO (choih): To be reused for some purpose]
+    # [TODO (choih): To be reused for some purpose]
     def preInputTensor(self, img, img_id):
         """
 
@@ -200,21 +210,22 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             inputs,
         ]
 
+
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device='cpu', **kwargs):
-        super().__init__(device,  **kwargs)
+    def __init__(self, device="cpu", **kwargs):
+        super().__init__(device, **kwargs)
 
 
 class mask_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device='cpu', **kwargs):
-        super().__init__(device,  **kwargs)
+    def __init__(self, device="cpu", **kwargs):
+        super().__init__(device, **kwargs)
 
 
 class faster_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device='cpu', **kwargs):
-        super().__init__(device,  **kwargs)
+    def __init__(self, device="cpu", **kwargs):
+        super().__init__(device, **kwargs)
+
 
 class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device='cpu', **kwargs):
-        super().__init__(device,  **kwargs)
-
+    def __init__(self, device="cpu", **kwargs):
+        super().__init__(device, **kwargs)

@@ -28,5 +28,5 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .logger import *
 from .dataio import *
+from .logger import *

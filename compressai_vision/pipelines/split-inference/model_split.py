@@ -29,8 +29,9 @@
 
 import logging
 import math
-from pytorch_msssim import ms_ssim
+
 import torch
+from pytorch_msssim import ms_ssim
 
 
 class ModelSplit:
@@ -44,7 +45,7 @@ class ModelSplit:
     """
 
     def __init__(self):
-        # Compression - 
+        # Compression -
         # Inference model -
         self.logger = logging.getLogger(self.__class__.__name__)
         self.compute_metrics = True

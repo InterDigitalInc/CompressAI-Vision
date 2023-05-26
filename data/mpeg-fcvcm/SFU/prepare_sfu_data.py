@@ -29,10 +29,10 @@
 
 import argparse
 import json
-from pathlib import Path
 import os
 import shutil
 import sys
+from pathlib import Path
 
 
 def setup_args():
