@@ -39,10 +39,10 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from compressai_vision.datasets import (  # ImageFolder,
-    deccode_compressed_rle,
-    SFUHW_ImageFolder,
-    MPEGOIV6_ImageFolder,
     COCO_ImageFolder,
+    MPEGOIV6_ImageFolder,
+    SFUHW_ImageFolder,
+    deccode_compressed_rle,
 )
 from compressai_vision.model_wrappers import (
     faster_rcnn_R_50_FPN_3x,

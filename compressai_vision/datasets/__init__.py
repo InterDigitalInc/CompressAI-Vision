@@ -28,11 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import (
-    deccode_compressed_rle,
+    COCO_ImageFolder,
     ImageFolder,
     MPEGOIV6_ImageFolder,
     SFUHW_ImageFolder,
-    COCO_ImageFolder,
+    deccode_compressed_rle,
 )
 
 __all__ = [

@@ -28,22 +28,20 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import base64
+import json
 from pathlib import Path
+from typing import Dict, List
 
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data.common import DatasetFromList, MapDataset
+from detectron2.data.dataset_mapper import DatasetMapper
+from detectron2.data.datasets import load_coco_json, register_coco_instances
+from detectron2.data.samplers import InferenceSampler
 from PIL import Image
 from torch.utils.data import Dataset
 
-import json
-import base64
-from typing import Dict, List
-
 from compressai_vision.utils import logger
-
-from detectron2.data.common import DatasetFromList, MapDataset
-from detectron2.data.dataset_mapper import DatasetMapper
-from detectron2.data.samplers import InferenceSampler
-from detectron2.data.datasets import load_coco_json, register_coco_instances
-from detectron2.data import DatasetCatalog, MetadataCatalog
 
 # from compressai.registry import register_dataset
 

@@ -45,6 +45,7 @@ class BaseWrapper(nn.Module):
     def features_to_output(self, x):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
+
     def input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         raise NotImplementedError
