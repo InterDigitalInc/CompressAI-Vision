@@ -38,8 +38,11 @@ from torch.utils.data import DataLoader
 # from torchvision import transforms
 from tqdm import tqdm
 
-from compressai_vision.datasets import (  # COCO_ImageFolder, ImageFolder,
+from compressai_vision.datasets import (  # ImageFolder,
+    deccode_compressed_rle,
     SFUHW_ImageFolder,
+    MPEGOIV6_ImageFolder,
+    COCO_ImageFolder,
 )
 from compressai_vision.model_wrappers import (
     faster_rcnn_R_50_FPN_3x,
@@ -138,11 +141,15 @@ def main(args):
 
     bitdepth = 10
 
-    test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
-    packing_all_in_one = True
-
-    # test_dataset = COCO_ImageFolder(args.dataset_folder, model.cfg)
+    # test_dataset = MPEGOIV6_ImageFolder(args.dataset_folder, model.cfg)
+    # packing_all_in_one = True
     # packing_all_in_one = False
+
+    # test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
+    # packing_all_in_one = True
+
+    test_dataset = COCO_ImageFolder(args.dataset_folder, model.cfg)
+    packing_all_in_one = False
 
     dataset_name = test_dataset.get_dataset_name()
 
@@ -177,10 +184,13 @@ def main(args):
         dataset_name, False, output_dir="./vision_output/", use_fast_impl=False
     )
 
+    # Only for MPEG-OIV6
+    deccode_compressed_rle(evaluator._coco_api.anns)
+
     evaluator.reset()
-    # setWriter = False
+    setWriter = False
     setReader = False
-    for _e, d in enumerate(tqdm(test_dataloader)):
+    for e, d in enumerate(tqdm(test_dataloader)):
         org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
 
         features, input_img_size = model.input_to_feature_pyramid(d)
@@ -195,7 +205,7 @@ def main(args):
                 frame, minv, maxv, bitdepth=bitdepth
             )
 
-            # # dump yuv
+            ## dump yuv
             # if setWriter is False:
             #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
             #    #setWriter = True
@@ -203,14 +213,10 @@ def main(args):
             # rwYUV.write_single_frame(normalized_frame, mid_level=mid_level)
 
             # read yuv
-            if setReader is False:
-                rwYUV.setReader(
-                    "/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv",
-                    normalized_frame.size(1),
-                    normalized_frame.size(0),
-                )
-                #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-                setReader = True
+            # if setReader is False:
+            #    rwYUV.setReader("/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv", normalized_frame.size(1), normalized_frame.size(0))
+            #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
+            #    setReader = True
 
             # loaded_normalized_frame = rwYUV.read_single_frame(e)
             # normalized_frame = rwYUV.read_single_frame(0)
@@ -243,6 +249,14 @@ def main(args):
         # print(type(results))
 
         evaluator.process(d, results)
+
+    # temp
+    total_annot = 0
+    cate_list = []
+    for key, cat_list in evaluator._coco_api.catToImgs.items():
+        total_annot += len(cat_list)
+        cate_list.append(key)
+    print(len(cate_list), total_annot)
 
     results = evaluator.evaluate()
     print(results)

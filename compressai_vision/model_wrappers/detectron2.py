@@ -178,7 +178,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         for key, frame in tiled_frame.items():
             _, numChs, chH, chW = tensor_shape[key]
             tensor = _tiled_to_tensor(frame, (chH, chW))
-
             assert tensor.size(1) == numChs
 
             feature_tensor.update({key: tensor})

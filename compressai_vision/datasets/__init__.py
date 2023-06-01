@@ -27,10 +27,18 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .image import COCO_ImageFolder, ImageFolder, SFUHW_ImageFolder
+from .image import (
+    deccode_compressed_rle,
+    ImageFolder,
+    MPEGOIV6_ImageFolder,
+    SFUHW_ImageFolder,
+    COCO_ImageFolder,
+)
 
 __all__ = [
     "ImageFolder",
+    "MPEGOIV6_ImageFolder",
     "SFUHW_ImageFolder",
     "COCO_ImageFolder",
+    "deccode_compressed_rle",
 ]

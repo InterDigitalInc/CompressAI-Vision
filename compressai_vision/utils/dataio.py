@@ -113,7 +113,6 @@ class readwriteYUV:
     def _path_check(path):
         if not Path(path).exists() or not Path(path).is_file():
             raise RuntimeError(f'Invalid file "{path}"')
-
     @staticmethod
     def _path_create(path):
         wp = Path(path).parent
@@ -132,7 +131,6 @@ class readwriteYUV:
             padding_top = (H - h) // 2
         else:
             padding_left = padding_top = 0
-
         padding_right = W - w - padding_left
         padding_bottom = H - h - padding_top
 
@@ -266,7 +264,6 @@ class readwriteYUV:
 
     def write_multiple_frames(self, frames: Tensor, alignment=2):
         raise NotImplementedError
-
     def read_single_frame(self, frm_idx=0):
         """
         arguments:
