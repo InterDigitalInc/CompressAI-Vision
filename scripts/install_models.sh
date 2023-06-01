@@ -97,15 +97,25 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     echo "Downloading weights"
     echo
 
-    # FASTER R-CNN
+    # FASTER R-CNN X-101 32x8d FPN
     WEIGHT_DIR="weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
     mkdir -p ${WEIGHT_DIR}
     wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl -P ${WEIGHT_DIR}
 
-    # MASK R-CNN
+    # FASTER R-CNN R-50 FPN
+    WEIGHT_DIR="weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
+    mkdir -p ${WEIGHT_DIR}
+    wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl -P ${WEIGHT_DIR}
+
+    # MASK R-CNN X-101 32x8d FPN
     WEIGHT_DIR="weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
     mkdir -p ${WEIGHT_DIR}
     wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl -P ${WEIGHT_DIR}
+
+    # MASK R-CNN R-50 FPN
+    WEIGHT_DIR="weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
+    mkdir -p ${WEIGHT_DIR}
+    wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
 fi
 
 
