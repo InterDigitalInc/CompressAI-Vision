@@ -33,7 +33,7 @@
 
 import os
 from compressai_vision.model_wrappers import *
-from compressai_vision.datasets import ImageFolder, SFUHW_ImageFolder, COCO_ImageFolder
+from compressai_vision.datasets import *
 from torchvision import transforms
 
 from torch.utils.data import DataLoader
@@ -109,14 +109,18 @@ def main(args):
     rwYUV = readwriteYUV(device, format=PixelFormat.YUV400_10le, align=16)
 
     kargs = MODELS[args.model]
-    model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
-    #model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    #model = faster_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
+    model = mask_rcnn_X_101_32x8d_FPN_3x(device, **kargs)
     
     bitdepth = 10
 
-    test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
+    test_dataset = MPEGOIV6_ImageFolder(args.dataset_folder, model.cfg)
     packing_all_in_one = True
-    
+    #packing_all_in_one = False
+
+    #test_dataset = SFUHW_ImageFolder(args.dataset_folder, model.cfg)
+    #packing_all_in_one = True
+
     #test_dataset = COCO_ImageFolder(args.dataset_folder, model.cfg)
     #packing_all_in_one = False
 
@@ -149,7 +153,10 @@ def main(args):
     from detectron2.evaluation import COCOEvaluator
     #evaluator = COCOEvaluator(dataset_name, model.get_cfg(), False, output_dir='./vision_output/', use_fast_impl=False)
     evaluator = COCOEvaluator(dataset_name, False, output_dir='./vision_output/', use_fast_impl=False)
-
+    
+    # Only for MPEG-OIV6
+    deccode_compressed_rle(evaluator._coco_api.anns)
+    
     evaluator.reset()
     setWriter = False
     setReader = False
@@ -172,12 +179,12 @@ def main(args):
             #rwYUV.write_single_frame(normalized_frame, mid_level=mid_level)
 
             # read yuv
-            if setReader is False:
-                rwYUV.setReader("/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv", normalized_frame.size(1), normalized_frame.size(0))
+            #if setReader is False:
+            #    rwYUV.setReader("/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv", normalized_frame.size(1), normalized_frame.size(0))
             #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-                setReader = True
+            #    setReader = True
 
-            loaded_normalized_frame = rwYUV.read_single_frame(e)
+            #loaded_normalized_frame = rwYUV.read_single_frame(e)
             #normalized_frame = rwYUV.read_single_frame(0)
 
             #diff = normalized_frame - loaded_normalized_frame
@@ -199,7 +206,15 @@ def main(args):
         #print(type(results))
 
         evaluator.process(d, results)
-       
+    
+    # temp
+    total_annot = 0
+    cate_list = []
+    for key, cat_list in evaluator._coco_api.catToImgs.items():
+        total_annot += len(cat_list)
+        cate_list.append(key)
+    print(len(cate_list), total_annot)
+
     results = evaluator.evaluate() 
     print(results)
     # (fracape) WORK IN PROGRESS!
