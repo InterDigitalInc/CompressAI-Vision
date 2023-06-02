@@ -9,7 +9,7 @@ stages:
   - static-analysis
 
 
-flake8:
+.flake8:
   stage: static-analysis
   image: registry.gitlab.com/mafda/python-linting
   before_script:
