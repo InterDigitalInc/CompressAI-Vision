@@ -35,10 +35,10 @@ from compressai_vision.utils import logger
 
 __all__ = [
     "compute_frame_resolution",
-    "_tensor_to_tiled",
-    "_tiled_to_tensor",
-    "_tensor_to_quilted",
-    "_quilted_to_Tensor",
+    "tensor_to_tiled",
+    "tiled_to_tensor",
+    "tensor_to_quilted",
+    "quilted_to_Tensor",
 ]
 
 
@@ -66,7 +66,7 @@ def compute_frame_resolution(num_channels, channel_height, channel_width):
     return (height, width)
 
 
-def _tensor_to_tiled(x: Tensor, tiled_frame_resolution):
+def tensor_to_tiled(x: Tensor, tiled_frame_resolution):
     assert x.dim() == 4 and isinstance(x, Tensor)
     _, _, H, W = x.size()
 
@@ -80,7 +80,7 @@ def _tensor_to_tiled(x: Tensor, tiled_frame_resolution):
     return tiled
 
 
-def _tiled_to_tensor(x: Tensor, channel_resolution):
+def tiled_to_tensor(x: Tensor, channel_resolution):
     assert x.dim() == 2 and isinstance(x, Tensor)
     frmH, frmW = x.size()
 
@@ -102,9 +102,9 @@ def _tiled_to_tensor(x: Tensor, channel_resolution):
     return feature_tensor
 
 
-def _tensor_to_quilted(x: Tensor, num_samples_in_width, num_samples_in_height):
+def tensor_to_quilted(x: Tensor, num_samples_in_width, num_samples_in_height):
     raise NotImplementedError
 
 
-def _quilted_to_Tensor():
+def quilted_to_Tensor():
     raise NotImplementedError

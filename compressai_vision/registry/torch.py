@@ -28,11 +28,35 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .torch import register_dataset, register_vision_model
+from typing import Callable, Dict, Type, TypeVar
 
-__all__ = [
-    "DATASETS",
-    "VISIONMODELS",
-    "register_dataset",
-    "register_vision_model",
-]
+# import torch.nn as nn
+from model_wrappers.base_wrapper import BaseWrapper
+from torch.utils.data import Dataset
+
+DATASETS: Dict[str, Callable[..., Dataset]] = {}
+VISIONMODELS: Dict[str, Callable[..., BaseWrapper]] = {}
+
+
+TDataset_b = TypeVar("TDataset_b", bound=Dataset)
+TVisionModel_b = TypeVar("TVisionModel_b", bound=BaseWrapper)
+
+
+def register_dataset(name: str):
+    """Decorator for registering a dataset."""
+
+    def decorator(cls: Type[TDataset_b]) -> Type[TDataset_b]:
+        DATASETS[name] = cls
+        return cls
+
+    return decorator
+
+
+def register_vision_model(name: str):
+    """Decorator for registering a vision model"""
+
+    def decorator(cls: Type[TVisionModel_b]) -> Type[TVisionModel_b]:
+        VISIONMODELS[name] = cls
+        return cls
+
+    return decorator

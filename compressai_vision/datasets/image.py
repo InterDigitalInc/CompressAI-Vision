@@ -41,9 +41,8 @@ from detectron2.data.samplers import InferenceSampler
 from PIL import Image
 from torch.utils.data import Dataset
 
+from compressai_vision import register_dataset
 from compressai_vision.utils import logger
-
-# from compressai.registry import register_dataset
 
 
 def deccode_compressed_rle(data):
@@ -171,7 +170,7 @@ class ImageFolder(BaseDataset):
         return len(self.samples)
 
 
-# @register_dataset("MPEG-OIV6")
+@register_dataset("MPEGOIV6")
 class MPEGOIV6_ImageFolder(BaseDatasetToFeedDetectron2):
     """Load an image folder database to support testing image samples from MPEG-OpenimagesV6:
 
@@ -239,7 +238,7 @@ class MPEGOIV6_ImageFolder(BaseDatasetToFeedDetectron2):
         return (minv, maxv)
 
 
-# @register_dataset("SFUHW_ImageFolder")
+@register_dataset("SFUHW")
 class SFUHW_ImageFolder(BaseDatasetToFeedDetectron2):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
@@ -311,7 +310,7 @@ class SFUHW_ImageFolder(BaseDatasetToFeedDetectron2):
         return (minv, maxv)
 
 
-# @register_dataset("COCO_ImageFolder")
+@register_dataset("COCO")
 class COCO_ImageFolder(BaseDatasetToFeedDetectron2):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
