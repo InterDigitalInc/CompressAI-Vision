@@ -37,8 +37,10 @@ from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 from torch import Tensor
 
+from compressai_vision.registry import register_vision_model
+
 from .base_wrapper import BaseWrapper
-from .utils import _tensor_to_tiled, _tiled_to_tensor, compute_frame_resolution
+from .utils import compute_frame_resolution, tensor_to_tiled, tiled_to_tensor
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -141,7 +143,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             new_frmH = frmH // rescale
             new_frmW = frmW * rescale
 
-            frame = _tensor_to_tiled(tensor, (new_frmH, new_frmW))
+            frame = tensor_to_tiled(tensor, (new_frmH, new_frmW))
 
             tiled_frame.update({key: frame})
             feature_size.update({key: tensor.size()})
@@ -177,7 +179,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         feature_tensor = {}
         for key, frame in tiled_frame.items():
             _, numChs, chH, chW = tensor_shape[key]
-            tensor = _tiled_to_tensor(frame, (chH, chW))
+            tensor = tiled_to_tensor(frame, (chH, chW))
             assert tensor.size(1) == numChs
 
             feature_tensor.update({key: tensor})
@@ -210,21 +212,25 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         ]
 
 
+@register_vision_model("faster_rcnn_X_101_32x8d_FPN_3x")
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device="cpu", **kwargs):
         super().__init__(device, **kwargs)
 
 
+@register_vision_model("mask_rcnn_X_101_32x8d_FPN_3x")
 class mask_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device="cpu", **kwargs):
         super().__init__(device, **kwargs)
 
 
+@register_vision_model("faster_rcnn_R_50_FPN_3x")
 class faster_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device="cpu", **kwargs):
         super().__init__(device, **kwargs)
 
 
+@register_vision_model("mask_rcnn_R_50_FPN_3x")
 class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device="cpu", **kwargs):
         super().__init__(device, **kwargs)
