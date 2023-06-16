@@ -27,22 +27,35 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import subprocess
 from pathlib import Path
 
 from setuptools import find_packages, setup
 
-# only way to import "fastentrypoint.py" from this directory:
 
-# The following line is modified by setver.bash
-version = "0.1.0.dev0"
+package_name = "compressai_vision"
+version = "1.2.4.dev0"
+git_hash = "unknown"
 
-this_folder = Path(__file__).resolve().parent
+cwd = Path(__file__).resolve().parent
 
-path = this_folder / "requirements.txt"
-install_requires = []
-if path.is_file():
-    with path.open("r") as f:
-        install_requires = f.read().splitlines()
+try:
+    git_hash = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=cwd).decode().strip()
+    )
+except (FileNotFoundError, subprocess.CalledProcessError):
+    pass
+
+
+def write_version_file():
+    path = cwd / package_name / "version.py"
+    with path.open("w") as f:
+        f.write(f'__version__ = "{version}"\n')
+        f.write(f'git_version = "{git_hash}"\n')
+
+
+write_version_file()
+
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
@@ -67,7 +80,9 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=install_requires,
+    install_requires=[
+        "hydra",
+    ],
     packages=find_packages(),
     include_package_data=True,
     entry_points={

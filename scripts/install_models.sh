@@ -73,13 +73,13 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     # to be compatible with MPEG FCVCM
     git checkout 175b2453c2bc4227b8039118c01494ee75b08136
 
-    if [ CUDA_VERSION == "" ] && [ $CPU == "False" ]; then
+    if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
         CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [ CUDA_VERSION == "" ]; then
-            echo "error with cuda, check your system or specify cuda version as argument."
+        if [ ${CUDA_VERSION} == "" ]; then
+            echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
         fi
     fi
-    if [ -z "$CUDA_VERSION" ] || [ $CPU == "True" ]; then
+    if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
         echo "installing on cpu"
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     else
