@@ -27,37 +27,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Dict, List
+from .config import (
+    configure_conf,
+    create_codec,
+    create_dataloader,
+    create_evaluator,
+    create_pipline,
+    create_vision_model,
+)
+from .env import get_env
+from .outputs import write_config, write_git_diff, write_outputs
 
-import torch.nn as nn
-
-
-class BaseWrapper(nn.Module):
-    """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
-
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
-    """
-
-    def input_to_features(self, x) -> Dict:
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
-        raise NotImplementedError
-
-    def features_to_output(self, x: Dict):
-        """Complete the downstream task from the intermediate deep features"""
-        raise NotImplementedError
-
-    def forward(self, x):
-        """Complete the downstream task with end-to-end manner all the way from the input"""
-        raise NotImplementedError
-
-    @property
-    def cfg(self):
-        return None
-
-    @property
-    def pretrained_weight_path(self):
-        raise NotImplementedError
-
-    @property
-    def model_cfg_path(self):
-        raise NotImplementedError
+__all__ = [
+    "configure_conf",
+    "get_env",
+    "write_config",
+    "write_git_diff",
+    "write_outputs",
+    "create_dataloader",
+    "create_vision_model",
+    "create_evaluator",
+    "create_pipline",
+    "create_codec",
+]

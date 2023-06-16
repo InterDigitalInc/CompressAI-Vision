@@ -1,0 +1,41 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - evaluator: default
+  - vision_model: faster_rcnn_X_101_32x8d_FPN_3x
+  - pipeline: split_inference
+  - codec: default
+  - _self_
+
+pipeline:
+  type: "unfold" # alternative is fold
+  cache: 
+    enabled: True
+    keep: False
+    dir: '/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/.cache_pipeline/unfold-split-inference/8915b6b3-b7ff-428a-8531-ef0a0e041e8b'
+
+
+codec: 
+  type: "bypass"
+  output_dir: 
+  
+dataset: 
+  type: 'Detectron2Dataset'
+  #datacatalog: 'SFUHW'
+  #config:
+  #    root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/SFU_pngs/BasketballDrill_832x480_50_val'
+  #    imgs_folder: 'images'
+  #    annotation_file: 'BasketballDrill_832x480_50_val_v2.json'
+  #    dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
+  datacatalog: 'MPEGOIV6'
+  config:
+    root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/mpeg-oiv6'
+    imgs_folder: 'images'
+    annotation_file: 'mpeg-oiv6-detection-coco.json'
+    dataset_name: 'mpeg-oiv6-detection'
+
+evaluator: 
+  type: 'COCO-EVAL'
+  #type: 'VOID'

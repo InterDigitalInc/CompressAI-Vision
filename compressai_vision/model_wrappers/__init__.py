@@ -27,4 +27,18 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .detectron2 import *
+from .detectron2 import (
+    BaseWrapper,
+    faster_rcnn_R_50_FPN_3x,
+    faster_rcnn_X_101_32x8d_FPN_3x,
+    mask_rcnn_R_50_FPN_3x,
+    mask_rcnn_X_101_32x8d_FPN_3x,
+)
+
+__all__ = [
+    "BaseWrapper",
+    "faster_rcnn_X_101_32x8d_FPN_3x",
+    "mask_rcnn_X_101_32x8d_FPN_3x",
+    "faster_rcnn_R_50_FPN_3x",
+    "mask_rcnn_R_50_FPN_3x",
+]

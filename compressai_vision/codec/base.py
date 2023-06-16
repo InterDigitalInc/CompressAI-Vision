@@ -29,28 +29,21 @@
 
 import logging
 import math
+from typing import Dict
 
 import torch
 from pytorch_msssim import ms_ssim
 
 
-class ModelSplit:
+class EncoderDecoder:
     """NOTE: virtual class that *you* need to subclass
 
-    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image
+    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image, resulting in "transformed" image.
 
     Transformed image is similar to the original image, while the encoding+decoding process might have introduced some distortion.
 
     The instance may (say, H266 video encoder+decoder) or may not (say, jpeg encoder+decoder) have an internal state.
     """
-
-    def __init__(self):
-        # Compression -
-        # Inference model -
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.compute_metrics = True
-        self.reset()
-        raise (AssertionError("virtual"))
 
     # helpers
     def compute_psnr(self, a, b):
@@ -60,6 +53,12 @@ class ModelSplit:
     def compute_msssim(self, a, b):
         return ms_ssim(a, b, data_range=1.0).item()
 
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.reset()
+        self.compute_metrics = True
+        raise (AssertionError("virtual"))
+
     def computeMetrics(self, state: bool):
         self.compute_metrics = state
 
@@ -67,37 +66,20 @@ class ModelSplit:
         """returns tuple with (psnr, mssim) from latest encode+decode calculation"""
         return None, None
 
-    def __call__(self, x) -> tuple:
-        """Push images(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
+    def reset(self):
+        """Reset the internal state of the encoder & decoder, if there is any"""
+        self.cc = 0
 
-        #TODO (fracape) video
-        :param x: a FloatTensor with dimensions (batch, channels, h, w)
+    def encode(self, input: Dict, tag: str = None):
+        """
+        :param input: input data in torch
+        :param tag: a string that can be used to identify & cache images (optional)
 
-        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
+        Compress the input, write a bitstream
+
+        Returns a list of bits per frame along with input frame size and a path for the bitstream
         """
         raise (AssertionError("virtual"))
-        return None, None
 
-    def preprocess(self, x):
-        """Preprocess input according to a specific rquirement for input to the first part of the network
-
-        - Potentially resize the input before feeding it in to first part of the network.
-        - Potentially filter
-        """
-        raise NotImplementedError
-
-    def from_input_to_features(self, x):
-        """run the hinput according to a specific rquirement for input to encoder"""
-        raise NotImplementedError
-
-    def compress_features(self, x):
-        """
-        Inputs: tensors of features
-        Returns nbits, transformed features.
-        """
-
-        raise NotImplementedError
-
-    def from_features_to_output(self, out_decs):
-        """Postprocess of possibly encoded/decoded data for various tasks inlcuding for human viewing and machine analytics"""
-        raise NotImplementedError
+    def decode(Self, bitstream_path):
+        raise (AssertionError("virtual"))

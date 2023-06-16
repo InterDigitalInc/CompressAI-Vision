@@ -1,0 +1,2 @@
+type: "bypass"
+output_dir: output: '${paths._runs_root}/bitstreams'

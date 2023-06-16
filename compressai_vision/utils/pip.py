@@ -27,37 +27,19 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Dict, List
+import subprocess
+import sys
 
-import torch.nn as nn
+
+def list(format="columns"):
+    return _run_pip_cmd("list", f"--format={format}")
 
 
-class BaseWrapper(nn.Module):
-    """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
+def freeze():
+    return _run_pip_cmd("freeze")
 
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
-    """
 
-    def input_to_features(self, x) -> Dict:
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
-        raise NotImplementedError
-
-    def features_to_output(self, x: Dict):
-        """Complete the downstream task from the intermediate deep features"""
-        raise NotImplementedError
-
-    def forward(self, x):
-        """Complete the downstream task with end-to-end manner all the way from the input"""
-        raise NotImplementedError
-
-    @property
-    def cfg(self):
-        return None
-
-    @property
-    def pretrained_weight_path(self):
-        raise NotImplementedError
-
-    @property
-    def model_cfg_path(self):
-        raise NotImplementedError
+def _run_pip_cmd(*cmd):
+    cmd = [sys.executable, "-m", "pip", *cmd]
+    p = subprocess.run(cmd, check=True, capture_output=True)
+    return p.stdout.decode()

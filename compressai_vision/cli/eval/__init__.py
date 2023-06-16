@@ -30,8 +30,8 @@
 """
 """
 
-from . import split_inference
+from . import encdec
 
 __all__ = [
-    "split_inference",
+    "encdec",
 ]

@@ -34,12 +34,12 @@ import argparse
 # import logging
 import sys
 
-from compressai_vision.cli.eval import split_inference
+from compressai_vision.cli.eval import encdec
 
 # from compressai_vision.tools import getDataFile, quickLog
 
 COMMANDS = {  # noqa: F405
-    "split-inference": split_inference.main,
+    "encdec": encdec.main,
 }
 
 coms = ""
@@ -48,63 +48,79 @@ for key in COMMANDS:
 
 
 def setup_parser():
-    common_parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         add_help=False, formatter_class=argparse.RawTextHelpFormatter
     )
-    common_parser.add_argument(
+    parser.add_argument(
         "--y", action="store_true", default=False, help="non-interactive run"
     )
-    common_parser.add_argument(
+    parser.add_argument(
         "--debug", action="store_true", default=False, help="debug verbosity"
     )
-    common_parser.add_argument(
-        "--dump",
-        action="store_true",
-        default=False,
-        help="dump intermediate features",
-    )
-    common_parser.add_argument(
+    parser.add_argument(
         "--cpu",
         action="store_true",
         default=False,
         help="never use cuda, just cpu (when applicable)",
     )
-
-    parser = argparse.ArgumentParser(
-        description="Includes several subcommands.  For full manual, type compressai-vision manual",
-        add_help=True,
+    parser.add_argument(
+        "--config-path",
+        type=str,
+        required=True,
+        help="A folder of the config files",
     )
-    subparsers = parser.add_subparsers(help="select command", dest="command")
-
-    # compression of intermediate data (FC-VCM)
-    split_inference.add_subparser(subparsers, parents=[common_parser])
+    parser.add_argument(
+        "--config-name",
+        type=str,
+        required=True,
+        help="Target configuration file",
+    )
 
     return parser
 
 
-def main():
+def parse_cmd(argv):
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("command", choices=COMMANDS.keys())
+    args = parser.parse_args(argv)
+    return args.command
+
+
+def update_sys_argv(args):
+    sys.argv = [
+        "",
+        f"--config-path={args.config_path}",
+        f"--config-name={args.config_name}",
+    ]
+
+
+def main(argv):
+    command = parse_cmd(argv[0:1])
     parser = setup_parser()
-    args, unparsed = parser.parse_known_args()
-    # print(">",args)
-    # return
+    args, unparsed = parser.parse_known_args(argv[1:])
+
     for weird in unparsed:
         print("invalid argument", weird)
         raise SystemExit(2)
 
-    if args.command not in COMMANDS.keys():
-        print("invalid command", args.command)
-        print("subcommands: " + coms)
-        sys.exit(2)
+    print(f'>> Command << : "{command}"')
+    for k, v in vars(args).items():
+        print(f">> {k} ".ljust(15), f" = {v}")
+    print("\n")
 
+    update_sys_argv(args)
+
+    # [TODO: hyomin.choi & fabien.racapé]
     # if args.debug:
     #     loglev = logging.DEBUG
     # else:
     #     loglev = logging.INFO
     # quickLog("split_inference", loglev)
 
-    func = COMMANDS[args.command]
-    func(args)  # pass cli args to the function in question
+    # cudnn / benchmark environment setup?
+
+    func = COMMANDS[command]()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

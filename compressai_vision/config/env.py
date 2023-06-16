@@ -27,37 +27,53 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Dict, List
 
-import torch.nn as nn
+from __future__ import annotations
+
+import os
+from datetime import datetime, timezone
+from typing import Any
+
+import compressai
+from omegaconf import DictConfig
+
+import compressai_vision
+from compressai_vision.utils import git, system
 
 
-class BaseWrapper(nn.Module):
-    """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
+def get_env(conf: DictConfig) -> dict[str, Any]:
+    return {
+        "git": {
+            package.__name__: _get_git_repo_info(
+                package.__path__[0],
+                conf.env.git[package.__name__].main_branch,
+            )
+            for package in [compressai_vision, compressai]
+        },
+        "slurm": {
+            "account": os.environ.get("SLURM_JOB_ACCOUNT"),
+            "job_id": os.environ.get("SLURM_JOB_ID"),
+            "job_array_task_id": os.environ.get("SLURM_ARRAY_TASK_ID"),
+            "job_name": os.environ.get("SLURM_JOB_NAME"),
+        },
+        "system": {
+            "hostname": system.hostname(),
+            "username": system.username(),
+            "utc_start_time": _utc_timestamp(),
+        },
+    }
 
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
-    """
 
-    def input_to_features(self, x) -> Dict:
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
-        raise NotImplementedError
+def _get_git_repo_info(root: str, main_branch: str) -> dict[str, str]:
+    return {
+        "hash": git.commit_hash(root=root)[:7],
+        "main_hash": git.common_ancestor_hash(root=root, rev2=main_branch)[:7],
+        "branch": git.branch_name(root=root),
+    }
 
-    def features_to_output(self, x: Dict):
-        """Complete the downstream task from the intermediate deep features"""
-        raise NotImplementedError
 
-    def forward(self, x):
-        """Complete the downstream task with end-to-end manner all the way from the input"""
-        raise NotImplementedError
-
-    @property
-    def cfg(self):
-        return None
-
-    @property
-    def pretrained_weight_path(self):
-        raise NotImplementedError
-
-    @property
-    def model_cfg_path(self):
-        raise NotImplementedError
+def _utc_timestamp() -> int:
+    """Returns milliseconds since UNIX epoch."""
+    now = datetime.now(timezone.utc)
+    ms = int(now.timestamp() * 1000)
+    return ms

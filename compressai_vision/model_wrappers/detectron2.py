@@ -29,6 +29,7 @@
 
 # TODO (racapef) check/add detectron2 license header
 
+import os
 from typing import Dict, List
 
 import torch
@@ -49,14 +50,16 @@ __all__ = [
     "mask_rcnn_R_50_FPN_3x",
 ]
 
+directory = os.getcwd()
+
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device="cpu", **kwargs):
         super().__init__()
 
-        self.cfg = get_cfg()
-        self.cfg.merge_from_file(kwargs["cfg"])
-        self.model = build_model(self.cfg).to(device).eval()
+        self._cfg = get_cfg()
+        self._cfg.merge_from_file(kwargs["cfg"])
+        self.model = build_model(self._cfg).to(device).eval()
 
         self.backbone = self.model.backbone
         self.top_block = self.model.backbone.top_block
@@ -65,20 +68,32 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.postprocess = self.model._postprocess
         DetectionCheckpointer(self.model).load(kwargs["weight"])
 
+        self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
+
         assert self.top_block is not None
         assert self.proposal_generator is not None
 
+    def input_to_features(self, x) -> Dict:
+        """Computes deep features at the intermediate layer(s) all the way from the input"""
+        return self._input_to_feature_pyramid(x)
+
+    def features_to_output(self, x: Dict):
+        """Complete the downstream task from the intermediate deep features"""
+        return self._feature_pyramid_to_output(
+            x["data"], x["org_input_size"], x["input_size"]
+        )
+
     @torch.no_grad()
-    def input_to_feature_pyramid(self, x):
+    def _input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         imgs = self.model.preprocess_image(x)
         feature_pyramid = self.backbone(imgs.tensor)
         del feature_pyramid["p6"]
 
-        return feature_pyramid, imgs.image_sizes
+        return {"data": feature_pyramid, "input_size": imgs.image_sizes}
 
     @torch.no_grad()
-    def feature_pyramid_to_output(
+    def _feature_pyramid_to_output(
         self, x: Dict, org_img_size: Dict, input_img_size: List
     ):
         """
@@ -186,8 +201,17 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         return feature_tensor
 
-    def get_cfg(self):
-        return self.cfg
+    @property
+    def cfg(self):
+        return self._cfg
+
+    @property
+    def pretrained_weight_path(self):
+        return self.model_info["weight"]
+
+    @property
+    def model_cfg_path(self):
+        return self.model_info["cfg"]
 
     # [TODO (choih): To be reused for some purpose]
     def preInputTensor(self, img, img_id):

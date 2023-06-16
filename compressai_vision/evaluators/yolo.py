@@ -27,13 +27,13 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .base import Codec, VoidCodec
-from .compressai import CompressAICodec
-from .vtm import VTMCodec
 
-__all__ = [
-    "Codec",
-    "VoidCodec",
-    "CompressAICodec",
-    "VTMCodec",
-]
+from compressai_vision.registry import register_evaluator
+
+from .base_evaluator import BaseEvaluator
+
+
+@register_evaluator("YOLO-EVAL")
+class YOLOEval(BaseEvaluator):
+    def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
+        super().__init__(datacatalog_name, dataset_name, output_dir)

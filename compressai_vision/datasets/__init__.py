@@ -28,17 +28,15 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import (
-    COCO_ImageFolder,
-    ImageFolder,
-    MPEGOIV6_ImageFolder,
-    SFUHW_ImageFolder,
+    DataCatalog,
+    DefaultDataset,
+    Detectron2Dataset,
     deccode_compressed_rle,
 )
 
 __all__ = [
-    "ImageFolder",
-    "MPEGOIV6_ImageFolder",
-    "SFUHW_ImageFolder",
-    "COCO_ImageFolder",
+    "DataCatalog",
+    "Detectron2Dataset",
+    "DefaultDataset",
     "deccode_compressed_rle",
 ]

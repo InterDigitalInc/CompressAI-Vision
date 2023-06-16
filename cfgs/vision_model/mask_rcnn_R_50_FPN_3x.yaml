@@ -1,0 +1,3 @@
+arch: mask_rcnn_R_50_FPN_3x
+cfg: '${paths._runs_root}/compressai-fcvcm/models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
+weight: '${paths._runs_root}/compressai-fcvcm/weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl'

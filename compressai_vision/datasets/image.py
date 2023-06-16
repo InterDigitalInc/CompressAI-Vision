@@ -29,7 +29,6 @@
 
 
 import base64
-import json
 from pathlib import Path
 from typing import Dict, List
 
@@ -41,8 +40,12 @@ from detectron2.data.samplers import InferenceSampler
 from PIL import Image
 from torch.utils.data import Dataset
 
-from compressai_vision import register_dataset
+from compressai_vision.registry import register_datacatalog, register_dataset
 from compressai_vision.utils import logger
+
+
+def bypass_collator(batch):
+    return batch
 
 
 def deccode_compressed_rle(data):
@@ -59,58 +62,8 @@ def deccode_compressed_rle(data):
                 segm["counts"] = base64.b64decode(segm["counts"])
 
 
-class BaseDataset(Dataset):
-    def __init__(self, dataset_name):
-        self.sampler = None
-        self.collate_fn = None
-        self.dataset_name = dataset_name
-
-    def get_dataset_name(self):
-        return self.dataset_name
-
-
-class BaseDatasetToFeedDetectron2(MapDataset):
-    def __init__(self, dataset_name, dataset, cfg, images_folder, annotation_path):
-        self.dataset_name = dataset_name
-
-        self.annotation_path = annotation_path
-        self.images_folder = images_folder
-
-        try:
-            DatasetCatalog.get(dataset_name)
-        except KeyError:
-            logger.warning(
-                __name__,
-                f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
-            )
-            register_coco_instances(
-                dataset_name, {}, self.annotation_path, self.images_folder
-            )
-
-        self.sampler = InferenceSampler(len(dataset))
-
-        def bypass_collator(batch):
-            return batch
-
-        self.collate_fn = bypass_collator
-
-        dataset = DatasetFromList(dataset, copy=False)
-        mapper = DatasetMapper(cfg, False)
-
-        super().__init__(dataset, mapper)
-
-    def get_dataset_name(self):
-        return self.dataset_name
-
-    def get_annotation_path(self):
-        return self.annotation_path
-
-    def get_images_folder(self):
-        return self.images_folder
-
-
-# @register_dataset("ImageFolder")
-class ImageFolder(BaseDataset):
+@register_dataset("DefaultDataset")
+class DefaultDataset(Dataset):
     """Load an image folder database. testing image samples
     are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -127,20 +80,39 @@ class ImageFolder(BaseDataset):
     """
 
     def __init__(
-        self, dataset_name, root, transform=None, ret_name=False, use_BGR=False
+        self,
+        root,
+        dataset_name,
+        imgs_folder: str = "valid",
+        **kwargs,
     ):
-        super().__init__(dataset_name)
+        super().__init__()
 
-        splitdir = Path(root)
+        self.sampler = None
+        self.collate_fn = None
+
+        splitdir = Path(root) / imgs_folder
 
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
         self.samples = [f for f in sorted(splitdir.iterdir()) if f.is_file()]
 
-        self.use_BGR = use_BGR
-        self.transform = transform
-        self.ret_name = ret_name
+        self.use_BGR = kwargs["use_BGR"]
+        self.transform = kwargs["transforms"]
+        self.ret_name = kwargs["ret_name"]
+        self.dataset_name = dataset_name
+
+        self.mapDataset = None
+        if "cfg" in kwargs:
+            if kwargs["cfg"] is not None:
+                self.sampler = InferenceSampler(len(kwargs["dataset"]))
+                self.collate_fn = bypass_collator
+
+                _dataset = DatasetFromList(kwargs["dataset"].dataset, copy=False)
+                mapper = DatasetMapper(kwargs["cfg"], False)
+
+                self.mapDataset = MapDataset(_dataset, mapper)
 
     def __getitem__(self, index):
         """
@@ -150,6 +122,10 @@ class ImageFolder(BaseDataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
+
+        if self.mapDataset:
+            return self.mapDataset[index]
+
         img = Image.open(self.samples[index]).convert("RGB")
 
         if self.use_BGR is True:
@@ -167,11 +143,100 @@ class ImageFolder(BaseDataset):
         return img
 
     def __len__(self):
+        if self.mapDataset:
+            return len(self.mapDataset)
+
         return len(self.samples)
 
 
-@register_dataset("MPEGOIV6")
-class MPEGOIV6_ImageFolder(BaseDatasetToFeedDetectron2):
+@register_dataset("Detectron2Dataset")
+class Detectron2Dataset(Dataset):
+    def __init__(self, root, dataset_name, imgs_folder, **kwargs):
+        super().__init__()
+
+        self.dataset_name = dataset_name
+
+        self.annotation_path = Path(root) / "annotations" / kwargs["annotation_file"]
+        self.images_folder = Path(root) / imgs_folder
+
+        assert (
+            self.annotation_path == kwargs["dataset"].annotation_path
+            and self.images_folder == kwargs["dataset"].imgs_folder_path
+        )
+
+        self.dataset = kwargs["dataset"].dataset
+
+        try:
+            DatasetCatalog.get(dataset_name)
+        except KeyError:
+            logger.warning(
+                __name__,
+                f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
+            )
+            register_coco_instances(
+                dataset_name, {}, self.annotation_path, self.images_folder
+            )
+
+        self.sampler = InferenceSampler(len(kwargs["dataset"]))
+        self.collate_fn = bypass_collator
+
+        _dataset = DatasetFromList(self.dataset, copy=False)
+        mapper = DatasetMapper(kwargs["cfg"], False)
+
+        self.mapDataset = MapDataset(_dataset, mapper)
+
+    def __getitem__(self, idx):
+        return self.mapDataset[idx]
+
+    def __len__(self):
+        return len(self.mapDataset)
+
+
+class DataCatalog:
+    def __init__(
+        self,
+        root,
+        imgs_folder="images",
+        annotation_file="sample.json",
+        dataset_name="sample_dataset",
+    ):
+        _imgs_folder = Path(root) / imgs_folder
+        if not _imgs_folder.is_dir():
+            raise RuntimeError(f'Invalid image sample directory "{_imgs_folder}"')
+
+        _annotation_file = Path(root) / "annotations" / annotation_file
+        if not _annotation_file.is_file():
+            raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
+
+        self._dataset_name = dataset_name
+        self._dataset = None
+        self._imgs_folder = _imgs_folder
+        self._annotation_file = _annotation_file
+
+    @property
+    def dataset_name(self):
+        return self._dataset_name
+
+    @property
+    def dataset(self):
+        return self._dataset
+
+    @property
+    def annotation_path(self):
+        return self._annotation_file
+
+    @property
+    def imgs_folder_path(self):
+        return self._imgs_folder
+
+    def __len__(self):
+        return len(self._dataset)
+
+        # super().__init__(dataset_name, dataset, cfg, imgs_folder_path, annotations_file)
+
+
+@register_datacatalog("MPEGOIV6")
+class MPEGOIV6(DataCatalog):
     """Load an image folder database to support testing image samples from MPEG-OpenimagesV6:
 
     .. code-block::
@@ -191,40 +256,25 @@ class MPEGOIV6_ImageFolder(BaseDatasetToFeedDetectron2):
 
     def __init__(
         self,
-        dsroot,
-        cfg,
-        img_folder_name=None,
-        annotation_file_name="mpeg-oiv6-segmentation-coco.json",
+        root,
+        imgs_folder="images",
+        annotation_file="mpeg-oiv6-segmentation-coco.json",
         dataset_name="mpeg-oiv6-segmentation",
+        # annotation_file_name="mpeg-oiv6-detection-coco.json",
+        # dataset_name="mpeg-oiv6-detection",
     ):
-        #                    annotation_file_name="mpeg-oiv6-detection-coco.json",
-        #                    dataset_name="mpeg-oiv6-detection"):
+        super().__init__(root, imgs_folder, annotation_file, dataset_name)
 
-        if img_folder_name is None:
-            images_dir = Path(dsroot) / "images"
-        else:
-            images_dir = Path(dsroot) / img_folder_name
-
+        self._dataset = load_coco_json(
+            self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
+        )
         self.task = "detection"
         if "segmentation" in dataset_name:
             self.task = "segmentation"
 
-        annotations_file = Path(dsroot) / "annotations" / annotation_file_name
-
-        if not images_dir.is_dir():
-            raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
-
-        if not annotations_file.is_file():
-            raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
-
-        dataset = load_coco_json(
-            annotations_file, images_dir, dataset_name=dataset_name
-        )
-
+        # TODO [hyomin]
         # if self.task == 'segmentation':
         #    self.deccode_compressed_rle(dataset)
-
-        super().__init__(dataset_name, dataset, cfg, images_dir, annotations_file)
 
     def get_min_max_across_tensors(self):
         if self.task == "segmentation":
@@ -238,8 +288,8 @@ class MPEGOIV6_ImageFolder(BaseDatasetToFeedDetectron2):
         return (minv, maxv)
 
 
-@register_dataset("SFUHW")
-class SFUHW_ImageFolder(BaseDatasetToFeedDetectron2):
+@register_datacatalog("SFUHW")
+class SFUHW(DataCatalog):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -259,49 +309,16 @@ class SFUHW_ImageFolder(BaseDatasetToFeedDetectron2):
 
     def __init__(
         self,
-        dsroot,
-        cfg,
-        img_folder_name=None,
-        annotation_file_name=None,
+        root,
+        imgs_folder="images",
+        annotation_file=None,
         dataset_name="sfu-hw-object-v1",
     ):
-        if img_folder_name is None:
-            images_dir = Path(dsroot) / "images"
-        else:
-            images_dir = Path(dsroot) / img_folder_name
+        super().__init__(root, imgs_folder, annotation_file, dataset_name)
 
-        if annotation_file_name is None:
-            annotations_dir = Path(dsroot) / "annotations"
-
-            if not annotations_dir.is_dir():
-                raise RuntimeError(f'Invalid annotation directory "{annotations_dir}"')
-
-            annotations = [
-                f
-                for f in sorted(annotations_dir.iterdir())
-                if f.is_file() and f.suffix[1:] == "json"
-            ]
-
-            if len(annotations) != 1:
-                raise RuntimeError(
-                    f"The number of json file for the samples annotations must be 1, but got {len(annotations)}"
-                )
-            annotations_file = annotations[0]
-
-        else:
-            annotations_file = Path(dsroot) / "annotations" / annotation_file_name
-
-        if not images_dir.is_dir():
-            raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
-
-        if not annotations_file.is_file():
-            raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
-
-        dataset = load_coco_json(
-            annotations_file, images_dir, dataset_name=dataset_name
+        self._dataset = load_coco_json(
+            self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
         )
-
-        super().__init__(dataset_name, dataset, cfg, images_dir, annotations_file)
 
     def get_min_max_across_tensors(self):
         # from mpeg-fcvcm
@@ -310,8 +327,8 @@ class SFUHW_ImageFolder(BaseDatasetToFeedDetectron2):
         return (minv, maxv)
 
 
-@register_dataset("COCO")
-class COCO_ImageFolder(BaseDatasetToFeedDetectron2):
+@register_datacatalog("COCO")
+class COCO(DataCatalog):
     """Load an image folder database with Detectron2 Cfg. testing image samples
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -341,23 +358,16 @@ class COCO_ImageFolder(BaseDatasetToFeedDetectron2):
 
     def __init__(
         self,
-        dsroot,
-        cfg,
-        img_folder_name="val2017",
-        annotation_file_name="instances_val2017.json",
+        root,
+        imgs_folder="val2017",
+        annotation_file="instances_val2017.json",
         dataset_name="mpeg-coco",
     ):
-        images_dir = Path(dsroot) / img_folder_name
-        annotations_file = Path(dsroot) / "annotations" / annotation_file_name
+        super().__init__(root, imgs_folder, annotation_file, dataset_name)
 
-        if not images_dir.is_dir():
-            raise RuntimeError(f'Invalid image sample directory "{images_dir}"')
-
-        if not annotations_file.is_file():
-            raise RuntimeError(f'Invalid annotation file "{annotations_file}"')
-
-        dataset = load_coco_json(
-            annotations_file, images_dir, dataset_name=dataset_name
+        self._dataset = load_coco_json(
+            self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
         )
 
-        super().__init__(dataset_name, dataset, cfg, images_dir, annotations_file)
+    def get_min_max_across_tensors(self):
+        raise NotImplementedError

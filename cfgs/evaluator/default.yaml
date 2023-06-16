@@ -1,0 +1,2 @@
+type: 'COCO-EVAL'
+output: '${paths._runs_root}/restuls'

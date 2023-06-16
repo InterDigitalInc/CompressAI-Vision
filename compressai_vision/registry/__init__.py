@@ -28,11 +28,34 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .torch import register_dataset, register_vision_model
+from .registers import (
+    CODECS,
+    DATACATALOGS,
+    DATASETS,
+    EVALUATORS,
+    PIPELINES,
+    TRANSFORMS,
+    VISIONMODELS,
+    register_codec,
+    register_datacatalog,
+    register_dataset,
+    register_evaluator,
+    register_pipeline,
+    register_vision_model,
+)
 
 __all__ = [
     "DATASETS",
+    "DATACATALOGS",
     "VISIONMODELS",
+    "EVALUATORS",
+    "TRANSFORMS",
+    "PIPELINES",
+    "CODECS",
     "register_dataset",
     "register_vision_model",
+    "register_datacatalog",
+    "register_evaluator",
+    "register_pipeline",
+    "register_codec",
 ]

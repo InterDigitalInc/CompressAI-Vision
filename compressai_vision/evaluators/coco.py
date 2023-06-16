@@ -27,36 +27,39 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import json
 
-from typing import Callable, Dict, Type, TypeVar
+from detectron2.evaluation import COCOEvaluator
 
-# import torch.nn as nn
-from model_wrappers.base_wrapper import BaseWrapper
-from torch.utils.data import Dataset
+from compressai_vision.datasets import deccode_compressed_rle
+from compressai_vision.registry import register_evaluator
 
-DATASETS: Dict[str, Callable[..., Dataset]] = {}
-VISIONMODELS: Dict[str, Callable[..., BaseWrapper]] = {}
-
-
-TDataset_b = TypeVar("TDataset_b", bound=Dataset)
-TVisionModel_b = TypeVar("TVisionModel_b", bound=BaseWrapper)
+from .base_evaluator import BaseEvaluator
 
 
-def register_dataset(name: str):
-    """Decorator for registering a dataset."""
+@register_evaluator("COCO-EVAL")
+class COCOEVal(BaseEvaluator):
+    def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
+        super().__init__(datacatalog_name, dataset_name, output_dir)
 
-    def decorator(cls: Type[TDataset_b]) -> Type[TDataset_b]:
-        DATASETS[name] = cls
-        return cls
+        self._evaluator = COCOEvaluator(
+            dataset_name, False, output_dir=output_dir, use_fast_impl=False
+        )
 
-    return decorator
+        if datacatalog_name == "MPEGOIV6":
+            deccode_compressed_rle(self._evaluator._coco_api.anns)
 
+        self._evaluator.reset()
 
-def register_vision_model(name: str):
-    """Decorator for registering a vision model"""
+    def digest(self, gt, pred):
+        return self._evaluator.process(gt, pred)
 
-    def decorator(cls: Type[TVisionModel_b]) -> Type[TVisionModel_b]:
-        VISIONMODELS[name] = cls
-        return cls
+    def results(self, save_path: str = None):
+        out = self._evaluator.evaluate()
 
-    return decorator
+        file_path = f"{save_path}/results.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=4)
+
+        # TODO [hyomin - Not just output, specific metric return required later]
+        return out

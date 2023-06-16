@@ -27,37 +27,55 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Dict, List
 
-import torch.nn as nn
+import os
+from types import ModuleType
+from typing import Any, Mapping
+
+import compressai
+from omegaconf import DictConfig, OmegaConf
+
+import compressai_vision
+from compressai_vision.utils import git, pip
+
+CONFIG_DIR = "configs"
+CONFIG_NAME = "config.yaml"
 
 
-class BaseWrapper(nn.Module):
-    """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
+def write_outputs(conf: DictConfig):
+    write_config(conf)
+    write_git_diff(conf, compressai_vision)
+    write_git_diff(conf, compressai)
+    write_pip_list(conf)
+    write_pip_requirements(conf)
 
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
-    """
 
-    def input_to_features(self, x) -> Dict:
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
-        raise NotImplementedError
+def write_config(conf: DictConfig):
+    logdir = conf.paths.configs
+    assert logdir == os.path.join(conf.paths._run_root, CONFIG_DIR)
+    s = OmegaConf.to_yaml(conf, resolve=False)
+    os.makedirs(logdir, exist_ok=True)
+    with open(os.path.join(logdir, CONFIG_NAME), "w") as f:
+        f.write(s)
 
-    def features_to_output(self, x: Dict):
-        """Complete the downstream task from the intermediate deep features"""
-        raise NotImplementedError
 
-    def forward(self, x):
-        """Complete the downstream task with end-to-end manner all the way from the input"""
-        raise NotImplementedError
+def write_git_diff(conf: Mapping[str, Any], package: ModuleType) -> str:
+    data = git.diff(root=package.__path__[0])
+    return _write_src(conf, f"{package.__name__}.patch", data)
 
-    @property
-    def cfg(self):
-        return None
 
-    @property
-    def pretrained_weight_path(self):
-        raise NotImplementedError
+def write_pip_list(conf: Mapping[str, Any]) -> str:
+    return _write_src(conf, "pip_list.txt", pip.list())
 
-    @property
-    def model_cfg_path(self):
-        raise NotImplementedError
+
+def write_pip_requirements(conf: Mapping[str, Any]) -> str:
+    return _write_src(conf, "requirements.txt", pip.list(format="freeze"))
+
+
+def _write_src(conf: Mapping[str, Any], filename: str, data: str) -> str:
+    src_root = conf["paths"]["src"]
+    dest_path = os.path.join(src_root, filename)
+    os.makedirs(src_root, exist_ok=True)
+    with open(dest_path, "w") as f:
+        f.write(data)
+    return dest_path
