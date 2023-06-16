@@ -29,15 +29,19 @@
 
 
 import struct
-from enum import Enum
 from pathlib import Path
-from typing import IO, Dict, NamedTuple, Tuple, Union
 
-import numpy as np
-import torch
-from torchvision.transforms import ToPILImage, ToTensor
-
-torch.backends.cudnn.deterministic = True
+__all__ = [
+    "BoolConvert",
+    "Average",
+    "filesize",
+    "write_uints",
+    "write_uchars",
+    "read_uints",
+    "read_uchars",
+    "write_bytes",
+    "read_bytes",
+]
 
 
 def BoolConvert(a):
@@ -47,12 +51,6 @@ def BoolConvert(a):
 
 def Average(lst):
     return sum(lst) / len(lst)
-
-
-def inverse_dict(d):
-    # We assume dict values are unique...
-    assert len(d.keys()) == len(set(d.keys()))
-    return {v: k for k, v in d.items()}
 
 
 def filesize(filepath: str) -> int:
@@ -91,67 +89,3 @@ def write_bytes(fd, values, fmt=">{:d}s"):
 def read_bytes(fd, n, fmt=">{:d}s"):
     sz = struct.calcsize("s")
     return struct.unpack(fmt.format(n), fd.read(n * sz))[0]
-
-
-def get_header(model_name, metric, quality, num_of_frames, codec_type: Enum):
-    """Format header information:
-    - 1 byte for model id
-    - 4 bits for metric
-    - 4 bits for quality param
-    - 4 bytes for number of frames to be coded (only applicable for video)
-    """
-    metric = metric_ids[metric]
-    code = (metric << 4) | (quality - 1 & 0x0F)
-
-    if codec_type == CodecType.VIDEO_CODEC:
-        return model_ids[model_name], code, num_of_frames
-
-    return model_ids[model_name], code
-
-
-def parse_header(header):
-    """Read header information from 2 bytes:
-    - 1 byte for model id
-    - 4 bits for metric
-    - 4 bits for quality param
-    """
-    model_id, code = header
-    quality = (code & 0x0F) + 1
-    metric = code >> 4
-
-    return (
-        inverse_dict(model_ids)[model_id],
-        inverse_dict(metric_ids)[metric],
-        quality,
-    )
-
-
-def read_body(fd):
-    lstrings = []
-    shape = read_uints(fd, 2)
-    n_strings = read_uints(fd, 1)[0]
-    for _ in range(n_strings):
-        s = read_bytes(fd, read_uints(fd, 1)[0])
-        lstrings.append([s])
-
-    return lstrings, shape
-
-
-def write_body(fd, shape, out_strings):
-    bytes_cnt = 0
-    bytes_cnt = write_uints(fd, (shape[0], shape[1], len(out_strings)))
-    for s in out_strings:
-        bytes_cnt += write_uints(fd, (len(s[0]),))
-        bytes_cnt += write_bytes(fd, s[0])
-    return bytes_cnt
-
-
-# def to_tensors(
-#    frame: Tuple[np.ndarray, np.ndarray, np.ndarray],
-#    max_value: int = 1,
-#    device: str = "cpu",
-# ) -> Frame:
-#    return tuple(
-#        torch.from_numpy(np.true_divide(c, max_value, dtype=np.float32)).to(device)
-#        for c in frame
-#    )

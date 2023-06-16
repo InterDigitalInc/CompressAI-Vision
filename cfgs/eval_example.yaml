@@ -16,10 +16,9 @@ pipeline:
     keep: False
     dir: '/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/.cache_pipeline/unfold-split-inference/8915b6b3-b7ff-428a-8531-ef0a0e041e8b'
 
-
 codec: 
   type: "bypass"
-  output_dir: 
+  #output_dir: 
   
 dataset: 
   type: 'Detectron2Dataset'
@@ -37,5 +36,6 @@ dataset:
     dataset_name: 'mpeg-oiv6-detection'
 
 evaluator: 
+  #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
   #type: 'VOID'

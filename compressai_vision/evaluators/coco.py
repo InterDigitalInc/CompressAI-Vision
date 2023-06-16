@@ -49,6 +49,9 @@ class COCOEVal(BaseEvaluator):
         if datacatalog_name == "MPEGOIV6":
             deccode_compressed_rle(self._evaluator._coco_api.anns)
 
+        self.reset()
+
+    def reset(self):
         self._evaluator.reset()
 
     def digest(self, gt, pred):
@@ -61,5 +64,8 @@ class COCOEVal(BaseEvaluator):
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, indent=4)
 
-        # TODO [hyomin - Not just output, specific metric return required later]
-        return out
+        summary = {}
+        for key, item_dict in out.items():
+            summary.update({f"{key}": item_dict["AP"]})
+
+        return summary

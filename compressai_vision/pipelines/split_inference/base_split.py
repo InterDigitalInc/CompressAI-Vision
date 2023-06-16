@@ -52,10 +52,10 @@ class Parts(Enum):
     def __str__(self):
         return str(self.value)
 
-    PreInference = "preinfer"
+    PreInference = "preinference"
     Encoder = "encoder"
     Decoder = "decoder"
-    PostInference = "postinfer"
+    PostInference = "postinference"
     Evaluation = "evaluation"
 
 
@@ -148,47 +148,6 @@ class BaseSplit(nn.Module):
         """
         raise (AssertionError("virtual"))
 
-    def _from_input_to_features(self, x, name: str = None):
-        """run the input according to a specific rquirement for input to encoder"""
-
-        if not self._is_caching(Parts.PreInference):
-            return self.vision_model.input_to_features(x)
-
-        # Caching while processing the pre-inference computation
-        _folder = self._create_folder(
-            os.path.join(self._caching_folder, str(Parts.PreInference))
-        )
-
-        _caching_target = os.path.join(_folder, name + EXT)
-        if self._check_cache_file(_caching_target):
-            cached = torch.load(_caching_target)
-        else:
-            out = self.vision_model.input_to_features(x)
-            torch.save(out, _caching_target)
-            cached = out
-
-        return cached
-
-    def _from_features_to_output(self, x: Dict, name: str = None):
-        """Postprocess of possibly encoded/decoded data for various tasks inlcuding for human viewing and machine analytics"""
-        if not self._is_caching(Parts.PostInference):
-            return self.vision_model.features_to_output(x)
-
-        # Caching while processing the pre-inference computation
-        _folder = self._create_folder(
-            os.path.join(self._caching_folder, str(Parts.PostInference))
-        )
-
-        _caching_target = os.path.join(_folder, name + EXT)
-        if self._check_cache_file(_caching_target):
-            cached = torch.load(_caching_target)
-        else:
-            out = self.vision_model.features_to_output(x)
-            torch.save(out, _caching_target)
-            cached = out
-
-        return cached
-
     def _collect_pairs(self, gt, pred):
         if self.evaluator:
             self.evaluator.digest(gt, pred)
@@ -207,38 +166,6 @@ class BaseSplit(nn.Module):
         out = self.evaluator.results(save_path)
 
         return out
-
-    def _compress_features(self, x, name: str):
-        """
-        Inputs: tensors of features
-        Returns nbits, transformed features.
-        """
-
-        if not self._is_caching(Parts.Encoder):
-            return self.codec.encode(x, name)
-
-        # Caching while processing encoding the input
-        _folder = self._create_folder(
-            os.path.join(self._caching_folder, str(Parts.Encoder))
-        )
-
-        _caching_target = os.path.join(_folder, name + EXT)
-        if self._check_cache_file(_caching_target):
-            cached = torch.load(_caching_target)
-        else:
-            out = self.codec.encode(x, name)
-            torch.save(out, _caching_target)
-            cached = out
-
-        return cached
-
-    def _decompress_features(self, x):
-        """
-        Inputs: tensors of features
-        Returns nbits, transformed features.
-        """
-
-        raise NotImplementedError
 
     def _is_caching(self, part: Parts):
         """

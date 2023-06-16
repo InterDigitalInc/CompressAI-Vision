@@ -27,12 +27,33 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+# The code for the Class "OpenImagesChallengeEval" is referenced from
+# https://github.com/rwightman/efficientdet-pytorch/blob/master/effdet/evaluation
+
+# The reference code is licensed Apache 2.0
+# https://github.com/rwightman/efficientdet-pytorch/blob/master/LICENSE
+
+
 from compressai_vision.registry import register_evaluator
 
 from .base_evaluator import BaseEvaluator
 
 
 @register_evaluator("OIC-EVAL")
-class OICEval(BaseEvaluator):
+class OpenImagesChallengeEval(BaseEvaluator):
     def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
         super().__init__(datacatalog_name, dataset_name, output_dir)
+
+        self.img_indices = []
+        self.predictions = []
+
+    def reset(self):
+        self.img_indices = []
+        self.predictions = []
+
+    def digest(self, gt, pred):
+        raise NotImplementedError
+
+    def results(self, save_path: str = None):
+        raise NotImplementedError

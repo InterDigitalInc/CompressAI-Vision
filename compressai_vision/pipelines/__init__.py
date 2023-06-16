@@ -27,8 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .split_inference import InferenceUnfold
+from .split_inference import UnfoldSplitInference
 
 __all__ = [
-    "InferenceUnfold",
+    "UnfoldSplitInference",
 ]

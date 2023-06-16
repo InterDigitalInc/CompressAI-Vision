@@ -31,12 +31,14 @@
 import torch.nn as nn
 
 
-# TODO [hyomin & fabien - Should this includes bpp vs accuracy calculation?]
 class BaseEvaluator(nn.Module):
     def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
         self.datacatalog_name = datacatalog_name
         self.dataset_name = dataset_name
         self.output_dir = output_dir
+
+    def reset(self):
+        raise NotImplementedError
 
     def digest(self, gt, pred):
         raise NotImplementedError

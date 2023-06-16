@@ -29,12 +29,12 @@
 
 from .base_evaluator import BaseEvaluator
 from .coco import COCOEVal
-from .oic import OICEval
+from .oic import OpenImagesChallengeEval
 from .yolo import YOLOEval
 
 __all__ = [
     "BaseEvaluator",
     "COCOEVal",
-    "OICEval",
+    "OpenImagesChallengeEval",
     "YOLOEval",
 ]

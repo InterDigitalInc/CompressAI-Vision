@@ -25,9 +25,9 @@ cache:
   keep: False
   dir:
 
-  preinfer: True
+  preinference: True
   encoder: False
   decoder: False
-  postinfer: False
+  postinference: False
   evaluation: True
 

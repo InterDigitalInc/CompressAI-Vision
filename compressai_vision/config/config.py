@@ -138,4 +138,4 @@ def create_pipline(conf: DictConfig, vision_model, codec, dataloader, evaluator)
 
 
 def create_codec(conf: DictConfig):
-    return CODECS[conf.type]()
+    return CODECS[conf.type](**conf.args)

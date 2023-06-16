@@ -29,7 +29,8 @@
 
 import logging
 import math
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 import torch
 from pytorch_msssim import ms_ssim
@@ -70,6 +71,29 @@ class EncoderDecoder:
         """Reset the internal state of the encoder & decoder, if there is any"""
         self.cc = 0
 
+    @staticmethod
+    def getOrgInputSize(dSize: Dict) -> Tuple:
+        width = dSize["width"]
+        height = dSize["height"]
+
+        return (width, height)
+
+    @staticmethod
+    def setOrgInputSize(dSize: Tuple) -> Dict:
+        width, height = dSize
+
+        return {"width": width, "height": height}
+
+    @staticmethod
+    def getInputSize(dSize: List) -> Tuple:
+        return dSize[0]
+
+    @staticmethod
+    def setInputSize(dSize: Tuple) -> List:
+        return [
+            dSize,
+        ]
+
     def encode(self, input: Dict, tag: str = None):
         """
         :param input: input data in torch
@@ -83,3 +107,11 @@ class EncoderDecoder:
 
     def decode(Self, bitstream_path):
         raise (AssertionError("virtual"))
+
+    def _create_folder(self, dir):
+        path = Path(dir)
+        if not path.is_dir():
+            self.logger.info(f"creating {dir}")
+            path.mkdir(parents=True, exist_ok=True)
+
+        return dir

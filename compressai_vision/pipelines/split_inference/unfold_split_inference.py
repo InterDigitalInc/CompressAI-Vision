@@ -65,29 +65,37 @@ class UnfoldSplitInference(BaseSplit):
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
-
-        for _, d in enumerate(tqdm(self.dataloader)):
+        output_list = []
+        for e, d in enumerate(tqdm(self.dataloader)):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
 
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
 
-            file_prefix = f'img_id_{d[0]["image_id"]}'
+            cache_file = f'img_id_{d[0]["image_id"]}'
 
-            featureT = self._from_input_to_features(d, file_prefix)
+            featureT = self._from_input_to_features(d, cache_file)
             featureT["org_input_size"] = org_img_size
 
-            ret = self._compress_features(featureT, file_prefix)
+            res = self._compress_features(featureT, cache_file)
 
-            self._decompress_features()
+            dec_featureT = self._decompress_features(res["bitstream"], cache_file)
 
-            pred = self._from_features_to_output(featureT)
+            pred = self._from_features_to_output(dec_featureT)
 
             self._collect_pairs(d, pred)
 
-        o = self._evaluation()
+            out_res = d[0].copy()
+            del out_res["image"], out_res["width"], out_res["height"]
+            out_res["bytes"] = res["bytes"][0]
+            out_res["coded_order"] = e
+            out_res["org_input_size"] = (d[0]["width"], d[0]["height"])
+            out_res["input_size"] = featureT["input_size"][0]
+            output_list.append(out_res)
 
-        return
+        mAP = self._evaluation()
+
+        return {"coded_res": output_list, "mAP": mAP}
 
     def encode(self):
         """
@@ -110,6 +118,95 @@ class UnfoldSplitInference(BaseSplit):
         """
 
         raise (AssertionError("virtual"))
+
+    def _from_input_to_features(self, x, name: str = None):
+        """run the input according to a specific rquirement for input to encoder"""
+
+        if not self._is_caching(Parts.PreInference):
+            return self.vision_model.input_to_features(x)
+
+        # Caching while processing the pre-inference computation
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.PreInference))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = self.vision_model.input_to_features(x)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _from_features_to_output(self, x: Dict, name: str = None):
+        """Postprocess of possibly encoded/decoded data for various tasks inlcuding for human viewing and machine analytics"""
+        if not self._is_caching(Parts.PostInference):
+            return self.vision_model.features_to_output(x)
+
+        # Caching while processing the pre-inference computation
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.PostInference))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = self.vision_model.features_to_output(x)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _compress_features(self, x, name: str):
+        """
+        Inputs: tensors of features
+        Returns a list of frame bytes and a bitstream path.
+        """
+
+        if not self._is_caching(Parts.Encoder):
+            return self.codec.encode(x, name)
+
+        # Caching while processing encoding the input
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.Encoder))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = self.codec.encode(x, name)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _decompress_features(self, x, name: str):
+        """
+        Inputs: a bitstream path
+        Returns reconstructed feature tensors
+        """
+
+        if not self._is_caching(Parts.Decoder):
+            return self.codec.decode(x, name)
+
+        # Caching while processing encoding the input
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.Decoder))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = self.codec.decode(x, name)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
 
 
 def stuff(args):  # This can be reference for codec parts

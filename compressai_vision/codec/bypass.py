@@ -27,22 +27,30 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+import io
 import logging
-from typing import Dict
+import math
+import os
+from pathlib import Path
+from typing import Dict, Tuple
+
+import torch
 
 from compressai_vision.registry import register_codec
 
 from .base import EncoderDecoder
+from .syntax.readwrite import write_uints
 
 
 @register_codec("bypass")
 class VoidEncoderDecoder(EncoderDecoder):
     """Does no encoding/decoding whatsoever.  Use for debugging."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.reset()
+
+        self.output_dir = self._create_folder(kwargs["output_dir"])
 
     def reset(self):
         """Reset the internal state of the encoder & decoder, if any"""
@@ -62,29 +70,36 @@ class VoidEncoderDecoder(EncoderDecoder):
 
         Compress the input, write a bitstream
 
-        Returns a list of bits per frame along with input frame size and a path for the bitstream
+        Returns a list of bits per frame and a path for the bitstream
         """
+        # Not really write the tensors into a file
+        # file_path = os.path.join(self.output_dir, f"{tag}.bin")
 
-        """
-        
-        shape = out["shape"]
+        # with Path(file_path).open("wb") as fd:
+        #    # write minimum header
+        #    # write original image size
+        #    write_uints(fd, self.getOrgInputSize(input["org_input_size"]))
+        #    # write input size
+        #    write_uints(fd, self.getInputSize(input["input_size"]))
 
-        with Path(output).open("wb") as f:
-            write_uchars(f, codec.codec_header)
-            # write original image size
-            write_uints(f, (h, w))
-            # write original bitdepth
-            write_uchars(f, (bitdepth,))
-            # write shape and number of encoded latents
-            write_body(f, shape, out["strings"])
+        total_elements = 0
+        for ft in input["data"].values():
+            total_elements += self._number_of_elements(ft.size())
 
-        size = filesize(output)
-        bpp = float(size) * 8 / (h * w)
-
-        """
         # write input
+        total_bytes = total_elements * 4  # supposed 32-bit floating
 
-        return 0, input
+        # For the bypass codec, the bitstream field points to input dictionary itself
+        return {
+            "bytes": [
+                total_bytes,
+            ],
+            "bitstream": input,
+        }
 
-    def decode(self, bitstream_path):
-        return 0
+    def decode(self, input, tag: str = None):
+        return input
+
+    @staticmethod
+    def _number_of_elements(data: Tuple):
+        return math.prod(data)
