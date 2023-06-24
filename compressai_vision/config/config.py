@@ -117,7 +117,9 @@ def create_dataloader(conf: DictConfig, device: str, cfg: Any = None) -> DataLoa
     )
 
 
-def create_evaluator(conf: DictConfig, catalog: str, datasetname: str):
+def create_evaluator(
+    conf: DictConfig, catalog: str, datasetname: str, dataset: Dataset
+):
     if (
         str(conf.type).lower() == "VOID"
         or str(conf.type).lower() == "none"
@@ -125,7 +127,7 @@ def create_evaluator(conf: DictConfig, catalog: str, datasetname: str):
     ):
         return None
 
-    return EVALUATORS[conf.type](catalog, datasetname, conf.output)
+    return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
 
 
 def create_pipline(conf: DictConfig, vision_model, codec, dataloader, evaluator):

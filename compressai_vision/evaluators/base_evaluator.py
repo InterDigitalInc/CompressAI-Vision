@@ -28,14 +28,27 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import json
+import logging
+from pathlib import Path
+
 import torch.nn as nn
 
 
 class BaseEvaluator(nn.Module):
-    def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
+    def __init__(
+        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+    ):
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.datacatalog_name = datacatalog_name
         self.dataset_name = dataset_name
         self.output_dir = output_dir
+        self.output_file_name = (
+            f"{self.__class__.__name__}_on_{datacatalog_name}_{dataset_name}"
+        )
+
+        self.thing_classes = dataset.thing_classes
+        self.thing_id_mapping = dataset.thing_dataset_id_to_contiguous_id
 
     def reset(self):
         raise NotImplementedError
@@ -45,3 +58,20 @@ class BaseEvaluator(nn.Module):
 
     def results(self, save_path: str = None):
         raise NotImplementedError
+
+    def write_results(self, out, path: str = None):
+        if path is None:
+            path = f"{self.output_dir}/{self.output_file_name}"
+
+        path = self._create_folder(path)
+
+        with open(f"{path}.json", "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=4)
+
+    def _create_folder(self, dir):
+        path = Path(dir)
+        if not path.is_dir():
+            self._logger.info(f"creating {dir}")
+            path.mkdir(parents=True, exist_ok=True)
+
+        return dir

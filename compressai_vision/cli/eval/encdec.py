@@ -52,7 +52,10 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     vision_model = create_vision_model(conf.misc.device, conf.vision_model)
     dataloader = create_dataloader(conf.dataset, conf.misc.device, vision_model.cfg)
     evaluator = create_evaluator(
-        conf.evaluator, conf.dataset.datacatalog, conf.dataset.config.dataset_name
+        conf.evaluator,
+        conf.dataset.datacatalog,
+        conf.dataset.config.dataset_name,
+        dataloader.dataset,
     )
 
     codec = create_codec(conf.codec)

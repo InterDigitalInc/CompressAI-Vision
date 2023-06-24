@@ -1,2 +1,2 @@
 type: 'COCO-EVAL'
-output: '${paths._runs_root}/restuls'
+output: '${paths._runs_root}/results'

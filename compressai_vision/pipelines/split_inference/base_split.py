@@ -203,5 +203,5 @@ class BaseSplit(nn.Module):
         if not self._instant_caching:
             return
 
-        self.logger.debug("removing %s", self.folder)
+        self.logger.debug("removing %s", self._caching_folder)
         shutil.rmtree(self._caching_folder)

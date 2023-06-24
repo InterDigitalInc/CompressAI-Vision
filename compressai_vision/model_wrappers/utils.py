@@ -27,11 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
 import math
 
 from torch import Tensor
-
-from compressai_vision.utils import logger
 
 __all__ = [
     "compute_frame_resolution",
@@ -47,8 +46,7 @@ def compute_frame_resolution(num_channels, channel_height, channel_width):
     short_edge = num_channels // long_edge
 
     if long_edge != short_edge:
-        logger.warning(
-            __name__,
+        logging.warning(
             f"There is no the least common multiple for {num_channels} other than 1 and itself",
         )
 

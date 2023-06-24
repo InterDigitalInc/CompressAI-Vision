@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import enum
+import logging
 from pathlib import Path
 from typing import Tuple
 
@@ -36,8 +37,6 @@ import torch
 import torch.nn.functional as F
 import yuvio
 from torch import Tensor
-
-from .logger import warning
 
 
 class PixelFormat(enum.Enum):
@@ -85,6 +84,7 @@ class readwriteYUV:
         self._format = format
         self._align = align
         self._surround = surround
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     @property
     def device(self):
@@ -224,14 +224,14 @@ class readwriteYUV:
 
         if frame.dim() == 4:
             if frame.size(0) > 1:
-                warning(
+                self._logger.warning(
                     "Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
                 )
             frame = frame[0, ::]
 
         if frame.dim() == 3:
             if frame.size(0) > 3:
-                warning(
+                self._logger.warning(
                     "Number of color channels is greater than 3. Only the first three color components are valid"
                 )
                 frame = frame[0:3, ::]

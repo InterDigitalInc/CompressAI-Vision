@@ -28,9 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .base_evaluator import BaseEvaluator
-from .coco import COCOEVal
-from .oic import OpenImagesChallengeEval
-from .yolo import YOLOEval
+from .evaluators import COCOEVal, OpenImagesChallengeEval, YOLOEval
 
 __all__ = [
     "BaseEvaluator",

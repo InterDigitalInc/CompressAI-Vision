@@ -29,6 +29,7 @@
 
 
 import base64
+import logging
 from pathlib import Path
 from typing import Dict, List
 
@@ -41,7 +42,6 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
-from compressai_vision.utils import logger
 
 
 def bypass_collator(batch):
@@ -88,6 +88,8 @@ class DefaultDataset(Dataset):
     ):
         super().__init__()
 
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self.sampler = None
         self.collate_fn = None
 
@@ -102,6 +104,9 @@ class DefaultDataset(Dataset):
         self.transform = kwargs["transforms"]
         self.ret_name = kwargs["ret_name"]
         self.dataset_name = dataset_name
+
+        self.thing_classes = []
+        self.thing_dataset_id_to_contiguous_id = []
 
         self.mapDataset = None
         if "cfg" in kwargs:
@@ -154,6 +159,7 @@ class Detectron2Dataset(Dataset):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
         super().__init__()
 
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.dataset_name = dataset_name
 
         self.annotation_path = Path(root) / "annotations" / kwargs["annotation_file"]
@@ -169,8 +175,7 @@ class Detectron2Dataset(Dataset):
         try:
             DatasetCatalog.get(dataset_name)
         except KeyError:
-            logger.warning(
-                __name__,
+            self.logger.warning(
                 f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
             )
             register_coco_instances(
@@ -184,6 +189,12 @@ class Detectron2Dataset(Dataset):
         mapper = DatasetMapper(kwargs["cfg"], False)
 
         self.mapDataset = MapDataset(_dataset, mapper)
+
+        metaData = MetadataCatalog.get(dataset_name)
+        self.thing_classes = metaData.thing_classes
+        self.thing_dataset_id_to_contiguous_id = (
+            metaData.thing_dataset_id_to_contiguous_id
+        )
 
     def __getitem__(self, idx):
         return self.mapDataset[idx]
@@ -260,8 +271,6 @@ class MPEGOIV6(DataCatalog):
         imgs_folder="images",
         annotation_file="mpeg-oiv6-segmentation-coco.json",
         dataset_name="mpeg-oiv6-segmentation",
-        # annotation_file_name="mpeg-oiv6-detection-coco.json",
-        # dataset_name="mpeg-oiv6-detection",
     ):
         super().__init__(root, imgs_folder, annotation_file, dataset_name)
 

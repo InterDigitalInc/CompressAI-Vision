@@ -28,12 +28,21 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from compressai_vision.registry import register_evaluator
+from .object_detection_evaluation import OpenImagesChallengeEvaluator
+from .oid_challenge_evaluation_utils import (
+    decode_gt_raw_data_into_masks_and_boxes,
+    decode_masks,
+    encode_masks,
+    to_normalized_box,
+)
+from .standard_fields import DetectionResultFields, InputDataFields
 
-from .base_evaluator import BaseEvaluator
-
-
-@register_evaluator("YOLO-EVAL")
-class YOLOEval(BaseEvaluator):
-    def __init__(self, datacatalog_name, dataset_name, output_dir="./vision_output/"):
-        super().__init__(datacatalog_name, dataset_name, output_dir)
+__all__ = [
+    "OpenImagesChallengeEvaluator",
+    "InputDataFields",
+    "DetectionResultFields",
+    "decode_gt_raw_data_into_masks_and_boxes",
+    "to_normalized_box",
+    "encode_masks",
+    "decode_masks",
+]
