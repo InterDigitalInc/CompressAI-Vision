@@ -61,11 +61,11 @@ class BaseEvaluator(nn.Module):
 
     def write_results(self, out, path: str = None):
         if path is None:
-            path = f"{self.output_dir}/{self.output_file_name}"
+            path = f"{self.output_dir}"
 
         path = self._create_folder(path)
 
-        with open(f"{path}.json", "w", encoding="utf-8") as f:
+        with open(f"{path}/{self.output_file_name}.json", "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, indent=4)
 
     def _create_folder(self, dir):
