@@ -130,11 +130,11 @@ def create_evaluator(
     return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
 
 
-def create_pipline(conf: DictConfig):
+def create_pipline(conf: DictConfig, device: str):
     pipeline_type = conf.type + "-" + conf.name
 
     # OmegaConf.to_container(conf.config, resolve=True)
-    return PIPELINES[pipeline_type](dict(conf))
+    return PIPELINES[pipeline_type](dict(conf), device)
 
 
 def create_codec(conf: DictConfig):

@@ -27,13 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from . import dataio, git, pip, system
-from .misc import to_cpu
+import torch
+from torch import Tensor
 
-__all__ = [
-    "dataio",
-    "git",
-    "pip",
-    "system",
-    "to_cpu",
-]
+
+def to_cpu(data: Tensor):
+    return data.to(torch.device("cpu"))

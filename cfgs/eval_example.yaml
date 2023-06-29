@@ -10,7 +10,8 @@ defaults:
   - _self_
 
 pipeline:
-  type: "unfold" # alternative is fold
+  #type: "unfold" # alternative is fold
+  type: "fold"
   cache: 
     enabled: False
     keep: False
@@ -27,22 +28,24 @@ codec:
   
 dataset: 
   type: 'Detectron2Dataset'
-  #datacatalog: 'SFUHW'
-  #config:
-  #    root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/SFU_pngs/BasketballDrill_832x480_50_val'
-  #    imgs_folder: 'images'
-  #    annotation_file: 'BasketballDrill_832x480_50_val_v2.json'
-  #    dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
-  datacatalog: 'MPEGOIV6'
+  
+  datacatalog: 'SFUHW'
   config:
-    root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/mpeg-oiv6'
-    imgs_folder: 'images'
-    annotation_file: 'mpeg-oiv6-detection-coco.json'
-    dataset_name: 'mpeg-oiv6-detection'
+      root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val'
+      imgs_folder: 'images'
+      annotation_file: 'BasketballDrill_832x480_50_val.json'
+      dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
+
+#  datacatalog: 'MPEGOIV6'
+#  config:
+#    root: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/mpeg-oiv6'
+#    imgs_folder: 'images'
+#    annotation_file: 'mpeg-oiv6-detection-coco.json'
+#    dataset_name: 'mpeg-oiv6-detection'
     #annotation_file: 'mpeg-oiv6-segmentation-coco.json'
     #dataset_name: 'mpeg-oiv6-segmentation'
 
 evaluator: 
-  type: 'OIC-EVAL'
-  #type: 'COCO-EVAL'
+  #type: 'OIC-EVAL'
+  type: 'COCO-EVAL'
   #type: 'VOID'

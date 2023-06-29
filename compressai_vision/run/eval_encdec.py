@@ -68,7 +68,7 @@ def setup(conf: DictConfig) -> dict[str, Any]:
 
     codec = create_codec(conf.codec)
 
-    pipeline = create_pipline(conf.pipeline)
+    pipeline = create_pipline(conf.pipeline, conf.misc.device)
 
     return pipeline, {
         "vision_model": vision_model,

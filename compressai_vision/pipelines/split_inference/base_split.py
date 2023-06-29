@@ -32,18 +32,14 @@ import os
 import shutil
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict
+from typing import Dict
 from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
-from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio
 
 EXT = ".h5"
 
@@ -83,11 +79,13 @@ class BaseSplit(nn.Module):
     def __init__(
         self,
         configs: Dict,
+        device: str,
     ):
         super().__init__()
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.configs = configs
+        self.device = device
 
         self._caching_folder = None
         self._instant_caching = self._use_caching
@@ -140,7 +138,104 @@ class BaseSplit(nn.Module):
         """
         raise (AssertionError("virtual"))
 
-    def _evaluation(self, evaluator: Callable) -> Dict:
+    def _from_input_to_features(self, vision_model: BaseWrapper, x, name: str = None):
+        """run the input according to a specific rquirement for input to encoder"""
+
+        if not self._is_caching(Parts.PreInference):
+            out = vision_model.input_to_features(x)
+            if "image_id" in x[0]:
+                out["image_id"] = x[0]["image_id"]
+            return out
+
+        # Caching while processing the pre-inference computation
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.PreInference))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = vision_model.input_to_features(x)
+            torch.save(out, _caching_target)
+            cached = out
+
+        if "image_id" in x[0]:
+            cached["image_id"] = x[0]["image_id"]
+
+        return cached
+
+    def _from_features_to_output(
+        self, vision_model: BaseWrapper, x: Dict, name: str = None
+    ):
+        """Postprocess of possibly encoded/decoded data for various tasks inlcuding for human viewing and machine analytics"""
+        if not self._is_caching(Parts.PostInference):
+            return vision_model.features_to_output(x)
+
+        # Caching while processing the pre-inference computation
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.PostInference))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = vision_model.features_to_output(x)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _compress_features(self, codec, x, name: str):
+        """
+        Inputs: tensors of features
+        Returns a list of frame bytes and a bitstream path.
+        """
+
+        if not self._is_caching(Parts.Encoder):
+            return codec.encode(x, name)
+
+        # Caching while processing encoding the input
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.Encoder))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = codec.encode(x, name)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _decompress_features(self, codec, x, name: str):
+        """
+        Inputs: a bitstream path
+        Returns reconstructed feature tensors
+        """
+
+        if not self._is_caching(Parts.Decoder):
+            return codec.decode(x, name)
+
+        # Caching while processing encoding the input
+        _folder = self._create_folder(
+            os.path.join(self._caching_folder, str(Parts.Decoder))
+        )
+
+        _caching_target = os.path.join(_folder, name + EXT)
+        if self._check_cache_file(_caching_target):
+            cached = torch.load(_caching_target)
+        else:
+            out = codec.decode(x, name)
+            torch.save(out, _caching_target)
+            cached = out
+
+        return cached
+
+    def _evaluation(self, evaluator: BaseEvaluator) -> Dict:
         save_path = None
         if self._is_caching(Parts.Evaluation):
             # Save output results

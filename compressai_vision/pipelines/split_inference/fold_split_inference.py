@@ -27,25 +27,19 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-import os
-import shutil
-from enum import Enum
-from pathlib import Path
-from typing import Callable, Dict
-from uuid import uuid4 as uuid
+
+from typing import Dict
 
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio
+from compressai_vision.utils import dataio, to_cpu
 
-from .base_split import EXT, BaseSplit, Parts
+from .base_split import BaseSplit
 
 
 @register_pipeline("fold-split-inference")
@@ -53,41 +47,79 @@ class FoldSplitInference(BaseSplit):
     def __init__(
         self,
         configs: Dict,
+        device: str,
+    ):
+        super().__init__(configs, device)
+
+        self._fold_data_buffer = None
+
+    def __call__(
+        self,
         vision_model: BaseWrapper,
         codec,
-        dataloader: Callable = None,
-        evaluator: Callable = None,
-    ):
-        super().__init__(configs, vision_model, codec, dataloader, evaluator)
-
-    def __call__(self) -> Dict:
+        dataloader: DataLoader,
+        evaluator: BaseEvaluator,
+    ) -> Dict:
         """Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
 
-        for _, d in enumerate(tqdm(self.dataloader)):
+        featureT = {}
+        gt_inputs = []
+        for e, d in enumerate(tqdm(dataloader)):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
 
-            org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
+            cache_file = f'img_id_{d[0]["image_id"]}'
+            gt_inputs.append(
+                [
+                    {"image_id": d[0]["image_id"]},
+                ]
+            )
 
-            file_prefix = f'img_id_{d[0]["image_id"]}'
+            res = self._from_input_to_features(vision_model, d, cache_file)
 
-            featureT = self._from_input_to_features(d, file_prefix)
-            featureT["org_input_size"] = org_img_size
+            assert "data" in res
+            num_items = self._data_buffering(res["data"])
 
-            ret = self._compress_features(featureT)
+            if e == 0:
+                org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
+                featureT["org_input_size"] = org_img_size
+                assert "input_size" in res
+                featureT["input_size"] = res["input_size"]
 
-            self._decompress_features()
+                out_res = d[0].copy()
+                del out_res["image"], out_res["width"], out_res["height"]
+                out_res["org_input_size"] = (d[0]["width"], d[0]["height"])
+                out_res["input_size"] = featureT["input_size"][0]
 
-            pred = self._from_features_to_output(featureT)
+        assert num_items == len(dataloader)
 
-            self._collect_pairs(d, pred)
+        # concatenate a list of tensors at each keyword item
+        featureT["data"] = self._concat_data()
 
-        o = self._evaluation()
+        res = self._compress_features(codec, featureT, cache_file)
 
-        return
+        dec_featureT = self._decompress_features(codec, res["bitstream"], cache_file)
+
+        # separate a tensor of each keyword item into a list of tensors
+        dec_feature_tesnor = self._split_data(dec_featureT["data"])
+
+        for e, data in enumerate(self._iterate_items(dec_feature_tesnor, num_items)):
+            dec_featureT["data"] = data
+            pred = self._from_features_to_output(vision_model, dec_featureT)
+            evaluator.digest(gt_inputs[e], pred)
+
+        output_list = []
+        out_res["bytes"] = res["bytes"][0]
+        out_res["coded_order"] = e
+
+        output_list.append(out_res)
+
+        mAP = self._evaluation(evaluator)
+
+        return {"coded_res": output_list, "mAP": mAP}
 
     def encode(self):
         """
@@ -110,6 +142,50 @@ class FoldSplitInference(BaseSplit):
         """
 
         raise (AssertionError("virtual"))
+
+    def _data_buffering(self, data: Dict):
+        """
+        Piling up input data along the 0 axis for each dictionary item
+        """
+
+        if self._fold_data_buffer is None:
+            self._fold_data_buffer = {}
+
+            for key, tensor in data.items():
+                self._fold_data_buffer[key] = [
+                    to_cpu(tensor),
+                ]
+            return
+
+        for key, tensor in data.items():
+            self._fold_data_buffer[key].append(to_cpu(tensor))
+
+        len_items = [len(buffer) for buffer in self._fold_data_buffer.values()]
+
+        return len_items[0]
+
+    def _concat_data(self):
+        output = {}
+        for key, tensor in self._fold_data_buffer.items():
+            output[key] = torch.concat(tensor, dim=0)
+
+        self._fold_data_buffer = None
+
+        return output
+
+    def _split_data(self, data: Dict):
+        output = {}
+        for key, tensor in data.items():
+            output[key] = list(tensor.chunk(len(tensor)))
+        return output
+
+    def _iterate_items(self, data: Dict, num_frms: int):
+        for e in range(num_frms):
+            out_dict = {}
+            for key, val in data.items():
+                out_dict[key] = val[e].to(self.device)
+
+            yield out_dict
 
 
 def stuff(args):  # This can be reference for codec parts

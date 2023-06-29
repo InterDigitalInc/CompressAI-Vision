@@ -37,6 +37,7 @@ from tqdm import tqdm
 
 from compressai_vision.datasets import deccode_compressed_rle
 from compressai_vision.registry import register_evaluator
+from compressai_vision.utils import to_cpu
 
 from .base_evaluator import BaseEvaluator
 from .tf_evaluation_utils import (
@@ -187,7 +188,7 @@ class OpenImagesChallengeEval(BaseEvaluator):
             return
 
         img_id = gt[0]["image_id"]
-        test_fields = pred[0]["instances"].to(torch.device("cpu"))
+        test_fields = to_cpu(pred[0]["instances"])
 
         imgH, imgW = test_fields.image_size
 
