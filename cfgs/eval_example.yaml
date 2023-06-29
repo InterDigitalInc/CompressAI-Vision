@@ -4,8 +4,7 @@ defaults:
   - misc: default
   - dataset: default
   - evaluator: default
-  - vision_model: faster_rcnn_X_101_32x8d_FPN_3x
-#  - vision_model: mask_rcnn_X_101_32x8d_FPN_3x
+  - vision_model: default
   - pipeline: split_inference
   - codec: default
   - _self_
@@ -18,6 +17,9 @@ pipeline:
     #dir: '/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/.cache_pipeline/unfold-split-inference/8915b6b3-b7ff-428a-8531-ef0a0e041e8b'
     #dir: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/.cache_pipeline/unfold-split-inference/b5ce6a3f-b3ae-4a6e-b90a-e8c906f17511/'
     #dir: '/pa/home/hyomin.choi/Projects/compressai-fcvcm/.cache_pipeline/unfold-split-inference/b5ce6a3f-b3ae-4a6e-b90a-e8c906f17511/'
+
+vision_model:
+  arch: faster_rcnn_X_101_32x8d_FPN_3x
 
 codec: 
   type: "bypass"

@@ -46,7 +46,6 @@ from .tf_evaluation_utils import (
     decode_gt_raw_data_into_masks_and_boxes,
     decode_masks,
     encode_masks,
-    to_normalized_box,
 )
 
 
@@ -76,8 +75,7 @@ class COCOEVal(BaseEvaluator):
         out = self._evaluator.evaluate()
 
         if save_path:
-            file_path = f"{save_path}/{self.output_file_name}"
-            self.write_results(out, file_path)
+            self.write_results(out, save_path)
 
         self.write_results(out)
 
@@ -100,11 +98,11 @@ class OpenImagesChallengeEval(BaseEvaluator):
 
         def _search_category(name):
             for e, item in enumerate(self.thing_classes):
-                if name == item:
+                if name == self._normalize_labelname(item):
                     return e
 
-            self._logger.warning(f"Not found Item {name} in 'thing_classes'")
-            return None
+            self._logger.error(f"Not found Item {name} in 'thing_classes'")
+            raise ValueError
 
         assert len(json_dict["annotations"]) > 0
         has_segmentation = (
@@ -122,7 +120,7 @@ class OpenImagesChallengeEval(BaseEvaluator):
         gt_annotations = json_dict["oic_annotations"]
 
         for item in valid_categories:
-            e = _search_category(item["name"])
+            e = _search_category(self._normalize_labelname(item["name"]))
 
             if e is not None:
                 self._valid_contiguous_id.append(e)
@@ -303,11 +301,8 @@ class OpenImagesChallengeEval(BaseEvaluator):
         out = self._oic_evaluator.evaluate()
         self._logger.info(f"Total evaluation time: {time.time() - start:.02f} sec")
 
-        file_name = "oic_results_on_{self.datacatalog_name}_{self.dataset_name}"
-
         if save_path:
-            file_path = f"{save_path}/{self.output_file_name}"
-            self.write_results(out, file_path)
+            self.write_results(out, save_path)
 
         self.write_results(out)
 

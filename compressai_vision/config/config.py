@@ -62,7 +62,7 @@ def configure_conf(conf: DictConfig):
 
 
 def create_vision_model(device: str, conf: DictConfig) -> nn.Module:
-    return VISIONMODELS[conf.arch](device, **conf).eval()
+    return VISIONMODELS[conf.arch](device, **conf[conf.arch]).eval()
 
 
 def create_data_transform(conf: DictConfig) -> transforms.Compose:
@@ -130,13 +130,11 @@ def create_evaluator(
     return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
 
 
-def create_pipline(conf: DictConfig, vision_model, codec, dataloader, evaluator):
+def create_pipline(conf: DictConfig):
     pipeline_type = conf.type + "-" + conf.name
 
     # OmegaConf.to_container(conf.config, resolve=True)
-    return PIPELINES[pipeline_type](
-        dict(conf), vision_model, codec, dataloader, evaluator
-    )
+    return PIPELINES[pipeline_type](dict(conf))
 
 
 def create_codec(conf: DictConfig):

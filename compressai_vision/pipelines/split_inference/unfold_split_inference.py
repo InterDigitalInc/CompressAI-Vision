@@ -53,20 +53,22 @@ class UnfoldSplitInference(BaseSplit):
     def __init__(
         self,
         configs: Dict,
+    ):
+        super().__init__(configs)
+
+    def __call__(
+        self,
         vision_model: BaseWrapper,
         codec,
-        dataloader: Callable = None,
-        evaluator: Callable = None,
-    ):
-        super().__init__(configs, vision_model, codec, dataloader, evaluator)
-
-    def __call__(self) -> Dict:
+        dataloader: Callable,
+        evaluator: Callable,
+    ) -> Dict:
         """Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
         output_list = []
-        for e, d in enumerate(tqdm(self.dataloader)):
+        for e, d in enumerate(tqdm(dataloader)):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
 
@@ -74,16 +76,18 @@ class UnfoldSplitInference(BaseSplit):
 
             cache_file = f'img_id_{d[0]["image_id"]}'
 
-            featureT = self._from_input_to_features(d, cache_file)
+            featureT = self._from_input_to_features(vision_model, d, cache_file)
             featureT["org_input_size"] = org_img_size
 
-            res = self._compress_features(featureT, cache_file)
+            res = self._compress_features(codec, featureT, cache_file)
 
-            dec_featureT = self._decompress_features(res["bitstream"], cache_file)
+            dec_featureT = self._decompress_features(
+                codec, res["bitstream"], cache_file
+            )
 
-            pred = self._from_features_to_output(dec_featureT)
+            pred = self._from_features_to_output(vision_model, dec_featureT)
 
-            self._collect_pairs(d, pred)
+            evaluator.digest(d, pred)
 
             out_res = d[0].copy()
             del out_res["image"], out_res["width"], out_res["height"]
@@ -93,7 +97,7 @@ class UnfoldSplitInference(BaseSplit):
             out_res["input_size"] = featureT["input_size"][0]
             output_list.append(out_res)
 
-        mAP = self._evaluation()
+        mAP = self._evaluation(evaluator)
 
         return {"coded_res": output_list, "mAP": mAP}
 
@@ -119,11 +123,11 @@ class UnfoldSplitInference(BaseSplit):
 
         raise (AssertionError("virtual"))
 
-    def _from_input_to_features(self, x, name: str = None):
+    def _from_input_to_features(self, vision_model: BaseWrapper, x, name: str = None):
         """run the input according to a specific rquirement for input to encoder"""
 
         if not self._is_caching(Parts.PreInference):
-            return self.vision_model.input_to_features(x)
+            return vision_model.input_to_features(x)
 
         # Caching while processing the pre-inference computation
         _folder = self._create_folder(
@@ -134,16 +138,18 @@ class UnfoldSplitInference(BaseSplit):
         if self._check_cache_file(_caching_target):
             cached = torch.load(_caching_target)
         else:
-            out = self.vision_model.input_to_features(x)
+            out = vision_model.input_to_features(x)
             torch.save(out, _caching_target)
             cached = out
 
         return cached
 
-    def _from_features_to_output(self, x: Dict, name: str = None):
+    def _from_features_to_output(
+        self, vision_model: BaseWrapper, x: Dict, name: str = None
+    ):
         """Postprocess of possibly encoded/decoded data for various tasks inlcuding for human viewing and machine analytics"""
         if not self._is_caching(Parts.PostInference):
-            return self.vision_model.features_to_output(x)
+            return vision_model.features_to_output(x)
 
         # Caching while processing the pre-inference computation
         _folder = self._create_folder(
@@ -154,20 +160,20 @@ class UnfoldSplitInference(BaseSplit):
         if self._check_cache_file(_caching_target):
             cached = torch.load(_caching_target)
         else:
-            out = self.vision_model.features_to_output(x)
+            out = vision_model.features_to_output(x)
             torch.save(out, _caching_target)
             cached = out
 
         return cached
 
-    def _compress_features(self, x, name: str):
+    def _compress_features(self, codec, x, name: str):
         """
         Inputs: tensors of features
         Returns a list of frame bytes and a bitstream path.
         """
 
         if not self._is_caching(Parts.Encoder):
-            return self.codec.encode(x, name)
+            return codec.encode(x, name)
 
         # Caching while processing encoding the input
         _folder = self._create_folder(
@@ -178,20 +184,20 @@ class UnfoldSplitInference(BaseSplit):
         if self._check_cache_file(_caching_target):
             cached = torch.load(_caching_target)
         else:
-            out = self.codec.encode(x, name)
+            out = codec.encode(x, name)
             torch.save(out, _caching_target)
             cached = out
 
         return cached
 
-    def _decompress_features(self, x, name: str):
+    def _decompress_features(self, codec, x, name: str):
         """
         Inputs: a bitstream path
         Returns reconstructed feature tensors
         """
 
         if not self._is_caching(Parts.Decoder):
-            return self.codec.decode(x, name)
+            return codec.decode(x, name)
 
         # Caching while processing encoding the input
         _folder = self._create_folder(
@@ -202,90 +208,8 @@ class UnfoldSplitInference(BaseSplit):
         if self._check_cache_file(_caching_target):
             cached = torch.load(_caching_target)
         else:
-            out = self.codec.decode(x, name)
+            out = codec.decode(x, name)
             torch.save(out, _caching_target)
             cached = out
 
         return cached
-
-
-def stuff(args):  # This can be reference for codec parts
-    # to get the current working directory
-    rwYUV = dataio.readwriteYUV(device, format=dataio.PixelFormat.YUV400_10le, align=16)
-    bitdepth = 10
-
-    # packing_all_in_one = True
-    # packing_all_in_one = False
-
-    def min_max_normalization(x, minv: float, maxv: float, bitdepth=8):
-        max_num_bins = (2**bitdepth) - 1
-
-        out = ((x - minv) / (maxv - minv)).clamp_(0, 1)
-        mid_level = -minv / (maxv - minv)
-
-        return (out * max_num_bins).floor(), int(mid_level * max_num_bins + 0.5)
-
-    def min_max_inv_normalization(x, minv: float, maxv: float, bitdepth=8):
-        out = x / ((2**bitdepth) - 1)
-        out = (out * (maxv - minv)) + minv
-        return out
-
-    setWriter = False
-    setReader = False
-
-    """
-
-        features, input_img_size = model.input_to_feature_pyramid(d)
-
-        frame, feature_size, subframe_height = model.reshape_feature_pyramid_to_frame(
-            features, packing_all_in_one=packing_all_in_one
-        )
-
-        if packing_all_in_one:
-            minv, maxv = test_dataset.get_min_max_across_tensors()
-            normalized_frame, mid_level = min_max_normalization(
-                frame, minv, maxv, bitdepth=bitdepth
-            )
-
-            ## dump yuv
-            # if setWriter is False:
-            #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    #setWriter = True
-
-            # rwYUV.write_single_frame(normalized_frame, mid_level=mid_level)
-
-            # read yuv
-            # if setReader is False:
-            #    rwYUV.setReader("/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    setReader = True
-
-            # loaded_normalized_frame = rwYUV.read_single_frame(e)
-            # normalized_frame = rwYUV.read_single_frame(0)
-
-            # diff = normalized_frame - loaded_normalized_frame
-            # if setWriter is False:
-            #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/diff.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    setWriter = True
-
-            # rwYUV.write_single_frame((diff+256), mid_level=mid_level)
-
-            rescaled_frame = min_max_inv_normalization(
-                normalized_frame, minv, maxv, bitdepth=bitdepth
-            )
-        else:
-            rescaled_frame = frame
-
-        back_to_features = model.reshape_frame_to_feature_pyramid(
-            rescaled_frame,
-            feature_size,
-            subframe_height,
-            packing_all_in_one=packing_all_in_one,
-        )
-
-        # results = model(d)
-        # print(type(results))
-
-        evaluator.process(d, results)
-
-    """

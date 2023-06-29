@@ -83,19 +83,11 @@ class BaseSplit(nn.Module):
     def __init__(
         self,
         configs: Dict,
-        vision_model,
-        codec,
-        dataloader: DataLoader = None,
-        evaluator: BaseEvaluator = None,
     ):
         super().__init__()
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.configs = configs
-        self.vision_model = vision_model
-        self.codec = codec
-        self.dataloader = dataloader
-        self.evaluator = evaluator
 
         self._caching_folder = None
         self._instant_caching = self._use_caching
@@ -148,14 +140,7 @@ class BaseSplit(nn.Module):
         """
         raise (AssertionError("virtual"))
 
-    def _collect_pairs(self, gt, pred):
-        if self.evaluator:
-            self.evaluator.digest(gt, pred)
-
-    def _evaluation(self) -> Dict:
-        if self.evaluator is None:
-            return None
-
+    def _evaluation(self, evaluator: Callable) -> Dict:
         save_path = None
         if self._is_caching(Parts.Evaluation):
             # Save output results
@@ -163,7 +148,7 @@ class BaseSplit(nn.Module):
                 os.path.join(self._caching_folder, str(Parts.Evaluation))
             )
 
-        out = self.evaluator.results(save_path)
+        out = evaluator.results(save_path)
 
         return out
 
