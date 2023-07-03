@@ -1,3 +1,2 @@
 type: "bypass"
-args:
-  output_dir: '${paths._runs_root}/bitstreams'
+output_dir: "${paths._runs_root}/${.type}"

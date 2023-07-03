@@ -50,13 +50,21 @@ class VoidEncoderDecoder(EncoderDecoder):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.reset()
 
-        self.output_dir = self._create_folder(kwargs["output_dir"])
+        output_dir = Path(kwargs["output_dir"])
+        if not output_dir.is_dir():
+            self.logger.info(f"creating output folder: {output_dir}")
+            output_dir.mkdir(parents=True, exist_ok=True)
 
     def reset(self):
         """Reset the internal state of the encoder & decoder, if any"""
         self.cc = 0
 
-    def encode(self, input: Dict, tag: str = None):
+    def encode(
+        self,
+        input: Dict,
+        file_prefix: str = "",
+        # TODO (fracape) harmonize args
+    ):
         """
         :param input: input data in dictonary
             By default, the input data must include following keywords
@@ -73,7 +81,7 @@ class VoidEncoderDecoder(EncoderDecoder):
         Returns a list of bits per frame and a path for the bitstream
         """
         # Not really write the tensors into a file
-        # file_path = os.path.join(self.output_dir, f"{tag}.bin")
+        # file_path = os.path.join(self.output_dir, f"{file_prefix}.bin")
 
         # with Path(file_path).open("wb") as fd:
         #    # write minimum header
@@ -97,7 +105,12 @@ class VoidEncoderDecoder(EncoderDecoder):
             "bitstream": input,
         }
 
-    def decode(self, input, tag: str = None):
+    def decode(
+        self,
+        input: Dict,
+        file_prefix: str = "",
+        # TODO (fracape) harmonize args
+    ):
         return input
 
     @staticmethod

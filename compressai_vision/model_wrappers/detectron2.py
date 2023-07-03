@@ -27,9 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# TODO (racapef) check/add detectron2 license header
-
 import os
+from pathlib import Path
 from typing import Dict, List
 
 import torch
@@ -38,10 +37,11 @@ from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 from torch import Tensor
 
+from compressai_vision.model_wrappers.utils import compute_frame_resolution
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-from .utils import compute_frame_resolution, tensor_to_tiled, tiled_to_tensor
+from .utils import tensor_to_tiled, tiled_to_tensor
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -50,15 +50,17 @@ __all__ = [
     "mask_rcnn_R_50_FPN_3x",
 ]
 
-directory = os.getcwd()
+thisdir = Path(__file__).parent
+root_path = thisdir.joinpath("../..")
 
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device="cpu", **kwargs):
         super().__init__()
 
+        self.device = device
         self._cfg = get_cfg()
-        self._cfg.merge_from_file(kwargs["cfg"])
+        self._cfg.merge_from_file(f"{root_path}/{kwargs['cfg']}")
         self.model = build_model(self._cfg).to(device).eval()
 
         self.backbone = self.model.backbone
@@ -66,7 +68,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(kwargs["weight"])
+        DetectionCheckpointer(self.model).load(f"{root_path}/{kwargs['weight']}")
 
         self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
 
@@ -97,6 +99,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self, x: Dict, org_img_size: Dict, input_img_size: List
     ):
         """
+        performs  downstream task using the feature pyramid ['p2', 'p3', 'p4', 'p5']
 
         Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
         Unnecessary parts for split inference are removed or modified properly.
@@ -105,8 +108,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         https://github.com/facebookresearch/detectron2/blob/main/LICENSE
 
         """
-
-        """Complete the downstream task from the feature pyramid ['p2', 'p3', 'p4', 'p5'] """
 
         class dummy:
             def __init__(self, img_size: list):
@@ -194,7 +195,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         feature_tensor = {}
         for key, frame in tiled_frame.items():
             _, numChs, chH, chW = tensor_shape[key]
-            tensor = tiled_to_tensor(frame, (chH, chW))
+            tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
             assert tensor.size(1) == numChs
 
             feature_tensor.update({key: tensor})

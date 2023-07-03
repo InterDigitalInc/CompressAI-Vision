@@ -1,2 +1,2 @@
 _common_root: './logs'
-_runs_root: ${hydra:runtime.cwd}
+_runs_root: "${._common_root}/runs"

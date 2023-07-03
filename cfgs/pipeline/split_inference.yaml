@@ -1,33 +1,33 @@
 ###########################################################################################
-# A schematic for the split-inference pipline                                             #
-#                                                                                         #
-#             Fold                                                        Fold            #
-#           ┌ ─── ┐                                                     ┌ ─── ┐           #
-#           |     │                                                     |     │           #
-#           |     │                                                     |     │           #
-#     ┌─────|─────▼─────┐                                         ┌─────|─────▼─────┐     #
-#     │                 │     ┌───────────┐     ┌───────────┐     │                 │     #
-#     │      Pre-       │     │           │     │           │     │      Post-      │     #
-#────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►#
-#     │    Inference    │     │           │     │           │     │    Inference    │     #
-#     │                 │     └───────────┘     └───────────┘     │                 │     #
-#     └─────────────────┘                                         └─────────────────┘     #
-#                                                                                         #
-#    ──────►──────►──────►──────►──────►───Unfold───►──────►──────►──────►──────►──────►  #
+# A schematic for the split-inference pipline
+#              Fold                                                        Fold
+#            ┌ ─── ┐                                                     ┌ ─── ┐
+#            |     |                                                     |     |
+#            |     │                                                     |     │
+#      ┌─────┴─────▼─────┐                                         ┌─────┴─────▼─────┐
+#      │                 │     ┌───────────┐     ┌───────────┐     │                 │
+#      │     NN Task     │     │           │     │           │     │      NN Task    │
+# ────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
+#      │      Part 1     │     │           │     │           │     │      Part 2     │
+#      │                 │     └───────────┘     └───────────┘     │                 │
+#      └─────────────────┘                                         └─────────────────┘
+
+#     ──────►──────►──────►──────►──────►───Unfold───►──────►──────►──────►──────►──────►
 ###########################################################################################
 
 name: 'split-inference'
 type: 'fold' # If type is fold, all feature tensors for the input are first computed before proceeding encoding process
-output_dir: ${paths._runs_root}/.cache_pipeline/${.type}-${.name}
+output_dir: ${paths._runs_root}/${.name}-${.type}
 
-cache: 
-  enabled: False
-  keep: False
-  dir:
 
-  preinference: True
-  encoder: False
-  decoder: False
-  postinference: False
-  evaluation: True
-
+nn_task_part1:
+    load_features: False
+    dump_features: True
+    feature_dir: ${..output_dir}/features
+nn_task_part2:
+    dump_results: False
+    output_results_dir: ${..output_dir}/output_results
+evaluation:
+    bypass: False
+    dump: True
+    evaluation_dir: ${..output_dir}/evaluation

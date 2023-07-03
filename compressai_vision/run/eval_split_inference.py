@@ -42,7 +42,9 @@ from typing import Any
 import hydra
 from omegaconf import DictConfig
 
-config_path = "../../cfgs"
+thisdir = Path(__file__).parent
+config_path = thisdir.joinpath("../../cfgs")
+
 
 from compressai_vision.config import (
     configure_conf,
@@ -66,7 +68,7 @@ def setup(conf: DictConfig) -> dict[str, Any]:
         dataloader.dataset,
     )
 
-    codec = create_codec(conf.codec)
+    codec = create_codec(conf.codec, vision_model, conf.dataset.config.dataset_name)
 
     pipeline = create_pipline(conf.pipeline, conf.misc.device)
 

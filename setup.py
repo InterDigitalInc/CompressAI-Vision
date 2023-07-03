@@ -34,7 +34,7 @@ from setuptools import find_packages, setup
 
 
 package_name = "compressai_vision"
-version = "1.2.4.dev0"
+version = "0.1.0.dev0"
 git_hash = "unknown"
 
 cwd = Path(__file__).resolve().parent
@@ -64,7 +64,6 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "flake8-bugbear",
     "flake8-comprehensions",
     "isort",
-    "mypy",
 ]
 
 
@@ -82,12 +81,14 @@ setup(
     version=version,
     install_requires=[
         "hydra",
+        "omegaconf",
+        "yuvio",
     ],
     packages=find_packages(),
     include_package_data=True,
     entry_points={
         "console_scripts": [
-            "compressai-vision = compressai_vision.cli.main:main",
+            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main",
         ]
     },
     # metadata for upload to PyPI

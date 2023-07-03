@@ -3,10 +3,9 @@
 # This clones and build model architectures and gets pretrained weights
 set -eu
 
-# default values taken from MPEG FCVCM documents
-TORCH_VERSION="1.10.2" # "2.0.1"
-TORCHVISION_VERSION="0.11.3" # "1.15.1"
-TORCHAUDIO_VERSION="0.10.2" # "2.0.2"
+# default values, to be adapted w.r.t. MPEG FCVCM documents
+TORCH_VERSION="2.0.0" # "1.10.2"
+TORCHVISION_VERSION="0.15.1" # "0.11.3"
 CUDA_VERSION=""
 MODEL="detectron2"
 CPU="False"
@@ -34,23 +33,22 @@ RUN OPTIONS:
                 [--torchvision torchvision version]
                 [--torchaudio torchaudio version]
                 [--cpu) build for cpu only)]
-                [--cuda_version) provide cuda version e.g. "11.8", default: check nvcc output)]
+                [--cuda) provide cuda version e.g. "11.8", default: check nvcc output)]
                 [--detectron2_url use this if you want to specify a pre-built detectron2 (find at
                     "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
 
 
-EXAMPLE         [bash get_models.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
+EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 _EOF_
             exit;
             ;;
         -m|--model) shift; MODEL="$1"; shift; ;;
         -t|--torch) shift; TORCH_VERSION="$1"; shift; ;;
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
-        --torchaudio) shift; TORCHAUDIO_VERSION="$1"; shift; ;;
         --cpu) shift; CPU="True"; shift; ;;
-        --cuda_version) shift; CUDA_VERSION="$1"; shift; ;;
+        --cuda) shift; CUDA_VERSION="$1"; shift; ;;
         --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
@@ -61,7 +59,7 @@ done;
 if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
     echo
-    echo "Install detectron2"
+    echo "Installing detectron2"
     echo
 
     # clone
@@ -70,8 +68,10 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     fi
     cd ${MODELS_DIR}/detectron2
 
-    # to be compatible with MPEG FCVCM
-    git checkout 175b2453c2bc4227b8039118c01494ee75b08136
+    echo
+    echo "checkout branch compatible with MPEG FCVCM"
+    echo
+    git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
 
     if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
         CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
@@ -84,12 +84,13 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     else
         echo "cuda version: $CUDA_VERSION"
-        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} torchaudio==${TORCHAUDIO_VERSION}+cu${CUDA_VERSION//./} --index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        wait
     fi
-
-    pip install .
-
+    pip install -e .
     cd ../../
+
+
 
     #download weights
 
@@ -118,6 +119,15 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
 fi
 
+if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
+    echo "JDE not supported yet"
+fi
+    # JDE
+    # mkdir -p "${SCRIPT_DIR}/../models/jde"
 
-## JDE
-# mkdir -p "${SCRIPT_DIR}/../models/jde"
+
+echo
+echo "Installing compressai-vision"
+echo
+
+pip install -e .

@@ -1,24 +1,38 @@
+![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
+
 # CompressAI-FCVCM
 
+CompressAI-FCVCM is an evaluation framework for compressing intermediate features produced in the context of split models. 
+It helps you to develop, test and evaluate compression models with standardized tests in the context of MPEG "Feature Compression for Video Coding for Machines" (FCVCM).
 
-## Get model weights
+The figure below shows the main framework 
 
-first create relevant folders by running:
+
+## Documentation
+
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
+
+## installation
+
+To get started locally and install the development version of CompressAI-FCVCM, first create and activate a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
+
+Bash scripts are provided to get proper installation of dependencies. First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
 ```
-bash scripts/mkdirs.bash
+bash scripts/env_cuda.sh 11.8
 ```
 
-### detectron2
-Weights can be downloaded at:
-https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl
-
-Store the file as:
-`data/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl`
+Then, install the different models and related dependencies using
+```
+bash scripts/install_models.sh
+```
 
 
-### JDE
-Weights can be downloaded at:
-https://drive.google.com/open?id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA
+For more otions, check:
+```
+bash scritps/install_models.sh --help
+```
 
-Store the file as:
-`data/jde/jde.1088x608.uncertainty.pt`
+Finally, install CompressAI-FCVCM:
+```
+pip install -e .
+```

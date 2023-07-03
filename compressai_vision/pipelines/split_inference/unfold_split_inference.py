@@ -27,14 +27,23 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Dict
+import logging
+import os
+import shutil
+from enum import Enum
+from pathlib import Path
+from typing import Callable, Dict
+from uuid import uuid4 as uuid
 
+import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
+from compressai_vision.utils import dataio
 
 from .base_split import BaseSplit
 
@@ -66,18 +75,28 @@ class UnfoldSplitInference(BaseSplit):
 
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
 
-            cache_file = f'img_id_{d[0]["image_id"]}'
+            file_prefix = f'img_id_{d[0]["image_id"]}'
 
-            featureT = self._from_input_to_features(vision_model, d, cache_file)
+            featureT = self._from_input_to_features(vision_model, d, file_prefix)
             featureT["org_input_size"] = org_img_size
 
-            res = self._compress_features(codec, featureT, cache_file)
+            res = self._compress_features(codec, featureT, file_prefix)
 
             dec_featureT = self._decompress_features(
-                codec, res["bitstream"], cache_file
+                codec, res["bitstream"], file_prefix
             )
 
-            pred = self._from_features_to_output(vision_model, dec_featureT)
+            # TODO (hyomin) how should org_input_size and input_size be conveyed, bitstream?
+            if not "data" in dec_featureT:
+                dec_featureT = {
+                    "data": dec_featureT,
+                    "input_size": featureT["input_size"],
+                    "org_input_size": featureT["org_input_size"],
+                }
+
+            pred = self._from_features_to_output(
+                vision_model, dec_featureT, file_prefix
+            )
 
             evaluator.digest(d, pred)
 
@@ -92,25 +111,3 @@ class UnfoldSplitInference(BaseSplit):
         mAP = self._evaluation(evaluator)
 
         return {"coded_res": output_list, "mAP": mAP}
-
-    def encode(self):
-        """
-        Write your own encoding behaviour including the pre-inference + compression part.
-
-        The input is supposed to be image or video, which can be resized within this function
-        before using it as input to the front part of the inference model.
-
-        It is ideal to call this function when carrying ``encoding'' out only.
-        """
-        raise (AssertionError("virtual"))
-
-    def decode(self):
-        """
-        Write your own decoding behaviour including the uncompression + the post-inference part.
-
-        The input is supposed to be a bistream(s) to decode with the assigned decoder.
-
-        It is ideal to call this function when carrying ``decoding'' out only.
-        """
-
-        raise (AssertionError("virtual"))

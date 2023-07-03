@@ -32,33 +32,18 @@ import math
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-import torch
-from pytorch_msssim import ms_ssim
+from torch import Tensor
 
 
 class EncoderDecoder:
-    """NOTE: virtual class that *you* need to subclass
-
-    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image, resulting in "transformed" image.
-
-    Transformed image is similar to the original image, while the encoding+decoding process might have introduced some distortion.
-
-    The instance may (say, H266 video encoder+decoder) or may not (say, jpeg encoder+decoder) have an internal state.
     """
-
-    # helpers
-    def compute_psnr(self, a, b):
-        mse = torch.mean((a - b) ** 2).item()
-        return -10 * math.log10(mse)
-
-    def compute_msssim(self, a, b):
-        return ms_ssim(a, b, data_range=1.0).item()
+    Compresses input tensors of features
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.reset()
         self.compute_metrics = True
-        raise (AssertionError("virtual"))
 
     def computeMetrics(self, state: bool):
         self.compute_metrics = state
@@ -94,24 +79,33 @@ class EncoderDecoder:
             dSize,
         ]
 
-    def encode(self, input: Dict, tag: str = None):
+    # TODO (fracape) need for forward function?
+    # ie compress/decompress with entropy estimation a la CompressAI
+
+    # def __call__(self, input: Dict[Tensor]) -> Tuple(List, Dict):
+    #     """
+    #     Encoder/Decoder pipeline
+    #     - Applies pre-processing if need be (e.g. conversion to YUV)
+    #     - Encodes features data
+    #     - Writes a bitstream
+    #     Returns a list of bits per frame and decompressed Dict of Tensors
+    #     """
+
+    def compress(self, input: Dict[str, Tensor]) -> List:
         """
-        :param input: input data in torch
-        :param tag: a string that can be used to identify & cache images (optional)
-
-        Compress the input, write a bitstream
-
-        Returns a list of bits per frame along with input frame size and a path for the bitstream
+        Encoder pipeline
+        - Applies pre-processing if need be (e.g. conversion to YUV)
+        - Encodes features data
+        - Writes a bitstream
+        Returns a list of bits per frame
         """
         raise (AssertionError("virtual"))
 
-    def decode(Self, bitstream_path):
+    def decompress(Self, bitstream_path: str) -> Dict[str, Tensor]:
+        """
+        Decoder pipeline
+        - Decodes features data
+        - Converts back to dictionary of tensors (e.g. conversion to YUV)
+        Returns a list of bits per frame
+        """
         raise (AssertionError("virtual"))
-
-    def _create_folder(self, dir):
-        path = Path(dir)
-        if not path.is_dir():
-            self.logger.info(f"creating {dir}")
-            path.mkdir(parents=True, exist_ok=True)
-
-        return dir

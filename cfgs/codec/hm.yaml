@@ -1,0 +1,17 @@
+type: "hm"
+output_dir: "${paths._runs_root}/${.type}"
+bitstream_dir: "${.output_dir}"
+log_dir: "${.output_dir}" 
+codec_paths:
+  encoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppEncoderStatic"
+  decoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppDecoderStatic"
+  # use rext cfg for 400 format
+  cfg_file: "/pa/home/racapef/hevc/HM/cfg/encoder_intra_main_rext.cfg"
+dump_yuv:
+  dump_yuv_in: True
+  yuv_in_dir: ${..output_dir}
+  dump_yuv_dec: False
+  yuv_dec_dir: ${..output_dir}
+encoder_config:
+  qp: 42
+

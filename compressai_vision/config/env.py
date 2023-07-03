@@ -34,7 +34,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
-import compressai
+# import compressai
 from omegaconf import DictConfig
 
 import compressai_vision
@@ -48,7 +48,8 @@ def get_env(conf: DictConfig) -> dict[str, Any]:
                 package.__path__[0],
                 conf.env.git[package.__name__].main_branch,
             )
-            for package in [compressai_vision, compressai]
+            for package in [compressai_vision]
+            # NOTE (fracape) can add compressai here when used
         },
         "slurm": {
             "account": os.environ.get("SLURM_JOB_ACCOUNT"),

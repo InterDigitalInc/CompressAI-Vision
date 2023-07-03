@@ -63,15 +63,10 @@ class BaseEvaluator(nn.Module):
         if path is None:
             path = f"{self.output_dir}"
 
-        path = self._create_folder(path)
+        path = Path(path)
+        if not path.is_dir():
+            self.logger.info(f"creating output folder: {path}")
+            path.mkdir(parents=True, exist_ok=True)
 
         with open(f"{path}/{self.output_file_name}.json", "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, indent=4)
-
-    def _create_folder(self, dir):
-        path = Path(dir)
-        if not path.is_dir():
-            self._logger.info(f"creating {dir}")
-            path.mkdir(parents=True, exist_ok=True)
-
-        return dir
