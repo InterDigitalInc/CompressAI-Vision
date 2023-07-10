@@ -23,11 +23,11 @@ output_dir: ${paths._runs_root}/${.name}-${.type}
 nn_task_part1:
     load_features: False
     dump_features: True
-    feature_dir: ${..output_dir}/features
+    feature_dir: ${..output_dir}/${dataset.config.dataset_name}/features
 nn_task_part2:
     dump_results: False
-    output_results_dir: ${..output_dir}/output_results
+    output_results_dir: ${..output_dir}/${dataset.config.dataset_name}/output_results
 evaluation:
     bypass: False
     dump: True
-    evaluation_dir: ${..output_dir}/evaluation
+    evaluation_dir: ${..output_dir}/${dataset.config.dataset_name}/evaluation

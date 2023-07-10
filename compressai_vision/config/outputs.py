@@ -32,7 +32,7 @@ import os
 from types import ModuleType
 from typing import Any, Mapping
 
-import compressai
+# import compressai
 from omegaconf import DictConfig, OmegaConf
 
 import compressai_vision
@@ -45,7 +45,7 @@ CONFIG_NAME = "config.yaml"
 def write_outputs(conf: DictConfig):
     write_config(conf)
     write_git_diff(conf, compressai_vision)
-    write_git_diff(conf, compressai)
+    # write_git_diff(conf, compressai)
     write_pip_list(conf)
     write_pip_requirements(conf)
 

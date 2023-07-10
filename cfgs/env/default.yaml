@@ -1,0 +1,19 @@
+git:
+  compressai:
+    branch:
+    hash:
+    main_branch: "master"
+    main_hash:
+  compressai_vision:
+    branch:
+    hash:
+    main_branch: "main"
+    main_hash:
+slurm:
+  account:
+  job_id:
+  job_array_task_id:
+  job_name:
+system:
+  hostname:
+  username:

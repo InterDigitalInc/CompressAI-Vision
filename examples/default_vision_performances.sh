@@ -1,14 +1,35 @@
-ENTRY_CMD='compressai-fcvcm/compressai_vision/run/eval_encdec.py'
-MPEG_OIV6_SRC='/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/mpeg-oiv6'
-SFU_HW_SRC='/pa/home/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata/SFU_HW_Obj'
+#!/usr/bin/env bash
+#
+# This clones and build model architectures and gets pretrained weights
+set -eu
 
-cd ../../
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ENTRY_CMD="${SCRIPT_DIR}/../compressai_vision/run/eval_split_inference.py"
+
+VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
+
+MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
+SFU_HW_SRC=${PWD}"${VCM_TESTDATA}/SFU_HW_Obj"
 
 # MPEGOIV6 - Detection with Faster RCNN
-python ${ENTRY_CMD} --config-name=eval_example.yaml ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x ++dataset.type=Detectron2Dataset ++dataset.datacatalog=MPEGOIV6 ++dataset.config.root=${MPEG_OIV6_SRC} ++dataset.config.annotation_file=mpeg-oiv6-detection-coco.json ++dataset.config.dataset_name=mpeg-oiv6-detection ++evaluator.type=OIC-EVAL
+python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                    ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+                    ++dataset.type=Detectron2Dataset \
+                    ++dataset.datacatalog=MPEGOIV6 \
+                    ++dataset.config.root=${MPEG_OIV6_SRC} \
+                    ++dataset.config.annotation_file=mpeg-oiv6-detection-coco.json \
+                    ++dataset.config.dataset_name=mpeg-oiv6-detection \
+                    ++evaluator.type=OIC-EVAL
 
 # MPEGOIV6 - Segmentation with Mask RCNN
-python ${ENTRY_CMD} --config-name=eval_example.yaml ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x ++dataset.type=Detectron2Dataset ++dataset.datacatalog=MPEGOIV6 ++dataset.config.root=${MPEG_OIV6_SRC} ++dataset.config.annotation_file=mpeg-oiv6-segmentation-coco.json ++dataset.config.dataset_name=mpeg-oiv6-segmentation ++evaluator.type=OIC-EVAL
+python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                    ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
+                    ++dataset.type=Detectron2Dataset \
+                    ++dataset.datacatalog=MPEGOIV6 \
+                    ++dataset.config.root=${MPEG_OIV6_SRC} \
+                    ++dataset.config.annotation_file=mpeg-oiv6-segmentation-coco.json \
+                    ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
+                    ++evaluator.type=OIC-EVAL
 
 # SFU - Segmentation with Faster RCNN
 for SEQ in \
@@ -27,5 +48,13 @@ for SEQ in \
             'BlowingBubbles_416x240_50_val' \
             'RaceHorses_416x240_30_val'
 do
-    python ${ENTRY_CMD} --config-name=eval_example.yaml ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x ++dataset.type=Detectron2Dataset ++dataset.datacatalog=SFUHW ++dataset.config.root=${SFU_HW_SRC}/${SEQ} ++dataset.config.annotation_file=${SEQ}.json ++dataset.config.dataset_name=sfu-hw-${SEQ} ++evaluator.type=COCO-EVAL
+    python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                        ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+                        ++dataset.type=Detectron2Dataset \
+                        ++dataset.datacatalog=SFUHW \
+                        ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
+                        ++dataset.config.annotation_file=${SEQ}.json \
+                        ++dataset.config.dataset_name=sfu-hw-${SEQ} \
+                        ++evaluator.type=COCO-EVAL
 done
+

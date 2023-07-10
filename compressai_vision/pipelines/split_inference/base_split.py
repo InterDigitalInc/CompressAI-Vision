@@ -127,6 +127,10 @@ class BaseSplit(nn.Module):
 
         results_file = f"{output_results_dir}/{seq_name}{EXT}"
 
+        assert "data" in x
+        for _, tensor in x["data"].items():
+            tensor.to(self.device)
+
         results = vision_model.features_to_output(x)
         if self.configs["nn_task_part2"].dump_results:
             self._create_folder(output_results_dir)
