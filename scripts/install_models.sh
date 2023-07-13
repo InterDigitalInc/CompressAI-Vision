@@ -40,7 +40,7 @@ RUN OPTIONS:
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
 
 
-EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
+EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
 _EOF_
             exit;
             ;;
@@ -88,14 +88,13 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         wait
     fi
     pip install -e .
-    cd ../../
 
+    # back to project root
+    cd ${SCRIPT_DIR}/..
 
-
-    #download weights
 
     echo
-    echo "Downloading weights"
+    echo "Downloading model weights"
     echo
 
     # FASTER R-CNN X-101 32x8d FPN

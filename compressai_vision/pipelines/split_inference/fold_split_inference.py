@@ -71,14 +71,14 @@ class FoldSplitInference(BaseSplit):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
 
-            cache_file = f'img_id_{d[0]["image_id"]}'
+            output_file_prefix = f'img_id_{d[0]["image_id"]}'
             gt_inputs.append(
                 [
                     {"image_id": d[0]["image_id"]},
                 ]
             )
 
-            res = self._from_input_to_features(vision_model, d, cache_file)
+            res = self._from_input_to_features(vision_model, d, output_file_prefix)
 
             assert "data" in res
             num_items = self._data_buffering(res["data"])
@@ -96,12 +96,22 @@ class FoldSplitInference(BaseSplit):
 
         assert num_items == len(dataloader)
 
+        if self.configs["nn_task_part1"].generate_features_only is True:
+            print(
+                f"features generated in {self.configs['nn_task_part1']['feature_dir']}\n exiting"
+            )
+            raise SystemExit(0)
         # concatenate a list of tensors at each keyword item
         featureT["data"] = self._concat_data()
 
-        res = self._compress_features(codec, featureT, cache_file)
+        res = self._compress_features(codec, featureT, output_file_prefix)
 
-        dec_featureT = self._decompress_features(codec, res["bitstream"], cache_file)
+        if self.configs["encode_only"] is True:
+            print(f"bitstreams generated, exiting")
+            raise SystemExit(0)
+        dec_featureT = self._decompress_features(
+            codec, res["bitstream"], output_file_prefix
+        )
 
         # separate a tensor of each keyword item into a list of tensors
         dec_feature_tesnor = self._split_data(dec_featureT["data"])
@@ -120,28 +130,6 @@ class FoldSplitInference(BaseSplit):
         mAP = self._evaluation(evaluator)
 
         return {"coded_res": output_list, "mAP": mAP}
-
-    def encode(self):
-        """
-        Write your own encoding behaviour including the pre-inference + compression part.
-
-        The input is supposed to be image or video, which can be resized within this function
-        before using it as input to the front part of the inference model.
-
-        It is ideal to call this function when carrying ``encoding'' out only.
-        """
-        raise (AssertionError("virtual"))
-
-    def decode(self):
-        """
-        Write your own decoding behaviour including the uncompression + the post-inference part.
-
-        The input is supposed to be a bistream(s) to decode with the assigned decoder.
-
-        It is ideal to call this function when carrying ``decoding'' out only.
-        """
-
-        raise (AssertionError("virtual"))
 
     def _data_buffering(self, data: Dict):
         """
@@ -186,85 +174,3 @@ class FoldSplitInference(BaseSplit):
                 out_dict[key] = val[e].to(self.device)
 
             yield out_dict
-
-
-def stuff(args):  # This can be reference for codec parts
-    # to get the current working directory
-    rwYUV = dataio.readwriteYUV(device, format=dataio.PixelFormat.YUV400_10le, align=16)
-    bitdepth = 10
-
-    # packing_all_in_one = True
-    # packing_all_in_one = False
-
-    def min_max_normalization(x, minv: float, maxv: float, bitdepth=8):
-        max_num_bins = (2**bitdepth) - 1
-
-        out = ((x - minv) / (maxv - minv)).clamp_(0, 1)
-        mid_level = -minv / (maxv - minv)
-
-        return (out * max_num_bins).floor(), int(mid_level * max_num_bins + 0.5)
-
-    def min_max_inv_normalization(x, minv: float, maxv: float, bitdepth=8):
-        out = x / ((2**bitdepth) - 1)
-        out = (out * (maxv - minv)) + minv
-        return out
-
-    setWriter = False
-    setReader = False
-
-    """
-
-        features, input_img_size = model.input_to_feature_pyramid(d)
-
-        frame, feature_size, subframe_height = model.reshape_feature_pyramid_to_frame(
-            features, packing_all_in_one=packing_all_in_one
-        )
-
-        if packing_all_in_one:
-            minv, maxv = test_dataset.get_min_max_across_tensors()
-            normalized_frame, mid_level = min_max_normalization(
-                frame, minv, maxv, bitdepth=bitdepth
-            )
-
-            ## dump yuv
-            # if setWriter is False:
-            #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    #setWriter = True
-
-            # rwYUV.write_single_frame(normalized_frame, mid_level=mid_level)
-
-            # read yuv
-            # if setReader is False:
-            #    rwYUV.setReader("/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/out_tensor/BasketballDrill.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    rwYUV.setReader("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/test.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    setReader = True
-
-            # loaded_normalized_frame = rwYUV.read_single_frame(e)
-            # normalized_frame = rwYUV.read_single_frame(0)
-
-            # diff = normalized_frame - loaded_normalized_frame
-            # if setWriter is False:
-            #    rwYUV.setWriter("/pa/home/hyomin.choi/Projects/compressai-fcvcm/out_tensor/diff.yuv", normalized_frame.size(1), normalized_frame.size(0))
-            #    setWriter = True
-
-            # rwYUV.write_single_frame((diff+256), mid_level=mid_level)
-
-            rescaled_frame = min_max_inv_normalization(
-                normalized_frame, minv, maxv, bitdepth=bitdepth
-            )
-        else:
-            rescaled_frame = frame
-
-        back_to_features = model.reshape_frame_to_feature_pyramid(
-            rescaled_frame,
-            feature_size,
-            subframe_height,
-            packing_all_in_one=packing_all_in_one,
-        )
-
-        # results = model(d)
-        # print(type(results))
-
-        evaluator.process(d, results)
-
-    """

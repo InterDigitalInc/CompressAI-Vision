@@ -23,7 +23,11 @@ output_dir: ${paths._runs_root}/${.name}-${.type}
 nn_task_part1:
     load_features: False
     dump_features: True
+    generate_features_only: False
     feature_dir: ${..output_dir}/${dataset.config.dataset_name}/features
+codec:
+    encode_only: False
+    decode_only: False
 nn_task_part2:
     dump_results: False
     output_results_dir: ${..output_dir}/${dataset.config.dataset_name}/output_results

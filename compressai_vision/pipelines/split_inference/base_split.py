@@ -41,11 +41,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from compressai_vision.codec import EncoderDecoder
-from compressai_vision.evaluators import BaseEvaluator
+# from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
-from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio
+
+# from compressai_vision.registry import register_pipeline
+# from compressai_vision.utils import dataio
 
 EXT = ".h5"
 

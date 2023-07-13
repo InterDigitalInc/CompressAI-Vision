@@ -34,14 +34,12 @@ import torch.nn as nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from compressai_vision.codec import EncoderDecoder
-
 PIPELINES: Dict[str, Callable[..., nn.Module]] = {}
 DATACATALOGS: Dict[str, Callable[..., Any]] = {}
 DATASETS: Dict[str, Callable[..., Dataset]] = {}
 VISIONMODELS: Dict[str, Callable[..., nn.Module]] = {}
 EVALUATORS: Dict[str, Callable[..., nn.Module]] = {}
-CODECS: Dict[str, Callable[..., EncoderDecoder]] = {}
+CODECS: Dict[str, Callable[..., nn.Module]] = {}
 
 TRANSFORMS: Dict[str, Callable[..., Callable]] = {
     k: v for k, v in transforms.__dict__.items() if k[0].isupper()
@@ -52,7 +50,7 @@ TDataset_b = TypeVar("TDataset_b", bound=Dataset)
 TVisionModel_b = TypeVar("TVisionModel_b", bound=nn.Module)
 TEvaluator_b = TypeVar("TEvaluator_b", bound=nn.Module)
 TPipeline_b = TypeVar("TPipeline_b", bound=nn.Module)
-TCodec_b = TypeVar("TCodec_b", bound=EncoderDecoder)
+TCodec_b = TypeVar("TCodec_b", bound=nn.Module)
 
 
 def register_datacatalog(name: str):

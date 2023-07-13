@@ -28,12 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .base import EncoderDecoder
-from .bypass import VoidEncoderDecoder
-from .vtm import VTMEncoderDecoder
+from .anchors import HM, VTM
+from .base import Bypass
 
 __all__ = [
-    "EncoderDecoder",
-    "VoidEncoderDecoder",
-    "VTMEncoderDecoder",
+    "Bypass",
+    "HM",
+    "VTM",
 ]

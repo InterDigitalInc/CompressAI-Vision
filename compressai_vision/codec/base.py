@@ -30,82 +30,57 @@
 import logging
 import math
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
-from torch import Tensor
+import torch.nn as nn
+
+from compressai_vision.registry import register_codec
 
 
-class EncoderDecoder:
-    """
-    Compresses input tensors of features
-    """
+@register_codec("bypass")
+class Bypass(nn.Module):
+    """Does no encoding/decoding whatsoever. Use for debugging."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.reset()
-        self.compute_metrics = True
+        output_dir = Path(kwargs["output_dir"])
+        if not output_dir.is_dir():
+            self.logger.info(f"creating output folder: {output_dir}")
+            output_dir.mkdir(parents=True, exist_ok=True)
 
-    def computeMetrics(self, state: bool):
-        self.compute_metrics = state
-
-    def getMetrics(self):
-        """returns tuple with (psnr, mssim) from latest encode+decode calculation"""
-        return None, None
-
-    def reset(self):
-        """Reset the internal state of the encoder & decoder, if there is any"""
-        self.cc = 0
-
-    @staticmethod
-    def getOrgInputSize(dSize: Dict) -> Tuple:
-        width = dSize["width"]
-        height = dSize["height"]
-
-        return (width, height)
-
-    @staticmethod
-    def setOrgInputSize(dSize: Tuple) -> Dict:
-        width, height = dSize
-
-        return {"width": width, "height": height}
-
-    @staticmethod
-    def getInputSize(dSize: List) -> Tuple:
-        return dSize[0]
-
-    @staticmethod
-    def setInputSize(dSize: Tuple) -> List:
-        return [
-            dSize,
-        ]
-
-    # TODO (fracape) need for forward function?
-    # ie compress/decompress with entropy estimation a la CompressAI
-
-    # def __call__(self, input: Dict[Tensor]) -> Tuple(List, Dict):
-    #     """
-    #     Encoder/Decoder pipeline
-    #     - Applies pre-processing if need be (e.g. conversion to YUV)
-    #     - Encodes features data
-    #     - Writes a bitstream
-    #     Returns a list of bits per frame and decompressed Dict of Tensors
-    #     """
-
-    def compress(self, input: Dict[str, Tensor]) -> List:
+    def encode(
+        self,
+        input: Dict,
+        file_prefix: str = "",
+    ) -> Dict:
         """
-        Encoder pipeline
-        - Applies pre-processing if need be (e.g. conversion to YUV)
-        - Encodes features data
-        - Writes a bitstream
-        Returns a list of bits per frame
+        Bypass encoder
+        Returns the input and calculates its raw size
         """
-        raise (AssertionError("virtual"))
+        del file_prefix  # used in other codecs that write bitstream files
 
-    def decompress(Self, bitstream_path: str) -> Dict[str, Tensor]:
-        """
-        Decoder pipeline
-        - Decodes features data
-        - Converts back to dictionary of tensors (e.g. conversion to YUV)
-        Returns a list of bits per frame
-        """
-        raise (AssertionError("virtual"))
+        total_elements = 0
+        for ft in input["data"].values():
+            total_elements += _number_of_elements(ft.size())
+
+        # write input
+        total_bytes = total_elements * 4  # 32-bit floating
+
+        return {
+            "bytes": [
+                total_bytes,
+            ],
+            "bitstream": input,
+        }
+
+    def decode(
+        self,
+        input: Dict,
+        file_prefix: str = "",
+    ):
+        del file_prefix  # used in other codecs that write bitstream files
+        return input
+
+
+def _number_of_elements(data: Tuple):
+    return math.prod(data)

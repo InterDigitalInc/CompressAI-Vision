@@ -8,7 +8,7 @@ codec_paths:
   # use rext cfg for 400 format
   cfg_file: "/pa/home/racapef/hevc/HM/cfg/encoder_intra_main_rext.cfg"
 dump_yuv:
-  dump_yuv_in: True
+  dump_yuv_in: False
   yuv_in_dir: ${..output_dir}
   dump_yuv_dec: False
   yuv_dec_dir: ${..output_dir}

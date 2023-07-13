@@ -8,6 +8,15 @@ ENTRY_CMD="${SCRIPT_DIR}/../compressai_vision/run/eval_split_inference.py"
 
 VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
 
+if [ $# == 1 ]; then
+    VCM_TESTDATA=$1
+fi
+if [ ! -d "${VCM_TESTDATA}" ]; then
+    echo "${VCM_TESTDATA} does not exist, please select dataset folder, e.g.
+    $ bash default_vision_performances.sh  /data/vcm_dataset"
+    exit
+fi
+
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 SFU_HW_SRC=${PWD}"${VCM_TESTDATA}/SFU_HW_Obj"
 

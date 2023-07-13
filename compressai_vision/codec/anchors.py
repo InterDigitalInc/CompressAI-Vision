@@ -28,29 +28,21 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import errno
-import glob
 import logging
 import os
-import shlex
-import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import torch.nn as nn
+
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 
-from .base import EncoderDecoder
-from .utils import (
-    MIN_MAX_DATASET,
-    feature_pyramid_to_frame,
-    frame_to_feature_pyramid,
-    min_max_inv_normalization,
-    min_max_normalization,
-)
+from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
@@ -77,8 +69,8 @@ def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
 
 
 @register_codec("vtm")
-class VTMEncoderDecoder(EncoderDecoder):
-    """EncoderDecoder class for VVC - VTM reference software"""
+class VTM(nn.Module):
+    """Encoder/Decoder class for VVC - VTM reference software"""
 
     def __init__(
         self,
@@ -100,8 +92,10 @@ class VTMEncoderDecoder(EncoderDecoder):
         self.qp = kwargs["encoder_config"]["qp"]
 
         self.dump_yuv = kwargs["dump_yuv"]
-        # TODO (fracape) might not need class var
+        # TODO (fracape) hacky, create separate function with LUT
         self.dataset = dataset_name
+        if "sfu" in dataset_name:
+            self.dataset = "SFU"
         self.vision_model = vision_model
         self.bitstream_dir = Path(kwargs["bitstream_dir"])
         if not self.bitstream_dir.is_dir():
@@ -220,6 +214,9 @@ class VTMEncoderDecoder(EncoderDecoder):
         # TODO (racapef) video: manage frame indexes
         rec_yuv = self.yuvio.read_single_frame(0)
 
+        minv, maxv = self.min_max_dataset
+        rec_yuv = min_max_inv_normalization(rec_yuv, minv, maxv, bitdepth=10)
+
         # TODO (fracape) should feature sizes be part of bitstream?
         features = self.vision_model.reshape_frame_to_feature_pyramid(
             rec_yuv,
@@ -227,6 +224,7 @@ class VTMEncoderDecoder(EncoderDecoder):
             self.subframe_heights,
             packing_all_in_one=True,
         )
+
         # features = {
         #     "data": self.vision_model.reshape_frame_to_feature_pyramid(
         #         rec_yuv,
@@ -241,8 +239,8 @@ class VTMEncoderDecoder(EncoderDecoder):
 
 
 @register_codec("hm")
-class HMEncoderDecoder(VTMEncoderDecoder):
-    """EncoderDecoder class for HEVC - HM reference software"""
+class HM(VTM):
+    """Encoder / Decoder class for HEVC - HM reference software"""
 
     def __init__(
         self,
