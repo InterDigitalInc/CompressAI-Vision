@@ -27,12 +27,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import copy
 import json
+import os
 import time
 
+import motmetrics as mm
 import numpy as np
 import torch
 from detectron2.evaluation import COCOEvaluator
+from jde.utils.io import unzip_objs
 from tqdm import tqdm
 
 from compressai_vision.datasets import deccode_compressed_rle
@@ -311,6 +315,55 @@ class OpenImagesChallengeEval(BaseEvaluator):
         for key, value in out.items():
             name = "-".join(key.split("/")[1:])
             summary.update({name: value})
+
+        return summary
+
+
+@register_evaluator("MOT-EVAL")
+class MOTEval(BaseEvaluator):
+    """
+    A Multiple Object Tracking Evaluator
+
+    This class evaluates MOT performance of tracking model such as JDE in compressai-vision.
+    BaseEvaluator is inherited to interface with pipeline architecture in compressai-vision
+
+    Functions below in this class refers to
+        The class Evaluator inin Towards-Realtime-MOT/utils/evaluation.py at
+        <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/utils/evaluation.py>
+
+        Full license statement can be found at
+        <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/LICENSE>
+
+    """
+
+    def __init__(
+        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+    ):
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+
+        mm.lap.default_solver = "lap"
+
+        self.reset()
+
+    def reset(self):
+        self.acc = mm.MOTAccumulator(auto_id=True)
+        self._predictions = {}
+
+    def digest(self, gt, pred):
+        print("Let us do something here")
+        return None  # self._evaluator.process(gt, pred)
+
+    def results(self, save_path: str = None):
+        out = self._evaluator.evaluate()
+
+        if save_path:
+            self.write_results(out, save_path)
+
+        self.write_results(out)
+
+        summary = {}
+        for key, item_dict in out.items():
+            summary.update({f"{key}": item_dict["AP"]})
 
         return summary
 

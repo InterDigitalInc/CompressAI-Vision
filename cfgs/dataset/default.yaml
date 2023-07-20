@@ -3,7 +3,7 @@ datacatalog: 'COCO'
 config:
   root: '/data/dataset'
   imgs_folder: 'valid'
-  annotation_file: "sample.json"
+  annotation_file: "annotations/sample.json"
   dataset_name: "sample_dataset"
 settings:
   patch_size: [512, 512]

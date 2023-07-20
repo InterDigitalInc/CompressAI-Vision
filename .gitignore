@@ -9,6 +9,10 @@ tags
 venv*/
 venv/
 
+examples/
+models/
+weights/
+
 # Created by gitignore.io
 ### Python ###
 # Byte-compiled / optimized / DLL files

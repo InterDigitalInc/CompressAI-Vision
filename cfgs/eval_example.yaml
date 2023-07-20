@@ -25,7 +25,7 @@ dataset:
   config:
       root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
       imgs_folder: 'images'
-      annotation_file: 'BasketballDrill_832x480_50_val.json'
+      annotation_file: 'annotations/BasketballDrill_832x480_50_val.json'
       dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
 
 evaluator: 

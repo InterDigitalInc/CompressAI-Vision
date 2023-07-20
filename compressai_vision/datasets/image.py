@@ -38,10 +38,13 @@ from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
 from detectron2.data.datasets import load_coco_json, register_coco_instances
 from detectron2.data.samplers import InferenceSampler
+from jde.utils.io import read_results
 from PIL import Image
 from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
+
+from .utils import JDECustomMapper
 
 
 def bypass_collator(batch):
@@ -62,8 +65,30 @@ def deccode_compressed_rle(data):
                 segm["counts"] = base64.b64decode(segm["counts"])
 
 
+class BaseDataet(Dataset):
+    def __init__(self, root, dataset_name, imgs_folder, **kwargs):
+        super().__init__()
+
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.dataset_name = dataset_name
+
+        if "annotation_file" in kwargs:
+            self.annotation_path = Path(root) / kwargs["annotation_file"]
+            assert self.annotation_path == kwargs["dataset"].annotation_path
+
+        self.images_folder = Path(root) / imgs_folder
+        assert self.images_folder == kwargs["dataset"].imgs_folder_path
+
+        self.sampler = None
+        self.collate_fn = None
+        self.mapDataset = None
+
+        self.thing_classes = []
+        self.thing_dataset_id_to_contiguous_id = []
+
+
 @register_dataset("DefaultDataset")
-class DefaultDataset(Dataset):
+class DefaultDataset(BaseDataet):
     """Load an image folder database. testing image samples
     are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -86,29 +111,17 @@ class DefaultDataset(Dataset):
         imgs_folder: str = "valid",
         **kwargs,
     ):
-        super().__init__()
+        super().__init__(root, dataset_name, imgs_folder, **kwargs)
 
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-        self.sampler = None
-        self.collate_fn = None
-
-        splitdir = Path(root) / imgs_folder
-
-        if not splitdir.is_dir():
+        if not self.images_folder.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in sorted(splitdir.iterdir()) if f.is_file()]
+        self.samples = [f for f in sorted(self.images_folder.iterdir()) if f.is_file()]
 
         self.use_BGR = kwargs["use_BGR"]
         self.transform = kwargs["transforms"]
         self.ret_name = kwargs["ret_name"]
-        self.dataset_name = dataset_name
 
-        self.thing_classes = []
-        self.thing_dataset_id_to_contiguous_id = []
-
-        self.mapDataset = None
         if "cfg" in kwargs:
             if kwargs["cfg"] is not None:
                 self.sampler = InferenceSampler(len(kwargs["dataset"]))
@@ -155,32 +168,11 @@ class DefaultDataset(Dataset):
 
 
 @register_dataset("Detectron2Dataset")
-class Detectron2Dataset(Dataset):
+class Detectron2Dataset(BaseDataet):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
-        super().__init__()
-
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.dataset_name = dataset_name
-
-        self.annotation_path = Path(root) / "annotations" / kwargs["annotation_file"]
-        self.images_folder = Path(root) / imgs_folder
-
-        assert (
-            self.annotation_path == kwargs["dataset"].annotation_path
-            and self.images_folder == kwargs["dataset"].imgs_folder_path
-        )
+        super().__init__(root, dataset_name, imgs_folder, **kwargs)
 
         self.dataset = kwargs["dataset"].dataset
-
-        try:
-            DatasetCatalog.get(dataset_name)
-        except KeyError:
-            self.logger.warning(
-                f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
-            )
-            register_coco_instances(
-                dataset_name, {}, self.annotation_path, self.images_folder
-            )
 
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
@@ -203,6 +195,26 @@ class Detectron2Dataset(Dataset):
         return len(self.mapDataset)
 
 
+@register_dataset("TrackingDataset")
+class TrackingDataset(BaseDataet):
+    def __init__(self, root, dataset_name, imgs_folder, **kwargs):
+        super().__init__(root, dataset_name, imgs_folder, **kwargs)
+
+        self.dataset = kwargs["dataset"].dataset
+
+        self.sampler = InferenceSampler(len(kwargs["dataset"]))
+        self.collate_fn = bypass_collator
+
+        _dataset = DatasetFromList(self.dataset, copy=False)
+        self.mapDataset = MapDataset(_dataset, JDECustomMapper(kwargs["patch_size"]))
+
+    def __getitem__(self, idx):
+        return self.mapDataset[idx]
+
+    def __len__(self):
+        return len(self.mapDataset)
+
+
 class DataCatalog:
     def __init__(
         self,
@@ -215,7 +227,7 @@ class DataCatalog:
         if not _imgs_folder.is_dir():
             raise RuntimeError(f'Invalid image sample directory "{_imgs_folder}"')
 
-        _annotation_file = Path(root) / "annotations" / annotation_file
+        _annotation_file = Path(root) / annotation_file
         if not _annotation_file.is_file():
             raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
 
@@ -244,6 +256,84 @@ class DataCatalog:
         return len(self._dataset)
 
         # super().__init__(dataset_name, dataset, cfg, imgs_folder_path, annotations_file)
+
+
+@register_datacatalog("MPEGHIEVE")
+class MPEGHIEVE(DataCatalog):
+    """Load an image folder database to support testing image samples extracted from MPEG-HiEve videos:
+
+    .. code-block::
+        - mpeg-HiEve/
+            - annoations/
+                -
+            - images/
+                - 452c856678a9b284.jpg
+                - ....jpg
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+    """
+
+    def __init__(
+        self,
+        root,
+        imgs_folder="images",
+        annotation_file="gt.txt",
+        dataset_name="mpeg-hieve-tracking",
+        ext="png",
+    ):
+        super().__init__(root, imgs_folder, annotation_file, dataset_name)
+
+        self.data_type = "mot"
+        gt_frame_dict = read_results(
+            str(self.annotation_path), self.data_type, is_gt=True
+        )
+        gt_ignore_frame_dict = read_results(
+            str(self.annotation_path), self.data_type, is_ignore=True
+        )
+
+        img_lists = sorted(self.imgs_folder_path.glob(f"*.{ext}"))
+
+        assert len(gt_frame_dict) == len(gt_ignore_frame_dict)
+
+        # the first frame from the img lists does not have relevant ground truth tracking labels
+        assert len(img_lists) - 1 == len(gt_frame_dict)
+
+        self._dataset = [
+            {
+                "file_name": str(img_lists[0]),
+                "image_id": img_lists[0].name.split(f".{ext}")[0],
+            },
+        ]
+        self._gt_labels = gt_frame_dict
+        self._gt_ignore_labels = gt_ignore_frame_dict
+
+        for file_name in img_lists[1:]:
+            img_id = file_name.name.split(f".{ext}")[0]
+
+            new_d = {
+                "file_name": str(file_name),
+                "image_id": img_id,
+                "annotations": {
+                    "gt": gt_frame_dict[int(img_id)],
+                    "gt_ignore": gt_ignore_frame_dict[int(img_id)],
+                },
+            }
+
+            self._dataset.append(new_d)
+
+    def get_ground_truth_labels(self, id: int):
+        return {
+            "gt": self._gt_labels.get(id, []),
+            "gt_ignore": self._gt_ignore_labels.get(id, []),
+        }
+
+    def get_min_max_across_tensors(self):
+        maxv = 11.823183059692383
+        minv = -1.0795124769210815
+        return (minv, maxv)
 
 
 @register_datacatalog("MPEGOIV6")

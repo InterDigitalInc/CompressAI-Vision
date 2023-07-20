@@ -16,3 +16,14 @@ mask_rcnn_R_50_FPN_3x:
 mask_rcnn_X_101_32x8d_FPN_3x:
   cfg: "models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml"
   weight: "weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl"
+
+jde_1088x608:
+  cfg: "models/Towards-Realtime-MOT/cfg/yolov3_1088x608.cfg"
+  weight: "weights/jde/jde.1088x608.uncertainty.pt"
+  iou_thres: 0.5
+  conf_thres: 0.5
+  nms_thres: 0.4
+  min_box_area: 200
+  track_buffer: 30
+  splits : [74, 61, 36] # MPEG FCVCM TEST with JDE on TVD
+  #splits : [105, 90, 75] # MPEG FCVCM TEST with JDE on HiEve

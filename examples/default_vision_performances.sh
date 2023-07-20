@@ -26,7 +26,7 @@ python ${ENTRY_CMD} --config-name=eval_example.yaml \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
                     ++dataset.config.root=${MPEG_OIV6_SRC} \
-                    ++dataset.config.annotation_file=mpeg-oiv6-detection-coco.json \
+                    ++dataset.config.annotation_file=annotations/mpeg-oiv6-detection-coco.json \
                     ++dataset.config.dataset_name=mpeg-oiv6-detection \
                     ++evaluator.type=OIC-EVAL
 
@@ -36,7 +36,7 @@ python ${ENTRY_CMD} --config-name=eval_example.yaml \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
                     ++dataset.config.root=${MPEG_OIV6_SRC} \
-                    ++dataset.config.annotation_file=mpeg-oiv6-segmentation-coco.json \
+                    ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
                     ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
                     ++evaluator.type=OIC-EVAL
 
@@ -62,7 +62,7 @@ do
                         ++dataset.type=Detectron2Dataset \
                         ++dataset.datacatalog=SFUHW \
                         ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
-                        ++dataset.config.annotation_file=${SEQ}.json \
+                        ++dataset.config.annotation_file=annotations/${SEQ}.json \
                         ++dataset.config.dataset_name=sfu-hw-${SEQ} \
                         ++evaluator.type=COCO-EVAL
 done

@@ -104,7 +104,7 @@ class UnfoldSplitInference(BaseSplit):
             del out_res["image"], out_res["width"], out_res["height"]
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
-            out_res["org_input_size"] = (d[0]["width"], d[0]["height"])
+            out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
             out_res["input_size"] = featureT["input_size"][0]
             output_list.append(out_res)
 

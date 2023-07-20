@@ -86,12 +86,11 @@ class FoldSplitInference(BaseSplit):
             if e == 0:
                 org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
                 featureT["org_input_size"] = org_img_size
-                assert "input_size" in res
                 featureT["input_size"] = res["input_size"]
 
                 out_res = d[0].copy()
                 del out_res["image"], out_res["width"], out_res["height"]
-                out_res["org_input_size"] = (d[0]["width"], d[0]["height"])
+                out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
                 out_res["input_size"] = featureT["input_size"][0]
 
         assert num_items == len(dataloader)

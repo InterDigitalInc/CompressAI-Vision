@@ -28,11 +28,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .base_evaluator import BaseEvaluator
-from .evaluators import COCOEVal, OpenImagesChallengeEval, YOLOEval
+from .evaluators import COCOEVal, MOTEval, OpenImagesChallengeEval, YOLOEval
 
 __all__ = [
     "BaseEvaluator",
     "COCOEVal",
     "OpenImagesChallengeEval",
     "YOLOEval",
+    "MOTEval",
 ]

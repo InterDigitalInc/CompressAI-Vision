@@ -1,0 +1,296 @@
+From 7f48a16ab5d6d0343de321d5f4d082b89aba5639 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] inteface-with-compressai-vision
+
+---
+ models.py           | 100 ++++++++++++++++++++++++++++++++++----------
+ tracker/matching.py |   2 +-
+ utils/datasets.py   |   2 +-
+ utils/evaluation.py |   2 +-
+ utils/io.py         |   2 +-
+ 5 files changed, 82 insertions(+), 26 deletions(-)
+
+diff --git a/models.py b/models.py
+index ef595e3..ccd6606 100644
+--- a/models.py
++++ b/models.py
+@@ -3,18 +3,20 @@ from collections import defaultdict,OrderedDict
+ 
+ import torch.nn as nn
+ 
+-from utils.parse_config import *
+-from utils.utils import *
++from jde.utils.parse_config import *
++from jde.utils.utils import *
+ import time
+ import math
+ 
++import torch
++
+ try:
+-    from utils.syncbn import SyncBN
++    from jde.utils.syncbn import SyncBN
+     batch_norm=SyncBN #nn.BatchNorm2d
+ except ImportError:
+     batch_norm=nn.BatchNorm2d
+ 
+-def create_modules(module_defs):
++def create_modules(module_defs, device: str):
+     """
+     Constructs module list of layer blocks from module configuration in module_defs
+     """
+@@ -78,7 +80,7 @@ def create_modules(module_defs):
+             img_size = (int(hyperparams['width']),int(hyperparams['height']))
+             # Define detection layer
+             yolo_layer = YOLOLayer(anchors, nC, int(hyperparams['nID']), 
+-                                   int(hyperparams['embedding_dim']), img_size, yolo_layer_count)
++                                   int(hyperparams['embedding_dim']), img_size, yolo_layer_count, device)
+             modules.add_module('yolo_%d' % i, yolo_layer)
+             yolo_layer_count += 1
+ 
+@@ -112,7 +114,7 @@ class Upsample(nn.Module):
+ 
+ 
+ class YOLOLayer(nn.Module):
+-    def __init__(self, anchors, nC, nID, nE, img_size, yolo_layer):
++    def __init__(self, anchors, nC, nID, nE, img_size, yolo_layer, device: str):
+         super(YOLOLayer, self).__init__()
+         self.layer = yolo_layer
+         nA = len(anchors)
+@@ -123,6 +125,7 @@ class YOLOLayer(nn.Module):
+         self.img_size = 0
+         self.emb_dim = nE 
+         self.shift = [1, 3, 5]
++        self.device = device
+ 
+         self.SmoothL1Loss  = nn.SmoothL1Loss()
+         self.SoftmaxLoss = nn.CrossEntropyLoss(ignore_index=-1)
+@@ -134,7 +137,10 @@ class YOLOLayer(nn.Module):
+         
+         self.emb_scale = math.sqrt(2) * math.log(self.nID-1) if self.nID>1 else 1
+ 
+-        
++
++    @property
++    def is_cuda(self) -> bool:
++        return 'cuda' in self.device
+ 
+     def forward(self, p_cat,  img_size, targets=None, classifier=None, test_emb=False):
+         p, p_emb = p_cat[:, :24, ...], p_cat[:, 24:, ...]
+@@ -143,7 +149,7 @@ class YOLOLayer(nn.Module):
+         if self.img_size != img_size:
+             create_grids(self, img_size, nGh, nGw)
+ 
+-            if p.is_cuda:
++            if self.is_cuda and p.is_cuda:
+                 self.grid_xy = self.grid_xy.cuda()
+                 self.anchor_wh = self.anchor_wh.cuda()
+ 
+@@ -156,10 +162,10 @@ class YOLOLayer(nn.Module):
+         # Training
+         if targets is not None:
+             if test_emb:
+-                tconf, tbox, tids = build_targets_max(targets, self.anchor_vec.cuda(), self.nA, self.nC, nGh, nGw)
++                tconf, tbox, tids = build_targets_max(targets, self.anchor_vec.to(self.device), self.nA, self.nC, nGh, nGw)
+             else:
+-                tconf, tbox, tids = build_targets_thres(targets, self.anchor_vec.cuda(), self.nA, self.nC, nGh, nGw)
+-            tconf, tbox, tids = tconf.cuda(), tbox.cuda(), tids.cuda()
++                tconf, tbox, tids = build_targets_thres(targets, self.anchor_vec.to(self.device), self.nA, self.nC, nGh, nGw)
++            tconf, tbox, tids = tconf.to(self.device), tbox.to(self.device), tids.to(self.device)
+             mask = tconf > 0
+ 
+             # Compute losses
+@@ -169,10 +175,10 @@ class YOLOLayer(nn.Module):
+             if nM > 0:
+                 lbox = self.SmoothL1Loss(p_box[mask], tbox[mask])
+             else:
+-                FT = torch.cuda.FloatTensor if p_conf.is_cuda else torch.FloatTensor
++                FT = torch.cuda.FloatTensor if self.is_cuda and p_conf.is_cuda else torch.FloatTensor
+                 lbox, lconf =  FT([0]), FT([0])
+             lconf =  self.SoftmaxLoss(p_conf, tconf)
+-            lid = torch.Tensor(1).fill_(0).squeeze().cuda()
++            lid = torch.Tensor(1).fill_(0).squeeze().to(self.device)
+             emb_mask,_ = mask.max(1)
+             
+             # For convenience we use max(1) to decide the id, TODO: more reseanable strategy
+@@ -184,7 +190,7 @@ class YOLOLayer(nn.Module):
+             
+             if  test_emb:
+                 if np.prod(embedding.shape)==0  or np.prod(tids.shape) == 0:
+-                    return torch.zeros(0, self.emb_dim+1).cuda()
++                    return torch.zeros(0, self.emb_dim+1).to(self.device)
+                 emb_and_gt = torch.cat([embedding, tids.float()], dim=1)
+                 return emb_and_gt
+             
+@@ -204,7 +210,7 @@ class YOLOLayer(nn.Module):
+             p_emb = F.normalize(p_emb.unsqueeze(1).repeat(1,self.nA,1,1,1).contiguous(), dim=-1)
+             #p_emb_up = F.normalize(shift_tensor_vertically(p_emb, -self.shift[self.layer]), dim=-1)
+             #p_emb_down = F.normalize(shift_tensor_vertically(p_emb, self.shift[self.layer]), dim=-1)
+-            p_cls = torch.zeros(nB,self.nA,nGh,nGw,1).cuda()               # Temp
++            p_cls = torch.zeros(nB,self.nA,nGh,nGw,1).to(self.device)               # Temp
+             p = torch.cat([p_box, p_conf, p_cls, p_emb], dim=-1)
+             #p = torch.cat([p_box, p_conf, p_cls, p_emb, p_emb_up, p_emb_down], dim=-1)
+             p[..., :4] = decode_delta_map(p[..., :4], self.anchor_vec.to(p))
+@@ -216,26 +222,27 @@ class YOLOLayer(nn.Module):
+ class Darknet(nn.Module):
+     """YOLOv3 object detection model"""
+ 
+-    def __init__(self, cfg_dict, nID=0, test_emb=False):
++    def __init__(self, cfg_dict, device: str, nID=0, test_emb=False):
+         super(Darknet, self).__init__()
+         if isinstance(cfg_dict, str):
+             cfg_dict = parse_model_cfg(cfg_dict)
+-        self.module_defs = cfg_dict 
++        self.module_defs = cfg_dict
+         self.module_defs[0]['nID'] = nID
+         self.img_size = [int(self.module_defs[0]['width']), int(self.module_defs[0]['height'])]
+         self.emb_dim = int(self.module_defs[0]['embedding_dim'])
+-        self.hyperparams, self.module_list = create_modules(self.module_defs)
++        self.hyperparams, self.module_list = create_modules(self.module_defs, device)
+         self.loss_names = ['loss', 'box', 'conf', 'id', 'nT']
+         self.losses = OrderedDict()
+         for ln in self.loss_names:
+             self.losses[ln] = 0
+         self.test_emb = test_emb
++        self.device = device
+         
+         self.classifier = nn.Linear(self.emb_dim, nID) if nID>0 else None
+ 
+ 
+ 
+-    def forward(self, x, targets=None, targets_len=None):
++    def forward(self, x, splits: dict, is_nn_part1: bool, targets=None, targets_len=None):
+         self.losses = OrderedDict()
+         for ln in self.loss_names:
+             self.losses[ln] = 0
+@@ -244,7 +251,46 @@ class Darknet(nn.Module):
+         layer_outputs = []
+         output = []
+ 
+-        for i, (module_def, module) in enumerate(zip(self.module_defs, self.module_list)):
++        had_yolo = False
++        if is_nn_part1 is True:
++            sidx = 0
++            eidx = max(splits.keys()) + 1
++        else: # nn_part2
++            features = splits.copy()
++
++            max_id = max(features.keys())
++            
++            # Suppose that layers onward have dependency on earlier layers 
++            # if the max_id is less than or equal to 
++            # the last layer ID in the Darknet backbone
++            if max_id <= 74:
++                sidx = max_id + 1
++
++                for idx in range(0, sidx):
++                    if not idx in features.keys():
++                        layer_outputs.append(None)
++                    else: # exist idx in the keys
++                        x = features[idx]
++                        layer_outputs.append(x)
++
++            # Otherwise, there is dependency on earlier layers in backbone
++            else:
++                sidx = min(features.keys())
++
++            eidx = len(self.module_list)
++
++        for i, (module_def, module) in enumerate(zip(self.module_defs[sidx:eidx], self.module_list[sidx:eidx])):
++            nn_idx = i + sidx
++            if is_nn_part1 is False: # NN Part2
++                if nn_idx in features.keys():
++                    x = features[nn_idx]
++                    layer_outputs.append(x)
++                    features.pop(nn_idx)
++                    had_yolo = False
++                    continue
++                elif had_yolo is True and nn_idx < min(features.keys()):
++                    continue
++
+             mtype = module_def['type']
+             if mtype in ['convolutional', 'upsample', 'maxpool']:
+                 x = module(x)
+@@ -268,16 +314,26 @@ class Darknet(nn.Module):
+                         targets = [targets[i][:int(l)] for i,l in enumerate(targets_len)]
+                     x = module[0](x, self.img_size, targets, self.classifier, self.test_emb)
+                 else:  # get detections
+-                    x = module[0](x, self.img_size)
++                    x = module[0](x, self.img_size)                
+                 output.append(x)
++                had_yolo = True
++
+             layer_outputs.append(x)
+ 
++            if is_nn_part1 is True:
++                if nn_idx in splits.keys():
++                    splits[nn_idx] = x
++
+         if is_training:
+             self.losses['nT'] /= 3 
+             output = [o.squeeze() for o in output]
+-            return sum(output), torch.Tensor(list(self.losses.values())).cuda()
++            return sum(output), torch.Tensor(list(self.losses.values())).to(self.device)
+         elif self.test_emb:
+             return torch.cat(output, 0)
++        
++        if None in output or output == []:
++            return None
++
+         return torch.cat(output, 1)
+ 
+ def shift_tensor_vertically(t, delta):
+diff --git a/tracker/matching.py b/tracker/matching.py
+index 33a5ac6..faae9ba 100644
+--- a/tracker/matching.py
++++ b/tracker/matching.py
+@@ -4,7 +4,7 @@ from scipy.spatial.distance import cdist
+ import lap
+ 
+ from cython_bbox import bbox_overlaps as bbox_ious
+-from utils import kalman_filter
++from jde.utils import kalman_filter
+ 
+ def merge_matches(m1, m2, shape):
+     O,P,Q = shape
+diff --git a/utils/datasets.py b/utils/datasets.py
+index 88546a3..2f9f510 100644
+--- a/utils/datasets.py
++++ b/utils/datasets.py
+@@ -11,7 +11,7 @@ import numpy as np
+ import torch
+ 
+ from torch.utils.data import Dataset
+-from utils.utils import xyxy2xywh
++from jde.utils.utils import xyxy2xywh
+ 
+ class LoadImages:  # for inference
+     def __init__(self, path, img_size=(1088, 608)):
+diff --git a/utils/evaluation.py b/utils/evaluation.py
+index d511350..47458a1 100644
+--- a/utils/evaluation.py
++++ b/utils/evaluation.py
+@@ -3,7 +3,7 @@ import numpy as np
+ import copy
+ import motmetrics as mm
+ mm.lap.default_solver = 'lap'
+-from utils.io import read_results, unzip_objs
++from jde.utils.io import read_results, unzip_objs
+ 
+ 
+ class Evaluator(object):
+diff --git a/utils/io.py b/utils/io.py
+index e6ddd21..5256ec2 100644
+--- a/utils/io.py
++++ b/utils/io.py
+@@ -2,7 +2,7 @@ import os
+ from typing import Dict
+ import numpy as np
+ 
+-from utils.log import logger
++from jde.utils.log import logger
+ 
+ 
+ def write_results(filename, results_dict: Dict, data_type: str):
+-- 
+2.25.1
+

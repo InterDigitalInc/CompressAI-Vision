@@ -206,14 +206,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def cfg(self):
         return self._cfg
 
-    @property
-    def pretrained_weight_path(self):
-        return self.model_info["weight"]
-
-    @property
-    def model_cfg_path(self):
-        return self.model_info["cfg"]
-
     # [TODO (choih): To be reused for some purpose]
     def preInputTensor(self, img, img_id):
         """

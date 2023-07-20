@@ -34,6 +34,7 @@ from .detectron2 import (
     mask_rcnn_R_50_FPN_3x,
     mask_rcnn_X_101_32x8d_FPN_3x,
 )
+from .jde import jde_1088x608
 
 __all__ = [
     "BaseWrapper",
@@ -41,4 +42,5 @@ __all__ = [
     "mask_rcnn_X_101_32x8d_FPN_3x",
     "faster_rcnn_R_50_FPN_3x",
     "mask_rcnn_R_50_FPN_3x",
+    "jde_1088x608",
 ]

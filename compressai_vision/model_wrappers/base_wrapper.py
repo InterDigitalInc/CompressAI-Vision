@@ -56,8 +56,8 @@ class BaseWrapper(nn.Module):
 
     @property
     def pretrained_weight_path(self):
-        raise NotImplementedError
+        return self.model_info["weight"]
 
     @property
     def model_cfg_path(self):
-        raise NotImplementedError
+        return self.model_info["cfg"]

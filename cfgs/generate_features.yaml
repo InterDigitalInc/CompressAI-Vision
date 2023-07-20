@@ -16,7 +16,7 @@ dataset:
   config:
     root: "${hydra:runtime.cwd}/vcm_testdata/mpeg-oiv6"
     imgs_folder: "images"
-    annotation_file: "mpeg-oiv6-detection-coco.json"
+    annotation_file: "annotations/mpeg-oiv6-detection-coco.json"
     dataset_name: "mpeg-oiv6-detection"
 
 pipeline:

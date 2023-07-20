@@ -31,12 +31,14 @@ from .image import (
     DataCatalog,
     DefaultDataset,
     Detectron2Dataset,
+    TrackingDataset,
     deccode_compressed_rle,
 )
 
 __all__ = [
     "DataCatalog",
     "Detectron2Dataset",
+    "TrackingDataset",
     "DefaultDataset",
     "deccode_compressed_rle",
 ]
