@@ -67,6 +67,8 @@ class FoldSplitInference(BaseSplit):
 
         featureT = {}
         gt_inputs = []
+
+        self.logger.info("Processing NN-Part1...")
         for e, d in enumerate(tqdm(dataloader)):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
@@ -89,7 +91,12 @@ class FoldSplitInference(BaseSplit):
                 featureT["input_size"] = res["input_size"]
 
                 out_res = d[0].copy()
-                del out_res["image"], out_res["width"], out_res["height"]
+                del (
+                    out_res["image"],
+                    out_res["width"],
+                    out_res["height"],
+                    out_res["image_id"],
+                )
                 out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
                 out_res["input_size"] = featureT["input_size"][0]
 
@@ -105,7 +112,7 @@ class FoldSplitInference(BaseSplit):
 
         res = self._compress_features(codec, featureT, output_file_prefix)
 
-        if self.configs["encode_only"] is True:
+        if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
             raise SystemExit(0)
         dec_featureT = self._decompress_features(
@@ -115,7 +122,8 @@ class FoldSplitInference(BaseSplit):
         # separate a tensor of each keyword item into a list of tensors
         dec_feature_tesnor = self._split_data(dec_featureT["data"])
 
-        for e, data in enumerate(self._iterate_items(dec_feature_tesnor, num_items)):
+        self.logger.info("Processing NN-Part2...")
+        for e, data in self._iterate_items(dec_feature_tesnor, num_items):
             dec_featureT["data"] = data
             pred = self._from_features_to_output(vision_model, dec_featureT)
             evaluator.digest(gt_inputs[e], pred)
@@ -126,9 +134,9 @@ class FoldSplitInference(BaseSplit):
 
         output_list.append(out_res)
 
-        mAP = self._evaluation(evaluator)
+        outs_dict = self._evaluation(evaluator)
 
-        return {"coded_res": output_list, "mAP": mAP}
+        return {"coded_res": output_list, **outs_dict}
 
     def _data_buffering(self, data: Dict):
         """
@@ -167,9 +175,9 @@ class FoldSplitInference(BaseSplit):
         return output
 
     def _iterate_items(self, data: Dict, num_frms: int):
-        for e in range(num_frms):
+        for e in tqdm(range(num_frms)):
             out_dict = {}
             for key, val in data.items():
                 out_dict[key] = val[e].to(self.device)
 
-            yield out_dict
+            yield e, out_dict

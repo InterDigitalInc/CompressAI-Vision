@@ -86,7 +86,7 @@ class COCOEVal(BaseEvaluator):
 
         summary = {}
         for key, item_dict in out.items():
-            summary.update({f"{key}": item_dict["AP"]})
+            summary[f"{key}"] = item_dict["AP"]
 
         return summary
 
@@ -314,7 +314,7 @@ class OpenImagesChallengeEval(BaseEvaluator):
         summary = {}
         for key, value in out.items():
             name = "-".join(key.split("/")[1:])
-            summary.update({name: value})
+            summary[name] = value
 
         return summary
 
@@ -330,6 +330,7 @@ class MOTEval(BaseEvaluator):
     Functions below in this class refers to
         The class Evaluator inin Towards-Realtime-MOT/utils/evaluation.py at
         <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/utils/evaluation.py>
+        <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/track.py>
 
         Full license statement can be found at
         <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/LICENSE>
@@ -342,6 +343,7 @@ class MOTEval(BaseEvaluator):
         super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
 
         mm.lap.default_solver = "lap"
+        self.dataset = dataset.dataset
 
         self.reset()
 
@@ -350,22 +352,117 @@ class MOTEval(BaseEvaluator):
         self._predictions = {}
 
     def digest(self, gt, pred):
-        print("Let us do something here")
-        return None  # self._evaluator.process(gt, pred)
+        pred_list = []
+        for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
+            x1, y1, w, h = tlwh
+            x2, y2 = x1 + w, y1 + h
+            parsed_pred = ((x1, y1, w, h), id, 1.0)
+            pred_list.append(parsed_pred)
+
+        self._predictions[int(gt[0]["image_id"])] = pred_list
 
     def results(self, save_path: str = None):
-        out = self._evaluator.evaluate()
+        out = self.mot_eval()
 
         if save_path:
             self.write_results(out, save_path)
 
         self.write_results(out)
 
-        summary = {}
-        for key, item_dict in out.items():
-            summary.update({f"{key}": item_dict["AP"]})
+        return out
 
-        return summary
+    def mot_eval(self):
+        assert len(self.dataset) == len(
+            self._predictions
+        ), "Total number of frames are mismatch"
+
+        # skip the very first frame
+        for gt_frame in self.dataset[1:]:
+            frm_id = int(gt_frame["image_id"])
+
+            pred_objs = self._predictions[frm_id].copy()
+            pred_tlwhs, pred_ids, _ = unzip_objs(pred_objs)
+
+            gt_objs = gt_frame["annotations"]["gt"].copy()
+            gt_tlwhs, gt_ids, _ = unzip_objs(gt_objs)
+
+            gt_ignore = gt_frame["annotations"]["gt_ignore"].copy()
+            gt_ignore_tlwhs, _, _ = unzip_objs(gt_ignore)
+
+            # remove ignored results
+            keep = np.ones(len(pred_tlwhs), dtype=bool)
+            iou_distance = mm.distances.iou_matrix(
+                gt_ignore_tlwhs, pred_tlwhs, max_iou=0.5
+            )
+            if len(iou_distance) > 0:
+                match_is, match_js = mm.lap.linear_sum_assignment(iou_distance)
+                match_is, match_js = map(
+                    lambda a: np.asarray(a, dtype=int), [match_is, match_js]
+                )
+                match_ious = iou_distance[match_is, match_js]
+
+                match_js = np.asarray(match_js, dtype=int)
+                match_js = match_js[np.logical_not(np.isnan(match_ious))]
+                keep[match_js] = False
+                pred_tlwhs = pred_tlwhs[keep]
+                pred_ids = pred_ids[keep]
+
+            # get distance matrix
+            iou_distance = mm.distances.iou_matrix(gt_tlwhs, pred_tlwhs, max_iou=0.5)
+
+            # accumulate
+            self.acc.update(gt_ids, pred_ids, iou_distance)
+
+        # get summary
+        metrics = mm.metrics.motchallenge_metrics
+        mh = mm.metrics.create()
+
+        summary = mh.compute(
+            self.acc,
+            metrics=metrics,
+            name=self.dataset_name,
+            return_dataframe=False,
+            return_cached=True,
+        )
+
+        ret = {}
+        keys_lists = [
+            (
+                [
+                    "idf1",
+                    "idp",
+                    "idr",
+                    "recall",
+                    "precision",
+                    "num_unique_objects",
+                    "mota",
+                    "motp",
+                ],
+                None,
+            ),
+            (
+                [
+                    "mostly_tracked",
+                    "partially_tracked",
+                    "mostly_lost",
+                    "num_false_positives",
+                    "num_misses",
+                    "num_switches",
+                    "num_fragmentations",
+                    "num_transfer",
+                    "num_ascend",
+                    "num_migrate",
+                ],
+                int,
+            ),
+        ]
+
+        for keys, dtype in keys_lists:
+            selected_keys = [key for key in keys if key in summary]
+            for key in selected_keys:
+                ret[key] = summary[key] if dtype is None else dtype(summary[key])
+
+        return ret
 
 
 @register_evaluator("YOLO-EVAL")

@@ -19,9 +19,11 @@ fi
 
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 SFU_HW_SRC=${PWD}"${VCM_TESTDATA}/SFU_HW_Obj"
+HIEVE_SRC=${PWD}"${VCM_TESTDATA}/HiEve_pngs"
 
 # MPEGOIV6 - Detection with Faster RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                    ++pipeline.type=unfold \
                     ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
@@ -32,6 +34,7 @@ python ${ENTRY_CMD} --config-name=eval_example.yaml \
 
 # MPEGOIV6 - Segmentation with Mask RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                    ++pipeline.type=unfold \
                     ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
@@ -58,6 +61,7 @@ for SEQ in \
             'RaceHorses_416x240_30_val'
 do
     python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                        ++pipeline.type=fold \
                         ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
                         ++dataset.type=Detectron2Dataset \
                         ++dataset.datacatalog=SFUHW \
@@ -67,3 +71,24 @@ do
                         ++evaluator.type=COCO-EVAL
 done
 
+# HIEVE - Object Tracking with JDE
+for SEQ in \
+            '13' \
+            '16' \
+            '2' \
+            '17' \
+            '18'
+do
+    python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                        ++pipeline.type=fold \
+                        ++vision_model.arch=jde_1088x608 \
+                        ++vision_model.jde_1088x608.splits=[105, 90, 75] \
+                        ++dataset.type=TrackingDataset \
+                        ++dataset.settings.patch_size=[608, 1088] \
+                        ++dataset.datacatalog=MPEGHIEVE \
+                        ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
+                        ++dataset.config.imgs_folder=img1 \
+                        ++dataset.config.annotation_file=gt/gt.txt \
+                        ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
+                        ++evaluator.type=MOT-EVAL
+done

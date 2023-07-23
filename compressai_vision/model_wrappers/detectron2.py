@@ -206,28 +206,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def cfg(self):
         return self._cfg
 
-    # [TODO (choih): To be reused for some purpose]
-    def preInputTensor(self, img, img_id):
-        """
-
-        :param img: numpy BGR image (h,w,3)
-
-        """
-        height, width = img.shape[:2]
-        if self.aug is not None:
-            image = self.aug.get_transform(img).apply_image(img)
-        image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
-
-        inputs = {
-            "image": image,
-            "height": height,
-            "width": width,
-            "image_id": img_id,
-        }
-        return [
-            inputs,
-        ]
-
 
 @register_vision_model("faster_rcnn_X_101_32x8d_FPN_3x")
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):

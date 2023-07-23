@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
 from typing import Dict, List
 
 import torch.nn as nn
@@ -37,6 +38,10 @@ class BaseWrapper(nn.Module):
 
     An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
     """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def input_to_features(self, x) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""

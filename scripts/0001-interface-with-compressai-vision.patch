@@ -1,13 +1,15 @@
-From 7f48a16ab5d6d0343de321d5f4d082b89aba5639 Mon Sep 17 00:00:00 2001
-Subject: [PATCH] inteface-with-compressai-vision
+From 05d911d9dd4c38b2d30524c012aaccec3395ae62 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] interface-with-compressai-vision
 
 ---
- models.py           | 100 ++++++++++++++++++++++++++++++++++----------
- tracker/matching.py |   2 +-
- utils/datasets.py   |   2 +-
- utils/evaluation.py |   2 +-
- utils/io.py         |   2 +-
- 5 files changed, 82 insertions(+), 26 deletions(-)
+ models.py               | 100 +++++++++++++++++++++++++++++++---------
+ tracker/matching.py     |  14 +++---
+ tracker/multitracker.py |  45 ++++++++++--------
+ utils/datasets.py       |   2 +-
+ utils/evaluation.py     |   2 +-
+ utils/io.py             |   2 +-
+ utils/utils.py          |   8 ++--
+ 7 files changed, 118 insertions(+), 55 deletions(-)
 
 diff --git a/models.py b/models.py
 index ef595e3..ccd6606 100644
@@ -240,7 +242,7 @@ index ef595e3..ccd6606 100644
  
  def shift_tensor_vertically(t, delta):
 diff --git a/tracker/matching.py b/tracker/matching.py
-index 33a5ac6..faae9ba 100644
+index 33a5ac6..189011c 100644
 --- a/tracker/matching.py
 +++ b/tracker/matching.py
 @@ -4,7 +4,7 @@ from scipy.spatial.distance import cdist
@@ -252,6 +254,133 @@ index 33a5ac6..faae9ba 100644
  
  def merge_matches(m1, m2, shape):
      O,P,Q = shape
+@@ -45,13 +45,13 @@ def ious(atlbrs, btlbrs):
+ 
+     :rtype ious np.ndarray
+     """
+-    ious = np.zeros((len(atlbrs), len(btlbrs)), dtype=np.float)
++    ious = np.zeros((len(atlbrs), len(btlbrs)), dtype=np.float32)
+     if ious.size == 0:
+         return ious
+ 
+     ious = bbox_ious(
+-        np.ascontiguousarray(atlbrs, dtype=np.float),
+-        np.ascontiguousarray(btlbrs, dtype=np.float)
++        np.ascontiguousarray(atlbrs, dtype=np.float32),
++        np.ascontiguousarray(btlbrs, dtype=np.float32)
+     )
+ 
+     return ious
+@@ -85,11 +85,11 @@ def embedding_distance(tracks, detections, metric='cosine'):
+     :return: cost_matrix np.ndarray
+     """
+ 
+-    cost_matrix = np.zeros((len(tracks), len(detections)), dtype=np.float)
++    cost_matrix = np.zeros((len(tracks), len(detections)), dtype=np.float32)
+     if cost_matrix.size == 0:
+         return cost_matrix
+-    det_features = np.asarray([track.curr_feat for track in detections], dtype=np.float)
+-    track_features = np.asarray([track.smooth_feat for track in tracks], dtype=np.float)
++    det_features = np.asarray([track.curr_feat for track in detections], dtype=np.float32)
++    track_features = np.asarray([track.smooth_feat for track in tracks], dtype=np.float32)
+     cost_matrix = np.maximum(0.0, cdist(track_features, det_features)) # Nomalized features
+ 
+     return cost_matrix
+diff --git a/tracker/multitracker.py b/tracker/multitracker.py
+index eae4683..f11989a 100644
+--- a/tracker/multitracker.py
++++ b/tracker/multitracker.py
+@@ -1,10 +1,10 @@
+-from numba import jit
++import numba as nb
+ from collections import deque
+ import torch
+-from utils.kalman_filter import KalmanFilter
+-from utils.log import logger
+-from models import *
+-from tracker import matching
++from jde.utils.kalman_filter import KalmanFilter
++from jde.utils.log import logger
++from jde.models import *
++from jde.tracker import matching
+ from .basetrack import BaseTrack, TrackState
+ 
+ 
+@@ -13,7 +13,7 @@ class STrack(BaseTrack):
+     def __init__(self, tlwh, score, temp_feat, buffer_size=30):
+ 
+         # wait activate
+-        self._tlwh = np.asarray(tlwh, dtype=np.float)
++        self._tlwh = np.asarray(tlwh, dtype=np.float32)
+         self.kalman_filter = None
+         self.mean, self.covariance = None, None
+         self.is_activated = False
+@@ -103,30 +103,37 @@ class STrack(BaseTrack):
+             self.update_features(new_track.curr_feat)
+ 
+     @property
+-    @jit
+     def tlwh(self):
+         """Get current position in bounding box format `(top left x, top left y,
+                 width, height)`.
+         """
+         if self.mean is None:
+             return self._tlwh.copy()
+-        ret = self.mean[:4].copy()
+-        ret[2] *= ret[3]
+-        ret[:2] -= ret[2:] / 2
+-        return ret
++        
++        return self.jit_compute_tlwh(self.mean[:4].copy())
++        
++    @staticmethod
++    @nb.jit(nopython=True)
++    def jit_compute_tlwh(tlwh):
++        tlwh[2] *= tlwh[3]
++        tlwh[:2] -= tlwh[2:] / 2
++        return tlwh
+ 
+     @property
+-    @jit
+     def tlbr(self):
+         """Convert bounding box to format `(min x, min y, max x, max y)`, i.e.,
+         `(top left, bottom right)`.
+         """
+-        ret = self.tlwh.copy()
+-        ret[2:] += ret[:2]
+-        return ret
+-
++        return self.jit_compute_tlbr(self.tlwh.copy())
++        
++    @staticmethod
++    @nb.jit(nopython=True)
++    def jit_compute_tlbr(tlbr):
++        tlbr[2:] += tlbr[:2]
++        return tlbr
++    
+     @staticmethod
+-    @jit
++    @nb.jit(nopython=True)
+     def tlwh_to_xyah(tlwh):
+         """Convert bounding box to format `(center x, center y, aspect ratio,
+         height)`, where the aspect ratio is `width / height`.
+@@ -140,14 +147,14 @@ class STrack(BaseTrack):
+         return self.tlwh_to_xyah(self.tlwh)
+ 
+     @staticmethod
+-    @jit
++    @nb.jit(nopython=True)
+     def tlbr_to_tlwh(tlbr):
+         ret = np.asarray(tlbr).copy()
+         ret[2:] -= ret[:2]
+         return ret
+ 
+     @staticmethod
+-    @jit
++    @nb.jit(nopython=True)
+     def tlwh_to_tlbr(tlwh):
+         ret = np.asarray(tlwh).copy()
+         ret[2:] += ret[:2]
 diff --git a/utils/datasets.py b/utils/datasets.py
 index 88546a3..2f9f510 100644
 --- a/utils/datasets.py
@@ -291,6 +420,26 @@ index e6ddd21..5256ec2 100644
  
  
  def write_results(filename, results_dict: Dict, data_type: str):
+diff --git a/utils/utils.py b/utils/utils.py
+index 3e712b3..ee493d3 100644
+--- a/utils/utils.py
++++ b/utils/utils.py
+@@ -102,11 +102,11 @@ def xywh2xyxy(x):
+ 
+ def scale_coords(img_size, coords, img0_shape):
+     # Rescale x1, y1, x2, y2 from 416 to image size
+-    gain_w = float(img_size[0]) / img0_shape[1]  # gain  = old / new
+-    gain_h = float(img_size[1]) / img0_shape[0]
++    gain_w = float(img_size[1]) / img0_shape[1]  # gain  = old / new
++    gain_h = float(img_size[0]) / img0_shape[0]
+     gain = min(gain_w, gain_h)
+-    pad_x = (img_size[0] - img0_shape[1] * gain) / 2  # width padding
+-    pad_y = (img_size[1] - img0_shape[0] * gain) / 2  # height padding
++    pad_x = (img_size[1] - img0_shape[1] * gain) / 2  # width padding
++    pad_y = (img_size[0] - img0_shape[0] * gain) / 2  # height padding
+     coords[:, [0, 2]] -= pad_x
+     coords[:, [1, 3]] -= pad_y
+     coords[:, 0:4] /= gain
 -- 
 2.25.1
 

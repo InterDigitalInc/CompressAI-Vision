@@ -113,6 +113,7 @@ def main(conf: DictConfig):
 
     ret = pipeline(**modules)
 
+    print(ret)
     # summarize results
 
 
