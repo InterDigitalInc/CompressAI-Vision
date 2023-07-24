@@ -174,6 +174,17 @@ class Detectron2Dataset(BaseDataet):
 
         self.dataset = kwargs["dataset"].dataset
 
+        try:
+            DatasetCatalog.get(dataset_name)
+        except KeyError:
+            self.logger.warning(
+                __name__,
+                f'It looks a new dataset. The new dataset "{dataset_name}" is successfully registred in DataCatalog now.',
+            )
+            register_coco_instances(
+                dataset_name, {}, self.annotation_path, self.images_folder
+            )
+
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
 
