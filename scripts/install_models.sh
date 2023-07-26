@@ -182,8 +182,8 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
 fi
 
 
-# echo
-# echo "Installing compressai-vision"
-# echo
+echo
+echo "Installing compressai-vision"
+echo
 
-# pip install -e .
+pip install -e .
