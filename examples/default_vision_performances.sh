@@ -6,7 +6,7 @@ set -eu
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ENTRY_CMD="${SCRIPT_DIR}/../compressai_vision/run/eval_split_inference.py"
 
-VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
+VCM_TESTDATA="/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata"
 
 if [ $# == 1 ]; then
     VCM_TESTDATA=$1
