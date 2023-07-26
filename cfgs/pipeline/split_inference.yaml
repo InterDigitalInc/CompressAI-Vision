@@ -30,6 +30,10 @@ codec:
 nn_task_part2:
     dump_results: False
     output_results_dir: ${..output_dir}/${dataset.config.dataset_name}/output_results
+conformance:
+    save_conformance_files: False
+    subsample_ratio: 9
+    conformance_files_path: ${..output_dir}/${dataset.config.dataset_name}/conformance_files/
 evaluation:
     bypass: False
     dump: True

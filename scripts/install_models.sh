@@ -133,9 +133,9 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
     fi
-    cd ${SCRIPT_DIR}/cython_bbox
-    patch -p1 <../0001-compatible-with-numpy-1.24.1.patch
-    pip3 install -e .
+    # cd ${SCRIPT_DIR}/cython_bbox
+    # patch -p1 <../0001-compatible-with-numpy-1.24.1.patch
+    # pip3 install -e .
 
     # clone
     if [ -z "$(ls -A ${MODELS_DIR}/Towards-Realtime-MOT)" ]; then
@@ -183,8 +183,8 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
 fi
 
 
-# echo
-# echo "Installing compressai-vision"
-# echo
+echo
+echo "Installing compressai-vision"
+echo
 
-# pip install -e .
+pip install -e .

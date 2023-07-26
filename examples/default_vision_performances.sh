@@ -6,7 +6,7 @@ set -eu
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ENTRY_CMD="${SCRIPT_DIR}/../compressai_vision/run/eval_split_inference.py"
 
-VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
+VCM_TESTDATA="/mnt/wekamount/RI-Users/hyomin.choi/Projects/compressai-fcvcm/compressai-fcvcm/vcm_testdata"
 
 if [ $# == 1 ]; then
     VCM_TESTDATA=$1
@@ -24,6 +24,8 @@ HIEVE_SRC=${PWD}"${VCM_TESTDATA}/HiEve_pngs"
 # MPEGOIV6 - Detection with Faster RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
                     ++pipeline.type=unfold \
+                    ++pipeline.conformance.save_conformance_files=True \
+                    ++pipeline.conformance.subsample_ratio=9 \
                     ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
@@ -35,6 +37,8 @@ python ${ENTRY_CMD} --config-name=eval_example.yaml \
 # MPEGOIV6 - Segmentation with Mask RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
                     ++pipeline.type=unfold \
+                    ++pipeline.conformance.save_conformance_files=True \
+                    ++pipeline.conformance.subsample_ratio=9 \
                     ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=MPEGOIV6 \
@@ -62,6 +66,8 @@ for SEQ in \
 do
     python ${ENTRY_CMD} --config-name=eval_example.yaml \
                         ++pipeline.type=fold \
+                        ++pipeline.conformance.save_conformance_files=True \
+                        ++pipeline.conformance.subsample_ratio=9 \
                         ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
                         ++dataset.type=Detectron2Dataset \
                         ++dataset.datacatalog=SFUHW \
@@ -81,6 +87,8 @@ for SEQ in \
 do
     python ${ENTRY_CMD} --config-name=eval_example.yaml \
                         ++pipeline.type=fold \
+                        ++pipeline.conformance.save_conformance_files=True \
+                        ++pipeline.conformance.subsample_ratio=90 \
                         ++vision_model.arch=jde_1088x608 \
                         ++vision_model.jde_1088x608.splits=[105, 90, 75] \
                         ++dataset.type=TrackingDataset \

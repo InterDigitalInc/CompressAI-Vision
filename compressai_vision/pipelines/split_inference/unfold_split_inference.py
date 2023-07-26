@@ -94,6 +94,7 @@ class UnfoldSplitInference(BaseSplit):
                     "org_input_size": featureT["org_input_size"],
                 }
 
+            dec_featureT["file_name"] = d[0]["file_name"]
             pred = self._from_features_to_output(
                 vision_model, dec_featureT, file_prefix
             )
