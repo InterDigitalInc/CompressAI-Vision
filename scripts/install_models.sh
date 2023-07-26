@@ -133,9 +133,10 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
     fi
-    # cd ${SCRIPT_DIR}/cython_bbox
-    # patch -p1 <../0001-compatible-with-numpy-1.24.1.patch
-    # pip3 install -e .
+
+    cd ${SCRIPT_DIR}/cython_bbox
+    patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
+    pip3 install -e .
 
     # clone
     if [ -z "$(ls -A ${MODELS_DIR}/Towards-Realtime-MOT)" ]; then
@@ -150,7 +151,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
 
     # Apply patch to interface with compressai-vision
-    patch -p1 <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
+    patch -p1 --forward <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
 
     # TODO (fabien - please check the script below)
     SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
