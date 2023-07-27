@@ -121,7 +121,6 @@ class FoldSplitInference(BaseSplit):
         dec_featureT = self._decompress_features(
             codec, res["bitstream"], output_file_prefix
         )
-        dec_featureT["file_name"] = d[0]["file_name"]
 
         # separate a tensor of each keyword item into a list of tensors
         dec_feature_tesnor = self._split_data(dec_featureT["data"])
