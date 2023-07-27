@@ -106,7 +106,7 @@ class UnfoldSplitInference(BaseSplit):
                 out_res["image"],
                 out_res["width"],
                 out_res["height"],
-                out_res["file_name"],
+                out_res["image_id"],
             )
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
@@ -114,6 +114,6 @@ class UnfoldSplitInference(BaseSplit):
             out_res["input_size"] = featureT["input_size"][0]
             output_list.append(out_res)
 
-        mAP = self._evaluation(evaluator)
+        eval_performance = self._evaluation(evaluator)
 
-        return {"coded_res": output_list, "mAP": mAP}
+        return output_list, eval_performance

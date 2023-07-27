@@ -67,6 +67,7 @@ class FoldSplitInference(BaseSplit):
 
         featureT = {}
         gt_inputs = []
+        file_names = []
 
         self.logger.info("Processing NN-Part1...")
         for e, d in enumerate(tqdm(dataloader)):
@@ -79,6 +80,8 @@ class FoldSplitInference(BaseSplit):
                     {"image_id": d[0]["image_id"]},
                 ]
             )
+
+            file_names.append(d[0]["file_name"])
 
             res = self._from_input_to_features(vision_model, d, output_file_prefix)
 
@@ -118,26 +121,33 @@ class FoldSplitInference(BaseSplit):
         dec_featureT = self._decompress_features(
             codec, res["bitstream"], output_file_prefix
         )
-        dec_featureT["file_name"] = d[0]["file_name"]
 
         # separate a tensor of each keyword item into a list of tensors
         dec_feature_tesnor = self._split_data(dec_featureT["data"])
 
         self.logger.info("Processing NN-Part2...")
+        output_list = []
         for e, data in self._iterate_items(dec_feature_tesnor, num_items):
             dec_featureT["data"] = data
+            dec_featureT["file_name"] = file_names[e]
             pred = self._from_features_to_output(vision_model, dec_featureT)
             evaluator.digest(gt_inputs[e], pred)
 
-        output_list = []
-        out_res["bytes"] = res["bytes"][0]
-        out_res["coded_order"] = e
+            out_res = dec_featureT.copy()
+            del (out_res["data"], out_res["org_input_size"])
+            out_res["bytes"] = res["bytes"][0]
+            out_res["coded_order"] = e
+            out_res["input_size"] = dec_featureT["input_size"][0]
+            out_res["org_input_size"] = (
+                dec_featureT["org_input_size"]["height"],
+                dec_featureT["org_input_size"]["width"],
+            )
 
-        output_list.append(out_res)
+            output_list.append(out_res)
 
-        outs_dict = self._evaluation(evaluator)
+        eval_performance = self._evaluation(evaluator)
 
-        return {"coded_res": output_list, **outs_dict}
+        return output_list, eval_performance
 
     def _data_buffering(self, data: Dict):
         """
