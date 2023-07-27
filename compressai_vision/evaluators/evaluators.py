@@ -34,6 +34,7 @@ import time
 
 import motmetrics as mm
 import numpy as np
+import pandas as pd
 import torch
 from detectron2.evaluation import COCOEvaluator
 from jde.utils.io import unzip_objs
@@ -319,8 +320,8 @@ class OpenImagesChallengeEval(BaseEvaluator):
         return summary
 
 
-@register_evaluator("MOT-EVAL")
-class MOTEval(BaseEvaluator):
+@register_evaluator("MOT-JDE-EVAL")
+class MOT_JDE_Eval(BaseEvaluator):
     """
     A Multiple Object Tracking Evaluator
 
@@ -351,6 +352,30 @@ class MOTEval(BaseEvaluator):
         self.acc = mm.MOTAccumulator(auto_id=True)
         self._predictions = {}
 
+    @staticmethod
+    def _load_gt_in_motchallenge(filepath, fmt="mot15-2D", min_confidence=-1):
+        return mm.io.loadtxt(filepath, fmt=fmt, min_confidence=min_confidence)
+
+    @staticmethod
+    def _format_pd_in_motchallenge(predictions: dict):
+        all_indexes = []
+        all_columns = []
+
+        for frmID, preds in predictions.items():
+            if len(preds) > 0:
+                for data in preds:
+                    tlwh, objID, conf = data
+
+                    all_indexes.append((frmID, objID))
+
+                    column_data = tlwh + (conf, -1, -1)
+                    all_columns.append(column_data)
+
+        columns = ["X", "Y", "Width", "Height", "Confidence", "ClassId", "Visibility"]
+
+        idx = pd.MultiIndex.from_tuples(all_indexes, names=["FrameId", "Id"])
+        return pd.DataFrame(all_columns, idx, columns)
+
     def digest(self, gt, pred):
         pred_list = []
         for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
@@ -370,6 +395,47 @@ class MOTEval(BaseEvaluator):
         self.write_results(out)
 
         return out
+
+    @staticmethod
+    def digest_summary(summary):
+        ret = {}
+        keys_lists = [
+            (
+                [
+                    "idf1",
+                    "idp",
+                    "idr",
+                    "recall",
+                    "precision",
+                    "num_unique_objects",
+                    "mota",
+                    "motp",
+                ],
+                None,
+            ),
+            (
+                [
+                    "mostly_tracked",
+                    "partially_tracked",
+                    "mostly_lost",
+                    "num_false_positives",
+                    "num_misses",
+                    "num_switches",
+                    "num_fragmentations",
+                    "num_transfer",
+                    "num_ascend",
+                    "num_migrate",
+                ],
+                int,
+            ),
+        ]
+
+        for keys, dtype in keys_lists:
+            selected_keys = [key for key in keys if key in summary]
+            for key in selected_keys:
+                ret[key] = summary[key] if dtype is None else dtype(summary[key])
+
+        return ret
 
     def mot_eval(self):
         assert len(self.dataset) == len(
@@ -425,44 +491,93 @@ class MOTEval(BaseEvaluator):
             return_cached=True,
         )
 
-        ret = {}
-        keys_lists = [
-            (
-                [
-                    "idf1",
-                    "idp",
-                    "idr",
-                    "recall",
-                    "precision",
-                    "num_unique_objects",
-                    "mota",
-                    "motp",
-                ],
-                None,
-            ),
-            (
-                [
-                    "mostly_tracked",
-                    "partially_tracked",
-                    "mostly_lost",
-                    "num_false_positives",
-                    "num_misses",
-                    "num_switches",
-                    "num_fragmentations",
-                    "num_transfer",
-                    "num_ascend",
-                    "num_migrate",
-                ],
-                int,
-            ),
-        ]
+        return self.digest_summary(summary)
 
-        for keys, dtype in keys_lists:
-            selected_keys = [key for key in keys if key in summary]
-            for key in selected_keys:
-                ret[key] = summary[key] if dtype is None else dtype(summary[key])
 
-        return ret
+@register_evaluator("MOT-TVD-EVAL")
+class MOT_TVD_Eval(MOT_JDE_Eval):
+    """
+    A Multiple Object Tracking Evaluator for TVD
+
+    This class evaluates MOT performance of tracking model such as JDE specifically on TVD
+    """
+
+    def __init__(
+        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+    ):
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+
+        self._gt_pd = self._load_gt_in_motchallenge(self.annotation_path)
+
+        assert self.seqinfo_path is not None, "Sequence Information must be provided"
+
+    def mot_eval(self):
+        assert len(self.dataset) == len(
+            self._predictions
+        ), "Total number of frames are mismatch"
+
+        _pd_pd = self._format_pd_in_motchallenge(self._predictions)
+
+        acc, ana = mm.utils.CLEAR_MOT_M(self._gt_pd, _pd_pd, self.seqinfo_path)
+
+        # get summary
+        metrics = mm.metrics.motchallenge_metrics
+        mh = mm.metrics.create()
+
+        summary = mh.compute(
+            acc,
+            ana=ana,
+            metrics=metrics,
+            name=self.dataset_name,
+            return_dataframe=False,
+            return_cached=True,
+        )
+
+        return self.digest_summary(summary)
+
+
+@register_evaluator("MOT-HIEVE-EVAL")
+class MOT_HiEve_Eval(MOT_JDE_Eval):
+    """
+    A Multiple Object Tracking Evaluator for HiEve
+
+    This class evaluates MOT performance of tracking model such as JDE specifically on HiEve
+
+    """
+
+    def __init__(
+        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+    ):
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+
+        mm.lap.default_solver = "munkres"
+
+        self._gt_pd = self._load_gt_in_motchallenge(
+            self.annotation_path, min_confidence=1
+        )
+
+    def mot_eval(self):
+        assert len(self.dataset) == len(
+            self._predictions
+        ), "Total number of frames are mismatch"
+
+        _pd_pd = self._format_pd_in_motchallenge(self._predictions)
+
+        acc = mm.utils.compare_to_groundtruth(self._gt_pd, _pd_pd)
+
+        # get summary
+        metrics = mm.metrics.motchallenge_metrics
+        mh = mm.metrics.create()
+
+        summary = mh.compute(
+            acc,
+            metrics=metrics,
+            name=self.dataset_name,
+            return_dataframe=False,
+            return_cached=True,
+        )
+
+        return self.digest_summary(summary)
 
 
 @register_evaluator("YOLO-EVAL")

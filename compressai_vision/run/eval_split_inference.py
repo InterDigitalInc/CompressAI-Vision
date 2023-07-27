@@ -95,9 +95,12 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Cfg        : {kwargs['vision_model'].model_cfg_path}\
                 \n  -- Weight     : {kwargs['vision_model'].pretrained_weight_path}\
                 \n Codec          : {title(kwargs['codec']):<30s}\
+                \n Dataset        : {kwargs['evaluator'].dataset_name} \
+                \n  -- Data       : {kwargs['dataloader'].dataset.images_folder} \
+                \n  -- Annotation : {kwargs['dataloader'].dataset.annotation_path} \
+                \n  -- SEQ-INFO   : {kwargs['dataloader'].dataset.seqinfo_path} \
                 \n Evaluator      : {title(kwargs['evaluator']):<30s}\
                 \n  -- DataCatalog: {kwargs['evaluator'].datacatalog_name} \
-                \n  -- Dataset    : {kwargs['evaluator'].dataset_name} \
                 \n  -- Output Dir : {kwargs['evaluator'].output_dir} \
                 \n  -- Output file: {kwargs['evaluator'].output_file_name} \
                 \n\n\

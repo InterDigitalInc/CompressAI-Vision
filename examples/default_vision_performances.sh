@@ -20,6 +20,7 @@ fi
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 SFU_HW_SRC=${PWD}"${VCM_TESTDATA}/SFU_HW_Obj"
 HIEVE_SRC=${PWD}"${VCM_TESTDATA}/HiEve_pngs"
+TVD_SRC=${PWD}"${VCM_TESTDATA}/tvd_tracking"
 
 # MPEGOIV6 - Detection with Faster RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
@@ -71,6 +72,26 @@ do
                         ++evaluator.type=COCO-EVAL
 done
 
+# TVD - Object Tracking with JDE
+for SEQ in \
+            'TVD-01' \
+            'TVD-02' \
+            'TVD-03'
+do
+    python ${ENTRY_CMD} --config-name=eval_example.yaml \
+                        ++pipeline.type=fold \
+                        ++vision_model.arch=jde_1088x608 \
+                        ++vision_model.jde_1088x608.splits=[74, 61, 36] \
+                        ++dataset.type=TrackingDataset \
+                        ++dataset.settings.patch_size=[608, 1088] \
+                        ++dataset.datacatalog=MPEGTVDTRACKING \
+                        ++dataset.config.root=${TVD_SRC}/${SEQ} \
+                        ++dataset.config.imgs_folder=img1 \
+                        ++dataset.config.annotation_file=gt/gt.txt \
+                        ++dataset.config.dataset_name=mpeg-tracking-${SEQ} \
+                        ++evaluator.type=MOT-TVD-EVAL
+done
+
 # HIEVE - Object Tracking with JDE
 for SEQ in \
             '13' \
@@ -90,5 +111,5 @@ do
                         ++dataset.config.imgs_folder=img1 \
                         ++dataset.config.annotation_file=gt/gt.txt \
                         ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
-                        ++evaluator.type=MOT-EVAL
+                        ++evaluator.type=MOT-HIEVE-EVAL
 done

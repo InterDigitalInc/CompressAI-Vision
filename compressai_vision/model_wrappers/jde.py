@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
 from pathlib import Path
 from typing import Dict, List
 
@@ -94,6 +95,10 @@ class jde_1088x608(BaseWrapper):
 
         self.kalman_filter = KalmanFilter()
 
+        if "logging_level" in kwargs:
+            self.logger.level = kwargs["logging_level"]
+            # logging.DEBUG
+
         # reset member variables to use over a sequence of frame
         self.reset()
 
@@ -120,7 +125,9 @@ class jde_1088x608(BaseWrapper):
         """Computes and return feture pyramid all the way from the input"""
         img = x[0]["image"].unsqueeze(0).to(self.device)
         input_size = tuple(img.shape[2:])
+
         _ = self.darknet(img, self.features_at_splits, is_nn_part1=True)
+
         return {"data": self.features_at_splits, "input_size": [input_size]}
 
     @torch.no_grad()
@@ -178,13 +185,15 @@ class jde_1088x608(BaseWrapper):
             pred.size(1) == 54264
         ), f"Default number of proposals by JDE must be 54264, but got {pred.size(1)}"
 
-        pred = pred[:, pred[0, :, 4] > self.model_configs["conf_thres"]]
+        selected_pred = pred[:, pred[0, :, 4] > self.model_configs["conf_thres"]]
         # only check the objects detected with confidence greater than .5
 
-        if len(pred) > 0:
+        if selected_pred.shape[1] > 0:
             # Compute final proposals including bbox and embeddings for detected objects
             res = non_max_suppression(
-                pred, self.model_configs["conf_thres"], self.model_configs["nms_thres"]
+                selected_pred,
+                self.model_configs["conf_thres"],
+                self.model_configs["nms_thres"],
             )[0].cpu()
 
             # Update detection scales
@@ -347,7 +356,7 @@ class jde_1088x608(BaseWrapper):
 
         self.frame_id += 1
 
-        self.logger.debug("===========Frame {}==========".format(self.frame_id - 1))
+        self.logger.debug(f"===========Frame {self.frame_id}==========")
         self.logger.debug(
             "Activated    : {}".format(
                 [track.track_id for track in current_active_tracks]

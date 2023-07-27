@@ -46,6 +46,8 @@ class BaseEvaluator(nn.Module):
         self.output_file_name = (
             f"{self.__class__.__name__}_on_{datacatalog_name}_{dataset_name}"
         )
+        self.annotation_path = dataset.annotation_path
+        self.seqinfo_path = dataset.seqinfo_path
 
         self.thing_classes = dataset.thing_classes
         self.thing_id_mapping = dataset.thing_dataset_id_to_contiguous_id

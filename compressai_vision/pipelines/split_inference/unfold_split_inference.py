@@ -101,7 +101,12 @@ class UnfoldSplitInference(BaseSplit):
             evaluator.digest(d, pred)
 
             out_res = d[0].copy()
-            del out_res["image"], out_res["width"], out_res["height"]
+            del (
+                out_res["image"],
+                out_res["width"],
+                out_res["height"],
+                out_res["file_name"],
+            )
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["org_input_size"] = (d[0]["height"], d[0]["width"])

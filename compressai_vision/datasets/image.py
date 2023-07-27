@@ -65,7 +65,7 @@ def deccode_compressed_rle(data):
                 segm["counts"] = base64.b64decode(segm["counts"])
 
 
-class BaseDataet(Dataset):
+class BaseDataset(Dataset):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
         super().__init__()
 
@@ -75,6 +75,9 @@ class BaseDataet(Dataset):
         if "annotation_file" in kwargs:
             self.annotation_path = Path(root) / kwargs["annotation_file"]
             assert self.annotation_path == kwargs["dataset"].annotation_path
+
+        if "seqinfo" in kwargs:
+            self.seqinfo_path = kwargs["dataset"].seqinfo_path
 
         self.images_folder = Path(root) / imgs_folder
         assert self.images_folder == kwargs["dataset"].imgs_folder_path
@@ -88,7 +91,7 @@ class BaseDataet(Dataset):
 
 
 @register_dataset("DefaultDataset")
-class DefaultDataset(BaseDataet):
+class DefaultDataset(BaseDataset):
     """Load an image folder database. testing image samples
     are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
@@ -168,7 +171,7 @@ class DefaultDataset(BaseDataet):
 
 
 @register_dataset("Detectron2Dataset")
-class Detectron2Dataset(BaseDataet):
+class Detectron2Dataset(BaseDataset):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
         super().__init__(root, dataset_name, imgs_folder, **kwargs)
 
@@ -207,7 +210,7 @@ class Detectron2Dataset(BaseDataet):
 
 
 @register_dataset("TrackingDataset")
-class TrackingDataset(BaseDataet):
+class TrackingDataset(BaseDataset):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
         super().__init__(root, dataset_name, imgs_folder, **kwargs)
 
@@ -232,8 +235,11 @@ class DataCatalog:
         root,
         imgs_folder="images",
         annotation_file="sample.json",
+        seqinfo="seqinfo.ini",
         dataset_name="sample_dataset",
+        ext=".png",
     ):
+        self.logger = logging.getLogger(self.__class__.__name__)
         _imgs_folder = Path(root) / imgs_folder
         if not _imgs_folder.is_dir():
             raise RuntimeError(f'Invalid image sample directory "{_imgs_folder}"')
@@ -242,10 +248,20 @@ class DataCatalog:
         if not _annotation_file.is_file():
             raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
 
+        _sequence_info_file = Path(root) / seqinfo
+        if not _annotation_file.is_file():
+            self.logger.warning(
+                f"Sequence information does not exist at the given path {_sequence_info_file}"
+            )
+            self._sequence_info_file = None
+        else:
+            self._sequence_info_file = _sequence_info_file
+
         self._dataset_name = dataset_name
         self._dataset = None
         self._imgs_folder = _imgs_folder
         self._annotation_file = _annotation_file
+        self._img_ext = ext
 
     @property
     def dataset_name(self):
@@ -260,6 +276,10 @@ class DataCatalog:
         return self._annotation_file
 
     @property
+    def seqinfo_path(self):
+        return self._sequence_info_file
+
+    @property
     def imgs_folder_path(self):
         return self._imgs_folder
 
@@ -269,17 +289,17 @@ class DataCatalog:
         # super().__init__(dataset_name, dataset, cfg, imgs_folder_path, annotations_file)
 
 
-@register_datacatalog("MPEGHIEVE")
-class MPEGHIEVE(DataCatalog):
-    """Load an image folder database to support testing image samples extracted from MPEG-HiEve videos:
+@register_datacatalog("MPEGTVDTRACKING")
+class MPEGTVDTRACKING(DataCatalog):
+    """Load an image folder database to support testing image samples extracted from MPEG-TVD Objects Tracking videos:
 
     .. code-block::
-        - mpeg-HiEve/
+        - mpeg-TVD-Tracking/
             - annoations/
                 -
             - images/
-                - 452c856678a9b284.jpg
-                - ....jpg
+                - 00001.png
+                - ....png
 
     Args:
         root (string): root directory of the dataset
@@ -292,10 +312,18 @@ class MPEGHIEVE(DataCatalog):
         root,
         imgs_folder="images",
         annotation_file="gt.txt",
-        dataset_name="mpeg-hieve-tracking",
+        seqinfo="seqinfo.ini",
+        dataset_name="mpeg-tvd-tracking",
         ext="png",
     ):
-        super().__init__(root, imgs_folder, annotation_file, dataset_name)
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
 
         self.data_type = "mot"
         gt_frame_dict = read_results(
@@ -309,27 +337,19 @@ class MPEGHIEVE(DataCatalog):
 
         assert len(gt_frame_dict) == len(gt_ignore_frame_dict)
 
-        # the first frame from the img lists does not have relevant ground truth tracking labels
-        assert len(img_lists) - 1 == len(gt_frame_dict)
-
-        self._dataset = [
-            {
-                "file_name": str(img_lists[0]),
-                "image_id": img_lists[0].name.split(f".{ext}")[0],
-            },
-        ]
+        self._dataset = []
         self._gt_labels = gt_frame_dict
         self._gt_ignore_labels = gt_ignore_frame_dict
 
-        for file_name in img_lists[1:]:
+        for file_name in img_lists:
             img_id = file_name.name.split(f".{ext}")[0]
 
             new_d = {
                 "file_name": str(file_name),
                 "image_id": img_id,
                 "annotations": {
-                    "gt": gt_frame_dict[int(img_id)],
-                    "gt_ignore": gt_ignore_frame_dict[int(img_id)],
+                    "gt": gt_frame_dict.get(int(img_id), []),
+                    "gt_ignore": gt_ignore_frame_dict.get(int(img_id), []),
                 },
             }
 
@@ -340,6 +360,48 @@ class MPEGHIEVE(DataCatalog):
             "gt": self._gt_labels.get(id, []),
             "gt_ignore": self._gt_ignore_labels.get(id, []),
         }
+
+    def get_min_max_across_tensors(self):
+        maxv = 48.58344268798828
+        minv = -4.722218990325928
+        return (minv, maxv)
+
+
+@register_datacatalog("MPEGHIEVE")
+class MPEGHIEVE(MPEGTVDTRACKING):
+    """Load an image folder database to support testing image samples extracted from MPEG-HiEve videos:
+
+    .. code-block::
+        - mpeg-HiEve/
+            - annoations/
+                -
+            - images/
+                - 00001.png
+                - ....png
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+    """
+
+    def __init__(
+        self,
+        root,
+        imgs_folder="images",
+        annotation_file="gt.txt",
+        seqinfo="seqinfo.ini",
+        dataset_name="mpeg-hieve-tracking",
+        ext="png",
+    ):
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
 
     def get_min_max_across_tensors(self):
         maxv = 11.823183059692383
@@ -371,9 +433,18 @@ class MPEGOIV6(DataCatalog):
         root,
         imgs_folder="images",
         annotation_file="mpeg-oiv6-segmentation-coco.json",
+        seqinfo="",
         dataset_name="mpeg-oiv6-segmentation",
+        ext="",
     ):
-        super().__init__(root, imgs_folder, annotation_file, dataset_name)
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
 
         self._dataset = load_coco_json(
             self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
@@ -422,9 +493,18 @@ class SFUHW(DataCatalog):
         root,
         imgs_folder="images",
         annotation_file=None,
+        seqinfo="seqinfo.ini",
         dataset_name="sfu-hw-object-v1",
+        ext="png",
     ):
-        super().__init__(root, imgs_folder, annotation_file, dataset_name)
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
 
         self._dataset = load_coco_json(
             self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
@@ -471,9 +551,18 @@ class COCO(DataCatalog):
         root,
         imgs_folder="val2017",
         annotation_file="instances_val2017.json",
+        seqinfo="",
         dataset_name="mpeg-coco",
+        ext="",
     ):
-        super().__init__(root, imgs_folder, annotation_file, dataset_name)
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
 
         self._dataset = load_coco_json(
             self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
