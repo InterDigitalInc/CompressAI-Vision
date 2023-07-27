@@ -133,6 +133,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
     fi
+
     cd ${SCRIPT_DIR}/cython_bbox
     patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
     pip3 install -e .
