@@ -119,10 +119,15 @@ def main(conf: DictConfig):
     eval_encode_type, coded_res, performance = pipeline(**modules)
 
     # pretty output
+    coded_res, performance = pipeline(**modules)
     coded_res_df = pd.DataFrame(coded_res)
 
     print("=" * 100)
+<<<<<<< HEAD
     print(f"Encoding Information [Top 5 Rows...][{pipeline}]")
+=======
+    print("Encoding Information")
+>>>>>>> f2f391b (fancy output)
     coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
     coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
         lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
