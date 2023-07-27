@@ -114,8 +114,10 @@ def print_specs(pipeline, **kwargs):
 def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
-    # pretty output
+    print_specs(pipeline, **modules)
     coded_res, performance = pipeline(**modules)
+
+    # pretty output
     coded_res_df = pd.DataFrame(coded_res)
 
     print("=" * 100)
