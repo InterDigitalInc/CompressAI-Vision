@@ -120,6 +120,8 @@ def main(conf: DictConfig):
 
     # pretty output
     coded_res, performance = pipeline(**modules)
+
+    # pretty output
     coded_res_df = pd.DataFrame(coded_res)
 
     print("=" * 100)
