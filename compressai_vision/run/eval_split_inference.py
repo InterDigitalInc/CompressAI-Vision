@@ -118,10 +118,11 @@ def main(conf: DictConfig):
     coded_res, performance = pipeline(**modules)
 
     # pretty output
+    coded_res, performance = pipeline(**modules)
     coded_res_df = pd.DataFrame(coded_res)
 
     print("=" * 100)
-    print(f"Encoding Information [{pipeline}]")
+    print("Encoding Information")
     coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
     print(
         tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
