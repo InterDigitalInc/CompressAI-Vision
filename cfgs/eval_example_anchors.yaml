@@ -6,7 +6,7 @@ defaults:
   - evaluator: default
   - vision_model: default
   - pipeline: split_inference
-  - codec: vtm
+  - codec: hm
   - _self_
 
 pipeline:
