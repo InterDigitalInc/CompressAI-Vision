@@ -109,16 +109,23 @@ class VTM(nn.Module):
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
 
+<<<<<<< HEAD
     # can be added to base class (if inherited) | Should we inherit from the base codec?
+=======
+    # can be added to base class (if inherited)
+>>>>>>> b946d24 ([feature] summerize data)
     @property
     def qp_value(self):
         return self.qp
 
+<<<<<<< HEAD
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def eval_encode_type(self):
         return self.eval_encode
 
+=======
+>>>>>>> b946d24 ([feature] summerize data)
     def get_encode_cmd(
         self, inp_yuv_path: Path, qp: int, bitstream_path: Path, width: int, height: int
     ) -> List[Any]:

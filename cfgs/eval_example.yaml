@@ -20,9 +20,15 @@ vision_model:
 
 codec:
   type: "bypass"
+<<<<<<< HEAD
   eval_encode: "bpp" # or "bitrate"
 
 dataset:
+=======
+  eval_encode: "bpp" # or "bitrate" 
+  
+dataset: 
+>>>>>>> b946d24 ([feature] summerize data)
   type: 'Detectron2Dataset'
 
   datacatalog: 'SFUHW'
@@ -32,7 +38,12 @@ dataset:
       annotation_file: 'annotations/BasketballDrill_832x480_50_val.json'
       dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
 
+<<<<<<< HEAD
 evaluator:
+=======
+evaluator:  
+  output: '${paths._runs_root}/${pipeline.name}-${pipeline.type}/${codec.type}/${dataset.config.dataset_name}/results'
+>>>>>>> b946d24 ([feature] summerize data)
   #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
   #type: 'VOID'
