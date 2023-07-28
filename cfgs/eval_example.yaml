@@ -18,13 +18,13 @@ pipeline:
 vision_model:
   arch: faster_rcnn_X_101_32x8d_FPN_3x
 
-codec: 
+codec:
   type: "bypass"
-  eval_encode: "bpp" # or "bitrate" 
-  
-dataset: 
+  eval_encode: "bpp" # or "bitrate"
+
+dataset:
   type: 'Detectron2Dataset'
-  
+
   datacatalog: 'SFUHW'
   config:
       root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
@@ -32,7 +32,7 @@ dataset:
       annotation_file: 'annotations/BasketballDrill_832x480_50_val.json'
       dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
 
-evaluator:  
+evaluator:
   #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
   #type: 'VOID'
