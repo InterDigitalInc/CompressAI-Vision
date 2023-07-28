@@ -108,6 +108,11 @@ class VTM(nn.Module):
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
 
+    # can be added to base class (if inherited)
+    @property
+    def qp_value(self):
+        return self.qp
+
     def get_encode_cmd(
         self, inp_yuv_path: Path, qp: int, bitstream_path: Path, width: int, height: int
     ) -> List[Any]:
@@ -178,12 +183,12 @@ class VTM(nn.Module):
             qp=self.qp,
             bitstream_path=bitstream_path,
         )
-        self.logger.debug(cmd)
+        # self.logger.debug(cmd)
 
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
         enc_time = time.time() - start
-        self.logger.debug(f"enc_time:{enc_time}")
+        # self.logger.debug(f"enc_time:{enc_time}")
         return {
             "bytes": [get_filesize(bitstream_path)],
             "bitstream": bitstream_path,
@@ -195,13 +200,13 @@ class VTM(nn.Module):
         cmd = self.get_decode_cmd(
             bitstream_path=bitstream_path, yuv_dec_path=yuv_dec_path
         )
-        self.logger.debug(cmd)
+        # self.logger.debug(cmd)
         logpath = Path(f"{self.log_dir}/{file_prefix}_dec.log")
 
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
         dec_time = time.time() - start
-        self.logger.debug(f"dec_time:{dec_time}")
+        # self.logger.debug(f"dec_time:{dec_time}")
 
         # TODO (fracape) setReader in init?
         self.yuvio.setReader(

@@ -36,6 +36,7 @@ Evaluate a system performance of end-to-end pipeline.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -115,7 +116,7 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
-    coded_res, performance = pipeline(**modules)
+    eval_encode_type, coded_res, performance = pipeline(**modules)
 
     # pretty output
     coded_res_df = pd.DataFrame(coded_res)
@@ -123,14 +124,66 @@ def main(conf: DictConfig):
     print("=" * 100)
     print(f"Encoding Information [{pipeline}]")
     coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
+    coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
+        lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
+    )
     print(
         tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
     )
 
-    print("Evaluation Performance")
-    print(tabulate([performance], tablefmt="psql"))
-
     # summarize results
+    evaluator_filepath = _get_evaluator_filepath(**modules)
+
+    print("Performance Metrics")
+    if eval_encode_type == "bpp":
+        avg_bpp = (
+            _calc_bpp(coded_res_df) if conf.pipeline.type == "unfold" else "N/A"
+        )  # 'fold' pipeline needs to calculate total bit frame by frame
+        result_df = pd.DataFrame({"avg_bpp": avg_bpp, "end_accuracy": performance})
+        print(tabulate(result_df, headers="keys", tablefmt="psql"))
+
+    if eval_encode_type == "bitrate":
+        bitrate = (
+            _calc_bitrate(coded_res_df) if conf.pipeline.type == "unfold" else "N/A"
+        )  # 'fold' pipeline needs to calculate total bit frame by frame
+        result_df = pd.DataFrame(
+            {"bitrate (kbps)": bitrate, "end_accuracy": performance}
+        )
+        print(tabulate(result_df, headers="keys", tablefmt="psql"))
+
+    print(f"Summary files saved in : {evaluator_filepath}")
+    result_df.to_csv(
+        os.path.join(evaluator_filepath, f'summary_{coded_res_df["qp"][0]}.csv'),
+        index=False,
+    )
+    coded_res_df.to_csv(
+        os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
+        index=False,
+    )
+
+
+def _calc_bitrate(coded_res_df):
+    # assuming the image name format is SEQNAME_WxH_FPS_
+    fps = int(
+        coded_res_df["file_name"][0].split("_")[2]
+    )  # ideally fps should be coming from the encoder config file
+    total_frame = coded_res_df.shape[
+        0
+    ]  # ideally total number of frame should be coming from the encoder config file
+    total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
+    bitrate = ((total_bytes * 8) * fps) / (1000 * total_frame)
+    return bitrate
+
+
+def _calc_bpp(coded_res_df):
+    total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
+    total_pixels = coded_res_df.groupby(["qp"])["total_pixels"].sum().tolist()[0]
+    avg_bpp = (total_bytes * 8) / total_pixels
+    return avg_bpp
+
+
+def _get_evaluator_filepath(**modules):
+    return modules["evaluator"].output_dir
 
 
 if __name__ == "__main__":

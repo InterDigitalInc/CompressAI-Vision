@@ -43,10 +43,20 @@ class Bypass(nn.Module):
 
     def __init__(self, **kwargs):
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.qp = None
+        self.eval_encode = kwargs["eval_encode"]
         output_dir = Path(kwargs["output_dir"])
         if not output_dir.is_dir():
             self.logger.info(f"creating output folder: {output_dir}")
             output_dir.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def qp_value(self):
+        return self.qp
+
+    @property
+    def eval_encode_type(self):
+        return self.eval_encode
 
     def encode(
         self,
