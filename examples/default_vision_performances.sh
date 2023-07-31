@@ -87,9 +87,9 @@ do
     python ${ENTRY_CMD} --config-name=eval_example.yaml \
                         ++pipeline.type=fold \
                         ++vision_model.arch=jde_1088x608 \
-                        ++vision_model.jde_1088x608.splits=[74, 61, 36] \
+                        ++vision_model.jde_1088x608.splits="[74, 61, 36]" \
                         ++dataset.type=TrackingDataset \
-                        ++dataset.settings.patch_size=[608, 1088] \
+                        ++dataset.settings.patch_size="[608, 1088]" \
                         ++dataset.datacatalog=MPEGTVDTRACKING \
                         ++dataset.config.root=${TVD_SRC}/${SEQ} \
                         ++dataset.config.imgs_folder=img1 \
@@ -111,9 +111,9 @@ do
                         ++pipeline.conformance.save_conformance_files=True \
                         ++pipeline.conformance.subsample_ratio=90 \
                         ++vision_model.arch=jde_1088x608 \
-                        ++vision_model.jde_1088x608.splits=[105, 90, 75] \
+                        ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
                         ++dataset.type=TrackingDataset \
-                        ++dataset.settings.patch_size=[608, 1088] \
+                        ++dataset.settings.patch_size="[608, 1088]" \
                         ++dataset.datacatalog=MPEGHIEVE \
                         ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
                         ++dataset.config.imgs_folder=img1 \
