@@ -12,6 +12,7 @@ venv/
 examples/
 models/
 weights/
+scripts/cython_bbox
 
 # Created by gitignore.io
 ### Python ###
