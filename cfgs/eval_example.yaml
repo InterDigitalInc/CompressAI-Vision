@@ -11,6 +11,9 @@ defaults:
 
 pipeline:
   type: "unfold" # alternative is fold
+  conformance:
+    save_conformance_files: False
+    subsample_ratio: 9
 
 vision_model:
   arch: faster_rcnn_X_101_32x8d_FPN_3x

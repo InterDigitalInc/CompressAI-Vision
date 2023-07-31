@@ -40,7 +40,9 @@ from pathlib import Path
 from typing import Any
 
 import hydra
+import pandas as pd
 from omegaconf import DictConfig
+from tabulate import tabulate
 
 thisdir = Path(__file__).parent
 config_path = thisdir.joinpath("../../cfgs")
@@ -113,10 +115,21 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
+    coded_res, performance = pipeline(**modules)
 
-    ret = pipeline(**modules)
+    # pretty output
+    coded_res_df = pd.DataFrame(coded_res)
 
-    print(ret)
+    print("=" * 100)
+    print(f"Encoding Information [{pipeline}]")
+    coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
+    print(
+        tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
+    )
+
+    print("Evaluation Performance")
+    print(tabulate([performance], tablefmt="psql"))
+
     # summarize results
 
 

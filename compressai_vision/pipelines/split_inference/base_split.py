@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import errno
+import json
 import logging
 import os
 import shutil
@@ -128,6 +129,9 @@ class BaseSplit(nn.Module):
         results_file = f"{output_results_dir}/{seq_name}{EXT}"
 
         assert "data" in x
+        if self.configs["conformance"].save_conformance_files:
+            self._save_conformance_data(x)
+
         for _, tensor in x["data"].items():
             tensor.to(self.device)
 
@@ -137,6 +141,32 @@ class BaseSplit(nn.Module):
             torch.save(results, results_file)
 
         return results
+
+    def _save_conformance_data(self, feature_data: Dict):
+        conformance_files_path = self.configs["conformance"].conformance_files_path
+        conformance_files_path = self._create_folder(conformance_files_path)
+        subsample_ratio = self.configs["conformance"].subsample_ratio
+
+        conformance_data = []
+        ch_offset = 0
+        for _, data in feature_data["data"].items():
+            N, C, H, W = data.shape
+            data_means = torch.mean(data, axis=(2, 3)).tolist()[0]
+            data_variances = torch.var(data, axis=(2, 3)).tolist()[0]
+
+            subsampled_means = data_means[ch_offset::subsample_ratio]
+            subsampled_variances = data_variances[ch_offset::subsample_ratio]
+            ch_offset = (ch_offset + C) % subsample_ratio
+
+            conformance_data.append(
+                {"means": subsampled_means, "variances": subsampled_variances}
+            )
+
+        dump_file_name = Path(feature_data["file_name"]).stem + ".dump"
+        json.dump(
+            conformance_data,
+            open(os.path.join(conformance_files_path, dump_file_name), "w"),
+        )
 
     def _compress_features(self, codec, x, filename: str):
         return codec.encode(
