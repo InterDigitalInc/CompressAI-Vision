@@ -18,9 +18,9 @@ if [ ! -d "${VCM_TESTDATA}" ]; then
 fi
 
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
-SFU_HW_SRC=${PWD}"${VCM_TESTDATA}/SFU_HW_Obj"
-HIEVE_SRC=${PWD}"${VCM_TESTDATA}/HiEve_pngs"
-TVD_SRC=${PWD}"${VCM_TESTDATA}/tvd_tracking"
+SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
+HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
+TVD_SRC="${VCM_TESTDATA}/tvd_tracking"
 
 # MPEGOIV6 - Detection with Faster RCNN
 python ${ENTRY_CMD} --config-name=eval_example.yaml \
