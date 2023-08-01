@@ -126,13 +126,17 @@ def main(conf: DictConfig):
 
     print("=" * 100)
     print(f"Encoding Information [Top 5 Rows...][{pipeline}]")
-    print(f"Encoding Information [{pipeline}]")
     coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
     coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
         lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
     )
     print(
-        tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
+        tabulate(
+            coded_res_df.head(5),
+            headers="keys",
+            tablefmt="fancy_grid",
+            stralign="center",
+        )
     )
 
     print("Evaluation Performance")
