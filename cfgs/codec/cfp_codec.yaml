@@ -1,0 +1,5 @@
+type: "cfp_codec"
+eval_encode: "bitrate" # or "bpp" 
+output_dir: "${paths._runs_root}/${.type}"
+bitstream_dir: "${.output_dir}"
+log_dir: "${.output_dir}" 
