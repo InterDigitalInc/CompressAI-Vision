@@ -127,7 +127,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
 
 
     # install dependent packages
-    pip3 install motmetrics numba lap opencv-python
+    pip3 install motmetrics numba lap opencv-python munkres
 
     # install cython manually from source code with patch
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
