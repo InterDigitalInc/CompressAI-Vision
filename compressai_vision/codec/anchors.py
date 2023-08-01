@@ -90,6 +90,7 @@ class VTM(nn.Module):
                 )
 
         self.qp = kwargs["encoder_config"]["qp"]
+        self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
         # TODO (fracape) hacky, create separate function with LUT
@@ -108,10 +109,15 @@ class VTM(nn.Module):
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
 
-    # can be added to base class (if inherited)
+    # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def qp_value(self):
         return self.qp
+
+    # can be added to base class (if inherited) | Should we inherit from the base codec?
+    @property
+    def eval_encode_type(self):
+        return self.eval_encode
 
     def get_encode_cmd(
         self, inp_yuv_path: Path, qp: int, bitstream_path: Path, width: int, height: int

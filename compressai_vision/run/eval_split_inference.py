@@ -35,6 +35,7 @@ Evaluate a system performance of end-to-end pipeline.
 """
 from __future__ import annotations
 
+import configparser
 import logging
 import os
 from pathlib import Path
@@ -83,12 +84,11 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     }
 
 
+title = lambda a: str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
+
+
 def print_specs(pipeline, **kwargs):
     logger = logging.getLogger(__name__)
-
-    title = (
-        lambda a: str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
-    )
 
     logger.info(
         f"\
@@ -122,17 +122,25 @@ def main(conf: DictConfig):
     coded_res_df = pd.DataFrame(coded_res)
 
     print("=" * 100)
-    print(f"Encoding Information [{pipeline}]")
+    print(f"Encoding Information [Top 5 Rows...][{pipeline}]")
     coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
     coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
         lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
     )
     print(
-        tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
+        tabulate(
+            coded_res_df.head(5),
+            headers="keys",
+            tablefmt="fancy_grid",
+            stralign="center",
+        )
     )
 
     # summarize results
+    evaluator_name = _get_evaluator_name(**modules)
     evaluator_filepath = _get_evaluator_filepath(**modules)
+    seq_info_path = _get_seqinfo_path(**modules)
+    performance = _summerize_performance(evaluator_name, performance)
 
     print("Performance Metrics")
     if eval_encode_type == "bpp":
@@ -144,7 +152,9 @@ def main(conf: DictConfig):
 
     if eval_encode_type == "bitrate":
         bitrate = (
-            _calc_bitrate(coded_res_df) if conf.pipeline.type == "unfold" else "N/A"
+            _calc_bitrate(coded_res_df, seq_info_path)
+            if conf.pipeline.type == "unfold"
+            else "N/A"
         )  # 'fold' pipeline needs to calculate total bit frame by frame
         result_df = pd.DataFrame(
             {"bitrate (kbps)": bitrate, "end_accuracy": performance}
@@ -162,14 +172,17 @@ def main(conf: DictConfig):
     )
 
 
-def _calc_bitrate(coded_res_df):
-    # assuming the image name format is SEQNAME_WxH_FPS_
-    fps = int(
-        coded_res_df["file_name"][0].split("_")[2]
-    )  # ideally fps should be coming from the encoder config file
-    total_frame = coded_res_df.shape[
-        0
-    ]  # ideally total number of frame should be coming from the encoder config file
+def _get_seq_info(seq_info_path):
+    config = configparser.ConfigParser()
+    config.read(seq_info_path)
+    fps = config["Sequence"]["frameRate"]
+    total_frame = config["Sequence"]["seqLength"]
+    return int(fps), int(total_frame)
+
+
+def _calc_bitrate(coded_res_df, seq_info_path):
+    fps, total_frame = _get_seq_info(seq_info_path)
+    print(f"Frame Rate: {fps}, Total Frame: {total_frame}")
     total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
     bitrate = ((total_bytes * 8) * fps) / (1000 * total_frame)
     return bitrate
@@ -182,8 +195,26 @@ def _calc_bpp(coded_res_df):
     return avg_bpp
 
 
+def _summerize_performance(evaluator_name, performance):
+    if evaluator_name == "OpenImagesChallengeEval":
+        value = [v for k, v in performance.items() if k.endswith("mAP@0.5IOU")]
+        return value
+    if evaluator_name == "MOT_TVD_Eval" or evaluator_name == "MOT_HiEve_Eval":
+        value = [v for k, v in performance.items() if k == "mota"]
+        return value
+    return performance
+
+
 def _get_evaluator_filepath(**modules):
     return modules["evaluator"].output_dir
+
+
+def _get_evaluator_name(**modules):
+    return title(modules["evaluator"])
+
+
+def _get_seqinfo_path(**modules):
+    return modules["dataloader"].dataset.seqinfo_path
 
 
 if __name__ == "__main__":

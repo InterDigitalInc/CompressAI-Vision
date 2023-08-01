@@ -1,4 +1,5 @@
 type: "vtm"
+eval_encode: "bpp" # or "bitrate" 
 output_dir: "${pipeline.output_dir}/${.type}"
 bitstream_dir: "${.output_dir}"
 log_dir: "${.output_dir}" 
