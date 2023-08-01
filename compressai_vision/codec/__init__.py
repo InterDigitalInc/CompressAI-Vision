@@ -30,9 +30,6 @@
 
 from .anchors import HM, VTM
 from .base import Bypass
+from .cfp_codec import CFP_CODEC
 
-__all__ = [
-    "Bypass",
-    "HM",
-    "VTM",
-]
+__all__ = ["Bypass", "HM", "VTM", "CFP_CODEC"]
