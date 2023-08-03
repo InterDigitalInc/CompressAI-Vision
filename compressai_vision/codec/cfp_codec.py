@@ -1,6 +1,7 @@
 import math
 from typing import Dict, Tuple
 
+import fcvcmCABAC
 import numpy as np
 import torch
 from scipy.cluster.hierarchy import cut_tree, linkage
@@ -110,9 +111,7 @@ class CFP_CODEC(Bypass):
             assert H == H_hat
             assert W == W_hat
 
-            feature_tensor.update(
-                {layer_name: torch.from_numpy(layer_data_np)}
-            )  # get 'device'
+            feature_tensor.update({layer_name: torch.from_numpy(layer_data_np)})
 
         return feature_tensor
 
