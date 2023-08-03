@@ -132,8 +132,9 @@ class BaseSplit(nn.Module):
         if self.configs["conformance"].save_conformance_files:
             self._save_conformance_data(x)
 
-        for _, tensor in x["data"].items():
-            tensor.to(self.device)
+        # for _, tensor in x["data"].items():
+        #     tensor.to(self.device)
+        x["data"] = {k: v.to(device=self.device) for k, v in x["data"].items()}
 
         results = vision_model.features_to_output(x)
         if self.configs["nn_task_part2"].dump_results:

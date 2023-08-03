@@ -111,7 +111,7 @@ class CFP_CODEC(Bypass):
             assert W == W_hat
 
             feature_tensor.update(
-                {layer_name: torch.from_numpy(layer_data_np).to("cuda")}
+                {layer_name: torch.from_numpy(layer_data_np)}
             )  # get 'device'
 
         return feature_tensor
