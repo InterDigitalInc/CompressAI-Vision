@@ -63,9 +63,6 @@ class CFP_CODEC(nn.Module):
             N, C, H, W = layer_data.size()
             layer_data_np = layer_data.detach().cpu().numpy()
 
-            # zero-center
-            # layer_data_np, mean_dict = self._subtract_mean_from_each_ch(layer_data_np) # might not need the full mean dict
-
             gram_matrix = self._get_gram_matrix(layer_data)
             cluster_labels = self._get_cluster_labels(
                 gram_matrix, cluster_number[layer_name]
@@ -119,11 +116,11 @@ class CFP_CODEC(nn.Module):
         for cluster_no, representative_sample in representative_samples_dict.items():
             if layer_name == "p2" or layer_name == "p3":
                 result[cluster_no] = np.clip(
-                    representative_sample, -1 * sigma, 1 * sigma
+                    representative_sample, mu - (1 * sigma), mu + (1 * sigma)
                 )
             else:
                 result[cluster_no] = np.clip(
-                    representative_sample, -3 * sigma, 3 * sigma
+                    representative_sample, mu - (3 * sigma), mu + (3 * sigma)
                 )
         return result
 
@@ -268,7 +265,3 @@ class CFP_CODEC(nn.Module):
             else:
                 del cluster_dict[k]
         return cluster_dict, repr_cluster_dict
-
-
-def _number_of_elements(data: Tuple):
-    return math.prod(data)
