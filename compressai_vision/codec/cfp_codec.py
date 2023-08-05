@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from scipy.cluster.hierarchy import cut_tree, linkage
+from scipy.stats import norm
 
 from compressai_vision.codec import Bypass
 from compressai_vision.registry import register_codec
@@ -62,6 +63,9 @@ class CFP_CODEC(nn.Module):
             N, C, H, W = layer_data.size()
             layer_data_np = layer_data.detach().cpu().numpy()
 
+            # zero-center
+            # layer_data_np, mean_dict = self._subtract_mean_from_each_ch(layer_data_np) # might not need the full mean dict
+
             gram_matrix = self._get_gram_matrix(layer_data)
             cluster_labels = self._get_cluster_labels(
                 gram_matrix, cluster_number[layer_name]
@@ -74,17 +78,31 @@ class CFP_CODEC(nn.Module):
                 cluster_dict, layer_data_np
             )
 
-            total_bytes_spent, compressed_dict = self._qunatize_and_encode(
-                representative_samples_dict
+            representative_samples_dict = self._sigma_clipping(
+                layer_name, representative_samples_dict
             )
+
+            (
+                zero_centered_representative_samples_dict,
+                mean_dict,
+            ) = self._subtract_mean_from_each_ch(representative_samples_dict)
+
+            assert len(representative_samples_dict) == len(mean_dict)
+
+            total_bytes_spent, compressed_dict = self._qunatize_and_encode(
+                zero_centered_representative_samples_dict
+            )
+
             total_bytes += total_bytes_spent
 
             result_data_dict[layer_name] = {}
             result_data_dict[layer_name]["original_shape"] = [N, C, H, W]
             result_data_dict[layer_name]["data"] = compressed_dict
-            result_data_dict[layer_name]["side_information"] = cluster_dict
+            result_data_dict[layer_name]["cluster_dict"] = cluster_dict
+            result_data_dict[layer_name]["mean_dict"] = mean_dict
 
-        # H, W = input['org_input_size']['height'], input['org_input_size']['width']
+        H, W = input["org_input_size"]["height"], input["org_input_size"]["width"]
+        # print("bpp:")
         # print((total_bytes * 8) / (W * H))
 
         return {
@@ -93,6 +111,36 @@ class CFP_CODEC(nn.Module):
             ],
             "bitstream": result_data_dict,
         }
+
+    def _sigma_clipping(self, layer_name, representative_samples_dict):
+        all_array = np.array([v for _, v in representative_samples_dict.items()])
+        mu, sigma = norm.fit(all_array)
+        result = {}
+        for cluster_no, representative_sample in representative_samples_dict.items():
+            if layer_name == "p2" or layer_name == "p3":
+                result[cluster_no] = np.clip(
+                    representative_sample, -1 * sigma, 1 * sigma
+                )
+            else:
+                result[cluster_no] = np.clip(
+                    representative_sample, -3 * sigma, 3 * sigma
+                )
+        return result
+
+    def _subtract_mean_from_each_ch(self, representative_samples_dict):
+        mean_dict = {}
+        result = {}
+        for cluster_no, representative_sample in representative_samples_dict.items():
+            mean_ch = np.mean(representative_sample)
+            result[cluster_no] = representative_sample - mean_ch
+            mean_dict[cluster_no] = mean_ch
+        return result, mean_dict
+
+    def _add_mean_to_each_ch(self, representative_samples_dict, mean_dict):
+        result = {}
+        for cluster_no, representative_sample in representative_samples_dict.items():
+            result[cluster_no] = representative_sample + mean_dict[cluster_no]
+        return result
 
     def _qunatize_and_encode(self, representative_samples_dict):
         total_bytes_spent = 0
@@ -141,10 +189,17 @@ class CFP_CODEC(nn.Module):
         for layer_name, compressed_data in input.items():
             N, C, H, W = compressed_data["original_shape"]
             layer_data_np = np.zeros((N, C, H, W), dtype=np.float32)
+
+            cluster_dict = compressed_data["cluster_dict"]
+            mean_dict = compressed_data["mean_dict"]
+
             representive_samples_dict = self._dequnatize_and_decode(
                 compressed_data["data"], compressed_data["original_shape"]
             )
-            cluster_dict = compressed_data["side_information"]
+
+            representive_samples_dict = self._add_mean_to_each_ch(
+                representive_samples_dict, mean_dict
+            )
 
             feature_map_no_set = set()
             total_feature_map_no_set = set(range(1, C))

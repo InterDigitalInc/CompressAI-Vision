@@ -4,5 +4,5 @@ output_dir: "${paths._runs_root}/${.type}"
 bitstream_dir: "${.output_dir}"
 log_dir: "${.output_dir}"
 encoder_config:
-  qp: 10
+  qp: 8
   qp_density: 2 
