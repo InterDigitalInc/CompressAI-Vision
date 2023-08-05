@@ -1,3 +1,5 @@
 type: "bypass"
 eval_encode: "bpp" # or "bitrate" 
 output_dir: "${paths._runs_root}/${.type}"
+encoder_config:
+  qp: 'uncmp'
