@@ -130,6 +130,9 @@ class FoldSplitInference(BaseSplit):
         for e, data in self._iterate_items(dec_feature_tesnor, num_items):
             dec_featureT["data"] = data
             dec_featureT["file_name"] = file_names[e]
+            dec_featureT["qp"] = (
+                "uncmp" if codec.qp_value is None else codec.qp_value
+            )  # Assuming one qp will be used
             pred = self._from_features_to_output(vision_model, dec_featureT)
             evaluator.digest(gt_inputs[e], pred)
 
@@ -138,16 +141,15 @@ class FoldSplitInference(BaseSplit):
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["input_size"] = dec_featureT["input_size"][0]
-            out_res["org_input_size"] = (
-                dec_featureT["org_input_size"]["height"],
-                dec_featureT["org_input_size"]["width"],
-            )
+            out_res[
+                "org_input_size"
+            ] = f'{dec_featureT["org_input_size"]["height"]}x{dec_featureT["org_input_size"]["width"]}'
 
             output_list.append(out_res)
 
         eval_performance = self._evaluation(evaluator)
 
-        return output_list, eval_performance
+        return codec.eval_encode_type, output_list, eval_performance
 
     def _data_buffering(self, data: Dict):
         """

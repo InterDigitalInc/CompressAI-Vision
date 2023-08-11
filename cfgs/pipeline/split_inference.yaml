@@ -17,7 +17,7 @@
 
 name: 'split-inference'
 type: 'fold' # If type is fold, all feature tensors for the input are first computed before proceeding encoding process
-output_dir: ${paths._runs_root}/${.name}-${.type}
+output_dir: ${paths._runs_root}/${.name}-${.type}/${codec.type}
 
 nn_task_part1:
     load_features: False

@@ -108,12 +108,15 @@ class UnfoldSplitInference(BaseSplit):
                 out_res["height"],
                 out_res["image_id"],
             )
+            out_res["qp"] = (
+                "uncmp" if codec.qp_value is None else codec.qp_value
+            )  # Assuming one qp will be used
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
-            out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
+            out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
             out_res["input_size"] = featureT["input_size"][0]
             output_list.append(out_res)
 
         eval_performance = self._evaluation(evaluator)
 
-        return output_list, eval_performance
+        return codec.eval_encode_type, output_list, eval_performance
