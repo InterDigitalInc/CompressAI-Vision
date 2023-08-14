@@ -1,0 +1,27 @@
+From 0a4ca57b087b9d8b3b6ca269166a35d609e9279c Mon Sep 17 00:00:00 2001
+From: "hyomin.choi@interdigital.com" <hyomin.choi@interdigital.com>
+Date: Fri, 21 Jul 2023 15:19:28 -0400
+Subject: [PATCH] compatible-with-numpy-1.24.1
+
+---
+ src/cython_bbox.pyx | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/cython_bbox.pyx b/src/cython_bbox.pyx
+index e14780d..f87ad55 100644
+--- a/src/cython_bbox.pyx
++++ b/src/cython_bbox.pyx
+@@ -9,8 +9,8 @@ cimport cython
+ import numpy as np
+ cimport numpy as np
+ 
+-DTYPE = np.float
+-ctypedef np.float_t DTYPE_t
++DTYPE = np.float32
++ctypedef np.float32_t DTYPE_t
+ 
+ def bbox_overlaps(
+         np.ndarray[DTYPE_t, ndim=2] boxes,
+-- 
+2.25.1
+

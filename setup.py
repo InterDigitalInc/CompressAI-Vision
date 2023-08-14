@@ -27,22 +27,36 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import subprocess
 from pathlib import Path
 
 from setuptools import find_packages, setup
 
 # only way to import "fastentrypoint.py" from this directory:
 
-# The following line is modified by setver.bash
-version = "0.1.3.dev0"
+package_name = "compressai_vision"
+version = "0.1.0.dev0"
+git_hash = "unknown"
 
-this_folder = Path(__file__).resolve().parent
+cwd = Path(__file__).resolve().parent
 
-path = this_folder / "requirements.txt"
-install_requires = []  # Here we'll get: ["gunicorn", "docutils>=0.3", "lxml==0.5a7"]
-if path.is_file():
-    with path.open("r") as f:
-        install_requires = f.read().splitlines()
+try:
+    git_hash = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=cwd).decode().strip()
+    )
+except (FileNotFoundError, subprocess.CalledProcessError):
+    pass
+
+
+def write_version_file():
+    path = cwd / package_name / "version.py"
+    with path.open("w") as f:
+        f.write(f'__version__ = "{version}"\n')
+        f.write(f'git_version = "{git_hash}"\n')
+
+
+write_version_file()
+
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
@@ -51,7 +65,6 @@ DEV_REQUIRES = TEST_REQUIRES + [
     "flake8-bugbear",
     "flake8-comprehensions",
     "isort",
-    "mypy",
 ]
 
 
@@ -64,32 +77,19 @@ def get_extra_requirements():
     return extras_require
 
 
-# exec(open(os.path.join(this_folder, "fastentrypoints.py")).read()) # not needed
-
-# # https://setuptools.readthedocs.io/en/latest/setuptools.html#basic-use
 setup(
     name="compressai-vision",
     version=version,
-    # install_requires = [
-    #    "PyYAML",
-    #    'docutils>=0.3', # # List here the required packages
-    # ],
-    install_requires=install_requires,  # instead, read from a file (see above)
-    packages=find_packages(),  # # includes python code from every directory that has an "__init__.py" file in it.  If no "__init__.py" is found, the directory is omitted.  Other directories / files to be included, are defined in the MANIFEST.in file
-    include_package_data=True,  # # conclusion: NEVER forget this : files get included but not installed
-    # # "package_data" keyword is a practical joke: use MANIFEST.in instead
-    # # WARNING: If you are using namespace packages, automatic package finding does not work, so use this:
-    # packages=[
-    #    'compressai_vision.subpackage1'
-    # ],
-    # scripts=[
-    #    "bin/somescript"
-    # ],
-    # # "entry points" get installed into $HOME/.local/bin
-    # # https://unix.stackexchange.com/questions/316765/which-distributions-have-home-local-bin-in-path
+    install_requires=[
+        "hydra",
+        "omegaconf",
+        "yuvio",
+    ],
+    packages=find_packages(),
+    include_package_data=True,
     entry_points={
         "console_scripts": [
-            "compressai-vision = compressai_vision.cli.main:main",
+            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main"
         ]
     },
     # metadata for upload to PyPI
@@ -106,7 +106,4 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    # project_urls={ # some additional urls
-    #    'Tutorial': 'nada
-    # },
 )

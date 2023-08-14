@@ -1,0 +1,38 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - evaluator: default
+  - vision_model: default
+  - pipeline: split_inference
+  - codec: default
+  - _self_
+
+pipeline:
+  type: "unfold" # alternative is fold
+  conformance:
+    save_conformance_files: False
+    subsample_ratio: 9
+
+vision_model:
+  arch: faster_rcnn_X_101_32x8d_FPN_3x
+
+codec: 
+  type: "bypass"
+  eval_encode: "bpp" # or "bitrate" 
+  
+dataset: 
+  type: 'Detectron2Dataset'
+  
+  datacatalog: 'SFUHW'
+  config:
+      root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
+      imgs_folder: 'images'
+      annotation_file: 'annotations/BasketballDrill_832x480_50_val.json'
+      dataset_name: 'mpeg-sfu-hw-basketballdrill' # you name it
+
+evaluator:  
+  #type: 'OIC-EVAL'
+  type: 'COCO-EVAL'
+  #type: 'VOID'

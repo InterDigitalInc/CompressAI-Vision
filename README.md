@@ -69,6 +69,21 @@ For more otions, check:
 bash scritps/install.bash --help
 ```
 
+To install the models relevant for the FCVCM (feature compression):
+- First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
+```
+bash scripts/env_cuda.sh 11.8
+```
+Then, run:, please run:
+```
+bash scripts/install_models.sh
+```
+
+For more otions, check:
+```
+bash scritps/install_models.sh --help
+```
+
 The software stack includes (all with CUDA support):
 
 - [PyTorch](https://pytorch.org/)

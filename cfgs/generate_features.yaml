@@ -1,0 +1,26 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - evaluator: default
+  - vision_model: default
+  - pipeline: split_inference
+  - codec: default
+  - _self_
+
+
+dataset:
+  type: "Detectron2Dataset"
+  datacatalog: "MPEGOIV6"
+  config:
+    root: "${hydra:runtime.cwd}/vcm_testdata/mpeg-oiv6"
+    imgs_folder: "images"
+    annotation_file: "annotations/mpeg-oiv6-detection-coco.json"
+    dataset_name: "mpeg-oiv6-detection"
+
+pipeline:
+  type: "fold"
+  generate_features_only: True
+  output_dir: ${paths._runs_root}/${dataset.datacatalog}
+

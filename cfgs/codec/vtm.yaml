@@ -1,0 +1,17 @@
+type: "vtm"
+eval_encode: "bpp" # or "bitrate" 
+output_dir: "${pipeline.output_dir}/${.type}"
+bitstream_dir: "${.output_dir}"
+log_dir: "${.output_dir}" 
+codec_paths:
+  encoder_exe: "/pa/home/racapef/vvc/VVCSoftware_VTM/bin/EncoderAppStatic"
+  decoder_exe: "/pa/home/racapef/vvc/VVCSoftware_VTM/bin/DecoderAppStatic"
+  cfg_file: "/pa/home/racapef/vvc/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg"
+dump_yuv:
+  dump_yuv_in: True
+  yuv_in_dir: ${..output_dir}
+  dump_yuv_dec: False
+  yuv_dec_dir: ${..output_dir}
+encoder_config:
+  qp: 42
+

@@ -1,0 +1,150 @@
+{
+    "ClassA": {
+        "resolution": [
+            2560,
+            1600
+        ],
+        "qps": [
+            37,
+            42,
+            47,
+            52,
+            57,
+            62
+        ],
+        "seqs": {
+            "Traffic_2560x1600_30_val": {
+                "path": "ClassA/Traffic_2560x1600_30_crop.yuv",
+                "FirstFrame": 117,
+                "LastFrame": 149,
+                "FrameRate": 60
+            }
+        }
+    },
+    "ClassB": {
+        "resolution": [
+            1920,
+            1080
+        ],
+        "qps": [
+            32,
+            37,
+            42,
+            47,
+            52,
+            57
+        ],
+        "seqs": {
+            "Kimono_1920x1080_24_val": {
+                "path": "ClassB/Kimono1_1920x1080_24.yuv",
+                "FirstFrame": 207,
+                "LastFrame": 239,
+                "FrameRate": 24
+            },
+            "ParkScene_1920x1080_24_val": {
+                "path": "ClassB/ParkScene_1920x1080_24.yuv",
+                "FirstFrame": 207,
+                "LastFrame": 239,
+                "FrameRate": 24
+            },
+            "Cactus_1920x1080_50_val": {
+                "path": "ClassB/Cactus_1920x1080_50Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 50
+            },
+            "BasketballDrive_1920x1080_50_val": {
+                "path": "ClassB/BasketballDrive_1920x1080_50Hz_8bit_P420.yuv",
+                "FirstFrame": 471,
+                "LastFrame": 599,
+                "FrameRate": 50
+            },
+            "BQTerrace_1920x1080_60_val": {
+                "path": "ClassB/BQTerrace_1920x1080_60Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 60
+            }
+        }
+    },
+    "ClassC": {
+        "resolution": [
+            832,
+            480
+        ],
+        "qps": [
+            27,
+            32,
+            37,
+            42,
+            47,
+            52
+        ],
+        "seqs": {
+            "BasketballDrill_832x480_50_val": {
+                "path": "ClassC/BasketballDrill_832x480_50Hz_8bit_P420.yuv",
+                "FirstFrame": 471,
+                "LastFrame": 599,
+                "FrameRate": 50
+            },
+            "BQMall_832x480_60_val": {
+                "path": "ClassC/BQMall_832x480_60Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 60
+            },
+            "PartyScene_832x480_50_val": {
+                "path": "ClassC/PartyScene_832x480_50Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 50
+            },
+            "RaceHorses_832x480_30_val": {
+                "path": "ClassC/RaceHorses_832x480_30Hz_8bit_P420.yuv",
+                "FirstFrame": 235,
+                "LastFrame": 299,
+                "FrameRate": 30
+            }
+        }
+    },
+    "ClassD": {
+        "resolution": [
+            416,
+            240
+        ],
+        "qps": [
+            22,
+            27,
+            32,
+            37,
+            42,
+            47
+        ],
+        "seqs": {
+            "BasketballPass_416x240_50_val": {
+                "path": "ClassD/BasketballPass_416x240_50Hz_8bit_P420.yuv",
+                "FirstFrame": 471,
+                "LastFrame": 599,
+                "FrameRate": 50
+            },
+            "BQSquare_416x240_60_val": {
+                "path": "ClassD/BQSquare_416x240_60Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 60
+            },
+            "BlowingBubbles_416x240_50_val": {
+                "path": "ClassD/BlowingBubbles_416x240_50Hz_8bit_P420.yuv",
+                "FirstFrame": 403,
+                "LastFrame": 499,
+                "FrameRate": 50
+            },
+            "RaceHorses_416x240_30_val": {
+                "path": "ClassD/RaceHorses_416x240_30Hz_8bit_P420.yuv",
+                "FirstFrame": 235,
+                "LastFrame": 299,
+                "FrameRate": 30
+            }
+        }
+    }
+}
