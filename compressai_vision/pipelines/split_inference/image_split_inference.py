@@ -48,8 +48,8 @@ from compressai_vision.utils import dataio
 from .base_split import BaseSplit
 
 
-@register_pipeline("unfold-split-inference")
-class UnfoldSplitInference(BaseSplit):
+@register_pipeline("image-split-inference")
+class ImageSplitInference(BaseSplit):
     def __init__(
         self,
         configs: Dict,
@@ -82,21 +82,21 @@ class UnfoldSplitInference(BaseSplit):
 
             res = self._compress_features(codec, featureT, file_prefix)
 
-            dec_featureT = self._decompress_features(
+            dec_features = self._decompress_features(
                 codec, res["bitstream"], file_prefix
             )
 
             # TODO (hyomin) how should org_input_size and input_size be conveyed, bitstream?
-            if not "data" in dec_featureT:
-                dec_featureT = {
-                    "data": dec_featureT,
+            if not "data" in dec_features:
+                dec_features = {
+                    "data": dec_features,
                     "input_size": featureT["input_size"],
                     "org_input_size": featureT["org_input_size"],
                 }
 
-            dec_featureT["file_name"] = d[0]["file_name"]
+            dec_features["file_name"] = d[0]["file_name"]
             pred = self._from_features_to_output(
-                vision_model, dec_featureT, file_prefix
+                vision_model, dec_features, file_prefix
             )
 
             evaluator.digest(d, pred)

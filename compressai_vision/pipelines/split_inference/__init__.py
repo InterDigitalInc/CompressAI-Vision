@@ -28,9 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .fold_split_inference import FoldSplitInference
-from .unfold_split_inference import UnfoldSplitInference
+from .unfold_split_inference import ImageSplitInference
 
 __all__ = [
-    "UnfoldSplitInference",
-    "FoldSplitInference",
+    "ImageSplitInference",
+    "VideoSplitInference",
 ]

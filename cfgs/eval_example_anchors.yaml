@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 pipeline:
-  type: "fold"
+  type: "video"
   codec:
     encode_only: True
 

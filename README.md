@@ -1,11 +1,20 @@
-![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
+<p align="center">
+  <img src="docs/source/_static/logo.svg" alt="CompressAI-Vision-logo">
+</p>
 
 CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Video Coding for Machines" (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
+<<<<<<< HEAD
 End-to-end NN-based compression models as well as traditional codecs can be evaluated and compared using full pipelines including compression/decompression and task algorithm such that performances can be measured as bit-stream bit-rate vs. task accuracy.
 
 The figure below shows supported pipelines of video/image compression for machine vision task.
 End-to-end compression model for human consumption (components in blue box) can for instance be implemented using the [CompressAI](https://interdigitalinc.github.io/CompressAI), but new custom models and pipeline can be easily added to the modular API.The library then manages datasets and runs the corresponding computer vision task and corresponding evaluations (pink boxes). Traditional codecs are also supported (currently the state-of-the-art H.266/VVC reference software VTM) so you can benchmark your model against relevant standards. In the future, we are also going to include support of using feature map as input of computer vision tasks.
+=======
+CompressAI-FCVCM is an evaluation framework for compressing intermediate features produced in the context of split models.
+It helps you to develop, test and evaluate compression models with standardized tests in the context of MPEG "Feature Compression for Video Coding for Machines" (FCVCM).
+
+The figure below shows the main framework
+>>>>>>> 24ce311 (refactoring + init docs)
 
 ```mermaid
 %%{init: {'themeVariables': { 'fontSize': '32px'}}}%%
@@ -54,6 +63,12 @@ CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
 
+<<<<<<< HEAD
+=======
+## General Prerequisites
+pyhton3, cmake, patch, gcc/g++, ffmpeg
+
+>>>>>>> 24ce311 (refactoring + init docs)
 ## installation
 
 To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
@@ -76,12 +91,12 @@ bash scripts/env_cuda.sh 11.8
 ```
 Then, run:, please run:
 ```
-bash scripts/install_models.sh
+bash scripts/install.sh
 ```
 
 For more otions, check:
 ```
-bash scritps/install_models.sh --help
+bash scritps/install.sh --help
 ```
 
 The software stack includes (all with CUDA support):

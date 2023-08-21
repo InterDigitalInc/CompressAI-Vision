@@ -7,7 +7,7 @@ set -eu
 TORCH_VERSION="2.0.0" # "1.10.2"
 TORCHVISION_VERSION="0.15.1" # "0.11.3"
 CUDA_VERSION=""
-MODEL="detectron2"
+MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -199,4 +199,4 @@ echo
 echo "Installing compressai-vision"
 echo
 
-pip install -e .
+pip install -e "${SCRIPT_DIR}/.."
