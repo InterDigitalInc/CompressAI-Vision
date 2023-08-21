@@ -1,0 +1,7 @@
+!*.jpg
+!*.json
+!*.png
+
+_build/
+
+.DS_Store

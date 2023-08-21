@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 pipeline:
-  type: "unfold" # alternative is fold
+  type: "video" # alternative is image
   conformance:
     save_conformance_files: False
     subsample_ratio: 9

@@ -110,11 +110,13 @@ class BaseSplit(nn.Module):
                 raise FileNotFoundError(
                     errno.ENOENT, os.strerror(errno.ENOENT), features_file
                 )
+            self.logger.debug(f"loading features: {features_file}")
             features = torch.load(features_file)
         else:
             features = vision_model.input_to_features(x)
             if self.configs["nn_task_part1"].dump_features:
                 self._create_folder(feature_dir)
+                self.logger.debug(f"dumping features in: {feature_dir}")
                 torch.save(features, features_file)
 
         return features

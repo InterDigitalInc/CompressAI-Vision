@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 #
-# This clones and build model architectures and gets pretrained weights
+# This runs the evaluation of the defaul models, whitout compression
+# make sure you sourced the virtual environment that contains up-to-date installed compressai-vision
+# see provided installation scripts
 set -eu
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ENTRY_CMD="${SCRIPT_DIR}/../compressai_vision/run/eval_split_inference.py"
+ENTRY_CMD="compressai-vision-eval"
 
 VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
 
@@ -13,7 +15,7 @@ if [ $# == 1 ]; then
 fi
 if [ ! -d "${VCM_TESTDATA}" ]; then
     echo "${VCM_TESTDATA} does not exist, please select dataset folder, e.g.
-    $ bash default_vision_performances.sh  /data/vcm_dataset"
+    $ bash default_vision_performances.sh  /path/to/vcm_dataset"
     exit
 fi
 

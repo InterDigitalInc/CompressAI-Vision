@@ -42,8 +42,8 @@ from compressai_vision.utils import dataio, to_cpu
 from .base_split import BaseSplit
 
 
-@register_pipeline("fold-split-inference")
-class FoldSplitInference(BaseSplit):
+@register_pipeline("video-split-inference")
+class VideoSplitInference(BaseSplit):
     def __init__(
         self,
         configs: Dict,
@@ -65,7 +65,7 @@ class FoldSplitInference(BaseSplit):
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
 
-        featureT = {}
+        features = {}
         gt_inputs = []
         file_names = []
 
@@ -90,8 +90,8 @@ class FoldSplitInference(BaseSplit):
 
             if e == 0:
                 org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
-                featureT["org_input_size"] = org_img_size
-                featureT["input_size"] = res["input_size"]
+                features["org_input_size"] = org_img_size
+                features["input_size"] = res["input_size"]
 
                 out_res = d[0].copy()
                 del (
@@ -101,7 +101,7 @@ class FoldSplitInference(BaseSplit):
                     out_res["image_id"],
                 )
                 out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
-                out_res["input_size"] = featureT["input_size"][0]
+                out_res["input_size"] = features["input_size"][0]
 
         assert num_items == len(dataloader)
 
@@ -111,39 +111,40 @@ class FoldSplitInference(BaseSplit):
             )
             raise SystemExit(0)
         # concatenate a list of tensors at each keyword item
-        featureT["data"] = self._concat_data()
+        features["data"] = self._concat_data()
 
-        res = self._compress_features(codec, featureT, output_file_prefix)
+        res = self._compress_features(codec, features, output_file_prefix)
 
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
             raise SystemExit(0)
-        dec_featureT = self._decompress_features(
+
+        dec_features = self._decompress_features(
             codec, res["bitstream"], output_file_prefix
         )
 
         # separate a tensor of each keyword item into a list of tensors
-        dec_feature_tesnor = self._split_data(dec_featureT["data"])
+        dec_feature_tensor = self._split_data(dec_features["data"])
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in self._iterate_items(dec_feature_tesnor, num_items):
-            dec_featureT["data"] = data
-            dec_featureT["file_name"] = file_names[e]
-            dec_featureT["qp"] = (
+        for e, data in self._iterate_items(dec_feature_tensor, num_items):
+            dec_features["data"] = data
+            dec_features["file_name"] = file_names[e]
+            dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
-            pred = self._from_features_to_output(vision_model, dec_featureT)
+            pred = self._from_features_to_output(vision_model, dec_features)
             evaluator.digest(gt_inputs[e], pred)
 
-            out_res = dec_featureT.copy()
+            out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])
             out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
-            out_res["input_size"] = dec_featureT["input_size"][0]
+            out_res["input_size"] = dec_features["input_size"][0]
             out_res[
                 "org_input_size"
-            ] = f'{dec_featureT["org_input_size"]["height"]}x{dec_featureT["org_input_size"]["width"]}'
+            ] = f'{dec_features["org_input_size"]["height"]}x{dec_features["org_input_size"]["width"]}'
 
             output_list.append(out_res)
 

@@ -20,7 +20,8 @@ dataset:
     dataset_name: "mpeg-oiv6-detection"
 
 pipeline:
-  type: "fold"
-  generate_features_only: True
+  type: "video"
+  nn_task_part1:
+    generate_features_only: True
   output_dir: ${paths._runs_root}/${dataset.datacatalog}
 

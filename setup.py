@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, InterDigital Communications, Inc
+# Copyright (c) 2022-2023, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@ import subprocess
 from pathlib import Path
 
 from setuptools import find_packages, setup
-
 
 package_name = "compressai_vision"
 version = "0.1.0.dev0"
@@ -70,7 +69,11 @@ DEV_REQUIRES = TEST_REQUIRES + [
 def get_extra_requirements():
     extras_require = {
         "dev": DEV_REQUIRES,
-        "doc": ["sphinx", "furo", "sphinxcontrib-mermaid==0.7.1"],
+        "doc": [
+            "sphinx==4.0",
+            "sphinx-book-theme==1.0.1",
+            "sphinxcontrib-mermaid==0.7.1",
+        ],
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
     return extras_require

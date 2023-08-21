@@ -1,11 +1,13 @@
-![CompressAI-Vision-logo](assets/compressai-vision-logo.png)
+<p align="center">
+  <img src="docs/source/_static/logo.svg" alt="CompressAI-Vision-logo">
+</p>
 
 # CompressAI-FCVCM
 
-CompressAI-FCVCM is an evaluation framework for compressing intermediate features produced in the context of split models. 
+CompressAI-FCVCM is an evaluation framework for compressing intermediate features produced in the context of split models.
 It helps you to develop, test and evaluate compression models with standardized tests in the context of MPEG "Feature Compression for Video Coding for Machines" (FCVCM).
 
-The figure below shows the main framework 
+The figure below shows the main framework
 
 
 ## Documentation
@@ -13,7 +15,7 @@ The figure below shows the main framework
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
 
 ## General Prerequisites
-pyhton3, cmake, patch, gcc/g++, ffmpeg 
+pyhton3, cmake, patch, gcc/g++, ffmpeg
 
 ## installation
 
@@ -26,13 +28,13 @@ bash scripts/env_cuda.sh 11.8
 
 Then, install the different models and related dependencies using
 ```
-bash scripts/install_models.sh
+bash scripts/install.sh
 ```
 
 
 For more otions, check:
 ```
-bash scritps/install_models.sh --help
+bash scritps/install.sh --help
 ```
 
 Finally, install CompressAI-FCVCM:
