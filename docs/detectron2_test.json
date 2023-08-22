@@ -1,0 +1,11 @@
+{
+  "dataset": "mpeg-vcm-detection",
+  "gt_field": "detections",
+  "tmp datasetname": "detectron-run-jacky2-mpeg-vcm-detection-2022-10-07-17-56-39-724689",
+  "slice": "0:2",
+  "model": "COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml",
+  "codec": true,
+  "qpars": [
+    47
+  ]
+}

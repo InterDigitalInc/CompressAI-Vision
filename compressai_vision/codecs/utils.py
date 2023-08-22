@@ -27,6 +27,29 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .split_inference import ImageSplitInference, VideoSplitInference
+import logging
+import math
+from typing import Dict
 
-__all__ = ["VideoSplitInference", "ImageSplitInference"]
+import torch
+from torch import Tensor
+
+MIN_MAX_DATASET = {
+    "mpeg-oiv6-detection": (-26.426828384399414, 28.397470474243164),
+    "TVD": (-4.722218990325928, 48.58344268798828),
+    "HiEve": (-1.0795, 11.8232),
+    "SFU": (-17.8848, 16.69417),
+}
+
+
+def min_max_normalization(x, min: float, max: float, bitdepth: int = 10):
+    max_num_bins = (2**bitdepth) - 1
+    out = ((x - min) / (max - min)).clamp_(0, 1)
+    mid_level = -min / (max - min)
+    return (out * max_num_bins).floor(), int(mid_level * max_num_bins + 0.5)
+
+
+def min_max_inv_normalization(x, min: float, max: float, bitdepth: int = 10):
+    out = x / ((2**bitdepth) - 1)
+    out = (out * (max - min)) + min
+    return out

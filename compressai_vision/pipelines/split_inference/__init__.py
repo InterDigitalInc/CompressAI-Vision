@@ -27,10 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .fold_split_inference import FoldSplitInference
-from .unfold_split_inference import UnfoldSplitInference
+from .image_split_inference import ImageSplitInference
+from .video_split_inference import VideoSplitInference
 
 __all__ = [
-    "UnfoldSplitInference",
-    "FoldSplitInference",
+    "ImageSplitInference",
+    "VideoSplitInference",
 ]

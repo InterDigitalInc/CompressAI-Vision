@@ -7,7 +7,7 @@ set -eu
 TORCH_VERSION="2.0.0" # "1.10.2"
 TORCHVISION_VERSION="0.15.1" # "0.11.3"
 CUDA_VERSION=""
-MODEL="detectron2"
+MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -135,7 +135,9 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     fi
 
     cd ${SCRIPT_DIR}/cython_bbox
-    patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
+
+    # '!' negating set -e when patching has been applied already
+    ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
     pip3 install -e .
 
     # clone
@@ -151,7 +153,9 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
 
     # Apply patch to interface with compressai-vision
-    patch -p1 --forward <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
+
+    # '!' negating set -e when patching has been applied already
+    ! patch -p1 --forward <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
 
     SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
     # COPY JDE files into site-package under virtual environment
@@ -187,4 +191,4 @@ echo
 echo "Installing compressai-vision"
 echo
 
-pip install -e .
+pip install -e "${SCRIPT_DIR}/.."
