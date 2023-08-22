@@ -25,21 +25,21 @@ HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
 TVD_SRC="${VCM_TESTDATA}/tvd_tracking"
 
 # MPEGOIV6 - Detection with Faster RCNN
-python ${ENTRY_CMD} --config-name=eval_example.yaml \
-                    ++pipeline.type=unfold \
-                    ++pipeline.conformance.save_conformance_files=True \
-                    ++pipeline.conformance.subsample_ratio=9 \
-                    ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
-                    ++dataset.type=Detectron2Dataset \
-                    ++dataset.datacatalog=MPEGOIV6 \
-                    ++dataset.config.root=${MPEG_OIV6_SRC} \
-                    ++dataset.config.annotation_file=annotations/mpeg-oiv6-detection-coco.json \
-                    ++dataset.config.dataset_name=mpeg-oiv6-detection \
-                    ++evaluator.type=OIC-EVAL
+${ENTRY_CMD} --config-name=eval_example.yaml \
+             ++pipeline.type=image \
+             ++pipeline.conformance.save_conformance_files=True \
+             ++pipeline.conformance.subsample_ratio=9 \
+             ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+             ++dataset.type=Detectron2Dataset \
+             ++dataset.datacatalog=MPEGOIV6 \
+             ++dataset.config.root=${MPEG_OIV6_SRC} \
+             ++dataset.config.annotation_file=annotations/mpeg-oiv6-detection-coco.json \
+             ++dataset.config.dataset_name=mpeg-oiv6-detection \
+             ++evaluator.type=OIC-EVAL
 
 # MPEGOIV6 - Segmentation with Mask RCNN
-python ${ENTRY_CMD} --config-name=eval_example.yaml \
-                    ++pipeline.type=unfold \
+${ENTRY_CMD} --config-name=eval_example.yaml \
+                    ++pipeline.type=image \
                     ++pipeline.conformance.save_conformance_files=True \
                     ++pipeline.conformance.subsample_ratio=9 \
                     ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
@@ -67,8 +67,8 @@ for SEQ in \
             'BlowingBubbles_416x240_50_val' \
             'RaceHorses_416x240_30_val'
 do
-    python ${ENTRY_CMD} --config-name=eval_example.yaml \
-                        ++pipeline.type=fold \
+    ${ENTRY_CMD} --config-name=eval_example.yaml \
+                        ++pipeline.type=video \
                         ++pipeline.conformance.save_conformance_files=True \
                         ++pipeline.conformance.subsample_ratio=9 \
                         ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
@@ -86,18 +86,18 @@ for SEQ in \
             'TVD-02' \
             'TVD-03'
 do
-    python ${ENTRY_CMD} --config-name=eval_example.yaml \
-                        ++pipeline.type=fold \
-                        ++vision_model.arch=jde_1088x608 \
-                        ++vision_model.jde_1088x608.splits="[74, 61, 36]" \
-                        ++dataset.type=TrackingDataset \
-                        ++dataset.settings.patch_size="[608, 1088]" \
-                        ++dataset.datacatalog=MPEGTVDTRACKING \
-                        ++dataset.config.root=${TVD_SRC}/${SEQ} \
-                        ++dataset.config.imgs_folder=img1 \
-                        ++dataset.config.annotation_file=gt/gt.txt \
-                        ++dataset.config.dataset_name=mpeg-tracking-${SEQ} \
-                        ++evaluator.type=MOT-TVD-EVAL
+    ${ENTRY_CMD} --config-name=eval_example.yaml \
+                 ++pipeline.type=video \
+                 ++vision_model.arch=jde_1088x608 \
+                 ++vision_model.jde_1088x608.splits="[74, 61, 36]" \
+                 ++dataset.type=TrackingDataset \
+                 ++dataset.settings.patch_size="[608, 1088]" \
+    	         ++dataset.datacatalog=MPEGTVDTRACKING \
+                 ++dataset.config.root=${TVD_SRC}/${SEQ} \
+                 ++dataset.config.imgs_folder=img1 \
+                 ++dataset.config.annotation_file=gt/gt.txt \
+                 ++dataset.config.dataset_name=mpeg-tracking-${SEQ} \
+                 ++evaluator.type=MOT-TVD-EVAL
 done
 
 # HIEVE - Object Tracking with JDE
@@ -108,18 +108,18 @@ for SEQ in \
             '17' \
             '18'
 do
-    python ${ENTRY_CMD} --config-name=eval_example.yaml \
-                        ++pipeline.type=fold \
-                        ++pipeline.conformance.save_conformance_files=True \
-                        ++pipeline.conformance.subsample_ratio=90 \
-                        ++vision_model.arch=jde_1088x608 \
-                        ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
-                        ++dataset.type=TrackingDataset \
-                        ++dataset.settings.patch_size="[608, 1088]" \
-                        ++dataset.datacatalog=MPEGHIEVE \
-                        ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
-                        ++dataset.config.imgs_folder=img1 \
-                        ++dataset.config.annotation_file=gt/gt.txt \
-                        ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
-                        ++evaluator.type=MOT-HIEVE-EVAL
+    ${ENTRY_CMD} --config-name=eval_example.yaml \
+                ++pipeline.type=video \
+                ++pipeline.conformance.save_conformance_files=True \
+                ++pipeline.conformance.subsample_ratio=90 \
+                ++vision_model.arch=jde_1088x608 \
+                ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
+                ++dataset.type=TrackingDataset \
+                ++dataset.settings.patch_size="[608, 1088]" \
+                ++dataset.datacatalog=MPEGHIEVE \
+                ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
+                ++dataset.config.imgs_folder=img1 \
+                ++dataset.config.annotation_file=gt/gt.txt \
+                ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
+                ++evaluator.type=MOT-HIEVE-EVAL
 done
