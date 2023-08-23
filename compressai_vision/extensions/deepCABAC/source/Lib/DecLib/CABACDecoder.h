@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
 The copyright in this software is being made available under the Clear BSD
-License, included below. No patent rights, trademark rights and/or 
-other Intellectual Property Rights other than the copyrights concerning 
+License, included below. No patent rights, trademark rights and/or
+other Intellectual Property Rights other than the copyrights concerning
 the Software are granted under this license.
 
 The Clear BSD License
@@ -56,36 +56,36 @@ public:
     CABACDecoder() {}
     ~CABACDecoder() {}
 
-    void     startCabacDecoding    ( uint8_t* pBytestream );
-    void     initCtxMdls           ( uint32_t cabac_unary_length );
-    void     resetCtxMdls          ();
+    void startCabacDecoding(uint8_t *pBytestream);
+    void initCtxMdls(uint32_t cabac_unary_length);
+    void resetCtxMdls();
     uint32_t terminateCabacDecoding();
-    int32_t  iae_v                 ( uint8_t v );
-    uint32_t uae_v                 ( uint8_t v );
-    void decodeWeights             ( int32_t* pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order );
+    int32_t iae_v(uint8_t v);
+    uint32_t uae_v(uint8_t v);
+    void decodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, const int32_t maxValue=-1);
 
     template <class trellisDef>
-    void decodeWeights             (int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order);
+    void decodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, const int32_t maxValue=-1);
 
-    void decodeWeightsAndCreateEPs(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, std::vector<uint64_t>& entryPoints);
+    void decodeWeightsAndCreateEPs(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, std::vector<uint64_t> &entryPoints, const int32_t maxValue=-1);
 
     template <class trellisDef>
-    void decodeWeightsAndCreateEPs(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, std::vector<uint64_t> &entryPoints);
+    void decodeWeightsAndCreateEPs(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, uint8_t dq_flag, const int32_t scan_order, std::vector<uint64_t> &entryPoints, const int32_t maxValue=-1);
 
-    void setEntryPoints           (uint64_t* pEntryPoints, uint64_t numEntryPoints);
+    void setEntryPoints(uint64_t *pEntryPoints, uint64_t numEntryPoints);
 
-uint32_t
-getBytesRead();
+    uint32_t
+    getBytesRead();
 
 protected:
-    void decodeWeightVal           ( int32_t &decodedIntVal, int32_t stateId  );
-    int32_t decodeRemAbsLevel      ();
+    void decodeWeightVal(int32_t &decodedIntVal, int32_t stateId, const int32_t maxValue=-1);
+    int32_t decodeRemAbsLevel();
 
 private:
-    std::vector<SBMPCtx>  m_CtxStore;
-    ContextModeler        m_CtxModeler;
-    BinDec                m_BinDecoder;
-    uint32_t              m_NumGtxFlags;
+    std::vector<SBMPCtx> m_CtxStore;
+    ContextModeler m_CtxModeler;
+    BinDec m_BinDecoder;
+    uint32_t m_NumGtxFlags;
     std::vector<uint64_t> m_EntryPoints;
 };
 #endif // __CABACDEC__

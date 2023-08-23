@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
 The copyright in this software is being made available under the Clear BSD
-License, included below. No patent rights, trademark rights and/or 
-other Intellectual Property Rights other than the copyrights concerning 
+License, included below. No patent rights, trademark rights and/or
+other Intellectual Property Rights other than the copyrights concerning
 the Software are granted under this license.
 
 The Clear BSD License
@@ -49,41 +49,37 @@ POSSIBILITY OF SUCH DAMAGE.
 #if _WIN32
 inline uint32_t __builtin_clz(uint32_t x)
 {
-    unsigned long position;
-    _BitScanReverse(&position, x);
-    return 31 - position;
+  unsigned long position;
+  _BitScanReverse(&position, x);
+  return 31 - position;
 }
 #endif
 
-const uint32_t BinEnc::m_auiGoRiceRange[ 10 ] =
-{
-    6, 5, 6, 3, 3, 3, 3, 3, 3, 3
-};
-
+const uint32_t BinEnc::m_auiGoRiceRange[10] =
+    {
+        6, 5, 6, 3, 3, 3, 3, 3, 3, 3};
 
 void BinEnc::startBinEncoder()
 {
-    m_Low                = 0;
-    m_Range              = 510;
-    m_BitsLeft           = 23;
-    m_NumBufferedBytes   = 0;
+  m_Low = 0;
+  m_Range = 510;
+  m_BitsLeft = 23;
+  m_NumBufferedBytes = 0;
 }
 
-
-void BinEnc::setByteStreamBuf( std::vector<uint8_t> *byteStreamBuf )
+void BinEnc::setByteStreamBuf(std::vector<uint8_t> *byteStreamBuf)
 {
-    m_ByteBuf = byteStreamBuf;
+  m_ByteBuf = byteStreamBuf;
 }
 
-
-uint32_t BinEnc::encodeBin( uint32_t bin, SBMPCtx &ctxMdl )
+uint32_t BinEnc::encodeBin(uint32_t bin, SBMPCtx &ctxMdl)
 {
-  uint32_t rlps = ctxMdl.getRLPS( m_Range );
+  uint32_t rlps = ctxMdl.getRLPS(m_Range);
   m_Range -= rlps;
 
   int32_t minusBin = -(int32_t)bin;
 
-  if (minusBin == ctxMdl.getMinusMPS() )
+  if (minusBin == ctxMdl.getMinusMPS())
   {
     if (m_Range < 256)
     {
@@ -104,133 +100,131 @@ uint32_t BinEnc::encodeBin( uint32_t bin, SBMPCtx &ctxMdl )
     if (m_BitsLeft < 12)
       write_out();
   }
-  
-  ctxMdl.updateState( minusBin );
+
+  ctxMdl.updateState(minusBin);
   return 0;
 }
 
-void BinEnc::pseudoEncodeBin( uint32_t bin, SBMPCtxOptimizer &ctxMdl )
+void BinEnc::pseudoEncodeBin(uint32_t bin, SBMPCtxOptimizer &ctxMdl)
 {
-    ctxMdl.accumulateBits( -(int32_t)bin );
-    ctxMdl.updateStates( -(int32_t)bin );
+  ctxMdl.accumulateBits(-(int32_t)bin);
+  ctxMdl.updateStates(-(int32_t)bin);
 }
 
-uint32_t BinEnc::encodeBinEP( uint32_t bin )
+uint32_t BinEnc::encodeBinEP(uint32_t bin)
 {
-    m_Low <<= 1;
-    if (bin)
+  m_Low <<= 1;
+  if (bin)
+  {
+    m_Low += m_Range;
+  }
+  m_BitsLeft--;
+  if (m_BitsLeft < 12)
+  {
+    write_out();
+  }
+  return 0;
+}
+
+uint32_t BinEnc::encodeBinsEP(uint32_t bins, uint32_t numBins)
+{
+  CHECK(bins >= (1u << numBins), printf("%i can not be coded with %i EP-Bins", bins, numBins))
+
+  if (m_Range == 256)
+  {
+    uint32_t remBins = numBins;
+    while (remBins > 0)
     {
-        m_Low += m_Range;
+      uint32_t binsToCode = std::min<uint32_t>(remBins, 8); // code bytes if able to take advantage of the system's byte-write function
+      uint32_t binMask = (1 << binsToCode) - 1;
+      uint32_t newBins = (bins >> (remBins - binsToCode)) & binMask;
+      m_Low = (m_Low << binsToCode) + (newBins << 8); // range is known to be 256
+      remBins -= binsToCode;
+      m_BitsLeft -= binsToCode;
+      if (m_BitsLeft < 12)
+      {
+        write_out();
+      }
     }
-    m_BitsLeft--;
+
+    return 0;
+  }
+  while (numBins > 8)
+  {
+    numBins -= 8;
+    uint32_t pattern = bins >> numBins;
+    m_Low <<= 8;
+    m_Low += m_Range * pattern;
+    bins -= pattern << numBins;
+    m_BitsLeft -= 8;
     if (m_BitsLeft < 12)
     {
-        write_out();
+      write_out();
     }
-    return 0;
+  }
+  m_Low <<= numBins;
+  m_Low += m_Range * bins;
+  m_BitsLeft -= numBins;
+  if (m_BitsLeft < 12)
+  {
+    write_out();
+  }
+  return 0;
 }
-
-
-uint32_t BinEnc::encodeBinsEP( uint32_t bins, uint32_t numBins )
-{
-    CHECK( bins >= ( 1u << numBins ), printf( "%i can not be coded with %i EP-Bins", bins, numBins ) )
-    
-    if (m_Range == 256)
-    {
-        uint32_t remBins = numBins;
-        while (remBins > 0)
-        {
-            uint32_t binsToCode = std::min<uint32_t>(remBins, 8); //code bytes if able to take advantage of the system's byte-write function
-            uint32_t binMask    = (1 << binsToCode) - 1;
-            uint32_t newBins    = (bins >> (remBins - binsToCode)) & binMask;
-            m_Low               = (m_Low << binsToCode) + (newBins << 8); //range is known to be 256
-            remBins            -= binsToCode;
-            m_BitsLeft         -= binsToCode;
-            if (m_BitsLeft < 12)
-            {
-                write_out();
-            }
-        }
-
-        return 0;
-    }
-    while (numBins > 8)
-    {
-        numBins          -= 8;
-        uint32_t pattern  = bins >> numBins;
-        m_Low           <<= 8;
-        m_Low            += m_Range * pattern;
-        bins             -= pattern << numBins;
-        m_BitsLeft       -= 8;
-        if (m_BitsLeft < 12)
-        {
-            write_out();
-        }
-    }
-    m_Low     <<= numBins;
-    m_Low      += m_Range * bins;
-    m_BitsLeft -= numBins;
-    if (m_BitsLeft < 12)
-    {
-        write_out();
-    }
-    return 0;
-}
-
 
 void BinEnc::write_out()
 {
-    uint32_t lead_byte = m_Low >> (24 - m_BitsLeft);
-    m_BitsLeft += 8;
-    m_Low &= 0xffffffffu >> m_BitsLeft;
-    if (lead_byte == 0xff)
+  uint32_t lead_byte = m_Low >> (24 - m_BitsLeft);
+  m_BitsLeft += 8;
+  m_Low &= 0xffffffffu >> m_BitsLeft;
+  if (lead_byte == 0xff)
+  {
+    m_NumBufferedBytes++;
+  }
+  else
+  {
+    if (m_NumBufferedBytes > 0)
     {
-        m_NumBufferedBytes++;
+      uint32_t carry = lead_byte >> 8;
+      uint8_t byte = m_BufferedByte + carry;
+      m_BufferedByte = lead_byte & 0xff;
+      m_ByteBuf->push_back(byte);
+      byte = (0xff + carry) & 0xff;
+      while (m_NumBufferedBytes > 1)
+      {
+        m_ByteBuf->push_back(byte);
+        m_NumBufferedBytes--;
+      }
     }
     else
     {
-        if (m_NumBufferedBytes > 0)
-        {
-            uint32_t carry      = lead_byte >> 8;
-            uint8_t  byte       = m_BufferedByte + carry;
-            m_BufferedByte       = lead_byte & 0xff;
-            m_ByteBuf->push_back(byte);
-            byte                = (0xff + carry) & 0xff;
-            while (m_NumBufferedBytes > 1)
-            {
-                m_ByteBuf->push_back(byte);
-                m_NumBufferedBytes--;
-            }
-        }
-        else
-        {
-            m_NumBufferedBytes = 1;
-            m_BufferedByte      = lead_byte;
-        }
+      m_NumBufferedBytes = 1;
+      m_BufferedByte = lead_byte;
     }
+  }
 }
 
-void BinEnc::encodeBinTrm( unsigned bin )
+void BinEnc::encodeBinTrm(unsigned bin)
 {
   m_Range -= 2;
-  if( bin )
+  if (bin)
   {
-    m_Low      += m_Range;
-    m_Low     <<= 7;
-    m_Range     = 2 << 7;
+    m_Low += m_Range;
+    m_Low <<= 7;
+    m_Range = 2 << 7;
     m_BitsLeft -= 7;
   }
-  else if( m_Range >= 256 )
+  else if (m_Range >= 256)
   {
     return;
   }
   else
   {
-    m_Low     <<= 1;
-    m_Range   <<= 1;
+    m_Low <<= 1;
+    m_Range <<= 1;
     m_BitsLeft--;
   }
-  if( m_BitsLeft < 12 )
+  if (m_BitsLeft < 12)
   {
     write_out();
   }
@@ -238,39 +232,39 @@ void BinEnc::encodeBinTrm( unsigned bin )
 
 void BinEnc::finish()
 {
-  if( m_Low >> ( 32 - m_BitsLeft ) )
+  if (m_Low >> (32 - m_BitsLeft))
   {
-    m_ByteBuf->push_back( m_BufferedByte + 1 );
-    while( m_NumBufferedBytes > 1 )
+    m_ByteBuf->push_back(m_BufferedByte + 1);
+    while (m_NumBufferedBytes > 1)
     {
-      m_ByteBuf->push_back( 0x00 );
+      m_ByteBuf->push_back(0x00);
       m_NumBufferedBytes--;
     }
-    m_Low -= 1 << ( 32 - m_BitsLeft );
+    m_Low -= 1 << (32 - m_BitsLeft);
   }
   else
   {
-    if( m_NumBufferedBytes > 0 )
+    if (m_NumBufferedBytes > 0)
     {
-      m_ByteBuf->push_back( m_BufferedByte );
+      m_ByteBuf->push_back(m_BufferedByte);
     }
-    while( m_NumBufferedBytes > 1 )
+    while (m_NumBufferedBytes > 1)
     {
-      m_ByteBuf->push_back( 0xff );
+      m_ByteBuf->push_back(0xff);
       m_NumBufferedBytes--;
     }
   }
 
   // add trailing 1
-   m_Low >>= 8;
-   m_Low <<= 1;
-   m_Low++;
-   m_BitsLeft--;
-   // left align
-   m_Low <<= (32 - (24-m_BitsLeft) );
-   // write out starting from the leftmost byte
-   for( unsigned i = 0; i < 24 - m_BitsLeft; i+=8 )
-   {
-     m_ByteBuf->push_back( (m_Low >> (24-i)) & 0xFF );
-   }
+  m_Low >>= 8;
+  m_Low <<= 1;
+  m_Low++;
+  m_BitsLeft--;
+  // left align
+  m_Low <<= (32 - (24 - m_BitsLeft));
+  // write out starting from the leftmost byte
+  for (unsigned i = 0; i < 24 - m_BitsLeft; i += 8)
+  {
+    m_ByteBuf->push_back((m_Low >> (24 - i)) & 0xFF);
+  }
 }

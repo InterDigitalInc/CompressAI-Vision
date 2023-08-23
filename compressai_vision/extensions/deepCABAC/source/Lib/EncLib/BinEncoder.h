@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
 The copyright in this software is being made available under the Clear BSD
-License, included below. No patent rights, trademark rights and/or 
-other Intellectual Property Rights other than the copyrights concerning 
+License, included below. No patent rights, trademark rights and/or
+other Intellectual Property Rights other than the copyrights concerning
 the Software are granted under this license.
 
 The Clear BSD License
@@ -48,43 +48,48 @@ POSSIBILITY OF SUCH DAMAGE.
 class BinEnc
 {
 public:
-    BinEnc  () {}
-    ~BinEnc () {}
+    BinEnc() {}
+    ~BinEnc() {}
 
-    void      startBinEncoder      ();
-    void      setByteStreamBuf     ( std::vector<uint8_t> *byteStreamBuf );
+    void startBinEncoder();
+    void setByteStreamBuf(std::vector<uint8_t> *byteStreamBuf);
 
-    uint32_t  encodeBin            ( uint32_t bin,  SBMPCtx &ctxMdl  );
-    void      entryPointStart      () { m_Range = 256; }
+    uint32_t encodeBin(uint32_t bin, SBMPCtx &ctxMdl);
+    void entryPointStart() { m_Range = 256; }
 
-    void      pseudoEncodeBin      ( uint32_t bin,       SBMPCtxOptimizer &ctxMdl );
+    void pseudoEncodeBin(uint32_t bin, SBMPCtxOptimizer &ctxMdl);
 
-    uint32_t  encodeBinEP          ( uint32_t bin                    );
-    uint32_t  encodeBinsEP         ( uint32_t bins, uint32_t numBins );
+    uint32_t encodeBinEP(uint32_t bin);
+    uint32_t encodeBinsEP(uint32_t bins, uint32_t numBins);
 
-    void      encodeBinTrm         ( unsigned bin );
-    void      finish               (              );
-    void      terminate_write      (              );
+    void encodeBinTrm(unsigned bin);
+    void finish();
+    void terminate_write();
+
 protected:
-    void      write_out         ();
-private:
-    std::vector<uint8_t>   *m_ByteBuf;
-    uint32_t                m_Low;
-    uint32_t                m_Range;
-    uint8_t                 m_BufferedByte;
-    uint32_t                m_NumBufferedBytes;
-    uint32_t                m_BitsLeft;
-    static const uint32_t   m_auiGoRiceRange[ 10 ];
-};
+    void write_out();
 
+private:
+    std::vector<uint8_t> *m_ByteBuf;
+    uint32_t m_Low;
+    uint32_t m_Range;
+    uint8_t m_BufferedByte;
+    uint32_t m_NumBufferedBytes;
+    uint32_t m_BitsLeft;
+    static const uint32_t m_auiGoRiceRange[10];
+};
 
 class BinEst
 {
 public:
-  uint32_t encodeBin    ( uint32_t bin,  SBMPCtx& ctxMdl  )   { return ctxMdl.getBits().scaledEstBits[ bin ]; }
-  uint32_t updateBin    ( uint32_t bin,  SBMPCtx& ctxMdl  )   { ctxMdl.updateState( -(int32_t)bin ); return 0; }
-  uint32_t encodeBinEP  ( uint32_t bin )                      { return (1<<15); }
-  uint32_t encodeBinsEP ( uint32_t bins, uint32_t numBins )   { return (numBins<<15); }
+    uint32_t encodeBin(uint32_t bin, SBMPCtx &ctxMdl) { return ctxMdl.getBits().scaledEstBits[bin]; }
+    uint32_t updateBin(uint32_t bin, SBMPCtx &ctxMdl)
+    {
+        ctxMdl.updateState(-(int32_t)bin);
+        return 0;
+    }
+    uint32_t encodeBinEP(uint32_t bin) { return (1 << 15); }
+    uint32_t encodeBinsEP(uint32_t bins, uint32_t numBins) { return (numBins << 15); }
 };
 
 #endif // !__BINENC__

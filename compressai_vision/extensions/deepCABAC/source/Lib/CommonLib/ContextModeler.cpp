@@ -78,6 +78,19 @@ int32_t ContextModeler::getSignFlagCtxId()
     return ctxId;
 }
 
+int32_t ContextModeler::getMaxCtxId( int32_t stateId )
+{
+  int32_t offset = 3 * stateId;
+    int32_t ctxId = 0;
+
+    if (neighborWeightVal != 0)
+    {
+        ctxId = neighborWeightVal < 0 ? 1 : 2;
+    }
+
+    return ctxId+offset;
+}
+
 int32_t ContextModeler::getGtxCtxId( int32_t currWeighVal, uint32_t numGtxFlagsCoded, int32_t stateId )
 {
     int32_t offset =  8*3+3;
