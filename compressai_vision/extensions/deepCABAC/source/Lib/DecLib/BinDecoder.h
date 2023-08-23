@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
 The copyright in this software is being made available under the Clear BSD
-License, included below. No patent rights, trademark rights and/or 
-other Intellectual Property Rights other than the copyrights concerning 
+License, included below. No patent rights, trademark rights and/or
+other Intellectual Property Rights other than the copyrights concerning
 the Software are granted under this license.
 
 The Clear BSD License
@@ -51,54 +51,54 @@ struct EntryPoint
     uint32_t m_Value;
     int32_t dqState;
     uint32_t m_Range;
-    
+
     uint64_t getEntryPointInt() const
     {
-        return (totalBitOffset<<11) + ((m_Value&255)<<3) + (dqState&7);
+        return (totalBitOffset << 11) + ((m_Value & 255) << 3) + (dqState & 7);
     }
-    
-    void setEntryPointInt( uint64_t ep )
+
+    void setEntryPointInt(uint64_t ep)
     {
         totalBitOffset = ep >> 11;
-        m_Value    = (ep >>  3) & 255;
-        dqState    =  ep & 7;
+        m_Value = (ep >> 3) & 255;
+        dqState = ep & 7;
     }
 };
 
 class BinDec
 {
 public:
-    BinDec() : m_Bytes( nullptr ), m_ByteStreamPtr( nullptr ) {}
+    BinDec() : m_Bytes(nullptr), m_ByteStreamPtr(nullptr) {}
     ~BinDec() {}
 
 public:
-    void          startBinDecoder      (                                     );
-    void          setByteStreamBuf     ( uint8_t* byteStreamBuf              );
+    void startBinDecoder();
+    void setByteStreamBuf(uint8_t *byteStreamBuf);
 
-    uint32_t      decodeBin            ( SBMPCtx &ctxMdl                     );
-    uint32_t      decodeBinEP          (                                     );
-    uint32_t      decodeBinsEP         ( uint32_t numBins                    );
-    void          entryPointStart      () { m_Range = 256; }
-    EntryPoint    getEntryPoint();
-    void          setEntryPoint(EntryPoint ep);
-    void          setEntryPointWithRange(EntryPoint ep);
+    uint32_t decodeBin(SBMPCtx &ctxMdl);
+    uint32_t decodeBinEP();
+    uint32_t decodeBinsEP(uint32_t numBins);
+    void entryPointStart() { m_Range = 256; }
+    EntryPoint getEntryPoint();
+    void setEntryPoint(EntryPoint ep);
+    void setEntryPointWithRange(EntryPoint ep);
 
-    unsigned      decodeBinTrm();
-    void          finish();
+    unsigned decodeBinTrm();
+    void finish();
 
-    uint32_t      getBytesRead() { return m_BytesRead; }
-    void          setBytesRead(uint32_t bytesRead) { m_BytesRead=bytesRead; }
-    void          setByteStreamPtr(uint8_t* byteStreamPtr ) { m_ByteStreamPtr = byteStreamPtr; }
-    uint8_t*      getByteStreamPtr() {return m_ByteStreamPtr;}
+    uint32_t getBytesRead() { return m_BytesRead; }
+    void setBytesRead(uint32_t bytesRead) { m_BytesRead = bytesRead; }
+    void setByteStreamPtr(uint8_t *byteStreamPtr) { m_ByteStreamPtr = byteStreamPtr; }
+    uint8_t *getByteStreamPtr() { return m_ByteStreamPtr; }
 
 private:
     uint32_t m_Range;
-    int32_t  m_BitsNeeded;
+    int32_t m_BitsNeeded;
     uint32_t m_Value;
     uint32_t m_BytesRead;
     uint8_t *m_Bytes;
     uint8_t *m_ByteStreamPtr;
-    static const uint32_t  m_auiGoRiceRange[ 10 ];
+    static const uint32_t m_auiGoRiceRange[10];
 };
 
 #endif // __BINDEC__

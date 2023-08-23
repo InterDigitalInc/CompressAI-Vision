@@ -160,7 +160,7 @@ class VTM(nn.Module):
         yuv_in_path = f"{self.dump_yuv['yuv_in_dir']}/{file_prefix}_in.yuv"
         bitstream_path = f"{self.bitstream_dir}/{file_prefix}.bin"
         logpath = Path(f"{self.log_dir}/{file_prefix}_enc.log")
-        bitdepth = 10
+        bitdepth = 10  # TODO (fracape) (add this as config)
 
         (
             frame,

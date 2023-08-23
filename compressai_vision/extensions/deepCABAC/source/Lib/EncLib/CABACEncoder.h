@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
 The copyright in this software is being made available under the Clear BSD
-License, included below. No patent rights, trademark rights and/or 
-other Intellectual Property Rights other than the copyrights concerning 
+License, included below. No patent rights, trademark rights and/or
+other Intellectual Property Rights other than the copyrights concerning
 the Software are granted under this license.
 
 The Clear BSD License
@@ -51,7 +51,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <limits>
 #include <iostream>
 
-template< typename TBinEnc >
+template <typename TBinEnc>
 class TCABACEncoder
 {
 protected:
@@ -59,7 +59,7 @@ protected:
   {
     m_NumGtxFlags = numGtxFlags;
     m_CtxStore.resize(8 * 3 + 3 + m_NumGtxFlags * 2 + 32 + 4);
-    for( uint32_t ctxId = 0; ctxId < m_CtxStore.size() ; ctxId++ )
+    for (uint32_t ctxId = 0; ctxId < m_CtxStore.size(); ctxId++)
     {
       m_CtxStore[ctxId].initState();
     }
@@ -74,72 +74,72 @@ protected:
     }
   }
 
-  template< uint32_t (TBinEnc::*FuncBinEnc)(uint32_t,SBMPCtx&) >
-  __inline uint32_t xEncRemAbs( int32_t value )
+  template <uint32_t (TBinEnc::*FuncBinEnc)(uint32_t, SBMPCtx &)>
+  __inline uint32_t xEncRemAbs(int32_t value)
   {
-    uint32_t scaledBits           = 0;
+    uint32_t scaledBits = 0;
     uint32_t log2NumElemNextGroup = 0;
-    int32_t  remAbsBaseLevel      = 0;
-    uint32_t ctxIdx               = (8 * 3 + 3 + m_NumGtxFlags * 2);
-    if( value > 0 )
+    int32_t remAbsBaseLevel = 0;
+    uint32_t ctxIdx = (8 * 3 + 3 + m_NumGtxFlags * 2);
+    if (value > 0)
     {
-      scaledBits += (m_BinEncoder.*FuncBinEnc)( 1, m_CtxStore[ ctxIdx ] );
+      scaledBits += (m_BinEncoder.*FuncBinEnc)(1, m_CtxStore[ctxIdx]);
       remAbsBaseLevel += (1 << log2NumElemNextGroup);
       ctxIdx++;
       log2NumElemNextGroup++;
     }
     else
     {
-      return (m_BinEncoder.*FuncBinEnc)( 0, m_CtxStore[ ctxIdx ] );
+      return (m_BinEncoder.*FuncBinEnc)(0, m_CtxStore[ctxIdx]);
     }
-    while( value > ( remAbsBaseLevel + (1 << log2NumElemNextGroup) - 1 ) )
+    while (value > (remAbsBaseLevel + (1 << log2NumElemNextGroup) - 1))
     {
-      scaledBits += (m_BinEncoder.*FuncBinEnc)( 1 , m_CtxStore[ ctxIdx ] );
+      scaledBits += (m_BinEncoder.*FuncBinEnc)(1, m_CtxStore[ctxIdx]);
       remAbsBaseLevel += (1 << log2NumElemNextGroup);
       ctxIdx++;
       log2NumElemNextGroup++;
     }
-    scaledBits += (m_BinEncoder.*FuncBinEnc)( 0, m_CtxStore[ ctxIdx ] );
-    scaledBits += m_BinEncoder.encodeBinsEP( value - remAbsBaseLevel, log2NumElemNextGroup );
+    scaledBits += (m_BinEncoder.*FuncBinEnc)(0, m_CtxStore[ctxIdx]);
+    scaledBits += m_BinEncoder.encodeBinsEP(value - remAbsBaseLevel, log2NumElemNextGroup);
     return scaledBits;
   }
 
-  template< uint32_t (TBinEnc::*FuncBinEnc)(uint32_t,SBMPCtx&) >
-  __inline uint32_t xEncWeight( int32_t value, int32_t stateId )
+  template <uint32_t (TBinEnc::*FuncBinEnc)(uint32_t, SBMPCtx &)>
+  __inline uint32_t xEncWeight(int32_t value, int32_t stateId)
   {
-    uint32_t sigFlag        = value != 0 ? 1 : 0;
-    int32_t  sigctx         = m_CtxModeler.getSigCtxId( stateId );
-    
-    uint32_t scaledBits     = (m_BinEncoder.*FuncBinEnc)(sigFlag, m_CtxStore[ sigctx ]);
-    
+    uint32_t sigFlag = value != 0 ? 1 : 0;
+    int32_t sigctx = m_CtxModeler.getSigCtxId(stateId);
+
+    uint32_t scaledBits = (m_BinEncoder.*FuncBinEnc)(sigFlag, m_CtxStore[sigctx]);
+
     if (sigFlag)
     {
       uint32_t signFlag = value < 0 ? 1 : 0;
- 
+
       int32_t signCtx = m_CtxModeler.getSignFlagCtxId();
-      scaledBits += (m_BinEncoder.*FuncBinEnc)(signFlag, m_CtxStore[ signCtx ]);
+      scaledBits += (m_BinEncoder.*FuncBinEnc)(signFlag, m_CtxStore[signCtx]);
 
       uint32_t remAbsLevel = abs(value) - 1;
-      uint32_t grXFlag = remAbsLevel ? 1 : 0; //greater1
-      int32_t ctxIdx = m_CtxModeler.getGtxCtxId( value, 0, stateId );
+      uint32_t grXFlag = remAbsLevel ? 1 : 0; // greater1
+      int32_t ctxIdx = m_CtxModeler.getGtxCtxId(value, 0, stateId);
 
-      scaledBits += (m_BinEncoder.*FuncBinEnc)(grXFlag, m_CtxStore[ ctxIdx ]);
+      scaledBits += (m_BinEncoder.*FuncBinEnc)(grXFlag, m_CtxStore[ctxIdx]);
 
       uint32_t numGreaterFlagsCoded = 1;
 
-      while (grXFlag && (numGreaterFlagsCoded < m_NumGtxFlags) )
+      while (grXFlag && (numGreaterFlagsCoded < m_NumGtxFlags))
       {
         remAbsLevel--;
         grXFlag = remAbsLevel ? 1 : 0;
-        ctxIdx =  m_CtxModeler.getGtxCtxId(value, numGreaterFlagsCoded, stateId);
-        scaledBits += (m_BinEncoder.*FuncBinEnc)(grXFlag, m_CtxStore[ ctxIdx ]);
+        ctxIdx = m_CtxModeler.getGtxCtxId(value, numGreaterFlagsCoded, stateId);
+        scaledBits += (m_BinEncoder.*FuncBinEnc)(grXFlag, m_CtxStore[ctxIdx]);
         numGreaterFlagsCoded++;
       }
 
-      if ( grXFlag )
+      if (grXFlag)
       {
         remAbsLevel--;
-        scaledBits += xEncRemAbs<FuncBinEnc>( remAbsLevel );
+        scaledBits += xEncRemAbs<FuncBinEnc>(remAbsLevel);
       }
     }
     return scaledBits;
@@ -147,42 +147,41 @@ protected:
 
 protected:
   std::vector<SBMPCtx> m_CtxStore;
-  ContextModeler       m_CtxModeler;
-  TBinEnc              m_BinEncoder;
-  uint32_t             m_NumGtxFlags;
-  uint8_t              m_ParamOptFlag;
+  ContextModeler m_CtxModeler;
+  TBinEnc m_BinEncoder;
+  uint32_t m_NumGtxFlags;
+  uint8_t m_ParamOptFlag;
   std::vector<SBMPCtxOptimizer> m_CtxStoreOpt;
 };
-
 
 class CABACEncoder : protected TCABACEncoder<BinEnc>
 {
 public:
-    CABACEncoder() {}
-    ~CABACEncoder() {}
+  CABACEncoder() {}
+  ~CABACEncoder() {}
 
-    void      startCabacEncoding      ( std::vector<uint8_t>* pBytestream );
-    void      initCtxMdls             ( uint32_t numGtxFlags, uint8_t param_opt_flag );
-    void      resetCtxMdls            ();
+  void startCabacEncoding(std::vector<uint8_t> *pBytestream);
+  void initCtxMdls(uint32_t numGtxFlags, uint8_t param_opt_flag);
+  void resetCtxMdls();
 
-    void      initOptimizerCtxMdls    (uint32_t numGtxFlags);
-    void      resetOptimizerMdls      ();
-    void      setBestParamsAndInit    ();
-    void      pseudoEncodeWeightVal   ( int32_t value, int32_t stateId );
-    void      pseudoEncodeRemAbsLevelNew(uint32_t value);
+  void initOptimizerCtxMdls(uint32_t numGtxFlags);
+  void resetOptimizerMdls();
+  void setBestParamsAndInit();
+  void pseudoEncodeWeightVal(int32_t value, int32_t stateId, const int32_t maxValue=-1);
+  void pseudoEncodeRemAbsLevelNew(uint32_t value);
 
-    void      terminateCabacEncoding  ();
-    void      iae_v                   ( uint8_t v, int32_t value );
-    void      uae_v                   ( uint8_t v, uint32_t value );
-    int32_t encodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, const uint8_t dq_flag, const int32_t scan_order);
+  void terminateCabacEncoding();
+  void iae_v(uint8_t v, int32_t value);
+  void uae_v(uint8_t v, uint32_t value);
+  int32_t encodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, const uint8_t dq_flag, const int32_t scan_order, const int32_t maxValue=-1);
 
-    template <class trellisDef>
-    int32_t encodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, const uint8_t dq_flag, const int32_t scan_order);
+  template <class trellisDef>
+  int32_t encodeWeights(int32_t *pWeights, uint32_t layerWidth, uint32_t numWeights, const uint8_t dq_flag, const int32_t scan_order, const int32_t maxValue=-1);
 
-  private:
-    __inline void encodeWeightVal(int32_t weightInt, int32_t stateId)
-    {
-      TCABACEncoder<BinEnc>::xEncWeight<&BinEnc::encodeBin>(weightInt, stateId); 
+private:
+  __inline void encodeWeightVal(int32_t weightInt, int32_t stateId)
+  {
+    TCABACEncoder<BinEnc>::xEncWeight<&BinEnc::encodeBin>(weightInt, stateId);
   }
 };
 

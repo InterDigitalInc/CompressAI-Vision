@@ -53,6 +53,7 @@ public:
     void    init              ();
     void    resetNeighborCtx  ();
     int32_t getSigCtxId       ( int32_t stateId );
+    int32_t getMaxCtxId       ( int32_t stateId );
     int32_t getSignFlagCtxId  ();
 
     int32_t getGtxCtxId       ( int32_t currWeighVal, uint32_t numGtxFlagsCoded, int32_t stateId );

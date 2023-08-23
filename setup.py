@@ -27,10 +27,13 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import subprocess
-from pathlib import Path
 
-from setuptools import find_packages, setup
+import subprocess
+import sys
+from pathlib import Path
+import setuptools
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
 package_name = "compressai_vision"
 version = "0.1.0.dev0"
@@ -54,6 +57,99 @@ def write_version_file():
 
 
 write_version_file()
+
+
+# The following bindings are derived from NNCodec
+# The license terms can be found in compressai-fcvcm/extensions/deepCABAC/LICENSE.TXT
+class get_pybind_include(object):
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+
+        return pybind11.get_include(self.user)
+
+
+ext_source_dir = cwd / package_name / "extensions/deepCABAC/source"
+sources = [str(s) for s in ext_source_dir.rglob("*.cpp*")]
+
+ext_modules = [
+    Extension(
+        "deepCABAC",
+        sources=sources,
+        include_dirs=[
+            # Path to pybind11 headers
+            get_pybind_include(),
+            get_pybind_include(user=True),
+            "compressai_vision/extensions/deepCABAC/source",
+            "compressai_vision/extensions/deepCABAC/source/Lib",
+            "compressai_vision/extensions/deepCABAC/source/Lib/CommonLib"
+            "compressai_vision/extensions/deepCABAC/source/Lib/EncLib"
+            "compressai_vision/extensions/deepCABAC/source/Lib/DecLib",
+            # f"{ext_source_dir}/Lib",
+            # f"{ext_source_dir}/Lib/CommonLib"
+            # f"{ext_source_dir}/Lib/EncLib"
+            # f"{ext_source_dir}/Lib/DecLib",
+        ],
+        language="c++",
+    ),
+]
+
+
+# cf http://bugs.python.org/issue26689
+def has_flag(compiler, flagname):
+    import tempfile
+
+    with tempfile.NamedTemporaryFile("w", suffix=".cpp") as f:
+        f.write("int main (int argc, char **argv) { return 0; }")
+        try:
+            compiler.compile([f.name], extra_postargs=[flagname])
+        except setuptools.distutils.errors.CompileError:
+            return False
+    return True
+
+
+def cpp_flag(compiler):
+    flags = ["-std=c++17", "-std=c++14", "-std=c++11"]
+
+    for flag in flags:
+        if has_flag(compiler, flag):
+            return flag
+
+    raise RuntimeError("Unsupported compiler -- at least C++11 support " "is needed!")
+
+
+class BuildExt(build_ext):
+    c_opts = {
+        "msvc": ["/EHsc"],
+        "unix": [],
+    }
+    l_opts = {
+        "msvc": [],
+        "unix": [],
+    }
+
+    if sys.platform == "darwin":
+        darwin_opts = ["-stdlib=libc++", "-mmacosx-version-min=10.14"]
+        c_opts["unix"] += darwin_opts
+        l_opts["unix"] += darwin_opts
+
+    def build_extensions(self):
+        ct = self.compiler.compiler_type
+        opts = self.c_opts.get(ct, [])
+        link_opts = self.l_opts.get(ct, [])
+        if ct == "unix":
+            opts.append('-DVERSION_INFO="%s"' % self.distribution.get_version())
+            opts.append(cpp_flag(self.compiler))
+            if has_flag(self.compiler, "-fvisibility=hidden"):
+                opts.append("-fvisibility=hidden")
+        elif ct == "msvc":
+            opts.append('/DVERSION_INFO=\\"%s\\"' % self.distribution.get_version())
+        for ext in self.extensions:
+            ext.extra_compile_args = opts
+            ext.extra_link_args = link_opts
+        build_ext.build_extensions(self)
 
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
@@ -82,11 +178,7 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=[
-        "hydra",
-        "omegaconf",
-        "yuvio",
-    ],
+    install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pybind11>=2.3"],
     packages=find_packages(),
     include_package_data=True,
     entry_points={
@@ -99,6 +191,7 @@ setup(
     author_email="compressai@interdigital.com",
     description="Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI",
     extras_require=get_extra_requirements(),
+    ext_modules=ext_modules,
     license="BSD 3-Clause Clear License",
     classifiers=[
         "Development Status :: 3 - Alpha",

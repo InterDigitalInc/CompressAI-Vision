@@ -16,7 +16,7 @@ type: 'video' # If type is video, all feature tensors for the input video are fi
 output_dir: ${paths._runs_root}/${.name}-${.type}/${codec.type}/${codec.encoder_config.qp}
 
 nn_task_part1:
-    load_features: False
+    load_features: True
     dump_features: True
     generate_features_only: False
     feature_dir: ${..output_dir}/${dataset.config.dataset_name}/features

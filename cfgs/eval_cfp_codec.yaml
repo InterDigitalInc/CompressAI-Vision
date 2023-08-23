@@ -10,9 +10,9 @@ defaults:
   - _self_
 
 pipeline:
-  type: "unfold"
+  type: "video"
   codec:
-    encode_only: True
+    encode_only: False
 
 dataset:
   type: "Detectron2Dataset"
