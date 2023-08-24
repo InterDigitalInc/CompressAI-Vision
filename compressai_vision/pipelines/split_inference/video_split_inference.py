@@ -113,14 +113,14 @@ class VideoSplitInference(BaseSplit):
         # concatenate a list of tensors at each keyword item
         features["data"] = self._concat_data()
 
-        res = self._compress_features(codec, features, output_file_prefix)
+        res = self._compress_features(codec, features, "")
 
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
             raise SystemExit(0)
 
         dec_features = self._decompress_features(
-            codec, res["bitstream"], output_file_prefix
+            codec, res["bitstream"], ""
         )
 
         # separate a tensor of each keyword item into a list of tensors

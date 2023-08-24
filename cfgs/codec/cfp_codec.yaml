@@ -2,7 +2,15 @@ type: "cfp_codec"
 eval_encode: "bitrate" # or "bpp" 
 output_dir: "${paths._runs_root}/${.type}"
 bitstream_dir: "${.output_dir}"
+bitstream_name: "default.bin"
 log_dir: "${.output_dir}"
+
 encoder_config:
+  intra_period: 64
+  group_of_tensor: 32
   qp: 8
-  qp_density: 2 
+  qp_density: 2
+  output_bitstream: "${..bitstream_name}" 
+  
+decoder_config:
+  input_bitstream: "${..bitstream_name}"
