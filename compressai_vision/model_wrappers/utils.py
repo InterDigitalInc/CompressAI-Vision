@@ -42,16 +42,14 @@ __all__ = [
 
 
 def compute_frame_resolution(num_channels, channel_height, channel_width):
-    long_edge = int(2 ** (math.log2(num_channels) // 2))
-    short_edge = num_channels // long_edge
+    short_edge = int(math.sqrt(num_channels))
 
-    if long_edge != short_edge:
-        logging.warning(
-            f"There is no the least common multiple for {num_channels} other than 1 and itself",
-        )
+    while (num_channels % short_edge) != 0:
+        short_edge -= 1
 
-        long_edge = num_channels
-        short_edge = 1
+    long_edge = num_channels // short_edge
+
+    assert (short_edge * long_edge) == num_channels
 
     # tried to make it close to square
     if channel_height > channel_width:

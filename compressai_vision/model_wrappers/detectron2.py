@@ -29,7 +29,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import torch
 from detectron2.checkpoint import DetectionCheckpointer
@@ -130,6 +130,16 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             ],
             input_img_size,
         )
+
+    @torch.no_grad()
+    def deep_feature_proxy(self, tag: Any, x: Tensor):
+        """
+        compute deeper feature tensor than NN-Part1
+        """
+
+        assert x.dim() == 4, "Shape of the input feature tensor must be [N, C, H, W]"
+        x = x.to(self.device)
+        return self.proposal_generator.rpn_head.conv(x)
 
     @torch.no_grad()
     def forward(self, x):

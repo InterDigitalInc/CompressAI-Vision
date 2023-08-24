@@ -99,6 +99,7 @@ class VTM(nn.Module):
             self.dataset = "SFU"
         self.vision_model = vision_model
         self.bitstream_dir = Path(kwargs["bitstream_dir"])
+        self.bitstream_name = kwargs["bitstream_name"]
         if not self.bitstream_dir.is_dir():
             self.bitstream_dir.mkdir(parents=True, exist_ok=True)
         self.log_dir = Path(kwargs["log_dir"])
@@ -157,9 +158,14 @@ class VTM(nn.Module):
         x: Dict,
         file_prefix: str = "",
     ) -> bool:
+        if file_prefix == "":
+            file_prefix = self.bitstream_name.split(".")[0]
+
         yuv_in_path = f"{self.dump_yuv['yuv_in_dir']}/{file_prefix}_in.yuv"
         bitstream_path = f"{self.bitstream_dir}/{file_prefix}.bin"
         logpath = Path(f"{self.log_dir}/{file_prefix}_enc.log")
+
+        
         bitdepth = 10  # TODO (fracape) (add this as config)
 
         (
@@ -202,6 +208,10 @@ class VTM(nn.Module):
 
     def decode(self, bitstream_path: Path = None, file_prefix: str = "") -> bool:
         assert Path(bitstream_path).is_file()
+
+        if file_prefix == "":
+            file_prefix = bitstream_path.stem
+
         yuv_dec_path = f"{self.dump_yuv['yuv_dec_dir']}/{file_prefix}_dec.yuv"
         cmd = self.get_decode_cmd(
             bitstream_path=bitstream_path, yuv_dec_path=yuv_dec_path

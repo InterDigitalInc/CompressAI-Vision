@@ -2,6 +2,7 @@ type: "hm"
 eval_encode: "bpp" # or "bitrate" 
 output_dir: "${paths._runs_root}/${.type}"
 bitstream_dir: "${.output_dir}"
+bitstream_name: "default.bin"
 log_dir: "${.output_dir}" 
 codec_paths:
   encoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppEncoderStatic"

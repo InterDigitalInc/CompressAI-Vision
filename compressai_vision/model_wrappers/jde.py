@@ -156,6 +156,19 @@ class jde_1088x608(BaseWrapper):
 
         return {"tlwhs": online_tlwhs, "ids": online_ids}
 
+    @torch.no_grad()
+    def deep_feature_proxy(self, tag: int, x: Tensor):
+        """
+        compute deeper feature tensor than NN-Part1
+        """
+
+        assert x.dim() == 4, "Shape of the input feature tensor must be [N, C, H, W]"
+        assert type(tag) == int
+
+        x_deeper = self.darknet(None, {tag: x}, is_nn_part1=False, end_idx=(tag + 1))
+
+        return x_deeper
+
     def _jde_process(self, pred, org_img_size: tuple, input_img_size: tuple):
         r"""Re-implementation of JDE from Z. Wang, L. Zheng, Y. Liu, and S. Wang:
         : `"Towards Real-Time Multi-Object Tracking"`_,
