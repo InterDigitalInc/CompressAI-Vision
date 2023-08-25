@@ -29,11 +29,11 @@
 
 from typing import Any, Dict
 
+import deepCABAC
 import numpy as np
 import torch
 from scipy.stats import norm
 
-import deepCABAC
 from compressai_vision.codecs.encdec_utils import *
 
 from .common import FeatureTensorCodingType
