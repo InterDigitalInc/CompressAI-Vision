@@ -151,37 +151,46 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         # 'p2' is the base for the size of to-be-formed frame
 
-        _, C, H, W = x["p2"].size()
+        nbframes, C, H, W = x["p2"].size()
         _, fixedW = compute_frame_resolution(C, H, W)
 
         tiled_frame = {}
         feature_size = {}
         subframe_heights = {}
-        for key, tensor in x.items():
-            N, C, H, W = tensor.size()
 
-            assert N == 1, f"the batch size shall be one, but got {N}"
+        assert packing_all_in_one == True, "False is not support yet"
 
-            frmH, frmW = compute_frame_resolution(C, H, W)
+        all_tiled_frames = []
+        for n in range(nbframes):
+            for key, tensor in x.items():
+                single_tensor = tensor[n : n + 1, ::]
+                N, C, H, W = single_tensor.size()
 
-            rescale = fixedW // frmW if packing_all_in_one else 1
+                assert N == 1, f"the batch size shall be one, but got {N}"
 
-            new_frmH = frmH // rescale
-            new_frmW = frmW * rescale
+                frmH, frmW = compute_frame_resolution(C, H, W)
 
-            frame = tensor_to_tiled(tensor, (new_frmH, new_frmW))
+                rescale = fixedW // frmW if packing_all_in_one else 1
 
-            tiled_frame.update({key: frame})
-            feature_size.update({key: tensor.size()})
-            subframe_heights.update({key: new_frmH})
+                new_frmH = frmH // rescale
+                new_frmW = frmW * rescale
 
-        if packing_all_in_one:
-            for key, subframe in tiled_frame.items():
-                if key == "p2":
-                    out = subframe
-                else:
-                    out = torch.cat([out, subframe], dim=0)
-            tiled_frame = out
+                frame = tensor_to_tiled(single_tensor, (new_frmH, new_frmW))
+
+                tiled_frame.update({key: frame})
+                feature_size.update({key: single_tensor.size()})
+                subframe_heights.update({key: new_frmH})
+
+            if packing_all_in_one:
+                for key, subframe in tiled_frame.items():
+                    if key == "p2":
+                        out = subframe
+                    else:
+                        out = torch.cat([out, subframe], dim=0)
+
+                all_tiled_frames.append(out)
+
+        tiled_frame = torch.stack(all_tiled_frames)
 
         return tiled_frame, feature_size, subframe_heights
 
@@ -191,24 +200,31 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """reshape a frame of channels into the feature pyramid"""
 
         assert isinstance(x, (Tensor, Dict))
+        assert packing_all_in_one is True, "False is not supported yet"
 
         top_y = 0
-        tiled_frame = {}
+        tiled_frames = {}
         if packing_all_in_one:
             for key, height in subframe_height.items():
-                tiled_frame.update({key: x[top_y : top_y + height, :]})
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
                 top_y = top_y + height
         else:
+            raise NotImplementedError
             assert isinstance(x, Dict)
-            tiled_frame = x
+            tiled_frames = x
 
         feature_tensor = {}
-        for key, frame in tiled_frame.items():
+        for key, frames in tiled_frames.items():
             _, numChs, chH, chW = tensor_shape[key]
-            tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
-            assert tensor.size(1) == numChs
 
-            feature_tensor.update({key: tensor})
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
 
         return feature_tensor
 
