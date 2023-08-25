@@ -144,18 +144,12 @@ def main(conf: DictConfig):
 
     print("Performance Metrics")
     if eval_encode_type == "bpp":
-        avg_bpp = (
-            _calc_bpp(coded_res_df) if conf.pipeline.type == "unfold" else "N/A"
-        )  # 'fold' pipeline needs to calculate total bit frame by frame
+        avg_bpp = _calc_bpp(coded_res_df)
         result_df = pd.DataFrame({"avg_bpp": avg_bpp, "end_accuracy": performance})
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
     if eval_encode_type == "bitrate":
-        bitrate = (
-            _calc_bitrate(coded_res_df, seq_info_path)
-            if conf.pipeline.type == "unfold"
-            else "N/A"
-        )  # 'fold' pipeline needs to calculate total bit frame by frame
+        bitrate = _calc_bitrate(coded_res_df, seq_info_path)
         result_df = pd.DataFrame(
             {"bitrate (kbps)": bitrate, "end_accuracy": performance}
         )

@@ -39,16 +39,16 @@ ${ENTRY_CMD} --config-name=eval_example.yaml \
 
 # MPEGOIV6 - Segmentation with Mask RCNN
 ${ENTRY_CMD} --config-name=eval_example.yaml \
-                    ++pipeline.type=image \
-                    ++pipeline.conformance.save_conformance_files=True \
-                    ++pipeline.conformance.subsample_ratio=9 \
-                    ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
-                    ++dataset.type=Detectron2Dataset \
-                    ++dataset.datacatalog=MPEGOIV6 \
-                    ++dataset.config.root=${MPEG_OIV6_SRC} \
-                    ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
-                    ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
-                    ++evaluator.type=OIC-EVAL
+             ++pipeline.type=image \
+             ++pipeline.conformance.save_conformance_files=True \
+             ++pipeline.conformance.subsample_ratio=9 \
+             ++vision_model.arch=mask_rcnn_X_101_32x8d_FPN_3x \
+             ++dataset.type=Detectron2Dataset \
+             ++dataset.datacatalog=MPEGOIV6 \
+             ++dataset.config.root=${MPEG_OIV6_SRC} \
+             ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
+             ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
+             ++evaluator.type=OIC-EVAL
 
 # SFU - Segmentation with Faster RCNN
 for SEQ in \
@@ -68,16 +68,16 @@ for SEQ in \
             'RaceHorses_416x240_30_val'
 do
     ${ENTRY_CMD} --config-name=eval_example.yaml \
-                        ++pipeline.type=video \
-                        ++pipeline.conformance.save_conformance_files=True \
-                        ++pipeline.conformance.subsample_ratio=9 \
-                        ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
-                        ++dataset.type=Detectron2Dataset \
-                        ++dataset.datacatalog=SFUHW \
-                        ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
-                        ++dataset.config.annotation_file=annotations/${SEQ}.json \
-                        ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-                        ++evaluator.type=COCO-EVAL
+                 ++pipeline.type=video \
+                 ++pipeline.conformance.save_conformance_files=True \
+                 ++pipeline.conformance.subsample_ratio=9 \
+                 ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+                 ++dataset.type=Detectron2Dataset \
+                 ++dataset.datacatalog=SFUHW \
+                 ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
+                 ++dataset.config.annotation_file=annotations/${SEQ}.json \
+                 ++dataset.config.dataset_name=sfu-hw-${SEQ} \
+                 ++evaluator.type=COCO-EVAL
 done
 
 # TVD - Object Tracking with JDE
@@ -109,17 +109,17 @@ for SEQ in \
             '18'
 do
     ${ENTRY_CMD} --config-name=eval_example.yaml \
-                ++pipeline.type=video \
-                ++pipeline.conformance.save_conformance_files=True \
-                ++pipeline.conformance.subsample_ratio=90 \
-                ++vision_model.arch=jde_1088x608 \
-                ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
-                ++dataset.type=TrackingDataset \
-                ++dataset.settings.patch_size="[608, 1088]" \
-                ++dataset.datacatalog=MPEGHIEVE \
-                ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
-                ++dataset.config.imgs_folder=img1 \
-                ++dataset.config.annotation_file=gt/gt.txt \
-                ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
-                ++evaluator.type=MOT-HIEVE-EVAL
+                 ++pipeline.type=video \
+                 ++pipeline.conformance.save_conformance_files=True \
+                 ++pipeline.conformance.subsample_ratio=90 \
+                 ++vision_model.arch=jde_1088x608 \
+                 ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
+                 ++dataset.type=TrackingDataset \
+                 ++dataset.settings.patch_size="[608, 1088]" \
+                 ++dataset.datacatalog=MPEGHIEVE \
+                 ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
+                 ++dataset.config.imgs_folder=img1 \
+                 ++dataset.config.annotation_file=gt/gt.txt \
+                 ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
+                 ++evaluator.type=MOT-HIEVE-EVAL
 done

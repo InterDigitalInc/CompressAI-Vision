@@ -36,6 +36,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import torch
 import torch.nn as nn
 
 from compressai_vision.model_wrappers import BaseWrapper
@@ -90,6 +91,7 @@ class VTM(nn.Module):
                 )
 
         self.qp = kwargs["encoder_config"]["qp"]
+        self.frame_rate = kwargs["encoder_config"]["frame_rate"]
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
@@ -121,7 +123,14 @@ class VTM(nn.Module):
         return self.eval_encode
 
     def get_encode_cmd(
-        self, inp_yuv_path: Path, qp: int, bitstream_path: Path, width: int, height: int
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nbframes: int = 1,
+        frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
             self.encoder_path,
@@ -140,9 +149,9 @@ class VTM(nn.Module):
             "-hgt",
             height,
             "-fr",
-            "1",
+            frmRate,
             "-f",
-            "1",
+            nbframes,
             "--InputChromaFormat=400",
             "--InputBitDepth=10",
             "--ConformanceWindowMode=1",  # needed?
@@ -165,20 +174,19 @@ class VTM(nn.Module):
         bitstream_path = f"{self.bitstream_dir}/{file_prefix}.bin"
         logpath = Path(f"{self.log_dir}/{file_prefix}_enc.log")
 
-        
         bitdepth = 10  # TODO (fracape) (add this as config)
 
         (
-            frame,
+            frames,
             self.feature_size,
             self.subframe_heights,
         ) = self.vision_model.reshape_feature_pyramid_to_frame(
             x["data"], packing_all_in_one=True
         )
         minv, maxv = self.min_max_dataset
-        frame, mid_level = min_max_normalization(frame, minv, maxv, bitdepth=bitdepth)
+        frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
 
-        self.frame_height, self.frame_width = frame.size()
+        nbframes, self.frame_height, self.frame_width = frames.size()
 
         # TODO (fracape) setWriter in init?
         self.yuvio.setWriter(
@@ -186,7 +194,11 @@ class VTM(nn.Module):
             frmWidth=self.frame_width,
             frmHeight=self.frame_height,
         )
-        self.yuvio.write_single_frame(frame, mid_level=mid_level)
+
+        for frame in frames:
+            self.yuvio.write_single_frame(frame, mid_level=mid_level)
+
+        frmRate = self.frame_rate if nbframes > 1 else 1
 
         cmd = self.get_encode_cmd(
             yuv_in_path,
@@ -194,6 +206,8 @@ class VTM(nn.Module):
             width=frame.size(0),
             qp=self.qp,
             bitstream_path=bitstream_path,
+            nbframes=nbframes,
+            frmRate=frmRate,
         )
         # self.logger.debug(cmd)
 
@@ -201,13 +215,20 @@ class VTM(nn.Module):
         run_cmdline(cmd, logpath=logpath)
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
+
+        # to be compatible with the pipelines
+        # per frame bits can be collected by parsing enc log to be more accurate
+        avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
+        all_bytes_per_frame = [avg_bytes_per_frame] * nbframes
+
         return {
-            "bytes": [get_filesize(bitstream_path)],
+            "bytes": all_bytes_per_frame,
             "bitstream": bitstream_path,
         }
 
     def decode(self, bitstream_path: Path = None, file_prefix: str = "") -> bool:
-        assert Path(bitstream_path).is_file()
+        bitstream_path = Path(bitstream_path)
+        assert bitstream_path.is_file()
 
         if file_prefix == "":
             file_prefix = bitstream_path.stem
@@ -231,32 +252,31 @@ class VTM(nn.Module):
             frmHeight=self.frame_height,
         )
 
-        # read yuv rec
-        # TODO (racapef) video: manage frame indexes
-        rec_yuv = self.yuvio.read_single_frame(0)
+        nbframes = get_filesize(yuv_dec_path) // (
+            self.frame_width * self.frame_height * 2
+        )
+
+        rec_frames = []
+        for i in range(nbframes):
+            rec_yuv = self.yuvio.read_single_frame(i)
+            rec_frames.append(rec_yuv)
+
+        rec_frames = torch.stack(rec_frames)
 
         minv, maxv = self.min_max_dataset
-        rec_yuv = min_max_inv_normalization(rec_yuv, minv, maxv, bitdepth=10)
+        rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
         # TODO (fracape) should feature sizes be part of bitstream?
         features = self.vision_model.reshape_frame_to_feature_pyramid(
-            rec_yuv,
+            rec_frames,
             self.feature_size,
             self.subframe_heights,
             packing_all_in_one=True,
         )
 
-        # features = {
-        #     "data": self.vision_model.reshape_frame_to_feature_pyramid(
-        #         rec_yuv,
-        #         self.feature_size,
-        #         self.subframe_heights,
-        #         packing_all_in_one=True,
-        #         ),
-        #     "input_size": [582, 1333],
-        #     "org_input_size": [447, 1024],
-        # }
-        return features
+        output = {"data": features}
+
+        return output
 
 
 @register_codec("hm")
@@ -272,7 +292,14 @@ class HM(VTM):
         super().__init__(vision_model, dataset_name, **kwargs)
 
     def get_encode_cmd(
-        self, inp_yuv_path: Path, qp: int, bitstream_path: Path, width: int, height: int
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nbframes: int = 1,
+        frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
             self.encoder_path,
@@ -291,9 +318,9 @@ class HM(VTM):
             "-hgt",
             height,
             "-fr",
-            "1",
+            frmRate,
             "-f",
-            "1",
+            nbframes,
             "--InputChromaFormat=400",
             "--InputBitDepth=10",
             "--ConformanceWindowMode=1",  # needed?

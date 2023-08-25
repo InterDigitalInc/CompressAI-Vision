@@ -16,4 +16,5 @@ dump_yuv:
   yuv_dec_dir: ${..output_dir}
 encoder_config:
   qp: 42
+  frame_rate: 30
 

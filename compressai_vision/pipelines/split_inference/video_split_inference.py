@@ -119,8 +119,25 @@ class VideoSplitInference(BaseSplit):
             print(f"bitstreams generated, exiting")
             raise SystemExit(0)
 
-        dec_features = self._decompress_features(
-            codec, res["bitstream"], ""
+        dec_features = self._decompress_features(codec, res["bitstream"], "")
+
+        # "org_input_size" and "input_size" are supposed to be present
+        # in the dictionary of dec_features
+        # Nonetheless, just in case it doesn't exist specially for anchor case
+        if not "org_input_size" in dec_features:
+            self.logger.warning(
+                " 'org_input_size' is referenced in hacky way at decoder side."
+            )
+            dec_features["org_input_size"] = features["org_input_size"]
+        if not "input_size" in dec_features:
+            self.logger.warning(
+                " 'input_size' is referenced in hacky way at decoder side."
+            )
+            dec_features["input_size"] = features["input_size"]
+
+        # Replacing tag names to be safe for interfacing with NN-part2
+        dec_features["data"] = dict(
+            zip(features["data"].keys(), dec_features["data"].values())
         )
 
         # separate a tensor of each keyword item into a list of tensors
@@ -139,7 +156,7 @@ class VideoSplitInference(BaseSplit):
 
             out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])
-            out_res["bytes"] = res["bytes"][0]
+            out_res["bytes"] = res["bytes"][e]
             out_res["coded_order"] = e
             out_res["input_size"] = dec_features["input_size"][0]
             out_res[
@@ -148,6 +165,7 @@ class VideoSplitInference(BaseSplit):
 
             output_list.append(out_res)
 
+        # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
 
         return codec.eval_encode_type, output_list, eval_performance

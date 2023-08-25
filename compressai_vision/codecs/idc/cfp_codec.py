@@ -64,10 +64,10 @@ def iterate_list_of_tensors(data: Dict):
     if any(fs.size(0) != num_feature_sets for fs in list_of_features_sets):
         raise ValueError("Feature set items must have the same number of features sets")
 
-    for current_feature_set in tqdm(
-        zip(*list_of_features_sets), total=num_feature_sets
+    for e, current_feature_set in enumerate(
+        tqdm(zip(*list_of_features_sets), total=num_feature_sets)
     ):
-        yield dict(zip(list_of_keys, current_feature_set))
+        yield e, dict(zip(list_of_keys, current_feature_set))
 
 
 @register_codec("cfp_codec")
@@ -140,7 +140,8 @@ class CFP_CODEC(nn.Module):
         input: Dict,
         file_prefix: str = "",
     ) -> Dict:
-        byte_cnt = 0
+        hls_header_bytes = 0
+        bytes_per_ftensor_set = []
 
         self.logger.info("Encoding starts...")
 
@@ -168,9 +169,10 @@ class CFP_CODEC(nn.Module):
         # write sps
         # TODO (fracape) nbframes, qp, qp_density are temporary syntax.
         # These are removed later
-        byte_cnt += sps.write(bitstream_fd, nbframes, self.qp, self.qp_density)
+        hls_header_bytes = sps.write(bitstream_fd, nbframes, self.qp, self.qp_density)
 
-        for feature_tensor in iterate_list_of_tensors(input["data"]):
+        bytes_total = hls_header_bytes
+        for e, feature_tensor in iterate_list_of_tensors(input["data"]):
             # counting one for the input
             self.feature_set_order_count += 1  # the same concept as poc
 
@@ -190,22 +192,20 @@ class CFP_CODEC(nn.Module):
                 feature_tensor, channel_collections_by_cluster
             )
 
-            byte_spent, recon_feature_channels = code_feature_tensor[eFTCType](
+            coded_ftensor_bytes, recon_feature_channels = code_feature_tensor[eFTCType](
                 sps, feature_channels_to_code, all_channels_coding_groups, bitstream_fd
             )
-            byte_cnt += byte_spent
+
+            bytes_total += coded_ftensor_bytes
+
+            bytes_per_ftensor_set.append(bytes_total)
+
+            bytes_total = 0
 
         self.close_files()
 
-        # TODO (fracape) give a clearer returned objects for bitstream
-        # actual tensors in base, bin file in anchors and quantized data for debug here
-        #  homogenize with other codecs
-        print(f"bpp: {(byte_cnt * 8) / (nbframes * sps.org_input_height * sps.org_input_width)}")
-
         return {
-            "bytes": [
-                byte_cnt,
-            ],
+            "bytes": bytes_per_ftensor_set,
             "bitstream": self.bitstream_path,
         }
 
@@ -233,21 +233,9 @@ class CFP_CODEC(nn.Module):
             "input_size": [(sps.input_height, sps.input_width)],
         }
 
-        # TODO (fracape) is the layer structure
-        # and nb_channel per layer supposed to be known by decoder?
-        # can be added in bitstrea
-        # model id is tricky, since split point and other infos could be necessary
-        model_name = "faster_rcnn_X_101_32x8d_FPN_3x"
-        # "faster_rcnn_X_101_32x8d_FPN_3x",
-        # "mask_rcnn_X_101_32x8d_FPN_3x",
-        # "faster_rcnn_R_50_FPN_3x",
-        # "mask_rcnn_R_50_FPN_3x",
-        # "jde_1088x608",
-
-        # TODO (fracape) implement  jde case
-        if "rcnn" in model_name:
-            ftensor_tags = ["p2", "p3", "p4", "p5"]
-            assert sps.size_of_feature_set == len(ftensor_tags)
+        # temporary tag name
+        # it should be replaced outside of decoder with correct name tag to be compatible with NN-Part2
+        ftensor_tags = [i for i in range(sps.size_of_feature_set)]
 
         recon_ftensors = dict(zip(ftensor_tags, [[] for _ in range(len(ftensor_tags))]))
         for ftensor_set_idx in range(sps.nbframes):

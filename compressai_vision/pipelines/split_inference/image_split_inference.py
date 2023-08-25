@@ -86,13 +86,22 @@ class ImageSplitInference(BaseSplit):
                 codec, res["bitstream"], file_prefix
             )
 
-            # TODO (hyomin) how should org_input_size and input_size be conveyed, bitstream?
-            if not "data" in dec_features:
-                dec_features = {
-                    "data": dec_features,
-                    "input_size": featureT["input_size"],
-                    "org_input_size": featureT["org_input_size"],
-                }
+            # Replacing tag names to be safe for interfacing with NN-part2
+            dec_features["data"] = dict(
+                zip(featureT["data"].keys(), dec_features["data"].values())
+            )
+
+            if not "input_size" in dec_features:
+                self.logger.warning(
+                    " 'input_size' is referenced in hacky way at decoder side."
+                )
+                dec_features[input_size] = featureT["input_size"]
+
+            if not "org_input_size" in dec_features:
+                self.logger.warning(
+                    " 'org_input_size' is referenced in hacky way at decoder side."
+                )
+                dec_features["org_input_size"] = featureT["org_input_size"]
 
             dec_features["file_name"] = d[0]["file_name"]
             pred = self._from_features_to_output(
