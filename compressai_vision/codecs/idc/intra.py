@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import deepCABAC
 import numpy as np
@@ -43,6 +43,16 @@ __all__ = [
     "intra_coding",
     "intra_decoding",
 ]
+
+
+def _center_data(clipped_ftensor):
+    dc = torch.mean(clipped_ftensor, dim=(1, 2))
+    center_data = torch.sub(clipped_ftensor, dc[:, None, None])
+    return dc, center_data
+
+
+def _add_dc_values(ftensor, dc):
+    return torch.add(ftensor, dc[:, None, None])
 
 
 def _quantize_and_encode(channels, qp, qp_density, maxValue=-1):
@@ -64,8 +74,8 @@ def _quantize_and_encode(channels, qp, qp_density, maxValue=-1):
     return total_bytes_spent, bs, quantizedValues
 
 
-def _dequantize_and_decode(data_shape, bs, qp, qp_density):
-    tC, tH, tW = data_shape
+def _dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
+    # tC, tH, tW = data_shape
 
     assert isinstance(bs, (bytearray, bytes))
 
@@ -78,7 +88,7 @@ def _dequantize_and_decode(data_shape, bs, qp, qp_density):
     decoder = deepCABAC.Decoder()
     decoder.initCtxModels(10)
     decoder.setStream(bs)
-    quantizedValues = np.zeros((tC, tH, tW), dtype=np.int32)
+    quantizedValues = np.zeros(data_shape, dtype=np.int32)
     decoder.decodeFeatures(quantizedValues, 0, max_value)
     # print(quantizedValues[0, :10, :10])
     recon_features = np.zeros(quantizedValues.shape, dtype=np.float32)
@@ -99,8 +109,10 @@ def intra_coding(
     byte_cnt = 0
 
     # temporary hard coded
-    nb_sigmas = {"p2": 1, "p3": 1, "p4": 3, "p5": 3}
-
+    # @eimran sigma clipping value 3 for all tag might improve mAP!
+    # QP=8, {"p2": 80, "p3": 180, "p4": 190, "p5": 2}
+    # Traffic mAP 44.2223 (better than uncmp)
+    nb_sigmas = {"p2": 3, "p3": 3, "p4": 3, "p5": 3}
     byte_cnt += write_uchars(bitstream_fd, (FeatureTensorCodingType.I_TYPE.value,))
 
     recon_ftensors = {}
@@ -132,11 +144,27 @@ def intra_coding(
         clipped_ftensor = ftensor.clamp(min=-clip_bnd, max=clip_bnd)
         # sigma clipping done
 
+        # center data and get DC values
+        dc, centered_ftensor = _center_data(ftensor)
+
+        (
+            byte_spent,
+            byte_array,
+            quantized_dc,
+        ) = _quantize_and_encode(
+            dc, sps.qp + sps.dc_qp_offset, sps.qp_density + sps.dc_qp_density_offset
+        )
+
+        byte_cnt += write_uints(bitstream_fd, (byte_spent,))
+        byte_cnt += byte_spent
+        bitstream_fd.write(byte_array)
+        # end
+
         (
             byte_spent,
             byte_array,
             quantized_ftensor,
-        ) = _quantize_and_encode(clipped_ftensor, sps.qp, sps.qp_density)
+        ) = _quantize_and_encode(centered_ftensor, sps.qp, sps.qp_density)
 
         byte_cnt += write_uints(bitstream_fd, (byte_spent,))
         byte_cnt += byte_spent
@@ -183,6 +211,18 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
         nb_channels_coded_ftensor = len(channel_collections)
         # - 1
 
+        # decoding DCs
+        byte_to_read = read_uints(bitstream_fd, 1)[0]
+        byte_array = bitstream_fd.read(byte_to_read)
+        dequantized_dc = _dequantize_and_decode(
+            (nb_channels_coded_ftensor),
+            byte_array,
+            sps.qp + sps.dc_qp_offset,
+            sps.qp_density + sps.dc_qp_density_offset,
+        )
+        dequantized_dc = torch.from_numpy(dequantized_dc)
+
+        # end
         byte_to_read = read_uints(bitstream_fd, 1)[0]
         byte_array = bitstream_fd.read(byte_to_read)
 
@@ -190,6 +230,11 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
             (nb_channels_coded_ftensor, H, W), byte_array, sps.qp, sps.qp_density
         )
         dequantized_coded_ftensor = torch.from_numpy(dequantized_coded_ftensor)
+
+        # add dc values
+        dequantized_coded_ftensor = _add_dc_values(
+            dequantized_coded_ftensor, dequantized_dc
+        )
 
         recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32)
         for channels, ftensor in zip(

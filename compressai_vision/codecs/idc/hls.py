@@ -65,8 +65,8 @@ class SequenceParameterSet:
             C, H, W = shape
 
             assert (C % 16) == 0 and C >= 16 and C <= 4080
-            assert H >= 8 and H <= 2040
-            assert W >= 8 and W <= 2040
+            assert H <= 2040
+            assert W <= 2040
 
             # any restriction on spatial resolution for tensor?
 
@@ -91,9 +91,21 @@ class SequenceParameterSet:
 
         raise NotImplementedError
 
-    def write(self, fd, nbframes, qp, qp_density):
+    def write(
+        self,
+        fd,
+        nbframes,
+        qp,
+        qp_density,
+        is_downsampled,
+        dc_qp_offset,
+        dc_qp_density_offset,
+    ):
         byte_cnt = 0
         # encode header (sequence level)
+
+        # please review [downsample flag] TODO: @eimran mask with other flag (if possible)
+        byte_cnt += write_uchars(fd, (BoolConvert(is_downsampled),))
 
         # write original input resolution
         byte_cnt += write_uints(fd, (self.org_input_height, self.org_input_width))
@@ -120,11 +132,21 @@ class SequenceParameterSet:
         self.qp_density = qp_density
         byte_cnt += write_uchars(fd, (qp_density,))
 
+        # DC qp and density
+        self.dc_qp_offset = dc_qp_offset
+        byte_cnt += write_uchars(fd, (dc_qp_offset + 128,))  # QP
+
+        self.dc_qp_density_offset = dc_qp_density_offset
+        byte_cnt += write_uchars(fd, (dc_qp_density_offset,))  # QP_DENSITY
+
         return byte_cnt
 
     def read(self, fd):
         byte_cnt = 0
         # encode header (sequence level)
+
+        # read donwsample flag
+        self.is_downsampled = read_uchars(fd, 1)[0]
 
         # read original input resolution
         self.org_input_height, self.org_input_width = read_uints(fd, 2)
@@ -140,8 +162,8 @@ class SequenceParameterSet:
             C, H, W = read_uints(fd, 3)
 
             assert (C % 16) == 0 and C >= 16 and C <= 4080
-            assert H >= 8 and H <= 2040
-            assert W >= 8 and W <= 2040
+            assert H <= 2040
+            assert W <= 2040
 
             # any restriction on spatial resolution for tensor?
             dshape = {
@@ -162,6 +184,13 @@ class SequenceParameterSet:
 
         qp_density = read_uchars(fd, 1)[0]
         self.qp_density = qp_density
+
+        # for intra DC
+        dc_qp_offset = read_uchars(fd, 1)[0]
+        self.dc_qp_offset = int(dc_qp_offset - 128)
+
+        dc_qp_density_offset = read_uchars(fd, 1)[0]
+        self.dc_qp_density_offset = dc_qp_density_offset
 
 
 def parse_feature_tensor_coding_type(fd):
