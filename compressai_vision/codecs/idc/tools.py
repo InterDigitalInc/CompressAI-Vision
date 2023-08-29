@@ -131,15 +131,15 @@ def search_for_N_clusters(
 
     # TODO (fracape) add the following as encoder options
     # TODO: Dynamically generate these number using information theory, maybe a RDO? ^_^
-    # hard_coded_cluster_number = {
-    #    "p2": 128,
-    #    "p3": 128,
-    #    "p4": 150,
-    #    "p5": 180,
-    # }  # OpenImage Det & Seg
+    hard_coded_cluster_number = {
+        "p2": 128,
+        "p3": 128,
+        "p4": 150,
+        "p5": 180,
+    }  # OpenImage Det & Seg
     # hard_coded_cluster_number ={105: 128, 90: 256, 75: 512} # yolo
     # hard_coded_cluster_number = {"p2": 40, "p3": 256, "p4": 256, "p5": 256}
-    hard_coded_cluster_number = {"p2": 80, "p3": 180, "p4": 190, "p5": 2}  # SFU-Traffic
+    # hard_coded_cluster_number = {"p2": 80, "p3": 180, "p4": 190, "p5": 2}  # SFU-Traffic
 
     all_channel_collections_by_cluster = {}
     for tag, ftensor in feature_set.items():

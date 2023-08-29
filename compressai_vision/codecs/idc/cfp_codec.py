@@ -34,6 +34,7 @@ from typing import Dict, List, Union
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from tqdm import tqdm
 
 from compressai_vision.registry import register_codec
@@ -89,8 +90,18 @@ class CFP_CODEC(nn.Module):
 
         self.device = kwargs["vision_model"].device
 
+        self.downsample = self.enc_cfg["downsample"]
+
         self.qp = self.enc_cfg["qp"]
         self.qp_density = self.enc_cfg["qp_density"]
+        assert 0 < self.qp_density <= 5, "0 < QP_DENSITY <= 5"
+
+        self.dc_qp_offset = self.enc_cfg["dc_qp_offset"]
+        self.dc_qp_density_offset = self.enc_cfg["dc_qp_density_offset"]
+        assert (
+            self.qp_density + self.dc_qp_density_offset
+        ) <= 5, "DC_QP_DENSITY_OFFSET can't be more than (5-qp_density)"
+
         self.eval_encode = kwargs["eval_encode"]
 
         assert (
@@ -145,6 +156,15 @@ class CFP_CODEC(nn.Module):
 
         self.logger.info("Encoding starts...")
 
+        # Downsample
+        if self.downsample:
+            for tag, layer_data in input["data"].items():
+                input["data"][tag] = F.interpolate(
+                    layer_data, scale_factor=(0.5, 0.5), mode="bicubic"
+                )
+                # TODO: @eimran Try other modes
+                # Adaptive mode could be encoded in bitstream
+
         # check Layers lengths
         layer_nbframes = [
             layer_data.size()[0] for _, layer_data in input["data"].items()
@@ -169,7 +189,15 @@ class CFP_CODEC(nn.Module):
         # write sps
         # TODO (fracape) nbframes, qp, qp_density are temporary syntax.
         # These are removed later
-        hls_header_bytes = sps.write(bitstream_fd, nbframes, self.qp, self.qp_density)
+        hls_header_bytes = sps.write(
+            bitstream_fd,
+            nbframes,
+            self.qp,
+            self.qp_density,
+            self.downsample,
+            self.dc_qp_offset,
+            self.dc_qp_density_offset,
+        )
 
         bytes_total = hls_header_bytes
         for e, feature_tensor in iterate_list_of_tensors(input["data"]):
@@ -255,22 +283,13 @@ class CFP_CODEC(nn.Module):
         for key, item in recon_ftensors.items():
             recon_ftensors[key] = torch.stack(item)
 
+        # upsample
+        if sps.is_downsampled:
+            for key, item in recon_ftensors.items():
+                recon_ftensors[key] = F.interpolate(
+                    item, scale_factor=(2, 2), mode="bicubic"
+                )
+
         output["data"] = recon_ftensors
 
         return output
-
-    # ??
-    def _subtract_mean_from_each_ch(self, representative_samples_dict):
-        mean_dict = {}
-        result = {}
-        for cluster_no, representative_sample in representative_samples_dict.items():
-            mean_ch = np.mean(representative_sample)
-            result[cluster_no] = representative_sample - mean_ch
-            mean_dict[cluster_no] = mean_ch
-        return result, mean_dict
-
-    def _add_mean_to_each_ch(self, representative_samples_dict, mean_dict):
-        result = {}
-        for cluster_no, representative_sample in representative_samples_dict.items():
-            result[cluster_no] = representative_sample + mean_dict[cluster_no]
-        return result

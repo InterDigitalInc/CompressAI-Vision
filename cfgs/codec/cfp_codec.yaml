@@ -1,15 +1,28 @@
 type: "cfp_codec"
 eval_encode: "bitrate" # or "bpp" 
-output_dir: "${paths._runs_root}/${.type}"
-bitstream_dir: "${.output_dir}"
+output_dir: "${paths._runs_root}/${pipeline.name}-${pipeline.type}/${.type}/QP_${.encoder_config.qp}/QP_DENSITY_${.encoder_config.qp_density}"
+bitstream_dir: "${.output_dir}/bitstreams/"
 bitstream_name: "default.bin"
 log_dir: "${.output_dir}"
 
 encoder_config:
-  intra_period: 64
+  # preprocessing
+  downsample: True
+
+  # inter cfg
+  intra_period: -1
   group_of_tensor: 32
+
+  # qp
   qp: 8
-  qp_density: 2
+  qp_density: 2 #  (range = [1, 5])
+
+  # qp - dc
+  dc_qp_offset: -60
+  # max (dc_qp_density_offset) = (5 - qp_density)
+  dc_qp_density_offset: 3 # has significant impact on mAP 
+
+  # output
   output_bitstream: "${..bitstream_name}" 
   
 decoder_config:
