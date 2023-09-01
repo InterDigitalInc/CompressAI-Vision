@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import errno
+import json
 import logging
 import os
 import subprocess
@@ -43,6 +44,7 @@ from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 
+from .encdec_utils import get_raw_video_file_info
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
 
 
@@ -98,17 +100,12 @@ class VTM(nn.Module):
         # TODO (fracape) hacky, create separate function with LUT
         self.dataset = dataset_name
         if "sfu" in dataset_name:
-            self.dataset = "SFU"
+            self.datacatalog = "SFU"
+        else:
+            self.datacatalog = dataset_name
         self.vision_model = vision_model
-        self.bitstream_dir = Path(kwargs["bitstream_dir"])
-        self.bitstream_name = kwargs["bitstream_name"]
-        if not self.bitstream_dir.is_dir():
-            self.bitstream_dir.mkdir(parents=True, exist_ok=True)
-        self.log_dir = Path(kwargs["log_dir"])
-        if not self.log_dir.is_dir():
-            self.log_dir.mkdir(parents=True, exist_ok=True)
 
-        self.min_max_dataset = MIN_MAX_DATASET[self.dataset]
+        self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
 
@@ -165,15 +162,10 @@ class VTM(nn.Module):
     def encode(
         self,
         x: Dict,
+        codec_output_dir,
+        bitstream_name,
         file_prefix: str = "",
     ) -> bool:
-        if file_prefix == "":
-            file_prefix = self.bitstream_name.split(".")[0]
-
-        yuv_in_path = f"{self.dump_yuv['yuv_in_dir']}/{file_prefix}_in.yuv"
-        bitstream_path = f"{self.bitstream_dir}/{file_prefix}.bin"
-        logpath = Path(f"{self.log_dir}/{file_prefix}_enc.log")
-
         bitdepth = 10  # TODO (fracape) (add this as config)
 
         (
@@ -186,19 +178,24 @@ class VTM(nn.Module):
         minv, maxv = self.min_max_dataset
         frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
 
-        nbframes, self.frame_height, self.frame_width = frames.size()
+        nbframes, frame_height, frame_width = frames.size()
+        frmRate = self.frame_rate if nbframes > 1 else 1
 
-        # TODO (fracape) setWriter in init?
+        if file_prefix == "":
+            file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+
+        yuv_in_path = f"{file_prefix}_input.yuv"
+        bitstream_path = f"{file_prefix}.bin"
+        logpath = Path(f"{file_prefix}_enc.log")
+
         self.yuvio.setWriter(
             write_path=yuv_in_path,
-            frmWidth=self.frame_width,
-            frmHeight=self.frame_height,
+            frmWidth=frame_width,
+            frmHeight=frame_height,
         )
 
         for frame in frames:
             self.yuvio.write_single_frame(frame, mid_level=mid_level)
-
-        frmRate = self.frame_rate if nbframes > 1 else 1
 
         cmd = self.get_encode_cmd(
             yuv_in_path,
@@ -226,35 +223,40 @@ class VTM(nn.Module):
             "bitstream": bitstream_path,
         }
 
-    def decode(self, bitstream_path: Path = None, file_prefix: str = "") -> bool:
+    def decode(
+        self,
+        bitstream_path: Path = None,
+        codec_output_dir: str = "",
+        file_prefix: str = "",
+    ) -> bool:
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
         if file_prefix == "":
             file_prefix = bitstream_path.stem
 
-        yuv_dec_path = f"{self.dump_yuv['yuv_dec_dir']}/{file_prefix}_dec.yuv"
+        video_info = get_raw_video_file_info(file_prefix.split("qp")[-1])
+        frame_width = video_info["width"]
+        frame_height = video_info["height"]
+        yuv_dec_path = f"{codec_output_dir}/{file_prefix}_dec.yuv"
         cmd = self.get_decode_cmd(
             bitstream_path=bitstream_path, yuv_dec_path=yuv_dec_path
         )
         # self.logger.debug(cmd)
-        logpath = Path(f"{self.log_dir}/{file_prefix}_dec.log")
+        logpath = Path(f"{codec_output_dir}/{file_prefix}_dec.log")
 
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
         dec_time = time.time() - start
         # self.logger.debug(f"dec_time:{dec_time}")
 
-        # TODO (fracape) setReader in init?
         self.yuvio.setReader(
             read_path=yuv_dec_path,
-            frmWidth=self.frame_width,
-            frmHeight=self.frame_height,
+            frmWidth=frame_width,
+            frmHeight=frame_height,
         )
 
-        nbframes = get_filesize(yuv_dec_path) // (
-            self.frame_width * self.frame_height * 2
-        )
+        nbframes = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
 
         rec_frames = []
         for i in range(nbframes):
@@ -267,10 +269,21 @@ class VTM(nn.Module):
         rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
         # TODO (fracape) should feature sizes be part of bitstream?
+        thisdir = Path(__file__).parent
+        fpn_sizes = thisdir.joinpath(
+            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset}.json"
+        )
+        with fpn_sizes.open("r") as f:
+            try:
+                json_dict = json.load(f)
+            except json.decoder.JSONDecodeError as err:
+                print(f'Error reading file "{fpn_sizes}"')
+                raise err
+
         features = self.vision_model.reshape_frame_to_feature_pyramid(
             rec_frames,
-            self.feature_size,
-            self.subframe_heights,
+            json_dict["fpn"],
+            json_dict["subframe_heights"],
             packing_all_in_one=True,
         )
 

@@ -13,6 +13,8 @@ pipeline:
   type: "video"
   codec:
     encode_only: False
+    decode_only: False
+
 
 dataset:
   type: "Detectron2Dataset"

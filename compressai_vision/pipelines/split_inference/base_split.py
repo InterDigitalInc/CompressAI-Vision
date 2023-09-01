@@ -93,9 +93,13 @@ class BaseSplit(nn.Module):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.configs = configs
         self.device = device
-        self.output_dir = self.configs["output_dir"]
+        self.output_dir = self.configs["output_dir_root"]
         assert self.output_dir, "please provide output directory!"
-        Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+        self._create_folder(self.output_dir)
+        self.bitstream_name = self.configs["codec"]["bitstream_name"]
+
+        self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
+        self._create_folder(self.codec_output_dir)
 
     def _from_input_to_features(
         self, vision_model: BaseWrapper, x: Dict, seq_name: str = None
@@ -171,23 +175,29 @@ class BaseSplit(nn.Module):
             open(os.path.join(conformance_files_path, dump_file_name), "w"),
         )
 
-    def _compress_features(self, codec, x, filename: str):
+    def _compress_features(
+        self, codec, x, codec_output_dir, bitstream_name, filename: str
+    ):
         return codec.encode(
             x,
+            codec_output_dir,
+            bitstream_name,
             filename,
         )
 
-    def _decompress_features(self, codec, bitstream, filename: str):
+    def _decompress_features(
+        self, codec, bitstream, codec_output_dir: str, filename: str
+    ):
         return codec.decode(
             bitstream,
+            codec_output_dir,
             filename,
         )
 
     def _evaluation(self, evaluator: Callable) -> Dict:
         save_path = None
         if self.configs["evaluation"].dump:
-            if self.configs["evaluation"].evaluation_dir is None:
-                save_path = self._create_folder(self.configs["evaluation"])
+            save_path = self._create_folder(self.configs["evaluation"].evaluation_dir)
 
         out = evaluator.results(save_path)
 
@@ -204,14 +214,3 @@ class BaseSplit(nn.Module):
             path.mkdir(parents=True, exist_ok=True)
 
         return path
-
-
-# TODO (fracape, choih) this might be needed later
-# def __del__(self):
-#     if self.dump_features:
-#         return
-#     if not self.chache_features:
-#         return
-
-#     self.logger.debug("removing %s", self._caching_folder)
-#     shutil.rmtree(self._caching_folder)

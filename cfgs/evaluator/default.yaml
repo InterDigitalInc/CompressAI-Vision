@@ -1,2 +1,2 @@
-type: 'COCO-EVAL'
-output: '${paths._runs_root}/${pipeline.name}-${pipeline.type}/${codec.type}/${dataset.config.dataset_name}/results'
+type: "COCO-EVAL"
+output: "${pipeline.evaluation.evaluation_dir}"

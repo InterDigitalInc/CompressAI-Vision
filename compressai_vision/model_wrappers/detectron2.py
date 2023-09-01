@@ -72,6 +72,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
 
+        assert "splits" in kwargs, "Split layer ids must be provided"
+        layer_list = kwargs["splits"]
+        self.features_at_splits = dict(zip(layer_list, [None] * len(layer_list)))
+
         assert self.top_block is not None
         assert self.proposal_generator is not None
 
@@ -115,6 +119,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         cdummy = dummy(input_img_size)
 
+        # Replacing tag names for interfacing with NN-part2
+        x = dict(zip(self.features_at_splits.keys(), x.values()))
         x.update({"p6": self.top_block(x["p5"])[0]})
 
         proposals, _ = self.proposal_generator(cdummy, x, None)

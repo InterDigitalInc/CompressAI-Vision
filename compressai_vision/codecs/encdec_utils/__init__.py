@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .rawvideo import get_raw_video_file_info
 from .readwrite import (
     Average,
     BoolConvert,
@@ -49,4 +50,5 @@ __all__ = [
     "read_uchars",
     "write_bytes",
     "read_bytes",
+    "get_raw_video_file_info",
 ]

@@ -84,7 +84,6 @@ class CFP_CODEC(nn.Module):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.enc_cfg = kwargs["encoder_config"]
-        self.dec_cfg = kwargs["decoder_config"]
 
         self.deep_feature_proxy = kwargs["vision_model"].deep_feature_proxy
 
@@ -108,17 +107,13 @@ class CFP_CODEC(nn.Module):
             self.enc_cfg["qp"] is not None
         ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
 
-        self.bitstream_dir = Path(kwargs["bitstream_dir"])
-        if not self.bitstream_dir.is_dir():
-            self.bitstream_dir.mkdir(parents=True, exist_ok=True)
-
         # encoder parameters & buffers
         self.reset()
 
     def reset(self):
         self.feature_set_order_count = -1
         self.decoded_tensor_buffer = []
-        self._bitstream_path = None
+        # self._bitstream_path = None
         self._bitstream_fd = None
 
     @property
@@ -129,9 +124,9 @@ class CFP_CODEC(nn.Module):
     def eval_encode_type(self):
         return self.eval_encode
 
-    def set_bitstream_path(self, fname, mode="rb"):
-        self._bitstream_path = self.bitstream_dir / f"{fname}"
-        fd = self.open_bitstream_file(self._bitstream_path, mode)
+    def set_bitstream_handle(self, fname, mode="rb"):
+        # self._bitstream_path = self.codec_output_dir / f"{fname}"
+        fd = self.open_bitstream_file(fname, mode)
         return fd
 
     def open_bitstream_file(self, path, mode="rb"):
@@ -142,13 +137,15 @@ class CFP_CODEC(nn.Module):
         if self._bitstream_fd:
             self._bitstream_fd.close()
 
-    @property
-    def bitstream_path(self):
-        return self._bitstream_path
+    # @property
+    # def bitstream_path(self):
+    #     return self._bitstream_path
 
     def encode(
         self,
         input: Dict,
+        codec_output_dir,
+        bitstream_name,
         file_prefix: str = "",
     ) -> Dict:
         hls_header_bytes = 0
@@ -174,9 +171,10 @@ class CFP_CODEC(nn.Module):
         # nbframes = 2  # for debugging
 
         if file_prefix == "":
-            file_prefix = self.enc_cfg["output_bitstream"].split(".")[0]
+            file_prefix = f"{codec_output_dir}/{bitstream_name}"
+        bitstream_path = f"{file_prefix}.bin"
 
-        bitstream_fd = self.set_bitstream_path(f"{file_prefix}.bin", "wb")
+        bitstream_fd = self.set_bitstream_handle(bitstream_path, "wb")
 
         # parsing encoder configurations
         intra_period = self.enc_cfg["intra_period"]
@@ -234,14 +232,17 @@ class CFP_CODEC(nn.Module):
 
         return {
             "bytes": bytes_per_ftensor_set,
-            "bitstream": self.bitstream_path,
+            "bitstream": bitstream_path,
         }
 
     def decode(
         self,
         input: str,
+        codec_output_dir: str = "",
         file_prefix: str = "",
     ):
+        del codec_output_dir  # used in other codecs that write log files
+        del file_prefix
         self.logger.info("Decoding starts...")
 
         output = {}
@@ -266,7 +267,7 @@ class CFP_CODEC(nn.Module):
         ftensor_tags = [i for i in range(sps.size_of_feature_set)]
 
         recon_ftensors = dict(zip(ftensor_tags, [[] for _ in range(len(ftensor_tags))]))
-        for ftensor_set_idx in range(sps.nbframes):
+        for ftensor_set_idx in tqdm(range(sps.nbframes)):
             # print(ftensor_set_idx)
 
             # read coding type
