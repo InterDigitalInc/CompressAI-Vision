@@ -45,10 +45,10 @@ class Bypass(nn.Module):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.qp = None
         self.eval_encode = kwargs["eval_encode"]
-        output_dir = Path(kwargs["output_dir"])
-        if not output_dir.is_dir():
-            self.logger.info(f"creating output folder: {output_dir}")
-            output_dir.mkdir(parents=True, exist_ok=True)
+        # output_dir = Path(kwargs["output_dir"])
+        # if not output_dir.is_dir():
+        #     self.logger.info(f"creating output folder: {output_dir}")
+        #     output_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def qp_value(self):
@@ -61,6 +61,8 @@ class Bypass(nn.Module):
     def encode(
         self,
         input: Dict,
+        codec_output_dir: str = "",
+        bitstream_name: str = "",
         file_prefix: str = "",
     ) -> Dict:
         """
@@ -68,27 +70,32 @@ class Bypass(nn.Module):
         Returns the input and calculates its raw size
         """
         del file_prefix  # used in other codecs that write bitstream files
+        del bitstream_name  # used in other codecs that write bitstream files
+        del codec_output_dir  # used in other codecs that write log files
 
         total_elements = 0
-        for ft in input["data"].values():
+        for _, ft in input["data"].items():
+            N = ft.size(0)
             total_elements += _number_of_elements(ft.size())
 
         # write input
         total_bytes = total_elements * 4  # 32-bit floating
 
+        total_bytes = [total_bytes / N] * H
+
         return {
-            "bytes": [
-                total_bytes,
-            ],
+            "bytes": total_bytes,
             "bitstream": input,
         }
 
     def decode(
         self,
         input: Dict,
+        codec_output_dir: str = "",
         file_prefix: str = "",
     ):
-        del file_prefix  # used in other codecs that write bitstream files
+        del file_prefix  # used in other codecs that write log files
+        del codec_output_dir  # used in other codecs that write log files
         return input
 
 

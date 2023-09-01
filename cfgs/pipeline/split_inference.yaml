@@ -19,18 +19,21 @@ nn_task_part1:
     load_features: False
     dump_features: True
     generate_features_only: False
-    feature_dir: ${..output_dir}/${dataset.config.dataset_name}/features
+    feature_dir: "${..output_dir_root}/features/${dataset.config.dataset_name}"
 codec:
     encode_only: False
     decode_only: False
+    # following variables fetched from codec cfg, needed for decode_only pipeline
+    codec_output_dir: "${codec.output_dir}/codec_output"
+    bitstream_name: "${codec.bitstream_name}"
 nn_task_part2:
     dump_results: False
-    output_results_dir: ${..output_dir}/${dataset.config.dataset_name}/output_results
+    output_results_dir: "${codec.output_dir}/output_results"
 conformance:
     save_conformance_files: False
     subsample_ratio: 9
-    conformance_files_path: ${..output_dir}/${dataset.config.dataset_name}/conformance_files/
+    conformance_files_path: "${codec.output_dir}/conformance_files/"
 evaluation:
     bypass: False
     dump: True
-    evaluation_dir: ${..output_dir}/${dataset.config.dataset_name}/evaluation
+    evaluation_dir: "${codec.output_dir}/evaluation"

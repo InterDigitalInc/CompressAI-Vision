@@ -28,7 +28,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 import torch
 from torch.utils.data import DataLoader
@@ -51,7 +52,19 @@ class VideoSplitInference(BaseSplit):
     ):
         super().__init__(configs, device)
 
-        self._fold_data_buffer = None
+        self._frame_data_buffer = None
+
+    def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
+        gt_inputs = []
+        file_names = []
+        for _, d in enumerate(dataloader):
+            gt_inputs.append(
+                [
+                    {"image_id": d[0]["image_id"]},
+                ]
+            )
+            file_names.append(d[0]["file_name"])
+        return gt_inputs, file_names
 
     def __call__(
         self,
@@ -64,62 +77,78 @@ class VideoSplitInference(BaseSplit):
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
-
         features = {}
-        gt_inputs = []
-        file_names = []
+        gt_inputs, file_names = self.build_input_lists(dataloader)
 
-        self.logger.info("Processing NN-Part1...")
-        for e, d in enumerate(tqdm(dataloader)):
-            # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
-            # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
+        if not self.configs["codec"]["decode_only"]:
+            # NN-part-1
+            for e, d in enumerate(tqdm(dataloader)):
+                # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
+                # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
 
-            output_file_prefix = f'img_id_{d[0]["image_id"]}'
-            gt_inputs.append(
-                [
-                    {"image_id": d[0]["image_id"]},
-                ]
-            )
+                output_file_prefix = f'img_id_{d[0]["image_id"]}'
 
-            file_names.append(d[0]["file_name"])
+                res = self._from_input_to_features(vision_model, d, output_file_prefix)
 
-            res = self._from_input_to_features(vision_model, d, output_file_prefix)
+                assert "data" in res
+                num_items = self._data_buffering(res["data"])
 
-            assert "data" in res
-            num_items = self._data_buffering(res["data"])
+                if e == 0:
+                    org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
+                    features["org_input_size"] = org_img_size
+                    features["input_size"] = res["input_size"]
 
-            if e == 0:
-                org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
-                features["org_input_size"] = org_img_size
-                features["input_size"] = res["input_size"]
+                    out_res = d[0].copy()
+                    del (
+                        out_res["image"],
+                        out_res["width"],
+                        out_res["height"],
+                        out_res["image_id"],
+                    )
+                    out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
+                    out_res["input_size"] = features["input_size"][0]
 
-                out_res = d[0].copy()
-                del (
-                    out_res["image"],
-                    out_res["width"],
-                    out_res["height"],
-                    out_res["image_id"],
+            assert num_items == len(dataloader)
+
+            if self.configs["nn_task_part1"].generate_features_only is True:
+                print(
+                    f"features generated in {self.configs['nn_task_part1']['feature_dir']}\n exiting"
                 )
-                out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
-                out_res["input_size"] = features["input_size"][0]
+                raise SystemExit(0)
+            # concatenate a list of tensors at each keyword item
+            features["data"] = self._concat_data()
 
-        assert num_items == len(dataloader)
-
-        if self.configs["nn_task_part1"].generate_features_only is True:
-            print(
-                f"features generated in {self.configs['nn_task_part1']['feature_dir']}\n exiting"
+            # Feature Compression
+            res = self._compress_features(
+                codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
-            raise SystemExit(0)
-        # concatenate a list of tensors at each keyword item
-        features["data"] = self._concat_data()
 
-        res = self._compress_features(codec, features, "")
+            if self.configs["codec"]["encode_only"] is True:
+                print(f"bitstreams generated, exiting")
+                raise SystemExit(0)
+        else:  # decode only
+            res = {}
+            bin_files = [
+                file_path
+                for file_path in self.codec_output_dir.glob(
+                    f"{self.bitstream_name}*.bin"
+                )
+            ]
+            assert (
+                len(bin_files) > 0
+            ), f"no bitstream file matching {self.bitstream_name}*.bin"
+            assert (
+                len(bin_files) == 1
+            ), "Error, multiple bitstream files matching {self.bitstream_name}*.bin"
+            res["bitstream"] = bin_files[0]
+            # if not res["bitstream"].is_file():
+            #     raise FileNotFoundError(f"{res['bitstream']}")
+            bitstream_bytes = res["bitstream"].stat().st_size
 
-        if self.configs["codec"]["encode_only"] is True:
-            print(f"bitstreams generated, exiting")
-            raise SystemExit(0)
-
-        dec_features = self._decompress_features(codec, res["bitstream"], "")
+        # Feature Deompression
+        dec_features = self._decompress_features(
+            codec, res["bitstream"], self.codec_output_dir, ""
+        )
 
         # "org_input_size" and "input_size" are supposed to be present
         # in the dictionary of dec_features
@@ -135,17 +164,17 @@ class VideoSplitInference(BaseSplit):
             )
             dec_features["input_size"] = features["input_size"]
 
-        # Replacing tag names to be safe for interfacing with NN-part2
-        dec_features["data"] = dict(
-            zip(features["data"].keys(), dec_features["data"].values())
-        )
+        # # Replacing tag names to be safe for interfacing with NN-part2
+        # dec_features["data"] = dict(
+        #     zip(features["data"].keys(), dec_features["data"].values())
+        # )
 
         # separate a tensor of each keyword item into a list of tensors
         dec_feature_tensor = self._split_data(dec_features["data"])
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in self._iterate_items(dec_feature_tensor, num_items):
+        for e, data in tqdm(self._iterate_items(dec_feature_tensor, len(dataloader))):
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["qp"] = (
@@ -156,7 +185,10 @@ class VideoSplitInference(BaseSplit):
 
             out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])
-            out_res["bytes"] = res["bytes"][e]
+            if self.configs["codec"]["decode_only"]:
+                out_res["bytes"] = bitstream_bytes / len(dataloader)
+            else:
+                out_res["bytes"] = res["bytes"][e]
             out_res["coded_order"] = e
             out_res["input_size"] = dec_features["input_size"][0]
             out_res[
@@ -175,28 +207,28 @@ class VideoSplitInference(BaseSplit):
         Piling up input data along the 0 axis for each dictionary item
         """
 
-        if self._fold_data_buffer is None:
-            self._fold_data_buffer = {}
+        if self._frame_data_buffer is None:
+            self._frame_data_buffer = {}
 
             for key, tensor in data.items():
-                self._fold_data_buffer[key] = [
+                self._frame_data_buffer[key] = [
                     to_cpu(tensor),
                 ]
             return
 
         for key, tensor in data.items():
-            self._fold_data_buffer[key].append(to_cpu(tensor))
+            self._frame_data_buffer[key].append(to_cpu(tensor))
 
-        len_items = [len(buffer) for buffer in self._fold_data_buffer.values()]
+        len_items = [len(buffer) for buffer in self._frame_data_buffer.values()]
 
         return len_items[0]
 
     def _concat_data(self):
         output = {}
-        for key, tensor in self._fold_data_buffer.items():
+        for key, tensor in self._frame_data_buffer.items():
             output[key] = torch.concat(tensor, dim=0)
 
-        self._fold_data_buffer = None
+        self._frame_data_buffer = None
 
         return output
 
