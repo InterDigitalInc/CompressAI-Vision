@@ -45,6 +45,7 @@ class Bypass(nn.Module):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.qp = None
         self.eval_encode = kwargs["eval_encode"]
+        self.nbit_quant = kwargs["encoder_config"]["nbit_quant"]
         # output_dir = Path(kwargs["output_dir"])
         # if not output_dir.is_dir():
         #     self.logger.info(f"creating output folder: {output_dir}")
@@ -73,15 +74,30 @@ class Bypass(nn.Module):
         del bitstream_name  # used in other codecs that write bitstream files
         del codec_output_dir  # used in other codecs that write log files
 
+        # for n-bit quantization error experiments
+        max_lvl = ((2**self.nbit_quant) - 1) if self.nbit_quant != -1 else None
+
         total_elements = 0
-        for _, ft in input["data"].items():
+        for tag, ft in input["data"].items():
             N = ft.size(0)
             total_elements += _number_of_elements(ft.size())
+
+            # for n-bit quantization error experiments
+            if max_lvl is not None:
+                minv = ft.min()
+                maxv = ft.max()
+
+                quant_ft = (ft - minv) / (maxv - minv)
+                quant_ft = quant_ft.clamp_(0, 1) * max_lvl
+                quant_ft = quant_ft.round() / max_lvl
+                quant_ft = (quant_ft * (maxv - minv)) + minv
+
+                input["data"][tag] = quant_ft
 
         # write input
         total_bytes = total_elements * 4  # 32-bit floating
 
-        total_bytes = [total_bytes / N] * H
+        total_bytes = [total_bytes / N] * N
 
         return {
             "bytes": total_bytes,
