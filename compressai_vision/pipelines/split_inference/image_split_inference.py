@@ -30,6 +30,7 @@
 import logging
 import os
 import shutil
+import time
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
@@ -69,6 +70,7 @@ class ImageSplitInference(BaseSplit):
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
         output_list = []
+        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
         for e, d in enumerate(tqdm(dataloader)):
             # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
             # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
@@ -77,14 +79,24 @@ class ImageSplitInference(BaseSplit):
 
             file_prefix = f'img_id_{d[0]["image_id"]}'
 
+            start = time.time()
             featureT = self._from_input_to_features(vision_model, d, file_prefix)
+            end = time.time()
+            timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+
             featureT["org_input_size"] = org_img_size
 
+            start = time.time()
             res = self._compress_features(codec, featureT, file_prefix)
+            end = time.time()
+            timing["encode"] = timing["encode"] + (end - start)
 
+            start = time.time()
             dec_features = self._decompress_features(
                 codec, res["bitstream"], file_prefix
             )
+            end = time.time()
+            timing["decode"] = timing["decode"] + (end - start)
 
             # Replacing tag names to be safe for interfacing with NN-part2
             dec_features["data"] = dict(
@@ -95,7 +107,7 @@ class ImageSplitInference(BaseSplit):
                 self.logger.warning(
                     " 'input_size' is referenced in hacky way at decoder side."
                 )
-                dec_features[input_size] = featureT["input_size"]
+                dec_features["input_size"] = featureT["input_size"]
 
             if not "org_input_size" in dec_features:
                 self.logger.warning(
@@ -104,9 +116,13 @@ class ImageSplitInference(BaseSplit):
                 dec_features["org_input_size"] = featureT["org_input_size"]
 
             dec_features["file_name"] = d[0]["file_name"]
+
+            start = time.time()
             pred = self._from_features_to_output(
                 vision_model, dec_features, file_prefix
             )
+            end = time.time()
+            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
             evaluator.digest(d, pred)
 
@@ -128,4 +144,4 @@ class ImageSplitInference(BaseSplit):
 
         eval_performance = self._evaluation(evaluator)
 
-        return codec.eval_encode_type, output_list, eval_performance
+        return timing, codec.eval_encode_type, output_list, eval_performance

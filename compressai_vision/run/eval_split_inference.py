@@ -116,7 +116,7 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
-    eval_encode_type, coded_res, performance = pipeline(**modules)
+    timing, eval_encode_type, coded_res, performance = pipeline(**modules)
 
     # pretty output
     coded_res_df = pd.DataFrame(coded_res)
@@ -181,22 +181,37 @@ def main(conf: DictConfig):
     seq_info_path = _get_seqinfo_path(**modules)
     performance = _summerize_performance(evaluator_name, performance)
 
-    print("Performance Metrics")
+    print("\nPerformance Metrics\n")
     if eval_encode_type == "bpp":
+        dataset_name = _get_dataset_name(**modules)
         avg_bpp = _calc_bpp(coded_res_df)
-        result_df = pd.DataFrame({"avg_bpp": avg_bpp, "end_accuracy": performance})
-        print(tabulate(result_df, headers="keys", tablefmt="psql"))
-
-    if eval_encode_type == "bitrate":
-        bitrate = _calc_bitrate(coded_res_df, seq_info_path)
         result_df = pd.DataFrame(
-            {"bitrate (kbps)": bitrate, "end_accuracy": performance}
+            {
+                "Dataset": dataset_name,
+                "qp": coded_res_df["qp"][0],
+                "avg_bpp": avg_bpp,
+                "end_accuracy": performance,
+                **timing,
+            }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
-    print(f"Summary files saved in : {evaluator_filepath}")
+    if eval_encode_type == "bitrate":
+        name, bitrate = _calc_bitrate(coded_res_df, seq_info_path)
+        result_df = pd.DataFrame(
+            {
+                "Dataset": name,
+                "qp": coded_res_df["qp"][0],
+                "bitrate (kbps)": bitrate,
+                "end_accuracy": performance,
+                **timing,
+            }
+        )
+        print(tabulate(result_df, headers="keys", tablefmt="psql"))
+
+    print(f"\nSummary files saved in : {evaluator_filepath}\n")
     result_df.to_csv(
-        os.path.join(evaluator_filepath, f'summary_{coded_res_df["qp"][0]}.csv'),
+        os.path.join(evaluator_filepath, f"summary.csv"),
         index=False,
     )
     coded_res_df.to_csv(
@@ -210,15 +225,16 @@ def _get_seq_info(seq_info_path):
     config.read(seq_info_path)
     fps = config["Sequence"]["frameRate"]
     total_frame = config["Sequence"]["seqLength"]
-    return int(fps), int(total_frame)
+    name = f'{config["Sequence"]["name"]}_{config["Sequence"]["imWidth"]}x{config["Sequence"]["imHeight"]}_{fps}'
+    return name, int(fps), int(total_frame)
 
 
 def _calc_bitrate(coded_res_df, seq_info_path):
-    fps, total_frame = _get_seq_info(seq_info_path)
+    name, fps, total_frame = _get_seq_info(seq_info_path)
     print(f"Frame Rate: {fps}, Total Frame: {total_frame}")
     total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
     bitrate = ((total_bytes * 8) * fps) / (1000 * total_frame)
-    return bitrate
+    return name, bitrate
 
 
 def _calc_bpp(coded_res_df):
@@ -244,6 +260,10 @@ def _get_evaluator_filepath(**modules):
 
 def _get_evaluator_name(**modules):
     return title(modules["evaluator"])
+
+
+def _get_dataset_name(**modules):
+    return modules["evaluator"].dataset_name
 
 
 def _get_seqinfo_path(**modules):
