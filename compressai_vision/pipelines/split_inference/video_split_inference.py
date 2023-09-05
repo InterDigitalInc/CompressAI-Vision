@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import time
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -80,6 +81,8 @@ class VideoSplitInference(BaseSplit):
         features = {}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
+        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+
         if not self.configs["codec"]["decode_only"]:
             # NN-part-1
             for e, d in enumerate(tqdm(dataloader)):
@@ -88,7 +91,10 @@ class VideoSplitInference(BaseSplit):
 
                 output_file_prefix = f'img_id_{d[0]["image_id"]}'
 
+                start = time.time()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
+                end = time.time()
+                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
                 assert "data" in res
                 num_items = self._data_buffering(res["data"])
@@ -119,9 +125,12 @@ class VideoSplitInference(BaseSplit):
             features["data"] = self._concat_data()
 
             # Feature Compression
+            start = time.time()
             res = self._compress_features(
                 codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
+            end = time.time()
+            timing["encode"] = timing["encode"] + (end - start)
 
             if self.configs["codec"]["encode_only"] is True:
                 print(f"bitstreams generated, exiting")
@@ -180,7 +189,13 @@ class VideoSplitInference(BaseSplit):
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
+
+            start = time.time()
             pred = self._from_features_to_output(vision_model, dec_features)
+            end = time.time()
+
+            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
+
             evaluator.digest(gt_inputs[e], pred)
 
             out_res = dec_features.copy()
@@ -200,7 +215,7 @@ class VideoSplitInference(BaseSplit):
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
 
-        return codec.eval_encode_type, output_list, eval_performance
+        return timing, codec.eval_encode_type, output_list, eval_performance
 
     def _data_buffering(self, data: Dict):
         """
