@@ -157,9 +157,12 @@ class VideoSplitInference(BaseSplit):
             bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
+        start = time.time()
         dec_features = self._decompress_features(
             codec, res["bitstream"], self.codec_output_dir, ""
         )
+        end = time.time()
+        timing["decode"] = timing["decode"] + (end - start)
 
         # "org_input_size" and "input_size" are supposed to be present
         # in the dictionary of dec_features
