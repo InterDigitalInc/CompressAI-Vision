@@ -14,7 +14,13 @@ CompressAI-FCVCM is an evaluation framework for compressing intermediate feature
 It helps you to develop, test and evaluate compression models with standardized tests in the context of MPEG "Feature Compression for Video Coding for Machines" (FCVCM).
 
 The figure below shows the main framework
+<<<<<<< HEAD
 >>>>>>> 24ce311 (refactoring + init docs)
+=======
+<p align="center">
+  <img src="docs/source/media/images/fcvcm-scope.png" alt="split model evaluation pipeline">
+</p>
+>>>>>>> 7c67073 (Support FFMPEG and VVENC (only support for 420))
 
 ```mermaid
 %%{init: {'themeVariables': { 'fontSize': '32px'}}}%%
@@ -61,7 +67,7 @@ CompressAI-Vision facilitates the handling and evaluation of VCM pipelines:
 
 ## Documentation
 
-A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
+A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html)
 
 <<<<<<< HEAD
 =======
@@ -89,16 +95,22 @@ To install the models relevant for the FCVCM (feature compression):
 ```
 bash scripts/env_cuda.sh 11.8
 ```
+<<<<<<< HEAD
 Then, run:, please run:
+=======
+
+Then, install the different models and related dependencies (with default versions) using
+>>>>>>> 7c67073 (Support FFMPEG and VVENC (only support for 420))
 ```
 bash scripts/install.sh
 ```
 
 For more otions, check:
 ```
-bash scritps/install.sh --help
+bash scripts/install.sh --help
 ```
 
+<<<<<<< HEAD
 The software stack includes (all with CUDA support):
 
 - [PyTorch](https://pytorch.org/)
@@ -115,6 +127,9 @@ Docker files including the software stack are also provided!
 ### Testing
 
 Until a proper test pipeline is established, for the absolute minimal testing, you can use this command to see that's nothing accutely broken:
+=======
+To install CompressAI-Vision:
+>>>>>>> 7c67073 (Support FFMPEG and VVENC (only support for 420))
 ```
 compressai-vision info
 ```

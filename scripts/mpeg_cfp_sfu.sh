@@ -1,10 +1,37 @@
 #!/usr/bin/env bash
-
 set -eu
 
-OUTPUT_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs"
+### tune the following parameters
+OUTPUT_DIR="/mnt/wekamount/scratch_fcvcm/racapef/runs"
+# OUTPUT_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs"
+
+USE_GRID="True"
+DEVICE="cuda"
+
+CODEC="cfp_codec"
+CODEC_PARAMS=""
+# e.g.
+# CODEC_PARAMS="++codec.encoder_config.clipping=True"
+
+EXPERIMENT="_test3" # e.g. "_clipping_on"
+
+QPS=`echo "5 6 7 8 9 10"`
+###
+
+CONF_NAME="eval_${CODEC}"
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ENTRY_CMD="compressai-vision-eval"
+
+mkdir -p ${OUTPUT_DIR}/slurm_logs
+
+CMD="compressai-vision-eval"
+if [ ${DEVICE} == "cuda" ]; then
+    CMD_GRID="grid batch --reservation=deepvideo \
+              --gpus 1 --cpus 1 -e ${OUTPUT_DIR}/slurm_logs/slurm-%j.err -o ${OUTPUT_DIR}/slurm_logs/slurm-%j.out"
+else
+    CMD_GRID="grid batch --nodelist=kopspgd16p \
+              --cpus 1 -e ${OUTPUT_DIR}/slurm_logs/slurm-%j.err -o ${OUTPUT_DIR}/slurm_logs/slurm-%j.out"
+fi
 
 VCM_TESTDATA="/data/datasets/MPEG-FCVCM/vcm_testdata"
 SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
@@ -25,23 +52,30 @@ for SEQ in \
             'BlowingBubbles_416x240_50_val' \
             'RaceHorses_416x240_30_val'
 do
-    for qp in {5..10}
+    for qp in ${QPS}
     do
-        ${ENTRY_CMD} --config-name=eval_cfp_codec.yaml \
+        if [ ${USE_GRID} == "True" ]; then
+            JOBNAME="${CONF_NAME}-mpeg-oiv6-objdet-qp${qp}"
+            CMD="${CMD_GRID} --job-name=${JOBNAME} -- compressai-vision-eval"
+        fi
+        ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
                     ++pipeline.type=video \
                     ++paths._runs_root=${OUTPUT_DIR} \
                     ++pipeline.conformance.save_conformance_files=True \
                     ++pipeline.conformance.subsample_ratio=9 \
                     ++codec.encoder_config.qp=${qp} \
                     ++codec.eval_encode='bitrate' \
+                    ++codec.experiment=${EXPERIMENT} \
                     ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
                     ++dataset.type=Detectron2Dataset \
                     ++dataset.datacatalog=SFUHW \
                     ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
                     ++dataset.config.annotation_file=annotations/${SEQ}.json \
                     ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-                    ++evaluator.type=COCO-EVAL
+                    ++evaluator.type=COCO-EVAL \
+                    ++misc.device="${DEVICE}"
     done
 done
 
-python ${SCRIPT_DIR}/../utils/mpeg_template_format.py --dataset SFU --result_path ${OUTPUT_DIR}/split-inference-video/cfp_codec/SFUHW/
+wait
+python ${SCRIPT_DIR}/../utils/mpeg_template_format.py --dataset SFU --result_path ${OUTPUT_DIR}/split-inference-video/${CODEC}${EXPERIMENT}/SFUHW/

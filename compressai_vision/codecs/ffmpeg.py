@@ -48,6 +48,7 @@ from .encdec_utils import get_raw_video_file_info
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
 
 
+# TODO (fracape) ffmpeg codecs could inherit from HM/VTM
 def get_filesize(filepath: Union[Path, str]) -> int:
     return Path(filepath).stat().st_size
 
@@ -71,9 +72,9 @@ def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
     p.wait()
 
 
-@register_codec("vtm")
-class VTM(nn.Module):
-    """Encoder/Decoder class for VVC - VTM reference software"""
+@register_codec("x264")
+class x264(nn.Module):
+    """Encoder/Decoder class for x265"""
 
     def __init__(
         self,
@@ -82,15 +83,6 @@ class VTM(nn.Module):
         **kwargs,
     ):
         super().__init__()
-        self.encoder_path = Path(f"{kwargs['codec_paths']['encoder_exe']}")
-        self.decoder_path = Path(f"{kwargs['codec_paths']['decoder_exe']}")
-        self.cfg_file = Path(kwargs["codec_paths"]["cfg_file"])
-
-        for file_path in [self.encoder_path, self.decoder_path, self.cfg_file]:
-            if not file_path.is_file():
-                raise FileNotFoundError(
-                    errno.ENOENT, os.strerror(errno.ENOENT), file_path
-                )
 
         self.qp = kwargs["encoder_config"]["qp"]
         self.frame_rate = kwargs["encoder_config"]["frame_rate"]
@@ -108,6 +100,10 @@ class VTM(nn.Module):
         self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
+
+        # TODO (fracape) move to cfg
+        self.preset = kwargs["encoder_config"]["preset"]
+        self.tune = kwargs["encoder_config"]["tune"]
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -130,34 +126,41 @@ class VTM(nn.Module):
         frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
-            self.encoder_path,
+            "ffmpeg",
+            "-y",
+            "-s:v",
+            f"{width}x{height}",
             "-i",
             inp_yuv_path,
-            "-c",
-            self.cfg_file,
-            "-q",
+            "-c:v",
+            "h264",
+            "-crf",
             qp,
-            "-o",
-            "/dev/null",
-            "-b",
+            "-preset",
+            self.preset,
+            "-bf",
+            0,
+            "-tune",
+            self.tune,
+            "-pix_fmt",
+            "gray10le",  # to be checked
+            "-threads",
+            "4",
             bitstream_path,
-            "-wdt",
-            width,
-            "-hgt",
-            height,
-            "-fr",
-            frmRate,
-            "-f",
-            nbframes,
-            "--InputChromaFormat=400",
-            "--InputBitDepth=10",
-            "--ConformanceWindowMode=1",  # needed?
         ]
-        return list(map(str, cmd))
+        return cmd
 
-    def get_decode_cmd(self, yuv_dec_path: Path, bitstream_path: Path) -> List[Any]:
-        cmd = [self.decoder_path, "-b", bitstream_path, "-o", yuv_dec_path, "-d", 10]
-        return list(map(str, cmd))
+    def get_decode_cmd(self, bitstream_path: Path, yuv_dec_path: Path) -> List[Any]:
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            bitstream_path,
+            "-pix_fmt",
+            "yuv420p",
+            yuv_dec_path,
+        ]
+        return cmd
 
     def encode(
         self,
@@ -185,7 +188,7 @@ class VTM(nn.Module):
             file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
 
         yuv_in_path = f"{file_prefix}_input.yuv"
-        bitstream_path = f"{file_prefix}.bin"
+        bitstream_path = f"{file_prefix}.mp4"
         logpath = Path(f"{file_prefix}_enc.log")
 
         self.yuvio.setWriter(
@@ -212,9 +215,6 @@ class VTM(nn.Module):
         run_cmdline(cmd, logpath=logpath)
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
-        assert Path(
-            bitstream_path
-        ).is_file(), f"bitstream {bitstream_path} was not created"
 
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
@@ -295,9 +295,9 @@ class VTM(nn.Module):
         return output
 
 
-@register_codec("hm")
-class HM(VTM):
-    """Encoder / Decoder class for HEVC - HM reference software"""
+@register_codec("x265")
+class x265(x264):
+    """Encoder / Decoder class for x265 - ffmpeg"""
 
     def __init__(
         self,
@@ -318,71 +318,25 @@ class HM(VTM):
         frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
-            self.encoder_path,
-            "-i",
-            inp_yuv_path,
-            "-c",
-            self.cfg_file,
-            "-q",
-            qp,
-            "-o",
-            "/dev/null",
-            "-b",
-            bitstream_path,
-            "-wdt",
-            width,
-            "-hgt",
-            height,
-            "-fr",
-            frmRate,
-            "-f",
-            nbframes,
-            "--InputChromaFormat=400",
-            "--InputBitDepth=10",
-            "--ConformanceWindowMode=1",  # needed?
-        ]
-        return list(map(str, cmd))
-
-
-@register_codec("vvenc")
-class VVENC(VTM):
-    """Encoder / Decoder class for VVC - vvenc/vvdec  software"""
-
-    def __init__(
-        self,
-        vision_model: BaseWrapper,
-        dataset_name: "str" = "",
-        **kwargs,
-    ):
-        super().__init__(vision_model, dataset_name, **kwargs)
-
-    def get_encode_cmd(
-        self,
-        inp_yuv_path: Path,
-        qp: int,
-        bitstream_path: Path,
-        width: int,
-        height: int,
-        nbframes: int = 1,
-        frmRate: int = 1,
-    ) -> List[Any]:
-        cmd = [
-            self.encoder_path,
-            "-i",
-            inp_yuv_path,
-            "-q",
-            qp,
-            "--output",
-            bitstream_path,
-            "--size",
+            "ffmpeg",
+            "-s:v",
             f"{width}x{height}",
-            "--framerate",
-            frmRate,
-            "--frames",
-            nbframes,
-            "--format",
-            "yuv420_10",
-            "--preset",
-            "fast",
+            "-i",
+            inp_yuv_path,
+            "-c:v",
+            "hevc",
+            "-crf",
+            qp,
+            "-preset",
+            self.preset,
+            "-x265-params",
+            "bframes=0",
+            "-tune",
+            self.tune,
+            "-pix_fmt",
+            "gray10le",
+            "-threads",
+            "4",
+            bitstream_path,
         ]
-        return list(map(str, cmd))
+        return cmd

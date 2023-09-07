@@ -1,6 +1,7 @@
 type: "vtm"
-eval_encode: "bpp" # or "bitrate" 
-output_dir: "${pipeline.output_dir_root}/${.type}/qp${codec.encoder_config.qp}"
+eval_encode: "bpp" # or "bitrate"
+experiment: "" # e.g. "_tool_on" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
 codec_paths:
   encoder_exe: "/pa/home/racapef/vvc/VVCSoftware_VTM/bin/EncoderAppStatic"
