@@ -5,6 +5,9 @@ output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.dataca
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 
 encoder_config:
+  # temporary config
+  n_cluster: {"p2": 128, "p3": 128, "p4": 150, "p5": 180}
+  
   # preprocessing
   downsample: True
 

@@ -109,6 +109,9 @@ class CFP_CODEC(nn.Module):
             self.enc_cfg["qp"] is not None
         ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
 
+        # get cluster number
+        self.n_cluster = self.enc_cfg["n_cluster"]
+
         # encoder parameters & buffers
         self.reset()
 
@@ -154,6 +157,7 @@ class CFP_CODEC(nn.Module):
         bytes_per_ftensor_set = []
 
         self.logger.info("Encoding starts...")
+        self.logger.info(self.n_cluster)
 
         # Downsample
         if self.downsample:
@@ -212,7 +216,7 @@ class CFP_CODEC(nn.Module):
                 eFTCType = FeatureTensorCodingType.I_TYPE
 
                 channel_collections_by_cluster = search_for_N_clusters(
-                    feature_tensor, self.deep_feature_proxy
+                    feature_tensor, self.deep_feature_proxy, self.n_cluster
                 )
 
             (

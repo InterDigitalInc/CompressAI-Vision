@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-EXPERIMENT="_sfu_cfp_test"
+EXPERIMENT="_hieve_cfp_test"
 ### tune the following parameters
 OUTPUT_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs"
 # OUTPUT_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs"
@@ -18,9 +18,13 @@ CODEC_PARAMS=""
 # CODEC_PARAMS="++codec.type=x265"
 
 
-QP_ANCHORS_SFU=`echo "22 24 26 28 30 32"`
+QP_ANCHORS_HIEVE_13=`echo "20 22 24 26 28 29"`
+QP_ANCHORS_HIEVE_16=`echo "22 24 26 28 30 31"`
+QP_ANCHORS_HIEVE_01=`echo "22 25 27 29 31 34"`
+QP_ANCHORS_HIEVE_17=`echo "22 23 24 26 27 28"`
+QP_ANCHORS_HIEVE_18=`echo "22 25 27 29 31 34"`
 
-# QPS=${QP_ANCHORS_SFU}
+
 QPS=`echo "5 6 7 8 9"`
 ###
 
@@ -38,49 +42,44 @@ else
 fi
 
 VCM_TESTDATA="/data/datasets/MPEG-FCVCM/vcm_testdata"
-SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
+HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
 
+# HIEVE - Object Tracking with JDE
 for SEQ in \
-            'Traffic_2560x1600_30_val' \
-            'Kimono_1920x1080_24_val' \
-            'ParkScene_1920x1080_24_val' \
-            'Cactus_1920x1080_50_val' \
-            'BasketballDrive_1920x1080_50_val' \
-            'BQTerrace_1920x1080_60_val' \
-            'BasketballDrill_832x480_50_val' \
-            'BQMall_832x480_60_val' \
-            'PartyScene_832x480_50_val' \
-            'RaceHorses_832x480_30_val' \
-            'BasketballPass_416x240_50_val' \
-            'BQSquare_416x240_60_val' \
-            'BlowingBubbles_416x240_50_val' \
-            'RaceHorses_416x240_30_val'
+            '13' \
+            '16' \
+            '2' \
+            '17' \
+            '18'
 do
     for qp in ${QPS}
     do
         if [ ${USE_GRID} == "True" ]; then
-            JOBNAME="${CONF_NAME}-mpeg-sfu-objdet-qp${qp}"
+            JOBNAME="${CONF_NAME}-mpeg-hieve-tracking-qp${qp}"
             CMD="${CMD_GRID} --job-name=${JOBNAME} -- compressai-vision-eval"
         fi
         ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
                     ++pipeline.type=video \
                     ++paths._runs_root=${OUTPUT_DIR} \
                     ++pipeline.conformance.save_conformance_files=True \
-                    ++pipeline.conformance.subsample_ratio=9 \
-                    ++codec.encoder_config.n_cluster='{"p2": 128, "p3": 128, "p4": 150, "p5": 180}' \
+                    ++pipeline.conformance.subsample_ratio=90 \
+                    ++codec.encoder_config.n_cluster='{105: 20, 90: 20, 75: 20}' \
                     ++codec.encoder_config.qp=${qp} \
                     ++codec.eval_encode='bitrate' \
                     ++codec.experiment=${EXPERIMENT} \
-                    ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
-                    ++dataset.type=Detectron2Dataset \
-                    ++dataset.datacatalog=SFUHW \
-                    ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
-                    ++dataset.config.annotation_file=annotations/${SEQ}.json \
-                    ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-                    ++evaluator.type=COCO-EVAL \
+                    ++vision_model.arch=jde_1088x608 \
+                    ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
+                    ++dataset.type=TrackingDataset \
+                    ++dataset.settings.patch_size="[608, 1088]" \
+                    ++dataset.datacatalog=MPEGHIEVE \
+                    ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
+                    ++dataset.config.imgs_folder=img1 \
+                    ++dataset.config.annotation_file=gt/gt.txt \
+                    ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
+                    ++evaluator.type=MOT-HIEVE-EVAL \
                     ++misc.device="${DEVICE}"
     done
 done
 
 wait
-python ${SCRIPT_DIR}/../utils/mpeg_template_format.py --dataset SFU --result_path ${OUTPUT_DIR}/split-inference-video/cfp_codec${EXPERIMENT}/SFUHW/
+python ${SCRIPT_DIR}/../utils/mpeg_template_format.py --dataset HIEVE --result_path ${OUTPUT_DIR}/split-inference-video/cfp_codec${EXPERIMENT}/MPEGHIEVE/

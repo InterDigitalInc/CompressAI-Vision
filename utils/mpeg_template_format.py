@@ -17,22 +17,31 @@ def _add_columns(result_df):
 
 def _generate_sfu_csv(result_path, dataset_name):
 
+    seq_list = [
+                'Traffic_2560x1600_30',
+                'Kimono_1920x1080_24' ,
+                'ParkScene_1920x1080_24',
+                'Cactus_1920x1080_50',
+                'BasketballDrive_1920x1080_50',
+                'BQTerrace_1920x1080_60',
+                'BasketballDrill_832x480_50',
+                'BQMall_832x480_60',
+                'PartyScene_832x480_50',
+                'RaceHorsesC_832x480_30',
+                'BasketballPass_416x240_50',
+                'BQSquare_416x240_60',
+                'BlowingBubbles_416x240_50',
+                'RaceHorses_416x240_30'
+            ]
+
     result_df = _read_df_rec(result_path)
     final_csv_path = os.path.join(result_path, f'final_{dataset_name}.csv')
 
-    result_df[['name', 'w_h', 'fps']] = result_df['Dataset'].str.split(
-        pat='_', 
-        expand=True,
-    )
-    result_df[['w', 'h']] = result_df['w_h'].str.split(
-        pat='x', 
-        expand=True,
-    )
-
     # sort
-    result_df['total_pixel'] = result_df['w'].astype(int) * result_df['h'].astype(int)
-    result_df = result_df.sort_values(by=['total_pixel', 'Dataset', 'qp'], ascending=[False, False, True])
-    result_df = result_df.drop(columns=['w', 'h','total_pixel', 'name', 'w_h', 'fps'])
+    sorterIndex = dict(zip(seq_list, range(len(seq_list))))
+    result_df['ds_rank'] = result_df['Dataset'].map(sorterIndex)
+    result_df.sort_values(['ds_rank', 'qp'], ascending = [True, True], inplace = True)
+    result_df.drop(columns=['ds_rank'], inplace = True)
 
     # add columns
     result_df = _add_columns(result_df)
