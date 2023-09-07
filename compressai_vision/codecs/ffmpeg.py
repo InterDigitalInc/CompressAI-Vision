@@ -216,6 +216,9 @@ class x264(nn.Module):
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
 
+        if not self.dump_yuv["dump_yuv_packing_input"]:
+            yuv_in_path.unlink()
+
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
         avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
@@ -271,7 +274,7 @@ class x264(nn.Module):
         minv, maxv = self.min_max_dataset
         rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
-        # TODO (fracape) should feature sizes be part of bitstream?
+        # TODO (fracape) should feature sizes be part of bitstream even for anchors
         thisdir = Path(__file__).parent
         fpn_sizes = thisdir.joinpath(
             f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset}.json"
@@ -289,6 +292,9 @@ class x264(nn.Module):
             json_dict["subframe_heights"],
             packing_all_in_one=True,
         )
+
+        if not self.dump_yuv["dump_yuv_packing_dec"]:
+            yuv_dec_path.unlink()
 
         output = {"data": features}
 

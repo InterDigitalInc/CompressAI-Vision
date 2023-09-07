@@ -216,6 +216,8 @@ class VTM(nn.Module):
             bitstream_path
         ).is_file(), f"bitstream {bitstream_path} was not created"
 
+        if not self.dump_yuv["dump_yuv_packing_input"]:
+            yuv_in_path.unlink()
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
         avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
@@ -289,6 +291,8 @@ class VTM(nn.Module):
             json_dict["subframe_heights"],
             packing_all_in_one=True,
         )
+        if not self.dump_yuv["dump_yuv_packing_dec"]:
+            yuv_dec_path.unlink()
 
         output = {"data": features}
 

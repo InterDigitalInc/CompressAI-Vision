@@ -17,6 +17,7 @@ output_dir_root: ${paths._runs_root}/${.name}-${.type}
 
 nn_task_part1:
     load_features: False
+    load_features_when_available: False
     dump_features: True
     generate_features_only: False
     feature_dir: "${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}"
