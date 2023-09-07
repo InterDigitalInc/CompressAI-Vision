@@ -21,7 +21,7 @@ dataset:
       root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
       imgs_folder: "images"
       annotation_file: "annotations/BasketballDrill_832x480_50_val.json"
-      dataset_name: 'mpeg-sfu-hw-BasketballDrill_832x480_50_val'
+      dataset_name: 'sfu-hw-BasketballDrill_832x480_50_val'
 
 evaluator:
   # type: "OIC-EVAL"

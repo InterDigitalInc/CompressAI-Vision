@@ -51,7 +51,7 @@ def compute_frame_resolution(num_channels, channel_height, channel_width):
 
     assert (short_edge * long_edge) == num_channels
 
-    # tried to make it close to square
+    # try to make it close to a square
     if channel_height > channel_width:
         height = short_edge * channel_height
         width = long_edge * channel_width

@@ -183,9 +183,7 @@ class Detectron2Dataset(BaseDataset):
             register_coco_instances(
                 dataset_name, {}, self.annotation_path, self.images_folder
             )
-            self.logger.warning(
-                f'It looks "{dataset_name}" is a new dataset and successfully registred now.'
-            )
+            self.logger.warning(f'"{dataset_name}" successfully registred.')
 
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
