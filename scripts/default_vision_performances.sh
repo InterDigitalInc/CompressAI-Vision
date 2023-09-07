@@ -50,7 +50,7 @@ ${ENTRY_CMD} --config-name=eval_example.yaml \
              ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
              ++evaluator.type=OIC-EVAL
 
-# SFU - Segmentation with Faster RCNN
+# SFU - Detection with Faster RCNN
 for SEQ in \
             'Traffic_2560x1600_30_val' \
             'Kimono_1920x1080_24_val' \

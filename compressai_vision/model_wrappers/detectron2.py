@@ -60,6 +60,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         self.device = device
         self._cfg = get_cfg()
+        self._cfg.MODEL.DEVICE = device
         self._cfg.merge_from_file(f"{root_path}/{kwargs['cfg']}")
         self.model = build_model(self._cfg).to(device).eval()
 

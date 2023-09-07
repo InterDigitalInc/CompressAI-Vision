@@ -1,11 +1,15 @@
 type: "cfp_codec"
 eval_encode: "bitrate" # or "bpp" 
-output_dir: "${pipeline.output_dir_root}/${.type}/qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
+experiment: "" # e.g. "_clipping_on" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 
 encoder_config:
   # preprocessing
   downsample: True
+
+  # clipping
+  clipping: False
 
   # inter cfg
   intra_period: -1

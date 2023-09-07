@@ -19,7 +19,7 @@ nn_task_part1:
     load_features: False
     dump_features: True
     generate_features_only: False
-    feature_dir: "${..output_dir_root}/features/${dataset.config.dataset_name}"
+    feature_dir: "${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}"
 codec:
     encode_only: False
     decode_only: False

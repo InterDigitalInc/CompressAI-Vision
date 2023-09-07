@@ -87,13 +87,15 @@ class ImageSplitInference(BaseSplit):
             featureT["org_input_size"] = org_img_size
 
             start = time.time()
-            res = self._compress_features(codec, featureT, file_prefix)
+            res = self._compress_features(
+                codec, featureT, self.codec_output_dir, self.bitstream_name, file_prefix
+            )
             end = time.time()
             timing["encode"] = timing["encode"] + (end - start)
 
             start = time.time()
             dec_features = self._decompress_features(
-                codec, res["bitstream"], file_prefix
+                codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
             end = time.time()
             timing["decode"] = timing["decode"] + (end - start)

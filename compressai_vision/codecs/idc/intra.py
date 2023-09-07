@@ -101,7 +101,7 @@ def _dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
 
 
 def intra_coding(
-    sps: SequenceParameterSet,
+    enc_cfg: Dict,
     ftensors: Dict,
     all_coding_groups: Dict,
     bitstream_fd: Any,
@@ -129,20 +129,20 @@ def intra_coding(
 
         byte_cnt += write_uchars(bitstream_fd, coding_groups + 1)
 
-        # sigma clipping
-        mu = ftensor.mean()
-        std = ftensor.std()
+        if enc_cfg["clipping"]:
+            # sigma clipping
+            mu = ftensor.mean()
+            std = ftensor.std()
 
-        min_clip = mu - (nb_sigmas[tag] * std)
-        max_clip = mu + (nb_sigmas[tag] * std)
+            min_clip = mu - (nb_sigmas[tag] * std)
+            max_clip = mu + (nb_sigmas[tag] * std)
 
-        assert max_clip >= 0
+            assert max_clip >= 0
 
-        # TODO (fracape) check best method, for now, clip at -max, max
-        clip_bnd = max(abs(min_clip), max_clip)
+            # TODO (fracape) check best method, for now, clip at -max, max
+            clip_bnd = max(abs(min_clip), max_clip)
 
-        clipped_ftensor = ftensor.clamp(min=-clip_bnd, max=clip_bnd)
-        # sigma clipping done
+            ftensor = ftensor.clamp(min=-clip_bnd, max=clip_bnd)
 
         # center data and get DC values
         dc, centered_ftensor = _center_data(ftensor)
@@ -152,7 +152,9 @@ def intra_coding(
             byte_array,
             quantized_dc,
         ) = _quantize_and_encode(
-            dc, sps.qp + sps.dc_qp_offset, sps.qp_density + sps.dc_qp_density_offset
+            dc,
+            enc_cfg["qp"] + enc_cfg["dc_qp_offset"],
+            enc_cfg["qp_density"] + enc_cfg["dc_qp_density_offset"],
         )
 
         byte_cnt += write_uints(bitstream_fd, (byte_spent,))
@@ -164,7 +166,7 @@ def intra_coding(
             byte_spent,
             byte_array,
             quantized_ftensor,
-        ) = _quantize_and_encode(centered_ftensor, sps.qp, sps.qp_density)
+        ) = _quantize_and_encode(centered_ftensor, enc_cfg["qp"], enc_cfg["qp_density"])
 
         byte_cnt += write_uints(bitstream_fd, (byte_spent,))
         byte_cnt += byte_spent
@@ -176,8 +178,12 @@ def intra_coding(
 
         dequantized_ftensor = np.zeros(quantized_ftensor.shape, dtype=np.float32)
         decoder.dequantFeatures(
-            dequantized_ftensor, quantized_ftensor, sps.qp_density, sps.qp, 0
-        )  # TODO: @eimran send qp with bitstream
+            dequantized_ftensor,
+            quantized_ftensor,
+            enc_cfg["qp_density"],
+            enc_cfg["qp"],
+            0,
+        )
         # print(dequantized_ftensor[0, :10, :10])
 
         recon_ftensors[tag] = dequantized_ftensor

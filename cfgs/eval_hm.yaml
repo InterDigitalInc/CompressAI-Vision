@@ -21,12 +21,7 @@ dataset:
       root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
       imgs_folder: "images"
       annotation_file: "annotations/BasketballDrill_832x480_50_val.json"
-      dataset_name: 'mpeg-sfu-hw-basketballdrill'
-
-      # root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballPass_416x240_50_val"
-      # imgs_folder: "images"
-      # annotation_file: "annotations/BasketballPass_416x240_50_val.json"
-      # dataset_name: 'mpeg-sfu-hw-basketballpass'
+      dataset_name: 'mpeg-sfu-hw-BasketballDrill_832x480_50_val'
 
 evaluator:
   # type: "OIC-EVAL"

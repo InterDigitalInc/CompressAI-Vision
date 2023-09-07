@@ -45,7 +45,7 @@ from .inter import inter_coding, inter_decoding
 from .intra import intra_coding, intra_decoding
 from .tools import feature_channel_suppression, search_for_N_clusters
 
-code_feature_tensor = {
+encode_feature_tensor = {
     FeatureTensorCodingType.I_TYPE: intra_coding,
     FeatureTensorCodingType.PB_TYPE: inter_coding,
 }
@@ -102,6 +102,8 @@ class CFP_CODEC(nn.Module):
         ) <= 5, "DC_QP_DENSITY_OFFSET can't be more than (5-qp_density)"
 
         self.eval_encode = kwargs["eval_encode"]
+
+        self.clipping = self.enc_cfg["clipping"]
 
         assert (
             self.enc_cfg["qp"] is not None
@@ -172,6 +174,8 @@ class CFP_CODEC(nn.Module):
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
+        else:
+            file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
         bitstream_path = f"{file_prefix}.bin"
 
         bitstream_fd = self.set_bitstream_handle(bitstream_path, "wb")
@@ -218,8 +222,13 @@ class CFP_CODEC(nn.Module):
                 feature_tensor, channel_collections_by_cluster
             )
 
-            coded_ftensor_bytes, recon_feature_channels = code_feature_tensor[eFTCType](
-                sps, feature_channels_to_code, all_channels_coding_groups, bitstream_fd
+            coded_ftensor_bytes, recon_feature_channels = encode_feature_tensor[
+                eFTCType
+            ](
+                self.enc_cfg,
+                feature_channels_to_code,
+                all_channels_coding_groups,
+                bitstream_fd,
             )
 
             bytes_total += coded_ftensor_bytes

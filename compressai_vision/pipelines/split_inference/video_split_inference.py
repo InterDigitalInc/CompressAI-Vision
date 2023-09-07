@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import re
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -142,6 +143,7 @@ class VideoSplitInference(BaseSplit):
                 for file_path in self.codec_output_dir.glob(
                     f"{self.bitstream_name}*.bin"
                 )
+                if re.match(r".[bin|mp4]", file_path)
             ]
             assert (
                 len(bin_files) > 0
