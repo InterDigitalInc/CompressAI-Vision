@@ -18,11 +18,7 @@ CODEC_PARAMS=""
 # e.g.
 # CODEC_PARAMS="++codec.type=x265"
 
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 CMD="compressai-vision-eval"
-
 
 ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
             ++pipeline.type=video \

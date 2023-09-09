@@ -7,6 +7,8 @@ EXPERIMENT=$3
 DEVICE=$4
 qp=$5
 
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}
+
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 
 CONF_NAME="eval_cfp_codec"
@@ -16,8 +18,6 @@ CONF_NAME="eval_cfp_codec"
 CODEC_PARAMS=""
 # e.g.
 # CODEC_PARAMS="++codec.type=x265"
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 CMD="compressai-vision-eval"
 
