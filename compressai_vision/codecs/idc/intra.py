@@ -38,6 +38,7 @@ from compressai_vision.codecs.encdec_utils import *
 
 from .common import FeatureTensorCodingType
 from .hls import SequenceParameterSet
+from .tools import rebuild_ftensor
 
 __all__ = [
     "intra_coding",
@@ -101,9 +102,11 @@ def _dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
 
 
 def intra_coding(
-    enc_cfg: Dict,
+    sps: SequenceParameterSet,
     ftensors: Dict,
+    clipping_enabled,
     all_coding_groups: Dict,
+    scales_for_layers: Dict,
     bitstream_fd: Any,
 ):
     byte_cnt = 0
@@ -118,6 +121,7 @@ def intra_coding(
     recon_ftensors = {}
     for tag, ftensor in ftensors.items():
         coding_groups = all_coding_groups[tag]
+        scale_minus_1 = scales_for_layers[tag] - 1
 
         # Not compressing the vector channels_coding_modes for now: can use cabac and
         # differential coding
@@ -129,7 +133,16 @@ def intra_coding(
 
         byte_cnt += write_uchars(bitstream_fd, coding_groups + 1)
 
-        if enc_cfg["clipping"]:
+        # it would be better to code by bit
+        if sps.downscale_flag:
+            byte_cnt += write_uchars(
+                bitstream_fd,
+                [
+                    scale_minus_1,
+                ],
+            )
+
+        if clipping_enabled:
             # sigma clipping
             mu = ftensor.mean()
             std = ftensor.std()
@@ -153,8 +166,8 @@ def intra_coding(
             quantized_dc,
         ) = _quantize_and_encode(
             dc,
-            enc_cfg["qp"] + enc_cfg["dc_qp_offset"],
-            enc_cfg["qp_density"] + enc_cfg["dc_qp_density_offset"],
+            sps.qp + sps.dc_qp_offset,
+            sps.qp_density + sps.dc_qp_density_offset,
         )
 
         byte_cnt += write_uints(bitstream_fd, (byte_spent,))
@@ -166,7 +179,7 @@ def intra_coding(
             byte_spent,
             byte_array,
             quantized_ftensor,
-        ) = _quantize_and_encode(centered_ftensor, enc_cfg["qp"], enc_cfg["qp_density"])
+        ) = _quantize_and_encode(centered_ftensor, sps.qp, sps.qp_density)
 
         byte_cnt += write_uints(bitstream_fd, (byte_spent,))
         byte_cnt += byte_spent
@@ -180,8 +193,8 @@ def intra_coding(
         decoder.dequantFeatures(
             dequantized_ftensor,
             quantized_ftensor,
-            enc_cfg["qp_density"],
-            enc_cfg["qp"],
+            sps.qp_density,
+            sps.qp,
             0,
         )
         # print(dequantized_ftensor[0, :10, :10])
@@ -193,28 +206,35 @@ def intra_coding(
 
 def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
     recon_ftensors = {}
+    # all_scales_for_layers = {}
     for e, shape_of_ftensor in enumerate(sps.shapes_of_features):
         C, H, W = shape_of_ftensor.values()
         coding_groups = read_uchars(bitstream_fd, C)
         coding_groups = np.array(coding_groups) - 1
 
+        scale = 1
+        if sps.downscale_flag:
+            # it would be better to read by bit
+            scale_minus_1 = read_uchars(bitstream_fd, 1)[0]
+            scale = scale_minus_1 + 1
+
         self_coded_labels = np.where(coding_groups == -1)[0]
         group_coded_labels = np.unique(coding_groups[np.where(coding_groups != -1)])
 
-        # create channel collections
-        channel_collections = {}
+        # create channel groups
+        sorted_ch_clct_by_group = {}
         for group_label in group_coded_labels:
             channel_ids = list(np.where(coding_groups == group_label)[0])
-            channel_collections[min(channel_ids)] = channel_ids
+            sorted_ch_clct_by_group[min(channel_ids)] = channel_ids
 
         for label in self_coded_labels:
-            channel_collections[label] = [label]
+            sorted_ch_clct_by_group[label] = [label]
 
-        channel_collections = dict(
-            sorted(channel_collections.items(), key=lambda item: item[0])
+        sorted_ch_clct_by_group = dict(
+            sorted(sorted_ch_clct_by_group.items(), key=lambda item: item[0])
         )
 
-        nb_channels_coded_ftensor = len(channel_collections)
+        nb_channels_coded_ftensor = len(sorted_ch_clct_by_group)
         # - 1
 
         # decoding DCs
@@ -233,7 +253,10 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
         byte_array = bitstream_fd.read(byte_to_read)
 
         dequantized_coded_ftensor = _dequantize_and_decode(
-            (nb_channels_coded_ftensor, H, W), byte_array, sps.qp, sps.qp_density
+            (nb_channels_coded_ftensor, H // scale, W // scale),
+            byte_array,
+            sps.qp,
+            sps.qp_density,
         )
         dequantized_coded_ftensor = torch.from_numpy(dequantized_coded_ftensor)
 
@@ -242,12 +265,11 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
             dequantized_coded_ftensor, dequantized_dc
         )
 
-        recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32)
-        for channels, ftensor in zip(
-            channel_collections.values(), dequantized_coded_ftensor
-        ):
-            recon_ftensor[channels] = ftensor
-
-        recon_ftensors[e] = recon_ftensor
+        recon_ftensors[e] = rebuild_ftensor(
+            sorted_ch_clct_by_group.values(),
+            dequantized_coded_ftensor,
+            scale,
+            (C, H, W),
+        )
 
     return recon_ftensors

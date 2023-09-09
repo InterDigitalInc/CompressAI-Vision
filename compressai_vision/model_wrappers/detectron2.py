@@ -139,14 +139,32 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         )
 
     @torch.no_grad()
-    def deep_feature_proxy(self, tag: Any, x: Tensor):
+    def deeper_features_for_accuracy_proxy(self, x: Dict):
         """
-        compute deeper feature tensor than NN-Part1
+        compute accuracy proxy at the deeper layer than NN-Part1
         """
 
-        assert x.dim() == 4, "Shape of the input feature tensor must be [N, C, H, W]"
-        x = x.to(self.device)
-        return self.proposal_generator.rpn_head.conv(x)
+        d = {}
+        for e, ft in enumerate(x["data"].values()):
+            nft = ft.contiguous().to(self.device)
+            assert (
+                nft.dim() == 3 or nft.dim() == 4
+            ), f"Input feature tensor dimension is supposed to be 3 or 4, but got {nft.dim()}"
+            d[e] = nft.unsqueeze(0) if nft.dim() == 3 else nft
+
+        class dummy:
+            def __init__(self, img_size: list):
+                self.image_sizes = img_size
+
+        cdummy = dummy(x["input_size"])
+
+        # Replacing tag names for interfacing with NN-part2
+        d = dict(zip(self.features_at_splits.keys(), d.values()))
+        d.update({"p6": self.top_block(d["p5"])[0]})
+
+        proposals, _ = self.proposal_generator(cdummy, d, None)
+
+        return proposals[0]
 
     @torch.no_grad()
     def forward(self, x):
