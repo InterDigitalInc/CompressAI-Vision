@@ -7,9 +7,6 @@ bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpd
 verbosity: 0
 
 encoder_config:
-
-  # temporary config
-
   # feature channel suppression optimization
   feature_channel_suppression:
     # manual clustering

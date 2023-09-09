@@ -1,6 +1,6 @@
 type: "bypass"
 eval_encode: "bpp" # or "bitrate" 
-output_dir: "${pipeline.output_dir_root}/${.type}/${dataset.datacatalog}/${dataset.config.datasetname}"
+output_dir: "${pipeline.output_dir_root}/${.type}/${dataset.datacatalog}/${dataset.config.dataset_name}"
 bitstream_name: "${dataset.config.dataset_name}"
 encoder_config:
   qp: 'uncmp'
