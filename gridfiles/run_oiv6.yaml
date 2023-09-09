@@ -1,0 +1,69 @@
+version: 2
+
+variables:
+
+  exp_name: "_oiv6"
+  device: "cuda"
+
+  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  output_dir: "./output_cfp/"
+
+  script_dir: "../cross_checking_scripts"
+
+run_oiv6_det:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_oiv6_detection.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}"
+
+  parallel:
+    matrix:
+      - qp: [7, 8, 9, 10, 11, 12]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo
+    cpus-per-task: 1
+    gpus-per-task: 1
+    output: slurm_%x_%A_%N_%s.out
+
+run_oiv6_seg:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_oiv6_segmentation.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}"
+
+  parallel:
+    matrix:
+      - qp: [7, 8, 9, 10, 11, 12]
+
+  sbatch:
+    begin: now
+    reservation: deepvideo
+    cpus-per-task: 1
+    gpus-per-task: 1
+    output: slurm_%x_%A_%N_%s.out
+
+generate_csv:
+  needs:
+    - run_oiv6_det
+    - run_oiv6_seg
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - python ../utils/mpeg_template_format.py --dataset OIV6 --result_path ${output_dir}/split-inference-image/cfp_codec${exp_name}/MPEGOIV6/
+
+  sbatch:
+    begin: now
+    cpus-per-task: 1
+    
+  
+  
+  
