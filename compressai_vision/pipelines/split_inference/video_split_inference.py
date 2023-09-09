@@ -87,9 +87,6 @@ class VideoSplitInference(BaseSplit):
         if not self.configs["codec"]["decode_only"]:
             # NN-part-1
             for e, d in enumerate(tqdm(dataloader)):
-                # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
-                # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
-
                 output_file_prefix = f'img_id_{d[0]["image_id"]}'
 
                 start = time.time()
@@ -143,7 +140,7 @@ class VideoSplitInference(BaseSplit):
                 for file_path in self.codec_output_dir.glob(
                     f"{self.bitstream_name}*.bin"
                 )
-                if re.match(r".[bin|mp4]", file_path)
+                if file_path.suffix in [".bin", ".mp4"]
             ]
             assert (
                 len(bin_files) > 0
@@ -255,7 +252,10 @@ class VideoSplitInference(BaseSplit):
     def _split_data(self, data: Dict):
         output = {}
         for key, tensor in data.items():
-            output[key] = list(tensor.chunk(len(tensor)))
+            if not isinstance(tensor, list):
+                output[key] = list(tensor.chunk(len(tensor)))
+            else:
+                output[key] = tensor
         return output
 
     def _iterate_items(self, data: Dict, num_frms: int):

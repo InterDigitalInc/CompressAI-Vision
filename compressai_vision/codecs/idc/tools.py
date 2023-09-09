@@ -273,7 +273,9 @@ def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
         gm = compute_gram_matrix(ftensor)
         hierarchy = hierarchical_clustering(gm)
 
-        num_clusters = n_clusters[tag]
+        num_clusters = ftensor.shape[0] if n_clusters[tag] is None else n_clusters[tag]
+        num_clusters = min(num_clusters, ftensor.shape[0])
+
         clustered_channels = cut_tree(hierarchy, num_clusters)
         channel_collections = collect_channels(ftensor, clustered_channels, mode)
 

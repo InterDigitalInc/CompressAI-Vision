@@ -72,9 +72,6 @@ class ImageSplitInference(BaseSplit):
         output_list = []
         timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
         for e, d in enumerate(tqdm(dataloader)):
-            # TODO [hyomin - Make DefaultDatasetLoader compatible with Detectron2DataLoader]
-            # Please reference to Detectron2 Dataset Mapper. Will face an issue when supporting Non-Detectron2-based network such as YOLO.
-
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
 
             file_prefix = f'img_id_{d[0]["image_id"]}'
