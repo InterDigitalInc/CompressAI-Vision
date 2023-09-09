@@ -102,6 +102,7 @@ class CFP_CODEC(nn.Module):
             self.qp_density + self.dc_qp_density_offset
         ) <= 5, "DC_QP_DENSITY_OFFSET can't be more than (5-qp_density)"
 
+        self.layer_qp_offsets = self.enc_cfg["layer_qp_offsets"]
         self.eval_encode = kwargs["eval_encode"]
 
         assert (
@@ -125,7 +126,7 @@ class CFP_CODEC(nn.Module):
         self.decoded_tensor_buffer = []
         # self._bitstream_path = None
         self._bitstream_fd = None
-        self._printed_enc_cfg = False
+        self._is_enc_cfg_printed = False
 
     @property
     def qp_value(self):
@@ -150,7 +151,7 @@ class CFP_CODEC(nn.Module):
 
     def _print_enc_cfg(self, enc_cfg: Dict, lvl: int = 0):
         log_str = ""
-        if lvl == 0 and self._printed_enc_cfg is True:
+        if lvl == 0 and self._is_enc_cfg_printed is True:
             return
 
         for key, val in enc_cfg.items():
@@ -167,7 +168,7 @@ class CFP_CODEC(nn.Module):
             log_str = f"\n {intro}" + log_str + f"\n {endline}" + "\n\n"
             self.logger.info(log_str)
 
-            self._print_enc_cfg = True
+            self._is_enc_cfg_printed = True
 
         return log_str
 
@@ -214,11 +215,12 @@ class CFP_CODEC(nn.Module):
         hls_header_bytes = sps.write(
             bitstream_fd,
             nbframes,
-            self.suppression_cfg["downscale"],
-            self.qp,
-            self.qp_density,
-            self.dc_qp_offset,
-            self.dc_qp_density_offset,
+            downscale_flag=self.suppression_cfg["downscale"],
+            qp=self.qp,
+            qp_density=self.qp_density,
+            layer_qp_offsets=self.layer_qp_offsets,
+            dc_qp_offset=self.dc_qp_offset,
+            dc_qp_density_offset=self.dc_qp_density_offset,
         )
 
         bytes_total = hls_header_bytes

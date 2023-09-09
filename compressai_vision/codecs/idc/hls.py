@@ -98,6 +98,7 @@ class SequenceParameterSet:
         downscale_flag,
         qp,
         qp_density,
+        layer_qp_offsets,
         dc_qp_offset,
         dc_qp_density_offset,
     ):
@@ -135,6 +136,10 @@ class SequenceParameterSet:
 
         self.qp_density = qp_density
         byte_cnt += write_uchars(fd, (qp_density,))
+
+        self.layer_qp_offsets = layer_qp_offsets
+        for layer_qp_offset in layer_qp_offsets:
+            byte_cnt += write_uchars(fd, (layer_qp_offset + 128,))
 
         # DC qp and density
         self.dc_qp_offset = dc_qp_offset
@@ -189,6 +194,12 @@ class SequenceParameterSet:
 
         qp_density = read_uchars(fd, 1)[0]
         self.qp_density = qp_density
+
+        # qp per layer
+        self.layer_qp_offsets = []
+        for _ in range(self.size_of_feature_set - 1):
+            layer_qp_offset = read_uchars(fd, 1)[0]
+            self.layer_qp_offsets.append(int(layer_qp_offset - 128))
 
         # for intra DC
         dc_qp_offset = read_uchars(fd, 1)[0]
