@@ -119,6 +119,7 @@ def intra_coding(
     byte_cnt += write_uchars(bitstream_fd, (FeatureTensorCodingType.I_TYPE.value,))
 
     recon_ftensors = {}
+    layer_idx = 0
     for tag, ftensor in ftensors.items():
         coding_groups = all_coding_groups[tag]
         scale_minus_1 = scales_for_layers[tag] - 1
@@ -175,6 +176,9 @@ def intra_coding(
         bitstream_fd.write(byte_array)
         # end
 
+        layer_qp = sps.qp
+        if layer_idx > 0:
+            layer_qp += sps.layer_qp_offsets[layer_idx - 1]
         (
             byte_spent,
             byte_array,
@@ -200,6 +204,8 @@ def intra_coding(
         # print(dequantized_ftensor[0, :10, :10])
 
         recon_ftensors[tag] = dequantized_ftensor
+
+        layer_idx + 1
 
     return byte_cnt, recon_ftensors
 
@@ -252,10 +258,14 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
         byte_to_read = read_uints(bitstream_fd, 1)[0]
         byte_array = bitstream_fd.read(byte_to_read)
 
+        qp_layer = sps.qp
+        if e > 0:
+            qp_layer += sps.layer_qp_offsets[e - 1]
+
         dequantized_coded_ftensor = _dequantize_and_decode(
             (nb_channels_coded_ftensor, H // scale, W // scale),
             byte_array,
-            sps.qp,
+            qp_layer,
             sps.qp_density,
         )
         dequantized_coded_ftensor = torch.from_numpy(dequantized_coded_ftensor)

@@ -35,6 +35,8 @@ encoder_config:
   qp: 8
   qp_density: 2 #  (range = [1, 5])
 
+  layer_qp_offsets: [0, 0, 0] # layer0 has qp, next layers: layer_i qp+layer_qp_offest[i-1]
+
   # qp - dc
   dc_qp_offset: -60
   # max (dc_qp_density_offset) = (5 - qp_density)
