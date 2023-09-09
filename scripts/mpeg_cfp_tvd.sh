@@ -64,7 +64,7 @@ do
                     ++codec.eval_encode='bitrate' \
                     ++codec.experiment=${EXPERIMENT} \
                     ++vision_model.arch=jde_1088x608 \
-                    ++vision_model.jde_1088x608.splits="[74, 61, 36]" \
+                    ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
                     ++dataset.type=TrackingDataset \
                     ++dataset.settings.patch_size="[608, 1088]" \
                     ++dataset.datacatalog=MPEGTVDTRACKING \
