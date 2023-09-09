@@ -74,8 +74,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
 
         assert "splits" in kwargs, "Split layer ids must be provided"
-        layer_list = kwargs["splits"]
-        self.features_at_splits = dict(zip(layer_list, [None] * len(layer_list)))
+        self.split_layer_list = kwargs["splits"]
+        self.features_at_splits = dict(
+            zip(self.split_layer_list, [None] * len(self.split_layer_list))
+        )
 
         assert self.top_block is not None
         assert self.proposal_generator is not None

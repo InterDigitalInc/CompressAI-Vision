@@ -83,8 +83,10 @@ class jde_1088x608(BaseWrapper):
         )
 
         assert "splits" in kwargs, "Split layer ids must be provided"
-        layer_list = kwargs["splits"]
-        self.features_at_splits = dict(zip(layer_list, [None] * len(layer_list)))
+        self.split_layer_list = kwargs["splits"]
+        self.features_at_splits = dict(
+            zip(self.split_layer_list, [None] * len(self.split_layer_list))
+        )
 
         self.darknet = Darknet(self.model_info["cfg"], device, nID=14455)
         self.darknet.load_state_dict(

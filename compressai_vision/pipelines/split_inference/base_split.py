@@ -39,6 +39,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -146,12 +147,27 @@ class BaseSplit(nn.Module):
         results_file = f"{output_results_dir}/{seq_name}{EXT}"
 
         assert "data" in x
+
+        for key, val in x["data"].items():
+            if isinstance(val, list):
+                if val[0].dim() == 3:
+                    x["data"][key] = torch.stack(val)
+                else:
+                    raise ValueError
+            elif isinstance(val, Tensor):
+                if val.dim() == 3:
+                    x["data"][key] = val.unsqueeze(0)
+            else:
+                raise ValueError
+
         if self.configs["conformance"].save_conformance_files:
             self._save_conformance_data(x)
 
-        # for _, tensor in x["data"].items():
-        #     tensor.to(self.device)
-        x["data"] = {k: v.to(device=self.device) for k, v in x["data"].items()}
+        # suppose that the order of keys and values is matched
+        x["data"] = {
+            k: v.to(device=self.device)
+            for k, v in zip(vision_model.split_layer_list, x["data"].values())
+        }
 
         results = vision_model.features_to_output(x)
         if self.configs["nn_task_part2"].dump_results:

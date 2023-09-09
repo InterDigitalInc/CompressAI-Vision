@@ -86,28 +86,15 @@ class CFP_CODEC(nn.Module):
         self.enc_cfg = kwargs["encoder_config"]
         self.suppression_cfg = self.enc_cfg["feature_channel_suppression"]
 
+        self.split_layer_list = kwargs["vision_model"].split_layer_list
         self.deeper_features_for_accuracy_proxy = kwargs[
             "vision_model"
         ].deeper_features_for_accuracy_proxy
 
         self.device = kwargs["vision_model"].device
-
-        self.qp = self.enc_cfg["qp"]
-        self.qp_density = self.enc_cfg["qp_density"]
-        assert 0 < self.qp_density <= 5, "0 < QP_DENSITY <= 5"
-
-        self.dc_qp_offset = self.enc_cfg["dc_qp_offset"]
-        self.dc_qp_density_offset = self.enc_cfg["dc_qp_density_offset"]
-        assert (
-            self.qp_density + self.dc_qp_density_offset
-        ) <= 5, "DC_QP_DENSITY_OFFSET can't be more than (5-qp_density)"
-
-        self.layer_qp_offsets = self.enc_cfg["layer_qp_offsets"]
         self.eval_encode = kwargs["eval_encode"]
 
-        assert (
-            self.enc_cfg["qp"] is not None
-        ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
+        self._sanity_check_for_configuration()
 
         self.verbosity = kwargs["verbosity"]
         logging_level = logging.WARN
@@ -149,6 +136,49 @@ class CFP_CODEC(nn.Module):
         if self._bitstream_fd:
             self._bitstream_fd.close()
 
+    def _sanity_check_for_configuration(self):
+        suppression_cfgs = self.enc_cfg["feature_channel_suppression"]
+
+        if suppression_cfgs["manual_cluster"] is True:
+            if len(suppression_cfgs["n_clusters"]) == 0:
+                self.logger.warning(
+                    "No clusters provided, manual_cluster is True though.\nFull feature channels will be coded by default"
+                )
+                self.enc_cfg["feature_channel_suppression"]["n_clusters"] = dict(
+                    zip(
+                        self.split_layer_list,
+                        [None for _ in range(len(self.split_layer_list))],
+                    )
+                )
+        self.downscale = self.suppression_cfg["downscale"]
+        self.min_nb_channels_for_group = self.suppression_cfg[
+            "min_nb_channels_for_group"
+        ]
+        self.clipping = self.enc_cfg["clipping"]
+
+        self.qp = self.enc_cfg["qp"]
+        self.qp_density = self.enc_cfg["qp_density"]
+        assert 0 < self.qp_density <= 5, "0 < QP_DENSITY <= 5"
+
+        self.dc_qp_offset = self.enc_cfg["dc_qp_offset"]
+        self.dc_qp_density_offset = self.enc_cfg["dc_qp_density_offset"]
+        assert (
+            self.qp_density + self.dc_qp_density_offset
+        ) <= 5, "DC_QP_DENSITY_OFFSET can't be more than (5-qp_density)"
+
+        self.layer_qp_offsets = self.enc_cfg["layer_qp_offsets"]
+        if len(self.layer_qp_offsets) >= len(self.split_layer_list):
+            self.logger.warning(
+                f"Number of qp offsets for layers must be less than total number of feature layers, but got {len(self.layer_qp_offsets)} >= {len(self.split_layer_list)}\n To avoid error, the first {len(self.split_layer_list)-1} offsets will be considered."
+            )
+            self.layer_qp_offsets = self.layer_qp_offsets[
+                : (len(self.split_layer_list) - 1)
+            ]
+
+        assert (
+            self.enc_cfg["qp"] is not None
+        ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
+
     def _print_enc_cfg(self, enc_cfg: Dict, lvl: int = 0):
         log_str = ""
         if lvl == 0 and self._is_enc_cfg_printed is True:
@@ -160,7 +190,7 @@ class CFP_CODEC(nn.Module):
                 log_str += self._print_enc_cfg(val, (lvl + 1))
             else:
                 sp = f"<{35-(lvl<<1)}s"
-                log_str += f"\n {' '*lvl}{'-' * lvl} {key:{sp}} : {val}"
+                log_str += f"\n {' '*lvl}{'-' * lvl} {str(key):{sp}} : {val}"
 
         if lvl == 0:
             intro = f"{'='*10} Encoder Configurations {'='*10}"
@@ -183,6 +213,7 @@ class CFP_CODEC(nn.Module):
         bytes_per_ftensor_set = []
 
         self.logger.info("Encoding starts...")
+
         self._print_enc_cfg(self.enc_cfg)
 
         # check Layers lengths
@@ -215,7 +246,7 @@ class CFP_CODEC(nn.Module):
         hls_header_bytes = sps.write(
             bitstream_fd,
             nbframes,
-            downscale_flag=self.suppression_cfg["downscale"],
+            downscale_flag=self.downscale,
             qp=self.qp,
             qp_density=self.qp_density,
             layer_qp_offsets=self.layer_qp_offsets,
@@ -248,7 +279,7 @@ class CFP_CODEC(nn.Module):
                 ftensors,
                 ch_clct_by_group,
                 scales_for_layers,
-                self.suppression_cfg["min_nb_channels_for_group"],
+                self.min_nb_channels_for_group,
             )
 
             coded_ftensor_bytes, recon_feature_channels = encode_feature_tensor[
@@ -256,7 +287,7 @@ class CFP_CODEC(nn.Module):
             ](
                 sps,
                 ftensors_to_code,
-                self.enc_cfg["clipping"],
+                self.clipping,
                 all_channels_coding_modes,
                 scales_for_layers,
                 bitstream_fd,
@@ -308,21 +339,14 @@ class CFP_CODEC(nn.Module):
 
         recon_ftensors = dict(zip(ftensor_tags, [[] for _ in range(len(ftensor_tags))]))
         for ftensor_set_idx in tqdm(range(sps.nbframes)):
-            # print(ftensor_set_idx)
-
             # read coding type
             eFTCType = parse_feature_tensor_coding_type(bitstream_fd)
             res = decode_feature_tensor[eFTCType](sps, bitstream_fd)
 
             for tlist, item in zip(recon_ftensors.values(), res.values()):
                 tlist.append(item)
-            # print(eFTCType)
-            # print(eFTCType, ftensor_set_idx)
 
         self.close_files()
-
-        for key, item in recon_ftensors.items():
-            recon_ftensors[key] = torch.stack(item)
 
         output["data"] = recon_ftensors
 

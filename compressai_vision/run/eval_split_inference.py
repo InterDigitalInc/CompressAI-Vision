@@ -98,6 +98,10 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Cfg        : {kwargs['vision_model'].model_cfg_path}\
                 \n  -- Weight     : {kwargs['vision_model'].pretrained_weight_path}\
                 \n Codec          : {title(kwargs['codec']):<30s}\
+                \n  -- Enc. Only  : {pipeline.configs['codec'].encode_only} \
+                \n  -- Dec. Only  : {pipeline.configs['codec'].decode_only} \
+                \n  -- Output Dir : {pipeline.codec_output_dir} \
+                \n  -- Bitstream  : {pipeline.bitstream_name}.bin \
                 \n Dataset        : {kwargs['evaluator'].dataset_name} \
                 \n  -- Data       : {kwargs['dataloader'].dataset.images_folder} \
                 \n  -- Annotation : {kwargs['dataloader'].dataset.annotation_path} \

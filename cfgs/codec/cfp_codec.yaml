@@ -11,7 +11,9 @@ encoder_config:
   feature_channel_suppression:
     # manual clustering
     manual_cluster: False
-    n_clusters: {"p2": 128, "p3": 128, "p4": 150, "p5": 180}
+    # if manual_cluster is True, but no n_clusters is provided,
+    # full channels will be coded
+    n_clusters: {}
     
     # options for automatic optimization
     # minimum number of channels per group coding
