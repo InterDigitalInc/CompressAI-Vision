@@ -35,12 +35,14 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as T
+from numba import jit
 from scipy.cluster.hierarchy import cut_tree, linkage
 from torch import Tensor
 
 __all__ = [
     "feature_channel_suppression",
-    "search_for_N_clusters",
+    "suppression_optimization",
+    "rebuild_ftensor",
 ]
 
 
@@ -82,111 +84,325 @@ def collect_channels(ftensor: Tensor, channel_groups: List, mode=""):
     return cluster_dict
 
 
+def get_ftensor_suppressed(
+    ch_clct_by_group, ftensor, scale, min_nb_channels_for_group, mode=None
+):
+    rep_ftensor = {}
+    sorted_ch_clct_by_group = {}
+    coding_modes = np.full(ftensor.shape[0], -1)
+
+    for group_label, ch_ids in ch_clct_by_group.items():
+        if len(ch_ids) >= min_nb_channels_for_group:  # group-coded
+            coding_modes[ch_ids] = group_label
+            rep_ch = compute_representation_channel(ftensor[ch_ids], mode)
+            rep_ftensor[min(ch_ids)] = rep_ch
+            sorted_ch_clct_by_group[min(ch_ids)] = ch_ids
+        else:  # self-coded
+            for ch_id in ch_ids:
+                rep_ftensor[ch_id] = ftensor[ch_id]
+                sorted_ch_clct_by_group[ch_id] = [ch_id]
+
+    sorted_ch_clct_by_group = dict(
+        sorted(sorted_ch_clct_by_group.items(), key=lambda item: item[0])
+    )
+    rep_ftensor = dict(sorted(rep_ftensor.items(), key=lambda item: item[0]))
+    rep_ftensor = list(rep_ftensor.values())
+    sftensor = torch.stack(rep_ftensor)
+
+    if scale > 1:
+        sftensor = F.interpolate(
+            sftensor.unsqueeze(0), scale_factor=1 / scale, mode="bicubic"
+        ).squeeze(0)
+
+    return sftensor, coding_modes, sorted_ch_clct_by_group
+
+
 def feature_channel_suppression(
-    ftensors: Dict, channel_groups: Dict, mode="", n_bits=8
+    ftensors: Dict,
+    channel_groups: Dict,
+    scales_for_layers: Dict,
+    min_nb_channels_for_group,
+    mode="",
 ):
     # tensor_min_max = {}
-    feature_channels_to_code = {}
-    all_channels_coding_groups = {}
-
-    # TODO (frcape) - temporary
-    min_nb_channels_per_cluster = 3
+    ftensors_to_code = {}
+    all_channels_coding_modes = {}
 
     for tag, ftensor in ftensors.items():
         assert tag in channel_groups
         channel_collections = channel_groups[tag]
+        scale = scales_for_layers[tag]
 
-        rep_ftensor = {}
-        channels_coding_groups = np.full(ftensor.shape[0], -1)
-        for group_label, channels in channel_collections.items():
-            if len(channels) >= min_nb_channels_per_cluster:  # group coded
-                channels_coding_groups[channels] = group_label
-                rep_ch = compute_representation_channel(ftensor[channels], mode)
+        sftensor, coding_modes, _ = get_ftensor_suppressed(
+            channel_collections, ftensor, scale, min_nb_channels_for_group, mode
+        )
 
-                temp_label = min(channels)
-                rep_ftensor[temp_label] = rep_ch
-            else:  # self coded
-                for ch_id in channels:
-                    rep_ftensor[ch_id] = ftensor[ch_id]
+        ftensors_to_code[tag] = sftensor
+        all_channels_coding_modes[tag] = coding_modes
 
-        rep_ftensor = dict(sorted(rep_ftensor.items(), key=lambda item: item[0]))
-        rep_ftensor = list(rep_ftensor.values())
-
-        # est_rep_ftensor, tmin, tmax = forward_min_max_normalization(torch.stack(rep_ftensor), n_bits)
-
-        # feature_channels_to_code[tag] = est_rep_ftensor
-        feature_channels_to_code[tag] = torch.stack(rep_ftensor)
-        all_channels_coding_groups[tag] = channels_coding_groups
-        # tensor_min_max[tag] = (tmin, tmax)
-
-    return feature_channels_to_code, all_channels_coding_groups
+    return ftensors_to_code, all_channels_coding_modes
 
 
-def search_for_N_clusters(
-    feature_set: Dict,
-    proxy_function: Callable,
-    n_cluster: Dict,
-    measure_thr=-1,
-    mode="",
+def rebuild_ftensor(channel_groups, rep_ftensor, scale_idx, shape):
+    C, H, W = shape
+
+    assert rep_ftensor.shape[0] <= C
+
+    if scale_idx > 1:
+        rep_ftensor = F.interpolate(
+            rep_ftensor.unsqueeze(0), size=(H, W), mode="bicubic"
+        ).squeeze(0)
+
+    assert H == rep_ftensor.shape[1] and W == rep_ftensor.shape[2]
+
+    recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32).to(rep_ftensor.device)
+    for channels, ftensor in zip(channel_groups, rep_ftensor):
+        recon_ftensor[channels] = ftensor
+
+    return recon_ftensor
+
+
+@jit(nopython=True)
+def compare_proposals(tbboxes, abboxes, amargins, alogits):
+    compromised_logits = 0
+    for tb in tbboxes:
+        for ab, margins, nl in zip(abboxes, amargins, alogits):
+            gap = np.abs(tb - ab)
+            if (gap < margins).all():
+                compromised_logits += nl
+                break
+
+    return compromised_logits
+
+
+def find_N_groups_of_channels(
+    tag,
+    search_base,
+    search_distance,
+    search_dscale_idx,
+    proxy_input,
+    proxy_function,
+    ftensor,
+    anchor,
+    hierarchy,
+    cvg_thres,
+    min_nb_channels_for_group,
+    mode,
 ):
-    # Find (sub-)optimal N-cluster to categorize input features by channels.
-    # Even with N-channels as representative features,
-    # it is expected to have minor accuracy degradation for the downtstream task
+    find_optimum = False
+    sidx = search_base + (search_distance // 2)
+    pidx = search_base
 
-    # TODO (fracape) add the following as encoder options
-    # TODO: Dynamically generate these number using information theory, maybe a RDO? ^_^
-    # hard_coded_cluster_number = {
-    #     "p2": 128,
-    #     "p3": 128,
-    #     "p4": 150,
-    #     "p5": 180,
-    # }  # OpenImage Det & Seg
-    # hard_coded_cluster_number ={105: 128, 90: 256, 75: 512} # yolo
-    # hard_coded_cluster_number = {"p2": 40, "p3": 256, "p4": 256, "p5": 256}
+    neat_est_ftensor = None
+    neat_proposal_coverage = 1.0
+    neat_channel_collections = None
+    neat_num_clusters = 0
+    neat_num_chs_to_code = 0
 
-    hard_coded_cluster_number = n_cluster
+    while find_optimum is False:
+        channel_groups = cut_tree(hierarchy, sidx)
 
-    all_channel_collections_by_cluster = {}
-    for tag, ftensor in feature_set.items():
+        channel_collections = collect_channels(ftensor, channel_groups, mode)
+
+        sftensor, _, sorted_ch_clct_by_group = get_ftensor_suppressed(
+            channel_collections,
+            ftensor,
+            (search_dscale_idx + 1),
+            min_nb_channels_for_group,
+            mode,
+        )
+
+        est_ftensor = rebuild_ftensor(
+            sorted_ch_clct_by_group.values(),
+            sftensor,
+            (search_dscale_idx + 1),
+            ftensor.shape,
+        )
+
+        proxy_input["data"][tag] = est_ftensor
+        eval_res = proxy_function(proxy_input)
+
+        e_proposals = np.array(eval_res.proposal_boxes.tensor.detach().cpu())
+        counted_logits = compare_proposals(
+            e_proposals, anchor["proposals"], anchor["margins"], anchor["norm_logits"]
+        )
+
+        current_proposal_coverage = (counted_logits) / anchor["total_logits"]
+
+        distance = abs(sidx - pidx)
+        if distance <= 2:
+            find_optimum = True
+
+            if neat_est_ftensor == None:
+                neat_proposal_coverage = current_proposal_coverage
+                neat_channel_collections = channel_collections
+                neat_est_ftensor = est_ftensor.unsqueeze(0)
+                neat_num_clusters = sidx
+                neat_num_chs_to_code = sftensor.shape[0]
+
+            return (
+                neat_est_ftensor,
+                neat_channel_collections,
+                neat_num_clusters,
+                neat_num_chs_to_code,
+                neat_proposal_coverage,
+            )
+
+        pidx = sidx
+        if current_proposal_coverage > cvg_thres:
+            sidx = sidx - (distance // 2)
+
+            if current_proposal_coverage < neat_proposal_coverage:
+                neat_proposal_coverage = current_proposal_coverage
+                neat_channel_collections = channel_collections
+                neat_est_ftensor = est_ftensor.unsqueeze(0)
+                neat_num_clusters = pidx
+                neat_num_chs_to_code = sftensor.shape[0]
+        else:
+            sidx = sidx + (distance // 2)
+
+
+def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
+    all_ch_clct_by_group = {}
+    all_scales_for_layers = {}
+    scale = 2 if downscale else 1
+    for tag, ftensor in ftensors.items():
         assert ftensor.dim() == 3
 
         # Original gram matrix at the split layer
         gm = compute_gram_matrix(ftensor)
         hierarchy = hierarchical_clustering(gm)
 
-        num_clusters = hard_coded_cluster_number[tag]
-
+        num_clusters = n_clusters[tag]
         clustered_channels = cut_tree(hierarchy, num_clusters)
-
         channel_collections = collect_channels(ftensor, clustered_channels, mode)
 
-        """
-        # anyway we won't let the original number of channels be coded.
-        max_categories = int(ftensor.size(0) * 3 // 4)
+        all_ch_clct_by_group[tag] = channel_collections
+        all_scales_for_layers[tag] = scale
 
-        # one step deeper toward the end layer
-        deeper_ftensor = proxy_function(tag, ftensor.unsqueeze(0))
-        anchor_gm = compute_gram_matrix(deeper_ftensor.squeeze(0))
+    return all_ch_clct_by_group, all_scales_for_layers
 
-        for i in range(16, max_categories, 4)[::-1]:
-            i = ftensor.size(0)
-            channel_groups = cut_tree(hierarchy, i)
 
-            rep_ftensor, n_clusters = compute_representation_feature_channels(ftensor, channel_groups, mode)
+def suppression_optimization(
+    enc_cfg: Dict,
+    input_img_size,
+    ftensors: Dict,
+    proxy_function: Callable,
+    mode="",
+    logger=None,
+):
+    # Find (sub-)optimal N-cluster to categorize input features by channels.
+    # Even with N-channels as representative features,
+    # it is expected to have minor accuracy degradation for the downtstream task
 
-            tmp_ftensor, tmin, tmax = forward_min_max_normalization(torch.stack(rep_ftensor))
-            est_ftensor = generate_feature_channels(tmp_ftensor, tmin, tmax, n_clusters, ftensor.shape, ftensor.device)
-   
-            deeper_test_ftensor = proxy_function(tag, est_ftensor.unsqueeze(0)).squeeze(0)
-            test_gm = compute_gram_matrix(deeper_test_ftensor)
-        
-            gm_loss = F.mse_loss(anchor_gm, test_gm)
+    if enc_cfg["manual_cluster"] is True:
+        assert "n_clusters" in enc_cfg
+        return _manual_clustering(
+            enc_cfg["n_clusters"], enc_cfg["downscale"], ftensors, mode
+        )
 
-            #if gm_loss > measure_thr:
-            #if gm_loss > 1.0e-010:
-            #    break
-        """
+    min_nb_channels_for_group = enc_cfg["min_nb_channels_for_group"]
+    xy_margin = enc_cfg["xy_margin"]
 
-        all_channel_collections_by_cluster[tag] = channel_collections
+    scale_list = (
+        [
+            0,
+        ]
+        if enc_cfg["downscale"] is False
+        else [0, 1]  # Complexity increases as the list extends
+    )
+    org_coverage_thres = enc_cfg["coverage_thres"]
+    # empirical initial decay
+    weight_decay = enc_cfg["coverage_decay"]
 
-    return all_channel_collections_by_cluster
+    proxy_input = {"data": ftensors.copy(), "input_size": input_img_size}
+    res = proxy_function(proxy_input)
+
+    # x1, y1, x2, y2 format
+    a_proposals = np.array(res.proposal_boxes.tensor.detach().cpu())
+    a_logits = np.array(res.objectness_logits.detach().cpu())
+    norm_a_logits = np.abs(a_logits) / np.linalg.norm(a_logits)
+    total_logits = norm_a_logits.sum()
+
+    a_wmargins = (a_proposals[:, 2] - a_proposals[:, 0]) * xy_margin
+    a_hmargins = (a_proposals[:, 3] - a_proposals[:, 1]) * xy_margin
+    a_margins = np.stack([a_wmargins, a_hmargins, a_wmargins, a_hmargins], axis=-1)
+
+    anchor = {
+        "proposals": a_proposals,
+        "margins": a_margins,
+        "norm_logits": norm_a_logits,
+        "total_logits": total_logits,
+    }
+
+    all_ch_clct_by_group = {}
+    all_scales_for_layers = {}
+
+    best_coverage = org_coverage_thres
+    for tag, ftensor in ftensors.items():
+        assert ftensor.dim() == 3
+
+        # Original gram matrix at the split layer
+        gm = compute_gram_matrix(ftensor)
+        hierarchy = hierarchical_clustering(gm)
+
+        search_base = 0
+        search_distance = ftensor.size(0)
+
+        best_est_ftensor = None
+        best_channel_collections = None
+        best_num_clusters = 0
+        best_num_chs_to_code = 0
+        best_scale_idx = 0
+
+        cvg_thres = min(best_coverage, org_coverage_thres)
+
+        for dscale_idx in scale_list:
+            (
+                opt_est_ftensor,
+                opt_channel_collections,
+                opt_num_cluters,
+                opt_num_chs_to_code,
+                opt_coverage,
+            ) = find_N_groups_of_channels(
+                tag,
+                search_base,
+                search_distance,
+                dscale_idx,
+                proxy_input,
+                proxy_function,
+                ftensor,
+                anchor,
+                hierarchy,
+                cvg_thres,
+                min_nb_channels_for_group,
+                mode,
+            )
+
+            if best_est_ftensor is None or (
+                (opt_coverage > cvg_thres) and dscale_idx > 0
+            ):
+                best_est_ftensor = opt_est_ftensor
+                best_channel_collections = opt_channel_collections
+                best_num_clusters = opt_num_cluters
+                best_num_chs_to_code = opt_num_chs_to_code
+                best_coverage = opt_coverage
+                best_scale_idx = dscale_idx
+
+                # update search base
+                search_distance = 64  # empirical distance (TODO: hyomin)
+                search_base = opt_num_cluters - (search_distance // 2)
+
+            # decay cvg_thres
+            cvg_thres = cvg_thres * weight_decay
+
+        if logger:
+            logger.debug(
+                f"{tag} - {best_num_clusters} --> nb chs: {best_num_chs_to_code} dscale: 1/{best_scale_idx+1}- coverage: {best_coverage * 100:.2f} %"
+            )
+
+        proxy_input["data"][tag] = best_est_ftensor
+        all_ch_clct_by_group[tag] = best_channel_collections
+        all_scales_for_layers[tag] = best_scale_idx + 1
+
+    return all_ch_clct_by_group, all_scales_for_layers

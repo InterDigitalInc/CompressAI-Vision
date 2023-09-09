@@ -95,9 +95,9 @@ class SequenceParameterSet:
         self,
         fd,
         nbframes,
+        downscale_flag,
         qp,
         qp_density,
-        is_downsampled,
         dc_qp_offset,
         dc_qp_density_offset,
     ):
@@ -105,7 +105,11 @@ class SequenceParameterSet:
         # encode header (sequence level)
 
         # please review [downsample flag] TODO: @eimran mask with other flag (if possible)
-        byte_cnt += write_uchars(fd, (BoolConvert(is_downsampled),))
+        tools_flag = 0
+        self.downscale_flag = int(downscale_flag)
+        tools_flag |= self.downscale_flag << 6
+
+        byte_cnt += write_uchars(fd, (tools_flag,))
 
         # write original input resolution
         byte_cnt += write_uints(fd, (self.org_input_height, self.org_input_width))
@@ -145,8 +149,9 @@ class SequenceParameterSet:
         byte_cnt = 0
         # encode header (sequence level)
 
-        # read donwsample flag
-        self.is_downsampled = read_uchars(fd, 1)[0]
+        # read tools flag
+        tools_flag = read_uchars(fd, 1)[0]
+        self.downscale_flag = BoolConvert(((tools_flag >> 6) & 0x01))
 
         # read original input resolution
         self.org_input_height, self.org_input_width = read_uints(fd, 2)

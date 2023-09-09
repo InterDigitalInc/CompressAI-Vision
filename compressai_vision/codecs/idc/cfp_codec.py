@@ -43,7 +43,7 @@ from .common import FeatureTensorCodingType
 from .hls import SequenceParameterSet, parse_feature_tensor_coding_type
 from .inter import inter_coding, inter_decoding
 from .intra import intra_coding, intra_decoding
-from .tools import feature_channel_suppression, search_for_N_clusters
+from .tools import feature_channel_suppression, suppression_optimization
 
 encode_feature_tensor = {
     FeatureTensorCodingType.I_TYPE: intra_coding,
@@ -84,12 +84,13 @@ class CFP_CODEC(nn.Module):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.enc_cfg = kwargs["encoder_config"]
+        self.suppression_cfg = self.enc_cfg["feature_channel_suppression"]
 
-        self.deep_feature_proxy = kwargs["vision_model"].deep_feature_proxy
+        self.deeper_features_for_accuracy_proxy = kwargs[
+            "vision_model"
+        ].deeper_features_for_accuracy_proxy
 
         self.device = kwargs["vision_model"].device
-
-        self.downsample = self.enc_cfg["downsample"]
 
         self.qp = self.enc_cfg["qp"]
         self.qp_density = self.enc_cfg["qp_density"]
@@ -103,14 +104,18 @@ class CFP_CODEC(nn.Module):
 
         self.eval_encode = kwargs["eval_encode"]
 
-        self.clipping = self.enc_cfg["clipping"]
-
         assert (
             self.enc_cfg["qp"] is not None
         ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
 
-        # get cluster number
-        self.n_cluster = self.enc_cfg["n_cluster"]
+        self.verbosity = kwargs["verbosity"]
+        logging_level = logging.WARN
+        if self.verbosity == 1:
+            logging_level = logging.INFO
+        if self.verbosity >= 2:
+            logging_level = logging.DEBUG
+
+        self.logger.setLevel(logging_level)
 
         # encoder parameters & buffers
         self.reset()
@@ -120,6 +125,7 @@ class CFP_CODEC(nn.Module):
         self.decoded_tensor_buffer = []
         # self._bitstream_path = None
         self._bitstream_fd = None
+        self._printed_enc_cfg = False
 
     @property
     def qp_value(self):
@@ -142,9 +148,28 @@ class CFP_CODEC(nn.Module):
         if self._bitstream_fd:
             self._bitstream_fd.close()
 
-    # @property
-    # def bitstream_path(self):
-    #     return self._bitstream_path
+    def _print_enc_cfg(self, enc_cfg: Dict, lvl: int = 0):
+        log_str = ""
+        if lvl == 0 and self._printed_enc_cfg is True:
+            return
+
+        for key, val in enc_cfg.items():
+            if isinstance(val, Dict):
+                log_str += f"\n {' '*lvl}{'-' * lvl} {key} <"
+                log_str += self._print_enc_cfg(val, (lvl + 1))
+            else:
+                sp = f"<{35-(lvl<<1)}s"
+                log_str += f"\n {' '*lvl}{'-' * lvl} {key:{sp}} : {val}"
+
+        if lvl == 0:
+            intro = f"{'='*10} Encoder Configurations {'='*10}"
+            endline = f"{'='*len(intro)}"
+            log_str = f"\n {intro}" + log_str + f"\n {endline}" + "\n\n"
+            self.logger.info(log_str)
+
+            self._print_enc_cfg = True
+
+        return log_str
 
     def encode(
         self,
@@ -157,16 +182,7 @@ class CFP_CODEC(nn.Module):
         bytes_per_ftensor_set = []
 
         self.logger.info("Encoding starts...")
-        self.logger.info(self.n_cluster)
-
-        # Downsample
-        if self.downsample:
-            for tag, layer_data in input["data"].items():
-                input["data"][tag] = F.interpolate(
-                    layer_data, scale_factor=(0.5, 0.5), mode="bicubic"
-                )
-                # TODO: @eimran Try other modes
-                # Adaptive mode could be encoded in bitstream
+        self._print_enc_cfg(self.enc_cfg)
 
         # check Layers lengths
         layer_nbframes = [
@@ -198,15 +214,15 @@ class CFP_CODEC(nn.Module):
         hls_header_bytes = sps.write(
             bitstream_fd,
             nbframes,
+            self.suppression_cfg["downscale"],
             self.qp,
             self.qp_density,
-            self.downsample,
             self.dc_qp_offset,
             self.dc_qp_density_offset,
         )
 
         bytes_total = hls_header_bytes
-        for e, feature_tensor in iterate_list_of_tensors(input["data"]):
+        for e, ftensors in iterate_list_of_tensors(input["data"]):
             # counting one for the input
             self.feature_set_order_count += 1  # the same concept as poc
 
@@ -215,23 +231,32 @@ class CFP_CODEC(nn.Module):
             if intra_period == -1 or (self.feature_set_order_count % intra_period) == 0:
                 eFTCType = FeatureTensorCodingType.I_TYPE
 
-                channel_collections_by_cluster = search_for_N_clusters(
-                    feature_tensor, self.deep_feature_proxy, self.n_cluster
+                ch_clct_by_group, scales_for_layers = suppression_optimization(
+                    self.suppression_cfg,
+                    input["input_size"],
+                    ftensors,
+                    self.deeper_features_for_accuracy_proxy,
+                    logger=self.logger,
                 )
 
             (
-                feature_channels_to_code,
-                all_channels_coding_groups,
+                ftensors_to_code,
+                all_channels_coding_modes,
             ) = feature_channel_suppression(
-                feature_tensor, channel_collections_by_cluster
+                ftensors,
+                ch_clct_by_group,
+                scales_for_layers,
+                self.suppression_cfg["min_nb_channels_for_group"],
             )
 
             coded_ftensor_bytes, recon_feature_channels = encode_feature_tensor[
                 eFTCType
             ](
-                self.enc_cfg,
-                feature_channels_to_code,
-                all_channels_coding_groups,
+                sps,
+                ftensors_to_code,
+                self.enc_cfg["clipping"],
+                all_channels_coding_modes,
+                scales_for_layers,
                 bitstream_fd,
             )
 
@@ -296,13 +321,6 @@ class CFP_CODEC(nn.Module):
 
         for key, item in recon_ftensors.items():
             recon_ftensors[key] = torch.stack(item)
-
-        # upsample
-        if sps.is_downsampled:
-            for key, item in recon_ftensors.items():
-                recon_ftensors[key] = F.interpolate(
-                    item, scale_factor=(2, 2), mode="bicubic"
-                )
 
         output["data"] = recon_ftensors
 

@@ -52,9 +52,9 @@ class BaseWrapper(nn.Module):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
 
-    def deep_feature_proxy(self, tag: Any, x: Tensor):
+    def deeper_features_for_accuracy_proxy(self, x: Dict):
         """
-        compute deeper feature tensor than NN-Part1
+        compute accuracy proxy at the deeper layer than NN-Part1
         """
         raise NotImplementedError
 

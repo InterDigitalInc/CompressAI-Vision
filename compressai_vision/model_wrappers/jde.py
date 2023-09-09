@@ -157,10 +157,11 @@ class jde_1088x608(BaseWrapper):
         return {"tlwhs": online_tlwhs, "ids": online_ids}
 
     @torch.no_grad()
-    def deep_feature_proxy(self, tag: int, x: Tensor):
+    def deeper_features_for_accuracy_proxy(self, x: Dict):
         """
-        compute deeper feature tensor than NN-Part1
+        compute accuracy proxy at the deeper layer than NN-Part1
         """
+        raise NotImplementedError
 
         assert x.dim() == 4, "Shape of the input feature tensor must be [N, C, H, W]"
         assert type(tag) == int

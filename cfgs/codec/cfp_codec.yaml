@@ -4,12 +4,28 @@ experiment: "" # e.g. "_clipping_on" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 
+verbosity: 0
+
 encoder_config:
+
   # temporary config
-  n_cluster: {"p2": 128, "p3": 128, "p4": 150, "p5": 180}
-  
-  # preprocessing
-  downsample: True
+
+  # feature channel suppression optimization
+  feature_channel_suppression:
+    # manual clustering
+    manual_cluster: False
+    n_clusters: {"p2": 128, "p3": 128, "p4": 150, "p5": 180}
+    
+    # options for automatic optimization
+    # minimum number of channels per group coding
+    min_nb_channels_for_group : 3
+    xy_margin : 0.15 # percentage
+    coverage_thres: 0.7 # percentage
+    coverage_decay: 0.98 # default
+
+    # For the manual cluster and downcale are True,
+    # all feture tensor will be downscaled by 2
+    downscale: True
 
   # clipping
   clipping: False
