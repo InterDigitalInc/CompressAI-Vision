@@ -64,13 +64,13 @@ do
                     ++pipeline.conformance.save_conformance_files=True \
                     ++pipeline.conformance.subsample_ratio=90 \
                     ++codec.encoder_config.feature_channel_suppression.manual_cluster=True \
-                    ++codec.encoder_config.feature_channel_suppression.n_clusters='{105: 20, 90: 20, 75: 20}' \
-                    ++codec.encoder_config.feature_channel_suppression.downscale=False \
+                    ++codec.encoder_config.feature_channel_suppression.n_clusters='{75: 64, 90: 128, 105: 256}' \
+                    ++codec.encoder_config.feature_channel_suppression.downscale=True \
                     ++codec.encoder_config.qp=${qp} \
                     ++codec.eval_encode='bitrate' \
                     ++codec.experiment=${EXPERIMENT} \
                     ++vision_model.arch=jde_1088x608 \
-                    ++vision_model.jde_1088x608.splits="[105, 90, 75]" \
+                    ++vision_model.jde_1088x608.splits="[75, 90, 105]" \
                     ++dataset.type=TrackingDataset \
                     ++dataset.settings.patch_size="[608, 1088]" \
                     ++dataset.datacatalog=MPEGHIEVE \

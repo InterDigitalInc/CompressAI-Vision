@@ -1,0 +1,51 @@
+version: 2
+
+variables:
+
+  exp_name: "_gen_bitstreams_v1"
+  device: "cuda"
+
+  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
+
+  script_dir: "../cross_checking_scripts"
+
+run_tvd_tracking:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_tvd.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}"
+
+  parallel:
+    matrix:
+      - seq_name: [      
+            'TVD-01',
+            'TVD-02',
+            'TVD-03'
+        ]
+        qp: [3, 2, 1, -1, -2, -3]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo
+    cpus-per-task: 2
+    gpus-per-task: 1
+    output: slurm_%x_%A_%N_%s.out
+
+generate_csv:
+  needs:
+    - run_tvd_tracking
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - python ../utils/mpeg_template_format.py --dataset TVD --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/MPEGTVDTRACKING/
+
+  sbatch:
+    begin: now
+    cpus-per-task: 1
+    output: tvd_result_%A.out
