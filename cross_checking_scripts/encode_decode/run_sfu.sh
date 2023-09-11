@@ -1,3 +1,6 @@
+#! /usr/bin/env bash
+
+# grid batch --cpus=12 --job-name=_sfu_det_cpu -o sfu_det_cpu.out -- bash run_sfu.sh
 
 # change the paths accrodingly
 #####################################################
@@ -6,7 +9,7 @@ OUTPUT_DIR="./cfp_run"
 EXPERIMENT="_sfu_cfp_test"
 DEVICE="cpu"
 #####################################################
-MAX_PARALLEL=6 # total number of jobs = 84
+MAX_PARALLEL=12 # total number of jobs = 84
 
 QPS=`echo "5 6 7 8 9 10"`
 
@@ -37,10 +40,10 @@ do
     for QP in ${QPS}
     do
         echo Input Dir: ${INPUT_DIR}, Output Dir: ${OUTPUT_DIR}, Exp Name: ${EXPERIMENT}, Device: ${DEVICE}, QP: ${QP}, SEQ Name: ${SEQ}
-        parallel_run "${SCRIPT_DIR}/mpeg_cfp_sfu.sh ${INPUT_DIR} ${OUTPUT_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ}"
+        parallel_run "${SCRIPT_DIR}/../mpeg_cfp_sfu.sh ${INPUT_DIR} ${OUTPUT_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ}"
     done
 done
 
 sem --wait
-python ${SCRIPT_DIR}/../utils/mpeg_template_format.py --dataset SFU --result_path ${OUTPUT_DIR}/split-inference-video/cfp_codec${EXPERIMENT}/SFUHW/
+python ${SCRIPT_DIR}/../../utils/mpeg_template_format.py --dataset SFU --result_path ${OUTPUT_DIR}/split-inference-video/cfp_codec${EXPERIMENT}/SFUHW/
 

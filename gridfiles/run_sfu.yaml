@@ -2,11 +2,11 @@ version: 2
 
 variables:
 
-  exp_name: "_sfu_det"
+  exp_name: "_gen_bitstreams_v1"
   device: "cuda"
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "./output_cfp/"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
 
   script_dir: "../cross_checking_scripts"
 
@@ -36,13 +36,13 @@ run_sfu_det:
               'BlowingBubbles_416x240_50_val',
               'RaceHorses_416x240_30_val'
         ]
-        qp: [4, 5, 6, 7, 8, 9]
+        qp: [5, 6, 7, 8, 9, 10]
 
 
   sbatch:
     begin: now
     reservation: deepvideo
-    cpus-per-task: 1
+    cpus-per-task: 2
     gpus-per-task: 1
     output: slurm_%x_%A_%N_%s.out
 
@@ -59,7 +59,4 @@ generate_csv:
   sbatch:
     begin: now
     cpus-per-task: 1
-    
-  
-  
-  
+    output: sfu_result_%A.out
