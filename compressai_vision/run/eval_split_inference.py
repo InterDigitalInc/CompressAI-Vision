@@ -57,6 +57,7 @@ from compressai_vision.config import (
     create_evaluator,
     create_pipline,
     create_vision_model,
+    write_outputs,
 )
 
 
@@ -75,6 +76,8 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     codec = create_codec(conf.codec, vision_model, conf.dataset.config.dataset_name)
 
     pipeline = create_pipline(conf.pipeline, conf.misc.device)
+
+    write_outputs(conf)
 
     return pipeline, {
         "vision_model": vision_model,

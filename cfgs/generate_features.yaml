@@ -23,5 +23,5 @@ pipeline:
   type: "image"
   nn_task_part1:
     generate_features_only: True
-  output_dir: ${paths._runs_root}/${dataset.datacatalog}
+  output_dir: ${paths._run_root}/${dataset.datacatalog}
 

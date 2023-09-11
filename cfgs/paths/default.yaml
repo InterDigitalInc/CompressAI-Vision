@@ -1,2 +1,4 @@
-_common_root: './logs'
-_runs_root: "${._common_root}/runs"
+_common_root:   "./logs"
+_run_root:     "${._common_root}/runs"
+configs:        "${codec.output_dir}/configs"
+src:            "${codec.output_dir}/src"

@@ -29,6 +29,7 @@
 
 
 import os
+from pathlib import Path
 from types import ModuleType
 from typing import Any, Mapping
 
@@ -45,17 +46,16 @@ CONFIG_NAME = "config.yaml"
 def write_outputs(conf: DictConfig):
     write_config(conf)
     write_git_diff(conf, compressai_vision)
-    # write_git_diff(conf, compressai)
     write_pip_list(conf)
     write_pip_requirements(conf)
 
 
 def write_config(conf: DictConfig):
-    logdir = conf.paths.configs
-    assert logdir == os.path.join(conf.paths._run_root, CONFIG_DIR)
+    logdir = Path(conf.paths.configs)
+    logdir.mkdir(parents=True, exist_ok=True)
     s = OmegaConf.to_yaml(conf, resolve=False)
     os.makedirs(logdir, exist_ok=True)
-    with open(os.path.join(logdir, CONFIG_NAME), "w") as f:
+    with open(logdir / CONFIG_NAME, "w") as f:
         f.write(s)
 
 
