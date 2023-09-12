@@ -239,7 +239,7 @@ def find_N_groups_of_channels(
 
         channel_collections = collect_channels(ftensor, channel_groups, mode)
 
-        sftensor, coding_modes, sorted_ch_clct_by_group = compute_ftensor_to_encode(
+        sftensor, coding_modes, sorted_ch_groups = compute_ftensor_to_encode(
             channel_collections,
             ftensor,
             (search_dscale_idx + 1),
@@ -253,7 +253,6 @@ def find_N_groups_of_channels(
             (search_dscale_idx + 1),
             ftensor.shape,
         )
-
         proxy_input["data"][tag] = est_ftensor
         eval_res = proxy_function(proxy_input)
 
