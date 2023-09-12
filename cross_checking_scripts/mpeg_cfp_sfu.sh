@@ -7,6 +7,7 @@ EXPERIMENT=$3
 DEVICE=$4
 QP=$5
 SEQ=$6
+CVG=$7
 
 SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
 
@@ -27,10 +28,12 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++pipeline.conformance.subsample_ratio=9 \
         ++codec.encoder_config.feature_channel_suppression.manual_cluster=False \
         ++codec.encoder_config.feature_channel_suppression.min_nb_channels_for_group=3 \
-        ++codec.encoder_config.feature_channel_suppression.xy_margin=0.15 \
-        ++codec.encoder_config.feature_channel_suppression.coverage_thres=0.7 \
-        ++codec.encoder_config.feature_channel_suppression.coverage_decay=0.98 \
         ++codec.encoder_config.feature_channel_suppression.downscale=True \
+        ++codec.encoder_config.feature_channel_suppression.supression_measure='rpn' \
+        ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin=0.10 \
+        ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin_decay=0.01 \
+        ++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=${CVG} \
+        ++codec.encoder_config.feature_channel_suppression.rpn.coverage_decay=0.98 \
         ++codec.encoder_config.qp=${QP} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \

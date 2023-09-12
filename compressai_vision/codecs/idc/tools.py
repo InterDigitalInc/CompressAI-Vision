@@ -297,40 +297,21 @@ def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
     return all_ch_clct_by_group, all_scales_for_layers
 
 
-def suppression_optimization(
+def rpn_based_optimization(
     enc_cfg: Dict,
-    input_img_size,
-    ftensors: Dict,
     proxy_function: Callable,
+    proxy_input: Dict,
+    min_nb_channels_for_group: int,
+    scale_list=List,
     mode="",
     logger=None,
 ):
-    # Find (sub-)optimal N-cluster to categorize input features by channels.
-    # Even with N-channels as representative features,
-    # it is expected to have minor accuracy degradation for the downtstream task
-
-    if enc_cfg["manual_cluster"] is True:
-        assert "n_clusters" in enc_cfg
-        return _manual_clustering(
-            enc_cfg["n_clusters"], enc_cfg["downscale"], ftensors, mode
-        )
-
-    min_nb_channels_for_group = enc_cfg["min_nb_channels_for_group"]
     xy_margin = enc_cfg["xy_margin"]
-
-    scale_list = (
-        [
-            0,
-        ]
-        if enc_cfg["downscale"] is False
-        else [0, 1]  # Complexity increases as the list extends
-    )
     org_coverage_thres = enc_cfg["coverage_thres"]
     # empirical initial decay
     weight_decay = enc_cfg["coverage_decay"]
     margin_ext = 1 + enc_cfg["xy_margin_decay"]
 
-    proxy_input = {"data": ftensors.copy(), "input_size": input_img_size}
     res = proxy_function(proxy_input)
 
     # x1, y1, x2, y2 format
@@ -352,7 +333,7 @@ def suppression_optimization(
     all_scales_for_layers = {}
 
     cvg_thres = org_coverage_thres
-    for tag, ftensor in ftensors.items():
+    for tag, ftensor in proxy_input["data"].items():
         assert ftensor.dim() == 3
 
         # Original gram matrix at the split layer
@@ -423,5 +404,54 @@ def suppression_optimization(
         proxy_input["data"][tag] = best_est_ftensor
         all_ch_clct_by_group[tag] = best_channel_collections
         all_scales_for_layers[tag] = best_scale_idx + 1
+
+    return all_ch_clct_by_group, all_scales_for_layers
+
+
+def suppression_optimization(
+    enc_cfg: Dict,
+    input_img_size,
+    ftensors: Dict,
+    proxy_function: Callable,
+    mode="",
+    logger=None,
+):
+    # Find (sub-)optimal N-cluster to categorize input features by channels.
+    # Even with N-channels as representative features,
+    # it is expected to have minor accuracy degradation for the downtstream task
+
+    if enc_cfg["manual_cluster"] is True:
+        assert "n_clusters" in enc_cfg
+        return _manual_clustering(
+            enc_cfg["n_clusters"], enc_cfg["downscale"], ftensors, mode
+        )
+
+    min_nb_channels_for_group = enc_cfg["min_nb_channels_for_group"]
+    scale_list = (
+        [
+            0,
+        ]
+        if enc_cfg["downscale"] is False
+        else [0, 1]  # Complexity increases as the list extends
+    )
+
+    suppression_measure = enc_cfg["supression_measure"]
+    proxy_input = {"data": ftensors.copy(), "input_size": input_img_size}
+
+    all_ch_clct_by_group = all_scales_for_layers = None
+    if suppression_measure == "rpn":
+        all_ch_clct_by_group, all_scales_for_layers = rpn_based_optimization(
+            enc_cfg[suppression_measure],
+            proxy_function,
+            proxy_input,
+            min_nb_channels_for_group,
+            scale_list,
+            mode,
+            logger,
+        )
+    elif suppression_measure == "mse":
+        print("A")
+    else:
+        raise ValueError
 
     return all_ch_clct_by_group, all_scales_for_layers
