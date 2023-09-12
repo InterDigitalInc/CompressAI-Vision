@@ -20,10 +20,10 @@ dataset:
   type: "Detectron2Dataset"
   datacatalog: 'SFUHW'
   config:
-      root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val"
-      imgs_folder: "images"
-      annotation_file: "annotations/BasketballDrill_832x480_50_val.json"
-      dataset_name: 'sfu-hw-basketballdrill' # you name it
+    root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    imgs_folder: "images"
+    annotation_file: "annotations/Traffic_2560x1600_30_val.json"
+    dataset_name: "sfu-hw-Traffic_2560x1600_30_val"
 
 
 evaluator:

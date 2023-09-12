@@ -241,25 +241,9 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
             scale = scale_minus_1 + 1
 
         self_coded_labels = np.where(channel_coding_modes == -1)[0]
-        group_coded_labels = np.unique(
-            channel_coding_modes[np.where(channel_coding_modes != -1)]
-        )
+        nb_groups = max(channel_coding_modes) + 1
 
-        # # create channel groups
-        # sorted_ch_clct_by_group = {}
-        # for group_label in group_coded_labels:
-        #     channel_ids = list(np.where(channel_coding_modes == group_label)[0])
-        #     sorted_ch_clct_by_group[min(channel_ids)] = channel_ids
-
-        # for label in self_coded_labels:
-        #     sorted_ch_clct_by_group[label] = [label]
-
-        # sorted_ch_clct_by_group = dict(
-        #     sorted(sorted_ch_clct_by_group.items(), key=lambda item: item[0])
-        # )
-
-        nb_channels_coded_ftensor = len(self_coded_labels) + len(group_coded_labels)
-        # - 1
+        nb_channels_coded_ftensor = len(self_coded_labels) + nb_groups
 
         # decoding DCs
         byte_to_read = read_uints(bitstream_fd, 1)[0]
