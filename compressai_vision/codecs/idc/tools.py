@@ -175,6 +175,12 @@ def compare_proposals(tbboxes, abboxes, amargins, alogits):
     return compromised_logits
 
 
+def update_margins(a_proposals, xy_margin):
+    a_wmargins = (a_proposals[:, 2] - a_proposals[:, 0]) * xy_margin
+    a_hmargins = (a_proposals[:, 3] - a_proposals[:, 1]) * xy_margin
+    return np.stack([a_wmargins, a_hmargins, a_wmargins, a_hmargins], axis=-1)
+
+
 def find_N_groups_of_channels(
     tag,
     search_base,
@@ -189,7 +195,13 @@ def find_N_groups_of_channels(
     min_nb_channels_for_group,
     mode,
 ):
+    max_channels = ftensor.shape[0]
+
     find_optimum = False
+
+    bidx = search_base
+    eidx = min(search_base + search_distance, ftensor.shape[0])
+
     sidx = search_base + (search_distance // 2)
     pidx = search_base
 
@@ -229,8 +241,7 @@ def find_N_groups_of_channels(
 
         current_proposal_coverage = (counted_logits) / anchor["total_logits"]
 
-        distance = abs(sidx - pidx)
-        if distance <= 2:
+        if abs(sidx - pidx) <= 2:
             find_optimum = True
 
             if neat_est_ftensor == None:
@@ -249,8 +260,8 @@ def find_N_groups_of_channels(
             )
 
         pidx = sidx
-        if current_proposal_coverage > cvg_thres:
-            sidx = sidx - (distance // 2)
+        if current_proposal_coverage >= cvg_thres:
+            sidx = max(sidx - ((sidx - bidx) // 2), 0)
 
             if current_proposal_coverage < neat_proposal_coverage:
                 neat_proposal_coverage = current_proposal_coverage
@@ -259,7 +270,8 @@ def find_N_groups_of_channels(
                 neat_num_clusters = pidx
                 neat_num_chs_to_code = sftensor.shape[0]
         else:
-            sidx = sidx + (distance // 2)
+            bidx = sidx
+            sidx = min(sidx + ((eidx - bidx) // 2), max_channels)
 
 
 def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
@@ -316,6 +328,7 @@ def suppression_optimization(
     org_coverage_thres = enc_cfg["coverage_thres"]
     # empirical initial decay
     weight_decay = enc_cfg["coverage_decay"]
+    margin_ext = 1 + enc_cfg["xy_margin_decay"]
 
     proxy_input = {"data": ftensors.copy(), "input_size": input_img_size}
     res = proxy_function(proxy_input)
@@ -326,9 +339,7 @@ def suppression_optimization(
     norm_a_logits = np.abs(a_logits) / np.linalg.norm(a_logits)
     total_logits = norm_a_logits.sum()
 
-    a_wmargins = (a_proposals[:, 2] - a_proposals[:, 0]) * xy_margin
-    a_hmargins = (a_proposals[:, 3] - a_proposals[:, 1]) * xy_margin
-    a_margins = np.stack([a_wmargins, a_hmargins, a_wmargins, a_hmargins], axis=-1)
+    a_margins = update_margins(a_proposals, xy_margin)
 
     anchor = {
         "proposals": a_proposals,
@@ -340,7 +351,7 @@ def suppression_optimization(
     all_ch_clct_by_group = {}
     all_scales_for_layers = {}
 
-    best_coverage = org_coverage_thres
+    cvg_thres = org_coverage_thres
     for tag, ftensor in ftensors.items():
         assert ftensor.dim() == 3
 
@@ -357,7 +368,7 @@ def suppression_optimization(
         best_num_chs_to_code = 0
         best_scale_idx = 0
 
-        cvg_thres = min(best_coverage, org_coverage_thres)
+        dscale_0_best_cvg = 0
 
         for dscale_idx in scale_list:
             (
@@ -382,7 +393,8 @@ def suppression_optimization(
             )
 
             if best_est_ftensor is None or (
-                (opt_coverage > cvg_thres) and dscale_idx > 0
+                (opt_coverage >= (max(dscale_0_best_cvg, org_coverage_thres) * 0.85))
+                and dscale_idx > 0
             ):
                 best_est_ftensor = opt_est_ftensor
                 best_channel_collections = opt_channel_collections
@@ -392,11 +404,16 @@ def suppression_optimization(
                 best_scale_idx = dscale_idx
 
                 # update search base
-                search_distance = 64  # empirical distance (TODO: hyomin)
-                search_base = opt_num_cluters - (search_distance // 2)
+                search_base = max((opt_num_cluters - 16), 0)
+                search_distance = min((ftensor.shape[0] - search_base), 32)
 
-            # decay cvg_thres
-            cvg_thres = cvg_thres * weight_decay
+                if dscale_idx == 0:
+                    dscale_0_best_cvg = best_coverage
+
+        # decay cvg_thres
+        cvg_thres = cvg_thres * weight_decay
+        xy_margin = xy_margin * margin_ext
+        anchor["margins"] = update_margins(a_proposals, xy_margin)
 
         if logger:
             logger.debug(
