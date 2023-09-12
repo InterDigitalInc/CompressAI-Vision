@@ -205,7 +205,7 @@ def intra_coding(
 
         recon_ftensors[tag] = dequantized_ftensor
 
-        layer_idx + 1
+        layer_idx += 1
 
     return byte_cnt, recon_ftensors
 
