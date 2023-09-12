@@ -84,37 +84,52 @@ def collect_channels(ftensor: Tensor, channel_groups: List, mode=""):
     return cluster_dict
 
 
-def get_ftensor_suppressed(
+def compute_ftensor_to_encode(
     ch_clct_by_group, ftensor, scale, min_nb_channels_for_group, mode=None
 ):
-    rep_ftensor = {}
+    rep_ftensor = []
     sorted_ch_clct_by_group = {}
     coding_modes = np.full(ftensor.shape[0], -1)
 
-    for group_label, ch_ids in ch_clct_by_group.items():
-        if len(ch_ids) >= min_nb_channels_for_group:  # group-coded
-            coding_modes[ch_ids] = group_label
-            rep_ch = compute_representation_channel(ftensor[ch_ids], mode)
-            rep_ftensor[min(ch_ids)] = rep_ch
-            sorted_ch_clct_by_group[min(ch_ids)] = ch_ids
-        else:  # self-coded
-            for ch_id in ch_ids:
-                rep_ftensor[ch_id] = ftensor[ch_id]
-                sorted_ch_clct_by_group[ch_id] = [ch_id]
+    # keep channel_groups that have more than n channels
+    channel_groups = {
+        key: value
+        for key, value in ch_clct_by_group.items()
+        if len(value) >= min_nb_channels_for_group
+    }
 
-    sorted_ch_clct_by_group = dict(
-        sorted(sorted_ch_clct_by_group.items(), key=lambda item: item[0])
+    # sort groups by descreasing number of member channels
+    channel_groups = dict(
+        sorted(
+            channel_groups.items(), key=lambda x: len(x[1]), reverse=True
+        )
     )
-    rep_ftensor = dict(sorted(rep_ftensor.items(), key=lambda item: item[0]))
-    rep_ftensor = list(rep_ftensor.values())
-    sftensor = torch.stack(rep_ftensor)
+    channel_groups = {
+        str(index): value
+        for index, value in enumerate(channel_groups.values())
+    }
 
+    for cluster, indices in enumerate(channel_groups.values()):
+        rep_ch = compute_representation_channel(ftensor[indices], mode)
+        rep_ftensor.append(rep_ch)
+        for ch in indices:
+            coding_modes[ch] = cluster
+
+    # self_coded_channel_idx=len(channel_groups)
+    self_coded_ftensor = []
+    for idx, mode in enumerate(coding_modes):
+        if mode < 0:
+            self_coded_ftensor.append(ftensor[idx])
+   
+    channels_to_encode=rep_ftensor+self_coded_ftensor
+    sftensor = torch.stack(channels_to_encode)
+    
     if scale > 1:
         sftensor = F.interpolate(
             sftensor.unsqueeze(0), scale_factor=1 / scale, mode="bicubic"
         ).squeeze(0)
 
-    return sftensor, coding_modes, sorted_ch_clct_by_group
+    return sftensor, coding_modes, channel_groups
 
 
 def feature_channel_suppression(
@@ -133,7 +148,7 @@ def feature_channel_suppression(
         channel_collections = channel_groups[tag]
         scale = scales_for_layers[tag]
 
-        sftensor, coding_modes, _ = get_ftensor_suppressed(
+        sftensor, coding_modes, _ = compute_ftensor_to_encode(
             channel_collections, ftensor, scale, min_nb_channels_for_group, mode
         )
 
@@ -143,21 +158,30 @@ def feature_channel_suppression(
     return ftensors_to_code, all_channels_coding_modes
 
 
-def rebuild_ftensor(channel_groups, rep_ftensor, scale_idx, shape):
+def rebuild_ftensor(channel_coding_modes, decoded_ftensor, scale_idx, shape):
     C, H, W = shape
 
-    assert rep_ftensor.shape[0] <= C
+    assert decoded_ftensor.shape[0] <= C
 
     if scale_idx > 1:
-        rep_ftensor = F.interpolate(
-            rep_ftensor.unsqueeze(0), size=(H, W), mode="bicubic"
+        decoded_ftensor = F.interpolate(
+            decoded_ftensor.unsqueeze(0), size=(H, W), mode="bicubic"
         ).squeeze(0)
 
-    assert H == rep_ftensor.shape[1] and W == rep_ftensor.shape[2]
+    assert H == decoded_ftensor.shape[1] and W == decoded_ftensor.shape[2]
 
-    recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32).to(rep_ftensor.device)
-    for channels, ftensor in zip(channel_groups, rep_ftensor):
-        recon_ftensor[channels] = ftensor
+    recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32).to(decoded_ftensor.device)
+
+    # first self coded channel at index = nb_cluster
+    self_coded_idx= max(channel_coding_modes)+1
+
+    # reconstruct tensor using modes 
+    for ch_idx in range(C):
+        if channel_coding_modes[ch_idx] == -1:
+            recon_ftensor[ch_idx] = decoded_ftensor[self_coded_idx]
+            self_coded_idx += 1
+        else:
+            recon_ftensor[ch_idx]=decoded_ftensor[channel_coding_modes[ch_idx]]
 
     return recon_ftensor
 
@@ -216,7 +240,7 @@ def find_N_groups_of_channels(
 
         channel_collections = collect_channels(ftensor, channel_groups, mode)
 
-        sftensor, _, sorted_ch_clct_by_group = get_ftensor_suppressed(
+        sftensor, coding_modes, sorted_ch_clct_by_group = compute_ftensor_to_encode(
             channel_collections,
             ftensor,
             (search_dscale_idx + 1),
@@ -225,7 +249,7 @@ def find_N_groups_of_channels(
         )
 
         est_ftensor = rebuild_ftensor(
-            sorted_ch_clct_by_group.values(),
+            coding_modes,
             sftensor,
             (search_dscale_idx + 1),
             ftensor.shape,
