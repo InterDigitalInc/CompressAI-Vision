@@ -18,7 +18,8 @@ encoder_config:
     # options for automatic optimization
     # minimum number of channels per group coding
     min_nb_channels_for_group : 3
-    xy_margin : 0.15 # percentage
+    xy_margin : 0.10 # percentage
+    xy_margin_decay : 0.01 # increase margin by
     coverage_thres: 0.7 # percentage
     coverage_decay: 0.98 # default
 
