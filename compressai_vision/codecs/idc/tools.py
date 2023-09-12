@@ -100,13 +100,10 @@ def compute_ftensor_to_encode(
 
     # sort groups by descreasing number of member channels
     channel_groups = dict(
-        sorted(
-            channel_groups.items(), key=lambda x: len(x[1]), reverse=True
-        )
+        sorted(channel_groups.items(), key=lambda x: len(x[1]), reverse=True)
     )
     channel_groups = {
-        str(index): value
-        for index, value in enumerate(channel_groups.values())
+        str(index): value for index, value in enumerate(channel_groups.values())
     }
 
     for cluster, indices in enumerate(channel_groups.values()):
@@ -120,10 +117,10 @@ def compute_ftensor_to_encode(
     for idx, mode in enumerate(coding_modes):
         if mode < 0:
             self_coded_ftensor.append(ftensor[idx])
-   
-    channels_to_encode=rep_ftensor+self_coded_ftensor
+
+    channels_to_encode = rep_ftensor + self_coded_ftensor
     sftensor = torch.stack(channels_to_encode)
-    
+
     if scale > 1:
         sftensor = F.interpolate(
             sftensor.unsqueeze(0), scale_factor=1 / scale, mode="bicubic"
@@ -170,18 +167,20 @@ def rebuild_ftensor(channel_coding_modes, decoded_ftensor, scale_idx, shape):
 
     assert H == decoded_ftensor.shape[1] and W == decoded_ftensor.shape[2]
 
-    recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32).to(decoded_ftensor.device)
+    recon_ftensor = torch.zeros((C, H, W), dtype=torch.float32).to(
+        decoded_ftensor.device
+    )
 
     # first self coded channel at index = nb_cluster
-    self_coded_idx= max(channel_coding_modes)+1
+    self_coded_idx = max(channel_coding_modes) + 1
 
-    # reconstruct tensor using modes 
+    # reconstruct tensor using modes
     for ch_idx in range(C):
         if channel_coding_modes[ch_idx] == -1:
             recon_ftensor[ch_idx] = decoded_ftensor[self_coded_idx]
             self_coded_idx += 1
         else:
-            recon_ftensor[ch_idx]=decoded_ftensor[channel_coding_modes[ch_idx]]
+            recon_ftensor[ch_idx] = decoded_ftensor[channel_coding_modes[ch_idx]]
 
     return recon_ftensor
 
