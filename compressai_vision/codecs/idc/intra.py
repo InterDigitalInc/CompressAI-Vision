@@ -61,13 +61,11 @@ def _quantize_and_encode(channels, qp, qp_density, maxValue=-1):
     encoder = deepCABAC.Encoder()  # deepCABAC Encoder
     encoder.initCtxModels(10, 0)  # TODO: @eimran Should we change this?
 
-    # print(channels[0, :10, :10])
     quantizedValues = np.zeros(channels.shape, dtype=np.int32)
     encoder.quantFeatures(
         channels.detach().cpu().numpy(), quantizedValues, qp_density, qp, 0
     )  # TODO: @eimran change scan order and qp method
 
-    # print(quantizedValues[0, :10, :10])
     encoder.encodeFeatures(quantizedValues, 0, maxValue)
     bs = bytearray(encoder.finish().tobytes())
     total_bytes_spent = len(bs)
@@ -101,6 +99,17 @@ def _dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
     return recon_features
 
 
+def encode_integers_deepcabac(array: np.array, bitstream_fd):
+    encoder = deepCABAC.Encoder()
+    encoder.initCtxModels(10, 1)  # TODO (fracape) check args
+
+    encoder.encodeFeatures(array, 0, 0)
+    bs = bytearray(encoder.finish().tobytes())
+    byte_cnt = write_uints(bitstream_fd, (bs,))
+    bitstream_fd.write(bs)
+    return byte_cnt
+
+
 def intra_coding(
     sps: SequenceParameterSet,
     ftensors: Dict,
@@ -124,16 +133,10 @@ def intra_coding(
         coding_groups = all_coding_groups[tag]
         scale_minus_1 = scales_for_layers[tag] - 1
 
-        # compressing channels_coding_modes with cabac
-        encoder = deepCABAC.Encoder()
-        encoder.initCtxModels( 10, 1 )
+        # encoding channels_coding_modes with cabac
         indexes = np.array(coding_groups + 1, dtype=np.int32)
-        encoder.encodeFeatures( indexes, 0, 0 )
-        bs = bytearray(encoder.finish().tobytes())
-        byte_cnt += write_uints(bitstream_fd, bs)
-        bitstream_fd.write(bs)
-        
-        # TODO bit wise sps + byte alignment 
+        byte_cnt += encode_integers_deepcabac(indexes, bitstream_fd)
+        # TODO bit wise sps + byte alignment
         if sps.downscale_flag:
             byte_cnt += write_uchars(
                 bitstream_fd,
@@ -209,22 +212,27 @@ def intra_coding(
     return byte_cnt, recon_ftensors
 
 
+def decode_integers(bitstream_fd, array_size) -> np.array:
+    byte_to_read = read_uints(bitstream_fd, 1)[0]
+    byte_array = bytearray(bitstream_fd.read(byte_to_read))
+    decoder = deepCABAC.Decoder()
+    decoder.initCtxModels(10)
+    decoder.setStream(byte_array)
+    decoded_values = np.zeros(array_size, dtype=np.int32)
+    decoder.decodeFeatures(decoded_values, 0, 0)
+    # shift modes so -1 = self-coded
+    decoded_values -= 1
+    return decoded_values
+
+
 def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
     recon_ftensors = {}
     # all_scales_for_layers = {}
     for e, shape_of_ftensor in enumerate(sps.shapes_of_features):
         C, H, W = shape_of_ftensor.values()
         # coding_groups = read_uchars(bitstream_fd, C)
-                
-        byte_to_read = read_uints(bitstream_fd, 1)[0]
-        byte_array = bytearray(bitstream_fd.read(byte_to_read))
-        decoder = deepCABAC.Decoder()
-        decoder.initCtxModels(10)
-        decoder.setStream(byte_array)
-        coding_groups = np.zeros(C, dtype=np.int32)
-        decoder.decodeFeatures(coding_groups, 0, 0)
 
-        coding_groups = np.array(coding_groups) - 1
+        channel_coding_modes = decode_integers(bitstream_fd, C)
 
         scale = 1
         if sps.downscale_flag:
@@ -232,13 +240,15 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
             scale_minus_1 = read_uchars(bitstream_fd, 1)[0]
             scale = scale_minus_1 + 1
 
-        self_coded_labels = np.where(coding_groups == -1)[0]
-        group_coded_labels = np.unique(coding_groups[np.where(coding_groups != -1)])
+        self_coded_labels = np.where(channel_coding_modes == -1)[0]
+        group_coded_labels = np.unique(
+            channel_coding_modes[np.where(channel_coding_modes != -1)]
+        )
 
         # create channel groups
         sorted_ch_clct_by_group = {}
         for group_label in group_coded_labels:
-            channel_ids = list(np.where(coding_groups == group_label)[0])
+            channel_ids = list(np.where(channel_coding_modes == group_label)[0])
             sorted_ch_clct_by_group[min(channel_ids)] = channel_ids
 
         for label in self_coded_labels:
