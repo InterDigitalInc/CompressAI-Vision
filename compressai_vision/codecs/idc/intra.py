@@ -124,17 +124,16 @@ def intra_coding(
         coding_groups = all_coding_groups[tag]
         scale_minus_1 = scales_for_layers[tag] - 1
 
-        # Not compressing the vector channels_coding_modes for now: can use cabac and
-        # differential coding
-        # encode number of clusters kept
-        # TODO (fracape) could it be retrieved/derived from channels_coding_modes
-        assert (
-            coding_groups.max() + 1
-        ) < 256, "too many clusters, currenlty coding nb clusters on one byte"
-
-        byte_cnt += write_uchars(bitstream_fd, coding_groups + 1)
-
-        # it would be better to code by bit
+        # compressing channels_coding_modes with cabac
+        encoder = deepCABAC.Encoder()
+        encoder.initCtxModels( 10, 1 )
+        indexes = np.array(coding_groups + 1, dtype=np.int32)
+        encoder.encodeFeatures( indexes, 0, 0 )
+        bs = bytearray(encoder.finish().tobytes())
+        byte_cnt += write_uints(bitstream_fd, bs)
+        bitstream_fd.write(bs)
+        
+        # TODO bit wise sps + byte alignment 
         if sps.downscale_flag:
             byte_cnt += write_uchars(
                 bitstream_fd,
@@ -215,7 +214,16 @@ def intra_decoding(sps: SequenceParameterSet, bitstream_fd: Any):
     # all_scales_for_layers = {}
     for e, shape_of_ftensor in enumerate(sps.shapes_of_features):
         C, H, W = shape_of_ftensor.values()
-        coding_groups = read_uchars(bitstream_fd, C)
+        # coding_groups = read_uchars(bitstream_fd, C)
+                
+        byte_to_read = read_uints(bitstream_fd, 1)[0]
+        byte_array = bytearray(bitstream_fd.read(byte_to_read))
+        decoder = deepCABAC.Decoder()
+        decoder.initCtxModels(10)
+        decoder.setStream(byte_array)
+        coding_groups = np.zeros(C, dtype=np.int32)
+        decoder.decodeFeatures(coding_groups, 0, 0)
+
         coding_groups = np.array(coding_groups) - 1
 
         scale = 1
