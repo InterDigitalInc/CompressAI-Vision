@@ -14,18 +14,21 @@ encoder_config:
     # if manual_cluster is True, but no n_clusters is provided,
     # full channels will be coded
     n_clusters: {}
-    
-    # options for automatic optimization
-    # minimum number of channels per group coding
-    min_nb_channels_for_group : 3
-    xy_margin : 0.10 # percentage
-    xy_margin_decay : 0.01 # increase margin by
-    coverage_thres: 0.7 # percentage
-    coverage_decay: 0.98 # default
 
+    min_nb_channels_for_group : 3
     # For the manual cluster and downcale are True,
     # all feture tensor will be downscaled by 2
     downscale: True
+    
+    supression_measure: "rpn" # or "mse"
+
+    # sub configurations for suppression with "rpn" measure
+    rpn:
+      # minimum number of channels per group coding
+      xy_margin : 0.10 # percentage
+      xy_margin_decay : 0.01 # increase margin by
+      coverage_thres: 0.7 # percentage
+      coverage_decay: 0.98 # default
 
   # clipping
   clipping: False
