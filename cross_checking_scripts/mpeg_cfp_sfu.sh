@@ -20,7 +20,7 @@ CMD="compressai-vision-eval"
 
 ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++pipeline.type=video \
-        ++paths._runs_root=${OUTPUT_DIR} \
+        ++paths._run_root=${OUTPUT_DIR} \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=9 \
         ++codec.encoder_config.feature_channel_suppression.manual_cluster=False \
