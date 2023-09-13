@@ -6,7 +6,7 @@ variables:
   device: "cuda"
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/idc_cfp_response_1/runs/"
 
   script_dir: "../cross_checking_scripts"
 
@@ -81,6 +81,13 @@ run_sfu_det_class_C_D:
               'RaceHorses_416x240_30_val'
         ]
         qp: [5, 6, 7, 8, 9, 10, 11]
+
+  sbatch:
+    begin: now
+    reservation: deepvideo
+    cpus-per-task: 2
+    gpus-per-task: 1
+    output: slurm_%x_%A_%N_%s.out
 
 generate_csv:
   needs:
