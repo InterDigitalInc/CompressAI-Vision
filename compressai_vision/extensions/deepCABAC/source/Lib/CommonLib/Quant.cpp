@@ -386,7 +386,6 @@ uint32_t quantizeFeatures(float32_t *features, int32_t *level, const float32_t q
     {
       return 0; // check for int32_t overflow
     }
-    // TODO fracape: that's the max per tensor
     if (scaledVal > maxValue)
     {
       maxValue = std::abs(scaledVal);

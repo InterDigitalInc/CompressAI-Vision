@@ -2,7 +2,7 @@
 
 RUN="slurm" # "gnu_parallel" or "sequential" or "slurm"
 INPUT_DIR="/data/datasets/MPEG-FCVCM/vcm_testdata" # needed for NN_PART2
-BITSTREAM_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs/cfp_test" 
+BITSTREAM_DIR="/mnt/wekamount/scratch_fcvcm/racapef/test_decodes/fcvcm-cfp-proposal16_package"
 
 #################################################################
 # CODEC_PARAMS="++pipeline.codec.encode_only=True" -> Only Encode
@@ -10,8 +10,8 @@ BITSTREAM_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs/cfp_test"
 # CODEC_PARAMS="" -> Encode + Decode
 CODEC_PARAMS="++pipeline.codec.decode_only=True" 
 EXPERIMENT="_gen_bitstreams_v1"
-QPS=`echo "8 12"`
-DEVICE="cuda"
+QPS=`echo "5 11"`
+DEVICE="cpu"
 #################################################################
 
 # total number of jobs = 84
@@ -23,7 +23,7 @@ if [[ ${RUN} == "gnu_parallel" ]]; then
     export -f run_scripts
 elif [[ ${RUN} == "slurm" ]]; then
     run_scripts () {
-        sbatch --gpus 1 --reservation=deepvideo --job-name=sfu_decode $1
+        sbatch --gpus 0 --reservation=deepvideo2 --job-name=sfu_decode $1
     }
     export -f run_scripts
 else
@@ -49,8 +49,11 @@ for SEQ in \
             'BlowingBubbles_416x240_50_val' \
             'RaceHorses_416x240_30_val'
 do
-    for QP in ${QPS}
+    for BITSTREAM in $( find ${BITSTREAM_DIR} -type f -name "sfu-hw-${SEQ}*.bin" );
     do
+        # Get QP from bitstream name
+        QP=$(echo "$BITSTREAM" | grep -oP '(?<=qp)[^_]*(?=_qpdensity)' | tail -n 1)
+        #echo $QP
         echo RUN: ${RUN}, Input Dir: ${INPUT_DIR}, Bitstream Dir: ${BITSTREAM_DIR}, Exp Name: ${EXPERIMENT}, Device: ${DEVICE}, QP: ${QP}, SEQ: ${SEQ}, CODEC_PARAMS: ${CODEC_PARAMS}
         run_scripts "../mpeg_cfp_sfu.sh ${INPUT_DIR} ${BITSTREAM_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
     done

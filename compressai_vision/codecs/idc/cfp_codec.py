@@ -154,7 +154,6 @@ class CFP_CODEC(nn.Module):
         self.min_nb_channels_for_group = self.suppression_cfg[
             "min_nb_channels_for_group"
         ]
-        self.clipping = self.enc_cfg["clipping"]
 
         self.qp = self.enc_cfg["qp"]
         self.qp_density = self.enc_cfg["qp_density"]
@@ -241,8 +240,6 @@ class CFP_CODEC(nn.Module):
         sps.digest(**input)
 
         # write sps
-        # TODO (fracape) nbframes, qp, qp_density are temporary syntax.
-        # These are removed later
         hls_header_bytes = sps.write(
             bitstream_fd,
             nbframes,
@@ -287,7 +284,6 @@ class CFP_CODEC(nn.Module):
             ](
                 sps,
                 ftensors_to_code,
-                self.clipping,
                 all_channels_coding_modes,
                 scales_for_layers,
                 bitstream_fd,

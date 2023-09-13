@@ -6,7 +6,7 @@ VCM_TESTDATA=$1
 OUTPUT_DIR=$2
 EXPERIMENT=$3
 DEVICE=$4
-QP=$5
+qp=$5
 SEQ=$6
 CODEC_PARAMS=$7
 
@@ -30,7 +30,7 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin=0.10 \
         ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin_decay=0.01 \
         ++codec.encoder_config.feature_channel_suppression.rpn.coverage_decay=0.98 \
-        ++codec.encoder_config.qp=${QP} \
+        ++codec.encoder_config.qp=${qp} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \
         ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \

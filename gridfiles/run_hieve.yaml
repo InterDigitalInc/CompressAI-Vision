@@ -4,7 +4,7 @@ variables:
 
   exp_name: "_gen_bitstreams_v1"
   device: "cuda"
-  CODEC_PARAMS: "" 
+  CODEC_PARAMS: ""
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
   output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
@@ -17,11 +17,11 @@ run_hieve_tracking:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_hieve.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" ${CODEC_PARAMS}
+    - bash mpeg_cfp_hieve.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "${CODEC_PARAMS}"
 
   parallel:
     matrix:
-      - seq_name: [      
+      - seq_name: [
             '13',
             '16',
             '2',

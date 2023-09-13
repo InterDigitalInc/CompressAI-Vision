@@ -6,7 +6,7 @@ VCM_TESTDATA=$1
 OUTPUT_DIR=$2
 EXPERIMENT=$3
 DEVICE=$4
-QP=$5
+qp=$5
 SEQ=$6
 CODEC_PARAMS=$7
 
@@ -26,7 +26,7 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++codec.encoder_config.feature_channel_suppression.manual_cluster=True \
         ++codec.encoder_config.feature_channel_suppression.n_clusters='{36: 128, 61: 128, 74: 128}' \
         ++codec.encoder_config.feature_channel_suppression.downscale=False \
-        ++codec.encoder_config.qp=${QP} \
+        ++codec.encoder_config.qp=${qp} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \
         ++vision_model.arch=jde_1088x608 \
