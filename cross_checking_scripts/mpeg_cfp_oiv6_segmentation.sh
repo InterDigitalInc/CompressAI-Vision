@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
 set -eu
+export DNNL_MAX_CPU_ISA=AVX2
 
 VCM_TESTDATA=$1
 OUTPUT_DIR=$2
 EXPERIMENT=$3
 DEVICE=$4
 qp=$5
+CODEC_PARAMS=$6
+
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${CODEC_PARAMS}
 
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 
 CONF_NAME="eval_cfp_codec"
-# CONF_NAME="eval_vtm"
-# CONF_NAME="eval_ffmpeg"
-
-CODEC_PARAMS=""
-# e.g.
-# CODEC_PARAMS="++codec.type=x265"
 
 CMD="compressai-vision-eval"
 

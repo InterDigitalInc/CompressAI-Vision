@@ -10,31 +10,18 @@ variables:
 
   script_dir: "../cross_checking_scripts"
 
-run_sfu_det:
+run_sfu_det_class_A:
 
   before_script:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}"
+    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.60"
 
   parallel:
     matrix:
       - seq_name: [      
               'Traffic_2560x1600_30_val',
-              'Kimono_1920x1080_24_val',
-              'ParkScene_1920x1080_24_val',
-              'Cactus_1920x1080_50_val',
-              'BasketballDrive_1920x1080_50_val',
-              'BQTerrace_1920x1080_60_val',
-              'BasketballDrill_832x480_50_val',
-              'BQMall_832x480_60_val',
-              'PartyScene_832x480_50_val',
-              'RaceHorses_832x480_30_val',
-              'BasketballPass_416x240_50_val',
-              'BQSquare_416x240_60_val',
-              'BlowingBubbles_416x240_50_val',
-              'RaceHorses_416x240_30_val'
         ]
         qp: [5, 6, 7, 8, 9, 10]
 
@@ -46,9 +33,60 @@ run_sfu_det:
     gpus-per-task: 1
     output: slurm_%x_%A_%N_%s.out
 
+run_sfu_det_class_B:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'Kimono_1920x1080_24_val',
+              'ParkScene_1920x1080_24_val',
+              'Cactus_1920x1080_50_val',
+              'BasketballDrive_1920x1080_50_val',
+              'BQTerrace_1920x1080_60_val',
+        ]
+        qp: [5, 6, 7, 8, 9, 10, 11]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo
+    cpus-per-task: 2
+    gpus-per-task: 1
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_class_C_D:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.85"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'BasketballDrill_832x480_50_val',
+              'BQMall_832x480_60_val',
+              'PartyScene_832x480_50_val',
+              'RaceHorses_832x480_30_val',
+              'BasketballPass_416x240_50_val',
+              'BQSquare_416x240_60_val',
+              'BlowingBubbles_416x240_50_val',
+              'RaceHorses_416x240_30_val'
+        ]
+        qp: [5, 6, 7, 8, 9, 10, 11]
+
 generate_csv:
   needs:
-    - run_sfu_det
+    - run_sfu_det_class_A
+    - run_sfu_det_class_B
+    - run_sfu_det_class_C_D
 
   before_script:
     - cd "${script_dir}"
