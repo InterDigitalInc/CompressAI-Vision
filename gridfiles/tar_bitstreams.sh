@@ -4,7 +4,9 @@ TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 
 cd ${output_dir}
 
-find . -name "*.bin" -o -name "*.dump" | tar -cf cfp_bitstream_${TIMESTAMP}.tar.gz -T -
+find . -name "*.bin"  | tar -cf fcvcm-cfp-proposal16_bitstreams_and_decoder_${TIMESTAMP}.tar.gz -T -
+find . -name "*.dump" | tar -cf fcvcm-cfp-proposal16_feature_dumps_${TIMESTAMP}.tar.gz -T -
 
-echo "bitstreams tar file saved at..."
-echo ${output_dir}/cfp_bitstream_${TIMESTAMP}.tar.gz
+echo "tar files saved at..."
+echo ${output_dir}/fcvcm-cfp-proposal16_bitstreams_and_decoder_${TIMESTAMP}.tar.gz
+echo ${output_dir}/fcvcm-cfp-proposal16_feature_dumps_${TIMESTAMP}.tar.gz

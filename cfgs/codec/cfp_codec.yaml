@@ -1,6 +1,6 @@
 type: "cfp_codec"
-eval_encode: "bitrate" # or "bpp" 
-experiment: "" # e.g. "_clipping_on" name experiment preceded by "_"
+eval_encode: "bitrate" # or "bpp"
+experiment: "" # e.g. "_test_xy_margin_decay" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 
@@ -19,7 +19,7 @@ encoder_config:
     # For the manual cluster and downcale are True,
     # all feture tensor will be downscaled by 2
     downscale: True
-    
+
     supression_measure: "rpn" # or "mse"
 
     # sub configurations for suppression with "rpn" measure
@@ -29,9 +29,6 @@ encoder_config:
       xy_margin_decay : 0.01 # increase margin by
       coverage_thres: 0.7 # percentage
       coverage_decay: 0.98 # default
-
-  # clipping
-  clipping: False
 
   # inter cfg
   intra_period: -1
@@ -46,4 +43,4 @@ encoder_config:
   # qp - dc
   dc_qp_offset: -60
   # max (dc_qp_density_offset) = (5 - qp_density)
-  dc_qp_density_offset: 3 # has significant impact on mAP 
+  dc_qp_density_offset: 3 # has significant impact on mAP

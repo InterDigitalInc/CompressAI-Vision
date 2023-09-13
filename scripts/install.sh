@@ -3,9 +3,8 @@
 # This clones and build model architectures and gets pretrained weights
 set -eu
 
-# default values, to be adapted w.r.t. MPEG FCVCM documents
-TORCH_VERSION="2.0.0" # "1.10.2"
-TORCHVISION_VERSION="0.15.1" # "0.11.3"
+TORCH_VERSION="2.0.0"
+TORCHVISION_VERSION="0.15.1"
 CUDA_VERSION=""
 MODEL="all"
 CPU="False"
@@ -175,13 +174,13 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
         echo "error with python site-packages directory, check your system and 'which python'"
         echo "ERROR: Fail to install JDE"
     fi
-    
+
     mkdir -p ${SITE_PACKAGES}/jde
     cp models.py ${SITE_PACKAGES}/jde
     cp -r tracker ${SITE_PACKAGES}/jde/
     cp -r utils ${SITE_PACKAGES}/jde/
     echo "Complete copying jde files to site-packages @ ${SITE_PACKAGES}/jde"
-    
+
     # back to project root
     cd ${SCRIPT_DIR}/..
 
@@ -192,7 +191,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
 
     WEIGHT_DIR=""weights/jde""
     mkdir -p ${WEIGHT_DIR}
-    
+
     FILEID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
     OUTFILE='jde.1088x608.uncertainty.pt'
     wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt

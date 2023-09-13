@@ -4,7 +4,7 @@ variables:
 
   exp_name: "_gen_bitstreams_v1"
   device: "cuda"
-  CODEC_PARAMS: "" 
+  CODEC_PARAMS: ""
 
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
@@ -18,7 +18,7 @@ run_oiv6_det:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_oiv6_detection.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" ${CODEC_PARAMS}
+    - bash mpeg_cfp_oiv6_detection.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${CODEC_PARAMS}"
 
   parallel:
     matrix:
@@ -38,7 +38,7 @@ run_oiv6_seg:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_oiv6_segmentation.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" ${CODEC_PARAMS}
+    - bash mpeg_cfp_oiv6_segmentation.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${CODEC_PARAMS}"
 
   parallel:
     matrix:

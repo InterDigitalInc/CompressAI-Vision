@@ -57,9 +57,8 @@ def _add_dc_values(ftensor, dc):
 
 
 def _quantize_and_encode(channels, qp, qp_density, maxValue=-1):
-    # TODO (fracape) check perf vs cabac per channel
     encoder = deepCABAC.Encoder()  # deepCABAC Encoder
-    encoder.initCtxModels(10, 0)  # TODO: @eimran Should we change this?
+    encoder.initCtxModels(10, 0)  # TODO: check nb ctx
 
     quantizedValues = np.zeros(channels.shape, dtype=np.int32)
     encoder.quantFeatures(
@@ -101,7 +100,7 @@ def _dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
 
 def encode_integers_deepcabac(array: np.array, bitstream_fd):
     encoder = deepCABAC.Encoder()
-    encoder.initCtxModels(10, 1)  # TODO (fracape) check args
+    encoder.initCtxModels(10, 1)  # TODO check args
     encoder.encodeFeatures(array, 0, 0)
     bs = bytearray(encoder.finish().tobytes())
     byte_cnt = write_uints(bitstream_fd, (len(bs),))
@@ -112,17 +111,11 @@ def encode_integers_deepcabac(array: np.array, bitstream_fd):
 def intra_coding(
     sps: SequenceParameterSet,
     ftensors: Dict,
-    clipping_enabled,
     all_coding_groups: Dict,
     scales_for_layers: Dict,
     bitstream_fd: Any,
 ):
     byte_cnt = 0
-
-    # temporary hard coded
-    # @eimran sigma clipping value 3 for all tag might improve mAP!
-    # QP=8, {"p2": 80, "p3": 180, "p4": 190, "p5": 2}
-    # Traffic mAP 44.2223 (better than uncmp)
 
     byte_cnt += write_uchars(bitstream_fd, (FeatureTensorCodingType.I_TYPE.value,))
 
@@ -145,27 +138,11 @@ def intra_coding(
                 ],
             )
 
-        if clipping_enabled:
-            # sigma clipping
-            nb_sigmas = {"p2": 3, "p3": 3, "p4": 3, "p5": 3}
-            mu = ftensor.mean()
-            std = ftensor.std()
-
-            min_clip = mu - (nb_sigmas[tag] * std)
-            max_clip = mu + (nb_sigmas[tag] * std)
-
-            assert max_clip >= 0
-
-            # TODO (fracape) check best method, for now, clip at -max, max
-            clip_bnd = max(abs(min_clip), max_clip)
-
-            ftensor = ftensor.clamp(min=-clip_bnd, max=clip_bnd)
-
         # center data and get DC values
         dc, centered_ftensor = _center_data(ftensor)
 
         (
-            byte_spent,
+            nb_bytes_dc,
             byte_array,
             quantized_dc,
         ) = _quantize_and_encode(
@@ -174,8 +151,8 @@ def intra_coding(
             sps.qp_density + sps.dc_qp_density_offset,
         )
 
-        byte_cnt += write_uints(bitstream_fd, (byte_spent,))
-        byte_cnt += byte_spent
+        byte_cnt += write_uints(bitstream_fd, (nb_bytes_dc,))
+        byte_cnt += nb_bytes_dc
         bitstream_fd.write(byte_array)
         # end
 
@@ -183,16 +160,16 @@ def intra_coding(
         if layer_idx > 0:
             layer_qp += sps.layer_qp_offsets[layer_idx - 1]
         (
-            byte_spent,
+            nb_bytes_tensor,
             byte_array,
             quantized_ftensor,
         ) = _quantize_and_encode(centered_ftensor, sps.qp, sps.qp_density)
 
-        byte_cnt += write_uints(bitstream_fd, (byte_spent,))
-        byte_cnt += byte_spent
+        byte_cnt += write_uints(bitstream_fd, (nb_bytes_tensor,))
+        byte_cnt += nb_bytes_tensor
         bitstream_fd.write(byte_array)
 
-        # de-quantize for reconstructed feature tensor
+        # reconstruct features
         decoder = deepCABAC.Decoder()
         decoder.initCtxModels(10)
 

@@ -49,7 +49,6 @@ def get_env(conf: DictConfig) -> dict[str, Any]:
                 conf.env.git[package.__name__].main_branch,
             )
             for package in [compressai_vision]
-            # NOTE (fracape) can add compressai here when used
         },
         "slurm": {
             "account": os.environ.get("SLURM_JOB_ACCOUNT"),
