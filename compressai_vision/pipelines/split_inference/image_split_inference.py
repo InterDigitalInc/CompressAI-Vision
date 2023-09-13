@@ -101,6 +101,9 @@ class ImageSplitInference(BaseSplit):
                 print(f"reading bitstream... {bitstream_path}")
                 res["bitstream"] = bitstream_path
 
+            if self.configs["codec"]["encode_only"] is True:
+                continue
+
             start = time.time()
             dec_features = self._decompress_features(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
@@ -154,6 +157,10 @@ class ImageSplitInference(BaseSplit):
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
             out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
+
+        if self.configs["codec"]["encode_only"] is True:
+            print(f"bitstreams generated, exiting")
+            raise SystemExit(0)
 
         eval_performance = self._evaluation(evaluator)
 
