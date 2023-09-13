@@ -105,7 +105,7 @@ def encode_integers_deepcabac(array: np.array, bitstream_fd):
     bs = bytearray(encoder.finish().tobytes())
     byte_cnt = write_uints(bitstream_fd, (len(bs),))
     bitstream_fd.write(bs)
-    return byte_cnt
+    return byte_cnt + len(bs)
 
 
 def intra_coding(
