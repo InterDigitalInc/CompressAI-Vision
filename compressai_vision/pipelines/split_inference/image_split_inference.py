@@ -76,19 +76,30 @@ class ImageSplitInference(BaseSplit):
 
             file_prefix = f'img_id_{d[0]["image_id"]}'
 
-            start = time.time()
-            featureT = self._from_input_to_features(vision_model, d, file_prefix)
-            end = time.time()
-            timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+            if not self.configs["codec"]["decode_only"]:
+                start = time.time()
+                featureT = self._from_input_to_features(vision_model, d, file_prefix)
+                end = time.time()
+                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
-            featureT["org_input_size"] = org_img_size
+                featureT["org_input_size"] = org_img_size
 
-            start = time.time()
-            res = self._compress_features(
-                codec, featureT, self.codec_output_dir, self.bitstream_name, file_prefix
-            )
-            end = time.time()
-            timing["encode"] = timing["encode"] + (end - start)
+                start = time.time()
+                res = self._compress_features(
+                    codec,
+                    featureT,
+                    self.codec_output_dir,
+                    self.bitstream_name,
+                    file_prefix,
+                )
+                end = time.time()
+                timing["encode"] = timing["encode"] + (end - start)
+            else:
+                res = {}
+                bitstream_name = f"{self.bitstream_name}-{file_prefix}.bin"
+                bitstream_path = os.path.join(self.codec_output_dir, bitstream_name)
+                print(f"reading bitstream... {bitstream_path}")
+                res["bitstream"] = bitstream_path
 
             start = time.time()
             dec_features = self._decompress_features(
@@ -98,9 +109,9 @@ class ImageSplitInference(BaseSplit):
             timing["decode"] = timing["decode"] + (end - start)
 
             # Replacing tag names to be safe for interfacing with NN-part2
-            dec_features["data"] = dict(
-                zip(featureT["data"].keys(), dec_features["data"].values())
-            )
+            # dec_features["data"] = dict(
+            #     zip(featureT["data"].keys(), dec_features["data"].values())
+            # )
 
             if not "input_size" in dec_features:
                 self.logger.warning(
@@ -135,10 +146,13 @@ class ImageSplitInference(BaseSplit):
             out_res["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
-            out_res["bytes"] = res["bytes"][0]
+            if self.configs["codec"]["decode_only"]:
+                out_res["bytes"] = os.stat(res["bitstream"]).st_size
+            else:
+                out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
-            out_res["input_size"] = featureT["input_size"][0]
+            out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
 
         eval_performance = self._evaluation(evaluator)

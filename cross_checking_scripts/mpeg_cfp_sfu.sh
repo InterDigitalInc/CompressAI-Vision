@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eu
+export DNNL_MAX_CPU_ISA=AVX2
 
 VCM_TESTDATA=$1
 OUTPUT_DIR=$2
@@ -7,17 +8,13 @@ EXPERIMENT=$3
 DEVICE=$4
 QP=$5
 SEQ=$6
-CVG=$7
+CODEC_PARAMS=$7
+
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${SEQ}, ${CODEC_PARAMS}
 
 SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
 
 CONF_NAME="eval_cfp_codec"
-# CONF_NAME="eval_vtm"
-# CONF_NAME="eval_ffmpeg"
-
-CODEC_PARAMS=""
-# e.g.
-# CODEC_PARAMS="++codec.type=x265"
 
 CMD="compressai-vision-eval"
 
@@ -32,7 +29,6 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++codec.encoder_config.feature_channel_suppression.supression_measure='rpn' \
         ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin=0.10 \
         ++codec.encoder_config.feature_channel_suppression.rpn.xy_margin_decay=0.01 \
-        ++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=${CVG} \
         ++codec.encoder_config.feature_channel_suppression.rpn.coverage_decay=0.98 \
         ++codec.encoder_config.qp=${QP} \
         ++codec.eval_encode='bitrate' \

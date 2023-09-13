@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eu
+export DNNL_MAX_CPU_ISA=AVX2
 
 VCM_TESTDATA=$1
 OUTPUT_DIR=$2
@@ -7,16 +8,13 @@ EXPERIMENT=$3
 DEVICE=$4
 QP=$5
 SEQ=$6
+CODEC_PARAMS=$7
+
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${SEQ}, ${CODEC_PARAMS}
 
 HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
 
 CONF_NAME="eval_cfp_codec"
-# CONF_NAME="eval_vtm"
-# CONF_NAME="eval_ffmpeg"
-
-CODEC_PARAMS=""
-# e.g.
-# CODEC_PARAMS="++codec.type=x265"
 
 CMD="compressai-vision-eval"
 
@@ -27,7 +25,7 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++pipeline.conformance.subsample_ratio=90 \
         ++codec.encoder_config.feature_channel_suppression.manual_cluster=True \
         ++codec.encoder_config.feature_channel_suppression.n_clusters='{75: 64, 90: 128, 105: 128}' \
-        ++codec.encoder_config.feature_channel_suppression.downscale=True \
+        ++codec.encoder_config.feature_channel_suppression.downscale=False \
         ++codec.encoder_config.qp=${qp} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \
