@@ -45,7 +45,7 @@ do
         CMD="${CMD_GRID} --job-name=${JOBNAME} -- compressai-vision-eval"
     fi
     ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
-            ++paths._runs_root=${OUTPUT_DIR} \
+            ++paths._run_root=${OUTPUT_DIR} \
             ++pipeline.type=image \
             ++pipeline.conformance.save_conformance_files=True \
             ++pipeline.conformance.subsample_ratio=9 \
@@ -77,7 +77,7 @@ do
     fi
     echo "running ${JOBNAME} with qp=${qp}"  
     ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
-        ++paths._runs_root="${OUTPUT_DIR}" \
+        ++paths._run_root="${OUTPUT_DIR}" \
         ++pipeline.type=image \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=9 \

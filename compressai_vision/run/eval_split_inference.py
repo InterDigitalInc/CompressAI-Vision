@@ -98,20 +98,20 @@ def print_specs(pipeline, **kwargs):
                 \n {'='*60}\
                 \n Pipeline       : {title(pipeline):<30s}\
                 \n Vision Model   : {title(kwargs['vision_model']):<30s}\
-                \n  -- Cfg        : {kwargs['vision_model'].model_cfg_path}\
-                \n  -- Weight     : {kwargs['vision_model'].pretrained_weight_path}\
+                \n  -- Cfg        : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
+                \n  -- Weight     : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
                 \n Codec          : {title(kwargs['codec']):<30s}\
                 \n  -- Enc. Only  : {pipeline.configs['codec'].encode_only} \
                 \n  -- Dec. Only  : {pipeline.configs['codec'].decode_only} \
-                \n  -- Output Dir : {pipeline.codec_output_dir} \
+                \n  -- Output Dir : {Path(pipeline.codec_output_dir).resolve()} \
                 \n  -- Bitstream  : {pipeline.bitstream_name}.bin \
                 \n Dataset        : {kwargs['evaluator'].dataset_name} \
-                \n  -- Data       : {kwargs['dataloader'].dataset.images_folder} \
-                \n  -- Annotation : {kwargs['dataloader'].dataset.annotation_path} \
-                \n  -- SEQ-INFO   : {kwargs['dataloader'].dataset.seqinfo_path} \
+                \n  -- Data       : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
+                \n  -- Annotation : {Path(kwargs['dataloader'].dataset.annotation_path).resolve()} \
+                \n  -- SEQ-INFO   : {Path(kwargs['dataloader'].dataset.seqinfo_path).resolve()} \
                 \n Evaluator      : {title(kwargs['evaluator']):<30s}\
                 \n  -- DataCatalog: {kwargs['evaluator'].datacatalog_name} \
-                \n  -- Output Dir : {kwargs['evaluator'].output_dir} \
+                \n  -- Output Dir : {Path(kwargs['evaluator'].output_dir).resolve()} \
                 \n  -- Output file: {kwargs['evaluator'].output_file_name} \
                 \n\n\
     "
