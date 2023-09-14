@@ -46,7 +46,7 @@ class BaseEvaluator(nn.Module):
         self.output_file_name = (
             f"{self.__class__.__name__}_on_{datacatalog_name}_{dataset_name}"
         )
-        self.eval_info_file_name = self.get_eval_info_name(self.dataset_name)
+
         self.annotation_path = dataset.annotation_path
         self.seqinfo_path = dataset.seqinfo_path
 
@@ -54,8 +54,12 @@ class BaseEvaluator(nn.Module):
         self.thing_id_mapping = dataset.thing_dataset_id_to_contiguous_id
 
     @staticmethod
-    def get_eval_info_name(name):
+    def get_jde_eval_info_name(name):
         return f"{name}_info_to_eval.h5"
+
+    @staticmethod
+    def get_coco_eval_info_name(name):
+        return "coco_instances_results.json"
 
     def reset(self):
         raise NotImplementedError
