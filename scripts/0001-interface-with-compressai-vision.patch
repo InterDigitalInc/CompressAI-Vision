@@ -1,15 +1,15 @@
-From 05d911d9dd4c38b2d30524c012aaccec3395ae62 Mon Sep 17 00:00:00 2001
+From b45a930c6a162296e8995fdfeeef210d69fc2e93 Mon Sep 17 00:00:00 2001
 Subject: [PATCH] interface-with-compressai-vision
 
 ---
  models.py               | 100 +++++++++++++++++++++++++++++++---------
  tracker/matching.py     |  14 +++---
- tracker/multitracker.py |  45 ++++++++++--------
+ tracker/multitracker.py |  49 ++++++++++++--------
  utils/datasets.py       |   2 +-
  utils/evaluation.py     |   2 +-
  utils/io.py             |   2 +-
- utils/utils.py          |   8 ++--
- 7 files changed, 118 insertions(+), 55 deletions(-)
+ utils/utils.py          |  31 +++++++------
+ 7 files changed, 133 insertions(+), 67 deletions(-)
 
 diff --git a/models.py b/models.py
 index ef595e3..ccd6606 100644
@@ -287,10 +287,10 @@ index 33a5ac6..189011c 100644
  
      return cost_matrix
 diff --git a/tracker/multitracker.py b/tracker/multitracker.py
-index eae4683..f11989a 100644
+index eae4683..40f1fe7 100644
 --- a/tracker/multitracker.py
 +++ b/tracker/multitracker.py
-@@ -1,10 +1,10 @@
+@@ -1,19 +1,21 @@
 -from numba import jit
 +import numba as nb
  from collections import deque
@@ -305,8 +305,11 @@ index eae4683..f11989a 100644
 +from jde.tracker import matching
  from .basetrack import BaseTrack, TrackState
  
++import os
++DEVICE = os.environ['DEVICE']
  
-@@ -13,7 +13,7 @@ class STrack(BaseTrack):
+ class STrack(BaseTrack):
+ 
      def __init__(self, tlwh, score, temp_feat, buffer_size=30):
  
          # wait activate
@@ -315,7 +318,7 @@ index eae4683..f11989a 100644
          self.kalman_filter = None
          self.mean, self.covariance = None, None
          self.is_activated = False
-@@ -103,30 +103,37 @@ class STrack(BaseTrack):
+@@ -103,30 +105,37 @@ class STrack(BaseTrack):
              self.update_features(new_track.curr_feat)
  
      @property
@@ -364,7 +367,7 @@ index eae4683..f11989a 100644
      def tlwh_to_xyah(tlwh):
          """Convert bounding box to format `(center x, center y, aspect ratio,
          height)`, where the aspect ratio is `width / height`.
-@@ -140,14 +147,14 @@ class STrack(BaseTrack):
+@@ -140,14 +149,14 @@ class STrack(BaseTrack):
          return self.tlwh_to_xyah(self.tlwh)
  
      @staticmethod
@@ -381,6 +384,15 @@ index eae4683..f11989a 100644
      def tlwh_to_tlbr(tlwh):
          ret = np.asarray(tlwh).copy()
          ret[2:] += ret[:2]
+@@ -163,7 +172,7 @@ class JDETracker(object):
+         self.model = Darknet(opt.cfg, nID=14455)
+         # load_darknet_weights(self.model, opt.weights)
+         self.model.load_state_dict(torch.load(opt.weights, map_location='cpu')['model'], strict=False)
+-        self.model.cuda().eval()
++        self.model.to(DEVICE).eval()
+ 
+         self.tracked_stracks = []  # type: list[STrack]
+         self.lost_stracks = []  # type: list[STrack]
 diff --git a/utils/datasets.py b/utils/datasets.py
 index 88546a3..2f9f510 100644
 --- a/utils/datasets.py
@@ -421,10 +433,18 @@ index e6ddd21..5256ec2 100644
  
  def write_results(filename, results_dict: Dict, data_type: str):
 diff --git a/utils/utils.py b/utils/utils.py
-index 3e712b3..ee493d3 100644
+index 3e712b3..4174f9d 100644
 --- a/utils/utils.py
 +++ b/utils/utils.py
-@@ -102,11 +102,11 @@ def xywh2xyxy(x):
+@@ -10,6 +10,7 @@ import torch
+ import torch.nn.functional as F
+ from torchvision.ops import nms
+ 
++DEVICE = os.environ['DEVICE']
+ 
+ def mkdir_if_missing(dir):
+     os.makedirs(dir, exist_ok=True)
+@@ -102,11 +103,11 @@ def xywh2xyxy(x):
  
  def scale_coords(img_size, coords, img0_shape):
      # Rescale x1, y1, x2, y2 from 416 to image size
@@ -440,6 +460,53 @@ index 3e712b3..ee493d3 100644
      coords[:, [0, 2]] -= pad_x
      coords[:, [1, 3]] -= pad_y
      coords[:, 0:4] /= gain
+@@ -233,14 +234,14 @@ def build_targets_max(target, anchor_wh, nA, nC, nGh, nGw):
+     """
+     nB = len(target)  # number of images in batch
+ 
+-    txy = torch.zeros(nB, nA, nGh, nGw, 2).cuda()  # batch size, anchors, grid size
+-    twh = torch.zeros(nB, nA, nGh, nGw, 2).cuda()
+-    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).cuda()
+-    tcls = torch.ByteTensor(nB, nA, nGh, nGw, nC).fill_(0).cuda()  # nC = number of classes
+-    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).cuda() 
++    txy = torch.zeros(nB, nA, nGh, nGw, 2).to(DEVICE)  # batch size, anchors, grid size
++    twh = torch.zeros(nB, nA, nGh, nGw, 2).to(DEVICE)
++    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).to(DEVICE)
++    tcls = torch.ByteTensor(nB, nA, nGh, nGw, nC).fill_(0).to(DEVICE)  # nC = number of classes
++    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).to(DEVICE) 
+     for b in range(nB):
+         t = target[b]
+-        t_id = t[:, 1].clone().long().cuda()
++        t_id = t[:, 1].clone().long().to(DEVICE)
+         t = t[:,[0,2,3,4,5]]
+         nTb = len(t)  # number of targets
+         if nTb == 0:
+@@ -319,12 +320,12 @@ def build_targets_thres(target, anchor_wh, nA, nC, nGh, nGw):
+     nB = len(target)  # number of images in batch
+     assert(len(anchor_wh)==nA)
+ 
+-    tbox = torch.zeros(nB, nA, nGh, nGw, 4).cuda()  # batch size, anchors, grid size
+-    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).cuda()
+-    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).cuda() 
++    tbox = torch.zeros(nB, nA, nGh, nGw, 4).to(DEVICE)  # batch size, anchors, grid size
++    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).to(DEVICE)
++    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).to(DEVICE) 
+     for b in range(nB):
+         t = target[b]
+-        t_id = t[:, 1].clone().long().cuda()
++        t_id = t[:, 1].clone().long().to(DEVICE)
+         t = t[:,[0,2,3,4,5]]
+         nTb = len(t)  # number of targets
+         if nTb == 0:
+@@ -373,7 +374,7 @@ def build_targets_thres(target, anchor_wh, nA, nC, nGh, nGw):
+ def generate_anchor(nGh, nGw, anchor_wh):
+     nA = len(anchor_wh)
+     yy, xx =torch.meshgrid(torch.arange(nGh), torch.arange(nGw))
+-    xx, yy = xx.cuda(), yy.cuda()
++    xx, yy = xx.to(DEVICE), yy.to(DEVICE)
+ 
+     mesh = torch.stack([xx, yy], dim=0)                                              # Shape 2, nGh, nGw
+     mesh = mesh.unsqueeze(0).repeat(nA,1,1,1).float()                                # Shape nA x 2 x nGh x nGw
 -- 
 2.25.1
 
