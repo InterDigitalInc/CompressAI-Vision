@@ -31,6 +31,7 @@ import copy
 import json
 import os
 import time
+from pathlib import Path
 
 import motmetrics as mm
 import numpy as np
@@ -493,6 +494,15 @@ class MOT_JDE_Eval(BaseEvaluator):
 
         return self.digest_summary(summary)
 
+    def _save_all_eval_info(self, pred: dict):
+        Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+        file_name = f"{self.output_dir}/{self.eval_info_file_name}"
+        torch.save(pred, file_name)
+
+    def _load_all_eval_info(self):
+        file_name = f"{self.output_dir}/{self.eval_info_file_name}"
+        return torch.load(file_name)
+
 
 @register_evaluator("MOT-TVD-EVAL")
 class MOT_TVD_Eval(MOT_JDE_Eval):
@@ -516,6 +526,7 @@ class MOT_TVD_Eval(MOT_JDE_Eval):
             self._predictions
         ), "Total number of frames are mismatch"
 
+        self._save_all_eval_info(self._predictions)
         _pd_pd = self._format_pd_in_motchallenge(self._predictions)
 
         acc, ana = mm.utils.CLEAR_MOT_M(self._gt_pd, _pd_pd, self.seqinfo_path)
@@ -561,6 +572,7 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
             self._predictions
         ), "Total number of frames are mismatch"
 
+        self._save_all_eval_info(self._predictions)
         _pd_pd = self._format_pd_in_motchallenge(self._predictions)
 
         acc = mm.utils.compare_to_groundtruth(self._gt_pd, _pd_pd)
