@@ -55,19 +55,17 @@ bash compressai-fcvcm/cross_checking_scripts/decoding_scripts/run_tvd.sh
 bash compressai-fcvcm/cross_checking_scripts/decoding_scripts/run_hieve.sh
 ```
 
+Note: 
+- you may have to check paths at the top of the scripts if you use testdata stored elsewhere
+- You can parrallelize with gnu or slurm system, check script headers for options
 
 
 8. From a machine equipped with microsoft excel:
 - open the generate csv files
 - open the provided result file BLABLA.xls at the root of this package
 
-copy and paste relevant sections to the template
+copy and paste relevant sections to the template and generate per class results
 
 
-9. Check feature dumps
-...
+9. Check feature dumps located in fcvcm-cfp-proposal16_feature_dumps
 
-
-
-10. Optional, crosscheck encoder runtimes
-...
