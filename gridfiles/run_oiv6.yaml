@@ -4,11 +4,11 @@ variables:
 
   exp_name: "_gen_bitstreams_v1"
   device: "cuda"
-  CODEC_PARAMS: ""
+  CODEC_PARAMS: "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.7" 
 
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/idc_cfp_response_1/runs"
 
   script_dir: "../cross_checking_scripts"
 
@@ -37,8 +37,18 @@ run_oiv6_seg:
   before_script:
     - cd "${script_dir}"
 
+<<<<<<< HEAD
+<<<<<<< HEAD
   script:
     - bash mpeg_cfp_oiv6_segmentation.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${CODEC_PARAMS}"
+=======
+#   script:
+#     - bash mpeg_cfp_oiv6_segmentation.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" ${CODEC_PARAMS}
+>>>>>>> 9559a79... cfp decoding scripts
+=======
+  script:
+    - bash mpeg_cfp_oiv6_segmentation.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" ${CODEC_PARAMS}
+>>>>>>> 120a33d... gridfiles cleanup
 
   parallel:
     matrix:

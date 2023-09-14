@@ -4,26 +4,46 @@
 1. Please first extract the provided  .tar.gz files
 
 ```
-mkdir fcvcm-cfp-proposal16-package fcvcm-cfp-proposal16_feature_dumps
-tar -xf fcvcm-cfp-proposal16_bitstreams_and_decoder.tar.gz --directory fcvcm-cfp-proposal16-package
+mkdir fcvcm-cfp-proposal16_package fcvcm-cfp-proposal16_feature_dumps
+tar -xf fcvcm-cfp-proposal16_bitstreams_and_decoder.tar.gz --directory fcvcm-cfp-proposal16_package
 tar -xf fcvcm-cfp-proposal16_feature_dumps.tar.gz --directory fcvcm-cfp-proposal16_feature_dumps
 rm fcvcm-cfp-proposal16_bitstreams_and_decoder.tar.gz fcvcm-cfp-proposal16_feature_dumps.tar.gz
 ```
+
+Note, as our first archive has misplaced bitstreams, we provide updated
+- fcvcm-cfp-proposal16_bitstreams_and_decoder-late-09-14.tar.gz
+- fcvcm-cfp-proposal16_feature_dumps-late-09-14.tar.gz
+Please change above paths accordingly if using the updated package. 
 
 ```
 cd fcvcm-cfp-proposal16-package
 ```
 
-The folder structure contains the source code and bitstreams to decode
+You should see:
+- compressai-fcvmc: source code and scripts
+- split-inference-image: bitstreams for openimagev6
+- split-inference-video: bitstreams for sfuhw, tvd and hieve
+- vcm_testdata 
 
-2. in each dataset folder in vcm_testdata, please copy the source images from the anchor package, to enable the evaluation part of the process.
 
+2. the vcm_testdata folder contains annotations and sequence parameters like in MPEG FCVCM anchor package. As the images are too voluminous, please copy the source images from the anchor package to vcm_testdata to enable the evaluation part of the process.
+
+For openimage:
 ```
-cp path/to/image/folder/* vcm_testdata/MPEGOIV6/images
-cp path/to/image/folder/* vcm_testdata/SFUHW/images
-cp path/to/image/folder/* vcm_testdata/TVD/images
-cp path/to/image/folder/* vcm_testdata/HiEve/images
+cp your/path/to/image/MPEGOIV6/images/*.jpg vcm_testdata/MPEGOIV6/images
 ```
+
+each sequence of the video datasets (we provide an example for each)
+```
+cp your/path/to/image/folder/13/img1/*.png vcm_testdata/HiEve_pngs/13/img1/
+```
+```
+cp your/path/to/image/folder/13/img1/*.png vcm_testdata/HiEve_pngs/13/img1/
+```
+```
+cp your/path/to/image/folder/BasketballDrill_832x480_50_val/images/*.png vcm_testdata/SFU_HW_Obj/BasketballDrill_832x480_50_val/images/img1/
+```
+
 
 ## Install
 3. create a virtual environment:
@@ -32,8 +52,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-
-4. From a cuda capable machine, load cuda environment (necessary for task models)
+4. From a cuda capable machine, load cuda environment (necessary for task models only)
 
 ```
 bash compressai-fcvcm/scripts/env_cuda.sh 11.8
@@ -59,13 +78,22 @@ Note:
 - you may have to check paths at the top of the scripts if you use testdata stored elsewhere
 - You can parrallelize with gnu or slurm system, check script headers for options
 
+This will populate the existing folders split-inference-video and split-inference-image with the evaluation results
+
+A .csv is generated at each location 
+- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-detection/
+- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-segmentation
+- split-inference-video/cfp_codec/MPEGHIEVE
+- split-inference-video/cfp_codec/MPEGTVDTRACKING
+- split-inference-video/cfp_codec/SFUHW
+
 
 8. From a machine equipped with microsoft excel:
-- open the generate csv files
+- open the generated csv files at the root of each dataset result
 - open the provided result file BLABLA.xls at the root of this package
 
 copy and paste relevant sections to the template and generate per class results
 
 
-9. Check feature dumps located in fcvcm-cfp-proposal16_feature_dumps
+9. Check feature dumps located in the unzipped fcvcm-cfp-proposal16_feature_dumps
 

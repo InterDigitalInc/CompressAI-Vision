@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 RUN="sequential" # "gnu_parallel" or "sequential" or "slurm"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 INPUT_DIR="${SCRIPT_DIR}/../../../vcm_testdata" # needed for NN_PART2
 BITSTREAM_DIR="${SCRIPT_DIR}/../../../"
 
@@ -24,7 +24,7 @@ if [[ ${RUN} == "gnu_parallel" ]]; then
     export -f run_scripts
 elif [[ ${RUN} == "slurm" ]]; then
     run_scripts () {
-        sbatch --gpus 0 --reservation=deepvideo2 --job-name=sfu_decode $1
+        sbatch --mem=18G -c 2 --reservation=deepvideo2 --job-name=sfu_decode $1
     }
     export -f run_scripts
 else
@@ -54,8 +54,9 @@ do
     do
         # Get QP from bitstream name
         QP=$(echo "$BITSTREAM" | grep -oP '(?<=qp)[^_]*(?=_qpdensity)' | tail -n 1)
+        #echo $QP
         echo RUN: ${RUN}, Input Dir: ${INPUT_DIR}, Bitstream Dir: ${BITSTREAM_DIR}, Exp Name: ${EXPERIMENT}, Device: ${DEVICE}, QP: ${QP}, SEQ: ${SEQ}, CODEC_PARAMS: ${CODEC_PARAMS}
-        run_scripts "../mpeg_cfp_sfu.sh ${INPUT_DIR} ${BITSTREAM_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
+        run_scripts "../mpeg_cfp_sfu.sh ${INPUT_DIR} ${BITSTREAM_DIR} '${EXPERIMENT}' ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
     done
 done
 
@@ -68,5 +69,3 @@ elif [[ ${RUN} == "slurm" ]]; then
 else
     bash gen_csv.sh SFU ${BITSTREAM_DIR}/split-inference-video/cfp_codec${EXPERIMENT}/SFUHW/
 fi
-
-
