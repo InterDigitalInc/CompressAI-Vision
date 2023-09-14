@@ -346,6 +346,7 @@ class MOT_JDE_Eval(BaseEvaluator):
 
         mm.lap.default_solver = "lap"
         self.dataset = dataset.dataset
+        self.eval_info_file_name = self.get_jde_eval_info_name(self.dataset_name)
 
         self.reset()
 

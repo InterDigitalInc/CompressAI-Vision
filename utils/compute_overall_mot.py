@@ -36,22 +36,13 @@ Compute overall MOT over some sequences outputs
 from __future__ import annotations
 
 import argparse
-import copy
-import os
-import re
-import time
-from glob import glob
 from typing import Any, Dict, List
 
 import motmetrics as mm
 import torch
 
+import utils
 from compressai_vision.evaluators.evaluators import BaseEvaluator, MOT_JDE_Eval
-
-SEQ_NAME_KEY = "seq_name"
-SEQ_INFO_KEY = "seq_info"
-EVAL_INFO_KEY = "eval_info"
-GT_INFO_KEY = "gt_info"
 
 CLASSES = ["TVD", "HIEVE-1080P", "HIEVE-720P"]
 
@@ -63,90 +54,46 @@ SEQS_BY_CLASS = {
 
 
 def get_accumulator_res_for_tvd(item: Dict):
-    _gt_pd = MOT_JDE_Eval._load_gt_in_motchallenge(item[GT_INFO_KEY])
-    _pd_pd = MOT_JDE_Eval._format_pd_in_motchallenge(torch.load(item[EVAL_INFO_KEY]))
-    acc, ana = mm.utils.CLEAR_MOT_M(_gt_pd, _pd_pd, item[SEQ_INFO_KEY])
+    _gt_pd = MOT_JDE_Eval._load_gt_in_motchallenge(item[utils.GT_INFO_KEY])
+    _pd_pd = MOT_JDE_Eval._format_pd_in_motchallenge(
+        torch.load(item[utils.EVAL_INFO_KEY])
+    )
+    acc, ana = mm.utils.CLEAR_MOT_M(_gt_pd, _pd_pd, item[utils.SEQ_INFO_KEY])
 
-    return acc, ana, item[SEQ_NAME_KEY]
+    return acc, ana, item[utils.SEQ_NAME_KEY]
 
 
 def get_accumulator_res_for_hieve(item: Dict):
-    _gt_pd = MOT_JDE_Eval._load_gt_in_motchallenge(item[GT_INFO_KEY], min_confidence=1)
-    _pd_pd = MOT_JDE_Eval._format_pd_in_motchallenge(torch.load(item[EVAL_INFO_KEY]))
+    _gt_pd = MOT_JDE_Eval._load_gt_in_motchallenge(
+        item[utils.GT_INFO_KEY], min_confidence=1
+    )
+    _pd_pd = MOT_JDE_Eval._format_pd_in_motchallenge(
+        torch.load(item[utils.EVAL_INFO_KEY])
+    )
     acc = mm.utils.compare_to_groundtruth(_gt_pd, _pd_pd)
 
-    return acc, None, item[SEQ_NAME_KEY]
-
-
-def get_number(a):
-    num = re.findall(r"\d+", a)
-    assert (
-        len(num) == 1
-    ), f"exepcted only single number in the file name, but many in {a}"
-    return num
-
-
-def check_file_validity(_path):
-    assert os.path.exists(_path), f"{_path} does not exist"
-    assert os.path.isfile(_path), f"{_path} is not file"
-
-    return True
-
-
-def get_eval_info_path(seq_num, _path, _subdir):
-    eval_folder, _dname = get_folder_path(seq_num, _path)
-
-    if _subdir is not None:
-        eval_folder = f"{eval_folder}/{_subdir}"
-
-    eval_info_path = (
-        f"{eval_folder}/evaluation/{BaseEvaluator.get_eval_info_name(_dname)}"
-    )
-
-    check_file_validity(eval_info_path)
-
-    return eval_info_path, _dname
-
-
-def get_seq_info_path(seq_num, _path):
-    eval_folder, _ = get_folder_path(seq_num, _path)
-
-    seq_info_path = f"{eval_folder}/seqinfo.ini"
-    check_file_validity(seq_info_path)
-
-    gt_path = f"{eval_folder}/gt/gt.txt"
-    check_file_validity(gt_path)
-
-    return seq_info_path, gt_path
-
-
-def get_folder_path(seq_num, _path):
-    _folder_list = os.listdir(_path)
-
-    for _name in _folder_list:
-        folder_num = get_number(_name)
-
-        if seq_num == folder_num:
-            return f"{_path}/{_name}", _name
-
-    return None
+    return acc, None, item[utils.SEQ_NAME_KEY]
 
 
 def search_items(
-    result_path: str, dataset_path: str, subdirectory: Any, seq_list: List
+    result_path: str, dataset_path: str, rate_point_dir: Any, seq_list: List
 ):
     _ret_list = []
     for seq_name in seq_list:
-        seq_num = get_number(seq_name)
+        seq_num = utils.get_number(seq_name)
 
-        eval_info_path, dname = get_eval_info_path(seq_num, result_path, subdirectory)
-        seq_info_path, seq_gt_path = get_seq_info_path(seq_num, dataset_path)
+        eval_info_path, dname = utils.get_eval_info_path_by_seq_num(
+            seq_num, result_path, rate_point_dir, BaseEvaluator.get_jde_eval_info_name
+        )
+        seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_num(
+            seq_num, dataset_path
+        )
 
         d = {
-            SEQ_NAME_KEY: dname,
-            SEQ_INFO_KEY: seq_info_path,
-            EVAL_INFO_KEY: eval_info_path,
-            GT_INFO_KEY: seq_gt_path,
+            utils.SEQ_NAME_KEY: dname,
+            utils.SEQ_INFO_KEY: seq_info_path,
+            utils.EVAL_INFO_KEY: eval_info_path,
+            utils.GT_INFO_KEY: seq_gt_path,
         }
 
         _ret_list.append(d)
@@ -201,11 +148,11 @@ if __name__ == "__main__":
         help="For example, '.../logs/runs/[pipeline]/[codec]/[datacatalog]/' ",
     )
     parser.add_argument(
-        "-s",
-        "--sub_directory",
+        "-p",
+        "--rate_point_dir",
         required=False,
         default=None,
-        help="Provide subdirectory name under the `result_path' shared accross different sequences, i.e., `.../[qp00]'",
+        help="Provide rate point directory name under the `result_path' shared accross different sequences, i.e., `.../[qp00]'",
     )
     parser.add_argument(
         "-d",
@@ -226,7 +173,7 @@ if __name__ == "__main__":
     items = search_items(
         args.result_path,
         args.dataset_path,
-        args.sub_directory,
+        args.rate_point_dir,
         SEQS_BY_CLASS[args.class_to_compute],
     )
 
