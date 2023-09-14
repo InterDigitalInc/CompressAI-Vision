@@ -1,16 +1,17 @@
 #! /usr/bin/env bash
 
-RUN="slurm" # "gnu_parallel" or "sequential" or "slurm"
-INPUT_DIR="/data/datasets/MPEG-FCVCM/vcm_testdata" # needed for NN_PART2
-BITSTREAM_DIR="/mnt/wekamount/scratch_fcvcm/racapef/test_decodes/fcvcm-cfp-proposal16_package"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+RUN="sequential" # "gnu_parallel" or "sequential" or "slurm"
+INPUT_DIR="${SCRIPT_DIR}/../../../vcm_testdata" # needed for NN_PART2
+BITSTREAM_DIR="${SCRIPT_DIR}/../../../"
 
 #################################################################
 # CODEC_PARAMS="++pipeline.codec.encode_only=True" -> Only Encode
 # CODEC_PARAMS="++pipeline.codec.decode_only=True" -> Only Decode
 # CODEC_PARAMS="" -> Encode + Decode
 CODEC_PARAMS="++pipeline.codec.decode_only=True" 
-EXPERIMENT="_gen_bitstreams_v1"
-QPS=`echo "5 11"`
+EXPERIMENT=""
 DEVICE="cpu"
 #################################################################
 
@@ -53,7 +54,6 @@ do
     do
         # Get QP from bitstream name
         QP=$(echo "$BITSTREAM" | grep -oP '(?<=qp)[^_]*(?=_qpdensity)' | tail -n 1)
-        #echo $QP
         echo RUN: ${RUN}, Input Dir: ${INPUT_DIR}, Bitstream Dir: ${BITSTREAM_DIR}, Exp Name: ${EXPERIMENT}, Device: ${DEVICE}, QP: ${QP}, SEQ: ${SEQ}, CODEC_PARAMS: ${CODEC_PARAMS}
         run_scripts "../mpeg_cfp_sfu.sh ${INPUT_DIR} ${BITSTREAM_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
     done
