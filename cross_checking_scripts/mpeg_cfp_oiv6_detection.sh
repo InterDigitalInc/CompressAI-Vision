@@ -6,10 +6,10 @@ VCM_TESTDATA=$1
 OUTPUT_DIR=$2
 EXPERIMENT=$3
 DEVICE=$4
-qp=$5
+AP=$5
 CODEC_PARAMS=$6
 
-echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${CODEC_PARAMS}
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${AP}, ${CODEC_PARAMS}
 
 MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
 
@@ -17,13 +17,13 @@ CONF_NAME="eval_cfp_codec"
 
 CMD="compressai-vision-eval"
 
-echo "running detection task with qp=${qp}" 
+echo "running detection task with qp=${QP}" 
 ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++paths._run_root=${OUTPUT_DIR} \
         ++pipeline.type=image \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=9 \
-        ++codec.encoder_config.qp=${qp} \
+        ++codec.encoder_config.qp=${QP} \
         ++codec.eval_encode='bpp' \
         ++codec.experiment=${EXPERIMENT} \
         ++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \

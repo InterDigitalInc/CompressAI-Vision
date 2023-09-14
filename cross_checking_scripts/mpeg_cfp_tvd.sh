@@ -6,7 +6,7 @@ VCM_TESTDATA=$1
 OUTPUT_DIR=$2
 EXPERIMENT=$3
 DEVICE=$4
-qp=$5
+QP=$5
 SEQ=$6
 CODEC_PARAMS=$7
 
@@ -23,7 +23,7 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++paths._run_root=${OUTPUT_DIR} \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=90 \
-        ++codec.encoder_config.qp=${qp} \
+        ++codec.encoder_config.qp=${QP} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \
         ++vision_model.arch=jde_1088x608 \
