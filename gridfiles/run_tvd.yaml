@@ -7,7 +7,7 @@ variables:
   CODEC_PARAMS: ""
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs/"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/idc_cfp_response_1/runs"
 
   script_dir: "../cross_checking_scripts"
 
@@ -26,12 +26,11 @@ run_tvd_tracking:
             'TVD-02',
             'TVD-03'
         ]
-        qp: [3, 2, 1, -1, -2, -3]
+        qp: [-5, -3, 1, 3, 5, 7]
 
 
   sbatch:
     begin: now
-    reservation: deepvideo
     cpus-per-task: 2
     gpus-per-task: 1
     output: slurm_%x_%A_%N_%s.out

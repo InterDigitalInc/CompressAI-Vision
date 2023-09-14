@@ -10,7 +10,7 @@ qp=$5
 SEQ=$6
 CODEC_PARAMS=$7
 
-echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${SEQ}, ${CODEC_PARAMS}
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${QP}, ${SEQ}, ${CODEC_PARAMS}
 
 TVD_SRC="${VCM_TESTDATA}/tvd_tracking"
 
@@ -23,9 +23,6 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++paths._run_root=${OUTPUT_DIR} \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=90 \
-        ++codec.encoder_config.feature_channel_suppression.manual_cluster=True \
-        ++codec.encoder_config.feature_channel_suppression.n_clusters='{36: 128, 61: 128, 74: 128}' \
-        ++codec.encoder_config.feature_channel_suppression.downscale=False \
         ++codec.encoder_config.qp=${qp} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \

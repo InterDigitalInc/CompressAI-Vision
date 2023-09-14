@@ -1,17 +1,18 @@
 #! /usr/bin/env bash
 
-RUN="slurm" # "gnu_parallel" or "sequential" or "slurm"
-INPUT_DIR="/data/datasets/MPEG-FCVCM/vcm_testdata" # needed for NN_PART2
-BITSTREAM_DIR="/mnt/wekamount/scratch_fcvcm/eimran/runs/cfp_test" 
+RUN="sequential" # "gnu_parallel" or "sequential" or "slurm"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+INPUT_DIR="${SCRIPT_DIR}/../../../vcm_testdata" # needed for NN_PART2
+BITSTREAM_DIR="${SCRIPT_DIR}/../../../"
 
 #################################################################
 # CODEC_PARAMS="++pipeline.codec.encode_only=True" -> Only Encode
 # CODEC_PARAMS="++pipeline.codec.decode_only=True" -> Only Decode
 # CODEC_PARAMS="" -> Encode + Decode
 CODEC_PARAMS="++pipeline.codec.decode_only=True" 
-EXPERIMENT="_gen_bitstreams_v1"
-QPS=`echo "8 12"`
-DEVICE="cuda"
+EXPERIMENT=""
+DEVICE="cpu"
 #################################################################
 
 # total number of jobs = 30
@@ -23,7 +24,7 @@ if [[ ${RUN} == "gnu_parallel" ]]; then
     export -f run_scripts
 elif [[ ${RUN} == "slurm" ]]; then
     run_scripts () {
-        sbatch --gpus 1 --reservation=deepvideo --job-name=hieve_decode $1
+        sbatch --mem=64G -c 2 --reservation=deepvideo2 --job-name=hieve_decode $1
     }
     export -f run_scripts
 else
@@ -40,10 +41,12 @@ for SEQ in \
             '17' \
             '18'
 do
-    for QP in ${QPS}
+    for BITSTREAM in $( find ${BITSTREAM_DIR} -type f -name "mpeg-hieve-${SEQ}*.bin" );
     do
+        # Get QP from bitstream name
+        QP=$(echo "$BITSTREAM" | grep -oP '(?<=qp)[^_]*(?=_qpdensity)' | tail -n 1)
         echo RUN: ${RUN}, Input Dir: ${INPUT_DIR}, Bitstream Dir: ${BITSTREAM_DIR}, Exp Name: ${EXPERIMENT}, Device: ${DEVICE}, QP: ${QP}, SEQ: ${SEQ}, CODEC_PARAMS: ${CODEC_PARAMS}
-        run_scripts "../mpeg_cfp_hieve.sh ${INPUT_DIR} ${BITSTREAM_DIR} ${EXPERIMENT} ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
+        run_scripts "../mpeg_cfp_hieve.sh ${INPUT_DIR} ${BITSTREAM_DIR} '${EXPERIMENT}' ${DEVICE} ${QP} ${SEQ} ${CODEC_PARAMS}"
     done
 done
 

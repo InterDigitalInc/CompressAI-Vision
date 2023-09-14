@@ -10,7 +10,7 @@ qp=$5
 SEQ=$6
 CODEC_PARAMS=$7
 
-echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${qp}, ${SEQ}, ${CODEC_PARAMS}
+echo ${VCM_TESTDATA}, ${OUTPUT_DIR}, ${EXPERIMENT}, ${DEVICE}, ${QP}, ${SEQ}, ${CODEC_PARAMS}
 
 HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
 
@@ -23,10 +23,7 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${CODEC_PARAMS} \
         ++paths._run_root=${OUTPUT_DIR} \
         ++pipeline.conformance.save_conformance_files=True \
         ++pipeline.conformance.subsample_ratio=90 \
-        ++codec.encoder_config.feature_channel_suppression.manual_cluster=True \
-        ++codec.encoder_config.feature_channel_suppression.n_clusters='{75: 64, 90: 128, 105: 128}' \
-        ++codec.encoder_config.feature_channel_suppression.downscale=False \
-        ++codec.encoder_config.qp=${qp} \
+        ++codec.encoder_config.qp=${QP} \
         ++codec.eval_encode='bitrate' \
         ++codec.experiment=${EXPERIMENT} \
         ++vision_model.arch=jde_1088x608 \
