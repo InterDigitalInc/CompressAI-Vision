@@ -204,10 +204,12 @@ def main(conf: DictConfig):
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
     if eval_encode_type == "bitrate":
-        name, bitrate = _calc_bitrate(coded_res_df, seq_info_path)
+        name, fps, total_frame, bitrate = _calc_bitrate(coded_res_df, seq_info_path)
         result_df = pd.DataFrame(
             {
                 "Dataset": name,
+                "fps": fps,
+                "num_of_coded_frame": total_frame,
                 "qp": coded_res_df["qp"][0],
                 "bitrate (kbps)": bitrate,
                 "end_accuracy": performance,
@@ -241,7 +243,7 @@ def _calc_bitrate(coded_res_df, seq_info_path):
     print(f"Frame Rate: {fps}, Total Frame: {total_frame}")
     total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
     bitrate = ((total_bytes * 8) * fps) / (1000 * total_frame)
-    return name, bitrate
+    return name, fps, total_frame, bitrate
 
 
 def _calc_bpp(coded_res_df):

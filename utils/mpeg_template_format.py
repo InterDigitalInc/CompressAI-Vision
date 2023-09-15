@@ -58,7 +58,10 @@ def _generate_sfu_csv(result_path, dataset_name):
 
     result_df = _read_df_rec(result_path)
     final_csv_path = os.path.join(result_path, f"final_{dataset_name}.csv")
-
+    
+    # drop columns
+    result_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+    
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
     result_df["ds_rank"] = result_df["Dataset"].map(sorterIndex)
