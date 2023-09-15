@@ -40,7 +40,7 @@ from typing import Any, Dict, List
 
 import motmetrics as mm
 import torch
-
+import csv
 import utils
 from compressai_vision.evaluators.evaluators import BaseEvaluator, MOT_JDE_Eval
 
@@ -75,15 +75,13 @@ def get_accumulator_res_for_hieve(item: Dict):
     return acc, None, item[utils.SEQ_NAME_KEY]
 
 
-def search_items(
-    result_path: str, dataset_path: str, rate_point_dir: Any, seq_list: List
-):
+def search_items(result_path: str, dataset_path: str, rate_point: int, seq_list: List):
     _ret_list = []
     for seq_name in seq_list:
-        seq_num = utils.get_number(seq_name)
+        seq_num = utils.get_seq_number(seq_name)
 
         eval_info_path, dname = utils.get_eval_info_path_by_seq_num(
-            seq_num, result_path, rate_point_dir, BaseEvaluator.get_jde_eval_info_name
+            seq_num, result_path, rate_point, BaseEvaluator.get_jde_eval_info_name
         )
         seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_num(
             seq_num, dataset_path
@@ -148,11 +146,18 @@ if __name__ == "__main__":
         help="For example, '.../logs/runs/[pipeline]/[codec]/[datacatalog]/' ",
     )
     parser.add_argument(
-        "-p",
-        "--rate_point_dir",
+        "-q",
+        "--quality_index",
         required=False,
-        default=None,
-        help="Provide rate point directory name under the `result_path' shared accross different sequences, i.e., `.../[qp00]'",
+        default=-1,
+        type=int,
+        help="Provide index of quality folders under the `result_path'. quality_index is only meant to point the orderd folders by qp names because there might be different range of qps are used for different sequences",
+    )
+    parser.add_argument(
+        "-a",
+        "--all_qualities",
+        action="store_true",
+        help="run all 6 rate points in MPEG CTCs",
     )
     parser.add_argument(
         "-d",
@@ -169,24 +174,36 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    if args.all_qualities:
+        qualities = range(0, 6)
+    else:
+        qualities = [args.quality_index]
 
-    items = search_items(
-        args.result_path,
-        args.dataset_path,
-        args.rate_point_dir,
-        SEQS_BY_CLASS[args.class_to_compute],
-    )
+    with open(
+        f"{args.result_path}/{args.class_to_compute}.csv", "w", newline=""
+    ) as file:
+        writer = csv.writer(file)
+        for q in qualities:
+            items = search_items(
+                args.result_path,
+                args.dataset_path,
+                q,
+                SEQS_BY_CLASS[args.class_to_compute],
+            )
 
-    assert (
-        len(items) > 0
-    ), "Nothing relevant information found from given directories..."
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
 
-    summary, names = compute_overall_mota(args.class_to_compute, items)
+            summary, names = compute_overall_mota(args.class_to_compute, items)
 
-    motas = [100.0 * sv[13] for sv in summary.values]
+            motas = [100.0 * sv[13] for sv in summary.values]
 
-    print(f"{'='*10} FINAL OVERALL MOTA SUMMARY {'='*10}")
-    print(f"{'-'*35} : MOTA")
-    for key, val in zip(names, motas):
-        print(f"{str(key):35} : {val:.4f}%")
-    print("\n")
+            print(f"{'='*10} FINAL OVERALL MOTA SUMMARY {'='*10}")
+            print(f"{'-'*35} : MOTA")
+
+            for key, val in zip(names, motas):
+                print(f"{str(key):35} : {val:.4f}%")
+                if key == "Overall":
+                    writer.writerow([str(q), f"{val:.4f}"])
+            print("\n")

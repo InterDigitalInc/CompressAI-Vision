@@ -38,8 +38,10 @@ from __future__ import annotations
 import os
 import re
 
+from pathlib import Path
+
 __all__ = [
-    "get_number",
+    "get_seq_number",
     "get_eval_info_path",
     "get_seq_info_path",
 ]
@@ -50,7 +52,7 @@ EVAL_INFO_KEY = "eval_info"
 GT_INFO_KEY = "gt_info"
 
 
-def get_number(a):
+def get_seq_number(a):
     num = re.findall(r"\d+", a)
     assert (
         len(num) == 1
@@ -65,24 +67,32 @@ def check_file_validity(_path):
     return True
 
 
-def get_eval_info_path_by_seq_num(seq_num, _path, _subdir, name_func: callable):
-    eval_folder, _dname = get_folder_path_by_seq_num(seq_num, _path)
+def get_eval_info_path_by_seq_num(seq_num, _path, qidx: int, name_func: callable):
+    eval_folder, dname = get_folder_path_by_seq_num(seq_num, _path)
 
-    if _subdir is not None:
-        eval_folder = f"{eval_folder}/{_subdir}"
+    if qidx != -1:
+        folders = Path(eval_folder).glob("qp*")
+        sorted_files = sorted(
+            folders, key=lambda x: int(re.search(r"qp(-?\d+)", str(x)).group(1))
+        )
+        eval_folder = sorted_files[qidx]
 
-    eval_info_path = f"{eval_folder}/evaluation/{name_func(_dname)}"
+    eval_info_path = f"{eval_folder}/evaluation/{name_func(dname)}"
 
     check_file_validity(eval_info_path)
 
-    return eval_info_path, _dname
+    return eval_info_path, dname
 
 
-def get_eval_info_path_by_seq_name(seq_name, _path, _subdir, name_func: callable):
+def get_eval_info_path_by_seq_name(seq_name, _path, _qidx: int, name_func: callable):
     eval_folder, _dname = get_folder_path_by_seq_name(seq_name, _path)
 
-    if _subdir is not None:
-        eval_folder = f"{eval_folder}/{_subdir}"
+    if _qidx != -1:
+        folders = Path(eval_folder).glob("qp*")
+        sorted_files = sorted(
+            folders, key=lambda x: int(re.search(r"qp(-?\d+)", str(x)).group(1))
+        )
+        eval_folder = sorted_files[_qidx]
 
     eval_info_path = f"{eval_folder}/evaluation/{name_func(_dname)}"
 
@@ -116,22 +126,21 @@ def get_seq_info_path_by_seq_name(seq_name, _path):
 
 
 def get_folder_path_by_seq_num(seq_num, _path):
-    _folder_list = os.listdir(_path)
-
+    _folder_list = [f for f in Path(_path).iterdir() if f.is_dir()]
     for _name in _folder_list:
-        folder_num = get_number(_name)
+        folder_num = get_seq_number(_name.stem)
 
         if seq_num == folder_num:
-            return f"{_path}/{_name}", _name
+            return _name.resolve(), _name.stem
 
     return None
 
 
 def get_folder_path_by_seq_name(seq_name, _path):
-    _folder_list = os.listdir(_path)
+    _folder_list = [f for f in Path(_path).iterdir() if f.is_dir()]
 
     for _name in _folder_list:
-        if seq_name in _name:
-            return f"{_path}/{_name}", _name
+        if seq_name in _name.stem:
+            return _name.resolve(), _name.stem
 
     return None

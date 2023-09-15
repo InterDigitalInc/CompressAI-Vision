@@ -81,18 +81,49 @@ Note:
 This will populate the existing folders split-inference-video and split-inference-image with the evaluation results
 
 A .csv is generated at each location 
-- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-detection/
-- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-segmentation
-- split-inference-video/cfp_codec/MPEGHIEVE
-- split-inference-video/cfp_codec/MPEGTVDTRACKING
-- split-inference-video/cfp_codec/SFUHW
+- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-detection/final_OIV6.csv
+- split-inference-image/cfp_codec/MPEGOIV6/mpeg-oiv6-segmentation/final_OIV6.csv
+- split-inference-video/cfp_codec/MPEGHIEVE/final_HIEVE.csv
+- split-inference-video/cfp_codec/MPEGTVDTRACKING/final_TVD.csv
+- split-inference-video/cfp_codec/SFUHW/final_SFU.csv
+
+To generate the Per-Class results, please run from the root:
+```
+python compressai-fcvcm/utils/compute_overall_mot.py  -a --result_path=split-inference-video/cfp_codec/MPEGHIEVE --dataset_path=vcm_testdata/HiEve_pngs --class_to_compute=HIEVE-720P
+```
+```
+python compressai-fcvcm/utils/compute_overall_mot.py  -a --result_path=split-inference-video/cfp_codec/MPEGHIEVE --dataset_path=vcm_testdata/HiEve_pngs --class_to_compute=HIEVE-1080P
+```
+```
+python compressai-fcvcm/utils/compute_overall_mot.py  -a --result_path=split-inference-video/cfp_codec/MPEGTVDTRACKING --dataset_path=vcm_testdata/tvd_tracking --class_to_compute=TVD
+```
+```
+python compressai-fcvcm/utils/compute_overall_map.py  -a --result_path=split-inference-video/cfp_codec/SFUHW --dataset_path=vcm_testdata/SFU_HW_Obj --class_to_compute=CLASS-AB
+```
+```
+python compressai-fcvcm/utils/compute_overall_map.py  -a --result_path=split-inference-video/cfp_codec/SFUHW --dataset_path=vcm_testdata/SFU_HW_Obj --class_to_compute=CLASS-C
+```
+```
+python compressai-fcvcm/utils/compute_overall_map.py  -a --result_path=split-inference-video/cfp_codec/SFUHW --dataset_path=vcm_testdata/SFU_HW_Obj --class_to_compute=CLASS-D
+```
+
+That should create the following files
+- split-inference-video/cfp_codec/MPEGHIEVE/HIEVE-720P.csv
+- split-inference-video/cfp_codec/MPEGHIEVE/HIEVE-1080P.csv
+- split-inference-video/cfp_codec/MPEGTVDTRACKING/TVD.csv
+- split-inference-video/cfp_codec/SFUHW/CLASS-AB.csv
+- split-inference-video/cfp_codec/SFUHW/CLASS-C.csv
+- split-inference-video/cfp_codec/SFUHW/CLASS-D.csv
+
 
 
 8. From a machine equipped with microsoft excel:
-- open the generated csv files at the root of each dataset result
-- open the provided result file BLABLA.xls at the root of this package
+- open the generated csv files at the root of each dataset result 
+- open the provided result file fcvcm-cfp-proposal16.xlsm at the root of this package
 
-copy and paste relevant sections to the template and generate per class results
+copy and paste relevant sections to the template.
+
+Note: for Per-Class results, copy only the accuracy metrics column, the bitrates are directly calculated in excel 
 
 
 9. Check feature dumps located in the unzipped fcvcm-cfp-proposal16_feature_dumps

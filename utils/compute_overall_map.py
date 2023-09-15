@@ -39,7 +39,7 @@ import argparse
 import json
 import os
 from typing import Any, List
-
+import csv
 import numpy as np
 import pandas as pd
 from pycocotools.coco import COCO
@@ -59,7 +59,7 @@ SEQS_BY_CLASS = {
         "BasketballDrive",
         "BQTerrace",
     ],
-    CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorsesC"],
+    CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"],
     CLASSES[2]: ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"],
 }
 
@@ -73,7 +73,7 @@ SEQUENCE_TO_OFFSET = {
     "BasketballDrill": 70000,
     "BQMall": 80000,
     "PartyScene": 90000,
-    "RaceHorsesC": 100000,
+    "RaceHorses_832x480": 100000,
     "BasketballPass": 110000,
     "BQSquare": 120000,
     "BlowingBubbles": 130000,
@@ -84,13 +84,11 @@ TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
 
-def search_items(
-    result_path: str, dataset_path: str, rate_point_dir: Any, seq_list: List
-):
+def search_items(result_path: str, dataset_path: str, rate_point: int, seq_list: List):
     _ret_list = []
     for seq_name in seq_list:
         eval_info_path, dname = utils.get_eval_info_path_by_seq_name(
-            seq_name, result_path, rate_point_dir, BaseEvaluator.get_coco_eval_info_name
+            seq_name, result_path, rate_point, BaseEvaluator.get_coco_eval_info_name
         )
         seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_name(
             seq_name, dataset_path
@@ -203,11 +201,18 @@ if __name__ == "__main__":
         help="For example, '.../logs/runs/[pipeline]/[codec]/[datacatalog]/' ",
     )
     parser.add_argument(
-        "-p",
-        "--rate_point_dir",
+        "-q",
+        "--quality_index",
         required=False,
-        default=None,
-        help="Provide rate point directory name under the `result_path' shared accross different sequences, i.e., `.../[qp00]'",
+        default=-1,
+        type=int,
+        help="Provide index of quality folders under the `result_path'. quality_index is only meant to point the orderd folders by qp names because there might be different range of qps are used for different sequences",
+    )
+    parser.add_argument(
+        "-a",
+        "--all_qualities",
+        action="store_true",
+        help="run all 6 rate points in MPEG CTCs",
     )
     parser.add_argument(
         "-d",
@@ -224,19 +229,30 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    if args.all_qualities:
+        qualities = range(0, 6)
+    else:
+        qualities = [args.quality_index]
 
-    items = search_items(
-        args.result_path,
-        args.dataset_path,
-        args.rate_point_dir,
-        SEQS_BY_CLASS[args.class_to_compute],
-    )
+    with open(
+        f"{args.result_path}/{args.class_to_compute}.csv", "w", newline=""
+    ) as file:
+        writer = csv.writer(file)
+        for q in qualities:
+            items = search_items(
+                args.result_path,
+                args.dataset_path,
+                q,
+                SEQS_BY_CLASS[args.class_to_compute],
+            )
 
-    assert (
-        len(items) > 0
-    ), "Nothing relevant information found from given directories..."
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
 
-    summary = compute_overall_mAP(args.class_to_compute, items)
+            summary = compute_overall_mAP(args.class_to_compute, items)
 
-    print(f"{'='*10} FINAL OVERALL mAP SUMMARY {'='*10}")
-    print(f"{'-'*32} AP : {summary['AP'][0]:.4f}")
+            writer.writerow([f"{q}", f"{summary['AP'][0]:.4f}"])
+            print(f"{'='*10} FINAL OVERALL mAP SUMMARY {'='*10}")
+            print(f"{'-'*32} AP : {summary['AP'][0]:.4f}")
+            print("\n\n")
