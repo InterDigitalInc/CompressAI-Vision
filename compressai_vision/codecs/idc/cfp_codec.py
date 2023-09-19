@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import collections
 import logging
 from pathlib import Path
 from typing import Dict, List, Union
@@ -40,7 +41,7 @@ from tqdm import tqdm
 from compressai_vision.registry import register_codec
 
 from .common import FeatureTensorCodingType
-from .hls import SequenceParameterSet, parse_feature_tensor_coding_type
+from .hls import FeatureTensorsHeader, SequenceParameterSet
 from .inter import inter_coding, inter_decoding
 from .intra import intra_coding, intra_decoding
 from .tools import feature_channel_suppression, suppression_optimization
@@ -85,6 +86,7 @@ class CFP_CODEC(nn.Module):
 
         self.enc_cfg = kwargs["encoder_config"]
         self.suppression_cfg = self.enc_cfg["feature_channel_suppression"]
+        self.coding_structures = self.enc_cfg["coding_structure"]
 
         self.split_layer_list = kwargs["vision_model"].split_layer_list
         self.deeper_features_for_accuracy_proxy = kwargs[
@@ -95,6 +97,8 @@ class CFP_CODEC(nn.Module):
         self.eval_encode = kwargs["eval_encode"]
 
         self._sanity_check_for_configuration()
+
+        self.buffer_len = 4
 
         self.verbosity = kwargs["verbosity"]
         logging_level = logging.WARN
@@ -109,9 +113,8 @@ class CFP_CODEC(nn.Module):
         self.reset()
 
     def reset(self):
-        self.feature_set_order_count = -1
-        self.decoded_tensor_buffer = []
-        # self._bitstream_path = None
+        self.ftensors_set_order_count = 0
+        self.decoded_ftensors_buffer = collections.deque(maxlen=self.buffer_len)
         self._bitstream_fd = None
         self._is_enc_cfg_printed = False
 
@@ -208,6 +211,7 @@ class CFP_CODEC(nn.Module):
         bitstream_name,
         file_prefix: str = "",
     ) -> Dict:
+        self.reset()
         hls_header_bytes = 0
         bytes_per_ftensor_set = []
 
@@ -232,8 +236,8 @@ class CFP_CODEC(nn.Module):
         bitstream_fd = self.set_bitstream_handle(bitstream_path, "wb")
 
         # parsing encoder configurations
-        intra_period = self.enc_cfg["intra_period"]
-        got_size = self.enc_cfg["group_of_tensor"]
+        intra_period = self.coding_structures["intra_period"]
+        goft_size = self.coding_structures["goft_size"]
         n_bits = 8
 
         sps = SequenceParameterSet()
@@ -250,15 +254,16 @@ class CFP_CODEC(nn.Module):
             dc_qp_offset=self.dc_qp_offset,
             dc_qp_density_offset=self.dc_qp_density_offset,
         )
-
+        # goft_size
         bytes_total = hls_header_bytes
         for e, ftensors in iterate_list_of_tensors(input["data"]):
             # counting one for the input
-            self.feature_set_order_count += 1  # the same concept as poc
 
             eFTCType = FeatureTensorCodingType.PB_TYPE
-            # All intra when intra_period == -1
-            if intra_period == -1 or (self.feature_set_order_count % intra_period) == 0:
+            if (intra_period == -1 and self.ftensors_set_order_count == 0) or (
+                (self.ftensors_set_order_count % intra_period) == 0
+                and intra_period != -1
+            ):
                 eFTCType = FeatureTensorCodingType.I_TYPE
 
                 ch_clct_by_group, scales_for_layers = suppression_optimization(
@@ -279,13 +284,20 @@ class CFP_CODEC(nn.Module):
                 self.min_nb_channels_for_group,
             )
 
-            coded_ftensor_bytes, recon_feature_channels = encode_feature_tensor[
+            ftHeader = FeatureTensorsHeader(sps, eFTCType, self.split_layer_list)
+            ftHeader.set_ftoc(e)  # should be the same concept as poc. TBD: Hyomin
+            ftHeader.set_coding_modes(all_channels_coding_modes)
+            ftHeader.set_scales_info(scales_for_layers)
+
+            bytes_total += ftHeader.write(bitstream_fd)
+
+            coded_ftensor_bytes, recon_ftensors_suppressed = encode_feature_tensor[
                 eFTCType
             ](
                 sps,
+                ftHeader,
                 ftensors_to_code,
-                all_channels_coding_modes,
-                scales_for_layers,
+                self.decoded_ftensors_buffer,
                 bitstream_fd,
             )
 
@@ -294,6 +306,15 @@ class CFP_CODEC(nn.Module):
             bytes_per_ftensor_set.append(bytes_total)
 
             bytes_total = 0
+
+            self.update_dft_buffer(
+                ftHeader,
+                self.ftensors_set_order_count,
+                recon_ftensors_suppressed,
+                ch_clct_by_group,
+            )
+
+            self.ftensors_set_order_count += 1
 
         self.close_files()
 
@@ -308,6 +329,7 @@ class CFP_CODEC(nn.Module):
         codec_output_dir: str = "",
         file_prefix: str = "",
     ):
+        self.reset()
         del codec_output_dir  # used in other codecs that write log files
         del file_prefix
         self.logger.info("Decoding starts...")
@@ -335,9 +357,22 @@ class CFP_CODEC(nn.Module):
 
         recon_ftensors = dict(zip(ftensor_tags, [[] for _ in range(len(ftensor_tags))]))
         for ftensor_set_idx in tqdm(range(sps.nbframes)):
+            ftHeader = FeatureTensorsHeader(sps, tags=ftensor_tags)
+            ftHeader.read(bitstream_fd)
+
             # read coding type
-            eFTCType = parse_feature_tensor_coding_type(bitstream_fd)
-            res = decode_feature_tensor[eFTCType](sps, bitstream_fd)
+            eFTCType = ftHeader.coding_type
+
+            if eFTCType == FeatureTensorCodingType.PB_TYPE:
+                ref = self.get_dft_from_buffer(-1)
+                ftHeader.set_coding_modes(ref["ft_header"].get_coding_modes())
+                ftHeader.set_scales_info(ref["ft_header"].get_scales_info())
+
+            res, recon_ftensors_suppressed = decode_feature_tensor[eFTCType](
+                sps, ftHeader, self.decoded_ftensors_buffer, bitstream_fd
+            )
+
+            self.update_dft_buffer(ftHeader, ftensor_set_idx, recon_ftensors_suppressed)
 
             for tlist, item in zip(recon_ftensors.values(), res.values()):
                 tlist.append(item)
@@ -347,3 +382,25 @@ class CFP_CODEC(nn.Module):
         output["data"] = recon_ftensors
 
         return output
+
+    def update_dft_buffer(
+        self,
+        ft_header,
+        ft_oc,
+        ftensors: Dict,
+        chs_by_group: Dict = None,
+    ):
+        d = {
+            "ft_header": ft_header,
+            "ft_oc": ft_oc,
+            "ftensors_suppressed": ftensors,
+            "chs_by_group": chs_by_group,
+        }
+
+        self.decoded_ftensors_buffer.append(d)
+
+    def get_dft_from_buffer(
+        self,
+        idx: int,
+    ):
+        return self.decoded_ftensors_buffer[idx]

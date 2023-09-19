@@ -30,9 +30,10 @@ encoder_config:
       coverage_thres: 0.7 # percentage
       coverage_decay: 0.98 # default
 
-  # inter cfg
-  intra_period: -1
-  group_of_tensor: 32
+
+  coding_structure: 
+    intra_period: 1 # Period of I-ftensors (-1 = only first)
+    goft_size: 16 # Group of feature tensors size (number of B/P ftensors set = goft_size - 1)
 
   # qp
   qp: 8

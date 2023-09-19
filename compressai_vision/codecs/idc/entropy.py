@@ -1,0 +1,116 @@
+# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the disclaimer
+# below) provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of InterDigital Communications, Inc nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+# THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from typing import Tuple
+
+import deepCABAC
+import numpy as np
+import torch
+
+from compressai_vision.codecs.encdec_utils import *
+
+__all__ = [
+    "quantize_and_encode",
+    "dequantize_and_decode",
+    "dequantize",
+    "encode_integers_deepcabac",
+    "decode_integers_deepcabac",
+]
+
+
+def quantize_and_encode(channels, qp, qp_density, maxValue=-1):
+    encoder = deepCABAC.Encoder()  # deepCABAC Encoder
+    encoder.initCtxModels(10, 0)  # TODO: check nb ctx
+
+    quantizedValues = np.zeros(channels.shape, dtype=np.int32)
+    encoder.quantFeatures(
+        channels.detach().cpu().numpy(), quantizedValues, qp_density, qp, 0
+    )  # TODO: @eimran change scan order and qp method
+
+    encoder.encodeFeatures(quantizedValues, 0, maxValue)
+    bs = bytearray(encoder.finish().tobytes())
+    total_bytes_spent = len(bs)
+    # return quantized values for debugging
+    return total_bytes_spent, bs, quantizedValues
+
+
+def dequantize_and_decode(data_shape: Tuple, bs, qp, qp_density):
+    # tC, tH, tW = data_shape
+
+    assert isinstance(bs, (bytearray, bytes))
+
+    if not isinstance(bs, bytearray):
+        bs = bytearray(bs)
+
+    # need to decode max_value
+    max_value = -1
+
+    decoder = deepCABAC.Decoder()
+    decoder.initCtxModels(10)
+    decoder.setStream(bs)
+    quantizedValues = np.zeros(data_shape, dtype=np.int32)
+    decoder.decodeFeatures(quantizedValues, 0, max_value)
+    # print(quantizedValues[0, :10, :10])
+    recon_features = dequantize(decoder, quantizedValues, qp, qp_density)
+
+    return recon_features
+
+
+def dequantize(deepCABACDec, quantizedValues, qp, qp_density):
+    # print(quantizedValues[0, :10, :10])
+    recon_features = np.zeros(quantizedValues.shape, dtype=np.float32)
+    deepCABACDec.dequantFeatures(
+        recon_features, quantizedValues, qp_density, qp, 0
+    )  # TODO: @eimran send qp with bitstream
+    # print(recon_features[0, :10, :10])
+
+    return torch.from_numpy(recon_features)
+
+
+def encode_integers_deepcabac(array: np.array, bitstream_fd):
+    encoder = deepCABAC.Encoder()
+    encoder.initCtxModels(10, 1)  # TODO check args
+    encoder.encodeFeatures(array, 0, 0)
+    bs = bytearray(encoder.finish().tobytes())
+    byte_cnt = write_uints(bitstream_fd, (len(bs),))
+    bitstream_fd.write(bs)
+    return byte_cnt + len(bs)
+
+
+def decode_integers_deepcabac(bitstream_fd, array_size) -> np.array:
+    bytes_to_read = read_uints(bitstream_fd, 1)[0]
+    byte_array = bytearray(bitstream_fd.read(bytes_to_read))
+    decoder = deepCABAC.Decoder()
+    decoder.initCtxModels(10)
+    decoder.setStream(byte_array)
+    decoded_values = np.zeros(array_size, dtype=np.int32)
+    decoder.decodeFeatures(decoded_values, 0, 0)
+    # shift modes so -1 = self-coded
+    decoded_values -= 1
+    return decoded_values

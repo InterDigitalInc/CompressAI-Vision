@@ -28,12 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import re
 import time
-from pathlib import Path
 from typing import Dict, List, Tuple
 
 import torch
+from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -54,7 +53,7 @@ class VideoSplitInference(BaseSplit):
     ):
         super().__init__(configs, device)
 
-        self._frame_data_buffer = None
+        self._input_ftensor_buffer = []
 
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
         gt_inputs = []
@@ -95,7 +94,8 @@ class VideoSplitInference(BaseSplit):
                 timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
                 assert "data" in res
-                num_items = self._data_buffering(res["data"])
+
+                num_items = self._input_data_collecting(res["data"])
 
                 if e == 0:
                     org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
@@ -119,8 +119,9 @@ class VideoSplitInference(BaseSplit):
                     f"features generated in {self.configs['nn_task_part1']['feature_dir']}\n exiting"
                 )
                 raise SystemExit(0)
+
             # concatenate a list of tensors at each keyword item
-            features["data"] = self._concat_data()
+            features["data"] = self._reform_list_to_dict(self._input_ftensor_buffer)
 
             # Feature Compression
             start = time.time()
@@ -181,11 +182,14 @@ class VideoSplitInference(BaseSplit):
         # )
 
         # separate a tensor of each keyword item into a list of tensors
-        dec_feature_tensor = self._split_data(dec_features["data"])
+        dec_ftensors_list = self._reform_dict_to_list(dec_features["data"])
+        assert len(dataloader) == len(
+            dec_ftensors_list
+        ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in tqdm(self._iterate_items(dec_feature_tensor, len(dataloader))):
+        for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["qp"] = (
@@ -219,49 +223,69 @@ class VideoSplitInference(BaseSplit):
 
         return timing, codec.eval_encode_type, output_list, eval_performance
 
-    def _data_buffering(self, data: Dict):
+    def _input_data_collecting(self, data: Dict):
         """
-        Piling up input data along the 0 axis for each dictionary item
+        Pull up input data and move to generic memory in case it was on GPU memory
         """
 
-        if self._frame_data_buffer is None:
-            self._frame_data_buffer = {}
-
-            for key, tensor in data.items():
-                self._frame_data_buffer[key] = [
-                    to_cpu(tensor),
-                ]
-            return
-
+        d = {}
         for key, tensor in data.items():
-            self._frame_data_buffer[key].append(to_cpu(tensor))
+            d[key] = to_cpu(tensor)
 
-        len_items = [len(buffer) for buffer in self._frame_data_buffer.values()]
+        del data
+        self._input_ftensor_buffer.append(d)
 
-        return len_items[0]
+        return len(self._input_ftensor_buffer)
 
-    def _concat_data(self):
-        output = {}
-        for key, tensor in self._frame_data_buffer.items():
-            output[key] = torch.concat(tensor, dim=0)
+    @staticmethod
+    def _reform_list_to_dict(data: List):
+        output = None
 
-        self._frame_data_buffer = None
+        for ftensors in data:
+            assert isinstance(ftensors, dict)
+
+            if output is None:
+                output = dict(
+                    zip(ftensors.keys(), [[] for _ in range(len(ftensors.keys()))])
+                )
+
+            for key, ftensor in ftensors.items():
+                output[key].append(ftensor)
+
+        for key, ftensors in output.items():
+            output[key] = torch.concat(ftensors, dim=0)
 
         return output
 
-    def _split_data(self, data: Dict):
-        output = {}
+    @staticmethod
+    def _reform_dict_to_list(data: Dict):
+        output = []
+        tmp = {}
+        total_len = -1
         for key, tensor in data.items():
-            if not isinstance(tensor, list):
-                output[key] = list(tensor.chunk(len(tensor)))
+            if isinstance(tensor, Tensor):
+                tmp[key] = list(tensor.chunk(len(tensor)))
+            elif isinstance(tensor, List):
+                tmp[key] = tensor
             else:
-                output[key] = tensor
+                raise NotImplementedError
+
+            total_len = len(tmp[key])
+
+        assert all(len(item) == total_len for item in tmp.values())
+
+        keys = list(data.keys())
+        for ftensors in zip(*(tmp.values())):
+            d = dict(zip(keys, ftensors))
+            output.append(d)
+
         return output
 
-    def _iterate_items(self, data: Dict, num_frms: int):
-        for e in tqdm(range(num_frms)):
+    @staticmethod
+    def _iterate_items(data: List, device):
+        for e, ftensors in enumerate(tqdm(data)):
             out_dict = {}
-            for key, val in data.items():
-                out_dict[key] = val[e].to(self.device)
+            for key, val in ftensors.items():
+                out_dict[key] = val.to(device)
 
             yield e, out_dict

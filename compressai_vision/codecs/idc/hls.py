@@ -29,9 +29,12 @@
 
 from typing import Any, Dict, List, Tuple, cast
 
+import numpy as np
+
 from compressai_vision.codecs.encdec_utils import *
 
 from .common import FeatureTensorCodingType
+from .entropy import decode_integers_deepcabac, encode_integers_deepcabac
 
 __all__ = ["SequenceParameterSet", "parse_feature_tensor_coding_type"]
 
@@ -209,6 +212,98 @@ class SequenceParameterSet:
         self.dc_qp_density_offset = dc_qp_density_offset
 
 
-def parse_feature_tensor_coding_type(fd):
-    val = read_uchars(fd, 1)[0]
-    return FeatureTensorCodingType(val)
+class FeatureTensorsHeader:
+    def __init__(
+        self,
+        sps: SequenceParameterSet,
+        ctype: FeatureTensorCodingType = None,
+        tags: List = None,
+    ):
+        self.sps = sps
+        self._coding_type = ctype
+        self._ftoc = -1
+        self._coding_modes = None
+        self._scales_info = None
+        self._tags = tags
+
+    @property
+    def ftoc(self):
+        return self._ftoc
+
+    def set_ftoc(self, num: int):
+        self._ftoc = num
+
+    def coding_modes(self, tag):
+        return self._coding_modes[tag]
+
+    def get_coding_modes(self):
+        return self._coding_modes
+
+    def set_coding_modes(self, coding_modes: Dict):
+        self._coding_modes = coding_modes
+
+    @property
+    def coding_type(self):
+        return self._coding_type
+
+    def set_coding_type(self, val: int):
+        self._coding_type = FeatureTensorCodingType(val)
+
+    def set_scales_info(self, scales_info: Dict):
+        self._scales_info = scales_info
+
+    def get_scales_info(self):
+        return self._scales_info
+
+    def scale(self, tag):
+        return self._scales_info[tag]
+
+    def get_split_layer_tags(self) -> List:
+        return self._tags
+
+    def write(self, fd):
+        byte_cnt = write_uchars(fd, (self.coding_type.value,))
+
+        if self.coding_type == FeatureTensorCodingType.I_TYPE:
+            for tag in self.get_split_layer_tags():
+                coding_modes = self.coding_modes(tag)
+                scale_minus_1 = self.scale(tag) - 1
+
+                # encoding channels_coding_modes with cabac
+                indexes = np.array(coding_modes + 1, dtype=np.int32)
+                byte_cnt += encode_integers_deepcabac(indexes, fd)
+
+                # TODO bit wise sps + byte alignment
+                if self.sps.downscale_flag:
+                    byte_cnt += write_uchars(
+                        fd,
+                        [
+                            scale_minus_1,
+                        ],
+                    )
+
+        return byte_cnt
+
+    def read(self, fd):
+        val = read_uchars(fd, 1)[0]
+        self.set_coding_type(val)
+
+        if self.coding_type == FeatureTensorCodingType.I_TYPE:
+            coding_modes_d = {}
+            scale_info_d = {}
+            for e, shape in enumerate(self.sps.shapes_of_features):
+                C = shape["num_channels"]
+                coding_modes_d[e] = decode_integers_deepcabac(fd, C)
+
+                scale = 1
+                if self.sps.downscale_flag:
+                    # it would be better to read by bit
+                    scale_minus_1 = read_uchars(fd, 1)[0]
+                    scale = scale_minus_1 + 1
+
+                scale_info_d[e] = scale
+
+            self.set_coding_modes(coding_modes_d)
+            self.set_scales_info(scale_info_d)
+
+        return 0
