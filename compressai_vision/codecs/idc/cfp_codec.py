@@ -84,6 +84,8 @@ class CFP_CODEC(nn.Module):
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
 
+        self._is_enc_cfg_printed = False
+
         self.enc_cfg = kwargs["encoder_config"]
         self.suppression_cfg = self.enc_cfg["feature_channel_suppression"]
         self.coding_structures = self.enc_cfg["coding_structure"]
@@ -116,7 +118,6 @@ class CFP_CODEC(nn.Module):
         self.ftensors_set_order_count = 0
         self.decoded_ftensors_buffer = collections.deque(maxlen=self.buffer_len)
         self._bitstream_fd = None
-        self._is_enc_cfg_printed = False
 
     @property
     def qp_value(self):

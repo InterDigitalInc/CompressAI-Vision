@@ -78,6 +78,8 @@ class VideoSplitInference(BaseSplit):
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
+        self._update_codec_configs_at_pipeline_level(len(dataloader))
+
         features = {}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
@@ -88,6 +90,11 @@ class VideoSplitInference(BaseSplit):
             for e, d in enumerate(tqdm(dataloader)):
                 output_file_prefix = f'img_id_{d[0]["image_id"]}'
 
+                if e < self._codec_skip_n_frames:
+                    continue
+                if e >= self._codec_end_frame_idx:
+                    break
+
                 start = time.time()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
                 end = time.time()
@@ -97,7 +104,7 @@ class VideoSplitInference(BaseSplit):
 
                 num_items = self._input_data_collecting(res["data"])
 
-                if e == 0:
+                if (e - self._codec_skip_n_frames) == 0:
                     org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
                     features["org_input_size"] = org_img_size
                     features["input_size"] = res["input_size"]
@@ -112,7 +119,7 @@ class VideoSplitInference(BaseSplit):
                     out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
                     out_res["input_size"] = features["input_size"][0]
 
-            assert num_items == len(dataloader)
+            assert num_items == self._codec_n_frames_to_be_encoded
 
             if self.configs["nn_task_part1"].generate_features_only is True:
                 print(

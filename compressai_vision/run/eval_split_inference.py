@@ -96,23 +96,25 @@ def print_specs(pipeline, **kwargs):
     logger.info(
         f"\
                 \n {'='*60}\
-                \n Pipeline       : {title(pipeline):<30s}\
-                \n Vision Model   : {title(kwargs['vision_model']):<30s}\
-                \n  -- Cfg        : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
-                \n  -- Weight     : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
-                \n Codec          : {title(kwargs['codec']):<30s}\
-                \n  -- Enc. Only  : {pipeline.configs['codec'].encode_only} \
-                \n  -- Dec. Only  : {pipeline.configs['codec'].decode_only} \
-                \n  -- Output Dir : {Path(pipeline.codec_output_dir).resolve()} \
-                \n  -- Bitstream  : {pipeline.bitstream_name}.bin \
-                \n Dataset        : {kwargs['evaluator'].dataset_name} \
-                \n  -- Data       : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
-                \n  -- Annotation : {Path(kwargs['dataloader'].dataset.annotation_path).resolve()} \
-                \n  -- SEQ-INFO   : {Path(kwargs['dataloader'].dataset.seqinfo_path).resolve()} \
-                \n Evaluator      : {title(kwargs['evaluator']):<30s}\
-                \n  -- DataCatalog: {kwargs['evaluator'].datacatalog_name} \
-                \n  -- Output Dir : {Path(kwargs['evaluator'].output_dir).resolve()} \
-                \n  -- Output file: {kwargs['evaluator'].output_file_name} \
+                \n Pipeline                 : {title(pipeline):<30s}\
+                \n Vision Model             : {title(kwargs['vision_model']):<30s}\
+                \n  -- Cfg                  : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
+                \n  -- Weight               : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
+                \n Codec                    : {title(kwargs['codec']):<30s}\
+                \n  -- Enc. Only            : {pipeline.configs['codec'].encode_only} \
+                \n  -- Dec. Only            : {pipeline.configs['codec'].decode_only} \
+                \n  -- Output Dir           : {Path(pipeline.codec_output_dir).resolve()} \
+                \n  -- Skip N-Frames        : {pipeline.configs['codec'].skip_n_frames} \
+                \n  -- # Frames To Be Coded : {pipeline.configs['codec'].n_frames_to_be_encoded} \
+                \n  -- Bitstream            : {pipeline.bitstream_name}.bin \
+                \n Dataset                  : {kwargs['evaluator'].dataset_name} \
+                \n  -- Data                 : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
+                \n  -- Annotation           : {Path(kwargs['dataloader'].dataset.annotation_path).resolve()} \
+                \n  -- SEQ-INFO             : {Path(kwargs['dataloader'].dataset.seqinfo_path).resolve()} \
+                \n Evaluator                : {title(kwargs['evaluator']):<30s}\
+                \n  -- DataCatalog          : {kwargs['evaluator'].datacatalog_name} \
+                \n  -- Output Dir           : {Path(kwargs['evaluator'].output_dir).resolve()} \
+                \n  -- Output file          : {kwargs['evaluator'].output_file_name} \
                 \n\n\
     "
     )

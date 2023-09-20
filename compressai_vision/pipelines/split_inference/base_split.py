@@ -102,6 +102,47 @@ class BaseSplit(nn.Module):
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self._create_folder(self.codec_output_dir)
 
+    def _update_codec_configs_at_pipeline_level(self, total_num_frames):
+        # Sanity check
+        self._codec_skip_n_frames = self.configs["codec"]["skip_n_frames"]
+        n_frames_to_be_encoded = self.configs["codec"]["n_frames_to_be_encoded"]
+
+        assert (
+            self._codec_skip_n_frames < total_num_frames
+        ), f"Number of skip frames {self._codec_skip_n_frames} must be less than total number of frames {total_num_frames}"
+
+        if n_frames_to_be_encoded == -1:
+            n_frames_to_be_encoded = total_num_frames
+
+        assert (
+            n_frames_to_be_encoded
+        ), f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
+
+        if (self._codec_skip_n_frames + n_frames_to_be_encoded) > total_num_frames:
+            self.logger.warning(
+                f"The range of frames to be coded is over the total number of frames, {(self._codec_skip_n_frames + n_frames_to_be_encoded)} >= {total_num_frames}"
+            )
+
+            n_frames_to_be_encoded = total_num_frames - self._codec_skip_n_frames
+            self.logger.warning(
+                f"Number of frames to be encoded will be automatically updated. {self._codec_n_frames_to_be_encoded} -> {n_frames_to_be_encoded}"
+            )
+
+        self._codec_n_frames_to_be_encoded = n_frames_to_be_encoded
+
+        if (
+            self._codec_skip_n_frames > 0
+            or self._codec_n_frames_to_be_encoded != total_num_frames
+        ):
+            self.logger.warning(
+                f"Encoding part of a sequence is only available with `encode_only' = True, but got {self.configs['codec']['encode_only']}"
+            )
+            self.configs["codec"]["encode_only"] = True
+
+        self._codec_end_frame_idx = (
+            self._codec_skip_n_frames + self._codec_n_frames_to_be_encoded
+        )
+
     def _from_input_to_features(
         self, vision_model: BaseWrapper, x: Dict, seq_name: str = None
     ):

@@ -69,14 +69,19 @@ class ImageSplitInference(BaseSplit):
 
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
+        self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []
         timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
         for e, d in enumerate(tqdm(dataloader)):
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
-
             file_prefix = f'img_id_{d[0]["image_id"]}'
 
             if not self.configs["codec"]["decode_only"]:
+                if e < self._codec_skip_n_frames:
+                    continue
+                if e >= self._codec_end_frame_idx:
+                    break
+
                 start = time.time()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
                 end = time.time()
