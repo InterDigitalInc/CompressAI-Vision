@@ -47,6 +47,11 @@ def filesize(filepath: str) -> int:
     return Path(filepath).stat().st_size
 
 
+def write_float32(fd, values, fmt=">{:d}f"):
+    fd.write(struct.pack(fmt.format(len(values)), *values))
+    return len(values) * 4
+
+
 def write_uints(fd, values, fmt=">{:d}I"):
     fd.write(struct.pack(fmt.format(len(values)), *values))
     return len(values) * 4
@@ -55,6 +60,13 @@ def write_uints(fd, values, fmt=">{:d}I"):
 def write_uchars(fd, values, fmt=">{:d}B"):
     fd.write(struct.pack(fmt.format(len(values)), *values))
     return len(values) * 1
+
+
+def read_float32(fd, n, fmt=">{:d}f"):
+    sz = struct.calcsize("f")
+    values = struct.unpack(fmt.format(n), fd.read(n * sz))
+
+    return tuple([float("{:.4f}".format(val)) for val in values])
 
 
 def read_uints(fd, n, fmt=">{:d}I"):

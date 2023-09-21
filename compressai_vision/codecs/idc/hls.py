@@ -99,6 +99,7 @@ class SequenceParameterSet:
         fd,
         nbframes,
         downscale_flag,
+        n_bit_integer,
         qp,
         qp_density,
         layer_qp_offsets,
@@ -112,6 +113,11 @@ class SequenceParameterSet:
         tools_flag = 0
         self.downscale_flag = int(downscale_flag)
         tools_flag |= self.downscale_flag << 6
+
+        # n_bit_integer floating to integer
+        self.n_bit_integer = n_bit_integer
+        if n_bit_integer != 0:
+            tools_flag |= (n_bit_integer - 8 + 1) << 4
 
         byte_cnt += write_uchars(fd, (tools_flag,))
 
@@ -159,7 +165,14 @@ class SequenceParameterSet:
 
         # read tools flag
         tools_flag = read_uchars(fd, 1)[0]
+
+        # downscale flag
         self.downscale_flag = BoolConvert(((tools_flag >> 6) & 0x01))
+
+        # n_bit_integer floating to integer
+        self.n_bit_integer = (tools_flag >> 4) & 0x03
+        if self.n_bit_integer != 0:
+            self.n_bit_integer = self.n_bit_integer - 1 + 8
 
         # read original input resolution
         self.org_input_height, self.org_input_width = read_uints(fd, 2)
@@ -225,6 +238,7 @@ class FeatureTensorsHeader:
         self._coding_modes = None
         self._scales_info = None
         self._tags = tags
+        self._ftensors_min_max = None
 
     @property
     def ftoc(self):
@@ -241,6 +255,15 @@ class FeatureTensorsHeader:
 
     def set_coding_modes(self, coding_modes: Dict):
         self._coding_modes = coding_modes
+
+    def sef_ftensors_min_max(self, min_max: Dict):
+        self._ftensors_min_max = min_max
+
+    def get_ftensors_min_max(self, tag):
+        if self.sps.n_bit_integer == 0:
+            return None
+
+        return self._ftensors_min_max[tag]
 
     @property
     def coding_type(self):
@@ -282,6 +305,12 @@ class FeatureTensorsHeader:
                         ],
                     )
 
+        if self.sps.n_bit_integer > 0:
+            for tag in self.get_split_layer_tags():
+                min_max = self.get_ftensors_min_max(tag)
+                # minimum and maximum values
+                byte_cnt += write_float32(fd, min_max)
+
         return byte_cnt
 
     def read(self, fd):
@@ -305,5 +334,13 @@ class FeatureTensorsHeader:
 
             self.set_coding_modes(coding_modes_d)
             self.set_scales_info(scale_info_d)
+
+        if self.sps.n_bit_integer > 0:
+            ftensors_min_max_d = {}
+            for e in range(len(self.sps.shapes_of_features)):
+                min_max = read_float32(fd, 2)
+                ftensors_min_max_d[e] = min_max
+
+            self.sef_ftensors_min_max(ftensors_min_max_d)
 
         return 0

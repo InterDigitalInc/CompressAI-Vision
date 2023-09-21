@@ -40,7 +40,7 @@ from tqdm import tqdm
 
 from compressai_vision.registry import register_codec
 
-from .common import FeatureTensorCodingType
+from .common import FeatureTensorCodingType, RepresetnationTensorMode
 from .hls import FeatureTensorsHeader, SequenceParameterSet
 from .inter import inter_coding, inter_decoding
 from .intra import intra_coding, intra_decoding
@@ -89,6 +89,7 @@ class CFP_CODEC(nn.Module):
         self.enc_cfg = kwargs["encoder_config"]
         self.suppression_cfg = self.enc_cfg["feature_channel_suppression"]
         self.coding_structures = self.enc_cfg["coding_structure"]
+        self.n_bit_integer = self.enc_cfg["n_bit_integer"]
 
         self.split_layer_list = kwargs["vision_model"].split_layer_list
         self.deeper_features_for_accuracy_proxy = kwargs[
@@ -99,6 +100,8 @@ class CFP_CODEC(nn.Module):
         self.eval_encode = kwargs["eval_encode"]
 
         self._sanity_check_for_configuration()
+
+        self.set_respresentation_mode(self.n_bit_integer)
 
         self.buffer_len = 4
 
@@ -126,6 +129,10 @@ class CFP_CODEC(nn.Module):
     @property
     def eval_encode_type(self):
         return self.eval_encode
+
+    def set_respresentation_mode(self, n_bit: int):
+        self.rep_mode = RepresetnationTensorMode.AVG
+        # TBD
 
     def set_bitstream_handle(self, fname, mode="rb"):
         # self._bitstream_path = self.codec_output_dir / f"{fname}"
@@ -182,6 +189,10 @@ class CFP_CODEC(nn.Module):
             self.enc_cfg["qp"] is not None
         ), "Please provide a QP value!"  # TODO: @eimran maybe run the process to get uncmp result
 
+        assert self.n_bit_integer == 0 or (
+            self.n_bit_integer >= 8 and self.n_bit_integer <= 10
+        ), f"n_bit_integer must be 0 or [8, 9, 10], but got {self.n_bit_integer}"
+
     def _print_enc_cfg(self, enc_cfg: Dict, lvl: int = 0):
         log_str = ""
         if lvl == 0 and self._is_enc_cfg_printed is True:
@@ -226,7 +237,6 @@ class CFP_CODEC(nn.Module):
         ]
         assert all(n == layer_nbframes[0] for n in layer_nbframes)
         nbframes = layer_nbframes[0]
-        # nbframes = 2  # for debugging
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
@@ -239,7 +249,6 @@ class CFP_CODEC(nn.Module):
         # parsing encoder configurations
         intra_period = self.coding_structures["intra_period"]
         goft_size = self.coding_structures["goft_size"]
-        n_bits = 8
 
         sps = SequenceParameterSet()
         sps.digest(**input)
@@ -249,6 +258,7 @@ class CFP_CODEC(nn.Module):
             bitstream_fd,
             nbframes,
             downscale_flag=self.downscale,
+            n_bit_integer=self.n_bit_integer,
             qp=self.qp,
             qp_density=self.qp_density,
             layer_qp_offsets=self.layer_qp_offsets,
@@ -269,26 +279,32 @@ class CFP_CODEC(nn.Module):
 
                 ch_clct_by_group, scales_for_layers = suppression_optimization(
                     self.suppression_cfg,
+                    self.n_bit_integer,
                     input["input_size"],
                     ftensors,
                     self.deeper_features_for_accuracy_proxy,
+                    self.rep_mode,
                     logger=self.logger,
                 )
 
             (
                 ftensors_to_code,
                 all_channels_coding_modes,
+                ftensors_min_max,
             ) = feature_channel_suppression(
                 ftensors,
                 ch_clct_by_group,
                 scales_for_layers,
+                self.n_bit_integer,
                 self.min_nb_channels_for_group,
+                self.rep_mode,
             )
 
             ftHeader = FeatureTensorsHeader(sps, eFTCType, self.split_layer_list)
             ftHeader.set_ftoc(e)  # should be the same concept as poc. TBD: Hyomin
             ftHeader.set_coding_modes(all_channels_coding_modes)
             ftHeader.set_scales_info(scales_for_layers)
+            ftHeader.sef_ftensors_min_max(ftensors_min_max)
 
             bytes_total += ftHeader.write(bitstream_fd)
 

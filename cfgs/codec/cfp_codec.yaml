@@ -35,6 +35,9 @@ encoder_config:
     intra_period: 1 # Period of I-ftensors (-1 = only first)
     goft_size: 16 # Group of feature tensors size (number of B/P ftensors set = goft_size - 1)
 
+  # floating feature tensor to integer n-bit quantization
+  n_bit_integer: 0 # up to 10-bit (0 = coding floating number)
+
   # qp
   qp: 8
   qp_density: 2 #  (range = [1, 5])

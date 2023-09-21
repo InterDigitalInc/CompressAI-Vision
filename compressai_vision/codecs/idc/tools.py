@@ -29,7 +29,7 @@
 
 import io
 import math
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -38,6 +38,8 @@ import torchvision.transforms as T
 from numba import jit
 from scipy.cluster.hierarchy import cut_tree, linkage
 from torch import Tensor
+
+from .common import RepresetnationTensorMode
 
 __all__ = [
     "feature_channel_suppression",
@@ -61,34 +63,36 @@ def hierarchical_clustering(A: Tensor, method="ward"):
     return linkage(array2D, method)
 
 
-def compute_representation_channel(fchannels: Tensor, mode):
-    # TODO [eimran : compute represetnation channel by various mode]
+def compute_representation_channel(fchannels: Tensor, mode: RepresetnationTensorMode):
     assert fchannels.dim() == 3
-    # it can be different, not necessarily to be 'mean'
-    return fchannels.mean(dim=0)
+
+    if mode == RepresetnationTensorMode.AVG:
+        representation = fchannels.mean(dim=0)
+    else:
+        # TODO [eimran : compute represetnation channel by various mode]
+        raise NotImplementedError
+
+    return representation
 
 
-def collect_channels(ftensor: Tensor, channel_groups: List, mode=""):
+def collect_channels(channel_groups: List):
     unique_groups_ids = np.unique(channel_groups)
 
     cluster_dict = {}
-    represetnations = []
     for e, group_id in enumerate(unique_groups_ids):
         cluster_dict[e] = np.where(channel_groups == group_id)[0].tolist()
-
-        # rep_ch = compute_representation_channel(ftensor[cluster_dict[e]], mode)
-        # represetnations.append(rep_ch)
-
-    # cluster_dict = dict(sorted(cluster_dict.items(), key=lambda item: len(item[1])))
 
     return cluster_dict
 
 
 def compute_ftensor_to_encode(
-    ch_clct_by_group, ftensor, scale, min_nb_channels_for_group, mode=None
+    ch_clct_by_group,
+    ftensor,
+    scale,
+    min_nb_channels_for_group,
+    mode: RepresetnationTensorMode,
 ):
     rep_ftensor = []
-    sorted_ch_clct_by_group = {}
     coding_modes = np.full(ftensor.shape[0], -1)
 
     # keep channel_groups that have more than n channels
@@ -116,7 +120,7 @@ def compute_ftensor_to_encode(
     self_coded_ftensor = []
     for idx, mode in enumerate(coding_modes):
         if mode < 0:
-            self_coded_ftensor.append(ftensor[idx])
+            self_coded_ftensor.append(ftensor[idx].float())
 
     channels_to_encode = rep_ftensor + self_coded_ftensor
     sftensor = torch.stack(channels_to_encode)
@@ -133,10 +137,11 @@ def feature_channel_suppression(
     ftensors: Dict,
     channel_groups: Dict,
     scales_for_layers: Dict,
+    n_bit_integer: int,
     min_nb_channels_for_group,
-    mode="",
+    mode: RepresetnationTensorMode,
 ):
-    # tensor_min_max = {}
+    ftensors_min_max = {}
     ftensors_to_code = {}
     all_channels_coding_modes = {}
 
@@ -146,13 +151,65 @@ def feature_channel_suppression(
         scale = scales_for_layers[tag]
 
         sftensor, coding_modes, _ = compute_ftensor_to_encode(
-            channel_collections, ftensor, scale, min_nb_channels_for_group, mode
+            channel_collections,
+            ftensor,
+            scale,
+            min_nb_channels_for_group,
+            mode,
         )
 
-        ftensors_to_code[tag] = sftensor
+        qftensor, min_max = fwd_n_bit_quant_with_min_max_norm(sftensor, n_bit_integer)
+
+        ftensors_min_max[tag] = min_max
+        ftensors_to_code[tag] = qftensor
         all_channels_coding_modes[tag] = coding_modes
 
-    return ftensors_to_code, all_channels_coding_modes
+    return ftensors_to_code, all_channels_coding_modes, ftensors_min_max
+
+
+def fwd_n_bit_quant_with_min_max_norm(ftensor: Tensor, n_bit: int):
+    if n_bit == 0:
+        return ftensor, None
+    max_level = (1 << n_bit) - 1
+
+    minv = ftensor.min()
+    maxv = ftensor.max()
+
+    assert minv.dtype == maxv.dtype == torch.float32
+
+    # normalization with minimum and maximum values [0, 1]
+    qftensor = ((ftensor - minv) / (maxv - minv)).clamp(0, 1)
+
+    # n_bit quantization
+    qftensor = torch.round(qftensor * max_level)
+
+    return qftensor.float(), (minv, maxv)
+
+
+def inv_n_bit_quant_with_min_max_norm(qftensor: Tensor, n_bit: int, min_max: Any):
+    if n_bit == 0 and min_max is None:
+        return qftensor
+
+    max_level = (1 << n_bit) - 1
+    minv, maxv = min_max
+
+    # inverse n_bit quantization
+    rftensor = qftensor.float() / max_level
+
+    # inverse normalization
+    rftensor = (rftensor * (maxv - minv)) + minv
+
+    return rftensor
+
+
+def n_bit_quant_and_dequant222(ftensor: Tensor, n_bit):
+    if n_bit == 0:
+        return ftensor
+
+    qftensor, min_max = fwd_n_bit_quant_with_min_max_norm(ftensor, n_bit)
+    rftensor = inv_n_bit_quant_with_min_max_norm(qftensor, n_bit, min_max)
+
+    return rftensor
 
 
 def rebuild_ftensor(channel_coding_modes, decoded_ftensor, scale_idx, shape):
@@ -209,6 +266,7 @@ def find_N_groups_of_channels(
     search_base,
     search_distance,
     search_dscale_idx,
+    n_bit_integer,
     proxy_input,
     proxy_function,
     ftensor,
@@ -216,7 +274,7 @@ def find_N_groups_of_channels(
     hierarchy,
     cvg_thres,
     min_nb_channels_for_group,
-    mode,
+    mode: RepresetnationTensorMode,
 ):
     max_channels = ftensor.shape[0]
 
@@ -237,9 +295,9 @@ def find_N_groups_of_channels(
     while find_optimum is False:
         channel_groups = cut_tree(hierarchy, sidx)
 
-        channel_collections = collect_channels(ftensor, channel_groups, mode)
+        channel_collections = collect_channels(channel_groups)
 
-        sftensor, coding_modes, sorted_ch_groups = compute_ftensor_to_encode(
+        sftensor, coding_modes, _ = compute_ftensor_to_encode(
             channel_collections,
             ftensor,
             (search_dscale_idx + 1),
@@ -247,9 +305,12 @@ def find_N_groups_of_channels(
             mode,
         )
 
+        qftensor, min_max = fwd_n_bit_quant_with_min_max_norm(sftensor, n_bit_integer)
+        rftensor = inv_n_bit_quant_with_min_max_norm(qftensor, n_bit_integer, min_max)
+
         est_ftensor = rebuild_ftensor(
             coding_modes,
-            sftensor,
+            rftensor,
             (search_dscale_idx + 1),
             ftensor.shape,
         )
@@ -321,11 +382,12 @@ def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
 
 def rpn_based_optimization(
     enc_cfg: Dict,
+    n_bit_integer: int,
     proxy_function: Callable,
     proxy_input: Dict,
     min_nb_channels_for_group: int,
+    mode: RepresetnationTensorMode,
     scale_list=List,
-    mode="",
     logger=None,
 ):
     xy_margin = enc_cfg["xy_margin"]
@@ -385,6 +447,7 @@ def rpn_based_optimization(
                 search_base,
                 search_distance,
                 dscale_idx,
+                n_bit_integer,
                 proxy_input,
                 proxy_function,
                 ftensor,
@@ -432,10 +495,11 @@ def rpn_based_optimization(
 
 def suppression_optimization(
     enc_cfg: Dict,
+    n_bit_integer: int,
     input_img_size,
     ftensors: Dict,
     proxy_function: Callable,
-    mode="",
+    mode: RepresetnationTensorMode,
     logger=None,
 ):
     # Find (sub-)optimal N-cluster to categorize input features by channels.
@@ -464,11 +528,12 @@ def suppression_optimization(
     if suppression_measure == "rpn":
         all_ch_clct_by_group, all_scales_for_layers = rpn_based_optimization(
             enc_cfg[suppression_measure],
+            n_bit_integer,
             proxy_function,
             proxy_input,
             min_nb_channels_for_group,
-            scale_list,
             mode,
+            scale_list,
             logger,
         )
     elif suppression_measure == "mse":

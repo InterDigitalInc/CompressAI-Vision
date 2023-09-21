@@ -37,7 +37,7 @@ from compressai_vision.codecs.encdec_utils import *
 
 from .entropy import dequantize, dequantize_and_decode, quantize_and_encode
 from .hls import FeatureTensorsHeader, SequenceParameterSet
-from .tools import rebuild_ftensor
+from .tools import inv_n_bit_quant_with_min_max_norm, rebuild_ftensor
 
 __all__ = [
     "intra_coding",
@@ -118,6 +118,9 @@ def intra_coding(
 
         # add dc values
         decoded_ftensor = _add_dc_values(dequantized_ftensor, dequantized_dc)
+        decoded_ftensor = inv_n_bit_quant_with_min_max_norm(
+            decoded_ftensor, sps.n_bit_integer, ftHeader.get_ftensors_min_max(tag)
+        )
         recon_ftensors[tag] = decoded_ftensor
 
         layer_idx += 1
@@ -172,7 +175,9 @@ def intra_decoding(
 
         # add dc values
         decoded_ftensor = _add_dc_values(decoded_ftensor, dequantized_dc)
-
+        decoded_ftensor = inv_n_bit_quant_with_min_max_norm(
+            decoded_ftensor, sps.n_bit_integer, ftHeader.get_ftensors_min_max(e)
+        )
         recon_ftensors_suppressed[e] = decoded_ftensor
 
         recon_ftensors[e] = rebuild_ftensor(

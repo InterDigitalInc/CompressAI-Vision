@@ -31,9 +31,15 @@ from enum import Enum
 
 __all__ = [
     "FeatureTensorCodingType",
+    "RepresetnationTensorMode",
 ]
 
 
 class FeatureTensorCodingType(Enum):
     PB_TYPE = 0
     I_TYPE = 1
+
+
+class RepresetnationTensorMode(Enum):
+    AVG = 0
+    TBD = 1
