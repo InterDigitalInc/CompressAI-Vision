@@ -229,9 +229,6 @@ def _generate_csv(result_path, dataset_name):
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
-    # drop columns
-    result_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
-
     # add columns
     result_df = _add_columns(result_df)
 

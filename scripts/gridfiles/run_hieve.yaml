@@ -7,9 +7,9 @@ variables:
   CODEC_PARAMS: ""
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/idc_cfp_response_1/runs"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs"
 
-  script_dir: "../cross_checking_scripts"
+  script_dir: "."
 
 run_hieve_tracking:
 
@@ -45,7 +45,7 @@ generate_csv:
     - cd "${script_dir}"
 
   script:
-    - python ../utils/mpeg_template_format.py --dataset HIEVE --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/MPEGHIEVE/
+    - python ../../utils/mpeg_template_format.py --dataset HIEVE --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/MPEGHIEVE/
 
   sbatch:
     begin: now

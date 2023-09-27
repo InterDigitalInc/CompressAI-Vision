@@ -6,9 +6,9 @@ variables:
   device: "cuda"
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/idc_cfp_response_1/runs/"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs"
 
-  script_dir: "../cross_checking_scripts"
+  script_dir: "."
 
 run_sfu_det_class_A:
 
@@ -16,14 +16,14 @@ run_sfu_det_class_A:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.60"
+    - bash mpeg_cfp_sfu.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.60"
 
   parallel:
     matrix:
       - seq_name: [      
               'Traffic_2560x1600_30_val',
         ]
-        qp: [5, 6, 7, 8, 9, 10]
+        qp: [30]
 
 
   sbatch:
@@ -39,7 +39,7 @@ run_sfu_det_class_B:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+    - bash mpeg_cfp_sfu.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
 
   parallel:
     matrix:
@@ -66,7 +66,7 @@ run_sfu_det_class_C_D:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu.sh ${input_dir} ${output_dir} ${exp_name} ${device} "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.85"
+    - bash mpeg_cfp_sfu.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.85"
 
   parallel:
     matrix:
@@ -99,7 +99,7 @@ generate_csv:
     - cd "${script_dir}"
 
   script:
-    - python ../utils/mpeg_template_format.py --dataset SFU --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/SFUHW/
+    - python ../../utils/mpeg_template_format.py --dataset SFU --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/SFUHW/
 
   sbatch:
     begin: now

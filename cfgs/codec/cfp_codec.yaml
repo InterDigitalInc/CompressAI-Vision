@@ -4,7 +4,7 @@ experiment: "" # e.g. "_test_xy_margin_decay" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}_qpdensity${codec.encoder_config.qp_density}"
 
-verbosity: 0
+verbosity: 1
 
 encoder_config:
   # feature channel suppression optimization

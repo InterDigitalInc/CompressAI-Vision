@@ -372,7 +372,7 @@ def _manual_clustering(n_clusters: Dict, downscale, ftensors: Dict, mode):
         num_clusters = min(num_clusters, ftensor.shape[0])
 
         clustered_channels = cut_tree(hierarchy, num_clusters)
-        channel_collections = collect_channels(ftensor, clustered_channels, mode)
+        channel_collections = collect_channels(clustered_channels)
 
         all_ch_clct_by_group[tag] = channel_collections
         all_scales_for_layers[tag] = scale

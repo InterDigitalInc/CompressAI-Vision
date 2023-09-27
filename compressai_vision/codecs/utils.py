@@ -35,7 +35,11 @@ import torch
 from torch import Tensor
 
 MIN_MAX_DATASET = {
-    "mpeg-oiv6-detection": (-26.426828384399414, 28.397470474243164),
+    "mpeg-oiv6-detection": (
+        -26.426828384399414,
+        28.397470474243164,
+    ),  # According to the anchor scripts -> global_max = 20.246625900268555, global_min = -23.09193229675293
+    "mpeg-oiv6-segmentation": (-26.426828384399414, 28.397470474243164),
     "TVD": (-4.722218990325928, 48.58344268798828),
     "HiEve": (-1.0795, 11.8232),
     "SFU": (-17.8848, 16.69417),

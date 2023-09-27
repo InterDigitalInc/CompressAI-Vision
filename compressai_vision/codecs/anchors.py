@@ -182,7 +182,11 @@ class VTM(nn.Module):
         frmRate = self.frame_rate if nbframes > 1 else 1
 
         if file_prefix == "":
-            file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+            file_prefix = f"{codec_output_dir}/{bitstream_name}"
+        else:
+            file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
+
+        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
 
         yuv_in_path = f"{file_prefix}_input.yuv"
         bitstream_path = f"{file_prefix}.bin"
@@ -217,7 +221,8 @@ class VTM(nn.Module):
         ).is_file(), f"bitstream {bitstream_path} was not created"
 
         if not self.dump_yuv["dump_yuv_packing_input"]:
-            yuv_in_path.unlink()
+            os.unlink(yuv_in_path)
+            # yuv_in_path.unlink()
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
         avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes

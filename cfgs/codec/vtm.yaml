@@ -8,7 +8,7 @@ codec_paths:
   decoder_exe: "/pa/home/racapef/vvc/VVCSoftware_VTM/bin/DecoderAppStatic"
   cfg_file: "/pa/home/racapef/vvc/VVCSoftware_VTM/cfg/encoder_intra_vtm.cfg"
 dump_yuv:
-  dump_yuv_packing_input: True
+  dump_yuv_packing_input: False
   yuv_packing_input_dir: ${..output_dir}
   dump_yuv_packing_dec: False
   yuv_packing_dec_dir: ${..output_dir}
