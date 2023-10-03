@@ -94,6 +94,7 @@ class VTM(nn.Module):
 
         self.qp = kwargs["encoder_config"]["qp"]
         self.frame_rate = kwargs["encoder_config"]["frame_rate"]
+        self.intra_period = kwargs["encoder_config"]["intra_period"]
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
@@ -128,7 +129,9 @@ class VTM(nn.Module):
         height: int,
         nbframes: int = 1,
         frmRate: int = 1,
+        intra_period: int = 1,
     ) -> List[Any]:
+        level = 5.1 if nbframes > 1 else 6.2  # according to MPEG's anchor
         cmd = [
             self.encoder_path,
             "-i",
@@ -149,6 +152,8 @@ class VTM(nn.Module):
             frmRate,
             "-f",
             nbframes,
+            f"--Level={level}",
+            f"--IntraPeriod={intra_period}",
             "--InputChromaFormat=400",
             "--InputBitDepth=10",
             "--ConformanceWindowMode=1",  # needed?
@@ -179,7 +184,9 @@ class VTM(nn.Module):
         frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
 
         nbframes, frame_height, frame_width = frames.size()
+
         frmRate = self.frame_rate if nbframes > 1 else 1
+        intra_period = self.intra_period if nbframes > 1 else 1
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
@@ -203,12 +210,13 @@ class VTM(nn.Module):
 
         cmd = self.get_encode_cmd(
             yuv_in_path,
-            height=frame.size(1),
-            width=frame.size(0),
+            width=frame_width,
+            height=frame_height,
             qp=self.qp,
             bitstream_path=bitstream_path,
             nbframes=nbframes,
             frmRate=frmRate,
+            intra_period=intra_period,
         )
         # self.logger.debug(cmd)
 
