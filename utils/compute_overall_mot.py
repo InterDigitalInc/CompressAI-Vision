@@ -36,11 +36,12 @@ Compute overall MOT over some sequences outputs
 from __future__ import annotations
 
 import argparse
+import csv
 from typing import Any, Dict, List
 
 import motmetrics as mm
 import torch
-import csv
+
 import utils
 from compressai_vision.evaluators.evaluators import BaseEvaluator, MOT_JDE_Eval
 

@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import configparser
 import errno
 import json
 import logging
@@ -79,29 +80,36 @@ class x264(nn.Module):
     def __init__(
         self,
         vision_model: BaseWrapper,
-        dataset_name: "str" = "",
+        dataset: Dict,
         **kwargs,
     ):
         super().__init__()
 
         self.qp = kwargs["encoder_config"]["qp"]
-        self.frame_rate = kwargs["encoder_config"]["frame_rate"]
+
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
-        # TODO (fracape) hacky, create separate function with LUT
-        self.dataset = dataset_name
-        if "sfu" in dataset_name:
-            self.datacatalog = "SFU"
-        else:
-            self.datacatalog = dataset_name
         self.vision_model = vision_model
+        self.datacatalog = dataset.datacatalog
+        self.dataset_name = dataset.config["dataset_name"]
 
-        self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
+        self.frame_rate = 1
+        if not self.datacatalog == "MPEGOIV6":
+            config = configparser.ConfigParser()
+            config.read(f"{dataset['config']['root']}/{dataset['config']['seqinfo']}")
+            self.frame_rate = config["Sequence"]["frameRate"]
 
-        self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
+        if self.datacatalog in MIN_MAX_DATASET:
+            self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
+        elif self.dataset_name in MIN_MAX_DATASET:
+            self.min_max_dataset = MIN_MAX_DATASET[self.dataset_name]
+        else:
+            raise ValueError("dataset not recognized for normalization")
 
-        # TODO (fracape) move to cfg
+        # TODO (fracape) bitdepth in cfg
+        self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV444_10le)
+
         self.preset = kwargs["encoder_config"]["preset"]
         self.tune = kwargs["encoder_config"]["tune"]
 
@@ -143,7 +151,7 @@ class x264(nn.Module):
             "-tune",
             self.tune,
             "-pix_fmt",
-            "gray10le",  # to be checked
+            "yuv444p10le",  # to be checked
             "-threads",
             "4",
             bitstream_path,
@@ -157,7 +165,7 @@ class x264(nn.Module):
             "-i",
             bitstream_path,
             "-pix_fmt",
-            "yuv420p",
+            "yuv444p10le",
             yuv_dec_path,
         ]
         return cmd
@@ -185,20 +193,38 @@ class x264(nn.Module):
         frmRate = self.frame_rate if nbframes > 1 else 1
 
         if file_prefix == "":
-            file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+            file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p444"
 
         yuv_in_path = f"{file_prefix}_input.yuv"
+        # yuv_in_converted_path = f"{file_prefix}_input_420.yuv"
         bitstream_path = f"{file_prefix}.mp4"
         logpath = Path(f"{file_prefix}_enc.log")
+        # convert_logpath = Path(f"{file_prefix}_convert.log")
 
         self.yuvio.setWriter(
             write_path=yuv_in_path,
             frmWidth=frame_width,
             frmHeight=frame_height,
         )
+        for i, frame in enumerate(frames):
+            self.yuvio.write_one_frame(frame, mid_level=mid_level, frame_idx=i)
 
-        for frame in frames:
-            self.yuvio.write_single_frame(frame, mid_level=mid_level)
+        # convert_cmd = [
+        #     "ffmpeg",
+        #     "-y",
+        #     "-pixel_format",
+        #     "gray10le",
+        #     "-s",
+        #     f"{frame_width}x{frame_height}",
+        #     "-framerate",
+        #     f"{frmRate}",
+        #     "-i",
+        #     f"{yuv_in_path}",
+        #     "-pix_fmt",
+        #     "yuv420p10le",
+        #     f"{yuv_in_converted_path}",
+        # ]
+        # run_cmdline(convert_cmd, logpath=convert_logpath)
 
         cmd = self.get_encode_cmd(
             yuv_in_path,
@@ -209,6 +235,7 @@ class x264(nn.Module):
             nbframes=nbframes,
             frmRate=frmRate,
         )
+        # TOTO logger
         # self.logger.debug(cmd)
 
         start = time.time()
@@ -217,7 +244,8 @@ class x264(nn.Module):
         # self.logger.debug(f"enc_time:{enc_time}")
 
         if not self.dump_yuv["dump_yuv_packing_input"]:
-            yuv_in_path.unlink()
+            Path(yuv_in_path).unlink()
+            # Path(yuv_in_converted_path).unlink()
 
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
@@ -262,11 +290,14 @@ class x264(nn.Module):
             frmHeight=frame_height,
         )
 
-        nbframes = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
+        # warning expect 10bit, i.e. uint16 444
+        nbframes = int(
+            get_filesize(yuv_dec_path) // (frame_width * frame_height * 2 * 3)
+        )
 
         rec_frames = []
         for i in range(nbframes):
-            rec_yuv = self.yuvio.read_single_frame(i)
+            rec_yuv = self.yuvio.read_one_frame(i)
             rec_frames.append(rec_yuv)
 
         rec_frames = torch.stack(rec_frames)
@@ -277,7 +308,7 @@ class x264(nn.Module):
         # TODO (fracape) should feature sizes be part of bitstream even for anchors
         thisdir = Path(__file__).parent
         fpn_sizes = thisdir.joinpath(
-            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset}.json"
+            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset_name}.json"
         )
         with fpn_sizes.open("r") as f:
             try:
@@ -294,7 +325,7 @@ class x264(nn.Module):
         )
 
         if not self.dump_yuv["dump_yuv_packing_dec"]:
-            yuv_dec_path.unlink()
+            Path(yuv_dec_path).unlink()
 
         output = {"data": features}
 

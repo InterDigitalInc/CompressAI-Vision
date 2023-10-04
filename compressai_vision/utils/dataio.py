@@ -44,16 +44,13 @@ class PixelFormat(enum.Enum):
 
     YUV400 = ("gray", 8)  # planar 4:0:0 YUV 8-bit
     YUV400_10le = ("gray10le", 10)  # planar 4:0:0 YUV 10-bit
-
-    # Not supported yet
-    # (TODO: (choih) Support other formats)
-    # YUV420      = ("yuv420p", 8)      # planar 4:2:0 YUV 8-bit
-    # YUV420_10le = ('yuv420p10le', 10) # planar 4:2:0 YUV 10-bit
-    # YUV422      = ("yuv422p", 8)      # planar 4:2:2 YUV 8-bit
-    # YUV422_10le = ('yuv422p10le', 10) # planar 4:2:2 YUV 10-bit
-    # YUV444      = ("yuv444p", 8)      # planar 4:4:4 YUV 8-bit
-    # YUV444_10le = ('yuv444p10le', 10) # planar 4:4:4 YUV 10-bit
-    # RGB         = ("yuv444p", 8)      # planar 4:4:4 RGB 8-bit
+    YUV420 = ("yuv420p", 8)  # planar 4:2:0 YUV 8-bit
+    YUV420_10le = ("yuv420p10le", 10)  # planar 4:2:0 YUV 10-bit
+    YUV422 = ("yuv422p", 8)  # planar 4:2:2 YUV 8-bit
+    YUV422_10le = ("yuv422p10le", 10)  # planar 4:2:2 YUV 10-bit
+    YUV444 = ("yuv444p", 8)  # planar 4:4:4 YUV 8-bit
+    YUV444_10le = ("yuv444p10le", 10)  # planar 4:4:4 YUV 10-bit
+    RGB = ("yuv444p", 8)  # planar 4:4:4 RGB 8-bit
 
 
 bitdepth_to_dtype = {
@@ -214,7 +211,8 @@ class readwriteYUV:
         self.writer = yuvio.get_writer(write_path, frmWidth, frmHeight, format.value[0])
         self.pixel_bitdepth = format.value[1]
 
-    def write_single_frame(self, frame: Tensor, mid_level=None):
+    def write_one_frame(self, frame: Tensor, mid_level=None, frame_idx: int = 0):
+        """sets up and write a yuv frame, including padding and adding flat chroma components when needed"""
         if self.writer is None:
             raise RuntimeError("Please first setup the writer")
 
@@ -222,25 +220,29 @@ class readwriteYUV:
             frame.dim() >= 2 and frame.dim() <= 4
         ), "Dimension of the input frame tensor shall be greater than 1 and less than 5"
 
-        if frame.dim() == 4:
-            if frame.size(0) > 1:
-                self._logger.warning(
-                    "Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
-                )
+        if frame.dim() == 4 and frame.size(0) > 1:
+            self._logger.warning(
+                "Size of input tensor at 0-th dimension is greater than 1. Only the first at 0-th dimension is valid"
+            )
             frame = frame[0, ::]
 
-        if frame.dim() == 3:
-            if frame.size(0) > 3:
-                self._logger.warning(
-                    "Number of color channels is greater than 3. Only the first three color components are valid"
-                )
-                frame = frame[0:3, ::]
+        if frame.dim() == 3 and frame.size(0) > 3:
+            self._logger.warning(
+                "Number of color channels is greater than 3. Only the first three color components are valid"
+            )
+            frame = frame[0:3, ::]
 
         if frame.dim() == 2:
-            assert (
-                self.format == PixelFormat.YUV400
-                or self.format == PixelFormat.YUV400_10le
-            ), f"Input Dimension mismatches with format {self.format}"
+            if (
+                not (
+                    self.format == PixelFormat.YUV400
+                    or self.format == PixelFormat.YUV400_10le
+                )
+                and frame_idx == 0
+            ):
+                self._logger.warning(
+                    "Input contains one plane and will be extended with flat chroma components"
+                )
             frame = frame.unsqueeze(0)
 
         dtype = bitdepth_to_dtype[self.pixel_bitdepth]
@@ -250,15 +252,25 @@ class readwriteYUV:
 
         frame = self.pad(frame, self._align, mid_level, surround=self._surround)
 
+        y_channel = np.array(frame[0].numpy(force=True), dtype=dtype)
         if self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le:
-            y_channel = np.array(frame[0].numpy(force=True), dtype=dtype)
             frame = yuvio.frame((y_channel, None, None), self._format.value[0])
+        elif (
+            self.format == PixelFormat.YUV444 or self.format == PixelFormat.YUV444_10le
+        ):
+            u_channel = (
+                np.ones((frame.shape[1], frame.shape[2]), dtype=dtype)
+                * bitdepth_to_mid_level[self.pixel_bitdepth]
+            )
+            v_channel = (
+                np.ones((frame.shape[1], frame.shape[2]), dtype=dtype)
+                * bitdepth_to_mid_level[self.pixel_bitdepth]
+            )
+            frame = yuvio.frame(
+                (y_channel, u_channel, v_channel), self._format.value[0]
+            )
         else:
-            # TODO: (choih) Support other formats
-            # components = []
-            # for c in frame:
-            #    channel = np.array(c.numpy(force=True), dtype=dtype)
-            #    channel = channel.swapaxes(0, 1)
+            # TODO do it with 420 too in case we want to use less mem? Whatch for even sizes and padding
             raise NotImplementedError
 
         self.writer.write(frame)
@@ -266,7 +278,7 @@ class readwriteYUV:
     def write_multiple_frames(self, frames: Tensor, alignment=2):
         raise NotImplementedError
 
-    def read_single_frame(self, frm_idx=0):
+    def read_one_frame(self, frm_idx=0):
         """
         arguments:
 
@@ -274,37 +286,10 @@ class readwriteYUV:
         frame = self.reader.read(index=frm_idx, count=1)[0]
         y, u, v = frame.split()
 
-        if self.format == PixelFormat.YUV400 or self.format == PixelFormat.YUV400_10le:
-            assert u == v is None
-            out = torch.from_numpy(y.astype("float32")).to(self._device)
-            out = self.crop(
-                out, (self._gap_in_width, self._gap_in_height), self._surround
-            )
-        else:
-            # TODO: (choih) Support other formats
-            # components = []
-            # for c in frame:
-            #    channel = np.array(c.numpy(force=True), dtype=dtype)
-            #    channel = channel.swapaxes(0, 1)
-            raise NotImplementedError
-
+        # extract Y channel only
+        out = torch.from_numpy(y.astype("float32")).to(self._device)
+        out = self.crop(out, (self._gap_in_width, self._gap_in_height), self._surround)
         return out
 
     def read_multiple_frames(self, crop: Tuple):
         raise NotImplementedError
-
-
-# y = 255 * np.ones((1920, 1080), dtype=np.uint8)
-# u = np.zeros((960, 540), dtype=np.uint8)
-# v = np.zeros((960, 540), dtype=np.uint8)
-# frame_420 = yuvio.frame((y, u, v), "yuv420p")
-# frame_400 = yuvio.frame((y, None, None), "gray")
-
-# for yuv_frame in reader:
-#    writer.write(yuv_frame)
-
-# yuv_frame = yuvio.imread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
-# yuvio.imwrite("example_yuv420p_copy.yuv", yuv_frame)
-
-# yuv_frames = yuvio.mimread("example_yuv420p.yuv", 1920, 1080, "yuv420p")
-# yuvio.mimwrite("example_yuv420p_copy.yuv", yuv_frames)

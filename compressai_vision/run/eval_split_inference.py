@@ -73,7 +73,7 @@ def setup(conf: DictConfig) -> dict[str, Any]:
         dataloader.dataset,
     )
 
-    codec = create_codec(conf.codec, vision_model, conf.dataset.config.dataset_name)
+    codec = create_codec(conf.codec, vision_model, conf.dataset)
 
     pipeline = create_pipline(conf.pipeline, conf.misc.device)
 

@@ -18,10 +18,10 @@ dataset:
   type: "Detectron2Dataset"
   datacatalog: 'SFUHW'
   config:
-    root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    dataset_name: "Traffic_2560x1600_30_val"
+    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/SFU_HW_Obj/${.dataset_name}"
     imgs_folder: "images"
-    annotation_file: "annotations/Traffic_2560x1600_30_val.json"
-    dataset_name: "sfu-hw-Traffic_2560x1600_30_val"
+    annotation_file: "annotations/${.dataset_name}.json"
 
 evaluator:
   # type: "OIC-EVAL"

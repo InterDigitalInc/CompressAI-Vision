@@ -13,5 +13,4 @@ dump_yuv:
   dump_yuv_packing_dec: False
 encoder_config:
   qp: 42
-  frame_rate: 30
-
+  intra_period: 1

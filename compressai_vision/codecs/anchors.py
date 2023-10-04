@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import configparser
 import errno
 import json
 import logging
@@ -78,7 +79,7 @@ class VTM(nn.Module):
     def __init__(
         self,
         vision_model: BaseWrapper,
-        dataset_name: "str" = "",
+        dataset: Dict,
         **kwargs,
     ):
         super().__init__()
@@ -93,22 +94,29 @@ class VTM(nn.Module):
                 )
 
         self.qp = kwargs["encoder_config"]["qp"]
-        self.frame_rate = kwargs["encoder_config"]["frame_rate"]
         self.intra_period = kwargs["encoder_config"]["intra_period"]
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
-        # TODO (fracape) hacky, create separate function with LUT
-        self.dataset = dataset_name
-        if "sfu" in dataset_name:
-            self.datacatalog = "SFU"
-        else:
-            self.datacatalog = dataset_name
         self.vision_model = vision_model
 
-        self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
+        self.datacatalog = dataset.datacatalog
+        self.dataset_name = dataset.config["dataset_name"]
+
+        if self.datacatalog in MIN_MAX_DATASET:
+            self.min_max_dataset = MIN_MAX_DATASET[self.datacatalog]
+        elif self.dataset_name in MIN_MAX_DATASET:
+            self.min_max_dataset = MIN_MAX_DATASET[self.dataset_name]
+        else:
+            raise ValueError("dataset not recognized for normalization")
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
+
+        self.frame_rate = 1
+        if not self.datacatalog == "MPEGOIV6":
+            config = configparser.ConfigParser()
+            config.read(f"{dataset['config']['root']}/{dataset['config']['seqinfo']}")
+            self.frame_rate = config["Sequence"]["frameRate"]
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -161,7 +169,7 @@ class VTM(nn.Module):
         return list(map(str, cmd))
 
     def get_decode_cmd(self, yuv_dec_path: Path, bitstream_path: Path) -> List[Any]:
-        cmd = [self.decoder_path, "-b", bitstream_path, "-o", yuv_dec_path, "-d", 10]
+        cmd = [self.decoder_path, "-b", bitstream_path, "-o", yuv_dec_path]
         return list(map(str, cmd))
 
     def encode(
@@ -180,6 +188,24 @@ class VTM(nn.Module):
         ) = self.vision_model.reshape_feature_pyramid_to_frame(
             x["data"], packing_all_in_one=True
         )
+
+        # Generate json files with fpn sizes for the decoder
+        # manually activate the following and run in encode_only mode
+        fpn_sizes_json_dump = False
+        if fpn_sizes_json_dump:
+            filename = (
+                file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
+            )
+            fpn_sizes_json = codec_output_dir / f"{filename}.json"
+            with fpn_sizes_json.open("wb") as f:
+                output = {
+                    "fpn": self.feature_size,
+                    "subframe_heights": self.subframe_heights,
+                }
+                f.write(json.dumps(output, indent=4).encode())
+            return
+        # end of dumping fpn sizes
+
         minv, maxv = self.min_max_dataset
         frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
 
@@ -206,7 +232,7 @@ class VTM(nn.Module):
         )
 
         for frame in frames:
-            self.yuvio.write_single_frame(frame, mid_level=mid_level)
+            self.yuvio.write_one_frame(frame, mid_level=mid_level)
 
         cmd = self.get_encode_cmd(
             yuv_in_path,
@@ -250,8 +276,7 @@ class VTM(nn.Module):
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
-        if file_prefix == "":
-            file_prefix = bitstream_path.stem
+        file_prefix = bitstream_path.stem
 
         video_info = get_raw_video_file_info(file_prefix.split("qp")[-1])
         frame_width = video_info["width"]
@@ -278,7 +303,7 @@ class VTM(nn.Module):
 
         rec_frames = []
         for i in range(nbframes):
-            rec_yuv = self.yuvio.read_single_frame(i)
+            rec_yuv = self.yuvio.read_one_frame(i)
             rec_frames.append(rec_yuv)
 
         rec_frames = torch.stack(rec_frames)
@@ -287,9 +312,10 @@ class VTM(nn.Module):
         rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
         # TODO (fracape) should feature sizes be part of bitstream?
+        # TODO: requires fpn sizes for other datasets
         thisdir = Path(__file__).parent
         fpn_sizes = thisdir.joinpath(
-            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset}.json"
+            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset_name}.json"
         )
         with fpn_sizes.open("r") as f:
             try:
@@ -319,10 +345,10 @@ class HM(VTM):
     def __init__(
         self,
         vision_model: BaseWrapper,
-        dataset_name: "str" = "",
+        dataset: Dict,
         **kwargs,
     ):
-        super().__init__(vision_model, dataset_name, **kwargs)
+        super().__init__(vision_model, dataset, **kwargs)
 
     def get_encode_cmd(
         self,
@@ -333,7 +359,9 @@ class HM(VTM):
         height: int,
         nbframes: int = 1,
         frmRate: int = 1,
+        intra_period: int = 1,
     ) -> List[Any]:
+        level = 5.1 if nbframes > 1 else 6.2  # according to MPEG's anchor
         cmd = [
             self.encoder_path,
             "-i",
@@ -357,6 +385,8 @@ class HM(VTM):
             "--InputChromaFormat=400",
             "--InputBitDepth=10",
             "--ConformanceWindowMode=1",  # needed?
+            f"--IntraPeriod={intra_period}",
+            f"--Level={level}",
         ]
         return list(map(str, cmd))
 
@@ -382,6 +412,7 @@ class VVENC(VTM):
         height: int,
         nbframes: int = 1,
         frmRate: int = 1,
+        intra_period: int = 1,
     ) -> List[Any]:
         cmd = [
             self.encoder_path,

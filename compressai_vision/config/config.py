@@ -137,10 +137,10 @@ def create_pipline(conf: DictConfig, device: str):
     return PIPELINES[pipeline_type](dict(conf), device)
 
 
-def create_codec(conf: DictConfig, vision_model: nn.Module, dataset_name: str = ""):
+def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig):
     kwargs = OmegaConf.to_container(conf, resolve=True)
     kwargs["vision_model"] = vision_model
-    kwargs["dataset_name"] = dataset_name
+    kwargs["dataset"] = dataset
     kwargs = cast(Dict[str, Any], kwargs)
     del kwargs["type"]
     return CODECS[conf.type](**kwargs)

@@ -14,6 +14,4 @@ dump_yuv:
   yuv_packing_dec_dir: ${..output_dir}
 encoder_config:
   qp: 42
-  frame_rate: 1
   intra_period: 1
-

@@ -131,22 +131,14 @@ class ImageSplitInference(BasePipeline):
             end = time.time()
             timing["decode"] = timing["decode"] + (end - start)
 
-            # Replacing tag names to be safe for interfacing with NN-part2
-            # dec_features["data"] = dict(
-            #     zip(featureT["data"].keys(), dec_features["data"].values())
-            # )
-
-            if not "input_size" in dec_features:
+            # dec_features should contain "org_input_size" and "input_size"
+            # When using anchor codecs, that's not the case, we read input images to derive them
+            if not "org_input_size" in dec_features or not "input_size" in dec_features:
                 self.logger.warning(
-                    " 'input_size' is referenced in hacky way at decoder side."
+                    "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
                 )
-                dec_features["input_size"] = featureT["input_size"]
-
-            if not "org_input_size" in dec_features:
-                self.logger.warning(
-                    " 'org_input_size' is referenced in hacky way at decoder side."
-                )
-                dec_features["org_input_size"] = featureT["org_input_size"]
+                dec_features["org_input_size"] = org_img_size
+                dec_features["input_size"] = self._get_model_input_size(vision_model, d)
 
             dec_features["file_name"] = d[0]["file_name"]
 

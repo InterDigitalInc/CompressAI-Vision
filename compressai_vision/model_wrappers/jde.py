@@ -133,6 +133,12 @@ class jde_1088x608(BaseWrapper):
         return {"data": self.features_at_splits, "input_size": [input_size]}
 
     @torch.no_grad()
+    def get_input_size(self, x):
+        """Computes the size of the input image to the network"""
+        img = x[0]["image"].unsqueeze(0).to(self.device)
+        return tuple(img.shape[2:])
+
+    @torch.no_grad()
     def _feature_pyramid_to_output(
         self, x: Dict, org_img_size: Dict, input_img_size: List
     ):

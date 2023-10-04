@@ -36,10 +36,11 @@ Compute overall mAP over some sequences outputs
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 from typing import Any, List
-import csv
+
 import numpy as np
 import pandas as pd
 from pycocotools.coco import COCO

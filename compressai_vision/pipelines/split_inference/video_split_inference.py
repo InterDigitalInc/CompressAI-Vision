@@ -104,7 +104,7 @@ class VideoSplitInference(BasePipeline):
         timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
 
         if not self.configs["codec"]["decode_only"]:
-            # NN-part-1
+            ## NN-part-1
             for e, d in enumerate(tqdm(dataloader)):
                 output_file_prefix = f'img_id_{d[0]["image_id"]}'
 
@@ -163,20 +163,16 @@ class VideoSplitInference(BasePipeline):
             res = {}
             bin_files = [
                 file_path
-                for file_path in self.codec_output_dir.glob(
-                    f"{self.bitstream_name}*.bin"
-                )
+                for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
                 if file_path.suffix in [".bin", ".mp4"]
             ]
             assert (
                 len(bin_files) > 0
-            ), f"no bitstream file matching {self.bitstream_name}*.bin"
+            ), f"no bitstream file matching {self.bitstream_name}*"
             assert (
                 len(bin_files) == 1
-            ), "Error, multiple bitstream files matching {self.bitstream_name}*.bin"
+            ), "Error, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
-            # if not res["bitstream"].is_file():
-            #     raise FileNotFoundError(f"{res['bitstream']}")
             bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
@@ -187,24 +183,21 @@ class VideoSplitInference(BasePipeline):
         end = time.time()
         timing["decode"] = timing["decode"] + (end - start)
 
-        # "org_input_size" and "input_size" are supposed to be present
-        # in the dictionary of dec_features
-        # Nonetheless, just in case it doesn't exist specially for anchor case
-        if not "org_input_size" in dec_features:
+        # dec_features should contain "org_input_size" and "input_size"
+        # When using anchor codecs, that's not the case, we read input images to derive them
+        if not "org_input_size" in dec_features or not "input_size" in dec_features:
             self.logger.warning(
-                " 'org_input_size' is referenced in hacky way at decoder side."
+                "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
             )
-            dec_features["org_input_size"] = features["org_input_size"]
-        if not "input_size" in dec_features:
-            self.logger.warning(
-                " 'input_size' is referenced in hacky way at decoder side."
+            first_frame = next(iter(dataloader))
+            org_img_size = {
+                "height": first_frame[0]["height"],
+                "width": first_frame[0]["width"],
+            }
+            dec_features["org_input_size"] = org_img_size
+            dec_features["input_size"] = self._get_model_input_size(
+                vision_model, first_frame
             )
-            dec_features["input_size"] = features["input_size"]
-
-        # # Replacing tag names to be safe for interfacing with NN-part2
-        # dec_features["data"] = dict(
-        #     zip(features["data"].keys(), dec_features["data"].values())
-        # )
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._reform_dict_to_list(dec_features["data"])

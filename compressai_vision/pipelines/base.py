@@ -258,3 +258,6 @@ class BasePipeline(nn.Module):
             path.mkdir(parents=True, exist_ok=True)
 
         return path
+
+    def _get_model_input_size(self, vision_model: BaseWrapper, x: Dict):
+        return vision_model.get_input_size(x)

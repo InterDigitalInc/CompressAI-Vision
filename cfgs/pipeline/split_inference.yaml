@@ -18,7 +18,7 @@ output_dir: ${paths._runs_root}/${.name}-${.type}/${codec.type}
 nn_task_part1:
     load_features: False
     load_features_when_available: False
-    dump_features: True
+    dump_features: False
     generate_features_only: False
     feature_dir: "${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}"
 codec:

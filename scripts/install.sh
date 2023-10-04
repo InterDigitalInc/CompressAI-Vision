@@ -84,7 +84,7 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     else
         echo "cuda version: $CUDA_VERSION"
-        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
         wait
     fi
     pip install -e .
@@ -126,7 +126,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
 
 
     # install dependent packages
-    pip3 install motmetrics numba lap opencv-python munkres
+    pip3 install numpy motmetrics numba lap opencv-python munkres
 
     # install cython manually from source code with patch
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
