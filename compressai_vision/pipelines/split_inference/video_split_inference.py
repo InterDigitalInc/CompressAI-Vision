@@ -41,11 +41,29 @@ from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import dataio, to_cpu
 
-from .base_split import BaseSplit
+from ..base import BasePipeline
+
+""" A schematic for the split-inference pipline
+
+.. code-block:: none
+
+             Fold                                                        Fold
+           ┌ ─── ┐                                                     ┌ ─── ┐
+           |     |                                                     |     |
+           |     │                                                     |     │
+     ┌─────┴─────▼─────┐                                         ┌─────┴─────▼─────┐
+     │                 │     ┌───────────┐     ┌───────────┐     │                 │
+     │     NN Task     │     │           │     │           │     │      NN Task    │
+────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
+     │      Part 1     │     │           │     │           │     │      Part 2     │
+     │                 │     └───────────┘     └───────────┘     │                 │
+     └─────────────────┘                                         └─────────────────┘
+
+"""
 
 
 @register_pipeline("video-split-inference")
-class VideoSplitInference(BaseSplit):
+class VideoSplitInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,

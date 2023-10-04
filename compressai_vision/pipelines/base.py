@@ -43,11 +43,7 @@ from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-# from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
-
-# from compressai_vision.registry import register_pipeline
-# from compressai_vision.utils import dataio
 
 EXT = ".h5"
 
@@ -63,27 +59,7 @@ class Parts(Enum):
     Evaluation = "evaluation"
 
 
-""" A schematic for the split-inference pipline
-
-.. code-block:: none
-
-             Fold                                                        Fold
-           ┌ ─── ┐                                                     ┌ ─── ┐
-           |     |                                                     |     |
-           |     │                                                     |     │
-     ┌─────┴─────▼─────┐                                         ┌─────┴─────▼─────┐
-     │                 │     ┌───────────┐     ┌───────────┐     │                 │
-     │     NN Task     │     │           │     │           │     │      NN Task    │
-────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
-     │      Part 1     │     │           │     │           │     │      Part 2     │
-     │                 │     └───────────┘     └───────────┘     │                 │
-     └─────────────────┘                                         └─────────────────┘
-
-    ──────►──────►──────►──────►──────►───Unfold───►──────►──────►──────►──────►──────►
-"""
-
-
-class BaseSplit(nn.Module):
+class BasePipeline(nn.Module):
     def __init__(
         self,
         configs: Dict,
