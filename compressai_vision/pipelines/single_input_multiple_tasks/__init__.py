@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .single_input_multiple_tasks import SingleInputMultipleTasks
+from .single_input_multiple_tasks_v1 import SingleInputMultipleTasks
 
 __all__ = [
     "SingleInputMultipleTasks",
