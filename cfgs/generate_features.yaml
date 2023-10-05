@@ -14,14 +14,17 @@ dataset:
   type: "Detectron2Dataset"
   datacatalog: "MPEGOIV6"
   config:
-    root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/mpeg-oiv6"
+    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/mpeg-oiv6"
     imgs_folder: "images"
-    annotation_file: "annotations/mpeg-oiv6-detection-coco.json"
-    dataset_name: "mpeg-oiv6-detection"
+    annotation_file: "annotations/mpeg-oiv6-segmentation-coco.json"
+    dataset_name: "mpeg-oiv6-segmentation"
 
 pipeline:
   type: "image"
   nn_task_part1:
     generate_features_only: True
+    dump_features: True
+    feature_dir: "${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}"
+
   output_dir: ${paths._run_root}/${dataset.datacatalog}
 
