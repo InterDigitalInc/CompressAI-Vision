@@ -116,10 +116,22 @@ class ImageSplitInference(BasePipeline):
                 timing["encode"] = timing["encode"] + (end - start)
             else:
                 res = {}
-                bitstream_name = f"{self.bitstream_name}-{file_prefix}.bin"
-                bitstream_path = os.path.join(self.codec_output_dir, bitstream_name)
-                print(f"reading bitstream... {bitstream_path}")
-                res["bitstream"] = bitstream_path
+                bin_files = [
+                    file_path
+                    for file_path in self.codec_output_dir.glob(
+                        f"{self.bitstream_name}-{file_prefix}*"
+                    )
+                    if file_path.suffix in [".bin", ".mp4"]
+                ]
+                assert (
+                    len(bin_files) > 0
+                ), f"no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                assert (
+                    len(bin_files) == 1
+                ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
+
+                res["bitstream"] = bin_files[0]
+                print(f"reading bitstream... {res['bitstream']}")
 
             if self.configs["codec"]["encode_only"] is True:
                 continue

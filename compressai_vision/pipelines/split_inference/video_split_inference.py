@@ -171,7 +171,7 @@ class VideoSplitInference(BasePipeline):
             ), f"no bitstream file matching {self.bitstream_name}*"
             assert (
                 len(bin_files) == 1
-            ), "Error, multiple bitstream files matching {self.bitstream_name}*"
+            ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
             bitstream_bytes = res["bitstream"].stat().st_size
 
