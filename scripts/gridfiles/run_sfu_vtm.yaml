@@ -1,0 +1,248 @@
+version: 2
+
+variables:
+
+  exp_name: "_anchor"
+  device: "cpu"
+
+  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs"
+
+  script_dir: "."
+
+run_sfu_det_1:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.60"
+
+  parallel:
+    matrix:
+      - seq_name: [      
+              'Traffic_2560x1600_30_val'    
+        ]
+        qp: [37, 39, 41, 43, 45, 47]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo2
+    mem-per-cpu: 32G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_2:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'Kimono_1920x1080_24_val'
+        ]
+        qp: [41, 42, 43, 44, 45, 46]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo2
+    mem-per-cpu: 32G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_3:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'ParkScene_1920x1080_24_val'
+        ]
+        qp: [32, 35, 38, 41, 44, 47]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_4:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'Cactus_1920x1080_50_val'
+        ]
+        qp: [40, 42, 44, 48, 49, 51]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+
+run_sfu_det_5:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'BasketballDrive_1920x1080_50_val',
+              'BQTerrace_1920x1080_60_val',
+              'BasketballDrill_832x480_50_val',
+              'BQSquare_416x240_60_val',
+        ]
+        qp: [32, 35, 38, 41, 44, 47]
+
+
+  sbatch:
+    begin: now
+    reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_6:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'PartyScene_832x480_50_val'
+        ]
+        qp: [37, 40, 43, 46, 49, 51]
+
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_7:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+              'RaceHorses_832x480_30_val',
+              'RaceHorses_416x240_30_val'
+        ]
+        qp: [39, 41, 43, 46, 49, 52]
+
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+
+run_sfu_det_8:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+          'BlowingBubbles_416x240_50_val',
+        ]
+        qp: [40, 42, 44, 46, 49, 52]
+
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_sfu_det_9:
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+
+  parallel:
+    matrix:
+      - seq_name: [
+          'BasketballPass_416x240_50_val', 
+          'BQMall_832x480_60_val',
+        ]
+        qp: [37, 39, 41, 43, 45, 46]
+
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+generate_csv:
+  needs:
+    - run_sfu_det_1
+    - run_sfu_det_2
+    - run_sfu_det_3
+    - run_sfu_det_4
+    - run_sfu_det_5
+    - run_sfu_det_6
+    - run_sfu_det_7
+    - run_sfu_det_8
+    - run_sfu_det_9
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - python ../../utils/mpeg_template_format.py --dataset SFU --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/SFUHW/
+
+  sbatch:
+    begin: now
+    cpus-per-task: 1
+    output: sfu_result_vtm_%A.out

@@ -133,7 +133,8 @@ class BasePipeline(nn.Module):
         ):
             if Path(features_file).is_file():
                 self.logger.debug(f"loading features: {features_file}")
-                features = torch.load(features_file)
+                # features = torch.load(features_file)
+                features = torch.load(features_file, map_location=self.device)
             else:
                 if self.configs["nn_task_part1"].load_features:
                     raise FileNotFoundError(
