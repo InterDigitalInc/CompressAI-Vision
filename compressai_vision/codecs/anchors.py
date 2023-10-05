@@ -276,17 +276,17 @@ class VTM(nn.Module):
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
-        file_prefix = bitstream_path.stem
+        output_file_prefix = bitstream_path.stem
 
-        video_info = get_raw_video_file_info(file_prefix.split("qp")[-1])
+        video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
         frame_width = video_info["width"]
         frame_height = video_info["height"]
-        yuv_dec_path = f"{codec_output_dir}/{file_prefix}_dec.yuv"
+        yuv_dec_path = f"{codec_output_dir}/{output_file_prefix}_dec.yuv"
         cmd = self.get_decode_cmd(
             bitstream_path=bitstream_path, yuv_dec_path=yuv_dec_path
         )
         # self.logger.debug(cmd)
-        logpath = Path(f"{codec_output_dir}/{file_prefix}_dec.log")
+        logpath = Path(f"{codec_output_dir}/{output_file_prefix}_dec.log")
 
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
@@ -311,12 +311,16 @@ class VTM(nn.Module):
         minv, maxv = self.min_max_dataset
         rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
-        # TODO (fracape) should feature sizes be part of bitstream?
-        # TODO: requires fpn sizes for other datasets
+        # (fracape) should feature sizes be part of bitstream?
         thisdir = Path(__file__).parent
-        fpn_sizes = thisdir.joinpath(
-            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset_name}.json"
-        )
+        if self.datacatalog == "MPEGOIV6":
+            fpn_sizes = thisdir.joinpath(
+                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
+            )
+        else:
+            fpn_sizes = thisdir.joinpath(
+                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
+            )
         with fpn_sizes.open("r") as f:
             try:
                 json_dict = json.load(f)
