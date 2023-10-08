@@ -31,6 +31,5 @@
 from .anchors import HM, VTM, VVENC
 from .base import Bypass
 from .ffmpeg import x264, x265
-from .idc.cfp_codec import CFP_CODEC
 
-__all__ = ["Bypass", "HM", "VTM", "CFP_CODEC", "x264", "x265", "VVENC"]
+__all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC"]
