@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-_build
-=======
 !*.jpg
 !*.json
 !*.png
@@ -8,4 +5,3 @@ _build
 _build/
 
 .DS_Store
->>>>>>> 24ce311 (refactoring + init docs)
