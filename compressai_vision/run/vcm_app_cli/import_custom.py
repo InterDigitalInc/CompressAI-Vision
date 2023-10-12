@@ -30,7 +30,6 @@
 """Use this stub for adding new cli commands
 """
 import os
-
 from pathlib import Path
 
 from .tools import makeVideoThumbnails

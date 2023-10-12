@@ -41,7 +41,6 @@ def add_subparser(subparsers, parents):
 
 # compressai_vision
 def main(p):  # noqa: C901
-
     print("\n*** YOUR VIRTUALENV ***")
     print("--> running from    :", sys.executable)
 
