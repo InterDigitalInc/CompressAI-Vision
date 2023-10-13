@@ -9,4 +9,4 @@ if [ $# == 1 ]; then
 fi
 
 export PATH=/usr/local/cuda-${CUDA_VERSION}/bin:${PATH}
-export LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_VERSION}/lib:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_VERSION}/lib64:${LD_LIBRARY_PATH}
