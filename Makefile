@@ -40,8 +40,6 @@ code-format:
 	@black $(src_dirs)
 	@echo "--> Running isort"
 	@isort $(src_dirs)
-	@echo "--> Running flake8 (you need to edit files yourself after this)"
-	@flake8 $(src_dirs)
 
 # Apply styling
 .PHONY: style

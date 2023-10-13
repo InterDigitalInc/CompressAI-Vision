@@ -132,24 +132,12 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
     fi
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b5aa44c ([patch] patch forward)
 
     cd ${SCRIPT_DIR}/cython_bbox
 
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
     pip3 install -e .
-<<<<<<< HEAD
-=======
-    # cd ${SCRIPT_DIR}/cython_bbox
-    # patch -p1 <../0001-compatible-with-numpy-1.24.1.patch
-    # pip3 install -e .
->>>>>>> 6511358 ([feature] mpeg conformance files)
-=======
->>>>>>> b5aa44c ([patch] patch forward)
 
     # clone
     if [ -z "$(ls -A ${MODELS_DIR}/Towards-Realtime-MOT)" ]; then
