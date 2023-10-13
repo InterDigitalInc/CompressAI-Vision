@@ -27,7 +27,7 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 
 ## installation
 
-To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python>=3.8:
+To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
 
 Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
 ```
