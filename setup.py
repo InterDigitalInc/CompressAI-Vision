@@ -167,7 +167,7 @@ def get_extra_requirements():
     extras_require = {
         "test": TEST_REQUIRES,
         "dev": DEV_REQUIRES,
-        "doc": ["sphinx", "sphinx-book-theme", "Jinja2<3.1"],
+        "doc": ["sphinx", "sphinx-book-theme", "sphinxcontrib-mermaid", "Jinja2<3.1"],
         "tutorials": ["jupyter", "ipywidgets"],
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
@@ -177,7 +177,7 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pillow==9.5.0"],
+    install_requires=["hydra-core", "omegaconf", "yuvio", "pandas", "pillow==9.5.0"],
     packages=find_packages(),
     # include_package_data=True,
     entry_points={
