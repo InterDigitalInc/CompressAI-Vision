@@ -1,6 +1,6 @@
 ## Evaluation
 
-Submodules:
+The remote analysis pipeline needs to be restructured
 
 ### detectron2
 
