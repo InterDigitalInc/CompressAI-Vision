@@ -10,6 +10,7 @@ It currently focuses on two types of pipeline:
 
 - Split inference, which  includes an evaluation framework for compressing intermediate features produced in the context of split models. The software supports all thepipelines considered in the related MPEG  activity: "Feature Compression for Video Coding for Machines" (FCVCM).
 
+The figure below shows the split inference pipeline:
 
 <p align="center">
   <img src="docs/source/media/images/fcvcm-scope.png" alt="split model evaluation pipeline">
@@ -28,17 +29,6 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 ## installation
 
 To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
-
-Bash scripts are provided to get proper installation of dependencies. To get default versions and CompressAI from PyPI, just run
-```
-bash scripts/install.bash
-```
-within your virtual environment.
-
-For more otions, check:
-```
-bash scritps/install.bash --help
-```
 
 To install the models relevant for the FCVCM (feature compression):
 - First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
@@ -70,7 +60,7 @@ After your dev, you can run (and adapt) test scripts from the scripts/tests dire
 
 ### Contributing
 
-Code is formatted using black and isort. Current checks at Pull Request also include flake8.  To format code, type:
+Code is formatted using black and isort. To format code, type:
 ```
 make code-format
 ```
