@@ -181,7 +181,7 @@ setup(
     version=version,
     install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pybind11>=2.3"],
     packages=find_packages(),
-    include_package_data=True,
+    # include_package_data=True,
     entry_points={
         "console_scripts": [
             "compressai-vision-eval = compressai_vision.run.eval_split_inference:main"
