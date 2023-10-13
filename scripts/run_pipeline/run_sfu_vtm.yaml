@@ -6,7 +6,7 @@ variables:
   device: "cpu"
 
   input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
-  output_dir: "/mnt/wekamount/scratch_fcvcm/eimran/runs"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/runs"
 
   script_dir: "."
 
@@ -16,12 +16,12 @@ run_sfu_det_1:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.60"
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}"
 
   parallel:
     matrix:
-      - seq_name: [      
-              'Traffic_2560x1600_30_val'    
+      - seq_name: [
+              'Traffic_2560x1600_30_val'
         ]
         qp: [37, 39, 41, 43, 45, 47]
 
@@ -39,7 +39,7 @@ run_sfu_det_2:
     - cd "${script_dir}"
 
   script:
-    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "++codec.encoder_config.feature_channel_suppression.rpn.coverage_thres=0.75"
+    - bash mpeg_cfp_sfu_vtm.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}"
 
   parallel:
     matrix:
@@ -211,7 +211,7 @@ run_sfu_det_9:
   parallel:
     matrix:
       - seq_name: [
-          'BasketballPass_416x240_50_val', 
+          'BasketballPass_416x240_50_val',
           'BQMall_832x480_60_val',
         ]
         qp: [37, 39, 41, 43, 45, 46]

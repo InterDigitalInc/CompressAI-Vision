@@ -1,0 +1,84 @@
+version: 2
+
+variables:
+
+  exp_name: "_anchor"
+  device: "cpu"
+
+  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/runs"
+
+  CONF_NAME: "eval_vtm"
+
+  script_dir: "."
+
+run_tvd_tracking_1:
+  before_script:
+    - cd "${script_dir}"
+  script:
+    - bash mpeg_cfp_tvd.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "${CONF_NAME}"
+  parallel:
+    matrix:
+      - seq_name: [
+            'TVD-01',
+        ]
+        qp: [22, 24, 26, 29, 31, 33]
+  sbatch:
+    begin: now
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    gpus-per-task: 0
+    output: slurm_%x_%A_%N_%s.out
+
+run_tvd_tracking_2:
+  before_script:
+    - cd "${script_dir}"
+  script:
+    - bash mpeg_cfp_tvd.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "${CONF_NAME}"
+  parallel:
+    matrix:
+      - seq_name: [
+            'TVD-02',
+        ]
+        qp: [23, 25, 27, 28, 30, 31]
+  sbatch:
+    begin: now
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    gpus-per-task: 0
+    output: slurm_%x_%A_%N_%s.out
+
+run_tvd_tracking_3:
+  before_script:
+    - cd "${script_dir}"
+  script:
+    - bash mpeg_cfp_tvd.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "${CONF_NAME}"
+  parallel:
+    matrix:
+      - seq_name: [
+            'TVD-03'
+        ]
+        qp: [25, 26, 27, 29, 30, 31]
+  sbatch:
+    begin: now
+    mem-per-cpu: 36G
+    cpus-per-task: 2
+    gpus-per-task: 0
+    output: slurm_%x_%A_%N_%s.out
+
+generate_csv:
+  needs:
+    - run_tvd_tracking_1
+    - run_tvd_tracking_2
+    - run_tvd_tracking_3
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - python ../../utils/mpeg_template_format.py --dataset TVD --result_path ${output_dir}/split-inference-video/cfp_codec${exp_name}/MPEGTVDTRACKING/
+
+  sbatch:
+    begin: now
+    cpus-per-task: 1
+    output: tvd_result_%A.out

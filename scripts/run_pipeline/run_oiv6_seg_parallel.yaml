@@ -1,0 +1,81 @@
+version: 2
+
+variables:
+
+  device: "cpu"
+  exp_name: "_anchor_parallel"
+
+  script_dir: "."
+  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  output_dir: "/mnt/wekamount/scratch_fcvcm/runs"
+
+  encode_image_per_job: 250
+  total_image: 5000
+
+  config_name: "eval_vtm"
+  QPs: "35,37,39,41,43,45"
+
+run_oiv6_seg_encode:
+
+  variables:
+    ENCODE_PARAMS: "++pipeline.codec.encode_only=True \
+                    ++pipeline.codec.skip_n_frames=${skip_frame} \
+                    ++pipeline.codec.n_frames_to_be_encoded=${encode_image_per_job}"
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_oiv6_segmentation.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${SUPPRESSION_PARAMS} ${ENCODE_PARAMS}" "${config_name}"
+
+  parallel:
+    matrix:
+      - qp: "{{ QPs.split(',') | map('int') }}"
+        skip_frame: "{{ range(0, total_image, encode_image_per_job) }}"
+
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+run_oiv6_seg_decode:
+
+  needs:
+    - run_oiv6_seg_encode
+
+  variables:
+    DECODE_PARAMS: "++pipeline.codec.decode_only=True"
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - bash mpeg_cfp_oiv6_segmentation.sh "${input_dir}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${DECODE_PARAMS}" "${config_name}"
+
+  parallel:
+    matrix:
+      - qp: "{{ QPs.split(',') | map('int') }}"
+
+  sbatch:
+    begin: now
+    # reservation: deepvideo2
+    cpus-per-task: 2
+    output: slurm_%x_%A_%N_%s.out
+
+generate_csv_seg:
+  needs:
+    - run_oiv6_seg_decode
+
+  before_script:
+    - cd "${script_dir}"
+
+  script:
+    - python ../../utils/mpeg_template_format.py --dataset OIV6 --result_path ${output_dir}/split-inference-image/cfp_codec${exp_name}/MPEGOIV6/
+
+  sbatch:
+    begin: now
+    cpus-per-task: 1
+    output: oiv6_seg_result_%A.out
+
