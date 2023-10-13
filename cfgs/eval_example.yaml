@@ -27,7 +27,7 @@ dataset:
 
   datacatalog: 'SFUHW'
   config:
-    root: "/pa/projects/etl-vcm/fcvcm/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
     imgs_folder: "images"
     annotation_file: "annotations/Traffic_2560x1600_30_val.json"
     dataset_name: "sfu-hw-Traffic_2560x1600_30_val"

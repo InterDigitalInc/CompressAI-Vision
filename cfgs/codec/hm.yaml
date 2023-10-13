@@ -8,6 +8,9 @@ codec_paths:
   decoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppDecoderStatic"
   # use rext cfg for 400 format
   cfg_file: "/pa/home/racapef/hevc/HM/cfg/encoder_intra_main_rext.cfg"
+
+verbosity: 1
+
 dump_yuv:
   dump_yuv_packing_input: False
   dump_yuv_packing_dec: False

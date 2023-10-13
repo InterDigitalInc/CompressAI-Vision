@@ -408,70 +408,89 @@ class jde_1088x608(BaseWrapper):
         # return self.model(x)
         raise NotImplementedError
 
-    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
+    def reshape_feature_pyramid_to_frame(
+        self, features: Dict, packing_all_in_one=False
+    ):
         """rehape the feature pyramid to a frame"""
 
-        # 'p2' is the base for the size of to-be-formed frame
+        # tensors ordered by width dimention
+        sorted_feature_by_width = dict(
+            sorted(features.items(), key=lambda x: x[1].size()[2], reverse=True)
+        )
+        sorted_keys = sorted_feature_by_width.keys()
 
-        raise NotImplementedError
-        _, C, H, W = x["p2"].size()
+        nbframes, C, H, W = sorted_feature_by_width[list(sorted_keys)[0]].size()
         _, fixedW = compute_frame_resolution(C, H, W)
 
-        tiled_frame = {}
+        packed_frames = {}
         feature_size = {}
         subframe_heights = {}
-        for key, tensor in x.items():
-            N, C, H, W = tensor.size()
+        subframe_widths = {}
 
-            assert N == 1, f"the batch size shall be one, but got {N}"
+        packed_frame_list = []
+        for n in range(nbframes):
+            for key, tensor in sorted_feature_by_width.items():
+                single_tensor = tensor[n : n + 1, ::]
+                N, C, H, W = single_tensor.size()
 
-            frmH, frmW = compute_frame_resolution(C, H, W)
+                assert N == 1, f"the batch size shall be one, but got {N}"
 
-            rescale = fixedW // frmW if packing_all_in_one else 1
+                if n == 0:
+                    feature_size.update({key: single_tensor.size()})
 
-            new_frmH = frmH // rescale
-            new_frmW = frmW * rescale
+                    frmH, frmW = compute_frame_resolution(C, H, W)
 
-            frame = tensor_to_tiled(tensor, (new_frmH, new_frmW))
+                    rescale = fixedW // frmW if packing_all_in_one else 1
 
-            tiled_frame.update({key: frame})
-            feature_size.update({key: tensor.size()})
-            subframe_heights.update({key: new_frmH})
+                    new_frmH = frmH // rescale
+                    new_frmW = frmW * rescale
 
-        if packing_all_in_one:
-            for key, subframe in tiled_frame.items():
-                if key == "p2":
-                    out = subframe
-                else:
-                    out = torch.cat([out, subframe], dim=0)
-            tiled_frame = out
+                    subframe_heights.update({key: new_frmH})
+                    subframe_widths.update({key: new_frmW})
 
-        return tiled_frame, feature_size, subframe_heights
+                tile = tensor_to_tiled(
+                    single_tensor, (subframe_heights[key], subframe_widths[key])
+                )
+
+                packed_frames.update({key: tile})
+
+            if packing_all_in_one:
+                packed_frame = torch.cat(list(packed_frames.values()), dim=0)
+                packed_frame_list.append(packed_frame)
+
+        packed_frames = torch.stack(packed_frame_list)
+
+        return packed_frames, feature_size, subframe_heights
 
     def reshape_frame_to_feature_pyramid(
         self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
     ):
         """reshape a frame of channels into the feature pyramid"""
 
-        raise NotImplementedError
         assert isinstance(x, (Tensor, Dict))
 
         top_y = 0
-        tiled_frame = {}
+        tiled_frames = {}
         if packing_all_in_one:
             for key, height in subframe_height.items():
-                tiled_frame.update({key: x[top_y : top_y + height, :]})
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
                 top_y = top_y + height
         else:
+            raise NotImplementedError
             assert isinstance(x, Dict)
-            tiled_frame = x
+            tiled_frames = x
 
         feature_tensor = {}
-        for key, frame in tiled_frame.items():
+        for key, frames in tiled_frames.items():
             _, numChs, chH, chW = tensor_shape[key]
-            tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
-            assert tensor.size(1) == numChs
 
-            feature_tensor.update({key: tensor})
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
 
         return feature_tensor

@@ -48,7 +48,7 @@ _EOF_
         -m|--model) shift; MODEL="$1"; shift; ;;
         -t|--torch) shift; TORCH_VERSION="$1"; shift; ;;
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
-        --cpu) shift; CPU="True"; shift; ;;
+        --cpu) CPU="True"; shift; ;;
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
         --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;

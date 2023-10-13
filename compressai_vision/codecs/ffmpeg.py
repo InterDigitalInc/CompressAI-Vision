@@ -108,10 +108,21 @@ class x264(nn.Module):
             raise ValueError("dataset not recognized for normalization")
 
         # TODO (fracape) bitdepth in cfg
+        self.colorformat = "444"
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV444_10le)
 
         self.preset = kwargs["encoder_config"]["preset"]
         self.tune = kwargs["encoder_config"]["tune"]
+
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.verbosity = kwargs["verbosity"]
+        logging_level = logging.WARN
+        if self.verbosity == 1:
+            logging_level = logging.INFO
+        if self.verbosity >= 2:
+            logging_level = logging.DEBUG
+
+        self.logger.setLevel(logging_level)
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -130,7 +141,6 @@ class x264(nn.Module):
         bitstream_path: Path,
         width: int,
         height: int,
-        nbframes: int = 1,
         frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
@@ -138,6 +148,8 @@ class x264(nn.Module):
             "-y",
             "-s:v",
             f"{width}x{height}",
+            "-framerate",
+            f"{frmRate}",
             "-i",
             inp_yuv_path,
             "-c:v",
@@ -193,7 +205,11 @@ class x264(nn.Module):
         frmRate = self.frame_rate if nbframes > 1 else 1
 
         if file_prefix == "":
-            file_prefix = f"{codec_output_dir}/{bitstream_name}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p444"
+            file_prefix = f"{codec_output_dir}/{bitstream_name}"
+        else:
+            file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
+
+        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p{self.colorformat}"
 
         yuv_in_path = f"{file_prefix}_input.yuv"
         # yuv_in_converted_path = f"{file_prefix}_input_420.yuv"
@@ -209,30 +225,12 @@ class x264(nn.Module):
         for i, frame in enumerate(frames):
             self.yuvio.write_one_frame(frame, mid_level=mid_level, frame_idx=i)
 
-        # convert_cmd = [
-        #     "ffmpeg",
-        #     "-y",
-        #     "-pixel_format",
-        #     "gray10le",
-        #     "-s",
-        #     f"{frame_width}x{frame_height}",
-        #     "-framerate",
-        #     f"{frmRate}",
-        #     "-i",
-        #     f"{yuv_in_path}",
-        #     "-pix_fmt",
-        #     "yuv420p10le",
-        #     f"{yuv_in_converted_path}",
-        # ]
-        # run_cmdline(convert_cmd, logpath=convert_logpath)
-
         cmd = self.get_encode_cmd(
             yuv_in_path,
-            height=frame.size(1),
-            width=frame.size(0),
+            width=frame_width,
+            height=frame_height,
             qp=self.qp,
             bitstream_path=bitstream_path,
-            nbframes=nbframes,
             frmRate=frmRate,
         )
         # TOTO logger
@@ -307,9 +305,14 @@ class x264(nn.Module):
 
         # TODO (fracape) should feature sizes be part of bitstream even for anchors
         thisdir = Path(__file__).parent
-        fpn_sizes = thisdir.joinpath(
-            f"../../data/mpeg-fcvcm/SFU/sfu-fpn-sizes/{self.dataset_name}.json"
-        )
+        if self.datacatalog == "MPEGOIV6":
+            fpn_sizes = thisdir.joinpath(
+                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
+            )
+        else:
+            fpn_sizes = thisdir.joinpath(
+                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
+            )
         with fpn_sizes.open("r") as f:
             try:
                 json_dict = json.load(f)
@@ -343,6 +346,8 @@ class x265(x264):
         **kwargs,
     ):
         super().__init__(vision_model, dataset_name, **kwargs)
+        self.colorformat = "444"
+        self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV444_10le)
 
     def get_encode_cmd(
         self,
@@ -351,13 +356,14 @@ class x265(x264):
         bitstream_path: Path,
         width: int,
         height: int,
-        nbframes: int = 1,
         frmRate: int = 1,
     ) -> List[Any]:
         cmd = [
             "ffmpeg",
-            "-s:v",
+            "-y" "-s:v",
             f"{width}x{height}",
+            "-framerate",
+            f"{frmRate}",
             "-i",
             inp_yuv_path,
             "-c:v",

@@ -83,6 +83,7 @@ class VTM(nn.Module):
         **kwargs,
     ):
         super().__init__()
+
         self.encoder_path = Path(f"{kwargs['codec_paths']['encoder_exe']}")
         self.decoder_path = Path(f"{kwargs['codec_paths']['decoder_exe']}")
         self.cfg_file = Path(kwargs["codec_paths"]["cfg_file"])
@@ -117,6 +118,16 @@ class VTM(nn.Module):
             config = configparser.ConfigParser()
             config.read(f"{dataset['config']['root']}/{dataset['config']['seqinfo']}")
             self.frame_rate = config["Sequence"]["frameRate"]
+
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.verbosity = kwargs["verbosity"]
+        logging_level = logging.WARN
+        if self.verbosity == 1:
+            logging_level = logging.INFO
+        if self.verbosity >= 2:
+            logging_level = logging.DEBUG
+
+        self.logger.setLevel(logging_level)
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -203,7 +214,8 @@ class VTM(nn.Module):
                     "subframe_heights": self.subframe_heights,
                 }
                 f.write(json.dumps(output, indent=4).encode())
-            return
+            print(f"fpn sizes json dump generated, exiting")
+            raise SystemExit(0)
         # end of dumping fpn sizes
 
         minv, maxv = self.min_max_dataset
@@ -255,8 +267,7 @@ class VTM(nn.Module):
         ).is_file(), f"bitstream {bitstream_path} was not created"
 
         if not self.dump_yuv["dump_yuv_packing_input"]:
-            os.unlink(yuv_in_path)
-            # yuv_in_path.unlink()
+            Path(yuv_in_path).unlink()
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
         avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
@@ -335,7 +346,7 @@ class VTM(nn.Module):
             packing_all_in_one=True,
         )
         if not self.dump_yuv["dump_yuv_packing_dec"]:
-            yuv_dec_path.unlink()
+            Path(yuv_dec_path).unlink()
 
         output = {"data": features}
 
