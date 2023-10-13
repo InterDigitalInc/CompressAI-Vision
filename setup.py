@@ -179,7 +179,7 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pybind11>=2.3"],
+    install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pillow==9.5.0"],
     packages=find_packages(),
     # include_package_data=True,
     entry_points={
