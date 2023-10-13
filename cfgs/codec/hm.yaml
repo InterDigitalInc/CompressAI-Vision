@@ -1,0 +1,19 @@
+type: "hm"
+eval_encode: "bpp" # or "bitrate" 
+experiment: "" # e.g. "_tool_on" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}"
+bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
+codec_paths:
+  encoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppEncoderStatic"
+  decoder_exe: "/pa/home/racapef/hevc/HM/bin/TAppDecoderStatic"
+  # use rext cfg for 400 format
+  cfg_file: "/pa/home/racapef/hevc/HM/cfg/encoder_intra_main_rext.cfg"
+
+verbosity: 1
+
+dump_yuv:
+  dump_yuv_packing_input: False
+  dump_yuv_packing_dec: False
+encoder_config:
+  qp: 42
+  intra_period: 1

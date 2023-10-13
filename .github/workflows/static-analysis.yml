@@ -1,9 +1,6 @@
 name: Static Analysis
 
-on:
-  pull_request:
-  push:
-    branches: main
+on: [push, pull_request]
 
 jobs:
   static_analysis:
@@ -11,19 +8,13 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
-          - "3.7"
           - "3.8"
-          - "3.9"
         include:
           - os: "ubuntu-latest"
-          # no Python 3.6 in ubuntu>20.04.
-          - os: "ubuntu-20.04"
-            python-version: "3.6"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies

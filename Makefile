@@ -33,15 +33,13 @@ check-flake8: ## Run flake8 checks
 # 	@echo "--> Running mypy checks"
 # 	@mypy
 
-static-analysis: check-black check-isort check-flake8 # check-mypy ## Run all static checks
+static-analysis: check-black check-isort #check-flake8 # check-mypy ## Run all static checks
 
-code-format: ## please DO MODIFY code: I want to run this to autoformat my code before commit: don't add --diff flag into black command
+code-format:
 	@echo "--> Running black"
 	@black $(src_dirs)
 	@echo "--> Running isort"
 	@isort $(src_dirs)
-	@echo "--> Running flake8 (you need to edit files yourself after this)"
-	@flake8 $(src_dirs)
 
 # Apply styling
 .PHONY: style

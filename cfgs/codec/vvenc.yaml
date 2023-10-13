@@ -1,0 +1,17 @@
+type: "vvenc"
+eval_encode: "bitrate" # or "bpp"
+experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
+bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
+codec_paths:
+  encoder_exe: "/pa/home/racapef/vvc/vvenc/bin/release-static/vvencapp"
+  decoder_exe: "/pa/home/racapef/vvc/vvdec/bin/release-static/vvdecapp"
+  cfg_file: "/pa/home/racapef/vvc/vvenc/cfg/randomaccess_${codec.encoder_config.preset}.cfg"
+dump_yuv:
+  dump_yuv_packing_input: True
+  yuv_packing_input_dir: ${..output_dir}
+  dump_yuv_packing_dec: False
+  yuv_packing_dec_dir: ${..output_dir}
+encoder_config:
+  qp: 42
+  preset: "medium" # faster, fast, medium, slow, slower

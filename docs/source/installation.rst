@@ -25,13 +25,8 @@ You might want to define the python version explicitly, i.e. with ``python3.8 -m
 The script will install the following software stack:
 
 - `PyTorch <https://pytorch.org/>`_
-- `CompressAI <https://interdigitalinc.github.io/CompressAI>`_
 - `Detectron2 <https://detectron2.readthedocs.io/en/latest/index.html>`_
-- `fiftyone <https://voxel51.com/docs/fiftyone/>`_
 - *This* library (CompressAI-Vision)
-
-The script also inserts ``FIFTYONE_DATABASE_NAME`` env variable into the virtual environment.  This
-tells fiftyone to use a database name including the particular fiftyone version (i.e. ``fiftyone-0.16.6``).
 
 After running the script within the virtualenv, ``deactivate`` and ``activate`` the virtualenv once again for the effects to take place.
 
@@ -40,7 +35,7 @@ PyTorch, Detectron2 and CUDA versions are different for each of the installation
 ==============  ======= ========== ====
 script          PyTorch Detectron2 CUDA
 ==============  ======= ========== ====
-install.bash    1.9.1   0.6        10.2
+install.bash    2.0.0   0.6        11.8
 ==============  ======= ========== ====
 
 2. VTM
@@ -78,13 +73,3 @@ Now there should be:
     ...
 
 Now you can try the `standalone test <https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts>`_
-
-3. Other dependencies
----------------------
-
-MPEG/VCM defines several ffmpeg commands for the anchor pipeline, so you need ffmpeg:
-
-::
-
-    sudo apt-get install ffmpeg
-

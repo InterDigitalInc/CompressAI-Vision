@@ -1,0 +1,5650 @@
+{
+    "images": [
+        {
+            "file_name": "PartyScene_832x480_50_val_000.png",
+            "width": 832,
+            "height": 480,
+            "id": 0.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_001.png",
+            "width": 832,
+            "height": 480,
+            "id": 1.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_002.png",
+            "width": 832,
+            "height": 480,
+            "id": 2.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_003.png",
+            "width": 832,
+            "height": 480,
+            "id": 3.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_004.png",
+            "width": 832,
+            "height": 480,
+            "id": 4.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_005.png",
+            "width": 832,
+            "height": 480,
+            "id": 5.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_006.png",
+            "width": 832,
+            "height": 480,
+            "id": 6.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_007.png",
+            "width": 832,
+            "height": 480,
+            "id": 7.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_008.png",
+            "width": 832,
+            "height": 480,
+            "id": 8.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_009.png",
+            "width": 832,
+            "height": 480,
+            "id": 9.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_010.png",
+            "width": 832,
+            "height": 480,
+            "id": 10.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_011.png",
+            "width": 832,
+            "height": 480,
+            "id": 11.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_012.png",
+            "width": 832,
+            "height": 480,
+            "id": 12.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_013.png",
+            "width": 832,
+            "height": 480,
+            "id": 13.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_014.png",
+            "width": 832,
+            "height": 480,
+            "id": 14.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_015.png",
+            "width": 832,
+            "height": 480,
+            "id": 15.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_016.png",
+            "width": 832,
+            "height": 480,
+            "id": 16.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_017.png",
+            "width": 832,
+            "height": 480,
+            "id": 17.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_018.png",
+            "width": 832,
+            "height": 480,
+            "id": 18.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_019.png",
+            "width": 832,
+            "height": 480,
+            "id": 19.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_020.png",
+            "width": 832,
+            "height": 480,
+            "id": 20.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_021.png",
+            "width": 832,
+            "height": 480,
+            "id": 21.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_022.png",
+            "width": 832,
+            "height": 480,
+            "id": 22.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_023.png",
+            "width": 832,
+            "height": 480,
+            "id": 23.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_024.png",
+            "width": 832,
+            "height": 480,
+            "id": 24.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_025.png",
+            "width": 832,
+            "height": 480,
+            "id": 25.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_026.png",
+            "width": 832,
+            "height": 480,
+            "id": 26.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_027.png",
+            "width": 832,
+            "height": 480,
+            "id": 27.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_028.png",
+            "width": 832,
+            "height": 480,
+            "id": 28.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_029.png",
+            "width": 832,
+            "height": 480,
+            "id": 29.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_030.png",
+            "width": 832,
+            "height": 480,
+            "id": 30.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_031.png",
+            "width": 832,
+            "height": 480,
+            "id": 31.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_032.png",
+            "width": 832,
+            "height": 480,
+            "id": 32.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_033.png",
+            "width": 832,
+            "height": 480,
+            "id": 33.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_034.png",
+            "width": 832,
+            "height": 480,
+            "id": 34.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_035.png",
+            "width": 832,
+            "height": 480,
+            "id": 35.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_036.png",
+            "width": 832,
+            "height": 480,
+            "id": 36.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_037.png",
+            "width": 832,
+            "height": 480,
+            "id": 37.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_038.png",
+            "width": 832,
+            "height": 480,
+            "id": 38.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_039.png",
+            "width": 832,
+            "height": 480,
+            "id": 39.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_040.png",
+            "width": 832,
+            "height": 480,
+            "id": 40.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_041.png",
+            "width": 832,
+            "height": 480,
+            "id": 41.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_042.png",
+            "width": 832,
+            "height": 480,
+            "id": 42.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_043.png",
+            "width": 832,
+            "height": 480,
+            "id": 43.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_044.png",
+            "width": 832,
+            "height": 480,
+            "id": 44.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_045.png",
+            "width": 832,
+            "height": 480,
+            "id": 45.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_046.png",
+            "width": 832,
+            "height": 480,
+            "id": 46.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_047.png",
+            "width": 832,
+            "height": 480,
+            "id": 47.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_048.png",
+            "width": 832,
+            "height": 480,
+            "id": 48.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_049.png",
+            "width": 832,
+            "height": 480,
+            "id": 49.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_050.png",
+            "width": 832,
+            "height": 480,
+            "id": 50.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_051.png",
+            "width": 832,
+            "height": 480,
+            "id": 51.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_052.png",
+            "width": 832,
+            "height": 480,
+            "id": 52.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_053.png",
+            "width": 832,
+            "height": 480,
+            "id": 53.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_054.png",
+            "width": 832,
+            "height": 480,
+            "id": 54.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_055.png",
+            "width": 832,
+            "height": 480,
+            "id": 55.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_056.png",
+            "width": 832,
+            "height": 480,
+            "id": 56.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_057.png",
+            "width": 832,
+            "height": 480,
+            "id": 57.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_058.png",
+            "width": 832,
+            "height": 480,
+            "id": 58.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_059.png",
+            "width": 832,
+            "height": 480,
+            "id": 59.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_060.png",
+            "width": 832,
+            "height": 480,
+            "id": 60.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_061.png",
+            "width": 832,
+            "height": 480,
+            "id": 61.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_062.png",
+            "width": 832,
+            "height": 480,
+            "id": 62.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_063.png",
+            "width": 832,
+            "height": 480,
+            "id": 63.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_064.png",
+            "width": 832,
+            "height": 480,
+            "id": 64.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_065.png",
+            "width": 832,
+            "height": 480,
+            "id": 65.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_066.png",
+            "width": 832,
+            "height": 480,
+            "id": 66.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_067.png",
+            "width": 832,
+            "height": 480,
+            "id": 67.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_068.png",
+            "width": 832,
+            "height": 480,
+            "id": 68.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_069.png",
+            "width": 832,
+            "height": 480,
+            "id": 69.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_070.png",
+            "width": 832,
+            "height": 480,
+            "id": 70.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_071.png",
+            "width": 832,
+            "height": 480,
+            "id": 71.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_072.png",
+            "width": 832,
+            "height": 480,
+            "id": 72.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_073.png",
+            "width": 832,
+            "height": 480,
+            "id": 73.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_074.png",
+            "width": 832,
+            "height": 480,
+            "id": 74.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_075.png",
+            "width": 832,
+            "height": 480,
+            "id": 75.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_076.png",
+            "width": 832,
+            "height": 480,
+            "id": 76.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_077.png",
+            "width": 832,
+            "height": 480,
+            "id": 77.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_078.png",
+            "width": 832,
+            "height": 480,
+            "id": 78.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_079.png",
+            "width": 832,
+            "height": 480,
+            "id": 79.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_080.png",
+            "width": 832,
+            "height": 480,
+            "id": 80.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_081.png",
+            "width": 832,
+            "height": 480,
+            "id": 81.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_082.png",
+            "width": 832,
+            "height": 480,
+            "id": 82.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_083.png",
+            "width": 832,
+            "height": 480,
+            "id": 83.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_084.png",
+            "width": 832,
+            "height": 480,
+            "id": 84.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_085.png",
+            "width": 832,
+            "height": 480,
+            "id": 85.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_086.png",
+            "width": 832,
+            "height": 480,
+            "id": 86.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_087.png",
+            "width": 832,
+            "height": 480,
+            "id": 87.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_088.png",
+            "width": 832,
+            "height": 480,
+            "id": 88.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_089.png",
+            "width": 832,
+            "height": 480,
+            "id": 89.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_090.png",
+            "width": 832,
+            "height": 480,
+            "id": 90.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_091.png",
+            "width": 832,
+            "height": 480,
+            "id": 91.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_092.png",
+            "width": 832,
+            "height": 480,
+            "id": 92.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_093.png",
+            "width": 832,
+            "height": 480,
+            "id": 93.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_094.png",
+            "width": 832,
+            "height": 480,
+            "id": 94.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_095.png",
+            "width": 832,
+            "height": 480,
+            "id": 95.0
+        },
+        {
+            "file_name": "PartyScene_832x480_50_val_096.png",
+            "width": 832,
+            "height": 480,
+            "id": 96.0
+        }
+    ],
+    "categories": [
+        {
+            "name": "Person",
+            "id": 0
+        },
+        {
+            "name": "Bicycle",
+            "id": 1
+        },
+        {
+            "name": "Car",
+            "id": 2
+        },
+        {
+            "name": "Motorcycle",
+            "id": 3
+        },
+        {
+            "name": "Airplane",
+            "id": 4
+        },
+        {
+            "name": "Bus",
+            "id": 5
+        },
+        {
+            "name": "Train",
+            "id": 6
+        },
+        {
+            "name": "Truck",
+            "id": 7
+        },
+        {
+            "name": "Boat",
+            "id": 8
+        },
+        {
+            "name": "Traffic light",
+            "id": 9
+        },
+        {
+            "name": "Fire hydrant",
+            "id": 10
+        },
+        {
+            "name": "Wheel",
+            "id": 11
+        },
+        {
+            "name": "Suit",
+            "id": 12
+        },
+        {
+            "name": "Man",
+            "id": 13
+        },
+        {
+            "name": "Bird",
+            "id": 14
+        },
+        {
+            "name": "Cat",
+            "id": 15
+        },
+        {
+            "name": "Dog",
+            "id": 16
+        },
+        {
+            "name": "Horse",
+            "id": 17
+        },
+        {
+            "name": "Sheep",
+            "id": 18
+        },
+        {
+            "name": "Cattle",
+            "id": 19
+        },
+        {
+            "name": "Elephant",
+            "id": 20
+        },
+        {
+            "name": "Bear",
+            "id": 21
+        },
+        {
+            "name": "Zebra",
+            "id": 22
+        },
+        {
+            "name": "Giraffe",
+            "id": 23
+        },
+        {
+            "name": "Backpack",
+            "id": 24
+        },
+        {
+            "name": "Umbrella",
+            "id": 25
+        },
+        {
+            "name": "Handbag",
+            "id": 26
+        },
+        {
+            "name": "Tie",
+            "id": 27
+        },
+        {
+            "name": "Suitcase",
+            "id": 28
+        },
+        {
+            "name": "Woman",
+            "id": 29
+        },
+        {
+            "name": "Ski",
+            "id": 30
+        },
+        {
+            "name": "Snowboard",
+            "id": 31
+        },
+        {
+            "name": "Football",
+            "id": 32
+        },
+        {
+            "name": "Kite",
+            "id": 33
+        },
+        {
+            "name": "Baseball bat",
+            "id": 34
+        },
+        {
+            "name": "Baseball glove",
+            "id": 35
+        },
+        {
+            "name": "Skateboard",
+            "id": 36
+        },
+        {
+            "name": "Surfboard",
+            "id": 37
+        },
+        {
+            "name": "Tennis racket",
+            "id": 38
+        },
+        {
+            "name": "Bottle",
+            "id": 39
+        },
+        {
+            "name": "Wine glass",
+            "id": 40
+        },
+        {
+            "name": "Coffee cup",
+            "id": 41
+        },
+        {
+            "name": "Fork",
+            "id": 42
+        },
+        {
+            "name": "Knife",
+            "id": 43
+        },
+        {
+            "name": "Spoon",
+            "id": 44
+        },
+        {
+            "name": "Bowl",
+            "id": 45
+        },
+        {
+            "name": "Banana",
+            "id": 46
+        },
+        {
+            "name": "Apple",
+            "id": 47
+        },
+        {
+            "name": "Sandwich",
+            "id": 48
+        },
+        {
+            "name": "Orange",
+            "id": 49
+        },
+        {
+            "name": "Broccoli",
+            "id": 50
+        },
+        {
+            "name": "Carrot",
+            "id": 51
+        },
+        {
+            "name": "Hot dog",
+            "id": 52
+        },
+        {
+            "name": "Pizza",
+            "id": 53
+        },
+        {
+            "name": "Bagel",
+            "id": 54
+        },
+        {
+            "name": "Cake",
+            "id": 55
+        },
+        {
+            "name": "Chair",
+            "id": 56
+        },
+        {
+            "name": "Couch",
+            "id": 57
+        },
+        {
+            "name": "Common sunflower",
+            "id": 58
+        },
+        {
+            "name": "Bed",
+            "id": 59
+        },
+        {
+            "name": "Houseplant",
+            "id": 60
+        },
+        {
+            "name": "Toilet",
+            "id": 61
+        },
+        {
+            "name": "Television",
+            "id": 62
+        },
+        {
+            "name": "Laptop",
+            "id": 63
+        },
+        {
+            "name": "Computer mouse",
+            "id": 64
+        },
+        {
+            "name": "Bicycle wheel",
+            "id": 65
+        },
+        {
+            "name": "Computer keyboard",
+            "id": 66
+        },
+        {
+            "name": "Mobile phone",
+            "id": 67
+        },
+        {
+            "name": "Microwave oven",
+            "id": 68
+        },
+        {
+            "name": "Oven",
+            "id": 69
+        },
+        {
+            "name": "Boy",
+            "id": 70
+        },
+        {
+            "name": "Sink",
+            "id": 71
+        },
+        {
+            "name": "Refrigerator",
+            "id": 72
+        },
+        {
+            "name": "Book",
+            "id": 73
+        },
+        {
+            "name": "Clock",
+            "id": 74
+        },
+        {
+            "name": "Vase",
+            "id": 75
+        },
+        {
+            "name": "Scissors",
+            "id": 76
+        },
+        {
+            "name": "Teddy bear",
+            "id": 77
+        },
+        {
+            "name": "Girl",
+            "id": 78
+        },
+        {
+            "name": "Human face",
+            "id": 79
+        }
+    ],
+    "annotations": [
+        {
+            "bbox": [
+                508.1856,
+                136.08,
+                185.3696,
+                151.104
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 1,
+            "image_id": 0.0,
+            "iscrowd": 0,
+            "area": 28010.0880384
+        },
+        {
+            "bbox": [
+                267.9456,
+                150.696,
+                284.6272,
+                341.808
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 2,
+            "image_id": 0.0,
+            "iscrowd": 0,
+            "area": 97287.85397760001
+        },
+        {
+            "bbox": [
+                391.2996,
+                372.6667,
+                53.950199999999995,
+                48.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 3,
+            "image_id": 0.0,
+            "iscrowd": 0,
+            "area": 2589.6096
+        },
+        {
+            "bbox": [
+                509.8496,
+                135.936,
+                182.37440000000004,
+                151.39199999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 4,
+            "image_id": 1.0,
+            "iscrowd": 0,
+            "area": 27610.0251648
+        },
+        {
+            "bbox": [
+                268.9024,
+                152.568,
+                281.8816,
+                337.10400000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 5,
+            "image_id": 1.0,
+            "iscrowd": 0,
+            "area": 95023.41488640002
+        },
+        {
+            "bbox": [
+                391.3,
+                376.0003,
+                52.64979999999997,
+                45.3331
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 6,
+            "image_id": 1.0,
+            "iscrowd": 0,
+            "area": 2386.7786483799987
+        },
+        {
+            "bbox": [
+                510.6816,
+                124.56,
+                179.712,
+                164.928
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 7,
+            "image_id": 2.0,
+            "iscrowd": 0,
+            "area": 29639.540736
+        },
+        {
+            "bbox": [
+                268.9024,
+                152.64,
+                281.54879999999997,
+                337.44
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 8,
+            "image_id": 2.0,
+            "iscrowd": 0,
+            "area": 95005.82707199999
+        },
+        {
+            "bbox": [
+                392.5996,
+                375.9998,
+                51.35019999999997,
+                46.66660000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 9,
+            "image_id": 2.0,
+            "iscrowd": 0,
+            "area": 2396.3392433199997
+        },
+        {
+            "bbox": [
+                510.8896,
+                123.576,
+                179.79520000000002,
+                166.22400000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 10,
+            "image_id": 3.0,
+            "iscrowd": 0,
+            "area": 29886.27732480001
+        },
+        {
+            "bbox": [
+                270.8992,
+                152.28,
+                278.05440000000004,
+                336.144
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 11,
+            "image_id": 3.0,
+            "iscrowd": 0,
+            "area": 93466.31823360002
+        },
+        {
+            "bbox": [
+                391.9502,
+                376.6666,
+                53.2996,
+                48.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 12,
+            "image_id": 3.0,
+            "iscrowd": 0,
+            "area": 2558.3808
+        },
+        {
+            "bbox": [
+                509.9328,
+                124.128,
+                178.2144,
+                164.736
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 13,
+            "image_id": 4.0,
+            "iscrowd": 0,
+            "area": 29358.3273984
+        },
+        {
+            "bbox": [
+                274.9344,
+                153.024,
+                269.98400000000004,
+                334.272
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 14,
+            "image_id": 4.0,
+            "iscrowd": 0,
+            "area": 90248.09164800002
+        },
+        {
+            "bbox": [
+                391.2996,
+                378.6665,
+                53.950199999999995,
+                48.66669999999999
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 15,
+            "image_id": 4.0,
+            "iscrowd": 0,
+            "area": 2625.5781983399993
+        },
+        {
+            "bbox": [
+                510.224,
+                122.856,
+                177.79839999999996,
+                166.512
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 16,
+            "image_id": 5.0,
+            "iscrowd": 0,
+            "area": 29605.567180799993
+        },
+        {
+            "bbox": [
+                271.8144,
+                153.144,
+                276.0576,
+                332.20799999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 17,
+            "image_id": 5.0,
+            "iscrowd": 0,
+            "area": 91708.54318079998
+        },
+        {
+            "bbox": [
+                392.6,
+                380.6669,
+                53.950199999999995,
+                48.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 18,
+            "image_id": 5.0,
+            "iscrowd": 0,
+            "area": 2589.6096
+        },
+        {
+            "bbox": [
+                509.5168,
+                122.544,
+                179.54560000000004,
+                166.464
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 19,
+            "image_id": 6.0,
+            "iscrowd": 0,
+            "area": 29887.878758400006
+        },
+        {
+            "bbox": [
+                272.48,
+                150.408,
+                274.3936,
+                342.288
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 20,
+            "image_id": 6.0,
+            "iscrowd": 0,
+            "area": 93921.6365568
+        },
+        {
+            "bbox": [
+                393.2498,
+                380.6666,
+                53.2996,
+                50.00020000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 21,
+            "image_id": 6.0,
+            "iscrowd": 0,
+            "area": 2664.9906599200003
+        },
+        {
+            "bbox": [
+                509.0592,
+                122.472,
+                180.79360000000003,
+                167.56800000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 22,
+            "image_id": 7.0,
+            "iscrowd": 0,
+            "area": 30295.22196480001
+        },
+        {
+            "bbox": [
+                271.024,
+                147.648,
+                276.80640000000005,
+                346.56000000000006
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 23,
+            "image_id": 7.0,
+            "iscrowd": 0,
+            "area": 95930.02598400004
+        },
+        {
+            "bbox": [
+                394.5498,
+                383.3333,
+                52.64979999999997,
+                50.6669
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 24,
+            "image_id": 7.0,
+            "iscrowd": 0,
+            "area": 2667.6021516199985
+        },
+        {
+            "bbox": [
+                509.4752,
+                122.52,
+                179.79520000000002,
+                166.8
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 25,
+            "image_id": 8.0,
+            "iscrowd": 0,
+            "area": 29989.839360000005
+        },
+        {
+            "bbox": [
+                271.856,
+                146.376,
+                273.8112,
+                350.06399999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 26,
+            "image_id": 8.0,
+            "iscrowd": 0,
+            "area": 95851.44391679998
+        },
+        {
+            "bbox": [
+                394.5502,
+                384.667,
+                53.950199999999995,
+                51.99980000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 27,
+            "image_id": 8.0,
+            "iscrowd": 0,
+            "area": 2805.3996099600026
+        },
+        {
+            "bbox": [
+                508.4768,
+                122.496,
+                181.95839999999998,
+                166.17600000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 28,
+            "image_id": 9.0,
+            "iscrowd": 0,
+            "area": 30237.119078400006
+        },
+        {
+            "bbox": [
+                272.7712,
+                140.112,
+                272.8127999999999,
+                363.93600000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 29,
+            "image_id": 9.0,
+            "iscrowd": 0,
+            "area": 99286.39918079998
+        },
+        {
+            "bbox": [
+                395.2,
+                385.3334,
+                53.950199999999995,
+                51.33320000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 30,
+            "image_id": 9.0,
+            "iscrowd": 0,
+            "area": 2769.4364066400017
+        },
+        {
+            "bbox": [
+                508.3104,
+                122.448,
+                183.12319999999994,
+                165.98400000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 31,
+            "image_id": 10.0,
+            "iscrowd": 0,
+            "area": 30395.521228799997
+        },
+        {
+            "bbox": [
+                269.984,
+                146.424,
+                278.38720000000006,
+                353.03999999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 32,
+            "image_id": 10.0,
+            "iscrowd": 0,
+            "area": 98281.81708800001
+        },
+        {
+            "bbox": [
+                395.8498,
+                386.0002,
+                53.950199999999995,
+                51.3331
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 33,
+            "image_id": 10.0,
+            "iscrowd": 0,
+            "area": 2769.43101162
+        },
+        {
+            "bbox": [
+                508.144,
+                123.096,
+                182.45759999999996,
+                164.39999999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 34,
+            "image_id": 11.0,
+            "iscrowd": 0,
+            "area": 29996.029439999988
+        },
+        {
+            "bbox": [
+                270.2336,
+                146.328,
+                279.8847999999999,
+                352.94399999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 35,
+            "image_id": 11.0,
+            "iscrowd": 0,
+            "area": 98783.66085119997
+        },
+        {
+            "bbox": [
+                394.5498,
+                386.6669,
+                56.55020000000002,
+                52.666499999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 36,
+            "image_id": 11.0,
+            "iscrowd": 0,
+            "area": 2978.3011083
+        },
+        {
+            "bbox": [
+                506.5632,
+                122.688,
+                186.61759999999998,
+                164.928
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 37,
+            "image_id": 12.0,
+            "iscrowd": 0,
+            "area": 30778.467532799998
+        },
+        {
+            "bbox": [
+                268.4864,
+                148.416,
+                282.88,
+                349.056
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 38,
+            "image_id": 12.0,
+            "iscrowd": 0,
+            "area": 98740.96127999999
+        },
+        {
+            "bbox": [
+                397.1502,
+                388.6666,
+                55.24979999999999,
+                50.66679999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 39,
+            "image_id": 12.0,
+            "iscrowd": 0,
+            "area": 2799.330566639998
+        },
+        {
+            "bbox": [
+                506.7296,
+                122.424,
+                188.44799999999998,
+                165.26399999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 40,
+            "image_id": 13.0,
+            "iscrowd": 0,
+            "area": 31143.670271999992
+        },
+        {
+            "bbox": [
+                269.152,
+                151.32,
+                281.21600000000007,
+                343.44
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 41,
+            "image_id": 13.0,
+            "iscrowd": 0,
+            "area": 96580.82304000002
+        },
+        {
+            "bbox": [
+                397.1502,
+                388.0001,
+                53.950199999999995,
+                51.99980000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 42,
+            "image_id": 13.0,
+            "iscrowd": 0,
+            "area": 2805.3996099600026
+        },
+        {
+            "bbox": [
+                506.688,
+                122.328,
+                187.20000000000005,
+                165.648
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 43,
+            "image_id": 14.0,
+            "iscrowd": 0,
+            "area": 31009.305600000007
+        },
+        {
+            "bbox": [
+                268.528,
+                152.592,
+                280.46719999999993,
+                338.496
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 44,
+            "image_id": 14.0,
+            "iscrowd": 0,
+            "area": 94937.02533119997
+        },
+        {
+            "bbox": [
+                398.4502,
+                389.3333,
+                52.64980000000003,
+                51.3331
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 45,
+            "image_id": 14.0,
+            "iscrowd": 0,
+            "area": 2702.6774483800014
+        },
+        {
+            "bbox": [
+                507.1456,
+                122.16,
+                186.45120000000003,
+                164.83200000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 46,
+            "image_id": 15.0,
+            "iscrowd": 0,
+            "area": 30733.124198400008
+        },
+        {
+            "bbox": [
+                268.4448,
+                153.456,
+                280.46720000000005,
+                336.672
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 47,
+            "image_id": 15.0,
+            "iscrowd": 0,
+            "area": 94425.45315840002
+        },
+        {
+            "bbox": [
+                396.5004,
+                389.3335,
+                57.19999999999999,
+                51.99989999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 48,
+            "image_id": 15.0,
+            "iscrowd": 0,
+            "area": 2974.3942799999977
+        },
+        {
+            "bbox": [
+                506.688,
+                121.824,
+                186.5344,
+                164.832
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 49,
+            "image_id": 16.0,
+            "iscrowd": 0,
+            "area": 30746.8382208
+        },
+        {
+            "bbox": [
+                269.568,
+                155.52,
+                278.22080000000005,
+                332.256
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 50,
+            "image_id": 16.0,
+            "iscrowd": 0,
+            "area": 92440.5301248
+        },
+        {
+            "bbox": [
+                396.5004,
+                389.3333,
+                58.49959999999999,
+                54.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 51,
+            "image_id": 16.0,
+            "iscrowd": 0,
+            "area": 3158.978399999999
+        },
+        {
+            "bbox": [
+                507.1456,
+                122.28,
+                188.44800000000004,
+                164.496
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 52,
+            "image_id": 17.0,
+            "iscrowd": 0,
+            "area": 30998.942208000008
+        },
+        {
+            "bbox": [
+                267.696,
+                153.264,
+                280.79999999999995,
+                336.288
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 53,
+            "image_id": 17.0,
+            "iscrowd": 0,
+            "area": 94429.67039999999
+        },
+        {
+            "bbox": [
+                397.8,
+                390.6667,
+                55.24979999999999,
+                52.66660000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 54,
+            "image_id": 17.0,
+            "iscrowd": 0,
+            "area": 2909.8191166800007
+        },
+        {
+            "bbox": [
+                507.8112,
+                121.392,
+                185.45280000000002,
+                166.176
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 55,
+            "image_id": 18.0,
+            "iscrowd": 0,
+            "area": 30817.8044928
+        },
+        {
+            "bbox": [
+                267.5712,
+                152.712,
+                280.384,
+                340.176
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 56,
+            "image_id": 18.0,
+            "iscrowd": 0,
+            "area": 95379.907584
+        },
+        {
+            "bbox": [
+                398.4502,
+                390.6667,
+                54.60000000000002,
+                55.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 57,
+            "image_id": 18.0,
+            "iscrowd": 0,
+            "area": 3021.209100000002
+        },
+        {
+            "bbox": [
+                506.5632,
+                120.84,
+                187.44959999999998,
+                167.088
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 58,
+            "image_id": 19.0,
+            "iscrowd": 0,
+            "area": 31320.578764799993
+        },
+        {
+            "bbox": [
+                267.5712,
+                149.952,
+                279.2192,
+                346.944
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 59,
+            "image_id": 19.0,
+            "iscrowd": 0,
+            "area": 96873.42612480001
+        },
+        {
+            "bbox": [
+                398.4498,
+                390.6667,
+                52.0,
+                50.6669
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 60,
+            "image_id": 19.0,
+            "iscrowd": 0,
+            "area": 2634.6787999999997
+        },
+        {
+            "bbox": [
+                507.3536,
+                120.312,
+                187.2,
+                167.56799999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 61,
+            "image_id": 20.0,
+            "iscrowd": 0,
+            "area": 31368.729599999995
+        },
+        {
+            "bbox": [
+                269.7344,
+                147.048,
+                273.06239999999997,
+                351.792
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 62,
+            "image_id": 20.0,
+            "iscrowd": 0,
+            "area": 96061.16782079998
+        },
+        {
+            "bbox": [
+                397.8,
+                390.6667,
+                55.90039999999999,
+                52.66660000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 63,
+            "image_id": 20.0,
+            "iscrowd": 0,
+            "area": 2944.0840066400006
+        },
+        {
+            "bbox": [
+                507.936,
+                119.568,
+                185.36960000000005,
+                168.38400000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 64,
+            "image_id": 21.0,
+            "iscrowd": 0,
+            "area": 31213.27472640001
+        },
+        {
+            "bbox": [
+                270.7744,
+                151.128,
+                271.14879999999994,
+                345.168
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 65,
+            "image_id": 21.0,
+            "iscrowd": 0,
+            "area": 93591.88899839998
+        },
+        {
+            "bbox": [
+                395.8498,
+                392.6669,
+                55.90039999999999,
+                52.666499999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 66,
+            "image_id": 21.0,
+            "iscrowd": 0,
+            "area": 2944.0784165999985
+        },
+        {
+            "bbox": [
+                508.8512,
+                119.4,
+                184.53759999999994,
+                167.95199999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 67,
+            "image_id": 22.0,
+            "iscrowd": 0,
+            "area": 30993.458995199984
+        },
+        {
+            "bbox": [
+                270.7744,
+                150.48,
+                270.81600000000003,
+                346.75200000000007
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 68,
+            "image_id": 22.0,
+            "iscrowd": 0,
+            "area": 93905.98963200003
+        },
+        {
+            "bbox": [
+                395.2,
+                392.6669,
+                55.24979999999999,
+                52.666499999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 69,
+            "image_id": 22.0,
+            "iscrowd": 0,
+            "area": 2909.8135916999986
+        },
+        {
+            "bbox": [
+                508.9344,
+                119.736,
+                184.03840000000002,
+                166.89600000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 70,
+            "image_id": 23.0,
+            "iscrowd": 0,
+            "area": 30715.272806400008
+        },
+        {
+            "bbox": [
+                269.2352,
+                153.168,
+                274.2272,
+                341.856
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 71,
+            "image_id": 23.0,
+            "iscrowd": 0,
+            "area": 93746.2136832
+        },
+        {
+            "bbox": [
+                395.1996,
+                394.6668,
+                54.60000000000002,
+                50.00019999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 72,
+            "image_id": 23.0,
+            "iscrowd": 0,
+            "area": 2730.0109199999984
+        },
+        {
+            "bbox": [
+                509.6416,
+                118.92,
+                183.2896,
+                168.33599999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 73,
+            "image_id": 24.0,
+            "iscrowd": 0,
+            "area": 30854.238105599994
+        },
+        {
+            "bbox": [
+                268.8192,
+                154.464,
+                275.05920000000003,
+                339.36
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 74,
+            "image_id": 24.0,
+            "iscrowd": 0,
+            "area": 93344.09011200002
+        },
+        {
+            "bbox": [
+                393.2502,
+                394.6666,
+                56.55020000000002,
+                55.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 75,
+            "image_id": 24.0,
+            "iscrowd": 0,
+            "area": 3129.11483668
+        },
+        {
+            "bbox": [
+                509.5168,
+                117.912,
+                183.37279999999998,
+                169.104
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 76,
+            "image_id": 25.0,
+            "iscrowd": 0,
+            "area": 31009.0739712
+        },
+        {
+            "bbox": [
+                265.5744,
+                151.944,
+                282.7136,
+                345.36
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 77,
+            "image_id": 25.0,
+            "iscrowd": 0,
+            "area": 97637.968896
+        },
+        {
+            "bbox": [
+                392.6,
+                396.6667,
+                55.90039999999999,
+                54.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 78,
+            "image_id": 25.0,
+            "iscrowd": 0,
+            "area": 3018.6215999999995
+        },
+        {
+            "bbox": [
+                510.0576,
+                117.936,
+                182.2912,
+                168.384
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 79,
+            "image_id": 26.0,
+            "iscrowd": 0,
+            "area": 30694.921420799998
+        },
+        {
+            "bbox": [
+                388.7104,
+                400.608,
+                62.233600000000024,
+                50.01600000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 80,
+            "image_id": 26.0,
+            "iscrowd": 0,
+            "area": 3112.6757376000023
+        },
+        {
+            "bbox": [
+                264.4512,
+                156.288,
+                281.1328,
+                335.52
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 81,
+            "image_id": 26.0,
+            "iscrowd": 0,
+            "area": 94325.67705599999
+        },
+        {
+            "bbox": [
+                510.432,
+                118.104,
+                181.7088,
+                167.664
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 82,
+            "image_id": 27.0,
+            "iscrowd": 0,
+            "area": 30466.024243199998
+        },
+        {
+            "bbox": [
+                263.0784,
+                157.632,
+                279.88480000000004,
+                333.504
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 83,
+            "image_id": 27.0,
+            "iscrowd": 0,
+            "area": 93342.70033920002
+        },
+        {
+            "bbox": [
+                390.0,
+                400.0001,
+                55.24979999999999,
+                53.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 84,
+            "image_id": 27.0,
+            "iscrowd": 0,
+            "area": 2946.6541583400003
+        },
+        {
+            "bbox": [
+                509.7664,
+                118.656,
+                184.70400000000006,
+                167.13599999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 85,
+            "image_id": 28.0,
+            "iscrowd": 0,
+            "area": 30870.687744000006
+        },
+        {
+            "bbox": [
+                261.9552,
+                158.448,
+                281.63200000000006,
+                332.15999999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 86,
+            "image_id": 28.0,
+            "iscrowd": 0,
+            "area": 93546.88512
+        },
+        {
+            "bbox": [
+                388.0498,
+                401.3333,
+                55.24979999999999,
+                55.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 87,
+            "image_id": 28.0,
+            "iscrowd": 0,
+            "area": 3057.159283319999
+        },
+        {
+            "bbox": [
+                508.976,
+                117.864,
+                186.28480000000002,
+                168.14399999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 88,
+            "image_id": 29.0,
+            "iscrowd": 0,
+            "area": 31322.671411199997
+        },
+        {
+            "bbox": [
+                264.3264,
+                159.264,
+                275.392,
+                330.048
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 89,
+            "image_id": 29.0,
+            "iscrowd": 0,
+            "area": 90892.578816
+        },
+        {
+            "bbox": [
+                386.1,
+                404.0002,
+                57.84979999999996,
+                58.666499999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 90,
+            "image_id": 29.0,
+            "iscrowd": 0,
+            "area": 3393.845291699997
+        },
+        {
+            "bbox": [
+                510.3904,
+                117.84,
+                182.45759999999996,
+                167.80800000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 91,
+            "image_id": 30.0,
+            "iscrowd": 0,
+            "area": 30617.844940799998
+        },
+        {
+            "bbox": [
+                261.8304,
+                160.944,
+                277.22240000000005,
+                326.688
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 92,
+            "image_id": 30.0,
+            "iscrowd": 0,
+            "area": 90565.23141120002
+        },
+        {
+            "bbox": [
+                386.7502,
+                407.3333,
+                55.24979999999999,
+                55.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 93,
+            "image_id": 30.0,
+            "iscrowd": 0,
+            "area": 3057.159283319999
+        },
+        {
+            "bbox": [
+                508.8928,
+                117.576,
+                183.62240000000003,
+                168.33599999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 94,
+            "image_id": 31.0,
+            "iscrowd": 0,
+            "area": 30910.260326400003
+        },
+        {
+            "bbox": [
+                260.0416,
+                161.64,
+                275.64160000000004,
+                324.144
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 95,
+            "image_id": 31.0,
+            "iscrowd": 0,
+            "area": 89347.57079040002
+        },
+        {
+            "bbox": [
+                385.4506,
+                410.6664,
+                53.2996,
+                55.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 96,
+            "image_id": 31.0,
+            "iscrowd": 0,
+            "area": 2949.248086639999
+        },
+        {
+            "bbox": [
+                507.8528,
+                117.576,
+                186.20159999999998,
+                169.104
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 97,
+            "image_id": 32.0,
+            "iscrowd": 0,
+            "area": 31487.4353664
+        },
+        {
+            "bbox": [
+                262.1632,
+                163.008,
+                271.3984,
+                322.08000000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 98,
+            "image_id": 32.0,
+            "iscrowd": 0,
+            "area": 87411.99667200001
+        },
+        {
+            "bbox": [
+                383.5,
+                411.3334,
+                54.60000000000002,
+                57.99979999999999
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 99,
+            "image_id": 32.0,
+            "iscrowd": 0,
+            "area": 3166.789080000001
+        },
+        {
+            "bbox": [
+                507.936,
+                116.544,
+                186.53440000000006,
+                170.59200000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 100,
+            "image_id": 33.0,
+            "iscrowd": 0,
+            "area": 31821.27636480002
+        },
+        {
+            "bbox": [
+                261.6224,
+                165.24,
+                266.9888,
+                316.656
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 101,
+            "image_id": 33.0,
+            "iscrowd": 0,
+            "area": 84543.60545280001
+        },
+        {
+            "bbox": [
+                382.8502,
+                415.9999,
+                57.849800000000016,
+                56.00019999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 102,
+            "image_id": 33.0,
+            "iscrowd": 0,
+            "area": 3239.600369959998
+        },
+        {
+            "bbox": [
+                505.648,
+                115.464,
+                191.94240000000002,
+                171.88799999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 103,
+            "image_id": 34.0,
+            "iscrowd": 0,
+            "area": 32992.5952512
+        },
+        {
+            "bbox": [
+                260.208,
+                164.472,
+                265.1584,
+                317.424
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 104,
+            "image_id": 34.0,
+            "iscrowd": 0,
+            "area": 84167.63996159998
+        },
+        {
+            "bbox": [
+                382.8498,
+                419.3333,
+                59.150199999999984,
+                55.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 105,
+            "image_id": 34.0,
+            "iscrowd": 0,
+            "area": 3272.981676679998
+        },
+        {
+            "bbox": [
+                504.608,
+                114.936,
+                194.8544,
+                172.36799999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 106,
+            "image_id": 35.0,
+            "iscrowd": 0,
+            "area": 33586.663219199996
+        },
+        {
+            "bbox": [
+                257.0048,
+                165.768,
+                268.23679999999996,
+                314.448
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 107,
+            "image_id": 35.0,
+            "iscrowd": 0,
+            "area": 84346.52528639998
+        },
+        {
+            "bbox": [
+                382.8502,
+                421.3334,
+                54.60000000000002,
+                54.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 108,
+            "image_id": 35.0,
+            "iscrowd": 0,
+            "area": 2948.4000000000015
+        },
+        {
+            "bbox": [
+                503.1936,
+                114.408,
+                196.8512,
+                173.712
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 109,
+            "image_id": 36.0,
+            "iscrowd": 0,
+            "area": 34195.4156544
+        },
+        {
+            "bbox": [
+                252.4704,
+                171.024,
+                282.1311999999999,
+                321.888
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 110,
+            "image_id": 36.0,
+            "iscrowd": 0,
+            "area": 90814.64770559997
+        },
+        {
+            "bbox": [
+                380.8996,
+                420.6665,
+                59.150199999999984,
+                56.00010000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 111,
+            "image_id": 36.0,
+            "iscrowd": 0,
+            "area": 3312.417115020001
+        },
+        {
+            "bbox": [
+                503.0688,
+                113.664,
+                197.10079999999994,
+                174.048
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 112,
+            "image_id": 37.0,
+            "iscrowd": 0,
+            "area": 34305.00003839999
+        },
+        {
+            "bbox": [
+                255.008,
+                167.592,
+                265.7407999999999,
+                314.352
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 113,
+            "image_id": 37.0,
+            "iscrowd": 0,
+            "area": 83536.15196159997
+        },
+        {
+            "bbox": [
+                384.1502,
+                427.3332,
+                57.19999999999999,
+                50.00020000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 114,
+            "image_id": 37.0,
+            "iscrowd": 0,
+            "area": 2860.0114399999998
+        },
+        {
+            "bbox": [
+                502.6112,
+                113.52,
+                194.68800000000005,
+                174.52800000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 115,
+            "image_id": 38.0,
+            "iscrowd": 0,
+            "area": 33978.507264000014
+        },
+        {
+            "bbox": [
+                382.72,
+                430.608,
+                77.54239999999999,
+                48.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 116,
+            "image_id": 38.0,
+            "iscrowd": 0,
+            "area": 3722.0351999999993
+        },
+        {
+            "bbox": [
+                257.7952,
+                171.576,
+                263.1616,
+                304.75199999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 117,
+            "image_id": 38.0,
+            "iscrowd": 0,
+            "area": 80199.02392319999
+        },
+        {
+            "bbox": [
+                502.2368,
+                113.136,
+                197.43359999999996,
+                173.088
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 118,
+            "image_id": 39.0,
+            "iscrowd": 0,
+            "area": 34173.386956799994
+        },
+        {
+            "bbox": [
+                386.5056,
+                431.904,
+                65.1456,
+                47.71199999999999
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 119,
+            "image_id": 39.0,
+            "iscrowd": 0,
+            "area": 3108.2268671999996
+        },
+        {
+            "bbox": [
+                261.3312,
+                169.824,
+                256.92159999999996,
+                309.216
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 120,
+            "image_id": 39.0,
+            "iscrowd": 0,
+            "area": 79444.2694656
+        },
+        {
+            "bbox": [
+                502.2784,
+                112.368,
+                194.52159999999998,
+                173.664
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 121,
+            "image_id": 40.0,
+            "iscrowd": 0,
+            "area": 33781.39914239999
+        },
+        {
+            "bbox": [
+                389.7504,
+                432.864,
+                63.148799999999994,
+                46.75200000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 122,
+            "image_id": 40.0,
+            "iscrowd": 0,
+            "area": 2952.3326976000003
+        },
+        {
+            "bbox": [
+                253.4688,
+                170.232,
+                266.98879999999997,
+                310.03200000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 123,
+            "image_id": 40.0,
+            "iscrowd": 0,
+            "area": 82775.0716416
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0,
+                107.2498,
+                384.0
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 124,
+            "image_id": 40.0,
+            "iscrowd": 0,
+            "area": 41183.9232
+        },
+        {
+            "bbox": [
+                502.1952,
+                111.336,
+                195.8528,
+                174.288
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 125,
+            "image_id": 41.0,
+            "iscrowd": 0,
+            "area": 34134.7928064
+        },
+        {
+            "bbox": [
+                388.1696,
+                434.568,
+                74.63040000000001,
+                44.49600000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 126,
+            "image_id": 41.0,
+            "iscrowd": 0,
+            "area": 3320.7542784000034
+        },
+        {
+            "bbox": [
+                256.7136,
+                169.752,
+                265.65760000000006,
+                312.816
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 127,
+            "image_id": 41.0,
+            "iscrowd": 0,
+            "area": 83101.9478016
+        },
+        {
+            "bbox": [
+                0.0,
+                -0.0002,
+                109.2,
+                392.00010000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 128,
+            "image_id": 41.0,
+            "iscrowd": 0,
+            "area": 42806.41092
+        },
+        {
+            "bbox": [
+                501.488,
+                110.712,
+                196.93440000000004,
+                176.11200000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 129,
+            "image_id": 42.0,
+            "iscrowd": 0,
+            "area": 34682.511052800015
+        },
+        {
+            "bbox": [
+                391.2896,
+                435.816,
+                72.38400000000001,
+                43.24800000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 130,
+            "image_id": 42.0,
+            "iscrowd": 0,
+            "area": 3130.463232000004
+        },
+        {
+            "bbox": [
+                250.9728,
+                172.92,
+                268.8192,
+                308.01599999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 131,
+            "image_id": 42.0,
+            "iscrowd": 0,
+            "area": 82800.6147072
+        },
+        {
+            "bbox": [
+                0.6498,
+                0.0,
+                112.4498,
+                397.3334
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 132,
+            "image_id": 42.0,
+            "iscrowd": 0,
+            "area": 44680.06136332
+        },
+        {
+            "bbox": [
+                499.9904,
+                109.68,
+                200.42880000000002,
+                178.07999999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 133,
+            "image_id": 43.0,
+            "iscrowd": 0,
+            "area": 35692.360704
+        },
+        {
+            "bbox": [
+                395.5328,
+                437.28,
+                73.71519999999998,
+                41.664000000000044
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 134,
+            "image_id": 43.0,
+            "iscrowd": 0,
+            "area": 3071.2700928000027
+        },
+        {
+            "bbox": [
+                252.2208,
+                173.76,
+                268.81919999999997,
+                306.81600000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 135,
+            "image_id": 43.0,
+            "iscrowd": 0,
+            "area": 82478.0316672
+        },
+        {
+            "bbox": [
+                0.6498,
+                0.0002,
+                117.6498,
+                411.99989999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 136,
+            "image_id": 43.0,
+            "iscrowd": 0,
+            "area": 48471.705835019995
+        },
+        {
+            "bbox": [
+                499.1168,
+                109.944,
+                204.00639999999999,
+                178.608
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 137,
+            "image_id": 44.0,
+            "iscrowd": 0,
+            "area": 36437.1750912
+        },
+        {
+            "bbox": [
+                397.4048,
+                438.864,
+                73.13279999999997,
+                40.512
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 138,
+            "image_id": 44.0,
+            "iscrowd": 0,
+            "area": 2962.755993599999
+        },
+        {
+            "bbox": [
+                256.048,
+                173.28,
+                262.8288,
+                307.29600000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 139,
+            "image_id": 44.0,
+            "iscrowd": 0,
+            "area": 80766.23892480001
+        },
+        {
+            "bbox": [
+                0.6498,
+                0.0,
+                117.6498,
+                415.3334
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 140,
+            "image_id": 44.0,
+            "iscrowd": 0,
+            "area": 48863.89144332
+        },
+        {
+            "bbox": [
+                499.1168,
+                110.952,
+                203.67359999999996,
+                176.976
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 141,
+            "image_id": 45.0,
+            "iscrowd": 0,
+            "area": 36045.339033599994
+        },
+        {
+            "bbox": [
+                401.024,
+                440.928,
+                74.38080000000002,
+                38.591999999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 142,
+            "image_id": 45.0,
+            "iscrowd": 0,
+            "area": 2870.5038336
+        },
+        {
+            "bbox": [
+                257.92,
+                174.912,
+                260.58239999999995,
+                304.22400000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 143,
+            "image_id": 45.0,
+            "iscrowd": 0,
+            "area": 79275.4200576
+        },
+        {
+            "bbox": [
+                0.6498,
+                0.0,
+                123.5004,
+                417.3331
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 144,
+            "image_id": 45.0,
+            "iscrowd": 0,
+            "area": 51540.80478324
+        },
+        {
+            "bbox": [
+                498.7424,
+                109.968,
+                205.25440000000003,
+                178.752
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 145,
+            "image_id": 46.0,
+            "iscrowd": 0,
+            "area": 36689.63450880001
+        },
+        {
+            "bbox": [
+                409.2608,
+                442.656,
+                73.0496,
+                37.44
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 146,
+            "image_id": 46.0,
+            "iscrowd": 0,
+            "area": 2734.977024
+        },
+        {
+            "bbox": [
+                258.3776,
+                176.496,
+                257.8368,
+                300.48
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 147,
+            "image_id": 46.0,
+            "iscrowd": 0,
+            "area": 77474.801664
+        },
+        {
+            "bbox": [
+                0.0004,
+                0.0002,
+                125.4498,
+                413.3333
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 148,
+            "image_id": 46.0,
+            "iscrowd": 0,
+            "area": 51852.57981834
+        },
+        {
+            "bbox": [
+                498.2848,
+                110.376,
+                206.0032,
+                178.22400000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 149,
+            "image_id": 47.0,
+            "iscrowd": 0,
+            "area": 36714.714316800004
+        },
+        {
+            "bbox": [
+                411.0496,
+                443.832,
+                75.79520000000002,
+                36.432000000000016
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 150,
+            "image_id": 47.0,
+            "iscrowd": 0,
+            "area": 2761.3707264000022
+        },
+        {
+            "bbox": [
+                261.7888,
+                187.968,
+                247.8528,
+                289.53600000000006
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 151,
+            "image_id": 47.0,
+            "iscrowd": 0,
+            "area": 71762.30830080001
+        },
+        {
+            "bbox": [
+                -7.3216,
+                -6.336,
+                150.2592,
+                506.976
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 152,
+            "image_id": 47.0,
+            "iscrowd": 0,
+            "area": 76177.8081792
+        },
+        {
+            "bbox": [
+                498.4512,
+                109.536,
+                206.336,
+                178.848
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 153,
+            "image_id": 48.0,
+            "iscrowd": 0,
+            "area": 36902.78092800001
+        },
+        {
+            "bbox": [
+                426.6496,
+                452.04,
+                63.23199999999997,
+                27.791999999999973
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 154,
+            "image_id": 48.0,
+            "iscrowd": 0,
+            "area": 1757.3437439999975
+        },
+        {
+            "bbox": [
+                267.8624,
+                186.744,
+                250.01600000000008,
+                292.17600000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 155,
+            "image_id": 48.0,
+            "iscrowd": 0,
+            "area": 73048.67481600003
+        },
+        {
+            "bbox": [
+                -8.1536,
+                6.936,
+                150.4256,
+                481.488
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 156,
+            "image_id": 48.0,
+            "iscrowd": 0,
+            "area": 72428.1212928
+        },
+        {
+            "bbox": [
+                498.2016,
+                109.656,
+                206.16960000000006,
+                178.8
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 157,
+            "image_id": 49.0,
+            "iscrowd": 0,
+            "area": 36863.12448000001
+        },
+        {
+            "bbox": [
+                427.9808,
+                454.368,
+                66.22720000000004,
+                25.24799999999999
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 158,
+            "image_id": 49.0,
+            "iscrowd": 0,
+            "area": 1672.1043456000004
+        },
+        {
+            "bbox": [
+                272.064,
+                188.352,
+                243.4432,
+                289.63199999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 159,
+            "image_id": 49.0,
+            "iscrowd": 0,
+            "area": 70508.94090239999
+        },
+        {
+            "bbox": [
+                0.0004,
+                0.0,
+                91.0,
+                478.6666
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 160,
+            "image_id": 49.0,
+            "iscrowd": 0,
+            "area": 43558.6606
+        },
+        {
+            "bbox": [
+                498.0768,
+                109.92,
+                208.91519999999997,
+                178.84799999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 161,
+            "image_id": 50.0,
+            "iscrowd": 0,
+            "area": 37364.065689599985
+        },
+        {
+            "bbox": [
+                279.5936,
+                185.592,
+                230.54720000000003,
+                295.72799999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 162,
+            "image_id": 50.0,
+            "iscrowd": 0,
+            "area": 68179.2623616
+        },
+        {
+            "bbox": [
+                -7.8624,
+                -11.76,
+                155.0016,
+                520.6080000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 163,
+            "image_id": 50.0,
+            "iscrowd": 0,
+            "area": 80695.0729728
+        },
+        {
+            "bbox": [
+                498.368,
+                109.968,
+                208.49920000000003,
+                178.752
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 164,
+            "image_id": 51.0,
+            "iscrowd": 0,
+            "area": 37269.64899840001
+        },
+        {
+            "bbox": [
+                283.7952,
+                184.416,
+                221.9776,
+                298.272
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 165,
+            "image_id": 51.0,
+            "iscrowd": 0,
+            "area": 66209.70270719999
+        },
+        {
+            "bbox": [
+                -8.8608,
+                3.888,
+                144.5184,
+                489.79200000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 166,
+            "image_id": 51.0,
+            "iscrowd": 0,
+            "area": 70783.95617280001
+        },
+        {
+            "bbox": [
+                497.952,
+                109.56,
+                208.832,
+                178.99200000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 167,
+            "image_id": 52.0,
+            "iscrowd": 0,
+            "area": 37379.257344000005
+        },
+        {
+            "bbox": [
+                288.6624,
+                187.056,
+                219.06560000000002,
+                294.432
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 168,
+            "image_id": 52.0,
+            "iscrowd": 0,
+            "area": 64499.92273920001
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0002,
+                76.7004,
+                479.3333
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 169,
+            "image_id": 52.0,
+            "iscrowd": 0,
+            "area": 36765.05584332
+        },
+        {
+            "bbox": [
+                498.0768,
+                109.752,
+                209.41440000000006,
+                178.99200000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 170,
+            "image_id": 53.0,
+            "iscrowd": 0,
+            "area": 37483.502284800015
+        },
+        {
+            "bbox": [
+                293.3216,
+                190.632,
+                216.56960000000004,
+                285.264
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 171,
+            "image_id": 53.0,
+            "iscrowd": 0,
+            "area": 61779.510374400015
+        },
+        {
+            "bbox": [
+                -6.1984,
+                -42.624,
+                135.8656,
+                546.528
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 172,
+            "image_id": 53.0,
+            "iscrowd": 0,
+            "area": 74254.35463680001
+        },
+        {
+            "bbox": [
+                497.3696,
+                109.752,
+                211.49440000000004,
+                178.128
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 173,
+            "image_id": 54.0,
+            "iscrowd": 0,
+            "area": 37673.074483200005
+        },
+        {
+            "bbox": [
+                292.5312,
+                189.792,
+                219.48159999999996,
+                286.75199999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 174,
+            "image_id": 54.0,
+            "iscrowd": 0,
+            "area": 62936.78776319998
+        },
+        {
+            "bbox": [
+                -8.1952,
+                -32.88,
+                138.0288,
+                523.104
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 175,
+            "image_id": 54.0,
+            "iscrowd": 0,
+            "area": 72203.4173952
+        },
+        {
+            "bbox": [
+                498.0768,
+                109.464,
+                209.41440000000006,
+                178.416
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 176,
+            "image_id": 55.0,
+            "iscrowd": 0,
+            "area": 37362.87959040001
+        },
+        {
+            "bbox": [
+                305.5936,
+                173.376,
+                236.1216,
+                304.70399999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 177,
+            "image_id": 55.0,
+            "iscrowd": 0,
+            "area": 71947.19600639999
+        },
+        {
+            "bbox": [
+                -0.0004,
+                0.0002,
+                87.75019999999999,
+                479.3333
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 178,
+            "image_id": 55.0,
+            "iscrowd": 0,
+            "area": 42061.59294166
+        },
+        {
+            "bbox": [
+                497.3696,
+                109.224,
+                209.83040000000005,
+                179.664
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 179,
+            "image_id": 56.0,
+            "iscrowd": 0,
+            "area": 37698.968985600004
+        },
+        {
+            "bbox": [
+                299.4784,
+                185.28,
+                256.33919999999995,
+                297.312
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 180,
+            "image_id": 56.0,
+            "iscrowd": 0,
+            "area": 76212.7202304
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0002,
+                102.0498,
+                479.3333
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 181,
+            "image_id": 56.0,
+            "iscrowd": 0,
+            "area": 48915.86739834
+        },
+        {
+            "bbox": [
+                498.7008,
+                108.288,
+                207.50079999999997,
+                180.95999999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 182,
+            "image_id": 57.0,
+            "iscrowd": 0,
+            "area": 37549.34476799999
+        },
+        {
+            "bbox": [
+                301.1424,
+                182.808,
+                259.16799999999995,
+                302.544
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 183,
+            "image_id": 57.0,
+            "iscrowd": 0,
+            "area": 78409.72339199999
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0002,
+                97.5004,
+                479.3333
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 184,
+            "image_id": 57.0,
+            "iscrowd": 0,
+            "area": 46735.18848332
+        },
+        {
+            "bbox": [
+                498.576,
+                108.384,
+                207.4176,
+                181.344
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 185,
+            "image_id": 58.0,
+            "iscrowd": 0,
+            "area": 37613.9372544
+        },
+        {
+            "bbox": [
+                305.968,
+                180.744,
+                252.17919999999998,
+                305.52
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 186,
+            "image_id": 58.0,
+            "iscrowd": 0,
+            "area": 77045.789184
+        },
+        {
+            "bbox": [
+                -9.2768,
+                -0.288,
+                147.84640000000002,
+                494.30400000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 187,
+            "image_id": 58.0,
+            "iscrowd": 0,
+            "area": 73081.06690560002
+        },
+        {
+            "bbox": [
+                498.9504,
+                107.088,
+                205.50399999999996,
+                183.648
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 188,
+            "image_id": 59.0,
+            "iscrowd": 0,
+            "area": 37740.39859199999
+        },
+        {
+            "bbox": [
+                306.1344,
+                179.352,
+                252.6784,
+                307.63199999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 189,
+            "image_id": 59.0,
+            "iscrowd": 0,
+            "area": 77731.96154879998
+        },
+        {
+            "bbox": [
+                -10.5248,
+                -4.44,
+                153.0048,
+                509.616
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 190,
+            "image_id": 59.0,
+            "iscrowd": 0,
+            "area": 77973.69415679999
+        },
+        {
+            "bbox": [
+                499.2416,
+                106.848,
+                207.41760000000005,
+                183.168
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 191,
+            "image_id": 60.0,
+            "iscrowd": 0,
+            "area": 37992.26695680001
+        },
+        {
+            "bbox": [
+                300.8096,
+                174.0,
+                257.17120000000006,
+                305.664
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 192,
+            "image_id": 60.0,
+            "iscrowd": 0,
+            "area": 78607.97767680002
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0,
+                100.7502,
+                478.6666
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 193,
+            "image_id": 60.0,
+            "iscrowd": 0,
+            "area": 48225.75568332001
+        },
+        {
+            "bbox": [
+                502.112,
+                106.752,
+                204.83839999999992,
+                181.728
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 194,
+            "image_id": 61.0,
+            "iscrowd": 0,
+            "area": 37224.87275519999
+        },
+        {
+            "bbox": [
+                302.5152,
+                170.208,
+                262.4128,
+                314.01599999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 195,
+            "image_id": 61.0,
+            "iscrowd": 0,
+            "area": 82401.8178048
+        },
+        {
+            "bbox": [
+                0.0,
+                0.667,
+                116.3502,
+                477.99980000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 196,
+            "image_id": 61.0,
+            "iscrowd": 0,
+            "area": 55615.37232996001
+        },
+        {
+            "bbox": [
+                502.112,
+                107.4,
+                206.00319999999994,
+                181.008
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 197,
+            "image_id": 62.0,
+            "iscrowd": 0,
+            "area": 37288.22722559999
+        },
+        {
+            "bbox": [
+                302.8064,
+                169.392,
+                264.82559999999995,
+                315.744
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 198,
+            "image_id": 62.0,
+            "iscrowd": 0,
+            "area": 83617.0942464
+        },
+        {
+            "bbox": [
+                -2.7872,
+                -26.304,
+                151.67360000000002,
+                516.288
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 199,
+            "image_id": 62.0,
+            "iscrowd": 0,
+            "area": 78307.25959680001
+        },
+        {
+            "bbox": [
+                501.2384,
+                107.856,
+                206.58559999999994,
+                179.04000000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 200,
+            "image_id": 63.0,
+            "iscrowd": 0,
+            "area": 36987.085823999994
+        },
+        {
+            "bbox": [
+                303.3888,
+                174.888,
+                270.6496,
+                304.84799999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 201,
+            "image_id": 63.0,
+            "iscrowd": 0,
+            "area": 82506.9892608
+        },
+        {
+            "bbox": [
+                -6.0736,
+                -15.72,
+                155.4176,
+                523.728
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 202,
+            "image_id": 63.0,
+            "iscrowd": 0,
+            "area": 81396.54881279999
+        },
+        {
+            "bbox": [
+                500.24,
+                107.616,
+                206.25279999999998,
+                180.096
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 203,
+            "image_id": 64.0,
+            "iscrowd": 0,
+            "area": 37145.3042688
+        },
+        {
+            "bbox": [
+                308.0896,
+                173.688,
+                260.08320000000003,
+                306.76800000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 204,
+            "image_id": 64.0,
+            "iscrowd": 0,
+            "area": 79785.20309760002
+        },
+        {
+            "bbox": [
+                -4.576,
+                -9.504,
+                150.9248,
+                509.28000000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 205,
+            "image_id": 64.0,
+            "iscrowd": 0,
+            "area": 76862.98214400001
+        },
+        {
+            "bbox": [
+                501.0304,
+                107.328,
+                207.168,
+                181.15200000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 206,
+            "image_id": 65.0,
+            "iscrowd": 0,
+            "area": 37528.897536000004
+        },
+        {
+            "bbox": [
+                307.84,
+                173.4,
+                256.92160000000007,
+                306.384
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 207,
+            "image_id": 65.0,
+            "iscrowd": 0,
+            "area": 78716.66749440003
+        },
+        {
+            "bbox": [
+                -7.7792,
+                -15.048,
+                153.1712,
+                518.928
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 208,
+            "image_id": 65.0,
+            "iscrowd": 0,
+            "area": 79484.8244736
+        },
+        {
+            "bbox": [
+                499.8656,
+                107.376,
+                209.33120000000008,
+                180.864
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 209,
+            "image_id": 66.0,
+            "iscrowd": 0,
+            "area": 37860.47815680002
+        },
+        {
+            "bbox": [
+                304.4704,
+                170.808,
+                259.0016,
+                311.184
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 210,
+            "image_id": 66.0,
+            "iscrowd": 0,
+            "area": 80597.1538944
+        },
+        {
+            "bbox": [
+                -2.288,
+                -21.576,
+                134.36800000000002,
+                503.47200000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 211,
+            "image_id": 66.0,
+            "iscrowd": 0,
+            "area": 67650.52569600001
+        },
+        {
+            "bbox": [
+                501.1502,
+                457.9999,
+                60.44980000000004,
+                21.99989999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 212,
+            "image_id": 66.0,
+            "iscrowd": 0,
+            "area": 1329.8895550199989
+        },
+        {
+            "bbox": [
+                499.1584,
+                106.944,
+                209.74720000000008,
+                180.67199999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 213,
+            "image_id": 67.0,
+            "iscrowd": 0,
+            "area": 37895.44611840001
+        },
+        {
+            "bbox": [
+                302.0576,
+                166.056,
+                260.4992,
+                321.072
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 214,
+            "image_id": 67.0,
+            "iscrowd": 0,
+            "area": 83638.99914239999
+        },
+        {
+            "bbox": [
+                -2.5376,
+                -24.624,
+                130.208,
+                508.992
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 215,
+            "image_id": 67.0,
+            "iscrowd": 0,
+            "area": 66274.830336
+        },
+        {
+            "bbox": [
+                501.8004,
+                458.6664,
+                59.80000000000001,
+                20.6669
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 216,
+            "image_id": 67.0,
+            "iscrowd": 0,
+            "area": 1235.8806200000001
+        },
+        {
+            "bbox": [
+                499.4912,
+                107.184,
+                206.752,
+                179.90400000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 217,
+            "image_id": 68.0,
+            "iscrowd": 0,
+            "area": 37195.51180800001
+        },
+        {
+            "bbox": [
+                306.176,
+                162.504,
+                249.76640000000003,
+                326.736
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 218,
+            "image_id": 68.0,
+            "iscrowd": 0,
+            "area": 81607.6744704
+        },
+        {
+            "bbox": [
+                -3.744,
+                -10.68,
+                128.2944,
+                478.8
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 219,
+            "image_id": 68.0,
+            "iscrowd": 0,
+            "area": 61427.35872
+        },
+        {
+            "bbox": [
+                500.5,
+                456.0002,
+                63.700399999999945,
+                23.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 220,
+            "image_id": 68.0,
+            "iscrowd": 0,
+            "area": 1486.3405433199991
+        },
+        {
+            "bbox": [
+                497.8272,
+                107.112,
+                210.07999999999998,
+                179.28
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 221,
+            "image_id": 69.0,
+            "iscrowd": 0,
+            "area": 37663.1424
+        },
+        {
+            "bbox": [
+                306.2176,
+                162.336,
+                248.0192,
+                324.96
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 222,
+            "image_id": 69.0,
+            "iscrowd": 0,
+            "area": 80596.319232
+        },
+        {
+            "bbox": [
+                -11.7312,
+                -0.816,
+                119.4752,
+                460.128
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 223,
+            "image_id": 69.0,
+            "iscrowd": 0,
+            "area": 54973.8848256
+        },
+        {
+            "bbox": [
+                499.8498,
+                456.0002,
+                67.59999999999997,
+                23.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 224,
+            "image_id": 69.0,
+            "iscrowd": 0,
+            "area": 1577.3310799999997
+        },
+        {
+            "bbox": [
+                498.8256,
+                106.824,
+                209.08159999999998,
+                179.08799999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 225,
+            "image_id": 70.0,
+            "iscrowd": 0,
+            "area": 37444.00558079999
+        },
+        {
+            "bbox": [
+                303.888,
+                166.296,
+                251.68,
+                316.08
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 226,
+            "image_id": 70.0,
+            "iscrowd": 0,
+            "area": 79551.0144
+        },
+        {
+            "bbox": [
+                -12.064,
+                -0.528,
+                118.31039999999999,
+                458.208
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 227,
+            "image_id": 70.0,
+            "iscrowd": 0,
+            "area": 54210.7717632
+        },
+        {
+            "bbox": [
+                501.1498,
+                451.3334,
+                63.700399999999945,
+                28.666600000000017
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 228,
+            "image_id": 70.0,
+            "iscrowd": 0,
+            "area": 1826.0738866399995
+        },
+        {
+            "bbox": [
+                498.7008,
+                106.392,
+                207.99999999999994,
+                179.856
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 229,
+            "image_id": 71.0,
+            "iscrowd": 0,
+            "area": 37410.04799999999
+        },
+        {
+            "bbox": [
+                303.1392,
+                164.88,
+                252.17919999999998,
+                319.392
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 230,
+            "image_id": 71.0,
+            "iscrowd": 0,
+            "area": 80544.01904639999
+        },
+        {
+            "bbox": [
+                -10.4,
+                -1.896,
+                113.31840000000001,
+                457.584
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 231,
+            "image_id": 71.0,
+            "iscrowd": 0,
+            "area": 51852.6867456
+        },
+        {
+            "bbox": [
+                502.4502,
+                444.6665,
+                61.09960000000001,
+                35.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 232,
+            "image_id": 71.0,
+            "iscrowd": 0,
+            "area": 2158.850496680001
+        },
+        {
+            "bbox": [
+                498.7008,
+                105.912,
+                209.49759999999998,
+                181.29600000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 233,
+            "image_id": 72.0,
+            "iscrowd": 0,
+            "area": 37981.0768896
+        },
+        {
+            "bbox": [
+                306.9248,
+                166.368,
+                247.93600000000004,
+                313.536
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 234,
+            "image_id": 72.0,
+            "iscrowd": 0,
+            "area": 77736.861696
+        },
+        {
+            "bbox": [
+                -1.872,
+                -11.736,
+                79.7888,
+                427.152
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 235,
+            "image_id": 72.0,
+            "iscrowd": 0,
+            "area": 34081.9454976
+        },
+        {
+            "bbox": [
+                496.6004,
+                447.9998,
+                65.00000000000006,
+                31.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 236,
+            "image_id": 72.0,
+            "iscrowd": 0,
+            "area": 2036.6775000000027
+        },
+        {
+            "bbox": [
+                499.4496,
+                105.192,
+                208.1664,
+                183.216
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 237,
+            "image_id": 73.0,
+            "iscrowd": 0,
+            "area": 38139.4151424
+        },
+        {
+            "bbox": [
+                300.8512,
+                164.064,
+                253.26079999999996,
+                317.376
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 238,
+            "image_id": 73.0,
+            "iscrowd": 0,
+            "area": 80378.89966079999
+        },
+        {
+            "bbox": [
+                -0.6656,
+                -26.568,
+                74.5472,
+                485.23199999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 239,
+            "image_id": 73.0,
+            "iscrowd": 0,
+            "area": 36172.6869504
+        },
+        {
+            "bbox": [
+                497.2502,
+                447.3331,
+                63.04979999999995,
+                32.6669
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 240,
+            "image_id": 73.0,
+            "iscrowd": 0,
+            "area": 2059.6415116199983
+        },
+        {
+            "bbox": [
+                497.328,
+                104.328,
+                210.74560000000008,
+                185.232
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 241,
+            "image_id": 74.0,
+            "iscrowd": 0,
+            "area": 39036.828979200014
+        },
+        {
+            "bbox": [
+                301.4752,
+                161.712,
+                251.84640000000002,
+                320.25600000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 242,
+            "image_id": 74.0,
+            "iscrowd": 0,
+            "area": 80655.3206784
+        },
+        {
+            "bbox": [
+                -5.6992,
+                -15.96,
+                99.92320000000001,
+                488.784
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 243,
+            "image_id": 74.0,
+            "iscrowd": 0,
+            "area": 48840.8613888
+        },
+        {
+            "bbox": [
+                495.9498,
+                447.9998,
+                61.09960000000001,
+                31.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 244,
+            "image_id": 74.0,
+            "iscrowd": 0,
+            "area": 1914.4643166000012
+        },
+        {
+            "bbox": [
+                496.1632,
+                104.136,
+                213.40799999999996,
+                186.28799999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 245,
+            "image_id": 75.0,
+            "iscrowd": 0,
+            "area": 39755.34950399999
+        },
+        {
+            "bbox": [
+                299.8112,
+                164.376,
+                251.18079999999998,
+                309.36
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 246,
+            "image_id": 75.0,
+            "iscrowd": 0,
+            "area": 77705.292288
+        },
+        {
+            "bbox": [
+                492.7,
+                440.6669,
+                61.75020000000001,
+                39.3331
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 247,
+            "image_id": 75.0,
+            "iscrowd": 0,
+            "area": 2428.82679162
+        },
+        {
+            "bbox": [
+                0.0,
+                0.0,
+                64.3502,
+                478.6666
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 248,
+            "image_id": 75.0,
+            "iscrowd": 0,
+            "area": 30802.291443320002
+        },
+        {
+            "bbox": [
+                497.6608,
+                104.064,
+                213.57439999999997,
+                185.472
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 249,
+            "image_id": 76.0,
+            "iscrowd": 0,
+            "area": 39612.0711168
+        },
+        {
+            "bbox": [
+                299.8528,
+                162.888,
+                249.43359999999996,
+                305.904
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 250,
+            "image_id": 76.0,
+            "iscrowd": 0,
+            "area": 76302.73597439998
+        },
+        {
+            "bbox": [
+                486.2004,
+                441.9998,
+                64.99999999999994,
+                37.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 251,
+            "image_id": 76.0,
+            "iscrowd": 0,
+            "area": 2426.677499999999
+        },
+        {
+            "bbox": [
+                -0.0004,
+                0.667,
+                54.6,
+                477.99980000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 252,
+            "image_id": 76.0,
+            "iscrowd": 0,
+            "area": 26098.789080000002
+        },
+        {
+            "bbox": [
+                497.4112,
+                103.56,
+                212.74239999999998,
+                186.67200000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 253,
+            "image_id": 77.0,
+            "iscrowd": 0,
+            "area": 39713.0492928
+        },
+        {
+            "bbox": [
+                475.5712,
+                441.264,
+                77.20960000000002,
+                38.49599999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 254,
+            "image_id": 77.0,
+            "iscrowd": 0,
+            "area": 2972.2607615999996
+        },
+        {
+            "bbox": [
+                301.8496,
+                158.328,
+                244.10879999999997,
+                312.528
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 255,
+            "image_id": 77.0,
+            "iscrowd": 0,
+            "area": 76290.8350464
+        },
+        {
+            "bbox": [
+                -5.5328,
+                3.816,
+                81.4528,
+                454.41600000000005
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 256,
+            "image_id": 77.0,
+            "iscrowd": 0,
+            "area": 37013.4555648
+        },
+        {
+            "bbox": [
+                498.4512,
+                103.392,
+                211.82720000000006,
+                186.24
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 257,
+            "image_id": 78.0,
+            "iscrowd": 0,
+            "area": 39450.697728000014
+        },
+        {
+            "bbox": [
+                471.7856,
+                440.16,
+                76.62719999999996,
+                39.93599999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 258,
+            "image_id": 78.0,
+            "iscrowd": 0,
+            "area": 3060.1838591999967
+        },
+        {
+            "bbox": [
+                297.3152,
+                150.504,
+                215.072,
+                322.99199999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 259,
+            "image_id": 78.0,
+            "iscrowd": 0,
+            "area": 69466.53542399999
+        },
+        {
+            "bbox": [
+                -5.616,
+                1.2,
+                77.6256,
+                459.264
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 260,
+            "image_id": 78.0,
+            "iscrowd": 0,
+            "area": 35650.64355840001
+        },
+        {
+            "bbox": [
+                497.4112,
+                103.152,
+                215.40480000000002,
+                187.488
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 261,
+            "image_id": 79.0,
+            "iscrowd": 0,
+            "area": 40385.8151424
+        },
+        {
+            "bbox": [
+                294.944,
+                156.336,
+                219.81440000000003,
+                311.13599999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 262,
+            "image_id": 79.0,
+            "iscrowd": 0,
+            "area": 68392.17315840001
+        },
+        {
+            "bbox": [
+                0.5408,
+                84.888,
+                77.12639999999999,
+                382.70399999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 263,
+            "image_id": 79.0,
+            "iscrowd": 0,
+            "area": 29516.581785599992
+        },
+        {
+            "bbox": [
+                475.8,
+                435.9998,
+                62.400000000000034,
+                43.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 264,
+            "image_id": 79.0,
+            "iscrowd": 0,
+            "area": 2704.0104000000024
+        },
+        {
+            "bbox": [
+                498.7008,
+                102.264,
+                213.99039999999997,
+                188.39999999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 265,
+            "image_id": 80.0,
+            "iscrowd": 0,
+            "area": 40315.79135999999
+        },
+        {
+            "bbox": [
+                286.4576,
+                156.912,
+                231.6288,
+                310.55999999999995
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 266,
+            "image_id": 80.0,
+            "iscrowd": 0,
+            "area": 71934.64012799998
+        },
+        {
+            "bbox": [
+                469.9502,
+                436.6666,
+                64.35019999999997,
+                43.33339999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 267,
+            "image_id": 80.0,
+            "iscrowd": 0,
+            "area": 2788.512956679998
+        },
+        {
+            "bbox": [
+                499.2832,
+                101.832,
+                213.32479999999993,
+                188.40000000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 268,
+            "image_id": 81.0,
+            "iscrowd": 0,
+            "area": 40190.39231999999
+        },
+        {
+            "bbox": [
+                284.2112,
+                156.144,
+                234.79040000000003,
+                313.632
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 269,
+            "image_id": 81.0,
+            "iscrowd": 0,
+            "area": 73637.78273280001
+        },
+        {
+            "bbox": [
+                466.0502,
+                432.0002,
+                59.799999999999955,
+                47.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 270,
+            "image_id": 81.0,
+            "iscrowd": 0,
+            "area": 2830.531339999998
+        },
+        {
+            "bbox": [
+                496.5376,
+                101.64,
+                216.15359999999998,
+                188.976
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 271,
+            "image_id": 82.0,
+            "iscrowd": 0,
+            "area": 40847.842713599995
+        },
+        {
+            "bbox": [
+                279.7184,
+                157.44,
+                228.96640000000002,
+                306.912
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 272,
+            "image_id": 82.0,
+            "iscrowd": 0,
+            "area": 70272.5357568
+        },
+        {
+            "bbox": [
+                460.2004,
+                432.6667,
+                63.04979999999995,
+                46.66660000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 273,
+            "image_id": 82.0,
+            "iscrowd": 0,
+            "area": 2942.3197966799985
+        },
+        {
+            "bbox": [
+                498.6176,
+                102.048,
+                213.15839999999997,
+                188.54399999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 274,
+            "image_id": 83.0,
+            "iscrowd": 0,
+            "area": 40189.73736959999
+        },
+        {
+            "bbox": [
+                276.3904,
+                153.192,
+                229.632,
+                316.656
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 275,
+            "image_id": 83.0,
+            "iscrowd": 0,
+            "area": 72714.350592
+        },
+        {
+            "bbox": [
+                454.3498,
+                429.9998,
+                59.80000000000001,
+                49.333500000000015
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 276,
+            "image_id": 83.0,
+            "iscrowd": 0,
+            "area": 2950.1433000000015
+        },
+        {
+            "bbox": [
+                500.032,
+                101.712,
+                209.8304,
+                188.928
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 277,
+            "image_id": 84.0,
+            "iscrowd": 0,
+            "area": 39642.8378112
+        },
+        {
+            "bbox": [
+                448.0736,
+                430.968,
+                61.3184,
+                49.391999999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 278,
+            "image_id": 84.0,
+            "iscrowd": 0,
+            "area": 3028.6384127999995
+        },
+        {
+            "bbox": [
+                276.016,
+                151.392,
+                243.02719999999994,
+                327.648
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 279,
+            "image_id": 84.0,
+            "iscrowd": 0,
+            "area": 79627.37602559998
+        },
+        {
+            "bbox": [
+                500.5728,
+                101.304,
+                207.91680000000002,
+                189.552
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 280,
+            "image_id": 85.0,
+            "iscrowd": 0,
+            "area": 39411.0452736
+        },
+        {
+            "bbox": [
+                441.2512,
+                429.696,
+                64.64640000000003,
+                50.591999999999985
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 281,
+            "image_id": 85.0,
+            "iscrowd": 0,
+            "area": 3270.5906688000005
+        },
+        {
+            "bbox": [
+                269.4016,
+                149.064,
+                243.776,
+                326.736
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 282,
+            "image_id": 85.0,
+            "iscrowd": 0,
+            "area": 79650.395136
+        },
+        {
+            "bbox": [
+                500.9056,
+                100.608,
+                209.91360000000003,
+                189.40800000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 283,
+            "image_id": 86.0,
+            "iscrowd": 0,
+            "area": 39759.31514880001
+        },
+        {
+            "bbox": [
+                431.9328,
+                429.48,
+                67.80799999999999,
+                49.96799999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 284,
+            "image_id": 86.0,
+            "iscrowd": 0,
+            "area": 3388.230143999997
+        },
+        {
+            "bbox": [
+                270.4832,
+                147.312,
+                243.27679999999998,
+                327.55199999999996
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 285,
+            "image_id": 86.0,
+            "iscrowd": 0,
+            "area": 79685.80239359998
+        },
+        {
+            "bbox": [
+                501.1136,
+                99.576,
+                212.99199999999996,
+                190.32000000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 286,
+            "image_id": 87.0,
+            "iscrowd": 0,
+            "area": 40536.63744
+        },
+        {
+            "bbox": [
+                430.768,
+                429.048,
+                67.64160000000004,
+                49.68000000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 287,
+            "image_id": 87.0,
+            "iscrowd": 0,
+            "area": 3360.4346880000026
+        },
+        {
+            "bbox": [
+                270.0256,
+                144.432,
+                242.3616,
+                331.00800000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 288,
+            "image_id": 87.0,
+            "iscrowd": 0,
+            "area": 80223.62849280001
+        },
+        {
+            "bbox": [
+                500.5728,
+                100.008,
+                214.40640000000002,
+                190.12800000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 289,
+            "image_id": 88.0,
+            "iscrowd": 0,
+            "area": 40764.66001920001
+        },
+        {
+            "bbox": [
+                269.4016,
+                139.104,
+                242.11200000000002,
+                337.43999999999994
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 290,
+            "image_id": 88.0,
+            "iscrowd": 0,
+            "area": 81698.27328
+        },
+        {
+            "bbox": [
+                430.9502,
+                425.3335,
+                58.49959999999999,
+                53.33330000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 291,
+            "image_id": 88.0,
+            "iscrowd": 0,
+            "area": 3119.9767166799998
+        },
+        {
+            "bbox": [
+                501.4464,
+                99.744,
+                213.4912,
+                189.888
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 292,
+            "image_id": 89.0,
+            "iscrowd": 0,
+            "area": 40539.4169856
+        },
+        {
+            "bbox": [
+                270.0672,
+                139.92,
+                230.13119999999998,
+                341.08799999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 293,
+            "image_id": 89.0,
+            "iscrowd": 0,
+            "area": 78494.99074559998
+        },
+        {
+            "bbox": [
+                423.1502,
+                422.6666,
+                62.400000000000034,
+                54.66679999999997
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 294,
+            "image_id": 89.0,
+            "iscrowd": 0,
+            "area": 3411.2083199999997
+        },
+        {
+            "bbox": [
+                502.4032,
+                99.384,
+                211.57760000000002,
+                188.49599999999998
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 295,
+            "image_id": 90.0,
+            "iscrowd": 0,
+            "area": 39881.531289599996
+        },
+        {
+            "bbox": [
+                421.2832,
+                422.664,
+                63.148799999999994,
+                57.072
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 296,
+            "image_id": 90.0,
+            "iscrowd": 0,
+            "area": 3604.0283136
+        },
+        {
+            "bbox": [
+                272.8128,
+                139.728,
+                258.91839999999996,
+                342.912
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 297,
+            "image_id": 90.0,
+            "iscrowd": 0,
+            "area": 88786.22638079998
+        },
+        {
+            "bbox": [
+                -0.7488,
+                406.248,
+                39.6032,
+                72.24000000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 298,
+            "image_id": 90.0,
+            "iscrowd": 0,
+            "area": 2860.9351680000004
+        },
+        {
+            "bbox": [
+                502.5696,
+                98.976,
+                209.91360000000003,
+                186.52800000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 299,
+            "image_id": 91.0,
+            "iscrowd": 0,
+            "area": 39154.76398080001
+        },
+        {
+            "bbox": [
+                418.288,
+                420.144,
+                63.148799999999994,
+                57.21600000000001
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 300,
+            "image_id": 91.0,
+            "iscrowd": 0,
+            "area": 3613.1217408
+        },
+        {
+            "bbox": [
+                274.8512,
+                137.736,
+                260.83200000000005,
+                345.93600000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 301,
+            "image_id": 91.0,
+            "iscrowd": 0,
+            "area": 90231.17875200002
+        },
+        {
+            "bbox": [
+                502.32,
+                99.408,
+                209.248,
+                184.8
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 302,
+            "image_id": 92.0,
+            "iscrowd": 0,
+            "area": 38669.0304
+        },
+        {
+            "bbox": [
+                411.9232,
+                419.64,
+                66.06079999999997,
+                57.74400000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 303,
+            "image_id": 92.0,
+            "iscrowd": 0,
+            "area": 3814.6148352000005
+        },
+        {
+            "bbox": [
+                278.304,
+                137.928,
+                254.0928,
+                350.064
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 304,
+            "image_id": 92.0,
+            "iscrowd": 0,
+            "area": 88948.74193920002
+        },
+        {
+            "bbox": [
+                503.0688,
+                99.528,
+                213.0752,
+                184.272
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 305,
+            "image_id": 93.0,
+            "iscrowd": 0,
+            "area": 39263.7932544
+        },
+        {
+            "bbox": [
+                405.808,
+                419.064,
+                69.13920000000002,
+                56.976
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 306,
+            "image_id": 93.0,
+            "iscrowd": 0,
+            "area": 3939.2750592000007
+        },
+        {
+            "bbox": [
+                275.2672,
+                137.592,
+                258.66880000000003,
+                347.952
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 307,
+            "image_id": 93.0,
+            "iscrowd": 0,
+            "area": 90004.32629760001
+        },
+        {
+            "bbox": [
+                503.1104,
+                98.736,
+                215.6544,
+                186.62400000000002
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 308,
+            "image_id": 94.0,
+            "iscrowd": 0,
+            "area": 40246.28674560001
+        },
+        {
+            "bbox": [
+                404.768,
+                416.688,
+                69.22240000000005,
+                59.32800000000003
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 309,
+            "image_id": 94.0,
+            "iscrowd": 0,
+            "area": 4106.826547200005
+        },
+        {
+            "bbox": [
+                273.2704,
+                139.224,
+                261.49760000000003,
+                349.00800000000004
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 310,
+            "image_id": 94.0,
+            "iscrowd": 0,
+            "area": 91264.75438080002
+        },
+        {
+            "bbox": [
+                502.9856,
+                98.28,
+                215.73760000000004,
+                187.92
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 311,
+            "image_id": 95.0,
+            "iscrowd": 0,
+            "area": 40541.409792000006
+        },
+        {
+            "bbox": [
+                273.2288,
+                137.736,
+                263.9104,
+                352.752
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 312,
+            "image_id": 95.0,
+            "iscrowd": 0,
+            "area": 93094.92142079999
+        },
+        {
+            "bbox": [
+                399.7498,
+                413.9998,
+                66.2996,
+                54.66669999999999
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 313,
+            "image_id": 95.0,
+            "iscrowd": 0,
+            "area": 3624.380343319999
+        },
+        {
+            "bbox": [
+                503.3184,
+                98.424,
+                215.40480000000002,
+                187.92
+            ],
+            "bbox_mode": 0,
+            "category_id": 77,
+            "class": "teddy bear",
+            "id": 314,
+            "image_id": 96.0,
+            "iscrowd": 0,
+            "area": 40478.870016
+        },
+        {
+            "bbox": [
+                396.1984,
+                412.704,
+                66.39359999999999,
+                61.920000000000016
+            ],
+            "bbox_mode": 0,
+            "category_id": 41,
+            "class": "cup",
+            "id": 315,
+            "image_id": 96.0,
+            "iscrowd": 0,
+            "area": 4111.091712
+        },
+        {
+            "bbox": [
+                273.8944,
+                140.352,
+                261.24799999999993,
+                350.304
+            ],
+            "bbox_mode": 0,
+            "category_id": 0,
+            "class": "person",
+            "id": 316,
+            "image_id": 96.0,
+            "iscrowd": 0,
+            "area": 91516.21939199997
+        }
+    ]
+}

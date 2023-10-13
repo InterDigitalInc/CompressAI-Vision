@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, InterDigital Communications, Inc
+# Copyright (c) 2022-2023, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -40,14 +40,20 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import subprocess
 import sys
 
-# sys.path.insert(0, os.path.abspath("../compressai/"))
+result = subprocess.run(
+    "git rev-parse --show-toplevel".split(), check=True, capture_output=True
+)
+root_dir = os.path.abspath(result.stdout.decode().strip())
+sys.path.insert(0, root_dir)
+
 
 # -- Project information -----------------------------------------------------
 
 project = "compressai-vision"
-copyright = "2022, InterDigital Communications, Inc."
+copyright = "2023, InterDigital Communications, Inc."
 author = "InterDigital Communications, Inc."
 
 # -- General configuration ---------------------------------------------------
@@ -79,22 +85,34 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 # html_theme = "sphinx_rtd_theme"
-html_theme = "furo"
-html_title = "CompressAIVision"
-html_logo = "_static/logo.png"
+html_theme = "sphinx_book_theme"
+html_title = "CompressAI Vision"
+html_logo = "_static/logo.svg"
 html_show_sphinx = False
 html_theme_options = {
-    # 'page_width' : '60%', # not in furo template
-    'sidebarwidth': '80%',
-    'body_max_width': 'auto',
-    "sidebar_hide_name": True,
-    "light_css_variables": {
-        "color-brand-primary": "#00aaee",
-        "color-brand-content": "#00aaee",
-    },
+    "repository_url": "https://github.com/InterDigitalInc/CompressAI-Vision",
+    "use_repository_button": True,
+    "use_fullscreen_button": False,
+    "pygment_light_style": "tango",
+    "pygment_dark_style": "dracula",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# -- Miscellaneous -----------------------------------------------------------
+
+intersphinx_mapping = {
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "omegaconf": ("https://omegaconf.readthedocs.io/en/latest/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "plotly": ("https://plotly.com/python-api-reference/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "torchvision": ("https://pytorch.org/vision/stable/", None),
+}
+
+linkcheck_timeout = 5
+linkcheck_workers = 12

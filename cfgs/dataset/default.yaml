@@ -1,0 +1,22 @@
+type: 'DefaultDataset'
+datacatalog: 'COCO'
+config:
+  root: '/data/dataset'
+  imgs_folder: 'valid'
+  annotation_file: "annotations/sample.json"
+  seqinfo: "seqinfo.ini"
+  dataset_name: "sample_dataset"
+  ext: "png"
+settings:
+  patch_size: [512, 512]
+  ret_name: False
+  use_BGR: False
+transforms:
+  - "Resize": {size: "${....settings.patch_size}"}
+  - "ToTensor": {}
+loader:
+  shuffle: False
+  batch_size: 1
+  num_workers: 2
+
+

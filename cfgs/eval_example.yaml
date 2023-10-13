@@ -1,0 +1,40 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - evaluator: default
+  - vision_model: default
+  - pipeline: split_inference
+  - codec: default
+  - _self_
+
+pipeline:
+  type: "video" # alternative is image
+  conformance:
+    save_conformance_files: False
+    subsample_ratio: 9
+
+vision_model:
+  arch: faster_rcnn_X_101_32x8d_FPN_3x
+
+codec:
+  type: "bypass"
+  eval_encode: "bpp" # or "bitrate"
+
+dataset:
+  type: 'Detectron2Dataset'
+
+  datacatalog: 'SFUHW'
+  config:
+    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    imgs_folder: "images"
+    annotation_file: "annotations/Traffic_2560x1600_30_val.json"
+    dataset_name: "sfu-hw-Traffic_2560x1600_30_val"
+
+
+evaluator:
+  output: '${paths._runs_root}/${pipeline.name}-${pipeline.type}/${codec.type}/${dataset.config.dataset_name}/results'
+  #type: 'OIC-EVAL'
+  type: 'COCO-EVAL'
+  #type: 'VOID'

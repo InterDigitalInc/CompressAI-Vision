@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, InterDigital Communications, Inc
+# Copyright (c) 2022-2023, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -27,69 +27,164 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import subprocess
+import sys
 from pathlib import Path
 
-from setuptools import find_packages, setup
+import setuptools
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
-# only way to import "fastentrypoint.py" from this directory:
+package_name = "compressai_vision"
+version = "0.3.0.dev0"
+git_hash = "unknown"
 
-# The following line is modified by setver.bash
-version = "0.1.3.dev0"
+cwd = Path(__file__).resolve().parent
 
-this_folder = Path(__file__).resolve().parent
+try:
+    git_hash = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=cwd).decode().strip()
+    )
+except (FileNotFoundError, subprocess.CalledProcessError):
+    pass
 
-path = this_folder / "requirements.txt"
-install_requires = []  # Here we'll get: ["gunicorn", "docutils>=0.3", "lxml==0.5a7"]
-if path.is_file():
-    with path.open("r") as f:
-        install_requires = f.read().splitlines()
+
+def write_version_file():
+    path = cwd / package_name / "version.py"
+    with path.open("w") as f:
+        f.write(f'__version__ = "{version}"\n')
+        f.write(f'git_version = "{git_hash}"\n')
+
+
+write_version_file()
+
+
+# The following bindings are derived from NNCodec
+# The license terms can be found in compressai-fcvcm/extensions/deepCABAC/LICENSE.TXT
+class get_pybind_include(object):
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+
+        return pybind11.get_include(self.user)
+
+
+ext_source_dir = cwd / package_name / "extensions/deepCABAC/source"
+sources = [str(s) for s in ext_source_dir.rglob("*.cpp*")]
+
+ext_modules = [
+    Extension(
+        "deepCABAC",
+        sources=sources,
+        include_dirs=[
+            # Path to pybind11 headers
+            get_pybind_include(),
+            get_pybind_include(user=True),
+            "compressai_vision/extensions/deepCABAC/source",
+            "compressai_vision/extensions/deepCABAC/source/Lib",
+            "compressai_vision/extensions/deepCABAC/source/Lib/CommonLib"
+            "compressai_vision/extensions/deepCABAC/source/Lib/EncLib"
+            "compressai_vision/extensions/deepCABAC/source/Lib/DecLib",
+            # f"{ext_source_dir}/Lib",
+            # f"{ext_source_dir}/Lib/CommonLib"
+            # f"{ext_source_dir}/Lib/EncLib"
+            # f"{ext_source_dir}/Lib/DecLib",
+        ],
+        language="c++",
+    ),
+]
+
+
+# cf http://bugs.python.org/issue26689
+def has_flag(compiler, flagname):
+    import tempfile
+
+    with tempfile.NamedTemporaryFile("w", suffix=".cpp") as f:
+        f.write("int main (int argc, char **argv) { return 0; }")
+        try:
+            compiler.compile([f.name], extra_postargs=[flagname])
+        except setuptools.distutils.errors.CompileError:
+            return False
+    return True
+
+
+def cpp_flag(compiler):
+    flags = ["-std=c++17", "-std=c++14", "-std=c++11"]
+
+    for flag in flags:
+        if has_flag(compiler, flag):
+            return flag
+
+    raise RuntimeError("Unsupported compiler -- at least C++11 support " "is needed!")
+
+
+class BuildExt(build_ext):
+    c_opts = {
+        "msvc": ["/EHsc"],
+        "unix": [],
+    }
+    l_opts = {
+        "msvc": [],
+        "unix": [],
+    }
+
+    if sys.platform == "darwin":
+        darwin_opts = ["-stdlib=libc++", "-mmacosx-version-min=10.14"]
+        c_opts["unix"] += darwin_opts
+        l_opts["unix"] += darwin_opts
+
+    def build_extensions(self):
+        ct = self.compiler.compiler_type
+        opts = self.c_opts.get(ct, [])
+        link_opts = self.l_opts.get(ct, [])
+        if ct == "unix":
+            opts.append('-DVERSION_INFO="%s"' % self.distribution.get_version())
+            opts.append(cpp_flag(self.compiler))
+            if has_flag(self.compiler, "-fvisibility=hidden"):
+                opts.append("-fvisibility=hidden")
+        elif ct == "msvc":
+            opts.append('/DVERSION_INFO=\\"%s\\"' % self.distribution.get_version())
+        for ext in self.extensions:
+            ext.extra_compile_args = opts
+            ext.extra_link_args = link_opts
+        build_ext.build_extensions(self)
+
 
 TEST_REQUIRES = ["pytest", "pytest-cov"]
 DEV_REQUIRES = TEST_REQUIRES + [
     "black",
-    "flake8",
-    "flake8-bugbear",
-    "flake8-comprehensions",
+    # "flake8",
+    # "flake8-bugbear",
+    # "flake8-comprehensions",
     "isort",
-    "mypy",
 ]
 
 
 def get_extra_requirements():
     extras_require = {
         "dev": DEV_REQUIRES,
-        "doc": ["sphinx", "furo", "sphinxcontrib-mermaid==0.7.1"],
+        "doc": [
+            "sphinx==4.0",
+            "sphinx-book-theme==1.0.1",
+            "sphinxcontrib-mermaid==0.7.1",
+        ],
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
     return extras_require
 
 
-# exec(open(os.path.join(this_folder, "fastentrypoints.py")).read()) # not needed
-
-# # https://setuptools.readthedocs.io/en/latest/setuptools.html#basic-use
 setup(
     name="compressai-vision",
     version=version,
-    # install_requires = [
-    #    "PyYAML",
-    #    'docutils>=0.3', # # List here the required packages
-    # ],
-    install_requires=install_requires,  # instead, read from a file (see above)
-    packages=find_packages(),  # # includes python code from every directory that has an "__init__.py" file in it.  If no "__init__.py" is found, the directory is omitted.  Other directories / files to be included, are defined in the MANIFEST.in file
-    include_package_data=True,  # # conclusion: NEVER forget this : files get included but not installed
-    # # "package_data" keyword is a practical joke: use MANIFEST.in instead
-    # # WARNING: If you are using namespace packages, automatic package finding does not work, so use this:
-    # packages=[
-    #    'compressai_vision.subpackage1'
-    # ],
-    # scripts=[
-    #    "bin/somescript"
-    # ],
-    # # "entry points" get installed into $HOME/.local/bin
-    # # https://unix.stackexchange.com/questions/316765/which-distributions-have-home-local-bin-in-path
+    install_requires=["hydra", "omegaconf", "yuvio", "pandas", "pillow==9.5.0"],
+    packages=find_packages(),
+    # include_package_data=True,
     entry_points={
         "console_scripts": [
-            "compressai-vision = compressai_vision.cli.main:main",
+            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main"
         ]
     },
     # metadata for upload to PyPI
@@ -97,6 +192,7 @@ setup(
     author_email="compressai@interdigital.com",
     description="Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI",
     extras_require=get_extra_requirements(),
+    ext_modules=ext_modules,
     license="BSD 3-Clause Clear License",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -106,7 +202,4 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    # project_urls={ # some additional urls
-    #    'Tutorial': 'nada
-    # },
 )
