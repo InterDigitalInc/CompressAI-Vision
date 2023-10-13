@@ -145,45 +145,6 @@ def main(conf: DictConfig):
         )
     )
 
-    print("Evaluation Performance")
-    print(tabulate([performance], tablefmt="psql"))
-
-    coded_res, performance = pipeline(**modules)
-
-    # pretty output
-    coded_res_df = pd.DataFrame(coded_res)
-
-    print("=" * 100)
-    print(f"Encoding Information [{pipeline}]")
-    coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
-    coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
-        lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
-    )
-    print(
-        tabulate(coded_res_df, headers="keys", tablefmt="fancy_grid", stralign="center")
-    )
-
-    print("Evaluation Performance")
-    print(tabulate([performance], tablefmt="psql"))
-
-    coded_res, performance = pipeline(**modules)
-    coded_res_df = pd.DataFrame(coded_res)
-
-    print("=" * 100)
-    print("Encoding Information")
-    coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
-    coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
-        lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
-    )
-    print(
-        tabulate(
-            coded_res_df.head(5),
-            headers="keys",
-            tablefmt="fancy_grid",
-            stralign="center",
-        )
-    )
-
     # summarize results
     evaluator_name = _get_evaluator_name(**modules)
     evaluator_filepath = _get_evaluator_filepath(**modules)
