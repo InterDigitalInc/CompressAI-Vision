@@ -30,8 +30,15 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 
 To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
 
+```
+python3.8 -m venv venv
+source ./venv/bin/activate
+pip install -U pip
+```
+
 To install the models relevant for the FCVCM (feature compression):
-- First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
+
+First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
 ```
 bash scripts/env_cuda.sh 11.8
 ```
@@ -45,14 +52,21 @@ For more otions, check:
 bash scritps/install.sh --help
 ```
 
-The software stack includes (all with CUDA support):
+## Usage
 
-- [PyTorch](https://pytorch.org/)
+For split-inference pipelines, after installing, please use the following entry point:
 
-- [VTM](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
-- _This_ library (CompressAI-Vision)
+```
+compressai-vision-eval --help
+```
 
-Docker files including the software stack are also provided!
+For example for full pipelines without any compression, run
+
+```
+compressai-vision-eval --config-name=eval_example
+```
+
+Please check other configuration examples provided in ./cfgs as well as examplary scripts in ./scripts
 
 ## For developers
 
