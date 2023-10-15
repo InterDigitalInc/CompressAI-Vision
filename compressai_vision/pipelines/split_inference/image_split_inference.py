@@ -30,7 +30,6 @@
 import logging
 import os
 import shutil
-import time
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
@@ -97,14 +96,14 @@ class ImageSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
-                start = time.time()
+                start = self.time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
-                end = time.time()
+                end = self.time_measure()
                 timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
                 featureT["org_input_size"] = org_img_size
 
-                start = time.time()
+                start = self.time_measure()
                 res = self._compress_features(
                     codec,
                     featureT,
@@ -112,7 +111,7 @@ class ImageSplitInference(BasePipeline):
                     self.bitstream_name,
                     file_prefix,
                 )
-                end = time.time()
+                end = self.time_measure()
                 timing["encode"] = timing["encode"] + (end - start)
             else:
                 res = {}
@@ -136,11 +135,11 @@ class ImageSplitInference(BasePipeline):
             if self.configs["codec"]["encode_only"] is True:
                 continue
 
-            start = time.time()
+            start = self.time_measure()
             dec_features = self._decompress_features(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
-            end = time.time()
+            end = self.time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
             # dec_features should contain "org_input_size" and "input_size"
@@ -154,11 +153,11 @@ class ImageSplitInference(BasePipeline):
 
             dec_features["file_name"] = d[0]["file_name"]
 
-            start = time.time()
+            start = self.time_measure()
             pred = self._from_features_to_output(
                 vision_model, dec_features, file_prefix
             )
-            end = time.time()
+            end = self.time_measure()
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
             evaluator.digest(d, pred)

@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import time
 from typing import Dict, List, Tuple
 
 import torch
@@ -113,9 +112,9 @@ class VideoSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
-                start = time.time()
+                start = self.time_measure()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
-                end = time.time()
+                end = self.time_measure()
                 timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
                 assert "data" in res
@@ -149,11 +148,11 @@ class VideoSplitInference(BasePipeline):
             features["data"] = self._reform_list_to_dict(self._input_ftensor_buffer)
 
             # Feature Compression
-            start = time.time()
+            start = self.time_measure()
             res = self._compress_features(
                 codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
-            end = time.time()
+            end = self.time_measure()
             timing["encode"] = timing["encode"] + (end - start)
 
             if self.configs["codec"]["encode_only"] is True:
@@ -176,11 +175,11 @@ class VideoSplitInference(BasePipeline):
             bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
-        start = time.time()
+        start = self.time_measure()
         dec_features = self._decompress_features(
             codec, res["bitstream"], self.codec_output_dir, ""
         )
-        end = time.time()
+        end = self.time_measure()
         timing["decode"] = timing["decode"] + (end - start)
 
         # dec_features should contain "org_input_size" and "input_size"
@@ -214,9 +213,9 @@ class VideoSplitInference(BasePipeline):
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            start = time.time()
+            start = self.time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
-            end = time.time()
+            end = self.time_measure()
 
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
