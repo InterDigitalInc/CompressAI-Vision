@@ -207,7 +207,7 @@ class BasePipeline(nn.Module):
         conformance_data = []
         ch_offset = 0
         for _, data in feature_data["data"].items():
-            N, C, H, W = data.shape
+            C = data.shape[1]
             data_means = torch.mean(data, axis=(2, 3)).tolist()[0]
             data_variances = torch.var(data, axis=(2, 3)).tolist()[0]
 
