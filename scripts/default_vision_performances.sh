@@ -35,7 +35,10 @@ ${ENTRY_CMD} --config-name=eval_example.yaml \
              ++dataset.config.root=${MPEG_OIV6_SRC} \
              ++dataset.config.annotation_file=annotations/mpeg-oiv6-detection-coco.json \
              ++dataset.config.dataset_name=mpeg-oiv6-detection \
-             ++evaluator.type=OIC-EVAL
+             ++evaluator.type=OIC-EVAL \
+             ++pipeline.nn_task_part1.load_features=False \
+             ++pipeline.nn_task_part1.dump_features=False \
+             ++pipeline.nn_task_part2.dump_features=False 
 
 # MPEGOIV6 - Segmentation with Mask RCNN
 ${ENTRY_CMD} --config-name=eval_example.yaml \
@@ -48,7 +51,10 @@ ${ENTRY_CMD} --config-name=eval_example.yaml \
              ++dataset.config.root=${MPEG_OIV6_SRC} \
              ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
              ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
-             ++evaluator.type=OIC-EVAL
+             ++evaluator.type=OIC-EVAL \
+             ++pipeline.nn_task_part1.load_features=False \
+             ++pipeline.nn_task_part1.dump_features=False \
+             ++pipeline.nn_task_part2.dump_features=False 
 
 # SFU - Detection with Faster RCNN
 for SEQ in \
@@ -77,7 +83,10 @@ do
                  ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
                  ++dataset.config.annotation_file=annotations/${SEQ}.json \
                  ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-                 ++evaluator.type=COCO-EVAL
+                 ++evaluator.type=COCO-EVAL \
+                 ++pipeline.nn_task_part1.load_features=False \
+                 ++pipeline.nn_task_part1.dump_features=False \
+                 ++pipeline.nn_task_part2.dump_features=False 
 done
 
 # TVD - Object Tracking with JDE
@@ -97,7 +106,10 @@ do
                  ++dataset.config.imgs_folder=img1 \
                  ++dataset.config.annotation_file=gt/gt.txt \
                  ++dataset.config.dataset_name=mpeg-tracking-${SEQ} \
-                 ++evaluator.type=MOT-TVD-EVAL
+                 ++evaluator.type=MOT-TVD-EVAL \
+                 ++pipeline.nn_task_part1.load_features=False \
+                 ++pipeline.nn_task_part1.dump_features=False \
+                 ++pipeline.nn_task_part2.dump_features=False 
 done
 
 # HIEVE - Object Tracking with JDE
@@ -121,5 +133,8 @@ do
                  ++dataset.config.imgs_folder=img1 \
                  ++dataset.config.annotation_file=gt/gt.txt \
                  ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
-                 ++evaluator.type=MOT-HIEVE-EVAL
+                 ++evaluator.type=MOT-HIEVE-EVAL \
+                 ++pipeline.nn_task_part1.load_features=False \
+                 ++pipeline.nn_task_part1.dump_features=False \
+                 ++pipeline.nn_task_part2.dump_features=False 
 done
