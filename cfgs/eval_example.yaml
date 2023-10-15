@@ -34,7 +34,6 @@ dataset:
 
 
 evaluator:
-  output: '${paths._runs_root}/${pipeline.name}-${pipeline.type}/${codec.type}/${dataset.config.dataset_name}/results'
   #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
   #type: 'VOID'

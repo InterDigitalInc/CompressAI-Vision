@@ -4,3 +4,4 @@ output_dir: "${pipeline.output_dir_root}"
 bitstream_name: "default.bin"
 encoder_config:
   qp: 'uncmp'
+  nbit_quant: -1
