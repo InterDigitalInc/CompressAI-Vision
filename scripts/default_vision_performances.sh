@@ -82,7 +82,7 @@ do
                  ++dataset.datacatalog=SFUHW \
                  ++dataset.config.root=${SFU_HW_SRC}/${SEQ} \
                  ++dataset.config.annotation_file=annotations/${SEQ}.json \
-                 ++dataset.config.dataset_name=sfu-hw-${SEQ} \
+                 ++dataset.config.dataset_name=${SEQ} \
                  ++evaluator.type=COCO-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
@@ -107,7 +107,7 @@ do
                  ++dataset.config.root=${TVD_SRC}/${SEQ} \
                  ++dataset.config.imgs_folder=img1 \
                  ++dataset.config.annotation_file=gt/gt.txt \
-                 ++dataset.config.dataset_name=mpeg-tracking-${SEQ} \
+                 ++dataset.config.dataset_name=${SEQ} \
                  ++evaluator.type=MOT-TVD-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
@@ -134,7 +134,7 @@ do
                  ++dataset.config.root=${HIEVE_SRC}/${SEQ} \
                  ++dataset.config.imgs_folder=img1 \
                  ++dataset.config.annotation_file=gt/gt.txt \
-                 ++dataset.config.dataset_name=mpeg-hieve-${SEQ} \
+                 ++dataset.config.dataset_name=${SEQ} \
                  ++evaluator.type=MOT-HIEVE-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
