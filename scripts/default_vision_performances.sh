@@ -97,6 +97,8 @@ for SEQ in \
 do
     ${ENTRY_CMD} --config-name=eval_example.yaml \
                  ++pipeline.type=video \
+             	 ++pipeline.conformance.save_conformance_files=True \
+             	 ++pipeline.conformance.subsample_ratio=9 \
                  ++vision_model.arch=jde_1088x608 \
                  ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
                  ++dataset.type=TrackingDataset \
