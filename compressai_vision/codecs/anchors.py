@@ -261,7 +261,7 @@ class VTM(nn.Module):
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
         enc_time = time.time() - start
-        # self.logger.debug(f"enc_time:{enc_time}")
+        self.logger.debug(f"enc_time:{enc_time}")
         assert Path(
             bitstream_path
         ).is_file(), f"bitstream {bitstream_path} was not created"
@@ -302,7 +302,7 @@ class VTM(nn.Module):
         start = time.time()
         run_cmdline(cmd, logpath=logpath)
         dec_time = time.time() - start
-        # self.logger.debug(f"dec_time:{dec_time}")
+        self.logger.debug(f"dec_time:{dec_time}")
 
         self.yuvio.setReader(
             read_path=yuv_dec_path,

@@ -7,6 +7,9 @@ codec_paths:
   encoder_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
   decoder_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
   cfg_file: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/cfg/encoder_intra_vtm.cfg"
+
+verbosity: 1
+
 dump_yuv:
   dump_yuv_packing_input: False
   yuv_packing_input_dir: ${..output_dir}

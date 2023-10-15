@@ -7,6 +7,9 @@ codec_paths:
   encoder_exe: "/pa/home/racapef/vvc/vvenc/bin/release-static/vvencapp"
   decoder_exe: "/pa/home/racapef/vvc/vvdec/bin/release-static/vvdecapp"
   cfg_file: "/pa/home/racapef/vvc/vvenc/cfg/randomaccess_${codec.encoder_config.preset}.cfg"
+
+verbosity: 1
+
 dump_yuv:
   dump_yuv_packing_input: True
   yuv_packing_input_dir: ${..output_dir}
