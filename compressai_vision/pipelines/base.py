@@ -209,7 +209,7 @@ class BasePipeline(nn.Module):
         for _, data in feature_data["data"].items():
             C = data.shape[1]
             data_means = torch.mean(data, axis=(2, 3)).tolist()[0]
-            data_variances = torch.var(data, axis=(2, 3)).tolist()[0]
+            data_variances = torch.var(data, axis=(2, 3), unbiased=False).tolist()[0]
 
             subsampled_means = data_means[ch_offset::subsample_ratio]
             subsampled_variances = data_variances[ch_offset::subsample_ratio]
