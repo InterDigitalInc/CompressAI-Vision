@@ -82,6 +82,7 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
         echo "installing on cpu"
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        wait
     else
         echo "cuda version: $CUDA_VERSION"
         pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
