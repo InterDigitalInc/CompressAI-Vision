@@ -55,6 +55,9 @@ _EOF_
     esac;
 done;
 
+## Make sure we have up-to-date pip and wheel
+pip3 install -U pip wheel
+
 ## Detectron2
 if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
@@ -85,10 +88,10 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         wait
     else
         echo "cuda version: $CUDA_VERSION"
-        pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
         wait
     fi
-    pip install -e .
+    pip3 install -e .
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -191,4 +194,4 @@ echo
 echo "Installing compressai-vision"
 echo
 
-pip install -e "${SCRIPT_DIR}/.."
+pip3 install -e "${SCRIPT_DIR}/.."
