@@ -47,7 +47,7 @@ from omegaconf import DictConfig
 from tabulate import tabulate
 
 thisdir = Path(__file__).parent
-config_path = thisdir.joinpath("../../cfgs")
+config_path = str(thisdir.joinpath("../../cfgs").resolve())
 
 
 from compressai_vision.config import (
