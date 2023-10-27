@@ -5,10 +5,12 @@ output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.dataca
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.tools.inner_codec.enc_configs.qp}"
 
 #============================== Configuration below are the same with fctm.yaml in FCTM =========================================
+# NOTE: Configuration below can always be replaced with the latest fctm.yaml in FCTM if there are any incompatiable issues
 
 verbosity: 0
 
 coding_behaviour: "all"
+device: "cpu"
 
 enc_configs:
   qp: 27
@@ -16,26 +18,28 @@ enc_configs:
   intra_period: 1
   n_bit: 10
   cfg_file: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/cfg/encoder_intra_vtm.cfg"
-
+  parallel_encoding: False # std inner codec parallel option
 
 tools:
-  feature_reduction:  
+  feature_reduction:
     m65705: # R-CNN
       enabled: True
       task: "obj" # or "seg"
       split_interface: {"p2":256, "p3":256, "p4": 256, "p5": 256}
     m65181: # YOLOv3 JDE
+      enabled: True
+      task: "obj" # or "seg"
+    m65181: # YOLOv3 JDE
       enabled: False
-      weight: "path"
+      split_point: "ALT1" # or "DN53"
 
-  feature_restoration:  
+  feature_restoration:
     m65705: # R-CNN
       enabled: ${codec.tools.feature_reduction.m65705.enabled}
       task: ${codec.tools.feature_reduction.m65705.task}
-      split_interface: ${codec.tools.feature_reduction.m65705.split_interface}
     m65181: # YOLOv3 JDE
       enabled: ${codec.tools.feature_reduction.m65181.enabled}
-      weight: "path"
+      split_point: ${codec.tools.feature_reduction.m65181.split_point}
 
   conversion:
     bypass: False
@@ -46,12 +50,14 @@ tools:
 
   inner_codec:
     type: 'vtm'
+    stash_outputs: True
+    enc_configs: ${codec.enc_configs}
     enc_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
     dec_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
-    
+
     stash_outputs: True
 
-    enc_configs:  
+    enc_configs:
       cfg_file: ${codec.enc_configs.cfg_file}
       n_bit: ${codec.enc_configs.n_bit}
       frame_rate:  ${codec.enc_configs.frame_rate}

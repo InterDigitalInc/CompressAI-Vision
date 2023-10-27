@@ -177,7 +177,7 @@ class BasePipeline(nn.Module):
                     x["data"][key] = torch.stack(val)
                 else:
                     raise ValueError
-            elif isinstance(val, Tensor):
+            elif isinstance(val, Tensor):  # typical video-pipeline path?
                 if val.dim() == 3:
                     x["data"][key] = val.unsqueeze(0)
             else:
