@@ -1,5 +1,6 @@
 type: "bypass"
 eval_encode: "bpp" # or "bitrate"
+experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}"
 bitstream_name: "default.bin"
 encoder_config:

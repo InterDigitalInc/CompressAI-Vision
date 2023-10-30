@@ -1,0 +1,49 @@
+type: "fctm"
+eval_encode: "bpp" # or "bitrate"
+experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.tools.inner_codec.enc_configs.qp}"
+#output_dir: "${paths._run_root}"
+bitstream_name: "${dataset.config.dataset_name}_qp${codec.tools.inner_codec.enc_configs.qp}"
+#bitstream_name: "default.bin"
+
+verbosity: 1
+
+coding_behaviour: "all"
+
+tools:
+  feature_reduction:  
+    m65705: # R-CNN
+      enabled: True
+      weight: "path"
+    m65181: # YOLOv3 JDE
+      enabled: False
+      weight: "path"
+
+  feature_restoration:  
+    m65705: # R-CNN
+      enabled: True
+      weight: "path"
+    m65181: # YOLOv3 JDE
+      enabled: False
+      weight: "path"
+
+  conversion: 
+    n_bit: 10
+    packing: 'unknown'
+
+  inner_codec:
+    type: 'vtm'
+
+    enc_configs:
+      enc_path: "path"
+      cfg_file: "encoder_intra_vtm.cfg"
+      intra_period: 1
+      qp: 42
+
+    dec_configs:
+      dec_path: "path"
+
+
+      
+
+    

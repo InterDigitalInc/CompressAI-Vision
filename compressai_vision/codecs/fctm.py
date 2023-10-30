@@ -27,14 +27,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-from .anchors import HM, VTM, VVENC
-from .base import Bypass
-from .ffmpeg import x264, x265
+import logging
 
 try:
-    from .fctm import FCTM
+    from fctm import feature_coding_model
 
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC", "FCTM"]
+    from compressai_vision.registry import register_codec
+
+    @register_codec("fctm")
+    class FCTM(feature_coding_model):
+        """Does no encoding/decoding whatsoever. Use for debugging."""
+
+        def __init__(self, **kwargs):
+            super().__init__(
+                kwargs["coding_behaviour"],
+                kwargs["tools"],
+                kwargs["device"],
+                kwargs["verbosity"],
+            )
+
 except ImportError:
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC"]
+    logging.warning(
+        f"!!!!! Failed to load FCTM Library. FCTM will not be available !!!!!"
+    )
