@@ -1,49 +1,59 @@
 type: "fctm"
-eval_encode: "bpp" # or "bitrate"
+eval_encode: "bitrate" # or "bpp"
 experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.tools.inner_codec.enc_configs.qp}"
-#output_dir: "${paths._run_root}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.tools.inner_codec.enc_configs.qp}"
-#bitstream_name: "default.bin"
 
-verbosity: 1
+#============================== Configuration below are the same with fctm.yaml in FCTM =========================================
+
+verbosity: 0
 
 coding_behaviour: "all"
+
+enc_configs:
+  qp: 27
+  frame_rate: 30
+  intra_period: 1
+  n_bit: 10
+  cfg_file: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/cfg/encoder_intra_vtm.cfg"
+
 
 tools:
   feature_reduction:  
     m65705: # R-CNN
       enabled: True
-      weight: "path"
+      task: "obj" # or "seg"
+      split_interface: {"p2":256, "p3":256, "p4": 256, "p5": 256}
     m65181: # YOLOv3 JDE
       enabled: False
       weight: "path"
 
   feature_restoration:  
     m65705: # R-CNN
-      enabled: True
-      weight: "path"
+      enabled: ${codec.tools.feature_reduction.m65705.enabled}
+      task: ${codec.tools.feature_reduction.m65705.task}
+      split_interface: ${codec.tools.feature_reduction.m65705.split_interface}
     m65181: # YOLOv3 JDE
-      enabled: False
+      enabled: ${codec.tools.feature_reduction.m65181.enabled}
       weight: "path"
 
-  conversion: 
-    n_bit: 10
-    packing: 'unknown'
+  conversion:
+    bypass: False
+    n_bit: ${codec.enc_configs.n_bit}
+    packing:
+      channels_in_width: -1
+      channels_in_height: -1
 
   inner_codec:
     type: 'vtm'
-
-    enc_configs:
-      enc_path: "path"
-      cfg_file: "encoder_intra_vtm.cfg"
-      intra_period: 1
-      qp: 42
-
-    dec_configs:
-      dec_path: "path"
-
-
-      
-
+    enc_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
+    dec_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
     
+    stash_outputs: True
+
+    enc_configs:  
+      cfg_file: ${codec.enc_configs.cfg_file}
+      n_bit: ${codec.enc_configs.n_bit}
+      frame_rate:  ${codec.enc_configs.frame_rate}
+      intra_period: ${codec.enc_configs.intra_period}
+      qp: ${codec.enc_configs.qp}

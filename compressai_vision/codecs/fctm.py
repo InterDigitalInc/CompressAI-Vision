@@ -46,6 +46,17 @@ try:
                 kwargs["verbosity"],
             )
 
+            self.qp = kwargs["enc_configs"]["qp"]
+            self.eval_encode = kwargs["eval_encode"]
+
+        @property
+        def qp_value(self):
+            return self.qp
+
+        @property
+        def eval_encode_type(self):
+            return self.eval_encode
+
 except ImportError:
     logging.warning(
         f"!!!!! Failed to load FCTM Library. FCTM will not be available !!!!!"
