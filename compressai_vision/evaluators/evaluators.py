@@ -86,11 +86,11 @@ class COCOEVal(BaseEvaluator):
 
         self.write_results(out)
 
-        summary = {}
-        for key, item_dict in out.items():
-            summary[f"{key}"] = item_dict["AP"]
+        # summary = {}
+        # for key, item_dict in out.items():
+        #     summary[f"{key}"] = item_dict["AP"]
 
-        return summary
+        return out
 
 
 @register_evaluator("OIC-EVAL")

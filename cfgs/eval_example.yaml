@@ -36,4 +36,5 @@ dataset:
 evaluator:
   #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
+  eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria) 
   #type: 'VOID'

@@ -149,9 +149,11 @@ def main(conf: DictConfig):
     evaluator_name = _get_evaluator_name(**modules)
     evaluator_filepath = _get_evaluator_filepath(**modules)
     seq_info_path = _get_seqinfo_path(**modules)
-    performance = _summerize_performance(evaluator_name, performance)
+    performance, eval_criteria = _summerize_performance(
+        evaluator_name, performance, conf.evaluator.eval_criteria
+    )
 
-    print("\nPerformance Metrics\n")
+    print(f"\nPerformance Metrics Using Evaluation Criteria {eval_criteria}\n")
     if eval_encode_type == "bpp":
         dataset_name = _get_dataset_name(**modules)
         avg_bpp = _calc_bpp(coded_res_df)
@@ -216,14 +218,46 @@ def _calc_bpp(coded_res_df):
     return avg_bpp
 
 
-def _summerize_performance(evaluator_name, performance):
+def _summerize_performance(evaluator_name, performance, eval_criteria):
     if evaluator_name == "OpenImagesChallengeEval":
-        value = [v for k, v in performance.items() if k.endswith("mAP@0.5IOU")]
-        return value
+        def_criteria = "mAP@0.5IOU"
+        if not eval_criteria:
+            eval_criteria = def_criteria
+        value = [v for k, v in performance.items() if k.endswith(eval_criteria)]
+        if not value:
+            print(
+                f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"
+            )
+            eval_criteria = def_criteria
+            value = [v for k, v in performance.items() if k.endswith(eval_criteria)]
+        return value, eval_criteria
+
+    if evaluator_name == "COCOEVal":
+        def_criteria = "AP"
+        if not eval_criteria:
+            eval_criteria = def_criteria
+        value = [v for k, v in performance["bbox"].items() if k == eval_criteria]
+        if not value:
+            print(
+                f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"
+            )
+            eval_criteria = def_criteria
+            value = [v for k, v in performance["bbox"].items() if k == eval_criteria]
+        return value, eval_criteria
+
     if evaluator_name == "MOT_TVD_Eval" or evaluator_name == "MOT_HiEve_Eval":
-        value = [v for k, v in performance.items() if k == "mota"]
-        return value
-    return performance
+        def_criteria = "mota"
+        if not eval_criteria:
+            eval_criteria = def_criteria
+        value = [v for k, v in performance.items() if k == eval_criteria]
+        if not value:
+            print(
+                f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"
+            )
+            eval_criteria = def_criteria
+            value = [v for k, v in performance.items() if k == eval_criteria]
+        return value, eval_criteria
+    return performance, eval_criteria
 
 
 def _get_evaluator_filepath(**modules):

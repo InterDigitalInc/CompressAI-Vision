@@ -1,2 +1,3 @@
 type: "COCO-EVAL"
 output: "${pipeline.evaluation.evaluation_dir}"
+eval_criteria: "" 
