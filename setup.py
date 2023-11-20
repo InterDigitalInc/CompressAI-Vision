@@ -37,7 +37,7 @@ from setuptools import find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 package_name = "compressai_vision"
-version = "1.0.1.dev0"
+version = "1.1.0"
 git_hash = "unknown"
 
 cwd = Path(__file__).resolve().parent
