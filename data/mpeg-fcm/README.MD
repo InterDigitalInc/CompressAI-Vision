@@ -1,4 +1,4 @@
-# FCVCM test data
+# FCM test data
 
 The test configurations for 5 use-cases split in 4 test datasets are provided.
 The following
@@ -47,7 +47,7 @@ Please copy the source image files into each "images" or "img1" folder.
 The ground-truth json files are provided for mpeg-oiv6 since we use concatenated data into one file per use-case.
 Please download them from https://dspub.blob.core.windows.net/mpeg-fcm/dataset/mpeg-oiv6-dataset.tar.gz
 
-Finally use the path to fcvcm_testdata as dataset.config.root in your configuration
+Finally use the path to fcm_testdata as dataset.config.root in your configuration
 
 
 # FPN sizes
