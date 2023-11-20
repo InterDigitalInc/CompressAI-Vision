@@ -21,19 +21,15 @@ enc_configs:
   parallel_encoding: False # std inner codec parallel option
 
 tools:
-  feature_reduction:
-    m65705: # R-CNN
-      enabled: True
-      task: "obj" # or "seg"
-      split_interface: {"p2":256, "p3":256, "p4": 256, "p5": 256}
-    m65181: # YOLOv3 JDE
+  feature_reduction:  
+    m65705: # Faster & Mask R-CNN working at fpn split
       enabled: True
       task: "obj" # or "seg"
     m65181: # YOLOv3 JDE
       enabled: False
       split_point: "ALT1" # or "DN53"
 
-  feature_restoration:
+  feature_restoration:  
     m65705: # R-CNN
       enabled: ${codec.tools.feature_reduction.m65705.enabled}
       task: ${codec.tools.feature_reduction.m65705.task}
@@ -54,12 +50,5 @@ tools:
     enc_configs: ${codec.enc_configs}
     enc_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
     dec_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
-
-    stash_outputs: True
-
-    enc_configs:
-      cfg_file: ${codec.enc_configs.cfg_file}
-      n_bit: ${codec.enc_configs.n_bit}
-      frame_rate:  ${codec.enc_configs.frame_rate}
-      intra_period: ${codec.enc_configs.intra_period}
-      qp: ${codec.enc_configs.qp}
+    merge_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/parcatStatic"    
+    
