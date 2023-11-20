@@ -21,7 +21,7 @@ enc_configs:
   parallel_encoding: False # std inner codec parallel option
 
 tools:
-  feature_reduction:  
+  feature_reduction:
     m65705: # Faster & Mask R-CNN working at fpn split
       enabled: True
       task: "obj" # or "seg"
@@ -29,7 +29,7 @@ tools:
       enabled: False
       split_point: "ALT1" # or "DN53"
 
-  feature_restoration:  
+  feature_restoration:
     m65705: # R-CNN
       enabled: ${codec.tools.feature_reduction.m65705.enabled}
       task: ${codec.tools.feature_reduction.m65705.task}
@@ -50,5 +50,4 @@ tools:
     enc_configs: ${codec.enc_configs}
     enc_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
     dec_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
-    merge_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/parcatStatic"    
-    
+    merge_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/parcatStatic"

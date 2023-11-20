@@ -6,7 +6,7 @@ variables:
   exp_name: "_anchor_parallel"
 
   script_dir: "."
-  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  input_dir: "/data/datasets/MPEG-FCM/fcm_testdata"
   output_dir: "/mnt/wekamount/scratch_fcvcm/runs"
 
   encode_image_per_job: 250

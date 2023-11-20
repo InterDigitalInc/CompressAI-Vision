@@ -5,7 +5,7 @@ variables:
   exp_name: "_anchor"
   device: "cpu"
 
-  input_dir: "/data/datasets/MPEG-FCVCM/vcm_testdata"
+  input_dir: "/data/datasets/MPEG-FCM/fcm_testdata"
   output_dir: "/mnt/wekamount/scratch_fcvcm/runs"
 
   script_dir: "."

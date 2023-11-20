@@ -14,7 +14,7 @@ dataset:
   type: "Detectron2Dataset"
   datacatalog: "MPEGOIV6"
   config:
-    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/mpeg-oiv6"
+    root: "/data/datasets/MPEG-FCM/fcm_testdata/mpeg-oiv6"
     imgs_folder: "images"
     annotation_file: "annotations/mpeg-oiv6-segmentation-coco.json"
     dataset_name: "mpeg-oiv6-segmentation"

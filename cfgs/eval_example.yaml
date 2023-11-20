@@ -27,7 +27,7 @@ dataset:
 
   datacatalog: 'SFUHW'
   config:
-    root: "/data/datasets/MPEG-FCVCM/vcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    root: "/data/datasets/MPEG-FCM/fcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
     imgs_folder: "images"
     annotation_file: "annotations/Traffic_2560x1600_30_val.json"
     dataset_name: "sfu-hw-Traffic_2560x1600_30_val"
@@ -36,5 +36,5 @@ dataset:
 evaluator:
   #type: 'OIC-EVAL'
   type: 'COCO-EVAL'
-  eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria) 
+  eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria)
   #type: 'VOID'

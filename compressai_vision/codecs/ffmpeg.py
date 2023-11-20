@@ -307,11 +307,11 @@ class x264(nn.Module):
         thisdir = Path(__file__).parent
         if self.datacatalog == "MPEGOIV6":
             fpn_sizes = thisdir.joinpath(
-                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
+                f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
             )
         else:
             fpn_sizes = thisdir.joinpath(
-                f"../../data/mpeg-fcvcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
+                f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
             )
         with fpn_sizes.open("r") as f:
             try:

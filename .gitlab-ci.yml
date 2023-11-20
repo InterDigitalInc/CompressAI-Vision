@@ -15,7 +15,7 @@ stages:
   before_script:
     - python --version
   script:
-    - flake8 --max-line-length 88 compressai_vision data/mpeg-fcvcm
+    - flake8 --max-line-length 88 compressai_vision data/mpeg-fcm
   tags:
     - docker
 
@@ -28,7 +28,7 @@ black:
     - python --version
     - pip install black
   script:
-    - black --check compressai_vision data/mpeg-fcvcm
+    - black --check compressai_vision data/mpeg-fcm
   tags:
     - docker
 
@@ -39,6 +39,6 @@ isort:
     - python --version
     - pip install isort
   script:
-    - isort compressai_vision data/mpeg-fcvcm --check-only
+    - isort compressai_vision data/mpeg-fcm --check-only
   tags:
     - docker

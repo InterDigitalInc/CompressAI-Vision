@@ -8,7 +8,7 @@ It currently focuses on two types of pipeline:
 
 - Video compression for remote analysis, which corresponds to the MPEG "Video Coding for Machines" (VCM) activity.
 
-- Split inference, which  includes an evaluation framework for compressing intermediate features produced in the context of split models. The software supports all thepipelines considered in the related MPEG  activity: "Feature Compression for Video Coding for Machines" (FCVCM).
+- Split inference, which  includes an evaluation framework for compressing intermediate features produced in the context of split models. The software supports all thepipelines considered in the related MPEG  activity: "Feature Compression for Machines" (FCM).
 
 The figure below shows the split inference pipeline:
 
@@ -36,7 +36,7 @@ source ./venv/bin/activate
 pip install -U pip
 ```
 
-To install the models relevant for the FCVCM (feature compression):
+To install the models relevant for the FCM (feature compression):
 
 First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
 ```
@@ -67,6 +67,8 @@ compressai-vision-eval --config-name=eval_example
 ```
 
 Please check other configuration examples provided in ./cfgs as well as examplary scripts in ./scripts
+
+Test data related to the MPEG FCM activity can be found in ./data/mpeg-fcm/
 
 ## For developers
 
