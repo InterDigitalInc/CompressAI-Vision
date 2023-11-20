@@ -29,9 +29,9 @@ CompressAI-Vision helps you to develop, test and evaluate compression models wit
 .. image:: ./media/images/fcvcm-scope.png
 
 
-- CompressAI-Vision now supports the Common Test Conditions defined by the ISO/MPEG FCVCM Ad-hoc Group, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+- CompressAI-Vision now supports the Common Test Conditions defined by the ISO/MPEG FCM Ad-hoc Group, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
-This documentation site for FCVCM is in reconstruction, please also refer to the Readme
+This documentation site for FCM is in reconstruction, please also refer to the Readme
 
 To get started, please go to through the installation steps
 
