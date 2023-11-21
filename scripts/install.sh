@@ -138,6 +138,8 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     fi
 
     cd ${SCRIPT_DIR}/cython_bbox
+    # cython-bbox 0.1.3
+    git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
 
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
