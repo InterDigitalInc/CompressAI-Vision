@@ -34,6 +34,7 @@ from .image import (
     TrackingDataset,
     deccode_compressed_rle,
 )
+from .utils import get_seq_info
 
 __all__ = [
     "DataCatalog",
@@ -41,4 +42,5 @@ __all__ = [
     "TrackingDataset",
     "DefaultDataset",
     "deccode_compressed_rle",
+    "get_seq_info",
 ]

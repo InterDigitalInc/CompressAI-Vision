@@ -85,28 +85,6 @@ TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
 
-def search_items(result_path: str, dataset_path: str, rate_point: int, seq_list: List):
-    _ret_list = []
-    for seq_name in seq_list:
-        eval_info_path, dname = utils.get_eval_info_path_by_seq_name(
-            seq_name, result_path, rate_point, BaseEvaluator.get_coco_eval_info_name
-        )
-        seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_name(
-            seq_name, dataset_path
-        )
-
-        d = {
-            utils.SEQ_NAME_KEY: dname,
-            utils.SEQ_INFO_KEY: seq_info_path,
-            utils.EVAL_INFO_KEY: eval_info_path,
-            utils.GT_INFO_KEY: seq_gt_path,
-        }
-
-        _ret_list.append(d)
-
-    return _ret_list
-
-
 def compute_overall_mAP(class_name, items):
     seq_root_names = SEQS_BY_CLASS[class_name]
 
@@ -124,7 +102,7 @@ def compute_overall_mAP(class_name, items):
             eval_data = json.load(f)
 
         for d in eval_data:
-            d["image_id"] = d["image_id"] + seq_img_id_offset
+            d["image_id"] = int(d["image_id"]) + seq_img_id_offset
             classwise_instances_results.append(d)
 
         with open(item[utils.GT_INFO_KEY], "r") as f:
@@ -162,9 +140,9 @@ def compute_overall_mAP(class_name, items):
     os.remove(TMP_EVAL_FILE)
     os.remove(TMP_ANCH_FILE)
 
-    print("\n")
-    print(summary)
-    print("\n")
+    #print("\n")
+    #print(summary)
+    #print("\n")
 
     return summary
 
@@ -240,11 +218,12 @@ if __name__ == "__main__":
     ) as file:
         writer = csv.writer(file)
         for q in qualities:
-            items = search_items(
+            items = utils.search_items(
                 args.result_path,
                 args.dataset_path,
                 q,
                 SEQS_BY_CLASS[args.class_to_compute],
+                BaseEvaluator.get_coco_eval_info_name,
             )
 
             assert (

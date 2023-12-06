@@ -143,3 +143,36 @@ def get_folder_path_by_seq_name(seq_name, _path):
             return _name.resolve(), _name.stem
 
     return None
+
+
+def search_items(result_path: str, dataset_path: str, rate_point: int, seq_list: list, eval_func: callable, by_name = False):
+    _ret_list = []
+    for seq_name in seq_list:
+
+        if by_name is True:
+            eval_info_path, dname = get_eval_info_path_by_seq_name(
+                seq_name, result_path, rate_point, eval_func
+            )
+            seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
+                seq_name, dataset_path
+            )
+        else: # by number
+            seq_num = get_seq_number(seq_name)
+
+            eval_info_path, dname = get_eval_info_path_by_seq_num(
+                seq_num, result_path, rate_point, eval_func
+            )
+            seq_info_path, seq_gt_path = get_seq_info_path_by_seq_num(
+                seq_num, dataset_path
+            )
+
+        d = {
+            SEQ_NAME_KEY: dname,
+            SEQ_INFO_KEY: seq_info_path,
+            EVAL_INFO_KEY: eval_info_path,
+            GT_INFO_KEY: seq_gt_path,
+        }
+
+        _ret_list.append(d)
+
+    return _ret_list

@@ -35,7 +35,6 @@ Evaluate a system performance of end-to-end pipeline.
 """
 from __future__ import annotations
 
-import configparser
 import logging
 import os
 from pathlib import Path
@@ -45,6 +44,8 @@ import hydra
 import pandas as pd
 from omegaconf import DictConfig
 from tabulate import tabulate
+
+from compressai_vision.datasets import get_seq_info
 
 thisdir = Path(__file__).parent
 config_path = str(thisdir.joinpath("../../cfgs").resolve())
@@ -194,17 +195,8 @@ def main(conf: DictConfig):
     )
 
 
-def _get_seq_info(seq_info_path):
-    config = configparser.ConfigParser()
-    config.read(seq_info_path)
-    fps = config["Sequence"]["frameRate"]
-    total_frame = config["Sequence"]["seqLength"]
-    name = f'{config["Sequence"]["name"]}_{config["Sequence"]["imWidth"]}x{config["Sequence"]["imHeight"]}_{fps}'
-    return name, int(fps), int(total_frame)
-
-
 def _calc_bitrate(coded_res_df, seq_info_path):
-    name, fps, total_frame = _get_seq_info(seq_info_path)
+    name, fps, total_frame = get_seq_info(seq_info_path)
     print(f"Frame Rate: {fps}, Total Frame: {total_frame}")
     total_bytes = coded_res_df.groupby(["qp"])["bytes"].sum().tolist()[0]
     bitrate = ((total_bytes * 8) * fps) / (1000 * total_frame)

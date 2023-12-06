@@ -75,31 +75,6 @@ def get_accumulator_res_for_hieve(item: Dict):
 
     return acc, None, item[utils.SEQ_NAME_KEY]
 
-
-def search_items(result_path: str, dataset_path: str, rate_point: int, seq_list: List):
-    _ret_list = []
-    for seq_name in seq_list:
-        seq_num = utils.get_seq_number(seq_name)
-
-        eval_info_path, dname = utils.get_eval_info_path_by_seq_num(
-            seq_num, result_path, rate_point, BaseEvaluator.get_jde_eval_info_name
-        )
-        seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_num(
-            seq_num, dataset_path
-        )
-
-        d = {
-            utils.SEQ_NAME_KEY: dname,
-            utils.SEQ_INFO_KEY: seq_info_path,
-            utils.EVAL_INFO_KEY: eval_info_path,
-            utils.GT_INFO_KEY: seq_gt_path,
-        }
-
-        _ret_list.append(d)
-
-    return _ret_list
-
-
 def compute_overall_mota(class_name, items):
     get_accumulator_res = {
         CLASSES[0]: get_accumulator_res_for_tvd,
@@ -129,11 +104,11 @@ def compute_overall_mota(class_name, items):
         summary, formatters=mh.formatters, namemap=mm.io.motchallenge_metric_names
     )
 
-    print("\n\n")
-    print(rendered_summary)
-    print("\n")
+    #print("\n\n")
+    #print(rendered_summary)
+    #print("\n")
 
-    names.append("Overall")
+    #names.append("Overall")
     return summary, names
 
 
@@ -185,11 +160,12 @@ if __name__ == "__main__":
     ) as file:
         writer = csv.writer(file)
         for q in qualities:
-            items = search_items(
+            items = utils.search_items(
                 args.result_path,
                 args.dataset_path,
                 q,
                 SEQS_BY_CLASS[args.class_to_compute],
+                BaseEvaluator.get_jde_eval_info_name,
             )
 
             assert (

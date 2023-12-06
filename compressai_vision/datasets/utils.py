@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import configparser
 import copy
 
 import cv2
@@ -91,3 +92,12 @@ class JDECustomMapper:
         dataset_dict["image"] = torch.as_tensor(image)
 
         return dataset_dict
+
+
+def get_seq_info(seq_info_path):
+    config = configparser.ConfigParser()
+    config.read(seq_info_path)
+    fps = config["Sequence"]["frameRate"]
+    total_frame = config["Sequence"]["seqLength"]
+    name = f'{config["Sequence"]["name"]}_{config["Sequence"]["imWidth"]}x{config["Sequence"]["imHeight"]}_{fps}'
+    return name, int(fps), int(total_frame)
