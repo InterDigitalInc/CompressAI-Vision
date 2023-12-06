@@ -1,5 +1,5 @@
 #!/bin/bash
-## usage: 
-# ./make_image.bash 1
-## --> creates image from Dockerfile.1 & tags it with name compressai_vision:1
-docker build -f Dockerfile.$1 --tag compressai_vision:$1 . $2
+## usage:
+# ./make_image.bash "v1"
+## --> creates image from Dockerfile and tags it compressai_vision
+docker build -f Dockerfile --tag compressai_vision:$1 .

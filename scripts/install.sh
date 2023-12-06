@@ -29,10 +29,9 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, default=detectron2]
-                [-t|--torch torch version, default="0.10.1"]
-                [--torchvision torchvision version]
-                [--torchaudio torchaudio version]
+                [-m|--model, default=all]
+                [-t|--torch torch version, default="2.0.0"]
+                [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
                 [--cuda) provide cuda version e.g. "11.8", default: check nvcc output)]
                 [--detectron2_url use this if you want to specify a pre-built detectron2 (find at

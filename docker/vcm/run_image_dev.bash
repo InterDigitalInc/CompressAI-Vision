@@ -19,9 +19,6 @@ fi
 notebook_dir="/path/to/your/notebook/directory" # notebooks in this dir --> visible in docker at /mnt/notebook
 data_dir="/path/to/your/data/directory" # some random data of yours --> visible in docker at /mnt/data
 
-notebook_dir="../../siloai-playground/sampsa/notebook"
-data_dir="../../siloai-playground/sampsa/mpeg_vcm"
-
 ## If you'd like to hot-reload a python module from your local filesystem:
 python_module_dir1="../" # hot-reload code from this python package --> visible in docker at /mnt/python-module1
 

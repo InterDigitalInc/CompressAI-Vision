@@ -31,15 +31,8 @@ The script will install the following software stack:
 - `Detectron2 <https://detectron2.readthedocs.io/en/latest/index.html>`_
 - *This* library (CompressAI-Vision)
 
-After running the script within the virtualenv, ``deactivate`` and ``activate`` the virtualenv once again for the effects to take place.
+After running the script within the virtualenv, you might need to ``deactivate`` and ``activate`` it for the effects to take place.
 
-PyTorch, Detectron2 and CUDA versions are different for each of the installation scripts:
-
-==============  ======= ========== ====
-script          PyTorch Detectron2 CUDA
-==============  ======= ========== ====
-install.bash    2.0.0   0.6        11.8
-==============  ======= ========== ====
 
 2. If your pipeline includes traditional codecs
 ------

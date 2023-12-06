@@ -2,10 +2,10 @@ type: 'DefaultDataset'
 datacatalog: 'COCO'
 config:
   root: '/data/dataset'
-  imgs_folder: 'valid'
-  annotation_file: "annotations/sample.json"
-  seqinfo: "seqinfo.ini"
   dataset_name: "sample_dataset"
+  imgs_folder: 'images'
+  annotation_file: "annotations/${.dataset_name}.json"
+  seqinfo: "seqinfo.ini"
   ext: "png"
 settings:
   patch_size: [512, 512]

@@ -1,1 +1,3 @@
-graft compressai_vision/data
+include LICENSE
+include requirements.txt
+graft data
