@@ -8,7 +8,7 @@ compressai_vision.pipelines
    :caption: split inference
    :hidden:
 
-   split_inference/index.rst
+   split_inference
 
 .. toctree::
    :maxdepth: 1

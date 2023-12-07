@@ -38,7 +38,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from compressai_vision.tools import getDataFile
+from compressai_vision.pipelines.remote_analysis.tools import getDataFile
 
 colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 

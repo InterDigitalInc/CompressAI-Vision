@@ -31,7 +31,7 @@ To get started, please go to through the installation steps
    :caption: Library API
    :hidden:
 
-   compressai_vision/codecs/index
+   compressai_vision/codecs
    compressai_vision/evaluators/index
    compressai_vision/pipelines/index
    compressai_vision/model_wrappers/index

@@ -1,5 +1,5 @@
 compressai_vision.pipelines.remote_analysis.pipeline
-=====================================
+====================================================
 
 .. automodule:: compressai_vision.pipelines.remote_analysis.pipeline
 

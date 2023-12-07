@@ -35,9 +35,15 @@ import shutil
 import subprocess
 from uuid import uuid4 as uuid
 
-from compressai_vision.constant import inv_vf_per_scale, vf_per_scale
-from compressai_vision.ffmpeg import FFMpeg
-from compressai_vision.tools import dumpImageArray, test_command
+from compressai_vision.pipelines.remote_analysis.constant import (
+    inv_vf_per_scale,
+    vf_per_scale,
+)
+from compressai_vision.pipelines.remote_analysis.ffmpeg import FFMpeg
+from compressai_vision.pipelines.remote_analysis.tools import (
+    dumpImageArray,
+    test_command,
+)
 
 from .base import EncoderDecoder
 
@@ -78,7 +84,7 @@ class VTMEncoderDecoder(EncoderDecoder):
 
         import cv2, os, logging
         from compressai_vision.evaluation.pipeline import VTMEncoderDecoder
-        from compressai_vision.tools import getDataFile
+        from compressai_vision.pipelines.remote_analysis.tools import getDataFile
 
         path="/path/to/VVCSoftware_VTM/bin"
         encoderApp=os.path.join(path, "EncoderAppStatic")

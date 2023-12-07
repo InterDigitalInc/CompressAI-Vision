@@ -36,7 +36,7 @@ show how to perform a baseline evaluation with VTM.
     from compressai_vision.conversion import detectron251 # convert Detectron2 results to fiftyone format
     from compressai_vision.evaluation.fo import annexPredictions # annex predictions from
     from compressai_vision.evaluation.pipeline import CompressAIEncoderDecoder, VTMEncoderDecoder # a class that does encoding+decoding & returns the transformed image & bitrate
-    from compressai_vision.tools import confLogger, quickLog, getDataFile
+    from compressai_vision.pipelines.remote_analysis.tools import confLogger, quickLog, getDataFile
 
 .. code:: ipython3
 

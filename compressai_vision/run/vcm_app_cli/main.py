@@ -55,7 +55,7 @@ from compressai_vision.cli import (
     show,
     vtm,
 )
-from compressai_vision.tools import getDataFile, quickLog
+from compressai_vision.pipelines.remote_analysis.tools import getDataFile, quickLog
 
 COMMANDS = {  # noqa: F405
     "clean": clean.main,

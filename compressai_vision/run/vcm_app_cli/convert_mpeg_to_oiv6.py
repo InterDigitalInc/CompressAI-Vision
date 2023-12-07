@@ -91,7 +91,7 @@ def add_subparser(subparsers, parents):
 def main(p):
     # compressai_vision
     from compressai_vision.conversion import MPEGVCMToOpenImageV6  # imageIdFileList
-    from compressai_vision.tools import pathExists
+    from compressai_vision.pipelines.remote_analysis.tools import pathExists
 
     assert p.target_dir is not None, "please give target_dir"
     assert (

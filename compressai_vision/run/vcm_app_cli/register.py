@@ -82,7 +82,7 @@ def main(p):  # noqa: C901
 
     # compressai_vision
     from compressai_vision.conversion import imageIdFileList
-    from compressai_vision.tools import pathExists
+    from compressai_vision.pipelines.remote_analysis.tools import pathExists
 
     assert p.dataset_name is not None, "provide name for your dataset"
     assert p.dir is not None, "please provide path to dataset"

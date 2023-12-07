@@ -12,12 +12,12 @@ detectron2
    :members:
    :undoc-members:
 
-mpeg_vcm
-~~~~~~~~
+.. mpeg_vcm
+.. ~~~~~~~~
 
-.. automodule:: compressai_vision.pipelines.remote_analysis.conversion.mpeg_vcm
-   :members:
-   :undoc-members:
+.. .. automodule:: compressai_vision.pipelines.remote_analysis.conversion.mpeg_vcm
+..    :members:
+..    :undoc-members:
 
 sfu_hw_objects_v1
 ~~~~~~~~~~~~~~~~~

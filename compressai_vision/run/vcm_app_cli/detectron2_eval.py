@@ -242,8 +242,6 @@ def main(p):  # noqa: C901
 
     print("fiftyone imported")
 
-    from compressai_vision.constant import vf_per_scale
-
     # compressai_vision
     from compressai_vision.evaluation.fo import (  # annex predictions from
         annexPredictions,
@@ -253,8 +251,9 @@ def main(p):  # noqa: C901
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
+    from compressai_vision.pipelines.remote_analysis.constant import vf_per_scale
 
-    # from compressai_vision.tools import getDataFile
+    # from compressai_vision.pipelines.remote_analysis.tools import getDataFile
 
     try:
         dataset = fo.load_dataset(p.dataset_name)

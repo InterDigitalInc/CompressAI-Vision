@@ -9,8 +9,8 @@ This allows us to dynamically create an object depending on the given string nam
 .. automodule:: compressai_vision.registry
 
 
-torch
------
+registries
+-----------
 
 .. automodule:: compressai_vision.registry.registers
    :members:
