@@ -26,7 +26,6 @@ encoder/decoder according to the standards set by the MPEG-VCM working group.
    cli_tutorial_5
    cli_tutorial_6
    cli_tutorial_7
-   cli_reference
 
 Library Tutorial
 ================

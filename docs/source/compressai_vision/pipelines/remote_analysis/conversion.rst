@@ -1,16 +1,34 @@
 compressai_vision.pipelines.remote_analysis.conversion
 ======================================================
 
-.. currentmodule:: compressai_vision.pipelines.remote_analysis.conversion
+.. automodule:: compressai_vision.pipelines.remote_analysis.conversion
+   :members:
+   :undoc-members:
 
-mpeg_vcm input file conversion
-------------------------------
+detectron2
+~~~~~~~~~~
 
-.. autofunction:: MPEGVCMToOpenImageV6
-.. autofunction:: imageIdFileList
+.. automodule:: compressai_vision.pipelines.remote_analysis.conversion.detectron2
+   :members:
+   :undoc-members:
 
-Detectron2 / Fiftyone interoperability
---------------------------------------
+mpeg_vcm
+~~~~~~~~
 
-.. autofunction:: detectron251
-.. autofunction:: FO2DetectronDataset
+.. automodule:: compressai_vision.pipelines.remote_analysis.conversion.mpeg_vcm
+   :members:
+   :undoc-members:
+
+sfu_hw_objects_v1
+~~~~~~~~~~~~~~~~~
+
+.. automodule:: compressai_vision.pipelines.remote_analysis.conversion.sfu_hw_objects_v1
+   :members:
+   :undoc-members:
+
+tvd_object_tracking_v1
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: compressai_vision.pipelines.remote_analysis.conversion.tvd_object_tracking_v1
+   :members:
+   :undoc-members:

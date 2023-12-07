@@ -14,6 +14,9 @@ Tools for evaluating pipelines:
 .. toctree::
    :maxdepth: 2
 
-   evaluation/index
+   pipeline
    fo
+   conversion
+   faq
+
 

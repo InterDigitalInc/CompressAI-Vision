@@ -55,13 +55,12 @@ This is the official OpenImageV6 dir structure:
 For minimal bbox detection problem, this is sufficient:
 ```
 .
-├── data -> ../../images (yes, can link)
+├── data -> ../../images
 ├── labels
-│   └── detections.csv
+│   └── detections.csv
 └── metadata
     └── classes.csv
 ```
-
 
 """
 import glob

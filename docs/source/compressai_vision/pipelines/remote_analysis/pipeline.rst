@@ -1,21 +1,25 @@
-.. _pipeline:
-
-compressai_vision.evaluation.pipeline
+compressai_vision.pipelines.remote_analysis.pipeline
 =====================================
 
-.. currentmodule:: compressai_vision.evaluation.pipeline
+.. automodule:: compressai_vision.pipelines.remote_analysis.pipeline
 
-EncoderDecoder
---------------
-.. autoclass:: EncoderDecoder
-    :members:
+base
+~~~~~~~~~~
 
-CompressAIEncoderDecoder
-------------------------
-.. autoclass:: CompressAIEncoderDecoder
-    :members:
+.. automodule:: compressai_vision.pipelines.remote_analysis.pipeline.base
+   :members:
+   :undoc-members:
 
-VTMEncoderDecoder
------------------
-.. autoclass:: VTMEncoderDecoder
-    :members:
+compressai
+~~~~~~~~~~
+
+.. automodule:: compressai_vision.pipelines.remote_analysis.pipeline.compressai
+   :members:
+   :undoc-members:
+
+vtm
+~~~~~~~~~~
+
+.. automodule:: compressai_vision.pipelines.remote_analysis.pipeline.vtm
+   :members:
+   :undoc-members:
