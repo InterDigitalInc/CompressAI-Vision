@@ -43,6 +43,7 @@ from typing import Any, List
 
 import numpy as np
 import pandas as pd
+from detectron2.evaluation import COCOEvaluator
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
@@ -140,9 +141,9 @@ def compute_overall_mAP(class_name, items):
     os.remove(TMP_EVAL_FILE)
     os.remove(TMP_ANCH_FILE)
 
-    #print("\n")
-    #print(summary)
-    #print("\n")
+    # print("\n")
+    # print(summary)
+    # print("\n")
 
     return summary
 
@@ -160,6 +161,17 @@ def coco_evaluation(ann_file, detections):
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()
+
+    import logging
+
+    class dummyclass:
+        def __init__(self):
+            self._logger = logging.getLogger(__name__)
+
+    things = [i["name"] for i in coco_eval.cocoGt.cats.values()]
+    out_all = COCOEvaluator._derive_coco_results(
+        dummyclass(), coco_eval, iou_type="bbox", class_names=things
+    )
 
     headers = ["AP", "AP50", "AP75", "APS", "APM", "APL"]
     npstat = np.array(coco_eval.stats[:6])
