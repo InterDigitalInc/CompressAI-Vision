@@ -73,7 +73,15 @@ def get_extra_requirements():
     extras_require = {
         "test": TEST_REQUIRES,
         "dev": DEV_REQUIRES,
-        "doc": ["sphinx", "sphinx-book-theme", "sphinxcontrib-mermaid", "Jinja2<3.1"],
+        "doc": [
+            "sphinx",
+            "sphinx-book-theme",
+            "sphinxcontrib-mermaid",
+            "Jinja2<3.1",
+            "fiftyone",
+            "pytorch_msssim",
+            "ipython",
+        ],
         "tutorials": ["jupyter", "ipywidgets"],
     }
     extras_require["all"] = {req for reqs in extras_require.values() for req in reqs}
