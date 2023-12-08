@@ -18,6 +18,7 @@ jobs:
       - name: install dependencies pip
         run: |
           python3 -m pip install -U pip
+          bash scripts/install.sh --cpu
           python3 -m pip install .[doc]
 
       - name: make docs
