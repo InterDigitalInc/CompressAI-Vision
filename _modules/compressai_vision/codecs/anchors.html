@@ -1,0 +1,812 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compressai_vision.codecs.anchors &#8212; CompressAI Vision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/codecs/anchors';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="CompressAI Vision - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="CompressAI Vision - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docker.html">Docker</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/encdec.html">4. Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/InterDigitalInc/CompressAI-Vision" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for compressai_vision.codecs.anchors</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2022-2023, InterDigital Communications, Inc</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted (subject to the limitations in the disclaimer</span>
+<span class="c1"># below) provided that the following conditions are met:</span>
+
+<span class="c1"># * Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer.</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1">#   and/or other materials provided with the distribution.</span>
+<span class="c1"># * Neither the name of InterDigital Communications, Inc nor the names of its</span>
+<span class="c1">#   contributors may be used to endorse or promote products derived from this</span>
+<span class="c1">#   software without specific prior written permission.</span>
+
+<span class="c1"># NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY&#39;S PATENT RIGHTS ARE GRANTED BY</span>
+<span class="c1"># THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND</span>
+<span class="c1"># CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A</span>
+<span class="c1"># PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</span>
+<span class="c1"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</span>
+<span class="c1"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</span>
+<span class="c1"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1"># OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,</span>
+<span class="c1"># WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR</span>
+<span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
+<span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils.dataio</span> <span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
+
+<span class="kn">from</span> <span class="nn">.encdec_utils</span> <span class="kn">import</span> <span class="n">get_raw_video_file_info</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">MIN_MAX_DATASET</span><span class="p">,</span> <span class="n">min_max_inv_normalization</span><span class="p">,</span> <span class="n">min_max_normalization</span>
+
+
+<span class="k">def</span> <span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+
+
+<span class="k">def</span> <span class="nf">run_cmdline</span><span class="p">(</span><span class="n">cmdline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">logpath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cmdline</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmdline</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--&gt; Running: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdline</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">logpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmdline</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">logpath</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">bline</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">bline</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="VTM"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vtm&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VTM</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder/Decoder class for VVC - VTM reference software&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;codec_paths&#39;</span><span class="p">][</span><span class="s1">&#39;encoder_exe&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;codec_paths&#39;</span><span class="p">][</span><span class="s1">&#39;decoder_exe&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;codec_paths&quot;</span><span class="p">][</span><span class="s2">&quot;cfg_file&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">),</span> <span class="n">file_path</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">qp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;encoder_config&quot;</span><span class="p">][</span><span class="s2">&quot;qp&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;encoder_config&quot;</span><span class="p">][</span><span class="s2">&quot;intra_period&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;eval_encode&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dump_yuv&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span> <span class="o">=</span> <span class="n">vision_model</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">datacatalog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dataset_name&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="ow">in</span> <span class="n">MIN_MAX_DATASET</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span> <span class="o">=</span> <span class="n">MIN_MAX_DATASET</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">MIN_MAX_DATASET</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span> <span class="o">=</span> <span class="n">MIN_MAX_DATASET</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dataset not recognized for normalization&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span> <span class="o">=</span> <span class="n">readwriteYUV</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">PixelFormat</span><span class="o">.</span><span class="n">YUV400_10le</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">==</span> <span class="s2">&quot;MPEGOIV6&quot;</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">][</span><span class="s1">&#39;root&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">][</span><span class="s1">&#39;seqinfo&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">][</span><span class="s2">&quot;frameRate&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;verbosity&quot;</span><span class="p">]</span>
+        <span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+
+    <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qp</span>
+
+    <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span>
+
+<div class="viewcode-block" id="VTM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">nbframes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="mf">5.1</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">6.2</span>  <span class="c1"># according to MPEG&#39;s anchor</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="n">inp_yuv_path</span><span class="p">,</span>
+            <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span><span class="p">,</span>
+            <span class="s2">&quot;-q&quot;</span><span class="p">,</span>
+            <span class="n">qp</span><span class="p">,</span>
+            <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/dev/null&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
+            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="s2">&quot;-wdt&quot;</span><span class="p">,</span>
+            <span class="n">width</span><span class="p">,</span>
+            <span class="s2">&quot;-hgt&quot;</span><span class="p">,</span>
+            <span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;-fr&quot;</span><span class="p">,</span>
+            <span class="n">frmRate</span><span class="p">,</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="n">nbframes</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--Level=</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--IntraPeriod=</span><span class="si">{</span><span class="n">intra_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--InputChromaFormat=400&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--InputBitDepth=10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--ConformanceWindowMode=1&quot;</span><span class="p">,</span>  <span class="c1"># needed?</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="VTM.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_decode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span><span class="p">,</span> <span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">codec_output_dir</span><span class="p">,</span>
+        <span class="n">bitstream_name</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">bitdepth</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># TODO (fracape) (add this as config)</span>
+
+        <span class="p">(</span>
+            <span class="n">frames</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_size</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subframe_heights</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span><span class="o">.</span><span class="n">reshape_feature_pyramid_to_frame</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">packing_all_in_one</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Generate json files with fpn sizes for the decoder</span>
+        <span class="c1"># manually activate the following and run in encode_only mode</span>
+        <span class="n">fpn_sizes_json_dump</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">fpn_sizes_json_dump</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">file_prefix</span> <span class="k">if</span> <span class="n">file_prefix</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">bitstream_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_qp&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">fpn_sizes_json</span> <span class="o">=</span> <span class="n">codec_output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.json&quot;</span>
+            <span class="k">with</span> <span class="n">fpn_sizes_json</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;fpn&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_size</span><span class="p">,</span>
+                    <span class="s2">&quot;subframe_heights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subframe_heights</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fpn sizes json dump generated, exiting&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># end of dumping fpn sizes</span>
+
+        <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span>
+        <span class="n">frames</span><span class="p">,</span> <span class="n">mid_level</span> <span class="o">=</span> <span class="n">min_max_normalization</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="n">bitdepth</span><span class="p">)</span>
+
+        <span class="n">nbframes</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="n">frmRate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">intra_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">file_prefix</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frmRate</span><span class="si">}</span><span class="s2">fps_</span><span class="si">{</span><span class="n">bitdepth</span><span class="si">}</span><span class="s2">bit_p400&quot;</span>
+
+        <span class="n">yuv_in_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_input.yuv&quot;</span>
+        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.bin&quot;</span>
+        <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_enc.log&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">setWriter</span><span class="p">(</span>
+            <span class="n">write_path</span><span class="o">=</span><span class="n">yuv_in_path</span><span class="p">,</span>
+            <span class="n">frmWidth</span><span class="o">=</span><span class="n">frame_width</span><span class="p">,</span>
+            <span class="n">frmHeight</span><span class="o">=</span><span class="n">frame_height</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">write_one_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">mid_level</span><span class="o">=</span><span class="n">mid_level</span><span class="p">)</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_encode_cmd</span><span class="p">(</span>
+            <span class="n">yuv_in_path</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">frame_width</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="n">frame_height</span><span class="p">,</span>
+            <span class="n">qp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">,</span>
+            <span class="n">bitstream_path</span><span class="o">=</span><span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="n">nbframes</span><span class="o">=</span><span class="n">nbframes</span><span class="p">,</span>
+            <span class="n">frmRate</span><span class="o">=</span><span class="n">frmRate</span><span class="p">,</span>
+            <span class="n">intra_period</span><span class="o">=</span><span class="n">intra_period</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># self.logger.debug(cmd)</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">enc_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;enc_time:</span><span class="si">{</span><span class="n">enc_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">bitstream_path</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;bitstream </span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2"> was not created&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_input&quot;</span><span class="p">]:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">yuv_in_path</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="c1"># to be compatible with the pipelines</span>
+        <span class="c1"># per frame bits can be collected by parsing enc log to be more accurate</span>
+        <span class="n">avg_bytes_per_frame</span> <span class="o">=</span> <span class="n">get_filesize</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">nbframes</span>
+        <span class="n">all_bytes_per_frame</span> <span class="o">=</span> <span class="p">[</span><span class="n">avg_bytes_per_frame</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbframes</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="n">all_bytes_per_frame</span><span class="p">,</span>
+            <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="n">bitstream_path</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="VTM.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">bitstream_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+
+        <span class="n">output_file_prefix</span> <span class="o">=</span> <span class="n">bitstream_path</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="n">video_info</span> <span class="o">=</span> <span class="n">get_raw_video_file_info</span><span class="p">(</span><span class="n">output_file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;qp&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">frame_width</span> <span class="o">=</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
+        <span class="n">frame_height</span> <span class="o">=</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
+        <span class="n">yuv_dec_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">_dec.yuv&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decode_cmd</span><span class="p">(</span>
+            <span class="n">bitstream_path</span><span class="o">=</span><span class="n">bitstream_path</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="o">=</span><span class="n">yuv_dec_path</span>
+        <span class="p">)</span>
+        <span class="c1"># self.logger.debug(cmd)</span>
+        <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">_dec.log&quot;</span><span class="p">)</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">dec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dec_time:</span><span class="si">{</span><span class="n">dec_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">setReader</span><span class="p">(</span>
+            <span class="n">read_path</span><span class="o">=</span><span class="n">yuv_dec_path</span><span class="p">,</span>
+            <span class="n">frmWidth</span><span class="o">=</span><span class="n">frame_width</span><span class="p">,</span>
+            <span class="n">frmHeight</span><span class="o">=</span><span class="n">frame_height</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">nbframes</span> <span class="o">=</span> <span class="n">get_filesize</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span><span class="n">frame_width</span> <span class="o">*</span> <span class="n">frame_height</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">rec_frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbframes</span><span class="p">):</span>
+            <span class="n">rec_yuv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">read_one_frame</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">rec_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec_yuv</span><span class="p">)</span>
+
+        <span class="n">rec_frames</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">)</span>
+
+        <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span>
+        <span class="n">rec_frames</span> <span class="o">=</span> <span class="n">min_max_inv_normalization</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># (fracape) should feature sizes be part of bitstream?</span>
+        <span class="n">thisdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">==</span> <span class="s2">&quot;MPEGOIV6&quot;</span><span class="p">:</span>
+            <span class="n">fpn_sizes</span> <span class="o">=</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;../../data/mpeg-fcm/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span><span class="si">}</span><span class="s2">/fpn-sizes/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.json&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fpn_sizes</span> <span class="o">=</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;../../data/mpeg-fcm/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span><span class="si">}</span><span class="s2">/fpn-sizes/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">.json&quot;</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">fpn_sizes</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error reading file &quot;</span><span class="si">{</span><span class="n">fpn_sizes</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">err</span>
+
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span><span class="o">.</span><span class="n">reshape_frame_to_feature_pyramid</span><span class="p">(</span>
+            <span class="n">rec_frames</span><span class="p">,</span>
+            <span class="n">json_dict</span><span class="p">[</span><span class="s2">&quot;fpn&quot;</span><span class="p">],</span>
+            <span class="n">json_dict</span><span class="p">[</span><span class="s2">&quot;subframe_heights&quot;</span><span class="p">],</span>
+            <span class="n">packing_all_in_one</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_dec&quot;</span><span class="p">]:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<div class="viewcode-block" id="HM"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.HM">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;hm&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HM</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for HEVC - HM reference software&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.HM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">nbframes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="mf">5.1</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">6.2</span>  <span class="c1"># according to MPEG&#39;s anchor</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="n">inp_yuv_path</span><span class="p">,</span>
+            <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span><span class="p">,</span>
+            <span class="s2">&quot;-q&quot;</span><span class="p">,</span>
+            <span class="n">qp</span><span class="p">,</span>
+            <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/dev/null&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
+            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="s2">&quot;-wdt&quot;</span><span class="p">,</span>
+            <span class="n">width</span><span class="p">,</span>
+            <span class="s2">&quot;-hgt&quot;</span><span class="p">,</span>
+            <span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;-fr&quot;</span><span class="p">,</span>
+            <span class="n">frmRate</span><span class="p">,</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="n">nbframes</span><span class="p">,</span>
+            <span class="s2">&quot;--InputChromaFormat=400&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--InputBitDepth=10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--ConformanceWindowMode=1&quot;</span><span class="p">,</span>  <span class="c1"># needed?</span>
+            <span class="sa">f</span><span class="s2">&quot;--IntraPeriod=</span><span class="si">{</span><span class="n">intra_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--Level=</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="VVENC"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vvenc&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VVENC</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for VVC - vvenc/vvdec  software&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VVENC.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">nbframes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="n">inp_yuv_path</span><span class="p">,</span>
+            <span class="s2">&quot;-q&quot;</span><span class="p">,</span>
+            <span class="n">qp</span><span class="p">,</span>
+            <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="s2">&quot;--size&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--framerate&quot;</span><span class="p">,</span>
+            <span class="n">frmRate</span><span class="p">,</span>
+            <span class="s2">&quot;--frames&quot;</span><span class="p">,</span>
+            <span class="n">nbframes</span><span class="p">,</span>
+            <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;yuv420_10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--preset&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fast&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By InterDigital Communications, Inc.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, InterDigital Communications, Inc..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

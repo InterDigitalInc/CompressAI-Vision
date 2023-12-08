@@ -336,7 +336,15 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registries">registries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-compressai_vision.registry.registers">registries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_codec"><code class="docutils literal notranslate"><span class="pre">register_codec()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_datacatalog"><code class="docutils literal notranslate"><span class="pre">register_datacatalog()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_dataset"><code class="docutils literal notranslate"><span class="pre">register_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_evaluator"><code class="docutils literal notranslate"><span class="pre">register_evaluator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_pipeline"><code class="docutils literal notranslate"><span class="pre">register_pipeline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_vision_model"><code class="docutils literal notranslate"><span class="pre">register_vision_model()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -353,8 +361,44 @@ document.write(`
 <p>Register codecs, datasets, etc, to make them accessible via dynamic YAML configuration.</p>
 <p>Registering maps a string name to a concrete creation method or class.
 This allows us to dynamically create an object depending on the given string name at runtime.</p>
-<section id="registries">
-<h2>registries<a class="headerlink" href="#registries" title="Permalink to this heading">#</a></h2>
+<span class="target" id="module-compressai_vision.registry"></span><section id="module-compressai_vision.registry.registers">
+<span id="registries"></span><h2>registries<a class="headerlink" href="#module-compressai_vision.registry.registers" title="Permalink to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_codec">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_codec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_codec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_codec" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering a codec</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_datacatalog">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_datacatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_datacatalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_datacatalog" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering a dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_dataset">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_dataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering a dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_evaluator">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_evaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_evaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_evaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering an evaluator</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_pipeline">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_pipeline" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering a pipeline</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.registry.registers.register_vision_model">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.registry.registers.</span></span><span class="sig-name descname"><span class="pre">register_vision_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/registry/registers.html#register_vision_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.registry.registers.register_vision_model" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator for registering a vision model</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -402,7 +446,15 @@ This allows us to dynamically create an object depending on the given string nam
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registries">registries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-compressai_vision.registry.registers">registries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_codec"><code class="docutils literal notranslate"><span class="pre">register_codec()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_datacatalog"><code class="docutils literal notranslate"><span class="pre">register_datacatalog()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_dataset"><code class="docutils literal notranslate"><span class="pre">register_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_evaluator"><code class="docutils literal notranslate"><span class="pre">register_evaluator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_pipeline"><code class="docutils literal notranslate"><span class="pre">register_pipeline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.registry.registers.register_vision_model"><code class="docutils literal notranslate"><span class="pre">register_vision_model()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

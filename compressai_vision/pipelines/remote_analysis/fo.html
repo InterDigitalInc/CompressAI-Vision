@@ -336,7 +336,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fiftyone">fiftyone</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-compressai_vision.pipelines.remote_analysis.fo.predict">fiftyone</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexPredictions"><code class="docutils literal notranslate"><span class="pre">annexPredictions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexVideoPredictions"><code class="docutils literal notranslate"><span class="pre">annexVideoPredictions()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -348,10 +352,93 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="compressai-vision-compressai-vision-pipelines-remote-analysis-fo">
-<h1>compressai_vision.compressai_vision.pipelines.remote_analysis.fo<a class="headerlink" href="#compressai-vision-compressai-vision-pipelines-remote-analysis-fo" title="Permalink to this heading">#</a></h1>
-<section id="fiftyone">
-<h2>fiftyone<a class="headerlink" href="#fiftyone" title="Permalink to this heading">#</a></h2>
+  <section id="module-compressai_vision.pipelines.remote_analysis.fo">
+<span id="compressai-vision-compressai-vision-pipelines-remote-analysis-fo"></span><h1>compressai_vision.compressai_vision.pipelines.remote_analysis.fo<a class="headerlink" href="#module-compressai_vision.pipelines.remote_analysis.fo" title="Permalink to this heading">#</a></h1>
+<section id="module-compressai_vision.pipelines.remote_analysis.fo.predict">
+<span id="fiftyone"></span><h2>fiftyone<a class="headerlink" href="#module-compressai_vision.pipelines.remote_analysis.fo.predict" title="Permalink to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_analysis.fo.predict.annexPredictions">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.remote_analysis.fo.predict.</span></span><span class="sig-name descname"><span class="pre">annexPredictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fo_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'detections'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_decoder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_print</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/compressai_vision/pipelines/remote_analysis/fo/predict.html#annexPredictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexPredictions" title="Permalink to this definition">#</a></dt>
+<dd><p>Run detector and EncoderDecoder instance on a dataset.  Append detector results and bits-per-pixel to each sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictors</strong> – A list of Detectron2 predictor. It can be a single element list for a single task or multiple elements for multi-task scenario</p></li>
+<li><p><strong>fo_dataset</strong> – Fiftyone dataset</p></li>
+<li><p><strong>gt_field</strong> – Which dataset member to use for ground truths.  Default: “detections”</p></li>
+<li><p><strong>predictor_fields</strong> – Which dataset member to use for saving the Detectron2 results.  Default: “detectron-predictions”. It also can be a list when evaluating multiple vision tasks.</p></li>
+<li><p><strong>encoder_decoder</strong> – (optional) a <code class="docutils literal notranslate"><span class="pre">compressai_vision.evaluation.pipeline.EncoderDecoder</span></code> subclass instance to apply on the image before detection</p></li>
+<li><p><strong>use_pb</strong> – Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.</p></li>
+<li><p><strong>use_print</strong> – Print progress at every n:th. step.  Default: 0 = no printing.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_analysis.fo.predict.annexVideoPredictions">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.remote_analysis.fo.predict.</span></span><span class="sig-name descname"><span class="pre">annexVideoPredictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fo_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'detections'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_decoder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_print</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/compressai_vision/pipelines/remote_analysis/fo/predict.html#annexVideoPredictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexVideoPredictions" title="Permalink to this definition">#</a></dt>
+<dd><p>Run detector and EncoderDecoder instance on a dataset.  Append detector results and bits-per-pixel to each sample.</p>
+<p>Dataset.Sample.Frames</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictors</strong> – A list of Detectron2 predictor. It can be a single element list for a single task or multiple elements for multi-task scenario</p></li>
+<li><p><strong>fo_dataset</strong> – A fiftyone video dataset</p></li>
+<li><p><strong>gt_field</strong> – Which dataset member to use for ground truths.  Default: “detections”</p></li>
+<li><p><strong>predictor_fields</strong> – Which dataset member to use for saving the Detectron2 results.  Default: “detectron-predictions”. It also can be a list when evaluating multiple vision tasks.</p></li>
+<li><p><strong>encoder_decoder</strong> – (optional) a <code class="docutils literal notranslate"><span class="pre">compressai_vision.evaluation.pipeline.EncoderDecoder</span></code> subclass instance to apply on the image before detection</p></li>
+<li><p><strong>use_pb</strong> – Show progressbar or not.  Nice for interactive runs, not so much for batch jobs.  Default: False.</p></li>
+<li><p><strong>use_print</strong> – Print progress at every n:th. step.  Default: 0 = no printing.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Video datasets look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">sfu</span><span class="o">-</span><span class="n">hw</span><span class="o">-</span><span class="n">objects</span><span class="o">-</span><span class="n">v1</span>
+<span class="n">Media</span> <span class="nb">type</span><span class="p">:</span>  <span class="n">video</span>
+<span class="n">Num</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">Persistent</span><span class="p">:</span>  <span class="kc">True</span>
+<span class="n">Tags</span><span class="p">:</span>        <span class="p">[]</span>
+<span class="n">Sample</span> <span class="n">fields</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span>         <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
+    <span class="n">filepath</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">tags</span><span class="p">:</span>       <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">VideoMetadata</span><span class="p">)</span>
+    <span class="n">media_type</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">class_tag</span><span class="p">:</span>  <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+    <span class="n">name_tag</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">StringField</span>
+<span class="n">Frame</span> <span class="n">fields</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span>           <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">ObjectIdField</span>
+    <span class="n">frame_number</span><span class="p">:</span> <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">FrameNumberField</span>
+    <span class="n">detections</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Difference between image &amp; video datasets</p>
+<p>Image dataset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dataset</span>
+    <span class="n">first</span><span class="p">()</span>
+    <span class="fm">__index__</span><span class="p">()</span>
+    <span class="n">iterator</span>
+    <span class="o">--&gt;</span> <span class="k">return</span> <span class="n">Sample</span> <span class="n">objects</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="nb">id</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">ground</span><span class="o">-</span><span class="n">truths</span><span class="p">,</span> <span class="n">detections</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Video dataset</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dataset</span>
+    <span class="n">first</span><span class="p">()</span>
+    <span class="fm">__index__</span>
+    <span class="n">iterator</span>
+    <span class="o">--&gt;</span> <span class="k">return</span> <span class="n">Sample</span> <span class="n">objects</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="nb">id</span><span class="p">,</span> <span class="n">filepath</span>
+        <span class="n">frames</span><span class="p">:</span> <span class="n">Frames</span> <span class="nb">object</span>
+        <span class="o">--&gt;</span> <span class="fm">__index__</span>
+            <span class="n">iterator</span>
+            <span class="o">--&gt;</span> <span class="n">returns</span> <span class="n">Frame</span> <span class="nb">object</span>
+            <span class="n">fields</span><span class="p">:</span> <span class="nb">id</span><span class="p">,</span> <span class="n">ground</span><span class="o">-</span><span class="n">truths</span><span class="p">,</span> <span class="n">detections</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 </section>
 
@@ -399,7 +486,11 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fiftyone">fiftyone</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-compressai_vision.pipelines.remote_analysis.fo.predict">fiftyone</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexPredictions"><code class="docutils literal notranslate"><span class="pre">annexPredictions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_analysis.fo.predict.annexVideoPredictions"><code class="docutils literal notranslate"><span class="pre">annexVideoPredictions()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

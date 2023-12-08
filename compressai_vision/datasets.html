@@ -313,7 +313,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -329,6 +331,26 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog"><code class="docutils literal notranslate"><span class="pre">DataCatalog</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.annotation_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.annotation_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.dataset"><code class="docutils literal notranslate"><span class="pre">DataCatalog.dataset</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.dataset_name"><code class="docutils literal notranslate"><span class="pre">DataCatalog.dataset_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.imgs_folder_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.imgs_folder_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.seqinfo_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.seqinfo_path</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DefaultDataset"><code class="docutils literal notranslate"><span class="pre">DefaultDataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.Detectron2Dataset"><code class="docutils literal notranslate"><span class="pre">Detectron2Dataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.TrackingDataset"><code class="docutils literal notranslate"><span class="pre">TrackingDataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.deccode_compressed_rle"><code class="docutils literal notranslate"><span class="pre">deccode_compressed_rle()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.get_seq_info"><code class="docutils literal notranslate"><span class="pre">get_seq_info()</span></code></a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -338,8 +360,80 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="compressai-vision-datasets">
-<h1>compressai_vision.datasets<a class="headerlink" href="#compressai-vision-datasets" title="Permalink to this heading">#</a></h1>
+  <section id="module-compressai_vision.datasets">
+<span id="compressai-vision-datasets"></span><h1>compressai_vision.datasets<a class="headerlink" href="#module-compressai_vision.datasets" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">DataCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgs_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'images'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqinfo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'seqinfo.ini'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/image.html#DataCatalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.DataCatalog" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog.annotation_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">annotation_path</span></span><a class="headerlink" href="#compressai_vision.datasets.DataCatalog.annotation_path" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog.dataset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset</span></span><a class="headerlink" href="#compressai_vision.datasets.DataCatalog.dataset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog.dataset_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset_name</span></span><a class="headerlink" href="#compressai_vision.datasets.DataCatalog.dataset_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog.imgs_folder_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imgs_folder_path</span></span><a class="headerlink" href="#compressai_vision.datasets.DataCatalog.imgs_folder_path" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DataCatalog.seqinfo_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seqinfo_path</span></span><a class="headerlink" href="#compressai_vision.datasets.DataCatalog.seqinfo_path" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.datasets.DefaultDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">DefaultDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgs_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'valid'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/image.html#DefaultDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.DefaultDataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Loads an image folder database. testing image samples
+are respectively stored in separate directories
+(Currently, this class does not support any of the training related operations):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>|--rootdir
+  |-- img000.png
+  |-- img001.png
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>string</em>) – root directory of the dataset</p></li>
+<li><p><strong>transform</strong> (<em>(</em><em>callable</em><em>, </em><em>optional</em><em>)</em>) – a function or transform that takes in a PIL image and returns a transformed version</p></li>
+<li><p><strong>use_BGR</strong> (<em>Bool</em>) – if True the color order of the sample is BGR otherwise RGB returned</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.datasets.Detectron2Dataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">Detectron2Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgs_folder</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/image.html#Detectron2Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.Detectron2Dataset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.datasets.TrackingDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">TrackingDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgs_folder</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/image.html#TrackingDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.TrackingDataset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.datasets.deccode_compressed_rle">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">deccode_compressed_rle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/image.html#deccode_compressed_rle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.deccode_compressed_rle" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compressai_vision.datasets.get_seq_info">
+<span class="sig-prename descclassname"><span class="pre">compressai_vision.datasets.</span></span><span class="sig-name descname"><span class="pre">get_seq_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq_info_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/datasets/utils.html#get_seq_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.datasets.get_seq_info" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 
 
@@ -377,6 +471,32 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog"><code class="docutils literal notranslate"><span class="pre">DataCatalog</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.annotation_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.annotation_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.dataset"><code class="docutils literal notranslate"><span class="pre">DataCatalog.dataset</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.dataset_name"><code class="docutils literal notranslate"><span class="pre">DataCatalog.dataset_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.imgs_folder_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.imgs_folder_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DataCatalog.seqinfo_path"><code class="docutils literal notranslate"><span class="pre">DataCatalog.seqinfo_path</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.DefaultDataset"><code class="docutils literal notranslate"><span class="pre">DefaultDataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.Detectron2Dataset"><code class="docutils literal notranslate"><span class="pre">Detectron2Dataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.TrackingDataset"><code class="docutils literal notranslate"><span class="pre">TrackingDataset</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.deccode_compressed_rle"><code class="docutils literal notranslate"><span class="pre">deccode_compressed_rle()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.datasets.get_seq_info"><code class="docutils literal notranslate"><span class="pre">get_seq_info()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

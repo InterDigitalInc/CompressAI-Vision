@@ -313,7 +313,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -329,6 +331,60 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.digest"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.get_coco_eval_info_name"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.get_coco_eval_info_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.get_jde_eval_info_name"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.get_jde_eval_info_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.reset"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.results"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.training"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.training</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.write_results"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.write_results()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal"><code class="docutils literal notranslate"><span class="pre">COCOEVal</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.digest"><code class="docutils literal notranslate"><span class="pre">COCOEVal.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.reset"><code class="docutils literal notranslate"><span class="pre">COCOEVal.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.results"><code class="docutils literal notranslate"><span class="pre">COCOEVal.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.training"><code class="docutils literal notranslate"><span class="pre">COCOEVal.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest_summary"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.digest_summary()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.reset"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.results"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.digest"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.reset"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.results"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.training"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval"><code class="docutils literal notranslate"><span class="pre">YOLOEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOEval.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -338,8 +394,188 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="compressai-vision-evaluators">
-<h1>compressai_vision.evaluators<a class="headerlink" href="#compressai-vision-evaluators" title="Permalink to this heading">#</a></h1>
+  <section id="module-compressai_vision.evaluators">
+<span id="compressai-vision-evaluators"></span><h1>compressai_vision.evaluators<a class="headerlink" href="#module-compressai_vision.evaluators" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">BaseEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.digest">
+<span class="sig-name descname"><span class="pre">digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.digest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.digest" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.get_coco_eval_info_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_coco_eval_info_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.get_coco_eval_info_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.get_coco_eval_info_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.get_jde_eval_info_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_jde_eval_info_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.get_jde_eval_info_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.get_jde_eval_info_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.results">
+<span class="sig-name descname"><span class="pre">results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.BaseEvaluator.write_results">
+<span class="sig-name descname"><span class="pre">write_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/base_evaluator.html#BaseEvaluator.write_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.BaseEvaluator.write_results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.COCOEVal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">COCOEVal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#COCOEVal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.COCOEVal" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.COCOEVal.digest">
+<span class="sig-name descname"><span class="pre">digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#COCOEVal.digest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.COCOEVal.digest" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.COCOEVal.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#COCOEVal.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.COCOEVal.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.COCOEVal.results">
+<span class="sig-name descname"><span class="pre">results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#COCOEVal.results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.COCOEVal.results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.COCOEVal.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.COCOEVal.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_HiEve_Eval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">MOT_HiEve_Eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_HiEve_Eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_HiEve_Eval" title="Permalink to this definition">#</a></dt>
+<dd><p>A Multiple Object Tracking Evaluator for HiEve</p>
+<p>This class evaluates MOT performance of tracking model such as JDE specifically on HiEve</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval">
+<span class="sig-name descname"><span class="pre">mot_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_HiEve_Eval.mot_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_HiEve_Eval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.MOT_HiEve_Eval.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">MOT_JDE_Eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval" title="Permalink to this definition">#</a></dt>
+<dd><p>A Multiple Object Tracking Evaluator</p>
+<p>This class evaluates MOT performance of tracking model such as JDE in compressai-vision.
+BaseEvaluator is inherited to interface with pipeline architecture in compressai-vision</p>
+<dl>
+<dt>Functions below in this class refers to</dt><dd><p>The class Evaluator inin Towards-Realtime-MOT/utils/evaluation.py at
+&lt;<a class="github reference external" href="https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/utils/evaluation.py">Zhongdao/Towards-Realtime-MOT</a>&gt;
+&lt;<a class="github reference external" href="https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/track.py">Zhongdao/Towards-Realtime-MOT</a>&gt;</p>
+<p>Full license statement can be found at
+&lt;<a class="github reference external" href="https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/LICENSE">Zhongdao/Towards-Realtime-MOT</a>&gt;</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.digest">
+<span class="sig-name descname"><span class="pre">digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval.digest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.digest_summary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">digest_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval.digest_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest_summary" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.mot_eval">
+<span class="sig-name descname"><span class="pre">mot_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval.mot_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.mot_eval" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.results">
+<span class="sig-name descname"><span class="pre">results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_JDE_Eval.results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_JDE_Eval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.MOT_JDE_Eval.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_TVD_Eval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">MOT_TVD_Eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_TVD_Eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_TVD_Eval" title="Permalink to this definition">#</a></dt>
+<dd><p>A Multiple Object Tracking Evaluator for TVD</p>
+<p>This class evaluates MOT performance of tracking model such as JDE specifically on TVD</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_TVD_Eval.mot_eval">
+<span class="sig-name descname"><span class="pre">mot_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#MOT_TVD_Eval.mot_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.MOT_TVD_Eval.mot_eval" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.MOT_TVD_Eval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.MOT_TVD_Eval.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.OpenImagesChallengeEval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">OpenImagesChallengeEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#OpenImagesChallengeEval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.OpenImagesChallengeEval" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.OpenImagesChallengeEval.digest">
+<span class="sig-name descname"><span class="pre">digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#OpenImagesChallengeEval.digest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.OpenImagesChallengeEval.digest" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.OpenImagesChallengeEval.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#OpenImagesChallengeEval.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.OpenImagesChallengeEval.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.OpenImagesChallengeEval.results">
+<span class="sig-name descname"><span class="pre">results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#OpenImagesChallengeEval.results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.OpenImagesChallengeEval.results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.OpenImagesChallengeEval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.OpenImagesChallengeEval.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOEval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">YOLOEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOEval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOEval" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOEval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.YOLOEval.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -377,6 +613,66 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.digest"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.get_coco_eval_info_name"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.get_coco_eval_info_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.get_jde_eval_info_name"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.get_jde_eval_info_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.reset"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.results"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.training"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.training</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.BaseEvaluator.write_results"><code class="docutils literal notranslate"><span class="pre">BaseEvaluator.write_results()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal"><code class="docutils literal notranslate"><span class="pre">COCOEVal</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.digest"><code class="docutils literal notranslate"><span class="pre">COCOEVal.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.reset"><code class="docutils literal notranslate"><span class="pre">COCOEVal.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.results"><code class="docutils literal notranslate"><span class="pre">COCOEVal.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.COCOEVal.training"><code class="docutils literal notranslate"><span class="pre">COCOEVal.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_HiEve_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_HiEve_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.digest_summary"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.digest_summary()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.reset"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.results"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_JDE_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_JDE_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval.mot_eval"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval.mot_eval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.MOT_TVD_Eval.training"><code class="docutils literal notranslate"><span class="pre">MOT_TVD_Eval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.digest"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.reset"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.results"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.OpenImagesChallengeEval.training"><code class="docutils literal notranslate"><span class="pre">OpenImagesChallengeEval.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval"><code class="docutils literal notranslate"><span class="pre">YOLOEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOEval.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
