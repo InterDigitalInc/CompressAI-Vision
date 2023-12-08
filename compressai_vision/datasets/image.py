@@ -98,7 +98,7 @@ class DefaultDataset(BaseDataset):
     (Currently, this class does not support any of the training related operations):
 
     .. code-block:: text
-    
+
         |--rootdir
           |-- img000.png
           |-- img001.png
