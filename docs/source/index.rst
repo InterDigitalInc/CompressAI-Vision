@@ -1,3 +1,6 @@
+CompressAI Trainer
+==================
+
 .. image:: https://img.shields.io/github/license/InterDigitalInc/CompressAI-Vision?color=blue
    :target: https://github.com/InterDigitalInc/CompressAI-Vision/blob/master/LICENSE
 
@@ -45,14 +48,8 @@ To get started, please go to through the installation steps.
    :hidden:
 
    tutorials/index
-   tutorials/convert
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Datasets
-   :hidden:
 
-   datasets
 
 
 .. toctree::

@@ -94,9 +94,9 @@ class BaseDataset(Dataset):
 class DefaultDataset(BaseDataset):
     """Load an image folder database. testing image samples
     are respectively stored in separate directories
-    (Currently this class supports none of training related operation ):
+    (Currently, this class does not support any of the training related operations):
 
-    .. code-block::
+    .. code-block:: none
         - rootdir/
             - img000.png
             - img001.png
@@ -290,7 +290,7 @@ class DataCatalog:
 class MPEGTVDTRACKING(DataCatalog):
     """Load an image folder database to support testing image samples extracted from MPEG-TVD Objects Tracking videos:
 
-    .. code-block::
+    .. code-block:: none
         - mpeg-TVD-Tracking/
             - annoations/
                 -
@@ -368,7 +368,7 @@ class MPEGTVDTRACKING(DataCatalog):
 class MPEGHIEVE(MPEGTVDTRACKING):
     """Load an image folder database to support testing image samples extracted from MPEG-HiEve videos:
 
-    .. code-block::
+    .. code-block:: none
         - mpeg-HiEve/
             - annoations/
                 -
@@ -410,7 +410,7 @@ class MPEGHIEVE(MPEGTVDTRACKING):
 class MPEGOIV6(DataCatalog):
     """Load an image folder database to support testing image samples from MPEG-OpenimagesV6:
 
-    .. code-block::
+    .. code-block:: none
         - mpeg-oiv6/
             - annoations/
                 -
@@ -472,7 +472,7 @@ class SFUHW(DataCatalog):
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
 
-    .. code-block::
+    .. code-block:: none
         - rootdir/
             - images
                 - img000.png
@@ -520,7 +520,7 @@ class COCO(DataCatalog):
     and annotations are respectively stored in separate directories
     (Currently this class supports none of training related operation ):
 
-    .. code-block::
+    .. code-block:: none
         - rootdir/
             - [train_folder]
                 - img000.jpg
