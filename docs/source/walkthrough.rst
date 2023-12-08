@@ -66,11 +66,6 @@ By default, this has the following directory structure:
     :caption: ${paths._common_root} directory structure
 
     ${paths._common_root}/
-
-      aim/
-        main/
-          .aim/
-
       runs/
         ...
         e4e6d4d5e5c59c69f3bd7be2/     # Aim run hash.
