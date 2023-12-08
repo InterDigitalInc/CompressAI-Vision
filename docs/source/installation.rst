@@ -9,6 +9,8 @@ However, you might prefer using CompressAI-Vision :ref:`via docker instead <dock
 
 Here we assume you are running Ubuntu 20.04 LTS (or newer)
 
+.. _install-virtualenv:
+
 First, create and activate the virtualenv with:
 
 .. code-block:: bash
@@ -35,12 +37,13 @@ After running the script within the virtualenv, you might need to ``deactivate``
 
 
 2. If your pipeline includes traditional codecs
-------
+-----------------------------------------------
 
 Install binaries from sources, clone the selected repo from the following links and select the desired tag
-- HM
+
+- HM: <https://vcgit.hhi.fraunhofer.de/jvet/HM>
 - VTM: <https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM>
-- VVENC
+- VVENC: <https://github.com/fraunhoferhhi/vvenc>
 
 Please refer to the respective Readmes to build the binaries, that will be launched from compressai-vision code.
 
