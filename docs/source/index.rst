@@ -3,13 +3,15 @@
 
 CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of "Feature Coding for Machines" (FCM) and "Video Coding for Machines" (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.
 
-.. image:: ./media/images/fcvcm-scope.png
+The goal of this platform is to develop and compare the following pipelines:
 
-CompressAI-Vision now supports the Common Test Conditions defined by the ISO/MPEG FCM Ad-hoc Group, including standardized datasets (typically OpenImageV6 subsets), evaluation protocols (OpenImageV6) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
+.. image:: ./media/images/fcm-vs-vcm.svg
+
+CompressAI-Vision now supports the Common Test Conditions defined by the ISO/MPEG FCM Ad-hoc Group, including datasets (OpenImageV6 subsets, SFU, Tencent Video Dataset, HiEve...), evaluation protocols (OpenImageV6, COCO...) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.
 
 This documentation site for FCM is in reconstruction, please also refer to the Readme files within code.
 
-To get started, please go to through the installation steps
+To get started, please go to through the installation steps.
 
 .. toctree::
    :hidden:
