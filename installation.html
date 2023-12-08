@@ -44,8 +44,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'installation';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="compressai_vision.codecs" href="codec/index.html" />
-    <link rel="prev" title="CompressAIVision" href="index.html" />
+    <link rel="next" title="Walkthrough" href="walkthrough.html" />
+    <link rel="prev" title="CompressAI Trainer" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -139,20 +139,52 @@
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="codec/index.html">compressai_vision.codecs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluators/index.html">compressai_vision.evaluators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/index.html">compressai_vision.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_wrappers/index.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="datasets.html">Supported datasets</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/encdec.html">4. Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul class="nav bd-sidenav">
@@ -305,7 +337,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-dependencies">1. Python dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vtm">2. VTM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-your-pipeline-includes-traditional-codecs">2. If your pipeline includes traditional codecs</a></li>
 </ul>
             </nav>
         </div>
@@ -320,70 +352,38 @@ document.write(`
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
 <p>This section explains how to install the required software stack <em>natively</em> on your system.
-However, you might prefer using CompressAIVision <a class="reference internal" href="docker.html#docker"><span class="std std-ref">via docker instead</span></a>.</p>
+However, you might prefer using CompressAI-Vision <a class="reference internal" href="docker.html#docker"><span class="std std-ref">via docker instead</span></a>.</p>
 <section id="python-dependencies">
 <h2>1. Python dependencies<a class="headerlink" href="#python-dependencies" title="Permalink to this heading">#</a></h2>
 <p>Here we assume you are running Ubuntu 20.04 LTS (or newer)</p>
-<p>First, create and activate the virtualenv with:</p>
+<p id="install-virtualenv">First, create and activate the virtualenv with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
 <span class="nb">source</span><span class="w"> </span>./venv/bin/activate
 pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>pip
 </pre></div>
 </div>
 <p>You might want to define the python version explicitly, i.e. with <code class="docutils literal notranslate"><span class="pre">python3.8</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code>.  Python3.8+ is required.</p>
-<p><strong>While in the activated virtualenv</strong>, run one of the <code class="docutils literal notranslate"><span class="pre">install.bash</span></code> bash scripts in
-<a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts">scripts/</a></p>
+<p><strong>While in the activated virtualenv</strong>, run the installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>scripts/install.sh
+</pre></div>
+</div>
 <p>The script will install the following software stack:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pytorch.org/">PyTorch</a></p></li>
 <li><p><a class="reference external" href="https://detectron2.readthedocs.io/en/latest/index.html">Detectron2</a></p></li>
 <li><p><em>This</em> library (CompressAI-Vision)</p></li>
 </ul>
-<p>After running the script within the virtualenv, <code class="docutils literal notranslate"><span class="pre">deactivate</span></code> and <code class="docutils literal notranslate"><span class="pre">activate</span></code> the virtualenv once again for the effects to take place.</p>
-<p>PyTorch, Detectron2 and CUDA versions are different for each of the installation scripts:</p>
-<table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>script</p></th>
-<th class="head"><p>PyTorch</p></th>
-<th class="head"><p>Detectron2</p></th>
-<th class="head"><p>CUDA</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>install.bash</p></td>
-<td><p>2.0.0</p></td>
-<td><p>0.6</p></td>
-<td><p>11.8</p></td>
-</tr>
-</tbody>
-</table>
+<p>After running the script within the virtualenv, you might need to <code class="docutils literal notranslate"><span class="pre">deactivate</span></code> and <code class="docutils literal notranslate"><span class="pre">activate</span></code> it for the effects to take place.</p>
 </section>
-<section id="vtm">
-<h2>2. VTM<a class="headerlink" href="#vtm" title="Permalink to this heading">#</a></h2>
-<p>You still need to install VTM from <a class="reference external" href="https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM">here</a>.
-VTM is used for anchor pipeline, i.e. for setting a baseline against which deep-learning encoders are tested.</p>
-<p>Before compiling VTM, you need at least:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">wget</span> <span class="n">tar</span> <span class="n">cmake</span>
-</pre></div>
-</div>
-<p>Here is your quickstart for compiling VTM (adjust VTM version number accordingly):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">vcgit</span><span class="o">.</span><span class="n">hhi</span><span class="o">.</span><span class="n">fraunhofer</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">jvet</span><span class="o">/</span><span class="n">VVCSoftware_VTM</span><span class="o">/-/</span><span class="n">archive</span><span class="o">/</span><span class="n">VTM</span><span class="o">-</span><span class="mf">12.0</span><span class="o">/</span><span class="n">VVCSoftware_VTM</span><span class="o">-</span><span class="n">VTM</span><span class="o">-</span><span class="mf">12.0</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
-<span class="n">tar</span> <span class="n">xvf</span> <span class="n">VVCSoftware_VTM</span><span class="o">-</span><span class="n">VTM</span><span class="o">-</span><span class="mf">12.0</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
-<span class="n">cd</span> <span class="n">VVCSoftware_VTM</span><span class="o">-</span><span class="n">VTM</span><span class="o">-</span><span class="mf">12.0</span>
-<span class="n">mkdir</span> <span class="n">build</span>
-<span class="n">cd</span> <span class="n">build</span>
-<span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DCMAKE_BUILD_TYPE</span><span class="o">=</span><span class="n">Release</span>
-<span class="n">make</span> <span class="o">-</span><span class="n">j</span>
-<span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
-</pre></div>
-</div>
-<p>Now there should be:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">EncoderAppStatic</span>
-<span class="n">DecoderAppStatic</span>
-<span class="o">...</span>
-</pre></div>
-</div>
-<p>Now you can try the <a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision/tree/main/scripts">standalone test</a></p>
+<section id="if-your-pipeline-includes-traditional-codecs">
+<h2>2. If your pipeline includes traditional codecs<a class="headerlink" href="#if-your-pipeline-includes-traditional-codecs" title="Permalink to this heading">#</a></h2>
+<p>Install binaries from sources, clone the selected repo from the following links and select the desired tag</p>
+<ul class="simple">
+<li><p>HM: &lt;<a class="reference external" href="https://vcgit.hhi.fraunhofer.de/jvet/HM">https://vcgit.hhi.fraunhofer.de/jvet/HM</a>&gt;</p></li>
+<li><p>VTM: &lt;<a class="reference external" href="https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM">https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM</a>&gt;</p></li>
+<li><p>VVENC: &lt;<a class="github reference external" href="https://github.com/fraunhoferhhi/vvenc">fraunhoferhhi/vvenc</a>&gt;</p></li>
+</ul>
+<p>Please refer to the respective Readmes to build the binaries, that will be launched from compressai-vision code.</p>
 </section>
 </section>
 
@@ -404,15 +404,15 @@ VTM is used for anchor pipeline, i.e. for setting a baseline against which deep-
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">CompressAIVision</p>
+        <p class="prev-next-title">CompressAI Trainer</p>
       </div>
     </a>
     <a class="right-next"
-       href="codec/index.html"
+       href="walkthrough.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">compressai_vision.codecs</p>
+        <p class="prev-next-title">Walkthrough</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -432,7 +432,7 @@ VTM is used for anchor pipeline, i.e. for setting a baseline against which deep-
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-dependencies">1. Python dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vtm">2. VTM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-your-pipeline-includes-traditional-codecs">2. If your pipeline includes traditional codecs</a></li>
 </ul>
   </nav></div>
 

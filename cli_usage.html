@@ -44,6 +44,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'cli_usage';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Docker" href="docker.html" />
+    <link rel="prev" title="Walkthrough" href="walkthrough.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -137,20 +139,52 @@
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
-<ul class="nav bd-sidenav">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="codec/index.html">compressai_vision.codecs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluators/index.html">compressai_vision.evaluators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/index.html">compressai_vision.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_wrappers/index.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="datasets.html">Supported datasets</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_5.html">5. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_6.html">6. VTM benchmark generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_7.html">7. Importing and Using Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/download.html">1. Download Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/detectron2.html">2. Run Detectron2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/evaluate.html">3. Evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/encdec.html">4. Creating an EncoderDecoder class</a></li>
+</ul>
+</li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul class="nav bd-sidenav">
@@ -302,9 +336,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision-info">compressai-vision-info</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-mpeg-vcm-auto-import">compressai-mpeg_vcm-auto-import</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision">compressai-vision</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision-eval">compressai-vision-eval</a></li>
 </ul>
             </nav>
         </div>
@@ -318,67 +350,8 @@ document.write(`
                   
   <section id="command-line-usage">
 <span id="cli"></span><h1>Command line usage<a class="headerlink" href="#command-line-usage" title="Permalink to this heading">#</a></h1>
-<section id="compressai-vision-info">
-<h2>compressai-vision-info<a class="headerlink" href="#compressai-vision-info" title="Permalink to this heading">#</a></h2>
-<p>Shows information about your the installed software stack, library
-versions and registered databases.</p>
-</section>
-<section id="compressai-mpeg-vcm-auto-import">
-<h2>compressai-mpeg_vcm-auto-import<a class="headerlink" href="#compressai-mpeg-vcm-auto-import" title="Permalink to this heading">#</a></h2>
-<p>Provided mpeg_vcm’s input files, namely:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">detection_validation_input_5k</span><span class="o">.</span><span class="n">lst</span>
-<span class="n">detection_validation_5k_bbox</span><span class="o">.</span><span class="n">csv</span>
-<span class="n">detection_validation_labels_5k</span><span class="o">.</span><span class="n">csv</span>
-<span class="n">segmentation_validation_input_5k</span><span class="o">.</span><span class="n">lst</span>
-<span class="n">segmentation_validation_bbox_5k</span><span class="o">.</span><span class="n">csv</span>
-<span class="n">segmentation_validation_labels_5k</span><span class="o">.</span><span class="n">csv</span>
-<span class="n">segmentation_validation_masks_5k</span><span class="o">.</span><span class="n">csv</span>
-</pre></div>
-</div>
-<p>the command will:</p>
-<ol class="arabic simple">
-<li><p>Download Images</p></li>
-<li><p>Perform input file conversion</p></li>
-</ol>
-<p>Step (1) will use FiftyOne to download necessary images and segmentation masks from the
-OpenImageV6 dataset.</p>
-<p>Step (2) will convert mpeg_vcm’s detection and segmentation annotations into proper
-OpenImageV6 format and import (register) them into FiftyOne.</p>
-<p>Type the command in terminal for more information</p>
-</section>
-<section id="compressai-vision">
-<h2>compressai-vision<a class="headerlink" href="#compressai-vision" title="Permalink to this heading">#</a></h2>
-<p>This command gives more control over steps (1) and (2).  After those steps, you can
-run the whole evaluation pipeline using Detectron2:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Image</span> <span class="n">dataset</span> <span class="o">--&gt;</span> <span class="n">Encoding</span> <span class="o">--&gt;</span> <span class="n">calculate</span> <span class="n">bitrate</span> <span class="o">--&gt;</span> <span class="n">Decoding</span> <span class="o">--&gt;</span> <span class="n">Detectron2</span> <span class="n">predictor</span>
-</pre></div>
-</div>
-<p>Type this command in your terminal for more information</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">manual</span>
-</pre></div>
-</div>
-<p>Here are some example commands you might want to try
-(from the proper virtualenvironment or docker container, of course):</p>
-<p><em>OpenImageV6 evaluation for the mpeg_vcm 5K dataset</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2_eval</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">mpeg_vcm</span><span class="o">-</span><span class="n">detection</span> \
-<span class="o">--</span><span class="n">model</span><span class="o">=</span><span class="n">COCO</span><span class="o">-</span><span class="n">Detection</span><span class="o">/</span><span class="n">faster_rcnn_X_101_32x8d_FPN_3x</span><span class="o">.</span><span class="n">yaml</span> \
-<span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">eval5K</span><span class="o">.</span><span class="n">json</span>
-</pre></div>
-</div>
-<p><em>OpenImageV6 evaluation for the mpeg_vcm 5K dataset with CompressAI to produce mAP(bpp) curve</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2_eval</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">mpeg_vcm</span><span class="o">-</span><span class="n">detection</span> \
-<span class="o">--</span><span class="n">model</span><span class="o">=</span><span class="n">COCO</span><span class="o">-</span><span class="n">Detection</span><span class="o">/</span><span class="n">faster_rcnn_X_101_32x8d_FPN_3x</span><span class="o">.</span><span class="n">yaml</span> \
-<span class="o">--</span><span class="n">compressai</span><span class="o">=</span><span class="n">bmshj2018_factorized</span> \
-<span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span> <span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">eval5Kqp</span><span class="o">.</span><span class="n">json</span>
-</pre></div>
-</div>
-<p><em>Test a single (mAP, bpp) point with VTM using a test/dummy database</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2_eval</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">debug</span> \
-<span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">mpeg_vcm</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">dummy</span> \
-<span class="o">--</span><span class="n">model</span><span class="o">=</span><span class="n">COCO</span><span class="o">-</span><span class="n">Detection</span><span class="o">/</span><span class="n">faster_rcnn_X_101_32x8d_FPN_3x</span><span class="o">.</span><span class="n">yaml</span> \
-<span class="o">--</span><span class="n">vtm</span> <span class="o">--</span><span class="n">vtm_dir</span><span class="o">=</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">VVCSoftware_VTM</span><span class="o">/</span><span class="nb">bin</span> <span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">47</span> <span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">vtm_test</span><span class="o">.</span><span class="n">json</span>
-</pre></div>
-</div>
+<section id="compressai-vision-eval">
+<h2>compressai-vision-eval<a class="headerlink" href="#compressai-vision-eval" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -393,6 +366,24 @@ run the whole evaluation pipeline using Detectron2:</p>
                 <footer class="prev-next-footer">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="walkthrough.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Walkthrough</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="docker.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Docker</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -408,9 +399,7 @@ run the whole evaluation pipeline using Detectron2:</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision-info">compressai-vision-info</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-mpeg-vcm-auto-import">compressai-mpeg_vcm-auto-import</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision">compressai-vision</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai-vision-eval">compressai-vision-eval</a></li>
 </ul>
   </nav></div>
 
