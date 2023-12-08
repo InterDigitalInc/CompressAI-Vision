@@ -37,6 +37,7 @@ To get started, please go to through the installation steps.
    :hidden:
 
    compressai_vision/codecs
+   compressai_vision/datasets
    compressai_vision/evaluators
    compressai_vision/pipelines/index
    compressai_vision/model_wrappers

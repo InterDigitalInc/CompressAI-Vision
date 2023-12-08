@@ -92,19 +92,25 @@ class BaseDataset(Dataset):
 
 @register_dataset("DefaultDataset")
 class DefaultDataset(BaseDataset):
-    """Load an image folder database. testing image samples
+    """
+    Loads an image folder database. testing image samples
     are respectively stored in separate directories
     (Currently, this class does not support any of the training related operations):
 
-    .. code-block:: none
-        - rootdir/
-            - img000.png
-            - img001.png
-    Args:
-        root (string): root directory of the dataset
-        transform (callable, optional): a function or transform that takes in a
-            PIL image and returns a transformed version
-        use_BGR (Bool): if True the color order of the sample is BGR otherwise RGB returned
+    .. code-block:: text
+    
+        |--rootdir
+          |-- img000.png
+          |-- img001.png
+
+    Attributes
+    ----------
+        root : string
+            root directory of the dataset
+        transform : (callable, optional)
+            a function or transform that takes in a PIL image and returns a transformed version
+        use_BGR : Bool
+            if True the color order of the sample is BGR otherwise RGB returned
     """
 
     def __init__(
