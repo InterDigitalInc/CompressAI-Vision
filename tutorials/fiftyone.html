@@ -371,18 +371,18 @@ a common (remote) mongodb server for your whole research group for
 sharing data and/or if you’re working in a supercomputing / grid
 environment.</p>
 <p>Let’s take a closer look:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># image tool imports
-from PIL import Image
-import matplotlib.pyplot as plt
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># image tool imports</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
-import fiftyone as fo
-import fiftyone.zoo as foz
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># fiftyone</span>
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span> <span class="nn">fiftyone.zoo</span> <span class="k">as</span> <span class="nn">foz</span>
 </pre></div>
 </div>
 <p>Lets take a look at the datasets registered to fiftyone:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fo.list_datasets()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fo</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;mpeg-vcm-detection&#39;</span><span class="p">,</span>
@@ -394,19 +394,19 @@ import fiftyone.zoo as foz
 </pre></div>
 </div>
 <p>Let’s get a handle to a dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset=fo.load_dataset(&quot;quickstart&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">=</span><span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;quickstart&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Let’s see how many <em>samples</em> we have in it:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>len(dataset)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">200</span>
 </pre></div>
 </div>
 <p>Let’s take a look at the first sample:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sample=dataset.first()
-print(sample)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;Sample: {
@@ -696,7 +696,7 @@ ground truths and detections can be compared within the same dataset
 (instead of writing lots of intermediate files on the disk like with
 COCO API or with the tensorflow tools).</p>
 <p>Let’s load an image:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(Image.open(sample[&quot;filepath&quot;]))
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">]))</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span> <span class="n">at</span> <span class="mh">0x7fdf5a7fc640</span><span class="o">&gt;</span>
@@ -705,7 +705,7 @@ COCO API or with the tensorflow tools).</p>
 <img alt="../_images/fiftyone_nb_12_1.png" src="../_images/fiftyone_nb_12_1.png" />
 <p>Let’s see a summary of the dataset and what kind of fields each samples
 has:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(dataset)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name:        quickstart
@@ -731,14 +731,14 @@ Sample fields:
 documentation</a></p>
 <p>Here at the final, a small recompilation/cheatsheet of selected fiftyone
 features</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Access by sample id
-sample=dataset[&quot;634472860faf93a9a586c9c4&quot;]
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access by sample id</span>
+<span class="n">sample</span><span class="o">=</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;634472860faf93a9a586c9c4&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Search by a field value.  You might need this one with the with open_images_id field.
-from fiftyone import ViewField as F
-tmpset=dataset[F(&quot;filepath&quot;) == dataset.first().filepath]
-print(tmpset)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Search by a field value.  You might need this one with the with open_images_id field.</span>
+<span class="kn">from</span> <span class="nn">fiftyone</span> <span class="kn">import</span> <span class="n">ViewField</span> <span class="k">as</span> <span class="n">F</span>
+<span class="n">tmpset</span><span class="o">=</span><span class="n">dataset</span><span class="p">[</span><span class="n">F</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tmpset</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Dataset:     quickstart

@@ -348,42 +348,42 @@ document.write(`
                   
   <p>In this chapter, we create an evaluation dataset as defined by the
 MPEG-VCM working group</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># common libs
-import math, os, io, json, cv2, random, logging
-import numpy as np
-# images
-from PIL import Image
-import matplotlib.pyplot as plt
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># common libs</span>
+<span class="kn">import</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># images</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>homie=os.path.expanduser(&quot;~&quot;)
-print(&quot;your home path is&quot;, homie)
-fodir=os.path.join(homie,&#39;fiftyone&#39;)
-print(&quot;fiftyone dowloads data by default to&quot;, fodir)
-try:
-    os.mkdir(fodir)
-except FileExistsError:
-    pass
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">homie</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;your home path is&quot;</span><span class="p">,</span> <span class="n">homie</span><span class="p">)</span>
+<span class="n">fodir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">homie</span><span class="p">,</span><span class="s1">&#39;fiftyone&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fiftyone dowloads data by default to&quot;</span><span class="p">,</span> <span class="n">fodir</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fodir</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+    <span class="k">pass</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>your home path is /home/sampsa
 fiftyone dowloads data by default to /home/sampsa/fiftyone
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
-import fiftyone as fo
-import fiftyone.zoo as foz
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># fiftyone</span>
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span> <span class="nn">fiftyone.zoo</span> <span class="k">as</span> <span class="nn">foz</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># CompressAI-Vision
-from compressai_vision.conversion import MPEGVCMToOpenImageV6, imageIdFileList
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CompressAI-Vision</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">MPEGVCMToOpenImageV6</span><span class="p">,</span> <span class="n">imageIdFileList</span>
 </pre></div>
 </div>
 <p>We expect that you have downloaded correct images and segmentation masks
 into open-images-v6 folder (as instructed in the previous chapter)</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dir_=os.path.join(fodir,&quot;open-images-v6&quot;)
-print(&quot;contents of&quot;, dir_,&quot;:&quot;)
-!tree --filelimit=10 $dir_ | cat
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dir_</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fodir</span><span class="p">,</span><span class="s2">&quot;open-images-v6&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;contents of&quot;</span><span class="p">,</span> <span class="n">dir_</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+<span class="o">!</span>tree<span class="w"> </span>--filelimit<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">$dir_</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cat
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :
@@ -418,36 +418,36 @@ are:</p>
 <span class="n">detection_validation_input_5k</span><span class="o">.</span><span class="n">lst</span>          <span class="o">=</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">images</span> <span class="n">used</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># TODO: define path_to_mpeg_vcm_files
-path_to_images=os.path.join(fodir,&quot;open-images-v6/validation/data&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO: define path_to_mpeg_vcm_files</span>
+<span class="n">path_to_images</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fodir</span><span class="p">,</span><span class="s2">&quot;open-images-v6/validation/data&quot;</span><span class="p">)</span>
 
-list_file=os.path.join(path_to_mpeg_vcm_files, &quot;detection_validation_input_5k.lst&quot;)
-bbox_csv_file=os.path.join(path_to_mpeg_vcm_files, &quot;detection_validation_5k_bbox.csv&quot;)
-validation_csv_file=os.path.join(path_to_mpeg_vcm_files, &quot;detection_validation_labels_5k.csv&quot;)
+<span class="n">list_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_mpeg_vcm_files</span><span class="p">,</span> <span class="s2">&quot;detection_validation_input_5k.lst&quot;</span><span class="p">)</span>
+<span class="n">bbox_csv_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_mpeg_vcm_files</span><span class="p">,</span> <span class="s2">&quot;detection_validation_5k_bbox.csv&quot;</span><span class="p">)</span>
+<span class="n">validation_csv_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_mpeg_vcm_files</span><span class="p">,</span> <span class="s2">&quot;detection_validation_labels_5k.csv&quot;</span><span class="p">)</span>
 
-assert(os.path.exists(bbox_csv_file)), &quot;can&#39;t find bbox file&quot;
-assert(os.path.exists(validation_csv_file)), &quot;can&#39;t find labels file&quot;
-assert(os.path.exists(path_to_images)), &quot;can&#39;t find image directory&quot;
+<span class="k">assert</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">bbox_csv_file</span><span class="p">)),</span> <span class="s2">&quot;can&#39;t find bbox file&quot;</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">validation_csv_file</span><span class="p">)),</span> <span class="s2">&quot;can&#39;t find labels file&quot;</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_to_images</span><span class="p">)),</span> <span class="s2">&quot;can&#39;t find image directory&quot;</span>
 </pre></div>
 </div>
 <p>Now we convert mpeg vmc proprietary format annotation into proper
 OpenImageV6 format dataset and place it into
 <code class="docutils literal notranslate"><span class="pre">~/fiftyone/mpeg_vcm-detection</span></code></p>
 <p>First, remove any previously imported stuff:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!rm -rf ~/fiftyone/mpeg-vcm-*
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span>~/fiftyone/mpeg-vcm-*
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>MPEGVCMToOpenImageV6(
-    validation_csv_file=validation_csv_file,
-    list_file=list_file,
-    bbox_csv_file=bbox_csv_file,
-    output_directory=os.path.join(fodir,&quot;mpeg-vcm-detection&quot;),
-    data_dir=path_to_images
-)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">MPEGVCMToOpenImageV6</span><span class="p">(</span>
+    <span class="n">validation_csv_file</span><span class="o">=</span><span class="n">validation_csv_file</span><span class="p">,</span>
+    <span class="n">list_file</span><span class="o">=</span><span class="n">list_file</span><span class="p">,</span>
+    <span class="n">bbox_csv_file</span><span class="o">=</span><span class="n">bbox_csv_file</span><span class="p">,</span>
+    <span class="n">output_directory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fodir</span><span class="p">,</span><span class="s2">&quot;mpeg-vcm-detection&quot;</span><span class="p">),</span>
+    <span class="n">data_dir</span><span class="o">=</span><span class="n">path_to_images</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>let’s see what we got:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!tree --filelimit=10 ~/fiftyone/mpeg-vcm-detection | cat
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>tree<span class="w"> </span>--filelimit<span class="o">=</span><span class="m">10</span><span class="w"> </span>~/fiftyone/mpeg-vcm-detection<span class="w"> </span><span class="p">|</span><span class="w"> </span>cat
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/fiftyone/mpeg-vcm-detection
@@ -469,46 +469,46 @@ annotations, but it uses images from the official OpenImageV6 dataset
 <code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">-&gt;</span> <span class="pre">~/fiftyone/open-images-v6/validation/data</span></code>)</p>
 <p>The only thing we’re left to do, is to register this OpenImageV6
 formatted dataset into fiftyone:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># remove the dataset in the case it was already registered in fiftyone
-try:
-    fo.delete_dataset(&quot;mpeg-vcm-detection&quot;)
-except ValueError as e:
-    print(&quot;could not delete because of&quot;, e)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># remove the dataset in the case it was already registered in fiftyone</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">fo</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="s2">&quot;mpeg-vcm-detection&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;could not delete because of&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset_type = fo.types.OpenImagesV6Dataset
-dataset_dir = os.path.join(fodir,&quot;mpeg-vcm-detection&quot;)
-dataset = fo.Dataset.from_dir(
-    dataset_dir=dataset_dir,
-    dataset_type=dataset_type,
-    label_types=(&quot;detections&quot;,&quot;classifications&quot;),
-    load_hierarchy=False,
-    name=&quot;mpeg-vcm-detection&quot;,
-    image_ids=imageIdFileList(list_file)
-)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_type</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">OpenImagesV6Dataset</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fodir</span><span class="p">,</span><span class="s2">&quot;mpeg-vcm-detection&quot;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_dir</span><span class="p">(</span>
+    <span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span>
+    <span class="n">dataset_type</span><span class="o">=</span><span class="n">dataset_type</span><span class="p">,</span>
+    <span class="n">label_types</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;detections&quot;</span><span class="p">,</span><span class="s2">&quot;classifications&quot;</span><span class="p">),</span>
+    <span class="n">load_hierarchy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mpeg-vcm-detection&quot;</span><span class="p">,</span>
+    <span class="n">image_ids</span><span class="o">=</span><span class="n">imageIdFileList</span><span class="p">(</span><span class="n">list_file</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>100% |███████████████| 5000/5000 [16.8s elapsed, 0s remaining, 290.4 samples/s]
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset.persistent=True # without this, your dabatase will disappear!
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">persistent</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># without this, your dabatase will disappear!</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>## now, in the future, just do
-dataset = fo.load_dataset(&quot;mpeg-vcm-detection&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## now, in the future, just do</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;mpeg-vcm-detection&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Finaly, let’s also create a dummy dataset for debugging and testing with
 only one sample:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>try:
-    fo.delete_dataset(&quot;mpeg-vcm-detection-dummy&quot;)
-except ValueError:
-    print(&quot;no dummmy dataset yet..&quot;)
-dummy_dataset=fo.Dataset(&quot;mpeg-vcm-detection-dummy&quot;)
-for sample in dataset[0:1]:
-    dummy_dataset.add_sample(sample)
-dummy_dataset.persistent=True
-print(&quot;dummy dataset ok&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">fo</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="s2">&quot;mpeg-vcm-detection-dummy&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no dummmy dataset yet..&quot;</span><span class="p">)</span>
+<span class="n">dummy_dataset</span><span class="o">=</span><span class="n">fo</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s2">&quot;mpeg-vcm-detection-dummy&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="n">dummy_dataset</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+<span class="n">dummy_dataset</span><span class="o">.</span><span class="n">persistent</span><span class="o">=</span><span class="kc">True</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dummy dataset ok&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dummy dataset ok

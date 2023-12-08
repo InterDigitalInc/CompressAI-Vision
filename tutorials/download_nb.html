@@ -348,31 +348,31 @@ document.write(`
                   
   <p>In this chapter we use fiftyone to download, inspect and visualize a
 subset of OpenImageV6 images</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># common libs
-import math, os, io, json, cv2, random, logging
-import numpy as np
-# images
-from PIL import Image
-import matplotlib.pyplot as plt
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># common libs</span>
+<span class="kn">import</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># images</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
-import fiftyone as fo
-import fiftyone.zoo as foz
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># fiftyone</span>
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span> <span class="nn">fiftyone.zoo</span> <span class="k">as</span> <span class="nn">foz</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># CompressAI-Vision
-from compressai_vision.conversion import imageIdFileList
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CompressAI-Vision</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">imageIdFileList</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>homie=os.path.expanduser(&quot;~&quot;)
-print(&quot;your home path is&quot;, homie)
-fodir=os.path.join(homie,&#39;fiftyone&#39;)
-print(&quot;fiftyone dowloads data by default to&quot;, fodir)
-try:
-    os.mkdir(fodir)
-except FileExistsError:
-    pass
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">homie</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;your home path is&quot;</span><span class="p">,</span> <span class="n">homie</span><span class="p">)</span>
+<span class="n">fodir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">homie</span><span class="p">,</span><span class="s1">&#39;fiftyone&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fiftyone dowloads data by default to&quot;</span><span class="p">,</span> <span class="n">fodir</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fodir</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+    <span class="k">pass</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>your home path is /home/sampsa
@@ -380,7 +380,7 @@ fiftyone dowloads data by default to /home/sampsa/fiftyone
 </pre></div>
 </div>
 <p>List all datasets (already) registered to fiftyone</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fo.list_datasets()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fo</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;detectron-run-sampsa-oiv6-mpeg-detection-v1-2022-11-16-17-22-40-319395&#39;</span><span class="p">,</span>
@@ -402,10 +402,10 @@ fiftyone dowloads data by default to /home/sampsa/fiftyone
 OpenImageV6.</p>
 <p>Let’s use two files: <code class="docutils literal notranslate"><span class="pre">detection_validation_input_5k.lst</span></code> and
 <code class="docutils literal notranslate"><span class="pre">segmentation_validation_input_5k.lst</span></code></p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>path_to_list_file=&quot;/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data&quot;
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_list_file</span><span class="o">=</span><span class="s2">&quot;/home/sampsa/silo/interdigital/CompressAI-Vision/compressai_vision/data/mpeg_vcm_data&quot;</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!head -n10 {path_to_list_file}/detection_validation_input_5k.lst
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>head<span class="w"> </span>-n10<span class="w"> </span><span class="o">{</span>path_to_list_file<span class="o">}</span>/detection_validation_input_5k.lst
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>bef50424c62d12c5.jpg
@@ -420,25 +420,25 @@ a63d569332c49ee5.jpg
 2e96665b867c4d0f.jpg
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>det_lst=os.path.join(path_to_mpeg_vcm_files,&quot;detection_validation_input_5k.lst&quot;)
-seg_lst=os.path.join(path_to_mpeg_vcm_files, &quot;segmentation_validation_input_5k.lst&quot;)
-assert(os.path.exists(det_lst)), &quot;missing file &quot;+det_lst
-assert(os.path.exists(seg_lst)), &quot;missing file &quot;+seg_lst
-lis=imageIdFileList(det_lst, seg_lst)
-print(len(lis))
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">det_lst</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_mpeg_vcm_files</span><span class="p">,</span><span class="s2">&quot;detection_validation_input_5k.lst&quot;</span><span class="p">)</span>
+<span class="n">seg_lst</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_mpeg_vcm_files</span><span class="p">,</span> <span class="s2">&quot;segmentation_validation_input_5k.lst&quot;</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">det_lst</span><span class="p">)),</span> <span class="s2">&quot;missing file &quot;</span><span class="o">+</span><span class="n">det_lst</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">seg_lst</span><span class="p">)),</span> <span class="s2">&quot;missing file &quot;</span><span class="o">+</span><span class="n">seg_lst</span>
+<span class="n">lis</span><span class="o">=</span><span class="n">imageIdFileList</span><span class="p">(</span><span class="n">det_lst</span><span class="p">,</span> <span class="n">seg_lst</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lis</span><span class="p">))</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>8189
 </pre></div>
 </div>
 <p>Tell fiftyone to load the correct subset of OpenImageV6 dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6
-dataset = foz.load_zoo_dataset(
-    &quot;open-images-v6&quot;,
-    split=&quot;validation&quot;,
-    # label_types=(&quot;detections&quot;, &quot;classifications&quot;, &quot;relationships&quot;, &quot;segmentations&quot;) # this is the default
-    image_ids=lis
-)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># https://voxel51.com/docs/fiftyone/user_guide/dataset_zoo/datasets.html#dataset-zoo-open-images-v6</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">foz</span><span class="o">.</span><span class="n">load_zoo_dataset</span><span class="p">(</span>
+    <span class="s2">&quot;open-images-v6&quot;</span><span class="p">,</span>
+    <span class="n">split</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span>
+    <span class="c1"># label_types=(&quot;detections&quot;, &quot;classifications&quot;, &quot;relationships&quot;, &quot;segmentations&quot;) # this is the default</span>
+    <span class="n">image_ids</span><span class="o">=</span><span class="n">lis</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Downloading split &#39;validation&#39; to &#39;/home/sampsa/fiftyone/open-images-v6/validation&#39; if necessary
@@ -447,8 +447,8 @@ Existing download of split &#39;validation&#39; is sufficient
 Loading existing dataset &#39;open-images-v6-validation&#39;. To reload from disk, either delete the existing dataset or provide a custom `dataset_name` to use
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># take a look at the dataset
-dataset
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># take a look at the dataset</span>
+<span class="n">dataset</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="nb">open</span><span class="o">-</span><span class="n">images</span><span class="o">-</span><span class="n">v6</span><span class="o">-</span><span class="n">validation</span>
@@ -469,16 +469,16 @@ dataset
     <span class="n">segmentations</span><span class="p">:</span>   <span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">fiftyone</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">Detections</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># make dataset persistent .. next time you import fiftyone it&#39;s still available (loaded into the mongodb that&#39;s running in the background)
-dataset.persistent=True
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># make dataset persistent .. next time you import fiftyone it&#39;s still available (loaded into the mongodb that&#39;s running in the background)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">persistent</span><span class="o">=</span><span class="kc">True</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># next time you need it, load it with:
-dataset = fo.load_dataset(&quot;open-images-v6-validation&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># next time you need it, load it with:</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;open-images-v6-validation&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># peek at first sample
-dataset.first()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># peek at first sample</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
@@ -531,9 +531,9 @@ dataset.first()
 </pre></div>
 </div>
 <p>Let’s take a look where fiftyone downloaded the files</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dir_=os.path.join(fodir,&quot;open-images-v6&quot;)
-print(&quot;contents of&quot;, dir_,&quot;:&quot;)
-!tree --filelimit=10 $dir_ | cat
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dir_</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fodir</span><span class="p">,</span><span class="s2">&quot;open-images-v6&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;contents of&quot;</span><span class="p">,</span> <span class="n">dir_</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+<span class="o">!</span>tree<span class="w"> </span>--filelimit<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">$dir_</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cat
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contents of /home/sampsa/fiftyone/open-images-v6 :

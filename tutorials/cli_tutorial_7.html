@@ -542,17 +542,17 @@ Dataset saved
 </div>
 <p>In order to demonstrate how video datasets are used, let’s continue in
 python notebook:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import cv2
-import matplotlib.pyplot as plt
-import fiftyone as fo
-from fiftyone import ViewField as F
-from math import floor
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">from</span> <span class="nn">fiftyone</span> <span class="kn">import</span> <span class="n">ViewField</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset=fo.load_dataset(&quot;sfu-hw-objects-v1&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">=</span><span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;sfu-hw-objects-v1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">sfu</span><span class="o">-</span><span class="n">hw</span><span class="o">-</span><span class="n">objects</span><span class="o">-</span><span class="n">v1</span>
@@ -577,7 +577,7 @@ from math import floor
 </div>
 <p>In contrast to image datasets where each sample was an image, now a
 sample corresponds to a video:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset.first()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Sample</span><span class="p">:</span> <span class="p">{</span>
@@ -599,12 +599,12 @@ encapsulating ground truths etc. data for each and every frame. For
 class directories (ClassA, ClassB, etc.), while <code class="docutils literal notranslate"><span class="pre">name_tag</span></code> to the
 video descriptive names (BasketballDrill, Traffic, PeopleOnStreeet,
 etc.). Let’s pick a certain video sample:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sample = dataset[ (F(&quot;name_tag&quot;) == &quot;BasketballDrill&quot;) &amp; (F(&quot;class_tag&quot;) == &quot;ClassC&quot;) ].first()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span> <span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s2">&quot;name_tag&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;BasketballDrill&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s2">&quot;class_tag&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ClassC&quot;</span><span class="p">)</span> <span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Take a look at the first frame ground truth detections (note that frame
 indices start from 1):</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sample.frames[1]
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">FrameView</span><span class="p">:</span> <span class="p">{</span>
@@ -738,39 +738,39 @@ indices start from 1):</p>
 </pre></div>
 </div>
 <p>Start reading the video file with OpenCV:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>vid=cv2.VideoCapture(sample.filepath)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vid</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;number of frames:&quot;,int(vid.get(cv2.CAP_PROP_FRAME_COUNT)))
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of frames:&quot;</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">vid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">)))</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>number of frames: 501
 </pre></div>
 </div>
 <p>Let’s define a small helper function:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def draw_detections(sample: fo.Sample, vid: cv2.VideoCapture, nframe: int):
-    nmax=int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-    if nframe &gt; nmax:
-        raise AssertionError(&quot;max frame is &quot; + str(nmax))
-    ok = vid.set(cv2.CAP_PROP_POS_FRAMES, nframe-1)
-    if not ok:
-        raise AssertionError(&quot;seek failed&quot;)
-    ok, arr = vid.read() # BGR image in arr
-    if not ok:
-        raise AssertionError(&quot;no image&quot;)
-    for detection in sample.frames[nframe].detections.detections:
-        x0, y0, w, h = detection.bounding_box # rel coords
-        x1, y1, x2, y2 = floor(x0*arr.shape[1]), floor(y0*arr.shape[0]), floor((x0+w)*arr.shape[1]), floor((y0+h)*arr.shape[0])
-        arr=cv2.rectangle(arr, (x1, y1), (x2, y2), (255, 0, 0), 5)
-    return arr
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">:</span> <span class="n">fo</span><span class="o">.</span><span class="n">Sample</span><span class="p">,</span> <span class="n">vid</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">,</span> <span class="n">nframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">vid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">nframe</span> <span class="o">&gt;</span> <span class="n">nmax</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;max frame is &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nmax</span><span class="p">))</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">vid</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_POS_FRAMES</span><span class="p">,</span> <span class="n">nframe</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;seek failed&quot;</span><span class="p">)</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">arr</span> <span class="o">=</span> <span class="n">vid</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c1"># BGR image in arr</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;no image&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">sample</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="n">nframe</span><span class="p">]</span><span class="o">.</span><span class="n">detections</span><span class="o">.</span><span class="n">detections</span><span class="p">:</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">detection</span><span class="o">.</span><span class="n">bounding_box</span> <span class="c1"># rel coords</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">x0</span><span class="o">*</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">floor</span><span class="p">(</span><span class="n">y0</span><span class="o">*</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">floor</span><span class="p">((</span><span class="n">x0</span><span class="o">+</span><span class="n">w</span><span class="p">)</span><span class="o">*</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">floor</span><span class="p">((</span><span class="n">y0</span><span class="o">+</span><span class="n">h</span><span class="p">)</span><span class="o">*</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">arr</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">),</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>img=draw_detections(sample, vid, 200)
-img_ = img[:,:,::-1] # BGR -&gt; RGB
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img</span><span class="o">=</span><span class="n">draw_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">vid</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">img_</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># BGR -&gt; RGB</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.imshow(img_)
-vid.release()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_</span><span class="p">)</span>
+<span class="n">vid</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
 <img alt="../_images/cli_tutorial_7_nb_22_0.png" src="../_images/cli_tutorial_7_nb_22_0.png" />
@@ -848,7 +848,7 @@ Done!
 </pre></div>
 </div>
 <p>Take a look at the results:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>cat detectron2_test.json
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">detectron2_test</span><span class="o">.</span><span class="n">json</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{

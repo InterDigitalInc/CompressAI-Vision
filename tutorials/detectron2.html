@@ -346,90 +346,90 @@ how to go between Detectron2 and fiftyone datasets/structures.</p>
 <p>In this chapter we look into fiftyone/detectron2 interface, how to add
 detectron2 results into a fiftyone dataset and how to evaluate
 detectron2 results with fiftyone.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># common libs
-import math, os, io, json, cv2, random, logging, datetime
-import numpy as np
-# torch
-import torch
-from torchvision import transforms
-# images
-from PIL import Image
-import matplotlib.pyplot as plt
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># common libs</span>
+<span class="kn">import</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># torch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="c1"># images</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># define a helper function
-def cv2_imshow(img):
-    img2 = img[:,:,::-1]
-    plt.figure(figsize=(12, 9))
-    plt.axis(&#39;off&#39;)
-    plt.imshow(img2)
-    plt.show()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># define a helper function</span>
+<span class="k">def</span> <span class="nf">cv2_imshow</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="n">img2</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>## *** Detectron imports ***
-import detectron2
-from detectron2.utils.logger import setup_logger
-setup_logger()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## *** Detectron imports ***</span>
+<span class="kn">import</span> <span class="nn">detectron2</span>
+<span class="kn">from</span> <span class="nn">detectron2.utils.logger</span> <span class="kn">import</span> <span class="n">setup_logger</span>
+<span class="n">setup_logger</span><span class="p">()</span>
 
-# import some common detectron2 utilities
-from detectron2 import model_zoo
-from detectron2.engine import DefaultPredictor
-from detectron2.config import get_cfg
-from detectron2.utils.visualizer import Visualizer
-from detectron2.data import MetadataCatalog, DatasetCatalog
+<span class="c1"># import some common detectron2 utilities</span>
+<span class="kn">from</span> <span class="nn">detectron2</span> <span class="kn">import</span> <span class="n">model_zoo</span>
+<span class="kn">from</span> <span class="nn">detectron2.engine</span> <span class="kn">import</span> <span class="n">DefaultPredictor</span>
+<span class="kn">from</span> <span class="nn">detectron2.config</span> <span class="kn">import</span> <span class="n">get_cfg</span>
+<span class="kn">from</span> <span class="nn">detectron2.utils.visualizer</span> <span class="kn">import</span> <span class="n">Visualizer</span>
+<span class="kn">from</span> <span class="nn">detectron2.data</span> <span class="kn">import</span> <span class="n">MetadataCatalog</span><span class="p">,</span> <span class="n">DatasetCatalog</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># CompressAI-Vision
-from compressai_vision.conversion import FO2DetectronDataset # convert fiftyone dataset to Detectron2 dataset
-from compressai_vision.conversion import detectron251 # convert Detectron2 results to fiftyone format
-from compressai_vision.evaluation.fo import annexPredictions # crunch a complete fiftyone dataset through Detectron2 predictor and add the predictions to the fiftyone dataset
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CompressAI-Vision</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">FO2DetectronDataset</span> <span class="c1"># convert fiftyone dataset to Detectron2 dataset</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">detectron251</span> <span class="c1"># convert Detectron2 results to fiftyone format</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.evaluation.fo</span> <span class="kn">import</span> <span class="n">annexPredictions</span> <span class="c1"># crunch a complete fiftyone dataset through Detectron2 predictor and add the predictions to the fiftyone dataset</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fiftyone
-import fiftyone as fo
-import fiftyone.zoo as foz
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># fiftyone</span>
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span> <span class="nn">fiftyone.zoo</span> <span class="k">as</span> <span class="nn">foz</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>device = &#39;cuda&#39; if torch.cuda.is_available() else &#39;cpu&#39;
-print(device)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cpu
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;torch:&quot;, torch.__version__, &quot;/ cuda:&quot;, torch.version.cuda, &quot;/ detectron2:&quot;, detectron2.__version__)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;torch:&quot;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;/ cuda:&quot;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">cuda</span><span class="p">,</span> <span class="s2">&quot;/ detectron2:&quot;</span><span class="p">,</span> <span class="n">detectron2</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>torch: 1.9.1+cu102 / cuda: 10.2 / detectron2: 0.6
 </pre></div>
 </div>
 <p>Let’s pick up correct Detectron2 model</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>## MODEL A
-model_name=&quot;COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml&quot;
-## look here:
-## https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md#faster-r-cnn
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## MODEL A</span>
+<span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml&quot;</span>
+<span class="c1">## look here:</span>
+<span class="c1">## https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md#faster-r-cnn</span>
 
-## MODEL B
-# model_name=&quot;COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml&quot;
+<span class="c1">## MODEL B</span>
+<span class="c1"># model_name=&quot;COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml&quot;</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># cfg encapsulates the model architecture &amp; weights, also threshold parameter, metadata, etc.
-cfg = get_cfg()
-cfg.MODEL.DEVICE=device
-# load config from a file:
-cfg.merge_from_file(model_zoo.get_config_file(model_name))
-# DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:
-# too big a threshold will cut the smallest values &amp; affect the precision(recall) curves &amp; evaluation results
-# the default value is 0.05
-# value of 0.01 saturates the results (they don&#39;t change at lower values)
-# cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-# get weights
-cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_name)
-print(&quot;expected input colorspace:&quot;, cfg.INPUT.FORMAT)
-print(&quot;loaded datasets:&quot;, cfg.DATASETS)
-model_dataset=cfg.DATASETS.TRAIN[0]
-print(&quot;model was trained with&quot;, model_dataset)
-model_meta=MetadataCatalog.get(model_dataset)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cfg encapsulates the model architecture &amp; weights, also threshold parameter, metadata, etc.</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">get_cfg</span><span class="p">()</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">MODEL</span><span class="o">.</span><span class="n">DEVICE</span><span class="o">=</span><span class="n">device</span>
+<span class="c1"># load config from a file:</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">merge_from_file</span><span class="p">(</span><span class="n">model_zoo</span><span class="o">.</span><span class="n">get_config_file</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+<span class="c1"># DO NOT TOUCH THRESHOLD WHEN DOING EVALUATION:</span>
+<span class="c1"># too big a threshold will cut the smallest values &amp; affect the precision(recall) curves &amp; evaluation results</span>
+<span class="c1"># the default value is 0.05</span>
+<span class="c1"># value of 0.01 saturates the results (they don&#39;t change at lower values)</span>
+<span class="c1"># cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5</span>
+<span class="c1"># get weights</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">MODEL</span><span class="o">.</span><span class="n">WEIGHTS</span> <span class="o">=</span> <span class="n">model_zoo</span><span class="o">.</span><span class="n">get_checkpoint_url</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;expected input colorspace:&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">INPUT</span><span class="o">.</span><span class="n">FORMAT</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loaded datasets:&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">DATASETS</span><span class="p">)</span>
+<span class="n">model_dataset</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">DATASETS</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model was trained with&quot;</span><span class="p">,</span> <span class="n">model_dataset</span><span class="p">)</span>
+<span class="n">model_meta</span><span class="o">=</span><span class="n">MetadataCatalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_dataset</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>expected input colorspace: BGR
@@ -442,15 +442,15 @@ TRAIN: (&#39;coco_2017_train&#39;,)
 model was trained with coco_2017_train
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor = DefaultPredictor(cfg)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">DefaultPredictor</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Get handle to a dataset. We will be using the <code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-v1</span></code> dataset.
 Please go through the CLI Tutorials in order to produce this dataset.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;oiv6-mpeg-detection-v1&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;oiv6-mpeg-detection-v1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span>        <span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span>
@@ -470,25 +470,25 @@ Please go through the CLI Tutorials in order to produce this dataset.</p>
 </pre></div>
 </div>
 <p>We can go from fiftyone dataset to Detectron2 dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>detectron_dataset=FO2DetectronDataset(fo_dataset=dataset, model_catids=model_meta.thing_classes)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detectron_dataset</span><span class="o">=</span><span class="n">FO2DetectronDataset</span><span class="p">(</span><span class="n">fo_dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model_catids</span><span class="o">=</span><span class="n">model_meta</span><span class="o">.</span><span class="n">thing_classes</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Pick a sample:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>d=detectron_dataset[3]
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d</span><span class="o">=</span><span class="n">detectron_dataset</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>We can visualize that sample also with Detectron2 library tools
 (although we’d prefer fiftyone with <code class="docutils literal notranslate"><span class="pre">fo.launch_app(dataset)</span></code>):</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># visualize with Detectron2 tools only
-img = cv2.imread(d[&quot;file_name&quot;])
-visualizer = Visualizer(img[:, :, ::-1], metadata=model_meta, scale=0.5)
-out = visualizer.draw_dataset_dict(d)
-cv2_imshow(out.get_image()[:, :, ::-1])
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># visualize with Detectron2 tools only</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>
+<span class="n">visualizer</span> <span class="o">=</span> <span class="n">Visualizer</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">metadata</span><span class="o">=</span><span class="n">model_meta</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">visualizer</span><span class="o">.</span><span class="n">draw_dataset_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">cv2_imshow</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get_image</span><span class="p">()[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 <img alt="../_images/detectron2_nb_20_0.png" src="../_images/detectron2_nb_20_0.png" />
 <p>Let’s try the Detectron2 predictor:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>res=predictor(img)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span><span class="o">=</span><span class="n">predictor</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/home/sampsa/silo/interdigital/venv_all/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the &#39;trunc&#39; function NOT &#39;floor&#39;). This results in incorrect rounding for negative values.
@@ -497,10 +497,10 @@ To keep the current behavior, use torch.div(a, b, rounding_mode=&#39;trunc&#39;)
 </pre></div>
 </div>
 <p>We can convert from Detectron2 format to fiftyone detection objects:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dets=detectron251(res, model_catids=model_meta.thing_classes) # process involves going from class indexes (ints) to class labels (strings)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dets</span><span class="o">=</span><span class="n">detectron251</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">model_catids</span><span class="o">=</span><span class="n">model_meta</span><span class="o">.</span><span class="n">thing_classes</span><span class="p">)</span> <span class="c1"># process involves going from class indexes (ints) to class labels (strings)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dets
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dets</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Detections</span><span class="p">:</span> <span class="p">{</span>
@@ -754,16 +754,16 @@ Results from the predictor will be annexed to the same fiftyone dataset.
 We use the dummy single-sample dataset <code class="docutils literal notranslate"><span class="pre">oiv6-mpeg-detection-v1-dummy</span></code>
 created in the CLI tutorials with the
 <code class="docutils literal notranslate"><span class="pre">compressai-vision</span> <span class="pre">import-custom</span></code> command</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = fo.load_dataset(&quot;oiv6-mpeg-detection-v1-dummy&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;oiv6-mpeg-detection-v1-dummy&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Detectron prediction results are saved during the run into the fiftyone
 (mongodb) database. Let’s define a unique name for the sample field
 where the detectron results will be saved:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor_field=&#39;detectron-predictions&#39;
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predictor_field</span><span class="o">=</span><span class="s1">&#39;detectron-predictions&#39;</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>annexPredictions(predictors=[predictor], fo_dataset=dataset, predictor_fields=[predictor_field])
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">annexPredictions</span><span class="p">(</span><span class="n">predictors</span><span class="o">=</span><span class="p">[</span><span class="n">predictor</span><span class="p">],</span> <span class="n">fo_dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">predictor_fields</span><span class="o">=</span><span class="p">[</span><span class="n">predictor_field</span><span class="p">])</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sample:  1 / 1
@@ -771,7 +771,7 @@ where the detectron results will be saved:</p>
 </div>
 <p>After that one, the dataset looks slightly different. Take note that an
 extra field <code class="docutils literal notranslate"><span class="pre">detectron-predictions</span></code> has appeared into the dataset:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(dataset)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name:        oiv6-mpeg-detection-v1-dummy
@@ -792,10 +792,10 @@ Sample fields:
 </pre></div>
 </div>
 <p>Let’s peek at the first sample:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sample=dataset.first()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(sample)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;Sample: {
@@ -1438,15 +1438,15 @@ Sample fields:
 “detectron-predictions” (predicted values). Now we can run the
 OpenImageV6 evaluation protocol on the dataset which uses the ground
 truth and the predictor results:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>results = dataset.evaluate_detections(
-    predictor_field,
-    gt_field=&quot;detections&quot;,
-    method=&quot;open-images&quot;,
-    pos_label_field=&quot;positive_labels&quot;,
-    neg_label_field=&quot;negative_labels&quot;,
-    expand_pred_hierarchy=False,
-    expand_gt_hierarchy=False
-)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">evaluate_detections</span><span class="p">(</span>
+    <span class="n">predictor_field</span><span class="p">,</span>
+    <span class="n">gt_field</span><span class="o">=</span><span class="s2">&quot;detections&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;open-images&quot;</span><span class="p">,</span>
+    <span class="n">pos_label_field</span><span class="o">=</span><span class="s2">&quot;positive_labels&quot;</span><span class="p">,</span>
+    <span class="n">neg_label_field</span><span class="o">=</span><span class="s2">&quot;negative_labels&quot;</span><span class="p">,</span>
+    <span class="n">expand_pred_hierarchy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">expand_gt_hierarchy</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Evaluating detections...
@@ -1455,22 +1455,22 @@ truth and the predictor results:</p>
 </div>
 <p>After the evaluation we can should remove the detectron results from the
 database:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset.delete_sample_fields(predictor_field)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">delete_sample_fields</span><span class="p">(</span><span class="n">predictor_field</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>OpenImageV6 evaluation protocol mAP:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>results.mAP()
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">mAP</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.0</span>
 </pre></div>
 </div>
 <p>Per class mAP:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>classes = dataset.distinct(
-    &quot;detections.detections.label&quot;
-)
-for class_ in classes:
-    print(class_, results.mAP([class_]))
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">classes</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span>
+    <span class="s2">&quot;detections.detections.label&quot;</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">class_</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">mAP</span><span class="p">([</span><span class="n">class_</span><span class="p">]))</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>airplane 1.0

@@ -362,15 +362,15 @@ images, depending on your qpars value, can take several days..!), so we
 use the <code class="docutils literal notranslate"><span class="pre">vtm</span></code> subcommand to manage, encode and cache the VTM produced
 bitstreams on disk.</p>
 <p>Let’s generate some encoded bitstreams.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
---slice=0:2 \
---scale=100 \
---progress=1 \
---qpars=47 \
---vtm_cache=/tmp/bitstreams \
---vtm_dir={path_to_vtm_software}/bin \
---vtm_cfg={path_to_vtm_software}/cfg/encoder_intra_vtm.cfg \
---output=vtm_out.json
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">vtm</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span> \
+<span class="o">--</span><span class="nb">slice</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span> \
+<span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mi">100</span> \
+<span class="o">--</span><span class="n">progress</span><span class="o">=</span><span class="mi">1</span> \
+<span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">47</span> \
+<span class="o">--</span><span class="n">vtm_cache</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span> \
+<span class="o">--</span><span class="n">vtm_dir</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="nb">bin</span> \
+<span class="o">--</span><span class="n">vtm_cfg</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="n">cfg</span><span class="o">/</span><span class="n">encoder_intra_vtm</span><span class="o">.</span><span class="n">cfg</span> \
+<span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">vtm_out</span><span class="o">.</span><span class="n">json</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -403,15 +403,15 @@ Done!
 <p>As you can see, bitstreams we’re generated and cached into
 <code class="docutils literal notranslate"><span class="pre">/tmp/bitstreams/SCALE/QP</span></code>. Let’s see what happens if we run the exact
 same command again:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
---slice=0:2 \
---scale=100 \
---progress=1 \
---qpars=47 \
---vtm_cache=/tmp/bitstreams \
---vtm_dir={path_to_vtm_software}/bin \
---vtm_cfg={path_to_vtm_software}/cfg/encoder_intra_vtm.cfg \
---output=vtm_out.json
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">vtm</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span> \
+<span class="o">--</span><span class="nb">slice</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span> \
+<span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mi">100</span> \
+<span class="o">--</span><span class="n">progress</span><span class="o">=</span><span class="mi">1</span> \
+<span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">47</span> \
+<span class="o">--</span><span class="n">vtm_cache</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span> \
+<span class="o">--</span><span class="n">vtm_dir</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="nb">bin</span> \
+<span class="o">--</span><span class="n">vtm_cfg</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="n">cfg</span><span class="o">/</span><span class="n">encoder_intra_vtm</span><span class="o">.</span><span class="n">cfg</span> \
+<span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">vtm_out</span><span class="o">.</span><span class="n">json</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -442,19 +442,19 @@ Done!
 <p>Instead of generating the bitstreams, the program found them cached on
 the disk and just verified them.</p>
 <p>Let’s fool around and corrupt one of the bitstreams:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>echo &quot; &quot; &gt; /tmp/bitstreams/100/47/bin_000a1249af2bc5f0
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s2">&quot; &quot;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span><span class="o">/</span><span class="mi">100</span><span class="o">/</span><span class="mi">47</span><span class="o">/</span><span class="n">bin_000a1249af2bc5f0</span>
 </pre></div>
 </div>
 <p>And run the command again:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision vtm --y --dataset-name=oiv6-mpeg-detection-v1 \
---slice=0:2 \
---scale=100 \
---progress=1 \
---qpars=47 \
---vtm_cache=/tmp/bitstreams \
---vtm_dir={path_to_vtm_software}/bin \
---vtm_cfg={path_to_vtm_software}/cfg/encoder_intra_vtm.cfg \
---output=vtm_out.json
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">vtm</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span> \
+<span class="o">--</span><span class="nb">slice</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span> \
+<span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mi">100</span> \
+<span class="o">--</span><span class="n">progress</span><span class="o">=</span><span class="mi">1</span> \
+<span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">47</span> \
+<span class="o">--</span><span class="n">vtm_cache</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span> \
+<span class="o">--</span><span class="n">vtm_dir</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="nb">bin</span> \
+<span class="o">--</span><span class="n">vtm_cfg</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="n">cfg</span><span class="o">/</span><span class="n">encoder_intra_vtm</span><span class="o">.</span><span class="n">cfg</span> \
+<span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">vtm_out</span><span class="o">.</span><span class="n">json</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone
@@ -493,17 +493,17 @@ parameters <em>and</em> dataset slices in order to speed things up. In the case
 of crashes / data corruption, you can just send the same scripts into
 your queue system over and over again if necessary.</p>
 <p>Finally, you can run <code class="docutils literal notranslate"><span class="pre">detectron2-eval</span></code> for the VTM case like this:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>compressai-vision detectron2-eval --y --dataset-name=oiv6-mpeg-detection-v1 \
---slice=0:2 \
---scale=100 \
---progress=1 \
---qpars=47 \
---vtm \
---vtm_cache=/tmp/bitstreams \
---vtm_dir={path_to_vtm_software}/bin \
---vtm_cfg={path_to_vtm_software}/cfg/encoder_intra_vtm.cfg \
---output=detectron2_vtm.json \
---model=COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compressai</span><span class="o">-</span><span class="n">vision</span> <span class="n">detectron2</span><span class="o">-</span><span class="nb">eval</span> <span class="o">--</span><span class="n">y</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">oiv6</span><span class="o">-</span><span class="n">mpeg</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">v1</span> \
+<span class="o">--</span><span class="nb">slice</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span> \
+<span class="o">--</span><span class="n">scale</span><span class="o">=</span><span class="mi">100</span> \
+<span class="o">--</span><span class="n">progress</span><span class="o">=</span><span class="mi">1</span> \
+<span class="o">--</span><span class="n">qpars</span><span class="o">=</span><span class="mi">47</span> \
+<span class="o">--</span><span class="n">vtm</span> \
+<span class="o">--</span><span class="n">vtm_cache</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">bitstreams</span> \
+<span class="o">--</span><span class="n">vtm_dir</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="nb">bin</span> \
+<span class="o">--</span><span class="n">vtm_cfg</span><span class="o">=</span><span class="p">{</span><span class="n">path_to_vtm_software</span><span class="p">}</span><span class="o">/</span><span class="n">cfg</span><span class="o">/</span><span class="n">encoder_intra_vtm</span><span class="o">.</span><span class="n">cfg</span> \
+<span class="o">--</span><span class="n">output</span><span class="o">=</span><span class="n">detectron2_vtm</span><span class="o">.</span><span class="n">json</span> \
+<span class="o">--</span><span class="n">model</span><span class="o">=</span><span class="n">COCO</span><span class="o">-</span><span class="n">Detection</span><span class="o">/</span><span class="n">faster_rcnn_X_101_32x8d_FPN_3x</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>importing fiftyone

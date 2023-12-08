@@ -348,46 +348,46 @@ discussed in the CLI tutorial. If you need more flexibility, you can
 write your own <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class and this is quite simple.</p>
 <p>Here we demo a simple <code class="docutils literal notranslate"><span class="pre">EncoderDecoder</span></code> class that encodes &amp; decodes
 using jpeg.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import logging, io, cv2
-import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
-from compressai_vision.evaluation.pipeline import EncoderDecoder
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.evaluation.pipeline</span> <span class="kn">import</span> <span class="n">EncoderDecoder</span>
 </pre></div>
 </div>
 <p>In the constructor, instantiate a logger and save the provided quality
 parameter.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class JpegEncoderDecoder(EncoderDecoder):
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">JpegEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
 
-    def __init__(self, qp=10):
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.qp=qp
-        self.reset() # not used in this class
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qp</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="o">=</span><span class="n">qp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="c1"># not used in this class</span>
 </pre></div>
 </div>
 <p>Define how the image is encoded + decoded and how the bitrate is
 calculated. We are using BGR since it is the default input format for
 Detectron2 predictors.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def BGR(self, bgr_image, tag=None):
-    # bgr_image: numpy BGR24 image: (y,x,3)
-    # tag could be used to identify images if we want to cache them
-    # BGR -&gt; RGB (as PIL works with RGB)
-    rgb_image = bgr_image[:,:,::-1]
-    pil_img=Image.fromarray(rgb_image).convert(&quot;RGB&quot;)
-    tmp = io.BytesIO()
-    # encode image
-    pil_img.save(tmp, format=&quot;jpeg&quot;, quality=self.qp)
-    tmp.seek(0)
-    # calculate bits-per-pixel
-    filesize = tmp.getbuffer().nbytes
-    bpp = filesize * float(8) / (pil_img.size[0] * pil_img.size[1])
-    # decode image back
-    pil_img2 = Image.open(tmp).convert(&quot;RGB&quot;)
-    # back to BGR
-    rgb_image=np.array(pil_img2)
-    bgr_image=rgb_image[:,:,::-1]
-    # transformed image, bits-per-pixel ready
-    return bgr_image, bpp
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># bgr_image: numpy BGR24 image: (y,x,3)</span>
+    <span class="c1"># tag could be used to identify images if we want to cache them</span>
+    <span class="c1"># BGR -&gt; RGB (as PIL works with RGB)</span>
+    <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">bgr_image</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">pil_img</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="c1"># encode image</span>
+    <span class="n">pil_img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">)</span>
+    <span class="n">tmp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># calculate bits-per-pixel</span>
+    <span class="n">filesize</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">()</span><span class="o">.</span><span class="n">nbytes</span>
+    <span class="n">bpp</span> <span class="o">=</span> <span class="n">filesize</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pil_img</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pil_img</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># decode image back</span>
+    <span class="n">pil_img2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+    <span class="c1"># back to BGR</span>
+    <span class="n">rgb_image</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pil_img2</span><span class="p">)</span>
+    <span class="n">bgr_image</span><span class="o">=</span><span class="n">rgb_image</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># transformed image, bits-per-pixel ready</span>
+    <span class="k">return</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">bpp</span>
 </pre></div>
 </div>
 <p>So, we have a compact class that defines, in a single method, all
@@ -396,20 +396,20 @@ necessary transformations and calculates the bitrate.</p>
 with all the rest of the infrastructure provided by
 <code class="docutils literal notranslate"><span class="pre">CompressAI-Vision</span></code> library.</p>
 <p>Next, let’s see <code class="docutils literal notranslate"><span class="pre">JpegEncoderDecoder</span></code> in action.</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>bgr_image=cv2.imread(&quot;dog_512.png&quot;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bgr_image</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;dog_512.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>encdec=JpegEncoderDecoder(qp=1)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">encdec</span><span class="o">=</span><span class="n">JpegEncoderDecoder</span><span class="p">(</span><span class="n">qp</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>transformed_bgr_image, bpp = encdec.BGR(bgr_image)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformed_bgr_image</span><span class="p">,</span> <span class="n">bpp</span> <span class="o">=</span> <span class="n">encdec</span><span class="o">.</span><span class="n">BGR</span><span class="p">(</span><span class="n">bgr_image</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Print bits-per-pixel, compare original and transformed image</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;BPP=&quot;, bpp)
-plt.figure(figsize=(20,20))
-plt.subplot(1,2,1); plt.imshow(bgr_image[:,:,::-1]); _=plt.axis(&#39;off&#39;)
-plt.subplot(1,2,2); plt.imshow(transformed_bgr_image[:,:,::-1]); _=plt.axis(&#39;off&#39;)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;BPP=&quot;</span><span class="p">,</span> <span class="n">bpp</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">bgr_image</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span> <span class="n">_</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">transformed_bgr_image</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span> <span class="n">_</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BPP= 0.16878255208333334
