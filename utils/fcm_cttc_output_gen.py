@@ -84,7 +84,7 @@ def _generate_csv_classwise_video_map(result_path, dataset_path, metric, list_of
             ), "Nothing relevant information found from given directories..."
 
             summary = compute_overall_mAP(classwise_name, items)
-            maps = summary.values[0][opts_metrics[metric]] * 100
+            maps = summary.values[0][opts_metrics[metric]]
             class_wise_maps.append(maps)
 
         matched_seq_names = []
