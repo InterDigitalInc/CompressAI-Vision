@@ -111,6 +111,9 @@ def _generate_csv_classwise_video_mota(
     results_df = _read_df_rec(result_path)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
+    # accuracy in % for MPEG template
+    results_df['end_accuracy'] = results_df['end_accuracy'].apply(lambda x: x*100)
+
     output_df = results_df.copy()
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
@@ -134,7 +137,7 @@ def _generate_csv_classwise_video_mota(
             ), "Nothing relevant information found from given directories..."
 
             summary, _ = compute_overall_mota(classwise_name, items)
-            mota = summary.values[-1][13]  # * 100.0
+            mota = summary.values[-1][13]  * 100.0
             class_wise_motas.append(mota)
 
         matched_seq_names = []
@@ -145,6 +148,7 @@ def _generate_csv_classwise_video_mota(
         class_wise_results_df = classwise_computation(
             results_df, {classwise_name: matched_seq_names}
         )
+
         class_wise_results_df["end_accuracy"] = class_wise_motas
 
         output_df = _append(output_df, class_wise_results_df)
@@ -161,6 +165,9 @@ def _generate_csv(result_path):
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
+    # accuracy in % for MPEG template
+    result_df['end_accuracy'] = result_df['end_accuracy'].apply(lambda x: x*100)
+    
     # add columns
     result_df = _add_columns(result_df)
 
