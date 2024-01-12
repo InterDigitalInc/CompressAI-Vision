@@ -71,7 +71,7 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     cd ${MODELS_DIR}/detectron2
 
     echo
-    echo "checkout branch compatible with MPEG FCVCM"
+    echo "checkout branch compatible with MPEG FCM"
     echo
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
 

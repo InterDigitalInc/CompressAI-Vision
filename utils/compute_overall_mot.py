@@ -75,6 +75,7 @@ def get_accumulator_res_for_hieve(item: Dict):
 
     return acc, None, item[utils.SEQ_NAME_KEY]
 
+
 def compute_overall_mota(class_name, items):
     get_accumulator_res = {
         CLASSES[0]: get_accumulator_res_for_tvd,
@@ -104,11 +105,11 @@ def compute_overall_mota(class_name, items):
         summary, formatters=mh.formatters, namemap=mm.io.motchallenge_metric_names
     )
 
-    #print("\n\n")
-    #print(rendered_summary)
-    #print("\n")
+    # print("\n\n")
+    # print(rendered_summary)
+    # print("\n")
 
-    #names.append("Overall")
+    # names.append("Overall")
     return summary, names
 
 
