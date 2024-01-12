@@ -390,8 +390,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;encoder_config&quot;</span><span class="p">][</span><span class="s2">&quot;intra_period&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;eval_encode&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_bitdepth</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;encoder_config&quot;</span><span class="p">][</span><span class="s2">&quot;input_bitdepth&quot;</span><span class="p">]</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dump_yuv&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span> <span class="o">=</span> <span class="n">vision_model</span>
 
@@ -436,11 +434,13 @@ document.write(`
 <div class="viewcode-block" id="VTM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">nbframes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">level</span> <span class="o">=</span> <span class="mf">5.1</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">6.2</span>  <span class="c1"># according to MPEG&#39;s anchor</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
@@ -450,7 +450,7 @@ document.write(`
             <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span><span class="p">,</span>
             <span class="s2">&quot;-q&quot;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">,</span>
+            <span class="n">qp</span><span class="p">,</span>
             <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
             <span class="s2">&quot;/dev/null&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
@@ -464,9 +464,9 @@ document.write(`
             <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
             <span class="n">nbframes</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;--Level=</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;--IntraPeriod=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--IntraPeriod=</span><span class="si">{</span><span class="n">intra_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;--InputChromaFormat=400&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--InputBitDepth=</span><span class="si">{self.input_bitdepth}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--InputBitDepth=10&quot;</span><span class="p">,</span>
             <span class="s2">&quot;--ConformanceWindowMode=1&quot;</span><span class="p">,</span>  <span class="c1"># needed?</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div>
@@ -475,7 +475,15 @@ document.write(`
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span><span class="p">,</span> <span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="VTM.convert_to_yuv"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_to_yuv">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_yuv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">bitstream_name</span><span class="p">,</span> <span class="n">codec_output_dir</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">yuv_in_path</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">codec_output_dir</span><span class="p">,</span>
+        <span class="n">bitstream_name</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">bitdepth</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># TODO (fracape) (add this as config)</span>
+
         <span class="p">(</span>
             <span class="n">frames</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">feature_size</span><span class="p">,</span>
@@ -503,9 +511,23 @@ document.write(`
         <span class="c1"># end of dumping fpn sizes</span>
 
         <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span>
-        <span class="n">frames</span><span class="p">,</span> <span class="n">mid_level</span> <span class="o">=</span> <span class="n">min_max_normalization</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bitdepth</span><span class="p">)</span>
+        <span class="n">frames</span><span class="p">,</span> <span class="n">mid_level</span> <span class="o">=</span> <span class="n">min_max_normalization</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="n">bitdepth</span><span class="p">)</span>
 
-        <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">nbframes</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="n">frmRate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">intra_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="k">if</span> <span class="n">nbframes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">file_prefix</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frmRate</span><span class="si">}</span><span class="s2">fps_</span><span class="si">{</span><span class="n">bitdepth</span><span class="si">}</span><span class="s2">bit_p400&quot;</span>
+
+        <span class="n">yuv_in_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_input.yuv&quot;</span>
+        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.bin&quot;</span>
+        <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_enc.log&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">setWriter</span><span class="p">(</span>
             <span class="n">write_path</span><span class="o">=</span><span class="n">yuv_in_path</span><span class="p">,</span>
@@ -516,32 +538,6 @@ document.write(`
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">write_one_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">mid_level</span><span class="o">=</span><span class="n">mid_level</span><span class="p">)</span>
 
-        <span class="k">return</span>  <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span></div>
-
-<div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-        <span class="n">codec_output_dir</span><span class="p">,</span>
-        <span class="n">bitstream_name</span><span class="p">,</span>
-        <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        
-        <span class="k">if</span> <span class="n">file_prefix</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span>
-
-        <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_yuv</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bitstream_name</span><span class="p">,</span> <span class="n">codec_output_dir</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">yuv_in_path</span><span class="p">)</span>
-
-        <span class="n">frame_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="k">if</span> <span class="n">nb_frames</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
-        <span class="n">intra_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="k">if</span> <span class="n">nb_frames</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
-
-        <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_rate</span><span class="si">}</span><span class="s2">fps_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bitdepth</span><span class="si">}</span><span class="s2">bit_p400&quot;</span>
-
-        <span class="n">yuv_in_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_input.yuv&quot;</span>
-        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.bin&quot;</span>
-        <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_enc.log&quot;</span><span class="p">)</span>
-        
         <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_encode_cmd</span><span class="p">(</span>
             <span class="n">yuv_in_path</span><span class="p">,</span>
             <span class="n">width</span><span class="o">=</span><span class="n">frame_width</span><span class="p">,</span>
@@ -551,7 +547,6 @@ document.write(`
             <span class="n">nbframes</span><span class="o">=</span><span class="n">nbframes</span><span class="p">,</span>
             <span class="n">frmRate</span><span class="o">=</span><span class="n">frmRate</span><span class="p">,</span>
             <span class="n">intra_period</span><span class="o">=</span><span class="n">intra_period</span><span class="p">,</span>
-            <span class="n">input_bitdepth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_bitdepth</span>
         <span class="p">)</span>
         <span class="c1"># self.logger.debug(cmd)</span>
 
