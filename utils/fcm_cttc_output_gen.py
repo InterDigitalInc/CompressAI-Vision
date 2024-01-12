@@ -36,22 +36,25 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-import utils
 
-from compressai_vision.datasets import get_seq_info
-from compressai_vision.evaluators.evaluators import BaseEvaluator
-from compute_overall_mot import compute_overall_mota
 from compute_overall_map import compute_overall_mAP
+from compute_overall_mot import compute_overall_mota
 from mpeg_template_format import (
-    _read_df_rec,
     _add_columns,
     _append,
+    _read_df_rec,
     classwise_computation,
 )
 
+import utils
+from compressai_vision.datasets import get_seq_info
+from compressai_vision.evaluators.evaluators import BaseEvaluator
 
-def _generate_csv_classwise_video_map(result_path, dataset_path, metric, list_of_classwise_seq, seq_list):
-    opts_metrics = {'AP': 0, 'AP50': 1, 'AP75': 2, 'APS': 3, 'APM': 4, 'APL':5}
+
+def _generate_csv_classwise_video_map(
+    result_path, dataset_path, metric, list_of_classwise_seq, seq_list
+):
+    opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = _read_df_rec(result_path)
 
     # sort
@@ -112,7 +115,7 @@ def _generate_csv_classwise_video_mota(
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
-    results_df['end_accuracy'] = results_df['end_accuracy'].apply(lambda x: x*100)
+    results_df["end_accuracy"] = results_df["end_accuracy"].apply(lambda x: x * 100)
 
     output_df = results_df.copy()
     ## drop columns
@@ -137,7 +140,7 @@ def _generate_csv_classwise_video_mota(
             ), "Nothing relevant information found from given directories..."
 
             summary, _ = compute_overall_mota(classwise_name, items)
-            mota = summary.values[-1][13]  * 100.0
+            mota = summary.values[-1][13] * 100.0
             class_wise_motas.append(mota)
 
         matched_seq_names = []
@@ -166,8 +169,8 @@ def _generate_csv(result_path):
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
-    result_df['end_accuracy'] = result_df['end_accuracy'].apply(lambda x: x*100)
-    
+    result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
+
     # add columns
     result_df = _add_columns(result_df)
 
@@ -206,7 +209,7 @@ if __name__ == "__main__":
     )
 
     if args.dataset_name == "SFU":
-        metric = 'AP50'
+        metric = "AP50"
         class_ab = {
             "CLASS-AB": [
                 "Traffic",
@@ -221,27 +224,36 @@ if __name__ == "__main__":
             "CLASS-C": ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"]
         }
         class_d = {
-            "CLASS-D": ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"]
+            "CLASS-D": [
+                "BasketballPass",
+                "BQSquare",
+                "BlowingBubbles",
+                "RaceHorses_416x240",
+            ]
         }
         seq_list = [
-        "Traffic_2560x1600_30",
-        "Kimono_1920x1080_24",
-        "ParkScene_1920x1080_24",
-        "Cactus_1920x1080_50",
-        "BasketballDrive_1920x1080_50",
-        "BQTerrace_1920x1080_60",
-        "BasketballDrill_832x480_50",
-        "BQMall_832x480_60",
-        "PartyScene_832x480_50",
-        "RaceHorsesC_832x480_30",
-        "BasketballPass_416x240_50",
-        "BQSquare_416x240_60",
-        "BlowingBubbles_416x240_50",
-        "RaceHorses_416x240_30",
+            "Traffic_2560x1600_30",
+            "Kimono_1920x1080_24",
+            "ParkScene_1920x1080_24",
+            "Cactus_1920x1080_50",
+            "BasketballDrive_1920x1080_50",
+            "BQTerrace_1920x1080_60",
+            "BasketballDrill_832x480_50",
+            "BQMall_832x480_60",
+            "PartyScene_832x480_50",
+            "RaceHorsesC_832x480_30",
+            "BasketballPass_416x240_50",
+            "BQSquare_416x240_60",
+            "BlowingBubbles_416x240_50",
+            "RaceHorses_416x240_30",
         ]
-        
+
         output_df = _generate_csv_classwise_video_map(
-            args.result_path, args.dataset_path, metric, [class_ab, class_c, class_d], seq_list
+            args.result_path,
+            args.dataset_path,
+            metric,
+            [class_ab, class_c, class_d],
+            seq_list,
         )
     elif args.dataset_name == "OIV6":
         output_df = _generate_csv(args.result_path)
