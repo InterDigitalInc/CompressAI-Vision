@@ -115,10 +115,10 @@ class BasePipeline(nn.Module):
             self._codec_skip_n_frames > 0
             or self._codec_n_frames_to_be_encoded != total_num_frames
         ):
-            self.logger.warning(
-                f"Encoding part of a sequence is only available with `encode_only' = True, but got {self.configs['codec']['encode_only']}"
+            assert (
+                self.configs["codec"]["encode_only"],
+                f"Encoding part of a sequence is only available when `codec.encode_only' is True",
             )
-            self.configs["codec"]["encode_only"] = True
 
         self._codec_end_frame_idx = (
             self._codec_skip_n_frames + self._codec_n_frames_to_be_encoded
