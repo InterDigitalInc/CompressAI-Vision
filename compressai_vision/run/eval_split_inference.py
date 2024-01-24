@@ -74,6 +74,15 @@ def setup(conf: DictConfig) -> dict[str, Any]:
         dataloader.dataset,
     )
 
+    if (
+        Path(f"{conf.evaluator['output_dir']}/summary.csv").is_file()
+        and not conf.evaluator["overwrite_results"]
+    ):
+        print(
+            "Corresponding summary.csv already exists and evaluator.overwrite_results is False, exiting..."
+        )
+        raise SystemExit(0)
+
     codec = create_codec(conf.codec, vision_model, conf.dataset)
 
     pipeline = create_pipline(conf.pipeline, conf.misc.device)
