@@ -181,3 +181,8 @@ class ImageRemoteInference(BasePipeline):
             timing[key] = val.sum
 
         return timing, codec.eval_encode_type, output_list, eval_performance
+
+    def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
+        assert filepath.is_file()
+        img = Image.open(filepath).convert("RGB")
+        return transforms.ToTensor()(img)

@@ -64,7 +64,7 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     configure_conf(conf)
 
     vision_model = create_vision_model(conf.misc.device, conf.vision_model)
-    dataloader = create_dataloader(conf.dataset, conf.misc.device, None)
+    dataloader = create_dataloader(conf.dataset, conf.misc.device, vision_model.cfg)
     evaluator = create_evaluator(
         conf.evaluator,
         conf.dataset.datacatalog,
