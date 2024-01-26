@@ -1033,9 +1033,9 @@ class ObjectDetectionEvaluation(object):
         if groundtruth_is_difficult_list is None:
             num_boxes = groundtruth_boxes.shape[0]
             groundtruth_is_difficult_list = np.zeros(num_boxes, dtype=bool)
-        self.groundtruth_is_difficult_list[
-            image_key
-        ] = groundtruth_is_difficult_list.astype(dtype=bool)
+        self.groundtruth_is_difficult_list[image_key] = (
+            groundtruth_is_difficult_list.astype(dtype=bool)
+        )
         if groundtruth_is_group_of_list is None:
             num_boxes = groundtruth_boxes.shape[0]
             groundtruth_is_group_of_list = np.zeros(num_boxes, dtype=bool)
@@ -1047,9 +1047,9 @@ class ObjectDetectionEvaluation(object):
                 np.sum(groundtruth_masks, axis=(1, 2)) == 0
             ).astype(dtype=bool)
 
-        self.groundtruth_is_group_of_list[
-            image_key
-        ] = groundtruth_is_group_of_list.astype(dtype=bool)
+        self.groundtruth_is_group_of_list[image_key] = (
+            groundtruth_is_group_of_list.astype(dtype=bool)
+        )
 
         self._update_ground_truth_statistics(
             groundtruth_class_labels,

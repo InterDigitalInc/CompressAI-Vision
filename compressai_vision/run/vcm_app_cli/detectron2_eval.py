@@ -598,7 +598,7 @@ def main(p):  # noqa: C901
             # print("evaluating dataset", dataset.name)
             res = dataset.evaluate_detections(
                 pred_field_,
-                **eval_args
+                **eval_args,
                 # gt_field=p.gt_field,
                 # method="open-images",
                 # pos_label_field="positive_labels",

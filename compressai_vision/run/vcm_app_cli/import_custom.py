@@ -246,7 +246,7 @@ def main(p):  # noqa: C901
             link=True,
             # link=False,
             verbose=True,
-            append_mask_dir="0"
+            append_mask_dir="0",
             # since the dir structure provided is erroneous
             # create the labels/masks directory ourselves
             # and link from labels/masks/0 --> provided segmask dir

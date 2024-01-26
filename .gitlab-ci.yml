@@ -28,7 +28,7 @@ black:
     - python --version
     - pip install black
   script:
-    - black --check compressai_vision data/mpeg-fcm
+    - black --check compressai_vision data/mpeg-fcm utils
   tags:
     - docker
 
@@ -39,6 +39,6 @@ isort:
     - python --version
     - pip install isort
   script:
-    - isort compressai_vision data/mpeg-fcm --check-only
+    - isort compressai_vision data/mpeg-fcm utils --check-only
   tags:
     - docker

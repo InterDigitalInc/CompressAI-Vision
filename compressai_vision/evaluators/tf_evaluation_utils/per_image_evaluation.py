@@ -243,14 +243,14 @@ class PerImageEvaluation(object):
                 groundtruth_class_labels,
                 i,
             )
-            is_class_correctly_detected_in_image[
-                i
-            ] = self._compute_is_class_correctly_detected_in_image(
-                detected_boxes=detected_boxes_at_ith_class,
-                detected_scores=detected_scores_at_ith_class,
-                groundtruth_boxes=gt_boxes_at_ith_class,
-                detected_masks=detected_masks_at_ith_class,
-                groundtruth_masks=gt_masks_at_ith_class,
+            is_class_correctly_detected_in_image[i] = (
+                self._compute_is_class_correctly_detected_in_image(
+                    detected_boxes=detected_boxes_at_ith_class,
+                    detected_scores=detected_scores_at_ith_class,
+                    groundtruth_boxes=gt_boxes_at_ith_class,
+                    detected_masks=detected_masks_at_ith_class,
+                    groundtruth_masks=gt_masks_at_ith_class,
+                )
             )
 
         return is_class_correctly_detected_in_image

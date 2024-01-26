@@ -6,7 +6,7 @@ PYTHON_DOCKER_IMAGE = python:3.8-buster
 GIT_DESCRIBE = $(shell git describe --first-parent)
 ARCHIVE = compressai_vision.tar.gz
 
-src_dirs := compressai_vision
+src_dirs := compressai_vision utils
 
 .PHONY: help
 help: ## Show this message
