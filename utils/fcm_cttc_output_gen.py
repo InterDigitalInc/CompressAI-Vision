@@ -268,6 +268,20 @@ if __name__ == "__main__":
         output_df = _generate_csv_classwise_video_mota(
             args.result_path, args.dataset_path, [hieve_1080p, hieve_720p]
         )
+        # sort for FCM template
+        seq_list = [
+            "13_1920x1080_30",
+            "16_1920x1080_30",
+            "HIEVE-1080P",
+            "2_1280x720_30",
+            "17_1280x720_30",
+            "18_1280x720_30",
+            "HIEVE-720",
+        ]
+        sorterIndex = dict(zip(seq_list, range(len(seq_list))))
+        output_df["ds_rank"] = output_df["Dataset"].map(sorterIndex)
+        output_df.sort_values(["ds_rank", "qp"], ascending=[True, True], inplace=True)
+        output_df.drop(columns=["ds_rank"], inplace=True)
     else:
         raise NotImplementedError
 
