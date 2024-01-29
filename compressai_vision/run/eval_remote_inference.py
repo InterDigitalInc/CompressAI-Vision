@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 r"""
-Evaluate a system performance of end-to-end pipeline.
-
-
-
+Runs and evaluates a remote-inference pipeline
 """
 from __future__ import annotations
 
@@ -73,6 +70,15 @@ def setup(conf: DictConfig) -> dict[str, Any]:
         conf.dataset.config.dataset_name,
         dataloader.dataset,
     )
+
+    if (
+        Path(f"{conf.evaluator['output']}/summary.csv").is_file()
+        and not conf.evaluator["overwrite_results"]
+    ):
+        print(
+            "Corresponding summary.csv already exists and evaluator.overwrite_results is False, exiting..."
+        )
+        raise SystemExit(0)
 
     codec = create_codec(conf.codec, vision_model, conf.dataset)
 

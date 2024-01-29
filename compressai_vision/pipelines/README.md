@@ -1,16 +1,26 @@
-## Evaluation
+## remote inference
 
-Submodules:
+VCM (video coding for machines) type pipeline 
+     ┌───────────┐       ┌───────────┐      ┌─────────────┐
+     │           │       │           │      │             │
+────►│  Encoder  ├──────►│  Decoder  ├─────►│   NN Task   ├────►
+     │           │       │           │      │             │
+     └───────────┘       └───────────┘      └─────────────┘
+                      <-------------- Remote Server ----------->
 
-### detectron2
+
+### split inference
+FCM (feature coding for machines) type pipeline 
+     ┌─────────────────┐                                         ┌─────────────────┐
+     │                 │     ┌───────────┐     ┌───────────┐     │                 │
+     │     NN Task     │     │           │     │           │     │      NN Task    │
+────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
+     │      Part 1     │     │           │     │           │     │      Part 2     │
+     │                 │     └───────────┘     └───────────┘     │                 │
+     └─────────────────┘                                         └─────────────────┘
 
 Evaluation using Detectron2 API _only_
 
-### fo
+### fo_vcm
 
-Evaluation using FiftyOne (which uses a Detectron2 ``Predictor``)
-
-### pipeline
-
-Different classes that perform encoding + decoding & report bits-per-pixel
-
+Legacy VCM type pipeline using FyftyOne library for evaluation

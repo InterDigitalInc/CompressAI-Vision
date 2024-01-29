@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import configparser
-import errno
 import json
 import logging
-import os
-import subprocess
-import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 import torch
 import torch.nn as nn
@@ -44,33 +40,14 @@ import torch.nn as nn
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
+from compressai_vision.utils.external_exec import run_cmdline
 
 from .encdec_utils import get_raw_video_file_info
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
 
 
-# TODO (fracape) ffmpeg codecs could inherit from HM/VTM
 def get_filesize(filepath: Union[Path, str]) -> int:
     return Path(filepath).stat().st_size
-
-
-def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
-    cmdline = list(map(str, cmdline))
-    print(f"--> Running: {' '.join(cmdline)}", file=sys.stderr)
-
-    if logpath is None:
-        out = subprocess.check_output(cmdline).decode()
-        if out:
-            print(out)
-        return
-
-    p = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    with logpath.open("w") as f:
-        if p.stdout is not None:
-            for bline in p.stdout:
-                line = bline.decode()
-                f.write(line)
-    p.wait()
 
 
 @register_codec("x264")

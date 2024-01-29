@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 r"""
-Evaluate a system performance of end-to-end pipeline.
-
-
-
+Runs and evaluates a split-inference pipeline
 """
 from __future__ import annotations
 

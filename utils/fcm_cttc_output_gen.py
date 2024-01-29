@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 r"""
 Compute evaluation metrics and generate csv with computed metrics in CTTC format.

@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -93,8 +93,8 @@ setup(
     # include_package_data=True,
     entry_points={
         "console_scripts": [
-            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main",
-            "compressai-split-inference = compressai_vision.run.eval_split_inference:main"
+            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main",  # to be deprecated
+            "compressai-split-inference = compressai_vision.run.eval_split_inference:main",
             "compressai-remote-inference = compressai_vision.run.eval_remote_inference:main",
         ]
     },

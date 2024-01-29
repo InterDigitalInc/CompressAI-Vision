@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
 import os
-import shutil
-from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
 from uuid import uuid4 as uuid
@@ -43,9 +40,18 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio
+from compressai_vision.utils.external_exec import run_cmdline
 
 from ..base import BasePipeline
+
+from PIL import Image
+from torchvision import transforms
+
+def read_image(filepath: Path) -> torch.Tensor:
+    assert filepath.is_file()
+    img = Image.open(filepath).convert("RGB")
+    return transforms.ToTensor()(img)
+
 
 """ A schematic for the remote-inference pipline
 
@@ -58,7 +64,7 @@ from ..base import BasePipeline
      │           │       │           │     │                 │
      └───────────┘       └───────────┘     │                 │
                                            └─────────────────┘
-                         <---------------- Remote Server ------------->       
+                         <---------------- Remote Server ------------->
 ──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 """
 
@@ -100,11 +106,23 @@ class ImageRemoteInference(BasePipeline):
 
                 start = self.time_measure()
 
-                # Fabien
-                ## need a padding function check if width and height is multiple of 2##
-                ## Then, the fuction return the output with a format like below
+                padded_png = self.codec_output_dir / f"{file_prefix}.png"
+                # pad frame when uneven size for yuv420 encoding
+                par_cmd = [
+                    "ffmpeg",
+                    "-y",
+                    "-hide_banner",
+                    "-i",
+                    d,
+                    "-vf",
+                    "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                    padded_png,
+                ]
+
+                run_cmdline(par_cmd, logpath=f"{padded_png}.log")
+
                 frame = {
-                    "data": {"frame": d[0]["image"][None, ...]},
+                    "data": {"frame": read_image(padded_png)},
                     "org_input_size": org_img_size,
                 }
 

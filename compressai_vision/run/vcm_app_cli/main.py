@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 InterDigital Communications, Inc
+# Copyright (c) 2022-2024 InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,8 @@ import argparse
 import logging
 import sys
 
-from compressai_vision.cli import (
+from compressai_vision.pipelines.fo_vcm.tools import getDataFile, quickLog
+from compressai_vision.run.vcm_app_cli import (
     app,
     auto,
     clean,
@@ -55,7 +56,6 @@ from compressai_vision.cli import (
     show,
     vtm,
 )
-from compressai_vision.pipelines.remote_analysis.tools import getDataFile, quickLog
 
 COMMANDS = {  # noqa: F405
     "clean": clean.main,

@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -46,9 +46,9 @@ from ..base import BasePipeline
 
 .. code-block:: none
 
-               
-          Fold   
-        ┌ ─── ┐     
+
+          Fold
+        ┌ ─── ┐
         |     |
         |     │                            ┌─────────────────┐
      ┌──┴─────▼──┐       ┌───────────┐     │                 │
@@ -57,7 +57,7 @@ from ..base import BasePipeline
      │           │       │           │     │                 │
      └───────────┘       └───────────┘     │                 │
                                            └─────────────────┘
-                         <---------------- Remote Server ------------->       
+                         <---------------- Remote Server ------------->
 ──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 
 """

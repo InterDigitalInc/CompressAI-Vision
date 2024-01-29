@@ -27,14 +27,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any, List, Optional
 
 
-def get_max_num_cpus():
-    # return multiprocessing.cpu_count()
-    # This number is not equivalent to the number of CPUs the current process can use.
-    # Pleas, see https://docs.python.org/3/library/multiprocessing.html
-    num_cpus = len(os.sched_getaffinity(0))
-    # temp..
-    # print(f"INFO!!! - Maximum {num_cpus} CPUs will be utilized")
-    return num_cpus
+def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
+    cmdline = list(map(str, cmdline))
+    print(f"--> Running: {' '.join(cmdline)}", file=sys.stderr)
+
+    if logpath is None:
+        out = subprocess.check_output(cmdline).decode()
+        if out:
+            print(out)
+        return
+
+    p = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    with logpath.open("w") as f:
+        if p.stdout is not None:
+            for bline in p.stdout:
+                line = bline.decode()
+                f.write(line)
+    p.wait()
