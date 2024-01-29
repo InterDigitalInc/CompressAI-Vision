@@ -237,9 +237,9 @@ class VideoSplitInference(BasePipeline):
                 out_res["bytes"] = res["bytes"][e]
             out_res["coded_order"] = e
             out_res["input_size"] = dec_features["input_size"][0]
-            out_res[
-                "org_input_size"
-            ] = f'{dec_features["org_input_size"]["height"]}x{dec_features["org_input_size"]["width"]}'
+            out_res["org_input_size"] = (
+                f'{dec_features["org_input_size"]["height"]}x{dec_features["org_input_size"]["width"]}'
+            )
 
             output_list.append(out_res)
 
