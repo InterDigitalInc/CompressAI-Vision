@@ -29,29 +29,24 @@
 
 import os
 from pathlib import Path
+from tempfile import mkstemp
 from typing import Callable, Dict
 from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+from PIL import Image
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
+from compressai_vision.utils.dataio import read_image_to_rgb_tensor
 from compressai_vision.utils.external_exec import run_cmdline
 
 from ..base import BasePipeline
-
-from PIL import Image
-from torchvision import transforms
-
-def read_image(filepath: Path) -> torch.Tensor:
-    assert filepath.is_file()
-    img = Image.open(filepath).convert("RGB")
-    return transforms.ToTensor()(img)
-
 
 """ A schematic for the remote-inference pipline
 
@@ -106,9 +101,10 @@ class ImageRemoteInference(BasePipeline):
 
                 start = self.time_measure()
 
+                fd0, png_filepath = mkstemp(suffix=".png")
                 padded_png = self.codec_output_dir / f"{file_prefix}.png"
                 # pad frame when uneven size for yuv420 encoding
-                par_cmd = [
+                pad_cmd = [
                     "ffmpeg",
                     "-y",
                     "-hide_banner",
@@ -119,12 +115,14 @@ class ImageRemoteInference(BasePipeline):
                     padded_png,
                 ]
 
-                run_cmdline(par_cmd, logpath=f"{padded_png}.log")
+                run_cmdline(pad_cmd, logpath=f"{padded_png}.log")
 
                 frame = {
-                    "data": {"frame": read_image(padded_png)},
+                    "data": {"frame": self.read_image_to_rgb_tensor(padded_png)},
                     "org_input_size": org_img_size,
                 }
+                os.close(fd0)
+                os.remove(png_filepath)
 
                 # RGB to YUV conversion can happen in side of the compression code..?
                 ## End function
@@ -165,6 +163,18 @@ class ImageRemoteInference(BasePipeline):
             dec_out = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
+            unpad_cmd = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-i",
+                dec_out,
+                "-vf",
+                f"crop={org_img_size['width']}:{org_img_size['height']}",
+                dec_out,
+            ]
+            run_cmdline(unpad_cmd, logpath=f"{padded_png}.log")
+
             end = self.time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
@@ -215,3 +225,8 @@ class ImageRemoteInference(BasePipeline):
         eval_performance = self._evaluation(evaluator)
 
         return timing, codec.eval_encode_type, output_list, eval_performance
+
+    def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
+        assert filepath.is_file()
+        img = Image.open(filepath).convert("RGB")
+        return transforms.ToTensor()(img)
