@@ -37,13 +37,16 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+from tempfile import mkstemp
 
+from PIL import Image
 import torch
 import torch.nn as nn
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
+from compressai_vision.utils.external_exec import run_cmdline
 
 from .encdec_utils import get_raw_video_file_info
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
@@ -51,25 +54,6 @@ from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normaliza
 
 def get_filesize(filepath: Union[Path, str]) -> int:
     return Path(filepath).stat().st_size
-
-
-def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
-    cmdline = list(map(str, cmdline))
-    print(f"--> Running: {' '.join(cmdline)}", file=sys.stderr)
-
-    if logpath is None:
-        out = subprocess.check_output(cmdline).decode()
-        if out:
-            print(out)
-        return
-
-    p = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    with logpath.open("w") as f:
-        if p.stdout is not None:
-            for bline in p.stdout:
-                line = bline.decode()
-                f.write(line)
-    p.wait()
 
 
 @register_codec("vtm")
@@ -191,66 +175,113 @@ class VTM(nn.Module):
         file_prefix: str = "",
         img_input=False,
     ) -> bool:
-        # Fabien
-        # If the input images or Video are 8-bit..?
+
         bitdepth = 10  # TODO (fracape) (add this as config)
-
-        # Fabien
-        # If the input is pixels, we don't need below.
-        (
-            frames,
-            self.feature_size,
-            self.subframe_heights,
-        ) = self.vision_model.reshape_feature_pyramid_to_frame(
-            x["data"], packing_all_in_one=True
-        )
-
-        # Generate json files with fpn sizes for the decoder
-        # manually activate the following and run in encode_only mode
-        fpn_sizes_json_dump = False
-        if fpn_sizes_json_dump:
-            filename = (
-                file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
-            )
-            fpn_sizes_json = codec_output_dir / f"{filename}.json"
-            with fpn_sizes_json.open("wb") as f:
-                output = {
-                    "fpn": self.feature_size,
-                    "subframe_heights": self.subframe_heights,
-                }
-                f.write(json.dumps(output, indent=4).encode())
-            print(f"fpn sizes json dump generated, exiting")
-            raise SystemExit(0)
-        # end of dumping fpn sizes
-
-        minv, maxv = self.min_max_dataset
-        frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
-
-        nbframes, frame_height, frame_width = frames.size()
-
-        frmRate = self.frame_rate if nbframes > 1 else 1
-        intra_period = self.intra_period if nbframes > 1 else 1
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+        if img_input:
+            fd0, png_filepath = mkstemp(suffix=".png")
 
-        yuv_in_path = f"{file_prefix}_input.yuv"
+            # pad frame when uneven size for yuv420 encoding
+            pad_cmd = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-i",
+                x["file_name"],
+                "-vf",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                png_filepath,
+            ]
+
+            run_cmdline(pad_cmd)
+
+            img = Image.open(png_filepath)
+            nbframes = 1
+            frame_width, frame_height = img.size
+
+            frmRate = self.frame_rate if nbframes > 1 else 1
+            intra_period = self.intra_period if nbframes > 1 else 1
+
+            file_prefix = (
+                f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_8bit_p420"
+            )
+            yuv_in_path = f"{file_prefix}_input.yuv"
+
+            convert_cmd = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-i",
+                png_filepath,
+                "-f",
+                "rawvideo",
+                "-pix_fmt",
+                "yuv420p",
+                yuv_in_path,
+            ]
+            run_cmdline(convert_cmd)
+
+            os.close(fd0)
+            os.remove(png_filepath)
+            # with open(fname_yuv, "wb") as f:
+            #     f.write(yuv_bytes)
+        else:
+            (
+                frames,
+                self.feature_size,
+                self.subframe_heights,
+            ) = self.vision_model.reshape_feature_pyramid_to_frame(
+                x["data"], packing_all_in_one=True
+            )
+
+            # Generate json files with fpn sizes for the decoder
+            # manually activate the following and run in encode_only mode
+            fpn_sizes_json_dump = False
+            if fpn_sizes_json_dump:
+                filename = (
+                    file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
+                )
+                fpn_sizes_json = codec_output_dir / f"{filename}.json"
+                with fpn_sizes_json.open("wb") as f:
+                    output = {
+                        "fpn": self.feature_size,
+                        "subframe_heights": self.subframe_heights,
+                    }
+                    f.write(json.dumps(output, indent=4).encode())
+                print(f"fpn sizes json dump generated, exiting")
+                raise SystemExit(0)
+                # end of dumping fpn sizes
+
+            minv, maxv = self.min_max_dataset
+            frames, mid_level = min_max_normalization(
+                frames, minv, maxv, bitdepth=bitdepth
+            )
+
+            nbframes, frame_height, frame_width = frames.size()
+
+            frmRate = self.frame_rate if nbframes > 1 else 1
+            intra_period = self.intra_period if nbframes > 1 else 1
+
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+
+            yuv_in_path = f"{file_prefix}_input.yuv"
+
+            self.yuvio.setWriter(
+                write_path=yuv_in_path,
+                frmWidth=frame_width,
+                frmHeight=frame_height,
+            )
+
+            for frame in frames:
+                self.yuvio.write_one_frame(frame, mid_level=mid_level)
+
         bitstream_path = f"{file_prefix}.bin"
         logpath = Path(f"{file_prefix}_enc.log")
-
-        self.yuvio.setWriter(
-            write_path=yuv_in_path,
-            frmWidth=frame_width,
-            frmHeight=frame_height,
-        )
-
-        for frame in frames:
-            self.yuvio.write_one_frame(frame, mid_level=mid_level)
-
         cmd = self.get_encode_cmd(
             yuv_in_path,
             width=frame_width,

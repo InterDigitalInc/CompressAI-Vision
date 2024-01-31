@@ -29,7 +29,7 @@
 
 import os
 from pathlib import Path
-from tempfile import mkstemp
+
 from typing import Callable, Dict
 from uuid import uuid4 as uuid
 
@@ -43,7 +43,6 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils.dataio import read_image_to_rgb_tensor
 from compressai_vision.utils.external_exec import run_cmdline
 
 from ..base import BasePipeline
@@ -62,6 +61,12 @@ from ..base import BasePipeline
                          <---------------- Remote Server ------------->
 ──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 """
+
+
+def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
+    assert filepath.is_file()
+    img = Image.open(filepath).convert("RGB")
+    return transforms.ToTensor()(img)
 
 
 @register_pipeline("image-remote-inference")
@@ -100,32 +105,11 @@ class ImageRemoteInference(BasePipeline):
                     break
 
                 start = self.time_measure()
-
-                fd0, png_filepath = mkstemp(suffix=".png")
-                padded_png = self.codec_output_dir / f"{file_prefix}.png"
-                # pad frame when uneven size for yuv420 encoding
-                pad_cmd = [
-                    "ffmpeg",
-                    "-y",
-                    "-hide_banner",
-                    "-i",
-                    d,
-                    "-vf",
-                    "pad=ceil(iw/2)*2:ceil(ih/2)*2",
-                    padded_png,
-                ]
-
-                run_cmdline(pad_cmd, logpath=f"{padded_png}.log")
-
                 frame = {
-                    "data": {"frame": self.read_image_to_rgb_tensor(padded_png)},
+                    "file_name": d[0]["file_name"],
                     "org_input_size": org_img_size,
                 }
-                os.close(fd0)
-                os.remove(png_filepath)
 
-                # RGB to YUV conversion can happen in side of the compression code..?
-                ## End function
 
                 res = self._compress(
                     codec,
@@ -225,8 +209,3 @@ class ImageRemoteInference(BasePipeline):
         eval_performance = self._evaluation(evaluator)
 
         return timing, codec.eval_encode_type, output_list, eval_performance
-
-    def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
-        assert filepath.is_file()
-        img = Image.open(filepath).convert("RGB")
-        return transforms.ToTensor()(img)

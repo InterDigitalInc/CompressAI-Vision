@@ -58,6 +58,4 @@ try:
             return self.eval_encode
 
 except ImportError:
-    logging.warning(
-        f"!!!!! Failed to load FCTM Library. FCTM will not be available !!!!!"
-    )
+    logging.warning(f"FCTM is not installed")

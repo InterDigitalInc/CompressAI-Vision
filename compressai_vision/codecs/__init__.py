@@ -28,9 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .anchors import HM, VTM, VVENC
 from .base import Bypass
 from .ffmpeg import x264, x265
+from .std_codecs import HM, VTM, VVENC
 
 try:
     from .fctm import FCTM

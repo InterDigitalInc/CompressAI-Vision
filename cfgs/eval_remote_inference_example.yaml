@@ -15,10 +15,6 @@ pipeline:
 vision_model:
   arch: faster_rcnn_X_101_32x8d_FPN_3x
 
-codec:
-  type: "bypass"
-  eval_encode: "bpp" # or "bitrate"
-
 dataset:
   type: 'Detectron2Dataset'
   settings:
