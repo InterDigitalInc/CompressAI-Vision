@@ -158,7 +158,9 @@ class VideoSplitInference(BasePipeline):
             end = self.time_measure()
             timing["encode"] = timing["encode"] + (end - start)
 
-            del features["data"]
+            # for bypass mode, 'data' should be deleted.
+            if "data" in res["bitstream"] is False:
+                del features["data"]
 
             if self.configs["codec"]["encode_only"] is True:
                 print(f"bitstreams generated, exiting")
