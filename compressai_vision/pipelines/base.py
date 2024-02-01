@@ -235,11 +235,21 @@ class BasePipeline(nn.Module):
             img_input=img_input,
         )
 
-    def _decompress(self, codec, bitstream, codec_output_dir: str, filename: str):
+    def _decompress(
+        self,
+        codec,
+        bitstream,
+        codec_output_dir: str,
+        filename: str,
+        org_img_size: Dict = None,
+        img_input: bool = False,
+    ):
         return codec.decode(
             bitstream,
             codec_output_dir,
             filename,
+            org_img_size=org_img_size,
+            img_input=img_input,
         )
 
     def _evaluation(self, evaluator: Callable) -> Dict:

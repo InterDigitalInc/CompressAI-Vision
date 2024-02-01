@@ -11,9 +11,10 @@ stages:
 
 .flake8:
   stage: static-analysis
-  image: registry.gitlab.com/mafda/python-linting
+  image: python:3.8-buster
   before_script:
     - python --version
+    - pip install -U pip flake8
   script:
     - flake8 --max-line-length 88 compressai_vision data/mpeg-fcm
   tags:
@@ -26,7 +27,7 @@ black:
   image: python:3.8-buster
   before_script:
     - python --version
-    - pip install black
+    - pip install -U pip black
   script:
     - black --check compressai_vision data/mpeg-fcm utils
   tags:
@@ -37,7 +38,7 @@ isort:
   image: python:3.8-buster
   before_script:
     - python --version
-    - pip install isort
+    - pip install -U pip isort
   script:
     - isort compressai_vision data/mpeg-fcm utils --check-only
   tags:

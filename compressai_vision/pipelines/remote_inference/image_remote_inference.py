@@ -29,7 +29,6 @@
 
 import os
 from pathlib import Path
-
 from typing import Callable, Dict
 from uuid import uuid4 as uuid
 
@@ -61,12 +60,6 @@ from ..base import BasePipeline
                          <---------------- Remote Server ------------->
 ──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 """
-
-
-def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
-    assert filepath.is_file()
-    img = Image.open(filepath).convert("RGB")
-    return transforms.ToTensor()(img)
 
 
 @register_pipeline("image-remote-inference")
@@ -110,7 +103,6 @@ class ImageRemoteInference(BasePipeline):
                     "org_input_size": org_img_size,
                 }
 
-
                 res = self._compress(
                     codec,
                     frame,
@@ -144,40 +136,25 @@ class ImageRemoteInference(BasePipeline):
                 continue
 
             start = self.time_measure()
-            dec_out = self._decompress(
-                codec, res["bitstream"], self.codec_output_dir, file_prefix
+            dec_seq = self._decompress(
+                codec,
+                res["bitstream"],
+                self.codec_output_dir,
+                file_prefix,
+                org_img_size,
+                True,
             )
-            unpad_cmd = [
-                "ffmpeg",
-                "-y",
-                "-hide_banner",
-                "-i",
-                dec_out,
-                "-vf",
-                f"crop={org_img_size['width']}:{org_img_size['height']}",
-                dec_out,
-            ]
-            run_cmdline(unpad_cmd, logpath=f"{padded_png}.log")
 
             end = self.time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
-            # Fabien
-            # YUV to PNG(or JPG) conversion can happen in side of the compression code..?
-            # undo the padding that happend on the input to the Encoder.
-            # Plesae provide a file name of PNG (or JPG)
-
-            # dec_d = d.copy()
-            # dec_d["filename"] =
-            ## End function
-
-            # Temporary solution
-            dec_d = d[0].copy()
-            dec_d["org_input_size"] = dec_out["org_input_size"]
-            dec_d["input_size"] = self._get_model_input_size(vision_model, d)
+            # org_input_size to be transmitted
+            dec_seq["org_input_size"] = org_img_size
+            dec_seq["input_size"] = self._get_model_input_size(vision_model, d)
+            dec_seq["file_name"] = d[0]["file_name"]
 
             start = self.time_measure()
-            pred = vision_model.forward(dec_d, org_map_func)
+            pred = vision_model.forward(dec_seq, org_map_func)
             end = self.time_measure()
             timing["nn_task"] = timing["nn_task"] + (end - start)
 
@@ -199,7 +176,7 @@ class ImageRemoteInference(BasePipeline):
                 out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
-            out_res["input_size"] = dec_d["input_size"][0]
+            out_res["input_size"] = dec_seq["input_size"][0]
             output_list.append(out_res)
 
         if self.configs["codec"]["encode_only"] is True:

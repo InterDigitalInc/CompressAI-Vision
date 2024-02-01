@@ -36,7 +36,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import yuvio
+from PIL import Image
 from torch import Tensor
+from torchvision import transforms
 
 
 class PixelFormat(enum.Enum):
@@ -293,3 +295,9 @@ class readwriteYUV:
 
     def read_multiple_frames(self, crop: Tuple):
         raise NotImplementedError
+
+
+def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
+    assert filepath.is_file()
+    img = Image.open(filepath).convert("RGB")
+    return transforms.ToTensor()(img)

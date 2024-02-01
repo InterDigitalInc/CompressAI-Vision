@@ -31,21 +31,24 @@ import configparser
 import errno
 import json
 import logging
+import math
 import os
-import subprocess
-import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 from tempfile import mkstemp
+from typing import Any, Dict, List, Union
 
-from PIL import Image
 import torch
 import torch.nn as nn
+from PIL import Image
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
-from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
+from compressai_vision.utils.dataio import (
+    PixelFormat,
+    read_image_to_rgb_tensor,
+    readwriteYUV,
+)
 from compressai_vision.utils.external_exec import run_cmdline
 
 from .encdec_utils import get_raw_video_file_info
@@ -133,8 +136,13 @@ class VTM(nn.Module):
         nbframes: int = 1,
         frmRate: int = 1,
         intra_period: int = 1,
+        chroma_format: str = "400",
+        input_bitdepth: int = 10,
+        output_bitdepth: int = 0,
     ) -> List[Any]:
         level = 5.1 if nbframes > 1 else 6.2  # according to MPEG's anchor
+        if output_bitdepth == 0:
+            output_bitdepth = input_bitdepth
         cmd = [
             self.encoder_path,
             "-i",
@@ -155,16 +163,29 @@ class VTM(nn.Module):
             frmRate,
             "-f",
             nbframes,
+            "-v",
+            "6",
             f"--Level={level}",
             f"--IntraPeriod={intra_period}",
-            "--InputChromaFormat=400",
-            "--InputBitDepth=10",
+            f"--InputChromaFormat={chroma_format}",
+            f"--InputBitDepth={input_bitdepth}",
+            f"--InternalBitDepth={output_bitdepth}",
             "--ConformanceWindowMode=1",  # needed?
         ]
         return list(map(str, cmd))
 
-    def get_decode_cmd(self, yuv_dec_path: Path, bitstream_path: Path) -> List[Any]:
-        cmd = [self.decoder_path, "-b", bitstream_path, "-o", yuv_dec_path]
+    def get_decode_cmd(
+        self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth: int = 10
+    ) -> List[Any]:
+        cmd = [
+            self.decoder_path,
+            "-b",
+            bitstream_path,
+            "-o",
+            yuv_dec_path,
+            "-d",
+            output_bitdepth,
+        ]
         return list(map(str, cmd))
 
     def encode(
@@ -183,41 +204,29 @@ class VTM(nn.Module):
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
+        print(f"\n-- encoding ${file_prefix}")
+
         if img_input:
-            fd0, png_filepath = mkstemp(suffix=".png")
-
-            # pad frame when uneven size for yuv420 encoding
-            pad_cmd = [
-                "ffmpeg",
-                "-y",
-                "-hide_banner",
-                "-i",
-                x["file_name"],
-                "-vf",
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2",
-                png_filepath,
-            ]
-
-            run_cmdline(pad_cmd)
-
-            img = Image.open(png_filepath)
             nbframes = 1
-            frame_width, frame_height = img.size
-
             frmRate = self.frame_rate if nbframes > 1 else 1
             intra_period = self.intra_period if nbframes > 1 else 1
-
-            file_prefix = (
-                f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_8bit_p420"
-            )
+            chroma_format = "420"
+            input_bitdepth = 8
+            frame_width = math.ceil(x["org_input_size"]["width"] / 2) * 2
+            frame_height = math.ceil(x["org_input_size"]["height"] / 2) * 2
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{input_bitdepth}bit_p{chroma_format}"
             yuv_in_path = f"{file_prefix}_input.yuv"
 
             convert_cmd = [
                 "ffmpeg",
                 "-y",
                 "-hide_banner",
+                "-loglevel",
+                "error",
                 "-i",
-                png_filepath,
+                x["file_name"],
+                "-vf",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2",
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
@@ -226,10 +235,6 @@ class VTM(nn.Module):
             ]
             run_cmdline(convert_cmd)
 
-            os.close(fd0)
-            os.remove(png_filepath)
-            # with open(fname_yuv, "wb") as f:
-            #     f.write(yuv_bytes)
         else:
             (
                 frames,
@@ -266,8 +271,9 @@ class VTM(nn.Module):
 
             frmRate = self.frame_rate if nbframes > 1 else 1
             intra_period = self.intra_period if nbframes > 1 else 1
-
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{bitdepth}bit_p400"
+            chroma_format = "400"
+            input_bitdepth = 10
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{input_bitdepth}bit_p{chroma_format}"
 
             yuv_in_path = f"{file_prefix}_input.yuv"
 
@@ -291,6 +297,8 @@ class VTM(nn.Module):
             nbframes=nbframes,
             frmRate=frmRate,
             intra_period=intra_period,
+            chroma_format=chroma_format,
+            input_bitdepth=input_bitdepth,
         )
         # self.logger.debug(cmd)
 
@@ -319,6 +327,8 @@ class VTM(nn.Module):
         bitstream_path: Path = None,
         codec_output_dir: str = "",
         file_prefix: str = "",
+        org_img_size: Dict = None,
+        img_input=False,
     ) -> bool:
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
@@ -330,7 +340,9 @@ class VTM(nn.Module):
         frame_height = video_info["height"]
         yuv_dec_path = f"{codec_output_dir}/{output_file_prefix}_dec.yuv"
         cmd = self.get_decode_cmd(
-            bitstream_path=bitstream_path, yuv_dec_path=yuv_dec_path
+            bitstream_path=bitstream_path,
+            yuv_dec_path=yuv_dec_path,
+            output_bitdepth=video_info["bitdepth"],
         )
         # self.logger.debug(cmd)
         logpath = Path(f"{codec_output_dir}/{output_file_prefix}_dec.log")
@@ -340,51 +352,79 @@ class VTM(nn.Module):
         dec_time = time.time() - start
         self.logger.debug(f"dec_time:{dec_time}")
 
-        self.yuvio.setReader(
-            read_path=yuv_dec_path,
-            frmWidth=frame_width,
-            frmHeight=frame_height,
-        )
+        if img_input:
+            output_png = Path(f"{codec_output_dir}/{output_file_prefix}_dec")
+            # TODO assumes 8bit 420
+            convert_cmd = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-s",
+                f"{frame_width}x{frame_height}",
+                "-pix_fmt",
+                "yuv420p",
+                "-i",
+                yuv_dec_path,
+                "-vf",
+                f"crop={org_img_size['width']}:{org_img_size['height']}",
+                f"{output_png}_%03d.png",
+            ]
+            run_cmdline(convert_cmd)
+            rec_frames = []
+            for file_path in codec_output_dir.glob(
+                f"{output_file_prefix}_dec_[0-9][0-9][0-9].png"
+            ):
+                rec_frames.append(read_image_to_rgb_tensor(file_path))
 
-        nbframes = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
-
-        rec_frames = []
-        for i in range(nbframes):
-            rec_yuv = self.yuvio.read_one_frame(i)
-            rec_frames.append(rec_yuv)
-
-        rec_frames = torch.stack(rec_frames)
-
-        minv, maxv = self.min_max_dataset
-        rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
-
-        # (fracape) should feature sizes be part of bitstream?
-        thisdir = Path(__file__).parent
-        if self.datacatalog == "MPEGOIV6":
-            fpn_sizes = thisdir.joinpath(
-                f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
-            )
+            output = {"image": rec_frames}
         else:
-            fpn_sizes = thisdir.joinpath(
-                f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
+            self.yuvio.setReader(
+                read_path=yuv_dec_path,
+                frmWidth=frame_width,
+                frmHeight=frame_height,
             )
-        with fpn_sizes.open("r") as f:
-            try:
-                json_dict = json.load(f)
-            except json.decoder.JSONDecodeError as err:
-                print(f'Error reading file "{fpn_sizes}"')
-                raise err
 
-        features = self.vision_model.reshape_frame_to_feature_pyramid(
-            rec_frames,
-            json_dict["fpn"],
-            json_dict["subframe_heights"],
-            packing_all_in_one=True,
-        )
-        if not self.dump_yuv["dump_yuv_packing_dec"]:
-            Path(yuv_dec_path).unlink()
+            nbframes = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
 
-        output = {"data": features}
+            rec_frames = []
+            for i in range(nbframes):
+                rec_yuv = self.yuvio.read_one_frame(i)
+                rec_frames.append(rec_yuv)
+
+            rec_frames = torch.stack(rec_frames)
+
+            minv, maxv = self.min_max_dataset
+            rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
+
+            # (fracape) should feature sizes be part of bitstream?
+            thisdir = Path(__file__).parent
+            if self.datacatalog == "MPEGOIV6":
+                fpn_sizes = thisdir.joinpath(
+                    f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}/{file_prefix}.json"
+                )
+            else:
+                fpn_sizes = thisdir.joinpath(
+                    f"../../data/mpeg-fcm/{self.datacatalog}/fpn-sizes/{self.dataset_name}.json"
+                )
+            with fpn_sizes.open("r") as f:
+                try:
+                    json_dict = json.load(f)
+                except json.decoder.JSONDecodeError as err:
+                    print(f'Error reading file "{fpn_sizes}"')
+                    raise err
+
+            features = self.vision_model.reshape_frame_to_feature_pyramid(
+                rec_frames,
+                json_dict["fpn"],
+                json_dict["subframe_heights"],
+                packing_all_in_one=True,
+            )
+            if not self.dump_yuv["dump_yuv_packing_dec"]:
+                Path(yuv_dec_path).unlink()
+
+            output = {"data": features}
 
         return output
 
@@ -411,8 +451,11 @@ class HM(VTM):
         nbframes: int = 1,
         frmRate: int = 1,
         intra_period: int = 1,
+        chroma_format: str = "400",
+        input_bitdepth: int = 10,
+        output_bitdepth: int = 0,
     ) -> List[Any]:
-        level = 5.1 if nbframes > 1 else 6.2  # according to MPEG's anchor
+        level = 5.1 if nbframes > 1 else 6.2  # TODO: check levels for HEVC
         cmd = [
             self.encoder_path,
             "-i",
@@ -433,8 +476,9 @@ class HM(VTM):
             frmRate,
             "-f",
             nbframes,
-            "--InputChromaFormat=400",
-            "--InputBitDepth=10",
+            f"--InputChromaFormat={chroma_format}",
+            f"--InputBitDepth={input_bitdepth}",
+            f"--InternalBitDepth={output_bitdepth}",
             "--ConformanceWindowMode=1",  # needed?
             f"--IntraPeriod={intra_period}",
             f"--Level={level}",

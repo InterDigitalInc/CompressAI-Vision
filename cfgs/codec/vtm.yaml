@@ -19,3 +19,4 @@ dump_yuv:
 encoder_config:
   qp: 42
   intra_period: 1
+  parallel_encoding: False
