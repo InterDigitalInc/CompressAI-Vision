@@ -224,19 +224,18 @@ class BasePipeline(nn.Module):
             open(os.path.join(conformance_files_path, dump_file_name), "w"),
         )
 
-    def _compress_features(
-        self, codec, x, codec_output_dir, bitstream_name, filename: str
+    def _compress(
+        self, codec, x, codec_output_dir, bitstream_name, filename: str, img_input=False
     ):
         return codec.encode(
             x,
             codec_output_dir,
             bitstream_name,
             filename,
+            img_input=img_input,
         )
 
-    def _decompress_features(
-        self, codec, bitstream, codec_output_dir: str, filename: str
-    ):
+    def _decompress(self, codec, bitstream, codec_output_dir: str, filename: str):
         return codec.decode(
             bitstream,
             codec_output_dir,

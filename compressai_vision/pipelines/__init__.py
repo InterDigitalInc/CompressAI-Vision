@@ -27,10 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .remote_inference import ImageRemoteInference, VideoRemoteInference
 from .single_input_multiple_tasks import SingleInputMultipleTasks
 from .split_inference import ImageSplitInference, VideoSplitInference
 
 __all__ = [
+    "VideoRemoteInference" "ImageRemoteInference",
     "VideoSplitInference",
     "ImageSplitInference",
     "SingleInputMultipleTasks",

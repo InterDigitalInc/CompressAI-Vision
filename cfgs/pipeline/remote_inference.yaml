@@ -1,0 +1,33 @@
+###########################################################################################
+# A schematic for the remote-inference pipline
+#
+#                                           ┌─────────────────┐
+#     ┌───────────┐       ┌───────────┐     │                 │
+#     │           │       │           │     │      NN Task    │
+#────►│  Encoder  ├──────►│  Decoder  ├────►│                 ├────►
+#     │           │       │           │     │                 │
+#     └───────────┘       └───────────┘     │                 │
+#                                           └─────────────────┘
+#                         <---------------- Remote Server ------------->       
+#──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
+###########################################################################################
+
+name: "remote-inference"
+type: "image" 
+output_dir_root: ${paths._run_root}/${.name}-${.type}
+
+codec:
+    encode_only: False
+    decode_only: False
+    # following variables fetched from codec cfg, needed for decode_only pipeline
+    codec_output_dir: "${codec.output_dir}/codec_output"
+    bitstream_name: "${codec.bitstream_name}"
+    skip_n_frames: 0 # This is encoder only option
+    n_frames_to_be_encoded: -1  #(-1 = encode all input), This is encoder only option
+nn_task:
+    dump_results: False
+    output_results_dir: "${codec.output_dir}/output_results"
+evaluation:
+    bypass: False
+    dump: True
+    evaluation_dir: "${codec.output_dir}/evaluation"

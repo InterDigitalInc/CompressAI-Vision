@@ -46,29 +46,32 @@ from ..base import BasePipeline
 
 .. code-block:: none
 
-             Fold                                                        Fold
-           ┌ ─── ┐                                                     ┌ ─── ┐
-           |     |                                                     |     |
-           |     │                                                     |     │
-     ┌─────┴─────▼─────┐                                         ┌─────┴─────▼─────┐
-     │                 │     ┌───────────┐     ┌───────────┐     │                 │
-     │     NN Task     │     │           │     │           │     │      NN Task    │
-────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
-     │      Part 1     │     │           │     │           │     │      Part 2     │
-     │                 │     └───────────┘     └───────────┘     │                 │
-     └─────────────────┘                                         └─────────────────┘
+               
+          Fold   
+        ┌ ─── ┐     
+        |     |
+        |     │                            ┌─────────────────┐
+     ┌──┴─────▼──┐       ┌───────────┐     │                 │
+     │           │       │           │     │      NN Task    │
+────►│  Encoder  ├──────►│  Decoder  ├────►│                 ├────►
+     │           │       │           │     │                 │
+     └───────────┘       └───────────┘     │                 │
+                                           └─────────────────┘
+                         <---------------- Remote Server ------------->       
+──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 
 """
 
 
-@register_pipeline("video-split-inference")
-class VideoSplitInference(BasePipeline):
+@register_pipeline("video-remote-inference")
+class VideoRemoteInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
         device: str,
     ):
         super().__init__(configs, device)
+
         self._input_ftensor_buffer = []
 
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
@@ -99,7 +102,7 @@ class VideoSplitInference(BasePipeline):
         features = {}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
-        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+        timing = {"encode": 0, "decode": 0, "nn_task": 0}
 
         if not self.configs["codec"]["decode_only"]:
             ## NN-part-1
@@ -111,16 +114,24 @@ class VideoSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
+                # Feature Compression
                 start = self.time_measure()
-                res = self._from_input_to_features(vision_model, d, output_file_prefix)
+                res = self._compress(
+                    codec,
+                    features,
+                    self.codec_output_dir,
+                    self.bitstream_name,
+                    "",
+                    img_input=True,
+                )
                 end = self.time_measure()
-                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+                timing["encode"] = timing["encode"] + (end - start)
 
-                assert "data" in res
+                if self.configs["codec"]["encode_only"] is True:
+                    print(f"bitstreams generated, exiting")
+                    raise SystemExit(0)
 
                 num_items = self._input_data_collecting(res["data"])
-
-                del res["data"]
 
                 if (e - self._codec_skip_n_frames) == 0:
                     org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
@@ -137,34 +148,10 @@ class VideoSplitInference(BasePipeline):
                     out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
                     out_res["input_size"] = features["input_size"][0]
 
-                del d[0]["image"]
-
             assert num_items == self._codec_n_frames_to_be_encoded
 
-            if self.configs["nn_task_part1"].generate_features_only is True:
-                print(
-                    f"features generated in {self.configs['nn_task_part1']['feature_dir']}\n exiting"
-                )
-                raise SystemExit(0)
-
             # concatenate a list of tensors at each keyword item
-            features["data"] = self._reform_ftesnros_in_list_to_dict()
-
-            # Feature Compression
-            start = self.time_measure()
-            res = self._compress(
-                codec, features, self.codec_output_dir, self.bitstream_name, ""
-            )
-            end = self.time_measure()
-            timing["encode"] = timing["encode"] + (end - start)
-
-            # for bypass mode, 'data' should be deleted.
-            if "data" in res["bitstream"] is False:
-                del features["data"]
-
-            if self.configs["codec"]["encode_only"] is True:
-                print(f"bitstreams generated, exiting")
-                raise SystemExit(0)
+            features["data"] = self._reform_list_to_dict(self._input_ftensor_buffer)
 
         else:  # decode only
             res = {}
@@ -212,6 +199,8 @@ class VideoSplitInference(BasePipeline):
             dec_ftensors_list
         ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
 
+        ## TO BE IMPLEMENTED [HYOMIN]
+
         self.logger.info("Processing NN-Part2...")
         output_list = []
         for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
@@ -220,6 +209,13 @@ class VideoSplitInference(BasePipeline):
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
+
+            start = self.time_measure()
+            res = self._from_input_to_features(vision_model, d, output_file_prefix)
+            end = self.time_measure()
+            timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+
+            assert "data" in res
 
             start = self.time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
@@ -262,10 +258,11 @@ class VideoSplitInference(BasePipeline):
 
         return len(self._input_ftensor_buffer)
 
-    def _reform_ftesnros_in_list_to_dict(self):
+    @staticmethod
+    def _reform_list_to_dict(data: List):
         output = None
 
-        for ftensors in self._input_ftensor_buffer:
+        for ftensors in data:
             assert isinstance(ftensors, dict)
 
             if output is None:
@@ -275,10 +272,6 @@ class VideoSplitInference(BasePipeline):
 
             for key, ftensor in ftensors.items():
                 output[key].append(ftensor)
-
-            del ftensors
-
-        self._input_ftensor_buffer = []
 
         for key, ftensors in output.items():
             output[key] = torch.concat(ftensors, dim=0)

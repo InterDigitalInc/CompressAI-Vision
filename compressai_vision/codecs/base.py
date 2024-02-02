@@ -65,6 +65,7 @@ class Bypass(nn.Module):
         codec_output_dir: str = "",
         bitstream_name: str = "",
         file_prefix: str = "",
+        img_input=False,
     ) -> Dict:
         """
         Bypass encoder
@@ -73,6 +74,8 @@ class Bypass(nn.Module):
         del file_prefix  # used in other codecs that write bitstream files
         del bitstream_name  # used in other codecs that write bitstream files
         del codec_output_dir  # used in other codecs that write log files
+
+        # if img_input is True:
 
         # for n-bit quantization error experiments
         max_lvl = ((2**self.nbit_quant) - 1) if self.nbit_quant != -1 else None

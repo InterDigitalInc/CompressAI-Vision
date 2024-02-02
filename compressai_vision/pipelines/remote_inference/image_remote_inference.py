@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2023-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -47,24 +47,24 @@ from compressai_vision.utils import dataio
 
 from ..base import BasePipeline
 
-""" A schematic for the split-inference pipline
+""" A schematic for the remote-inference pipline
 
 .. code-block:: none
 
-     ┌─────────────────┐                                         ┌─────────────────┐
-     │                 │     ┌───────────┐     ┌───────────┐     │                 │
-     │     NN Task     │     │           │     │           │     │      NN Task    │
-────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►
-     │      Part 1     │     │           │     │           │     │      Part 2     │
-     │                 │     └───────────┘     └───────────┘     │                 │
-     └─────────────────┘                                         └─────────────────┘
-
-    ──────►──────►──────►──────►──────►──────►──────►──────►──────►──────►
+                                           ┌─────────────────┐
+     ┌───────────┐       ┌───────────┐     │                 │
+     │           │       │           │     │      NN Task    │
+────►│  Encoder  ├──────►│  Decoder  ├────►│                 ├────►
+     │           │       │           │     │                 │
+     └───────────┘       └───────────┘     │                 │
+                                           └─────────────────┘
+                         <---------------- Remote Server ------------->       
+──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►
 """
 
 
-@register_pipeline("image-split-inference")
-class ImageSplitInference(BasePipeline):
+@register_pipeline("image-remote-inference")
+class ImageRemoteInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
@@ -84,8 +84,10 @@ class ImageSplitInference(BasePipeline):
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
         self._update_codec_configs_at_pipeline_level(len(dataloader))
+        org_map_func = dataloader.dataset.get_org_mapper_func()
         output_list = []
-        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+        timing = {"encode": 0, "decode": 0, "nn_task": 0}
+
         for e, d in enumerate(tqdm(dataloader)):
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
             file_prefix = f'img_id_{d[0]["image_id"]}'
@@ -97,19 +99,25 @@ class ImageSplitInference(BasePipeline):
                     break
 
                 start = self.time_measure()
-                featureT = self._from_input_to_features(vision_model, d, file_prefix)
-                end = self.time_measure()
-                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
-                featureT["org_input_size"] = org_img_size
+                # Fabien
+                ## need a padding function check if width and height is multiple of 2##
+                ## Then, the fuction return the output with a format like below
+                frame = {
+                    "data": {"frame": d[0]["image"][None, ...]},
+                    "org_input_size": org_img_size,
+                }
 
-                start = self.time_measure()
+                # RGB to YUV conversion can happen in side of the compression code..?
+                ## End function
+
                 res = self._compress(
                     codec,
-                    featureT,
+                    frame,
                     self.codec_output_dir,
                     self.bitstream_name,
                     file_prefix,
+                    img_input=True,
                 )
                 end = self.time_measure()
                 timing["encode"] = timing["encode"] + (end - start)
@@ -136,29 +144,30 @@ class ImageSplitInference(BasePipeline):
                 continue
 
             start = self.time_measure()
-            dec_features = self._decompress(
+            dec_out = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
             end = self.time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
-            # dec_features should contain "org_input_size" and "input_size"
-            # When using anchor codecs, that's not the case, we read input images to derive them
-            if not "org_input_size" in dec_features or not "input_size" in dec_features:
-                self.logger.warning(
-                    "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
-                )
-                dec_features["org_input_size"] = org_img_size
-                dec_features["input_size"] = self._get_model_input_size(vision_model, d)
+            # Fabien
+            # YUV to PNG(or JPG) conversion can happen in side of the compression code..?
+            # undo the padding that happend on the input to the Encoder.
+            # Plesae provide a file name of PNG (or JPG)
 
-            dec_features["file_name"] = d[0]["file_name"]
+            # dec_d = d.copy()
+            # dec_d["filename"] =
+            ## End function
+
+            # Temporary solution
+            dec_d = d[0].copy()
+            dec_d["org_input_size"] = dec_out["org_input_size"]
+            dec_d["input_size"] = self._get_model_input_size(vision_model, d)
 
             start = self.time_measure()
-            pred = self._from_features_to_output(
-                vision_model, dec_features, file_prefix
-            )
+            pred = vision_model.forward(dec_d, org_map_func)
             end = self.time_measure()
-            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
+            timing["nn_task"] = timing["nn_task"] + (end - start)
 
             evaluator.digest(d, pred)
 
@@ -178,7 +187,7 @@ class ImageSplitInference(BasePipeline):
                 out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
-            out_res["input_size"] = dec_features["input_size"][0]
+            out_res["input_size"] = dec_d["input_size"][0]
             output_list.append(out_res)
 
         if self.configs["codec"]["encode_only"] is True:

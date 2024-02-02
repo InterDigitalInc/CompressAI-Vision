@@ -93,7 +93,9 @@ setup(
     # include_package_data=True,
     entry_points={
         "console_scripts": [
-            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main"
+            "compressai-vision-eval = compressai_vision.run.eval_split_inference:main",
+            "compressai-split-inference = compressai_vision.run.eval_split_inference:main"
+            "compressai-remote-inference = compressai_vision.run.eval_remote_inference:main",
         ]
     },
     # metadata for upload to PyPI

@@ -36,7 +36,7 @@ import numpy as np
 import torch
 from jde.utils.datasets import letterbox
 
-__all__ = ["JDECustomMapper"]
+__all__ = ["JDECustomMapper", "LinearMapper"]
 
 
 class JDECustomMapper:
@@ -86,6 +86,61 @@ class JDECustomMapper:
 
         # convert to RGB & swap axis
         image = image[:, :, ::-1].transpose(2, 0, 1)
+        # normalize contiguous array of image
+        image = np.ascontiguousarray(image, dtype=np.float32) / 255.0
+        # to tensor
+        dataset_dict["image"] = torch.as_tensor(image)
+
+        return dataset_dict
+
+
+class LinearMapper:
+    """
+    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for JDE Tracking,
+    and map it into a format used by the model.
+
+    This is the default callable to be used to map your dataset dict into inference data.
+
+    This callable function refers to
+        LoadImages function in Towards-Realtime-MOT/utils/datasets.py at
+        <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/utils/datasets.py>
+
+        Full license statement can be found at
+        <https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/LICENSE>
+
+    """
+
+    def __init__(self, bgr=False):
+        """
+        Args:
+            img_size: expected input size (Height, Width)
+        """
+
+        self.bgr_output = bgr
+
+    def __call__(self, dataset_dict):
+        """
+        Args:
+            dataset_dict (dict): Metadata of one image.
+
+        Returns:
+            dict: a format that compressai-vision pipelines accept
+        """
+
+        dataset_dict = copy.deepcopy(dataset_dict)
+        # the copied dictionary will be modified by code below
+
+        dataset_dict.pop("annotations", None)
+
+        # Read image
+        org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
+        dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
+
+        # convert to RGB & swap axis
+        if self.bgr_output:
+            image = org_img.transpose(2, 0, 1)
+        else:
+            image = org_img[:, :, ::-1].transpose(2, 0, 1)
         # normalize contiguous array of image
         image = np.ascontiguousarray(image, dtype=np.float32) / 255.0
         # to tensor

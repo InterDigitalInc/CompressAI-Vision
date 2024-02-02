@@ -403,7 +403,7 @@ class jde_1088x608(BaseWrapper):
         return output_stracks
 
     @torch.no_grad()
-    def forward(self, x):
+    def forward(self, x, input_map_function):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         # return self.model(x)
         raise NotImplementedError

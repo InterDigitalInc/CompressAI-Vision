@@ -189,9 +189,14 @@ class VTM(nn.Module):
         codec_output_dir,
         bitstream_name,
         file_prefix: str = "",
+        img_input=False,
     ) -> bool:
+        # Fabien
+        # If the input images or Video are 8-bit..?
         bitdepth = 10  # TODO (fracape) (add this as config)
 
+        # Fabien
+        # If the input is pixels, we don't need below.
         (
             frames,
             self.feature_size,

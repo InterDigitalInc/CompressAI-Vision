@@ -1,0 +1,39 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - evaluator: default
+  - vision_model: default
+  - pipeline: remote_inference
+  - codec: default
+  - _self_
+
+pipeline:
+  type: "remote" # alternative is image
+  
+vision_model:
+  arch: faster_rcnn_X_101_32x8d_FPN_3x
+
+codec:
+  type: "bypass"
+  eval_encode: "bpp" # or "bitrate"
+
+dataset:
+  type: 'Detectron2Dataset'
+  settings:
+    linear_mapper: True
+
+  datacatalog: 'SFUHW'
+  config:
+    root: "/data/datasets/MPEG-FCM/fcm_testdata/SFU_HW_Obj/Traffic_2560x1600_30_val"
+    imgs_folder: "images"
+    annotation_file: "annotations/Traffic_2560x1600_30_val.json"
+    dataset_name: "sfu-hw-Traffic_2560x1600_30_val"
+
+
+evaluator:
+  #type: 'OIC-EVAL'
+  type: 'COCO-EVAL'
+  eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria)
+  #type: 'VOID'

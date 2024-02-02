@@ -27,49 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-from typing import Any, Dict, List
+from .image_remote_inference import ImageRemoteInference
+from .video_remote_inference import VideoRemoteInference
 
-import torch.nn as nn
-from torch import Tensor
-
-
-class BaseWrapper(nn.Module):
-    """NOTE: virtual class to build *your* wrapper and interface with compressai_vision
-
-    An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def input_to_features(self, x) -> Dict:
-        """Computes deep features at the intermediate layer(s) all the way from the input"""
-        raise NotImplementedError
-
-    def features_to_output(self, x: Dict):
-        """Complete the downstream task from the intermediate deep features"""
-        raise NotImplementedError
-
-    def deeper_features_for_accuracy_proxy(self, x: Dict):
-        """
-        compute accuracy proxy at the deeper layer than NN-Part1
-        """
-        raise NotImplementedError
-
-    def forward(self, x, input_map_function):
-        """Complete the downstream task with end-to-end manner all the way from the input"""
-        raise NotImplementedError
-
-    @property
-    def cfg(self):
-        return None
-
-    @property
-    def pretrained_weight_path(self):
-        return self.model_info["weight"]
-
-    @property
-    def model_cfg_path(self):
-        return self.model_info["cfg"]
+__all__ = [
+    "ImageRemoteInference",
+    "VideoRemoteInference",
+]

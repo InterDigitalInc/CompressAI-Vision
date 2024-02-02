@@ -8,6 +8,7 @@ config:
   seqinfo: "seqinfo.ini"
   ext: "png"
 settings:
+  linear_mapper: False
   patch_size: [512, 512]
   ret_name: False
   use_BGR: False

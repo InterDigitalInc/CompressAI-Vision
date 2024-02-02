@@ -144,7 +144,7 @@ class SingleInputMultipleTasks(BasePipeline):
                 featureT["org_input_size"] = org_img_size
 
                 start = time.time()
-                res = self._compress_features(
+                res = self._compress(
                     codec,
                     featureT,
                     self.codec_output_dir,
@@ -164,7 +164,7 @@ class SingleInputMultipleTasks(BasePipeline):
                 continue
 
             start = time.time()
-            dec_features = self._decompress_features(
+            dec_features = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
             end = time.time()

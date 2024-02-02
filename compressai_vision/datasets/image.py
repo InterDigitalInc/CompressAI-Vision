@@ -30,6 +30,7 @@
 
 import base64
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List
 
@@ -38,13 +39,14 @@ from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
 from detectron2.data.datasets import load_coco_json, register_coco_instances
 from detectron2.data.samplers import InferenceSampler
+from detectron2.utils.serialize import PicklableWrapper
 from jde.utils.io import read_results
 from PIL import Image
 from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
 
-from .utils import JDECustomMapper
+from .utils import JDECustomMapper, LinearMapper
 
 
 def bypass_collator(batch):
@@ -72,12 +74,16 @@ class BaseDataset(Dataset):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.dataset_name = dataset_name
 
+        self.annotation_path = None
         if "annotation_file" in kwargs:
-            self.annotation_path = Path(root) / kwargs["annotation_file"]
-            assert self.annotation_path == kwargs["dataset"].annotation_path
+            if kwargs["annotation_file"].lower() != "none":
+                self.annotation_path = Path(root) / kwargs["annotation_file"]
+                assert self.annotation_path == kwargs["dataset"].annotation_path
 
+        self.seqinfo_path = None
         if "seqinfo" in kwargs:
-            self.seqinfo_path = kwargs["dataset"].seqinfo_path
+            if kwargs["seqinfo"].lower() != "none":
+                self.seqinfo_path = kwargs["dataset"].seqinfo_path
 
         self.images_folder = Path(root) / imgs_folder
         assert self.images_folder == kwargs["dataset"].imgs_folder_path
@@ -85,6 +91,7 @@ class BaseDataset(Dataset):
         self.sampler = None
         self.collate_fn = None
         self.mapDataset = None
+        self.org_mapper_func = None
 
         self.thing_classes = []
         self.thing_dataset_id_to_contiguous_id = []
@@ -131,15 +138,20 @@ class DefaultDataset(BaseDataset):
         self.transform = kwargs["transforms"]
         self.ret_name = kwargs["ret_name"]
 
+        self.sampler = InferenceSampler(len(kwargs["dataset"]))
+        self.collate_fn = bypass_collator
+
+        _dataset = DatasetFromList(kwargs["dataset"].dataset, copy=False)
+
         if "cfg" in kwargs:
             if kwargs["cfg"] is not None:
-                self.sampler = InferenceSampler(len(kwargs["dataset"]))
-                self.collate_fn = bypass_collator
-
-                _dataset = DatasetFromList(kwargs["dataset"].dataset, copy=False)
                 mapper = DatasetMapper(kwargs["cfg"], False)
 
                 self.mapDataset = MapDataset(_dataset, mapper)
+
+                return
+
+        self.mapDataset = MapDataset(_dataset, LinearMapper(bgr=self.use_BGR))
 
     def __getitem__(self, index):
         """
@@ -153,6 +165,7 @@ class DefaultDataset(BaseDataset):
         if self.mapDataset:
             return self.mapDataset[index]
 
+        raise NotImplementedError
         img = Image.open(self.samples[index]).convert("RGB")
 
         if self.use_BGR is True:
@@ -195,15 +208,26 @@ class Detectron2Dataset(BaseDataset):
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
-        mapper = DatasetMapper(kwargs["cfg"], False)
+
+        if kwargs["linear_mapper"] is True:
+            mapper = LinearMapper()
+        else:
+            assert (
+                kwargs["cfg"] is not None
+            ), "A proper mapper information via cfg must be provided"
+            mapper = DatasetMapper(kwargs["cfg"], False)
 
         self.mapDataset = MapDataset(_dataset, mapper)
+        self._org_mapper_func = PicklableWrapper(DatasetMapper(kwargs["cfg"], False))
 
         metaData = MetadataCatalog.get(dataset_name)
         self.thing_classes = metaData.thing_classes
         self.thing_dataset_id_to_contiguous_id = (
             metaData.thing_dataset_id_to_contiguous_id
         )
+
+    def get_org_mapper_func(self):
+        return self._org_mapper_func
 
     def __getitem__(self, idx):
         return self.mapDataset[idx]
@@ -223,7 +247,14 @@ class TrackingDataset(BaseDataset):
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
-        self.mapDataset = MapDataset(_dataset, JDECustomMapper(kwargs["patch_size"]))
+
+        if kwargs["linear_mapper"] is True:
+            mapper = LinearMapper()
+        else:
+            mapper = JDECustomMapper(kwargs["patch_size"])
+
+        self.mapDataset = MapDataset(_dataset, mapper)
+        self.org_mapper_func = PicklableWrapper(JDECustomMapper(kwargs["patch_size"]))
 
     def __getitem__(self, idx):
         return self.mapDataset[idx]
@@ -247,23 +278,27 @@ class DataCatalog:
         if not _imgs_folder.is_dir():
             raise RuntimeError(f'Invalid image sample directory "{_imgs_folder}"')
 
-        _annotation_file = Path(root) / annotation_file
-        if not _annotation_file.is_file():
-            raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
+        self._annotation_file = None
+        if annotation_file is not None:
+            _annotation_file = Path(root) / annotation_file
+            if not _annotation_file.is_file():
+                raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
+            self._annotation_file = _annotation_file
 
-        _sequence_info_file = Path(root) / seqinfo
-        if not _annotation_file.is_file():
-            self.logger.warning(
-                f"Sequence information does not exist at the given path {_sequence_info_file}"
-            )
-            self._sequence_info_file = None
-        else:
-            self._sequence_info_file = _sequence_info_file
+        self._sequence_info_file = None
+        if seqinfo is not None:
+            _sequence_info_file = Path(root) / seqinfo
+            if not _annotation_file.is_file():
+                self.logger.warning(
+                    f"Sequence information does not exist at the given path {_sequence_info_file}"
+                )
+                self._sequence_info_file = None
+            else:
+                self._sequence_info_file = _sequence_info_file
 
         self._dataset_name = dataset_name
         self._dataset = None
         self._imgs_folder = _imgs_folder
-        self._annotation_file = _annotation_file
         self._img_ext = ext
 
     @property
@@ -573,3 +608,61 @@ class COCO(DataCatalog):
 
     def get_min_max_across_tensors(self):
         raise NotImplementedError
+
+
+@register_datacatalog("IMAGES")
+class IMAGES(DataCatalog):
+    """Load an image folder with images and no annotations
+    (Currently this class supports none of training related operation ):
+
+    .. code-block:: none
+        - rootdir/
+            - [test_folder]
+                - img000.jpg
+                - img001.jpg
+                - imgxxx.jpg
+
+    Args:
+        root (string): root directory of the dataset
+
+    """
+
+    def __init__(
+        self,
+        root,
+        imgs_folder="test",
+        annotation_file=None,
+        seqinfo=None,
+        dataset_name="kodak",
+        ext="",
+    ):
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=None,
+            seqinfo=None,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
+
+        all_files = [
+            f
+            for f in sorted(self.imgs_folder_path.iterdir())
+            if f.is_file() and f.suffix[1:].lower() == ext.lower()
+        ]
+
+        self._dataset = []
+        for p in all_files:
+            img_id = re.findall(r"[\d]+", str(Path(p).stem))
+            assert len(img_id) == 1
+
+            fw, fh = Image.open(p).size
+
+            d = {
+                "file_name": str(p),
+                "height": fh,
+                "width": fw,
+                "image_id": img_id[0],
+            }
+
+            self._dataset.append(d)
