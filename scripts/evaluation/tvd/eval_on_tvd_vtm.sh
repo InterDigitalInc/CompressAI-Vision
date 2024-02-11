@@ -14,7 +14,7 @@ CONF_NAME=$9
 export DNNL_MAX_CPU_ISA=AVX2
 export DEVICE=${DEVICE}
 
-DATASET_SRC="${FCM_TESTDATA}/mpeg-oiv6"
+DATASET_SRC="${FCM_TESTDATA}/tvd_tracking"
 
 CMD="compressai-split-inference"
 if [[ "*${CONF_NAME}*" == "remote" ]]; then
@@ -24,47 +24,14 @@ fi
 declare -A intra_period_dict
 declare -A fr_dict
 
-intra_period_dict["Traffic_2560x1600_30_val"]=32
-fr_dict["Traffic_2560x1600_30_val"]=30
+intra_period_dict["TVD-01"]=64
+fr_dict["TVD-01"]=50
 
-intra_period_dict["Kimono_1920x1080_24_val"]=32
-fr_dict["Kimono_1920x1080_24_val"]=24
+intra_period_dict["TVD-02"]=64
+fr_dict["TVD-02"]=50
 
-intra_period_dict["ParkScene_1920x1080_24_val"]=32
-fr_dict["ParkScene_1920x1080_24_val"]=24
-
-intra_period_dict["Cactus_1920x1080_50_val"]=64
-fr_dict["Cactus_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrive_1920x1080_50_val"]=64
-fr_dict["BasketballDrive_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrill_832x480_50_val"]=64
-fr_dict["BasketballDrill_832x480_50_val"]=50
-
-intra_period_dict["BQTerrace_1920x1080_60_val"]=64
-fr_dict["BQTerrace_1920x1080_60_val"]=60
-
-intra_period_dict["BQSquare_416x240_60_val"]=64
-fr_dict["BQSquare_416x240_60_val"]=60
-
-intra_period_dict["PartyScene_832x480_50_val"]=64
-fr_dict["PartyScene_832x480_50_val"]=50
-
-intra_period_dict["RaceHorses_832x480_30_val"]=32
-fr_dict["RaceHorses_832x480_30_val"]=30
-
-intra_period_dict["RaceHorses_416x240_30_val"]=32
-fr_dict["RaceHorses_416x240_30_val"]=30
-
-intra_period_dict["BlowingBubbles_416x240_50_val"]=64
-fr_dict["BlowingBubbles_416x240_50_val"]=50
-
-intra_period_dict["BasketballPass_416x240_50_val"]=64
-fr_dict["BasketballPass_416x240_50_val"]=50
-
-intra_period_dict["BQMall_832x480_60_val"]=64
-fr_dict["BQMall_832x480_60_val"]=60
+intra_period_dict["TVD-03"]=64
+fr_dict["TVD-03"]=50
 
 INTRA_PERIOD=${intra_period_dict[${SEQ}]}
 FRAME_RATE=${fr_dict[${SEQ}]}
@@ -85,14 +52,16 @@ echo "==========================================================================
 ${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
         ++pipeline.type=video \
         ++paths._run_root=${OUTPUT_DIR} \
-	++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
-        ++dataset.type=Detectron2Dataset \
-        ++dataset.datacatalog=SFUHW \
+	++vision_model.arch=jde_1088x608 \
+        ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
+        ++dataset.type=TrackingDataset \
+        ++dataset.datacatalog=MPEGTVDTRACKING \
+	++dataset.settings.patch_size="[608, 1088]" \
         ++dataset.config.root=${DATASET_SRC}/${SEQ} \
-        ++dataset.config.annotation_file=annotations/${SEQ}.json \
-        ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-        ++evaluator.type=COCO-EVAL \
-	++evaluator.eval_criteria=AP50 \
+        ++dataset.config.imgs_folder=img1 \
+       	++dataset.config.annotation_file=gt/gt.txt \
+        ++dataset.config.dataset_name=mpeg-${SEQ} \
+        ++evaluator.type=MOT-TVD-EVAL \
         ++codec.experiment=${EXPERIMENT} \
 	codec=vtm.yaml \
         ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
@@ -106,3 +75,4 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
         ++misc.device=${DEVICE} \
+        
