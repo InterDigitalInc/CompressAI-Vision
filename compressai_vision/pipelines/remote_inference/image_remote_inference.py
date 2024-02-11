@@ -97,7 +97,7 @@ class ImageRemoteInference(BasePipeline):
 
                 start = time_measure()
                 frame = {
-                    "file_name": d[0]["file_name"],
+                    "file_names": d[0]["file_name"],
                     "org_input_size": org_img_size,
                 }
 

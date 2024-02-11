@@ -8,7 +8,7 @@ codec_paths:
   decoder_exe: "/local/path/HM/bin/TAppDecoderStatic"
   parcat_exe: "/local/path/HM/bin/parcatStatic"
   # use rext cfg for 400 format for feature compression
-  cfg_file: "/local/path/HM/cfg/encoder_intra_main_rext.cfg"
+  cfg_file: "/local/path/HM/cfg/encoder_intra_main10.cfg"
 
 verbosity: 1
 

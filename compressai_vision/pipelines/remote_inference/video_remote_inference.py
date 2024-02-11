@@ -114,7 +114,7 @@ class VideoRemoteInference(BasePipeline):
             frames = {
                 "frame_skip": self._codec_skip_n_frames,
                 "last_frame": self._codec_end_frame_idx,
-                "file_name": Path(file_names[0]).parents[1].name,
+                "file_names": file_names,
                 "org_input_size": org_input_size,
             }
 

@@ -33,7 +33,7 @@ import resource
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 
 def get_max_num_cpus():

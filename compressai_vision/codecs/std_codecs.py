@@ -33,6 +33,7 @@ import json
 import logging
 import math
 import os
+import sys
 import time
 from copy import deepcopy
 from io import BytesIO
@@ -303,18 +304,32 @@ class VTM(nn.Module):
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        print(f"\n-- encoding ${file_prefix}")
+        print(f"\n-- encoding ${file_prefix}", file=sys.stderr)
 
         if img_input:
             nb_frames = 1
             frame_rate = 1
             intra_period = 1
-            file_name = x["file_name"]
-            if "frame_skip" in x.keys():  # video
+            file_names = x["file_names"]
+            if len(file_names) > 1:  # video
                 nb_frames = x["last_frame"] - x["frame_skip"]
                 frame_rate = self.frame_rate
                 intra_period = self.intra_period
-                file_name = f"{file_name}_%03d.png"
+                # warning: somewhat rigid pattern (lowercase png)
+                filename_pattern = f"{str(Path(file_names[0]).parent)}/*.png"
+                input_info = [
+                    "-pattern_type",
+                    "glob",
+                    "-i",
+                    filename_pattern,
+                    # "-start_number",
+                    # "0",  # warning, start frame is 0 for now
+                    # "-vframes",
+                    # f"{nb_frames}",
+                ]
+            else:
+                input_info = ["-i", file_names[0]]
+
             chroma_format = self.enc_cfgs["chroma_format"]
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
             pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
@@ -326,26 +341,19 @@ class VTM(nn.Module):
             # TODO (fracape)
             # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
 
-            convert_cmd = [
-                "ffmpeg",
-                "-y",
-                "-hide_banner",
-                "-loglevel",
-                "error",
-                "-i",
-                file_name,
-                "-start_number",
-                "0",  # warning, start frame is 0 for now
-                "-vframes",
-                f"{nb_frames}",
+            convert_cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
+            convert_cmd += input_info
+            convert_cmd += [
                 "-vf",
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2",
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
                 f"yuv{chroma_format}p{pix_fmt_suffix}",
-                yuv_in_path,
             ]
+
+            convert_cmd.append(yuv_in_path)
+
             run_cmdline(convert_cmd)
 
         else:
@@ -642,47 +650,106 @@ class HM(VTM):
     ):
         super().__init__(vision_model, dataset, **kwargs)
 
-    # def get_encode_cmd(
-    #     self,
-    #     inp_yuv_path: Path,
-    #     qp: int,
-    #     bitstream_path: Path,
-    #     width: int,
-    #     height: int,
-    #     nb_frames: int = 1,
-    #     frame_rate: int = 1,
-    #     intra_period: int = 1,
-    #     chroma_format: str = "400",
-    #     input_bitdepth: int = 10,
-    #     output_bitdepth: int = 0,
-    # ) -> List[Any]:
-    #     level = 5.1 if nb_frames > 1 else 6.2  # TODO: check levels for HEVC
-    #     cmd = [
-    #         self.encoder_path,
-    #         "-i",
-    #         inp_yuv_path,
-    #         "-c",
-    #         self.cfg_file,
-    #         "-q",
-    #         qp,
-    #         "-o",
-    #         "/dev/null",
-    #         "-wdt",
-    #         width,
-    #         "-hgt",
-    #         height,
-    #         "-fr",
-    #         frame_rate,
-    #         "-f",
-    #         nb_frames,
-    #         f"--InputChromaFormat={chroma_format}",
-    #         f"--InputBitDepth={input_bitdepth}",
-    #         f"--InternalBitDepth={output_bitdepth}",
-    #         "--ConformanceWindowMode=1",  # needed?
-    #         f"--IntraPeriod={intra_period}",
-    #         f"--Level={level}",
-    #     ]
-    #     return list(map(str, cmd))
+def get_encode_cmd(
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nb_frames: int = 1,
+        frame_rate: int = 1,
+        intra_period: int = 1,
+        parallel_encoding: bool = False,
+        hash_check: int = 0,
+        chroma_format: str = "400",
+        input_bitdepth: int = 10,
+        output_bitdepth: int = 0,
+    ) -> List[Any]:
+        level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
+        if output_bitdepth == 0:
+            output_bitdepth = input_bitdepth
+
+        decodingRefreshType = 1 if intra_period >= 1 else 0
+        base_cmd = [
+            self.encoder_path,
+            "-i",
+            inp_yuv_path,
+            "-c",
+            self.cfg_file,
+            "-q",
+            qp,
+            "-o",
+            "/dev/null",
+            "-wdt",
+            width,
+            "-hgt",
+            height,
+            "-fr",
+            frame_rate,
+            "-ts",  # temporal subsampling to prevent default period of 8 in all intra
+            "1",
+            f"--Level={level}",
+            f"--IntraPeriod={intra_period}",
+            f"--InputChromaFormat={chroma_format}",
+            f"--InputBitDepth={input_bitdepth}",
+            f"--InternalBitDepth={output_bitdepth}",
+            "--ConformanceWindowMode=1",  # needed?
+            f"--DecodingRefreshType={decodingRefreshType}",
+        ]
+
+        if parallel_encoding is False or nb_frames <= (intra_period + 1):
+            base_cmd.append(f"--BitstreamFile={bitstream_path}")
+            base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
+            cmd = list(map(str, base_cmd))
+            self.logger.debug(cmd)
+            return [cmd]
+
+        num_parallels = round((nb_frames / intra_period) + 0.5)
+
+        list_of_num_of_frameSkip = []
+        list_of_num_of_framesToBeEncoded = []
+        total_num_frames_to_code = nb_frames
+
+        frameSkip = 0
+        nbframesToBeEncoded = intra_period + 1
+        for _ in range(num_parallels):
+            list_of_num_of_frameSkip.append(frameSkip)
+
+            nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
+            list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
+
+            frameSkip += intra_period
+            total_num_frames_to_code -= intra_period
+
+        bitstream_path_p = Path(bitstream_path).parent
+        file_stem = Path(bitstream_path).stem
+        ext = Path(bitstream_path).suffix
+
+        parallel_cmds = []
+        for e, items in enumerate(
+            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
+        ):
+            frameSkip, framesToBeEncoded = items
+            sbitstream_path = (
+                str(bitstream_path_p)
+                + "/"
+                + str(file_stem)
+                + f"-part-{e:03d}"
+                + str(ext)
+            )
+
+            pcmd = deepcopy(base_cmd)
+            pcmd.append(f"--BitstreamFile={sbitstream_path}")
+            pcmd.append(f"--FrameSkip={frameSkip}")
+            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+
+            cmd = list(map(str, pcmd))
+            self.logger.debug(cmd)
+
+            parallel_cmds.append(cmd)
+
+        return parallel_cmds
 
 
 @register_codec("vvenc")
