@@ -11,7 +11,7 @@ codec_paths:
 verbosity: 1
 
 dump_yuv:
-  dump_yuv_packing_input: True
+  dump_yuv_input: True
   yuv_packing_input_dir: ${..output_dir}
   dump_yuv_packing_dec: False
   yuv_packing_dec_dir: ${..output_dir}

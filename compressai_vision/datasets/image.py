@@ -254,7 +254,10 @@ class TrackingDataset(BaseDataset):
             mapper = JDECustomMapper(kwargs["patch_size"])
 
         self.mapDataset = MapDataset(_dataset, mapper)
-        self.org_mapper_func = PicklableWrapper(JDECustomMapper(kwargs["patch_size"]))
+        self._org_mapper_func = PicklableWrapper(JDECustomMapper(kwargs["patch_size"]))
+
+    def get_org_mapper_func(self):
+        return self._org_mapper_func
 
     def __getitem__(self, idx):
         return self.mapDataset[idx]

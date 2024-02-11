@@ -215,11 +215,11 @@ class x264(nn.Module):
         # self.logger.debug(cmd)
 
         start = time.time()
-        run_cmdline(cmd, logpath=logpath)
+        run_cmdline([cmd], logpath=logpath)
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
 
-        if not self.dump_yuv["dump_yuv_packing_input"]:
+        if not self.dump_yuv["dump_yuv_input"]:
             Path(yuv_in_path).unlink()
             # Path(yuv_in_converted_path).unlink()
 
@@ -256,7 +256,7 @@ class x264(nn.Module):
         logpath = Path(f"{codec_output_dir}/{file_prefix}_dec.log")
 
         start = time.time()
-        run_cmdline(cmd, logpath=logpath)
+        run_cmdline([cmd], logpath=logpath)
         dec_time = time.time() - start
         # self.logger.debug(f"dec_time:{dec_time}")
 

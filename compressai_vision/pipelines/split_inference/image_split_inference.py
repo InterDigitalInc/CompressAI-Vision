@@ -27,23 +27,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
 import os
-import shutil
-from enum import Enum
-from pathlib import Path
-from typing import Callable, Dict
-from uuid import uuid4 as uuid
+from typing import Dict
 
-import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio
+from compressai_vision.utils import time_measure
 
 from ..base import BasePipeline
 
@@ -96,14 +89,14 @@ class ImageSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
-                start = self.time_measure()
+                start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
-                end = self.time_measure()
+                end = time_measure()
                 timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
                 featureT["org_input_size"] = org_img_size
 
-                start = self.time_measure()
+                start = time_measure()
                 res = self._compress(
                     codec,
                     featureT,
@@ -111,7 +104,7 @@ class ImageSplitInference(BasePipeline):
                     self.bitstream_name,
                     file_prefix,
                 )
-                end = self.time_measure()
+                end = time_measure()
                 timing["encode"] = timing["encode"] + (end - start)
             else:
                 res = {}
@@ -135,11 +128,11 @@ class ImageSplitInference(BasePipeline):
             if self.configs["codec"]["encode_only"] is True:
                 continue
 
-            start = self.time_measure()
+            start = time_measure()
             dec_features = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
-            end = self.time_measure()
+            end = time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
             # dec_features should contain "org_input_size" and "input_size"
@@ -153,11 +146,11 @@ class ImageSplitInference(BasePipeline):
 
             dec_features["file_name"] = d[0]["file_name"]
 
-            start = self.time_measure()
+            start = time_measure()
             pred = self._from_features_to_output(
                 vision_model, dec_features, file_prefix
             )
-            end = self.time_measure()
+            end = time_measure()
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
             evaluator.digest(d, pred)

@@ -14,7 +14,7 @@ CONF_NAME=$9
 export DNNL_MAX_CPU_ISA=AVX2
 export DEVICE=${DEVICE}
 
-DATASET_SRC="${FCM_TESTDATA}/mpeg-oiv6"
+DATASET_SRC="${FCM_TESTDATA}/SFU_HW_Obj"
 
 CMD="compressai-split-inference"
 if [[ "*${CONF_NAME}*" == "remote" ]]; then

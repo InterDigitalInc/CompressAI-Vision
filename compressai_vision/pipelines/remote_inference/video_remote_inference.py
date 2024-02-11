@@ -27,10 +27,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+from pathlib import Path
 from typing import Dict, List, Tuple
 
 import torch
+from PIL import Image
 from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -38,11 +39,11 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import dataio, to_cpu
+from compressai_vision.utils import time_measure, to_cpu
 
 from ..base import BasePipeline
 
-""" A schematic for the split-inference pipline
+""" A schematic for the remote-inference pipline
 
 .. code-block:: none
 
@@ -99,59 +100,39 @@ class VideoRemoteInference(BasePipeline):
         """
         self._update_codec_configs_at_pipeline_level(len(dataloader))
 
-        features = {}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
         timing = {"encode": 0, "decode": 0, "nn_task": 0}
 
+        frames = {}
         if not self.configs["codec"]["decode_only"]:
-            ## NN-part-1
-            for e, d in enumerate(tqdm(dataloader)):
-                output_file_prefix = f'img_id_{d[0]["image_id"]}'
+            width, height = Image.open(file_names[0]).size
+            org_input_size = {
+                "height": height,
+                "width": width,
+            }
+            frames = {
+                "frame_skip": self._codec_skip_n_frames,
+                "last_frame": self._codec_end_frame_idx,
+                "file_name": Path(file_names[0]).parents[1].name,
+                "org_input_size": org_input_size,
+            }
 
-                if e < self._codec_skip_n_frames:
-                    continue
-                if e >= self._codec_end_frame_idx:
-                    break
+            start = time_measure()
+            res = self._compress(
+                codec,
+                frames,
+                self.codec_output_dir,
+                self.bitstream_name,
+                "",
+                img_input=True,
+            )
+            end = time_measure()
+            timing["encode"] = timing["encode"] + (end - start)
 
-                # Feature Compression
-                start = self.time_measure()
-                res = self._compress(
-                    codec,
-                    features,
-                    self.codec_output_dir,
-                    self.bitstream_name,
-                    "",
-                    img_input=True,
-                )
-                end = self.time_measure()
-                timing["encode"] = timing["encode"] + (end - start)
-
-                if self.configs["codec"]["encode_only"] is True:
-                    print(f"bitstreams generated, exiting")
-                    raise SystemExit(0)
-
-                num_items = self._input_data_collecting(res["data"])
-
-                if (e - self._codec_skip_n_frames) == 0:
-                    org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
-                    features["org_input_size"] = org_img_size
-                    features["input_size"] = res["input_size"]
-
-                    out_res = d[0].copy()
-                    del (
-                        out_res["image"],
-                        out_res["width"],
-                        out_res["height"],
-                        out_res["image_id"],
-                    )
-                    out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
-                    out_res["input_size"] = features["input_size"][0]
-
-            assert num_items == self._codec_n_frames_to_be_encoded
-
-            # concatenate a list of tensors at each keyword item
-            features["data"] = self._reform_list_to_dict(self._input_ftensor_buffer)
+            if self.configs["codec"]["encode_only"] is True:
+                print("bitstreams generated, exiting")
+                raise SystemExit(0)
 
         else:  # decode only
             res = {}
@@ -170,11 +151,15 @@ class VideoRemoteInference(BasePipeline):
             bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
-        start = self.time_measure()
+        start = time_measure()
         dec_features = self._decompress(
-            codec, res["bitstream"], self.codec_output_dir, ""
+            codec,
+            res["bitstream"],
+            self.codec_output_dir,
+            "",
+            img_input=True,
         )
-        end = self.time_measure()
+        end = time_measure()
         timing["decode"] = timing["decode"] + (end - start)
 
         # dec_features should contain "org_input_size" and "input_size"
@@ -201,7 +186,7 @@ class VideoRemoteInference(BasePipeline):
 
         ## TO BE IMPLEMENTED [HYOMIN]
 
-        self.logger.info("Processing NN-Part2...")
+        self.logger.info("Processing remote NN")
         output_list = []
         for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
             dec_features["data"] = data
@@ -210,16 +195,16 @@ class VideoRemoteInference(BasePipeline):
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            start = self.time_measure()
+            start = time_measure()
             res = self._from_input_to_features(vision_model, d, output_file_prefix)
-            end = self.time_measure()
+            end = time_measure()
             timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
 
             assert "data" in res
 
-            start = self.time_measure()
+            start = time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
-            end = self.time_measure()
+            end = time_measure()
 
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 

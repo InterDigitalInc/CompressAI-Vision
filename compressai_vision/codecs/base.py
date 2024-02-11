@@ -29,7 +29,6 @@
 
 import logging
 import math
-from pathlib import Path
 from typing import Dict, Tuple
 
 import torch.nn as nn
@@ -75,7 +74,16 @@ class Bypass(nn.Module):
         del bitstream_name  # used in other codecs that write bitstream files
         del codec_output_dir  # used in other codecs that write log files
 
-        # if img_input is True:
+        if img_input is True:
+            org_fH = input["org_input_size"]["height"]
+            org_fW = input["org_input_size"]["width"]
+
+            num_elements = org_fH * org_fW
+
+            return {
+                "bytes": [num_elements],
+                "bitstream": input,
+            }
 
         # for n-bit quantization error experiments
         max_lvl = ((2**self.nbit_quant) - 1) if self.nbit_quant != -1 else None
@@ -112,6 +120,8 @@ class Bypass(nn.Module):
         input: Dict,
         codec_output_dir: str = "",
         file_prefix: str = "",
+        org_img_size: Dict = None,
+        img_input=False,
     ):
         del file_prefix  # used in other codecs that write log files
         del codec_output_dir  # used in other codecs that write log files

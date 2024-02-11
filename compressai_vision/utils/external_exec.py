@@ -27,14 +27,62 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import concurrent.futures as cf
+import multiprocessing
+import os
+import resource
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
+
+
+def get_max_num_cpus():
+    # return multiprocessing.cpu_count()
+    # This number is not equivalent to the number of CPUs the current process can use.
+    # Pleas, see https://docs.python.org/3/library/multiprocessing.html
+    num_cpus = len(os.sched_getaffinity(0))
+    # temp..
+    # print(f"INFO!!! - Maximum {num_cpus} CPUs will be utilized")
+    return num_cpus
+
+
+def prevent_core_dump():
+    # set no core dump at all
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
+
+def run_cmdlines_parallel(cmds: List[Any], logpath: Optional[Path] = None) -> None:
+    def worker(cmd, id, logpath):
+        print(f"--> job_id [{id:03d}] Running: {' '.join(cmd)}", file=sys.stderr)
+        p = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            preexec_fn=prevent_core_dump,
+        )
+
+        if logpath is not None:
+            plogpath = Path(str(logpath) + f".sub_p{id}")
+            with plogpath.open("w") as f:
+                for bline in p.stdout:
+                    line = bline.decode()
+                    f.write(line)
+                f.flush()
+            assert p.wait() == 0
+        else:
+            p.stdout.read()  # clear up
+
+    with cf.ThreadPoolExecutor(get_max_num_cpus()) as exec:
+        all_jobs = [
+            exec.submit(worker, cmd, id, logpath) for id, cmd in enumerate(cmds)
+        ]
+        cf.wait(all_jobs)
+
+    return
 
 
 def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
-    cmdline = list(map(str, cmdline))
     print(f"--> Running: {' '.join(cmdline)}", file=sys.stderr)
 
     if logpath is None:

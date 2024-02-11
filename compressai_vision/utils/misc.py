@@ -27,9 +27,15 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import time
+
 import torch
 from torch import Tensor
 
 
 def to_cpu(data: Tensor):
     return data.to(torch.device("cpu"))
+
+
+def time_measure():
+    return time.perf_counter()

@@ -29,7 +29,7 @@
 
 from . import dataio, git, pip, system
 from .external_exec import get_max_num_cpus
-from .misc import to_cpu
+from .misc import time_measure, to_cpu
 
 __all__ = [
     "dataio",
@@ -38,4 +38,5 @@ __all__ = [
     "system",
     "to_cpu",
     "get_max_num_cpus",
+    "time_measure",
 ]

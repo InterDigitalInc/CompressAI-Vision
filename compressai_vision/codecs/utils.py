@@ -27,13 +27,6 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-import math
-from typing import Dict
-
-import torch
-from torch import Tensor
-
 MIN_MAX_DATASET = {
     "mpeg-oiv6-detection": (
         -26.426828384399414,

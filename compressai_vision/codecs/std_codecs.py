@@ -34,29 +34,38 @@ import logging
 import math
 import os
 import time
+from copy import deepcopy
+from io import BytesIO
 from pathlib import Path
-from tempfile import mkstemp
 from typing import Any, Dict, List, Union
 
 import torch
 import torch.nn as nn
-from PIL import Image
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
+from compressai_vision.utils import time_measure
 from compressai_vision.utils.dataio import (
     PixelFormat,
     read_image_to_rgb_tensor,
     readwriteYUV,
 )
-from compressai_vision.utils.external_exec import run_cmdline
+from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_parallel
 
-from .encdec_utils import get_raw_video_file_info
+from .encdec_utils import *
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
     return Path(filepath).stat().st_size
+
+
+# TODO (fracape) belongs to somewhere else?
+def load_bitstream(path):
+    with open(path, "rb") as fd:
+        buf = BytesIO(fd.read())
+
+    return buf.getvalue()
 
 
 @register_codec("vtm")
@@ -71,18 +80,30 @@ class VTM(nn.Module):
     ):
         super().__init__()
 
-        self.encoder_path = Path(f"{kwargs['codec_paths']['encoder_exe']}")
-        self.decoder_path = Path(f"{kwargs['codec_paths']['decoder_exe']}")
-        self.cfg_file = Path(kwargs["codec_paths"]["cfg_file"])
+        self.enc_cfgs = kwargs["encoder_config"]
+        codec_paths = kwargs["codec_paths"]
 
-        for file_path in [self.encoder_path, self.decoder_path, self.cfg_file]:
+        self.encoder_path = Path(codec_paths["encoder_exe"])
+        self.decoder_path = Path(codec_paths["decoder_exe"])
+        self.cfg_file = Path(codec_paths["cfg_file"])
+
+        self.parcat_path = Path(codec_paths["parcat_exe"])  # optional
+        self.parallel_encoding = self.enc_cfgs["parallel_encoding"]  # parallel option
+        self.hash_check = self.enc_cfgs["hash_check"]  # md5 hash check
+        self.stash_outputs = self.enc_cfgs["stash_outputs"]
+
+        check_list_of_paths = [self.encoder_path, self.decoder_path, self.cfg_file]
+        if self.parallel_encoding:  # miminum
+            check_list_of_paths.append(self.parcat_path)
+
+        for file_path in check_list_of_paths:
             if not file_path.is_file():
                 raise FileNotFoundError(
                     errno.ENOENT, os.strerror(errno.ENOENT), file_path
                 )
 
-        self.qp = kwargs["encoder_config"]["qp"]
-        self.intra_period = kwargs["encoder_config"]["intra_period"]
+        self.qp = self.enc_cfgs["qp"]
+        self.intra_period = self.enc_cfgs["intra_period"]
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
@@ -133,17 +154,21 @@ class VTM(nn.Module):
         bitstream_path: Path,
         width: int,
         height: int,
-        nbframes: int = 1,
-        frmRate: int = 1,
+        nb_frames: int = 1,
+        frame_rate: int = 1,
         intra_period: int = 1,
+        parallel_encoding: bool = False,
+        hash_check: int = 0,
         chroma_format: str = "400",
         input_bitdepth: int = 10,
         output_bitdepth: int = 0,
     ) -> List[Any]:
-        level = 5.1 if nbframes > 1 else 6.2  # according to MPEG's anchor
+        level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
-        cmd = [
+
+        decodingRefreshType = 1 if intra_period >= 1 else 0
+        base_cmd = [
             self.encoder_path,
             "-i",
             inp_yuv_path,
@@ -153,16 +178,14 @@ class VTM(nn.Module):
             qp,
             "-o",
             "/dev/null",
-            "-b",
-            bitstream_path,
             "-wdt",
             width,
             "-hgt",
             height,
             "-fr",
-            frmRate,
-            "-f",
-            nbframes,
+            frame_rate,
+            "-ts",  # temporal subsampling to prevent default period of 8 in all intra
+            "1",
             "-v",
             "6",
             f"--Level={level}",
@@ -171,8 +194,82 @@ class VTM(nn.Module):
             f"--InputBitDepth={input_bitdepth}",
             f"--InternalBitDepth={output_bitdepth}",
             "--ConformanceWindowMode=1",  # needed?
+            "-dph",  # md5 has,
+            hash_check,
+            f"--DecodingRefreshType={decodingRefreshType}",
         ]
-        return list(map(str, cmd))
+
+        if parallel_encoding is False or nb_frames <= (intra_period + 1):
+            base_cmd.append(f"--BitstreamFile={bitstream_path}")
+            base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
+            cmd = list(map(str, base_cmd))
+            self.logger.debug(cmd)
+            return [cmd]
+
+        num_parallels = round((nb_frames / intra_period) + 0.5)
+
+        list_of_num_of_frameSkip = []
+        list_of_num_of_framesToBeEncoded = []
+        total_num_frames_to_code = nb_frames
+
+        frameSkip = 0
+        nbframesToBeEncoded = intra_period + 1
+        for _ in range(num_parallels):
+            list_of_num_of_frameSkip.append(frameSkip)
+
+            nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
+            list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
+
+            frameSkip += intra_period
+            total_num_frames_to_code -= intra_period
+
+        bitstream_path_p = Path(bitstream_path).parent
+        file_stem = Path(bitstream_path).stem
+        ext = Path(bitstream_path).suffix
+
+        parallel_cmds = []
+        for e, items in enumerate(
+            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
+        ):
+            frameSkip, framesToBeEncoded = items
+            sbitstream_path = (
+                str(bitstream_path_p)
+                + "/"
+                + str(file_stem)
+                + f"-part-{e:03d}"
+                + str(ext)
+            )
+
+            pcmd = deepcopy(base_cmd)
+            pcmd.append(f"--BitstreamFile={sbitstream_path}")
+            pcmd.append(f"--FrameSkip={frameSkip}")
+            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+
+            cmd = list(map(str, pcmd))
+            self.logger.debug(cmd)
+
+            parallel_cmds.append(cmd)
+
+        return parallel_cmds
+
+    def get_parcat_cmd(
+        self,
+        bitstream_path: str,
+    ) -> List[Any]:
+        pdir = Path(bitstream_path).parent
+        fstem = Path(bitstream_path).stem
+        ext = str(Path(bitstream_path).suffix)
+
+        bitstream_lists = sorted(Path(pdir).glob(f"{fstem}-part-*{ext}"))
+
+        cmd = [self.parcat_path]
+        for bpath in bitstream_lists:
+            cmd.append(str(bpath))
+        cmd.append(bitstream_path)
+
+        cmd = list(map(str, cmd))
+        self.logger.debug(cmd)
+        return cmd, bitstream_lists
 
     def get_decode_cmd(
         self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth: int = 10
@@ -186,7 +283,9 @@ class VTM(nn.Module):
             "-d",
             output_bitdepth,
         ]
-        return list(map(str, cmd))
+        cmd = list(map(str, cmd))
+        self.logger.debug(cmd)
+        return cmd
 
     def encode(
         self,
@@ -207,15 +306,25 @@ class VTM(nn.Module):
         print(f"\n-- encoding ${file_prefix}")
 
         if img_input:
-            nbframes = 1
-            frmRate = self.frame_rate if nbframes > 1 else 1
-            intra_period = self.intra_period if nbframes > 1 else 1
-            chroma_format = "420"
-            input_bitdepth = 8
+            nb_frames = 1
+            frame_rate = 1
+            intra_period = 1
+            file_name = x["file_name"]
+            if "frame_skip" in x.keys():  # video
+                nb_frames = x["last_frame"] - x["frame_skip"]
+                frame_rate = self.frame_rate
+                intra_period = self.intra_period
+                file_name = f"{file_name}_%03d.png"
+            chroma_format = self.enc_cfgs["chroma_format"]
+            input_bitdepth = self.enc_cfgs["input_bitdepth"]
+            pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
             frame_width = math.ceil(x["org_input_size"]["width"] / 2) * 2
             frame_height = math.ceil(x["org_input_size"]["height"] / 2) * 2
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{input_bitdepth}bit_p{chroma_format}"
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
             yuv_in_path = f"{file_prefix}_input.yuv"
+
+            # TODO (fracape)
+            # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
 
             convert_cmd = [
                 "ffmpeg",
@@ -224,13 +333,17 @@ class VTM(nn.Module):
                 "-loglevel",
                 "error",
                 "-i",
-                x["file_name"],
+                file_name,
+                "-start_number",
+                "0",  # warning, start frame is 0 for now
+                "-vframes",
+                f"{nb_frames}",
                 "-vf",
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2",
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
-                "yuv420p",
+                f"yuv{chroma_format}p{pix_fmt_suffix}",
                 yuv_in_path,
             ]
             run_cmdline(convert_cmd)
@@ -269,11 +382,11 @@ class VTM(nn.Module):
 
             nbframes, frame_height, frame_width = frames.size()
 
-            frmRate = self.frame_rate if nbframes > 1 else 1
+            frame_rate = self.frame_rate if nbframes > 1 else 1
             intra_period = self.intra_period if nbframes > 1 else 1
             chroma_format = "400"
             input_bitdepth = 10
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frmRate}fps_{input_bitdepth}bit_p{chroma_format}"
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
 
             yuv_in_path = f"{file_prefix}_input.yuv"
 
@@ -288,34 +401,64 @@ class VTM(nn.Module):
 
         bitstream_path = f"{file_prefix}.bin"
         logpath = Path(f"{file_prefix}_enc.log")
-        cmd = self.get_encode_cmd(
+        cmds = self.get_encode_cmd(
             yuv_in_path,
             width=frame_width,
             height=frame_height,
             qp=self.qp,
             bitstream_path=bitstream_path,
-            nbframes=nbframes,
-            frmRate=frmRate,
+            nb_frames=nb_frames,
+            frame_rate=frame_rate,
             intra_period=intra_period,
             chroma_format=chroma_format,
             input_bitdepth=input_bitdepth,
+            parallel_encoding=self.parallel_encoding,
+            hash_check=self.hash_check,
         )
         # self.logger.debug(cmd)
 
         start = time.time()
-        run_cmdline(cmd, logpath=logpath)
+        if len(cmds) > 1:  # post parallel encoding
+            run_cmdlines_parallel(cmds, logpath=logpath)
+        else:
+            run_cmdline(cmds[0], logpath=logpath)
         enc_time = time.time() - start
         self.logger.debug(f"enc_time:{enc_time}")
+
+        if len(cmds) > 1:  # post parallel encoding
+            cmd, list_of_bitstreams = self.get_parcat_cmd(bitstream_path)
+            run_cmdline(cmd)
+
+            if self.stash_outputs:
+                for partial in list_of_bitstreams:
+                    Path(partial).unlink()
+
         assert Path(
             bitstream_path
         ).is_file(), f"bitstream {bitstream_path} was not created"
 
-        if not self.dump_yuv["dump_yuv_packing_input"]:
+        if not img_input:
+            inner_codec_bitstream = load_bitstream(bitstream_path)
+
+            # Bistream header to make bitstream self-decodable
+            _ = self.write_n_bit(self.bitdepth)
+            _ = self.write_rft_chSize(x["chSize"])
+            _ = self.write_packed_frame_size((frame_height, frame_width))
+            _ = self.write_min_max_values()
+
+            pre_info_bitstream = self.get_io_buffer_contents()
+            bitstream = pre_info_bitstream + inner_codec_bitstream
+
+            with open(bitstream_path, "wb") as fw:
+                fw.write(bitstream)
+
+        if not self.dump_yuv["dump_yuv_input"]:
             Path(yuv_in_path).unlink()
+
         # to be compatible with the pipelines
         # per frame bits can be collected by parsing enc log to be more accurate
-        avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
-        all_bytes_per_frame = [avg_bytes_per_frame] * nbframes
+        avg_bytes_per_frame = get_filesize(bitstream_path) / nb_frames
+        all_bytes_per_frame = [avg_bytes_per_frame] * nb_frames
 
         return {
             "bytes": all_bytes_per_frame,
@@ -334,22 +477,36 @@ class VTM(nn.Module):
         assert bitstream_path.is_file()
 
         output_file_prefix = bitstream_path.stem
-
-        video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
-        frame_width = video_info["width"]
-        frame_height = video_info["height"]
-        yuv_dec_path = f"{codec_output_dir}/{output_file_prefix}_dec.yuv"
-        cmd = self.get_decode_cmd(
-            bitstream_path=bitstream_path,
-            yuv_dec_path=yuv_dec_path,
-            output_bitdepth=video_info["bitdepth"],
-        )
-        # self.logger.debug(cmd)
         logpath = Path(f"{codec_output_dir}/{output_file_prefix}_dec.log")
+        if img_input:
+            video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
+            frame_width = video_info["width"]
+            frame_height = video_info["height"]
+            yuv_dec_path = f"{codec_output_dir}/{output_file_prefix}_dec.yuv"
+            cmd = self.get_decode_cmd(
+                bitstream_path=bitstream_path,
+                yuv_dec_path=yuv_dec_path,
+                output_bitdepth=video_info["bitdepth"],
+            )
+            # self.logger.debug(cmd)
+        else:
+            bitstream = load_bitstream(bitstream_path)
+            n_bit = self.read_n_bit(bitstream)
+            chH, chW = self.read_rft_chSize(bitstream)
+            frmH, frmW = self.read_packed_frame_size(bitstream)
+            _min_max_buffer = self.read_min_max_values(bitstream)
+            with open(bitstream_path, "wb") as fw:
+                fw.write(bitstream.read())
+            bitstream_path_tm = f"{file_prefix}_tmp.bin"
+            cmd = self.get_decode_cmd(
+                bitstream_path=bitstream_path,
+                yuv_dec_path=yuv_dec_path,
+                output_bitdepth=video_info["bitdepth"],
+            )
 
-        start = time.time()
+        start = time_measure()
         run_cmdline(cmd, logpath=logpath)
-        dec_time = time.time() - start
+        dec_time = time_measure() - start
         self.logger.debug(f"dec_time:{dec_time}")
 
         if img_input:
@@ -428,6 +585,50 @@ class VTM(nn.Module):
 
         return output
 
+    # Functions required in the context of FCM to write a header that enables a self decodable bitstream
+    def write_n_bit(self, n_bit):
+        # adhoc method, warning redundant information
+        return write_uchars(self._temp_io_buffer, (n_bit,))
+
+    def write_rft_chSize(self, chSize):
+        # adhoc method
+        return write_uints(self._temp_io_buffer, chSize)
+
+    def write_packed_frame_size(self, frmSize):
+        # adhoc method, warning redundant information
+        return write_uints(self._temp_io_buffer, frmSize)
+
+    def write_min_max_values(self):
+        # adhoc method to make bitstream self-decodable
+        byte_cnts = write_uints(self._temp_io_buffer, (self.get_minmax_buffer_size(),))
+        for min_max in self._min_max_buffer:
+            byte_cnts += write_float32(self._temp_io_buffer, min_max)
+
+        return byte_cnts
+
+    def read_n_bit(self, fd):
+        # adhoc method, warning redundant information
+        return read_uchars(fd, 1)[0]
+
+    def read_rft_chSize(self, fd):
+        # adhoc method,
+        return read_uints(fd, 2)
+
+    def read_packed_frame_size(self, fd):
+        # adhoc method, warning redundant information
+        return read_uints(fd, 2)
+
+    def read_min_max_values(self, fd):
+        # adhoc method to make bitstream self-decodable
+        num_minmax_pairs = read_uints(fd, 1)[0]
+
+        min_max_buffer = []
+        for _ in range(num_minmax_pairs):
+            min_max = read_float32(fd, 2)
+            min_max_buffer.append(min_max)
+
+        return min_max_buffer
+
 
 @register_codec("hm")
 class HM(VTM):
@@ -441,49 +642,47 @@ class HM(VTM):
     ):
         super().__init__(vision_model, dataset, **kwargs)
 
-    def get_encode_cmd(
-        self,
-        inp_yuv_path: Path,
-        qp: int,
-        bitstream_path: Path,
-        width: int,
-        height: int,
-        nbframes: int = 1,
-        frmRate: int = 1,
-        intra_period: int = 1,
-        chroma_format: str = "400",
-        input_bitdepth: int = 10,
-        output_bitdepth: int = 0,
-    ) -> List[Any]:
-        level = 5.1 if nbframes > 1 else 6.2  # TODO: check levels for HEVC
-        cmd = [
-            self.encoder_path,
-            "-i",
-            inp_yuv_path,
-            "-c",
-            self.cfg_file,
-            "-q",
-            qp,
-            "-o",
-            "/dev/null",
-            "-b",
-            bitstream_path,
-            "-wdt",
-            width,
-            "-hgt",
-            height,
-            "-fr",
-            frmRate,
-            "-f",
-            nbframes,
-            f"--InputChromaFormat={chroma_format}",
-            f"--InputBitDepth={input_bitdepth}",
-            f"--InternalBitDepth={output_bitdepth}",
-            "--ConformanceWindowMode=1",  # needed?
-            f"--IntraPeriod={intra_period}",
-            f"--Level={level}",
-        ]
-        return list(map(str, cmd))
+    # def get_encode_cmd(
+    #     self,
+    #     inp_yuv_path: Path,
+    #     qp: int,
+    #     bitstream_path: Path,
+    #     width: int,
+    #     height: int,
+    #     nb_frames: int = 1,
+    #     frame_rate: int = 1,
+    #     intra_period: int = 1,
+    #     chroma_format: str = "400",
+    #     input_bitdepth: int = 10,
+    #     output_bitdepth: int = 0,
+    # ) -> List[Any]:
+    #     level = 5.1 if nb_frames > 1 else 6.2  # TODO: check levels for HEVC
+    #     cmd = [
+    #         self.encoder_path,
+    #         "-i",
+    #         inp_yuv_path,
+    #         "-c",
+    #         self.cfg_file,
+    #         "-q",
+    #         qp,
+    #         "-o",
+    #         "/dev/null",
+    #         "-wdt",
+    #         width,
+    #         "-hgt",
+    #         height,
+    #         "-fr",
+    #         frame_rate,
+    #         "-f",
+    #         nb_frames,
+    #         f"--InputChromaFormat={chroma_format}",
+    #         f"--InputBitDepth={input_bitdepth}",
+    #         f"--InternalBitDepth={output_bitdepth}",
+    #         "--ConformanceWindowMode=1",  # needed?
+    #         f"--IntraPeriod={intra_period}",
+    #         f"--Level={level}",
+    #     ]
+    #     return list(map(str, cmd))
 
 
 @register_codec("vvenc")

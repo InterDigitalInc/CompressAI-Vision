@@ -31,8 +31,6 @@ import errno
 import json
 import logging
 import os
-import shutil
-import time
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
@@ -41,8 +39,6 @@ from uuid import uuid4 as uuid
 import torch
 import torch.nn as nn
 from torch import Tensor
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from compressai_vision.model_wrappers import BaseWrapper
 
@@ -78,10 +74,6 @@ class BasePipeline(nn.Module):
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self._create_folder(self.codec_output_dir)
-
-    @staticmethod
-    def time_measure():
-        return time.perf_counter()
 
     def _update_codec_configs_at_pipeline_level(self, total_num_frames):
         # Sanity check
@@ -242,7 +234,7 @@ class BasePipeline(nn.Module):
         codec_output_dir: str,
         filename: str,
         org_img_size: Dict = None,
-        img_input: bool = False,
+        img_input=False,
     ):
         return codec.decode(
             bitstream,

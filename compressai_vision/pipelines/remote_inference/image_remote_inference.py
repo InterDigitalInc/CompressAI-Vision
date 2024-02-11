@@ -28,21 +28,15 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-from pathlib import Path
-from typing import Callable, Dict
-from uuid import uuid4 as uuid
+from typing import Dict
 
-import torch
-import torch.nn as nn
-from PIL import Image
 from torch.utils.data import DataLoader
-from torchvision import transforms
 from tqdm import tqdm
 
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils.external_exec import run_cmdline
+from compressai_vision.utils import time_measure
 
 from ..base import BasePipeline
 
@@ -97,7 +91,7 @@ class ImageRemoteInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
-                start = self.time_measure()
+                start = time_measure()
                 frame = {
                     "file_name": d[0]["file_name"],
                     "org_input_size": org_img_size,
@@ -111,7 +105,7 @@ class ImageRemoteInference(BasePipeline):
                     file_prefix,
                     img_input=True,
                 )
-                end = self.time_measure()
+                end = time_measure()
                 timing["encode"] = timing["encode"] + (end - start)
             else:
                 res = {}
@@ -135,7 +129,7 @@ class ImageRemoteInference(BasePipeline):
             if self.configs["codec"]["encode_only"] is True:
                 continue
 
-            start = self.time_measure()
+            start = time_measure()
             dec_seq = self._decompress(
                 codec,
                 res["bitstream"],
@@ -145,7 +139,7 @@ class ImageRemoteInference(BasePipeline):
                 True,
             )
 
-            end = self.time_measure()
+            end = time_measure()
             timing["decode"] = timing["decode"] + (end - start)
 
             # org_input_size to be transmitted
@@ -153,9 +147,9 @@ class ImageRemoteInference(BasePipeline):
             dec_seq["input_size"] = self._get_model_input_size(vision_model, d)
             dec_seq["file_name"] = d[0]["file_name"]
 
-            start = self.time_measure()
+            start = time_measure()
             pred = vision_model.forward(dec_seq, org_map_func)
-            end = self.time_measure()
+            end = time_measure()
             timing["nn_task"] = timing["nn_task"] + (end - start)
 
             evaluator.digest(d, pred)
