@@ -17,26 +17,24 @@ enc_configs:
   frame_rate: 30
   intra_period: 1
   n_bit: 10
-  cfg_file: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/cfg/encoder_intra_vtm.cfg"
+  cfg_file: "use/local/path/of/vtm-12.0/cfg/encoder_intra_vtm.cfg"
   parallel_encoding: False # std inner codec parallel option
   hash_check: 0 # md5 hash check
 
 tools:
   feature_reduction:
-    m65705: # Faster & Mask R-CNN working at fpn split
-      enabled: True
-      task: "obj" # or "seg"
-    m65181: # YOLOv3 JDE
-      enabled: False
-      split_point: "ALT1" # or "DN53"
+    m66341:
+      enabled: True # no change if unnecessary since there is no alternative
+      output_type: "tensor" # no change if unnecessary
+      qidx: 6
+      split_ctx: "obj" # or "seg" # or "alt1" or "dn53"
 
   feature_restoration:
-    m65705: # R-CNN
-      enabled: ${codec.tools.feature_reduction.m65705.enabled}
-      task: ${codec.tools.feature_reduction.m65705.task}
-    m65181: # YOLOv3 JDE
-      enabled: ${codec.tools.feature_reduction.m65181.enabled}
-      split_point: ${codec.tools.feature_reduction.m65181.split_point}
+    m66341:
+      enabled: ${codec.tools.feature_reduction.m66341.enabled}
+      output_type: ${codec.tools.feature_reduction.m66341.output_type}
+      qidx: ${codec.tools.feature_reduction.m66341.qidx}
+      split_ctx: ${codec.tools.feature_reduction.m66341.split_ctx}
 
   conversion:
     bypass: False
@@ -44,11 +42,12 @@ tools:
     packing:
       channels_in_width: -1
       channels_in_height: -1
+      symmetric_feature_channel_flipping: False
 
   inner_codec:
     type: 'vtm'
     stash_outputs: True
     enc_configs: ${codec.enc_configs}
-    enc_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/EncoderAppStatic"
-    dec_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/DecoderAppStatic"
-    merge_exe: "/pa/projects/etl-vcm/fcvcm/vtm-12.0/bin/parcatStatic"
+    enc_exe: "use/local/path/of/vtm-12.0/bin/EncoderAppStatic"
+    dec_exe: "use/local/path/of/vtm-12.0/bin/DecoderAppStatic"
+    merge_exe: "use/local/path/of/vtm-12.0/bin/parcatStatic"

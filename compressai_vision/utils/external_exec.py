@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, InterDigital Communications, Inc
+# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,14 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from . import dataio, git, pip, system
-from .external_exec import get_max_num_cpus
-from .misc import to_cpu
+import os
 
-__all__ = [
-    "dataio",
-    "git",
-    "pip",
-    "system",
-    "to_cpu",
-    "get_max_num_cpus",
-]
+
+def get_max_num_cpus():
+    # return multiprocessing.cpu_count()
+    # This number is not equivalent to the number of CPUs the current process can use.
+    # Pleas, see https://docs.python.org/3/library/multiprocessing.html
+    num_cpus = len(os.sched_getaffinity(0))
+    # temp..
+    # print(f"INFO!!! - Maximum {num_cpus} CPUs will be utilized")
+    return num_cpus
