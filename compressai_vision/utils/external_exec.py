@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import concurrent.futures as cf
-import multiprocessing
 import os
 import resource
 import subprocess

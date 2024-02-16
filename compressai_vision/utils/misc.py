@@ -39,3 +39,19 @@ def to_cpu(data: Tensor):
 
 def time_measure():
     return time.perf_counter()
+
+
+class metric_tracking:
+    def __init__(self):
+        self._buffer = []
+
+    def append(self, d):
+        self._buffer.append(d)
+
+    @property
+    def avg(self):
+        return sum(self._buffer) / len(self._buffer)
+
+    @property
+    def sum(self):
+        return sum(self._buffer)
