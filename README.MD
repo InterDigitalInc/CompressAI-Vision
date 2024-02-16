@@ -36,6 +36,11 @@ source ./venv/bin/activate
 pip install -U pip
 ```
 
+The CompressAI library providing learned compresion modules is available as a submodule. It can be initilized by running:
+```
+git submodule update --init --recursive
+```
+
 To install the models relevant for the FCM (feature compression):
 
 First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):

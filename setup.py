@@ -29,12 +29,9 @@
 
 
 import subprocess
-import sys
 from pathlib import Path
 
-import setuptools
 from setuptools import find_packages, setup
-from setuptools.command.build_ext import build_ext
 
 package_name = "compressai_vision"
 version = "1.1.3.dev0"

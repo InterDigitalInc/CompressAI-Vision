@@ -1,0 +1,3 @@
+[submodule "compressai"]
+	path = compressai
+	url = https://github.com/InterDigitalInc/CompressAI.git
