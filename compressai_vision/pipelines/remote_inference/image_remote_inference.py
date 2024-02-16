@@ -36,7 +36,7 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import time_measure
+from compressai_vision.utils import metric_tracking, time_measure
 
 from ..base import BasePipeline
 
@@ -79,7 +79,11 @@ class ImageRemoteInference(BasePipeline):
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         org_map_func = dataloader.dataset.get_org_mapper_func()
         output_list = []
-        timing = {"encode": 0, "decode": 0, "nn_task": 0}
+        timing = {
+            "encode": metric_tracking(),
+            "decode": metric_tracking(),
+            "nn_task": metric_tracking(),
+        }
 
         for e, d in enumerate(tqdm(dataloader)):
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
@@ -106,7 +110,7 @@ class ImageRemoteInference(BasePipeline):
                     img_input=True,
                 )
                 end = time_measure()
-                timing["encode"] = timing["encode"] + (end - start)
+                timing["encode"].append((end - start))
             else:
                 res = {}
                 bin_files = [
@@ -138,19 +142,14 @@ class ImageRemoteInference(BasePipeline):
                 org_img_size,
                 True,
             )
-
             end = time_measure()
-            timing["decode"] = timing["decode"] + (end - start)
-
-            # org_input_size to be transmitted
-            dec_seq["org_input_size"] = org_img_size
-            dec_seq["input_size"] = self._get_model_input_size(vision_model, d)
-            dec_seq["file_name"] = d[0]["file_name"]
+            timing["decode"].append((end - start))
 
             start = time_measure()
-            pred = vision_model.forward(dec_seq, org_map_func)
+            dec_d = {"file_name": dec_seq[0]}
+            pred = vision_model.forward(dec_d, org_map_func)
             end = time_measure()
-            timing["nn_task"] = timing["nn_task"] + (end - start)
+            timing["nn_task"].append((end - start))
 
             evaluator.digest(d, pred)
 
@@ -170,7 +169,6 @@ class ImageRemoteInference(BasePipeline):
                 out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
-            out_res["input_size"] = dec_seq["input_size"][0]
             output_list.append(out_res)
 
         if self.configs["codec"]["encode_only"] is True:
@@ -178,5 +176,8 @@ class ImageRemoteInference(BasePipeline):
             raise SystemExit(0)
 
         eval_performance = self._evaluation(evaluator)
+
+        for key, val in timing.items():
+            timing[key] = val.sum
 
         return timing, codec.eval_encode_type, output_list, eval_performance
