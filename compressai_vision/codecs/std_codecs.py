@@ -138,7 +138,6 @@ class VTM(nn.Module):
 
         self.logger.setLevel(logging_level)
 
-
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def qp_value(self):
@@ -519,7 +518,7 @@ class VTM(nn.Module):
         self.logger.debug(f"dec_time:{dec_time}")
 
         if img_input:
-            
+
             # TODO assumes 8bit 420
             convert_cmd = [
                 "ffmpeg",
@@ -532,9 +531,10 @@ class VTM(nn.Module):
                 "-pix_fmt",
                 "yuv420p",
                 "-i",
-                yuv_dec_path]
+                yuv_dec_path,
+            ]
 
-            # not cropping for now            
+            # not cropping for now
             # crop_cmd = ["-vf", f"crop={org_img_size['width']}:{org_img_size['height']}"]
             # convert_cmd += [crop_cmd]
 
@@ -543,12 +543,12 @@ class VTM(nn.Module):
             dec_path.mkdir(parents=True, exist_ok=True)
             if self.datacatalog == "MPEGOIV6":
                 output_png = f"{dec_path}/{output_file_prefix}.png"
-            elif self.datacatalog == "SFUHW": 
-                prefix=output_file_prefix.split("qp")[0]
+            elif self.datacatalog == "SFUHW":
+                prefix = output_file_prefix.split("qp")[0]
                 output_png = f"{dec_path}/{prefix}%03d.png"
-                convert_cmd+= ["-start_number", "0"]
+                convert_cmd += ["-start_number", "0"]
             elif self.datacatalog in ["MPEGHIEVE", "MPEGTVDTRACKING"]:
-                convert_cmd+= ["-start_number", "1"]
+                convert_cmd += ["-start_number", "1"]
                 output_png = f"{dec_path}/%06d.png"
             convert_cmd.append(output_png)
 
@@ -665,106 +665,103 @@ class HM(VTM):
     ):
         super().__init__(vision_model, dataset, **kwargs)
 
+
 def get_encode_cmd(
-        self,
-        inp_yuv_path: Path,
-        qp: int,
-        bitstream_path: Path,
-        width: int,
-        height: int,
-        nb_frames: int = 1,
-        frame_rate: int = 1,
-        intra_period: int = 1,
-        parallel_encoding: bool = False,
-        hash_check: int = 0,
-        chroma_format: str = "400",
-        input_bitdepth: int = 10,
-        output_bitdepth: int = 0,
-    ) -> List[Any]:
-        level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
-        if output_bitdepth == 0:
-            output_bitdepth = input_bitdepth
+    self,
+    inp_yuv_path: Path,
+    qp: int,
+    bitstream_path: Path,
+    width: int,
+    height: int,
+    nb_frames: int = 1,
+    frame_rate: int = 1,
+    intra_period: int = 1,
+    parallel_encoding: bool = False,
+    hash_check: int = 0,
+    chroma_format: str = "400",
+    input_bitdepth: int = 10,
+    output_bitdepth: int = 0,
+) -> List[Any]:
+    level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
+    if output_bitdepth == 0:
+        output_bitdepth = input_bitdepth
 
-        decodingRefreshType = 1 if intra_period >= 1 else 0
-        base_cmd = [
-            self.encoder_path,
-            "-i",
-            inp_yuv_path,
-            "-c",
-            self.cfg_file,
-            "-q",
-            qp,
-            "-o",
-            "/dev/null",
-            "-wdt",
-            width,
-            "-hgt",
-            height,
-            "-fr",
-            frame_rate,
-            "-ts",  # temporal subsampling to prevent default period of 8 in all intra
-            "1",
-            f"--Level={level}",
-            f"--IntraPeriod={intra_period}",
-            f"--InputChromaFormat={chroma_format}",
-            f"--InputBitDepth={input_bitdepth}",
-            f"--InternalBitDepth={output_bitdepth}",
-            "--ConformanceWindowMode=1",  # needed?
-            f"--DecodingRefreshType={decodingRefreshType}",
-        ]
+    decodingRefreshType = 1 if intra_period >= 1 else 0
+    base_cmd = [
+        self.encoder_path,
+        "-i",
+        inp_yuv_path,
+        "-c",
+        self.cfg_file,
+        "-q",
+        qp,
+        "-o",
+        "/dev/null",
+        "-wdt",
+        width,
+        "-hgt",
+        height,
+        "-fr",
+        frame_rate,
+        "-ts",  # temporal subsampling to prevent default period of 8 in all intra
+        "1",
+        f"--Level={level}",
+        f"--IntraPeriod={intra_period}",
+        f"--InputChromaFormat={chroma_format}",
+        f"--InputBitDepth={input_bitdepth}",
+        f"--InternalBitDepth={output_bitdepth}",
+        "--ConformanceWindowMode=1",  # needed?
+        f"--DecodingRefreshType={decodingRefreshType}",
+    ]
 
-        if parallel_encoding is False or nb_frames <= (intra_period + 1):
-            base_cmd.append(f"--BitstreamFile={bitstream_path}")
-            base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
-            cmd = list(map(str, base_cmd))
-            self.logger.debug(cmd)
-            return [cmd]
+    if parallel_encoding is False or nb_frames <= (intra_period + 1):
+        base_cmd.append(f"--BitstreamFile={bitstream_path}")
+        base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
+        cmd = list(map(str, base_cmd))
+        self.logger.debug(cmd)
+        return [cmd]
 
-        num_parallels = round((nb_frames / intra_period) + 0.5)
+    num_parallels = round((nb_frames / intra_period) + 0.5)
 
-        list_of_num_of_frameSkip = []
-        list_of_num_of_framesToBeEncoded = []
-        total_num_frames_to_code = nb_frames
+    list_of_num_of_frameSkip = []
+    list_of_num_of_framesToBeEncoded = []
+    total_num_frames_to_code = nb_frames
 
-        frameSkip = 0
-        nbframesToBeEncoded = intra_period + 1
-        for _ in range(num_parallels):
-            list_of_num_of_frameSkip.append(frameSkip)
+    frameSkip = 0
+    nbframesToBeEncoded = intra_period + 1
+    for _ in range(num_parallels):
+        list_of_num_of_frameSkip.append(frameSkip)
 
-            nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
+        nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
+        list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
 
-            frameSkip += intra_period
-            total_num_frames_to_code -= intra_period
+        frameSkip += intra_period
+        total_num_frames_to_code -= intra_period
 
-        bitstream_path_p = Path(bitstream_path).parent
-        file_stem = Path(bitstream_path).stem
-        ext = Path(bitstream_path).suffix
+    bitstream_path_p = Path(bitstream_path).parent
+    file_stem = Path(bitstream_path).stem
+    ext = Path(bitstream_path).suffix
 
-        parallel_cmds = []
-        for e, items in enumerate(
-            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
-        ):
-            frameSkip, framesToBeEncoded = items
-            sbitstream_path = (
-                str(bitstream_path_p)
-                + "/"
-                + str(file_stem)
-                + f"-part-{e:03d}"
-                + str(ext)
-            )
+    parallel_cmds = []
+    for e, items in enumerate(
+        zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
+    ):
+        frameSkip, framesToBeEncoded = items
+        sbitstream_path = (
+            str(bitstream_path_p) + "/" + str(file_stem) + f"-part-{e:03d}" + str(ext)
+        )
 
-            pcmd = deepcopy(base_cmd)
-            pcmd.append(f"--BitstreamFile={sbitstream_path}")
-            pcmd.append(f"--FrameSkip={frameSkip}")
-            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+        pcmd = deepcopy(base_cmd)
+        pcmd.append(f"--BitstreamFile={sbitstream_path}")
+        pcmd.append(f"--FrameSkip={frameSkip}")
+        pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
 
-            cmd = list(map(str, pcmd))
-            self.logger.debug(cmd)
+        cmd = list(map(str, pcmd))
+        self.logger.debug(cmd)
 
-            parallel_cmds.append(cmd)
+        parallel_cmds.append(cmd)
 
-        return parallel_cmds
+    return parallel_cmds
 
 
 @register_codec("vvenc")

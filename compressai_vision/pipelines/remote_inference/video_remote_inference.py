@@ -39,7 +39,7 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import time_measure, to_cpu
+from compressai_vision.utils import metric_tracking, time_measure, to_cpu
 
 from ..base import BasePipeline
 
@@ -102,7 +102,11 @@ class VideoRemoteInference(BasePipeline):
 
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
-        timing = {"encode": 0, "decode": 0, "nn_task": 0}
+        timing = {
+            "encode": metric_tracking(),
+            "decode": metric_tracking(),
+            "nn_task": metric_tracking(),
+        }
 
         frames = {}
         if not self.configs["codec"]["decode_only"]:
@@ -163,65 +167,40 @@ class VideoRemoteInference(BasePipeline):
         end = time_measure()
         timing["decode"] = timing["decode"] + (end - start)
 
-        # dec_features should contain "org_input_size" and "input_size"
-        # When using anchor codecs, that's not the case, we read input images to derive them
-        if not "org_input_size" in dec_seq or not "input_size" in dec_seq:
-            self.logger.warning(
-                "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
-            )
-            first_frame = next(iter(dataloader))
-            org_img_size = {
-                "height": first_frame[0]["height"],
-                "width": first_frame[0]["width"],
-            }
-            dec_seq["org_input_size"] = org_img_size
-            dec_seq["input_size"] = self._get_model_input_size(
-                vision_model, first_frame
-            )
-
-        # separate a tensor of each keyword item into a list of tensors
-        dec_ftensors_list = self._reform_dict_to_list(dec_seq["data"])
-        assert len(dataloader) == len(
-            dec_ftensors_list
-        ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
-
-        ## TO BE IMPLEMENTED [HYOMIN]
-
         self.logger.info("Processing remote NN")
+
         output_list = []
-        for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
-            dec_seq["data"] = data
-            dec_seq["file_name"] = file_names[e]
-            dec_seq["qp"] = (
+        for e, d in enumerate(tqdm(dataloader)):
+
+            # some assertion needed to check if d is matched with dec_seq[e]
+
+            start = time_measure()
+            dec_d = {"file_name": dec_seq[e]}
+            pred = vision_model.forward(dec_d, org_map_func)
+            end = time_measure()
+            timing["nn_task"].append((end - start))
+
+            evaluator.digest(d, pred)
+
+            out_res = d.copy()
+            del (
+                out_res["image"],
+                out_res["width"],
+                out_res["height"],
+                out_res["image_id"],
+            )
+
+            out_res["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            start = time_measure()
-            res = self._from_input_to_features(vision_model, d, output_file_prefix)
-            end = time_measure()
-            timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
-
-            assert "data" in res
-
-            start = time_measure()
-            pred = self._from_features_to_output(vision_model, dec_seq)
-            end = time_measure()
-
-            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
-
-            evaluator.digest(gt_inputs[e], pred)
-
-            out_res = dec_seq.copy()
             del (out_res["data"], out_res["org_input_size"])
             if self.configs["codec"]["decode_only"]:
                 out_res["bytes"] = bitstream_bytes / len(dataloader)
             else:
                 out_res["bytes"] = res["bytes"][e]
             out_res["coded_order"] = e
-            out_res["input_size"] = dec_features["input_size"][0]
-            out_res["org_input_size"] = (
-                f'{dec_features["org_input_size"]["height"]}x{dec_features["org_input_size"]["width"]}'
-            )
+            out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
 
             output_list.append(out_res)
 
