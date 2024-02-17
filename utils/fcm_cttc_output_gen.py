@@ -52,7 +52,7 @@ from compressai_vision.evaluators.evaluators import BaseEvaluator
 
 
 def _generate_csv_classwise_video_map(
-    result_path, dataset_path, metric, list_of_classwise_seq, seq_list
+    result_path, dataset_path, list_of_classwise_seq, seq_list, metric="AP"
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = _read_df_rec(result_path)
@@ -200,6 +200,13 @@ if __name__ == "__main__":
         choices=["SFU", "OIV6", "TVD", "HIEVE"],
         help="CTTC Evaluation Dataset (default: %(default)s)",
     )
+    parser.add_argument(
+        "--metric",
+        required=False,
+        default="AP",
+        choices=["AP", "AP50"],
+        help="Evaluation Metric (default: %(default)s)",
+    )
 
     args = parser.parse_args()
 
@@ -209,7 +216,7 @@ if __name__ == "__main__":
     )
 
     if args.dataset_name == "SFU":
-        metric = "AP50"
+        metric = args.metric
         class_ab = {
             "CLASS-AB": [
                 "Traffic",
@@ -251,9 +258,9 @@ if __name__ == "__main__":
         output_df = _generate_csv_classwise_video_map(
             args.result_path,
             args.dataset_path,
-            metric,
             [class_ab, class_c, class_d],
             seq_list,
+            metric,
         )
     elif args.dataset_name == "OIV6":
         output_df = _generate_csv(args.result_path)
