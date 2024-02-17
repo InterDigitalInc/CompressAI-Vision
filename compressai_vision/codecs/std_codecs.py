@@ -138,6 +138,7 @@ class VTM(nn.Module):
 
         self.logger.setLevel(logging_level)
 
+
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def qp_value(self):
@@ -518,7 +519,7 @@ class VTM(nn.Module):
         self.logger.debug(f"dec_time:{dec_time}")
 
         if img_input:
-            output_png = Path(f"{codec_output_dir}/{output_file_prefix}_dec")
+            
             # TODO assumes 8bit 420
             convert_cmd = [
                 "ffmpeg",
@@ -531,19 +532,33 @@ class VTM(nn.Module):
                 "-pix_fmt",
                 "yuv420p",
                 "-i",
-                yuv_dec_path,
-                "-vf",
-                f"crop={org_img_size['width']}:{org_img_size['height']}",
-                f"{output_png}_%03d.png",
-            ]
+                yuv_dec_path]
+
+            # not cropping for now            
+            # crop_cmd = ["-vf", f"crop={org_img_size['width']}:{org_img_size['height']}"]
+            # convert_cmd += [crop_cmd]
+
+            # TODO (fracape) hacky, clean this
+            dec_path = codec_output_dir / "dec"
+            dec_path.mkdir(parents=True, exist_ok=True)
+            if self.datacatalog == "MPEGOIV6":
+                output_png = f"{dec_path}/{output_file_prefix}.png"
+            elif self.datacatalog == "SFUHW": 
+                prefix=output_file_prefix.split("qp")[0]
+                output_png = f"{dec_path}/{prefix}%03d.png"
+                convert_cmd+= ["-start_number", "0"]
+            elif self.datacatalog in ["MPEGHIEVE", "MPEGTVDTRACKING"]:
+                convert_cmd+= ["-start_number", "1"]
+                output_png = f"{dec_path}/%06d.png"
+            convert_cmd.append(output_png)
+
             run_cmdline(convert_cmd)
+
             rec_frames = []
-            for file_path in codec_output_dir.glob(
-                f"{output_file_prefix}_dec_[0-9][0-9][0-9].png"
-            ):
+            for file_path in dec_path.glob("*.png"):
                 rec_frames.append(read_image_to_rgb_tensor(file_path))
 
-            output = {"image": rec_frames}
+            output = {"data": rec_frames}
         else:
             self.yuvio.setReader(
                 read_path=yuv_dec_path,

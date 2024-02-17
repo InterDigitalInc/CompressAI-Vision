@@ -152,11 +152,12 @@ class VideoRemoteInference(BasePipeline):
 
         # Feature Deompression
         start = time_measure()
-        dec_features = self._decompress(
-            codec,
-            res["bitstream"],
-            self.codec_output_dir,
-            "",
+        dec_seq = self._decompress(
+            codec=codec,
+            bitstream=res["bitstream"],
+            codec_output_dir=self.codec_output_dir,
+            filename="",
+            org_img_size=None,
             img_input=True,
         )
         end = time_measure()
@@ -164,7 +165,7 @@ class VideoRemoteInference(BasePipeline):
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
-        if not "org_input_size" in dec_features or not "input_size" in dec_features:
+        if not "org_input_size" in dec_seq or not "input_size" in dec_seq:
             self.logger.warning(
                 "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
             )
@@ -173,13 +174,13 @@ class VideoRemoteInference(BasePipeline):
                 "height": first_frame[0]["height"],
                 "width": first_frame[0]["width"],
             }
-            dec_features["org_input_size"] = org_img_size
-            dec_features["input_size"] = self._get_model_input_size(
+            dec_seq["org_input_size"] = org_img_size
+            dec_seq["input_size"] = self._get_model_input_size(
                 vision_model, first_frame
             )
 
         # separate a tensor of each keyword item into a list of tensors
-        dec_ftensors_list = self._reform_dict_to_list(dec_features["data"])
+        dec_ftensors_list = self._reform_dict_to_list(dec_seq["data"])
         assert len(dataloader) == len(
             dec_ftensors_list
         ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
@@ -189,9 +190,9 @@ class VideoRemoteInference(BasePipeline):
         self.logger.info("Processing remote NN")
         output_list = []
         for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
-            dec_features["data"] = data
-            dec_features["file_name"] = file_names[e]
-            dec_features["qp"] = (
+            dec_seq["data"] = data
+            dec_seq["file_name"] = file_names[e]
+            dec_seq["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
@@ -203,14 +204,14 @@ class VideoRemoteInference(BasePipeline):
             assert "data" in res
 
             start = time_measure()
-            pred = self._from_features_to_output(vision_model, dec_features)
+            pred = self._from_features_to_output(vision_model, dec_seq)
             end = time_measure()
 
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
             evaluator.digest(gt_inputs[e], pred)
 
-            out_res = dec_features.copy()
+            out_res = dec_seq.copy()
             del (out_res["data"], out_res["org_input_size"])
             if self.configs["codec"]["decode_only"]:
                 out_res["bytes"] = bitstream_bytes / len(dataloader)
