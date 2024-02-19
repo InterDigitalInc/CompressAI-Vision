@@ -132,7 +132,7 @@ class VideoRemoteInference(BasePipeline):
                 img_input=True,
             )
             end = time_measure()
-            timing["encode"] = timing["encode"] + (end - start)
+            timing["encode"] = timing["encode"].append((end - start))
 
             if self.configs["codec"]["encode_only"] is True:
                 print("bitstreams generated, exiting")
@@ -165,36 +165,30 @@ class VideoRemoteInference(BasePipeline):
             img_input=True,
         )
         end = time_measure()
-        timing["decode"] = timing["decode"] + (end - start)
+        timing["decode"] = timing["decode"].append((end - start))
 
         self.logger.info("Processing remote NN")
 
         output_list = []
+        org_map_func = dataloader.dataset.get_org_mapper_func()
         for e, d in enumerate(tqdm(dataloader)):
 
             # some assertion needed to check if d is matched with dec_seq[e]
 
             start = time_measure()
-            dec_d = {"file_name": dec_seq[e]}
+            dec_d = {"file_name": dec_seq["file_paths"][e]}
             pred = vision_model.forward(dec_d, org_map_func)
             end = time_measure()
             timing["nn_task"].append((end - start))
 
             evaluator.digest(d, pred)
 
-            out_res = d.copy()
-            del (
-                out_res["image"],
-                out_res["width"],
-                out_res["height"],
-                out_res["image_id"],
-            )
+            out_res = d[0].copy()
 
             out_res["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            del (out_res["data"], out_res["org_input_size"])
             if self.configs["codec"]["decode_only"]:
                 out_res["bytes"] = bitstream_bytes / len(dataloader)
             else:
