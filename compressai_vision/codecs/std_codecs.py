@@ -104,7 +104,6 @@ class VTM(nn.Module):
                 )
 
         self.qp = self.enc_cfgs["qp"]
-        self.intra_period = self.enc_cfgs["intra_period"]
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
@@ -122,6 +121,7 @@ class VTM(nn.Module):
 
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV400_10le)
 
+        self.intra_period = self.enc_cfgs["intra_period"]
         self.frame_rate = 1
         if not self.datacatalog == "MPEGOIV6":
             config = configparser.ConfigParser()
@@ -156,8 +156,6 @@ class VTM(nn.Module):
         width: int,
         height: int,
         nb_frames: int = 1,
-        frame_rate: int = 1,
-        intra_period: int = 1,
         parallel_encoding: bool = False,
         hash_check: int = 0,
         chroma_format: str = "400",
@@ -168,7 +166,7 @@ class VTM(nn.Module):
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
 
-        decodingRefreshType = 1 if intra_period >= 1 else 0
+        decodingRefreshType = 1 if self.intra_period >= 1 else 0
         base_cmd = [
             self.encoder_path,
             "-i",
@@ -184,13 +182,13 @@ class VTM(nn.Module):
             "-hgt",
             height,
             "-fr",
-            frame_rate,
+            self.frame_rate,
             "-ts",  # temporal subsampling to prevent default period of 8 in all intra
             "1",
             "-v",
             "6",
             f"--Level={level}",
-            f"--IntraPeriod={intra_period}",
+            f"--IntraPeriod={self.intra_period}",
             f"--InputChromaFormat={chroma_format}",
             f"--InputBitDepth={input_bitdepth}",
             f"--InternalBitDepth={output_bitdepth}",
@@ -200,29 +198,29 @@ class VTM(nn.Module):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (intra_period + 1):
+        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
             base_cmd.append(f"--BitstreamFile={bitstream_path}")
             base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
             cmd = list(map(str, base_cmd))
             self.logger.debug(cmd)
             return [cmd]
 
-        num_parallels = round((nb_frames / intra_period) + 0.5)
+        num_parallels = round((nb_frames / self.intra_period) + 0.5)
 
         list_of_num_of_frameSkip = []
         list_of_num_of_framesToBeEncoded = []
         total_num_frames_to_code = nb_frames
 
         frameSkip = 0
-        nbframesToBeEncoded = intra_period + 1
+        nb_framesToBeEncoded = self.intra_period + 1
         for _ in range(num_parallels):
             list_of_num_of_frameSkip.append(frameSkip)
 
-            nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
+            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
+            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
 
-            frameSkip += intra_period
-            total_num_frames_to_code -= intra_period
+            frameSkip += self.intra_period
+            total_num_frames_to_code -= self.intra_period
 
         bitstream_path_p = Path(bitstream_path).parent
         file_stem = Path(bitstream_path).stem
@@ -288,6 +286,62 @@ class VTM(nn.Module):
         self.logger.debug(cmd)
         return cmd
 
+    def convert_input_to_yuv(self, input: Dict, file_prefix: str):
+        nb_frames = 1
+        file_names = input["file_names"]
+        if len(file_names) > 1:  # video
+            # NOTE: using glob for now, should be more robust and look at skipped
+            # NOTE: somewhat rigid pattern (lowercase png)
+            filename_pattern = f"{str(Path(file_names[0]).parent)}/*.png"
+            nb_frames = input["last_frame"] - input["frame_skip"]
+            images_in_folder = len(
+                [file for file in Path(file_names[0]).parent.glob("*.png")]
+            )
+            assert (
+                images_in_folder == nb_frames
+            ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+
+            input_info = [
+                "-pattern_type",
+                "glob",
+                "-i",
+                filename_pattern,
+                # "-start_number",
+                # "0",  # warning, start frame is 0 for now
+                # "-vframes",
+                # f"{nb_frames}",
+            ]
+        else:
+            input_info = ["-i", file_names[0]]
+
+        chroma_format = self.enc_cfgs["chroma_format"]
+        input_bitdepth = self.enc_cfgs["input_bitdepth"]
+        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
+        frame_width = math.ceil(input["org_input_size"]["width"] / 2) * 2
+        frame_height = math.ceil(input["org_input_size"]["height"] / 2) * 2
+        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
+        yuv_in_path = f"{file_prefix}_input.yuv"
+
+        # TODO (fracape)
+        # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
+
+        convert_cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
+        convert_cmd += input_info
+        convert_cmd += [
+            "-vf",
+            "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            f"yuv{chroma_format}p{pix_fmt_suffix}",
+        ]
+
+        convert_cmd.append(yuv_in_path)
+
+        run_cmdline(convert_cmd)
+
+        return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
+
     def encode(
         self,
         x: Dict,
@@ -307,54 +361,9 @@ class VTM(nn.Module):
         print(f"\n-- encoding ${file_prefix}", file=sys.stderr)
 
         if img_input:
-            nb_frames = 1
-            frame_rate = 1
-            intra_period = 1
-            file_names = x["file_names"]
-            if len(file_names) > 1:  # video
-                nb_frames = x["last_frame"] - x["frame_skip"]
-                frame_rate = self.frame_rate
-                intra_period = self.intra_period
-                # warning: somewhat rigid pattern (lowercase png)
-                filename_pattern = f"{str(Path(file_names[0]).parent)}/*.png"
-                input_info = [
-                    "-pattern_type",
-                    "glob",
-                    "-i",
-                    filename_pattern,
-                    # "-start_number",
-                    # "0",  # warning, start frame is 0 for now
-                    # "-vframes",
-                    # f"{nb_frames}",
-                ]
-            else:
-                input_info = ["-i", file_names[0]]
-
-            chroma_format = self.enc_cfgs["chroma_format"]
-            input_bitdepth = self.enc_cfgs["input_bitdepth"]
-            pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
-            frame_width = math.ceil(x["org_input_size"]["width"] / 2) * 2
-            frame_height = math.ceil(x["org_input_size"]["height"] / 2) * 2
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
-            yuv_in_path = f"{file_prefix}_input.yuv"
-
-            # TODO (fracape)
-            # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
-
-            convert_cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
-            convert_cmd += input_info
-            convert_cmd += [
-                "-vf",
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2",
-                "-f",
-                "rawvideo",
-                "-pix_fmt",
-                f"yuv{chroma_format}p{pix_fmt_suffix}",
-            ]
-
-            convert_cmd.append(yuv_in_path)
-
-            run_cmdline(convert_cmd)
+            (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
+                self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
+            )
 
         else:
             (
@@ -388,13 +397,10 @@ class VTM(nn.Module):
                 frames, minv, maxv, bitdepth=bitdepth
             )
 
-            nbframes, frame_height, frame_width = frames.size()
-
-            frame_rate = self.frame_rate if nbframes > 1 else 1
-            intra_period = self.intra_period if nbframes > 1 else 1
-            chroma_format = "400"
-            input_bitdepth = 10
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
+            nb_frames, frame_height, frame_width = frames.size()
+            input_bitdepth = self.enc_cfgs["input_bitdepth"]
+            chroma_format = self.enc_cfgs["chroma_format"]
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate }fps_{input_bitdepth}bit_p{chroma_format}"
 
             yuv_in_path = f"{file_prefix}_input.yuv"
 
@@ -416,10 +422,8 @@ class VTM(nn.Module):
             qp=self.qp,
             bitstream_path=bitstream_path,
             nb_frames=nb_frames,
-            frame_rate=frame_rate,
-            intra_period=intra_period,
-            chroma_format=chroma_format,
-            input_bitdepth=input_bitdepth,
+            chroma_format=self.enc_cfgs["chroma_format"],
+            input_bitdepth=self.enc_cfgs["input_bitdepth"],
             parallel_encoding=self.parallel_encoding,
             hash_check=self.hash_check,
         )
@@ -574,10 +578,10 @@ class VTM(nn.Module):
                 frmHeight=frame_height,
             )
 
-            nbframes = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
+            nb_frames = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
 
             rec_frames = []
-            for i in range(nbframes):
+            for i in range(nb_frames):
                 rec_yuv = self.yuvio.read_one_frame(i)
                 rec_frames.append(rec_yuv)
 
@@ -681,8 +685,6 @@ class HM(VTM):
         width: int,
         height: int,
         nb_frames: int = 1,
-        frame_rate: int = 1,
-        intra_period: int = 1,
         parallel_encoding: bool = False,
         hash_check: int = 0,
         chroma_format: str = "400",
@@ -693,7 +695,7 @@ class HM(VTM):
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
 
-        decodingRefreshType = 1 if intra_period >= 1 else 0
+        decodingRefreshType = 1 if self.intra_period >= 1 else 0
         base_cmd = [
             self.encoder_path,
             "-i",
@@ -709,11 +711,11 @@ class HM(VTM):
             "-hgt",
             height,
             "-fr",
-            frame_rate,
+            self.frame_rate,
             "-ts",  # temporal subsampling to prevent default period of 8 in all intra
             "1",
             f"--Level={level}",
-            f"--IntraPeriod={intra_period}",
+            f"--IntraPeriod={self.intra_period}",
             f"--InputChromaFormat={chroma_format}",
             f"--InputBitDepth={input_bitdepth}",
             f"--InternalBitDepth={output_bitdepth}",
@@ -721,29 +723,29 @@ class HM(VTM):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (intra_period + 1):
+        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
             base_cmd.append(f"--BitstreamFile={bitstream_path}")
             base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
             cmd = list(map(str, base_cmd))
             self.logger.debug(cmd)
             return [cmd]
 
-        num_parallels = round((nb_frames / intra_period) + 0.5)
+        num_parallels = round((nb_frames / self.intra_period) + 0.5)
 
         list_of_num_of_frameSkip = []
         list_of_num_of_framesToBeEncoded = []
         total_num_frames_to_code = nb_frames
 
         frameSkip = 0
-        nbframesToBeEncoded = intra_period + 1
+        nb_framesToBeEncoded = self.intra_period + 1
         for _ in range(num_parallels):
             list_of_num_of_frameSkip.append(frameSkip)
 
-            nbframesToBeEncoded = min(total_num_frames_to_code, nbframesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nbframesToBeEncoded)
+            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
+            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
 
-            frameSkip += intra_period
-            total_num_frames_to_code -= intra_period
+            frameSkip += self.intra_period
+            total_num_frames_to_code -= self.intra_period
 
         bitstream_path_p = Path(bitstream_path).parent
         file_stem = Path(bitstream_path).stem
@@ -794,9 +796,7 @@ class VVENC(VTM):
         bitstream_path: Path,
         width: int,
         height: int,
-        nbframes: int = 1,
-        frmRate: int = 1,
-        intra_period: int = 1,
+        nb_frames: int = 1,
     ) -> List[Any]:
         cmd = [
             self.encoder_path,
@@ -809,9 +809,9 @@ class VVENC(VTM):
             "--size",
             f"{width}x{height}",
             "--framerate",
-            frmRate,
+            self.frame_rate,
             "--frames",
-            nbframes,
+            nb_frames,
             "--format",
             "yuv420_10",
             "--preset",
