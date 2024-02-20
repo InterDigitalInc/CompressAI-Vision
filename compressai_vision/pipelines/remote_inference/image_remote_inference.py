@@ -97,7 +97,7 @@ class ImageRemoteInference(BasePipeline):
 
                 start = time_measure()
                 frame = {
-                    "file_names": d[0]["file_name"],
+                    "file_names": [d[0]["file_name"]],
                     "org_input_size": org_img_size,
                 }
 
@@ -146,7 +146,8 @@ class ImageRemoteInference(BasePipeline):
             timing["decode"].append((end - start))
 
             start = time_measure()
-            dec_d = {"file_name": dec_seq[0]}
+            dec_d = {"file_name": dec_seq["file_paths"][0]}
+
             pred = vision_model.forward(dec_d, org_map_func)
             end = time_measure()
             timing["nn_task"].append((end - start))
@@ -181,8 +182,3 @@ class ImageRemoteInference(BasePipeline):
             timing[key] = val.sum
 
         return timing, codec.eval_encode_type, output_list, eval_performance
-
-    def read_image_to_rgb_tensor(filepath: Path) -> torch.Tensor:
-        assert filepath.is_file()
-        img = Image.open(filepath).convert("RGB")
-        return transforms.ToTensor()(img)

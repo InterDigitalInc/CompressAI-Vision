@@ -481,16 +481,22 @@ class VTM(nn.Module):
         org_img_size: Dict = None,
         img_input=False,
     ) -> bool:
+        del org_img_size
+
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
         output_file_prefix = bitstream_path.stem
-        logpath = Path(f"{codec_output_dir}/{output_file_prefix}_dec.log")
+
+        dec_path = codec_output_dir / "dec"
+        dec_path.mkdir(parents=True, exist_ok=True)
+        logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
+
         if img_input:
             video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
             frame_width = video_info["width"]
             frame_height = video_info["height"]
-            yuv_dec_path = f"{codec_output_dir}/{output_file_prefix}_dec.yuv"
+            yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
                 yuv_dec_path=yuv_dec_path,
@@ -539,8 +545,6 @@ class VTM(nn.Module):
             # convert_cmd += [crop_cmd]
 
             # TODO (fracape) hacky, clean this
-            dec_path = codec_output_dir / "dec"
-            dec_path.mkdir(parents=True, exist_ok=True)
             if self.datacatalog == "MPEGOIV6":
                 output_png = f"{dec_path}/{output_file_prefix}.png"
             elif self.datacatalog == "SFUHW":
