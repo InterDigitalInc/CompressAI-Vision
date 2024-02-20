@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import concurrent.futures as cf
+import multiprocessing
 import os
 import resource
 import subprocess
@@ -39,10 +40,12 @@ from typing import Any, List, Optional
 def get_max_num_cpus():
     # return multiprocessing.cpu_count()
     # This number is not equivalent to the number of CPUs the current process can use.
-    # Pleas, see https://docs.python.org/3/library/multiprocessing.html
-    num_cpus = len(os.sched_getaffinity(0))
-    # temp..
-    # print(f"INFO!!! - Maximum {num_cpus} CPUs will be utilized")
+    # Please see https://docs.python.org/3/library/multiprocessing.html
+    try:
+        # only available on some Unix platforms
+        num_cpus = len(os.sched_getaffinity(0))
+    except AttributeError:
+        num_cpus = multiprocessing.cpu_count()
     return num_cpus
 
 
