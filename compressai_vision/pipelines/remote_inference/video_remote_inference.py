@@ -132,7 +132,7 @@ class VideoRemoteInference(BasePipeline):
                 img_input=True,
             )
             end = time_measure()
-            timing["encode"] = timing["encode"].append((end - start))
+            timing["encode"].append((end - start))
 
             if self.configs["codec"]["encode_only"] is True:
                 print("bitstreams generated, exiting")
@@ -165,7 +165,7 @@ class VideoRemoteInference(BasePipeline):
             img_input=True,
         )
         end = time_measure()
-        timing["decode"] = timing["decode"].append((end - start))
+        timing["decode"].append((end - start))
 
         self.logger.info("Processing remote NN")
 
@@ -200,6 +200,9 @@ class VideoRemoteInference(BasePipeline):
 
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
+
+        for key, val in timing.items():
+            timing[key] = val.sum
 
         return timing, codec.eval_encode_type, output_list, eval_performance
 
