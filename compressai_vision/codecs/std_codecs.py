@@ -569,7 +569,7 @@ class VTM(nn.Module):
 
             # output the list of file paths for each frame
             # output = {"data": rec_frames}
-            output = {"file_paths": rec_frames}
+            output = {"file_names": rec_frames}
 
         else:
             self.yuvio.setReader(

@@ -146,7 +146,7 @@ class ImageRemoteInference(BasePipeline):
             timing["decode"].append((end - start))
 
             start = time_measure()
-            dec_d = {"file_name": dec_seq["file_paths"][0]}
+            dec_d = {"file_name": dec_seq["file_names"][0]}
 
             pred = vision_model.forward(dec_d, org_map_func)
             end = time_measure()

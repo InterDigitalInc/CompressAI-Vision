@@ -176,7 +176,7 @@ class VideoRemoteInference(BasePipeline):
             # some assertion needed to check if d is matched with dec_seq[e]
 
             start = time_measure()
-            dec_d = {"file_name": dec_seq["file_paths"][e]}
+            dec_d = {"file_name": dec_seq["file_names"][e]}
             pred = vision_model.forward(dec_d, org_map_func)
             end = time_measure()
             timing["nn_task"].append((end - start))

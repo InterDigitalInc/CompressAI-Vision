@@ -123,13 +123,13 @@ class Bypass(nn.Module):
         org_img_size: Dict = None,
         img_input=False,
     ):
+        del org_img_size
         del file_prefix  # used in other codecs that write log files
         del codec_output_dir  # used in other codecs that write log files
 
         if img_input:
-            assert "file_name" in input
-            del input["org_input_size"]
-            return [input["file_name"]]
+            assert "file_names" in input
+            return input
 
         return input
 
