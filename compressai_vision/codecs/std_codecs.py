@@ -536,6 +536,8 @@ class VTM(nn.Module):
                 "-hide_banner",
                 "-loglevel",
                 "error",
+                "-f",
+                "rawvideo",
                 "-s",
                 f"{frame_width}x{frame_height}",
                 "-pix_fmt",
