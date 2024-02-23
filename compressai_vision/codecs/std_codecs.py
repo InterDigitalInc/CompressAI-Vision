@@ -358,7 +358,7 @@ class VTM(nn.Module):
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        print(f"\n-- encoding ${file_prefix}", file=sys.stderr)
+        print(f"\n-- encoding ${file_prefix}", file=sys.stdout)
 
         if img_input:
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (

@@ -56,7 +56,7 @@ def prevent_core_dump():
 
 def run_cmdlines_parallel(cmds: List[Any], logpath: Optional[Path] = None) -> None:
     def worker(cmd, id, logpath):
-        print(f"--> job_id [{id:03d}] Running: {' '.join(cmd)}", file=sys.stderr)
+        print(f"--> job_id [{id:03d}] Running: {' '.join(cmd)}", file=sys.stdout)
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -85,7 +85,7 @@ def run_cmdlines_parallel(cmds: List[Any], logpath: Optional[Path] = None) -> No
 
 
 def run_cmdline(cmdline: List[Any], logpath: Optional[Path] = None) -> None:
-    print(f"--> Running: {' '.join(cmdline)}", file=sys.stderr)
+    print(f"--> Running: {' '.join(cmdline)}", file=sys.stdout)
 
     if logpath is None:
         out = subprocess.check_output(cmdline).decode()

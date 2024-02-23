@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import sys
 from typing import Dict
 
 from torch.utils.data import DataLoader
@@ -128,7 +129,7 @@ class ImageRemoteInference(BasePipeline):
                 ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
 
                 res["bitstream"] = bin_files[0]
-                print(f"reading bitstream... {res['bitstream']}")
+                print(f"reading bitstream... {res['bitstream']}", file=sys.stdout)
 
             if self.configs["codec"]["encode_only"] is True:
                 continue
