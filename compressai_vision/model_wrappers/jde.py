@@ -403,10 +403,30 @@ class jde_1088x608(BaseWrapper):
         return output_stracks
 
     @torch.no_grad()
-    def forward(self, x, input_map_function):
+    def forward(self, x):
         """Complete the downstream task with end-to-end manner all the way from the input"""
-        # return self.model(x)
-        raise NotImplementedError
+        """Computes and return feture pyramid all the way from the input"""
+        img = x["image"].unsqueeze(0).to(self.device)
+        input_size = tuple(img.shape[2:])
+
+        # inefficient way to accomplish the task. I know... can be better later
+        _ = self.darknet(img, self.features_at_splits, is_nn_part1=True)
+        pred = self.darknet(None, self.features_at_splits, is_nn_part1=False)
+
+        online_targets = self._jde_process(pred, (x["height"], x["width"]), input_size)
+
+        online_tlwhs = []
+        online_ids = []
+
+        for t in online_targets:
+            tlwh = t.tlwh
+            tid = t.track_id
+            vertical = tlwh[2] / tlwh[3] > 1.6
+            if tlwh[2] * tlwh[3] > self.model_configs["min_box_area"] and not vertical:
+                online_tlwhs.append(tlwh)
+                online_ids.append(tid)
+
+        return {"tlwhs": online_tlwhs, "ids": online_ids}
 
     def reshape_feature_pyramid_to_frame(
         self, features: Dict, packing_all_in_one=False

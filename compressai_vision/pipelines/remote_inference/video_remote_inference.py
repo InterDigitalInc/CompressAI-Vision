@@ -177,7 +177,7 @@ class VideoRemoteInference(BasePipeline):
 
             start = time_measure()
             dec_d = {"file_name": dec_seq["file_names"][e]}
-            pred = vision_model.forward(dec_d, org_map_func)
+            pred = vision_model.forward(org_map_func(dec_d))
             end = time_measure()
             timing["nn_task"].append((end - start))
 

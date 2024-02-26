@@ -175,11 +175,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         return proposals[0]
 
     @torch.no_grad()
-    def forward(self, x, input_map_function):
+    def forward(self, x):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         # test
-        data = input_map_function(x)
-        return self.model([data])
+        return self.model([x])
 
     def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
         """rehape the feature pyramid to a frame"""

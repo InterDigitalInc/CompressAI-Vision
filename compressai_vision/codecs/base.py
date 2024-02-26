@@ -79,9 +79,10 @@ class Bypass(nn.Module):
             org_fW = input["org_input_size"]["width"]
 
             num_elements = org_fH * org_fW
+            num_frames = len(input["file_names"])
 
             return {
-                "bytes": [num_elements],
+                "bytes": [num_elements] * num_frames,
                 "bitstream": input,
             }
 
