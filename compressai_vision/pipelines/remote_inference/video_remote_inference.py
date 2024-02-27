@@ -184,7 +184,7 @@ class VideoRemoteInference(BasePipeline):
             evaluator.digest(d, pred)
 
             out_res = d[0].copy()
-
+            del out_res["image"]
             out_res["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used

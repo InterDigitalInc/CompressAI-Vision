@@ -14,7 +14,7 @@ CONF_NAME=$9
 export DNNL_MAX_CPU_ISA=AVX2
 export DEVICE=${DEVICE}
 
-DATASET_SRC="${FCM_TESTDATA}/HIEVE"
+DATASET_SRC="${FCM_TESTDATA}/HiEve_pngs"
 
 CMD="compressai-split-inference"
 if [[ "*${CONF_NAME}*" == "remote" ]]; then
