@@ -1,3 +1,5 @@
+2024-02-27: CompressAI-Vision supports VCM-like pipelines (remote inference) for all MPEG FCM use cases
+
 2024-02-16: CompressAI-Vision includes CompressAI as a submodule
 
 2023-11-09: CompressAI-Vision interfaces with MPEG's feature Compression software FCTM
