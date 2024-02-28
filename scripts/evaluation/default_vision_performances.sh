@@ -5,27 +5,43 @@
 # see provided installation scripts
 set -eu
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ENTRY_CMD="compressai-vision-eval"
+ENTRY_CMD=$1
+TESTDATA_DIR=$2
 
-VCM_TESTDATA="${SCRIPT_DIR}/../../vcm_testdata"
+# List of entry cmds 
+CMD_OPTS=("compressai-split-inference", "compressai-remote-inference")
 
-if [ $# == 1 ]; then
-    VCM_TESTDATA=$1
+if [[ "${CMD_OPTS[@]}" =~ ${ENTRY_CMD} ]]; then
+    echo "Run ${ENTRY_CMD} ........"
+else
+    echo : "${ENTRY_CMD} does not exist in the options."
+    echo : "Please choose one out of these options: ${CMD_OPTS[@]}"
+    exit 1
 fi
-if [ ! -d "${VCM_TESTDATA}" ]; then
-    echo "${VCM_TESTDATA} does not exist, please select dataset folder, e.g.
-    $ bash default_vision_performances.sh  /path/to/vcm_dataset"
+
+declare -A configs
+
+configs["compressai-split-inference"]="eval_example"
+configs["compressai-remote-inference"]="eval_remote_inference_example"
+
+CONF_NAME=${configs[${ENTRY_CMD}]}
+
+if [ $# == 2 ]; then
+    TESTDATA_DIR=$2
+fi
+if [ ! -d "${TESTDATA_DIR}" ]; then
+    echo "${TESTDATA_DIR} does not exist, please select dataset folder, e.g.
+    $ bash default_vision_performances.sh [etnry_cmd] [/path/to/dataset]"
     exit
 fi
 
-MPEG_OIV6_SRC="${VCM_TESTDATA}/mpeg-oiv6"
-SFU_HW_SRC="${VCM_TESTDATA}/SFU_HW_Obj"
-HIEVE_SRC="${VCM_TESTDATA}/HiEve_pngs"
-TVD_SRC="${VCM_TESTDATA}/tvd_tracking"
+MPEG_OIV6_SRC="${TESTDATA_DIR}/mpeg-oiv6"
+SFU_HW_SRC="${TESTDATA_DIR}/SFU_HW_Obj"
+HIEVE_SRC="${TESTDATA_DIR}/HiEve_pngs"
+TVD_SRC="${TESTDATA_DIR}/tvd_tracking"
 
 # MPEGOIV6 - Detection with Faster RCNN
-${ENTRY_CMD} --config-name=eval_example.yaml \
+${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.type=image \
              ++pipeline.conformance.save_conformance_files=True \
              ++pipeline.conformance.subsample_ratio=9 \
@@ -41,7 +57,7 @@ ${ENTRY_CMD} --config-name=eval_example.yaml \
              ++pipeline.nn_task_part2.dump_features=False
 
 # MPEGOIV6 - Segmentation with Mask RCNN
-${ENTRY_CMD} --config-name=eval_example.yaml \
+${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.type=image \
              ++pipeline.conformance.save_conformance_files=True \
              ++pipeline.conformance.subsample_ratio=9 \
@@ -73,7 +89,7 @@ for SEQ in \
             'BlowingBubbles_416x240_50_val' \
             'RaceHorses_416x240_30_val'
 do
-    ${ENTRY_CMD} --config-name=eval_example.yaml \
+    ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
                  ++pipeline.type=video \
                  ++pipeline.conformance.save_conformance_files=True \
                  ++pipeline.conformance.subsample_ratio=9 \
@@ -95,7 +111,7 @@ for SEQ in \
             'TVD-02' \
             'TVD-03'
 do
-    ${ENTRY_CMD} --config-name=eval_example.yaml \
+    ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
                  ++pipeline.type=video \
              	 ++pipeline.conformance.save_conformance_files=True \
              	 ++pipeline.conformance.subsample_ratio=9 \
@@ -122,7 +138,7 @@ for SEQ in \
             '17' \
             '18'
 do
-    ${ENTRY_CMD} --config-name=eval_example.yaml \
+    ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
                  ++pipeline.type=video \
                  ++pipeline.conformance.save_conformance_files=True \
                  ++pipeline.conformance.subsample_ratio=90 \
