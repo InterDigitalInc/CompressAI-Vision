@@ -130,11 +130,13 @@ class VTM(nn.Module):
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.verbosity = kwargs["verbosity"]
+        self.ffmpeg_loglevel = "error"
         logging_level = logging.WARN
         if self.verbosity == 1:
             logging_level = logging.INFO
         if self.verbosity >= 2:
             logging_level = logging.DEBUG
+            self.ffmpeg_loglevel = "debug"
 
         self.logger.setLevel(logging_level)
 
@@ -316,16 +318,26 @@ class VTM(nn.Module):
 
         chroma_format = self.enc_cfgs["chroma_format"]
         input_bitdepth = self.enc_cfgs["input_bitdepth"]
-        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
+
         frame_width = math.ceil(input["org_input_size"]["width"] / 2) * 2
         frame_height = math.ceil(input["org_input_size"]["height"] / 2) * 2
         file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
         yuv_in_path = f"{file_prefix}_input.yuv"
 
+        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
+        if chroma_format == "400":
+            chroma_format = "gray"
+
         # TODO (fracape)
         # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
 
-        convert_cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
+        convert_cmd = [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            f"{self.ffmpeg_loglevel}",
+        ]
         convert_cmd += input_info
         convert_cmd += [
             "-vf",
@@ -424,6 +436,7 @@ class VTM(nn.Module):
             nb_frames=nb_frames,
             chroma_format=self.enc_cfgs["chroma_format"],
             input_bitdepth=self.enc_cfgs["input_bitdepth"],
+            output_bitdepth=self.enc_cfgs["output_bitdepth"],
             parallel_encoding=self.parallel_encoding,
             hash_check=self.hash_check,
         )

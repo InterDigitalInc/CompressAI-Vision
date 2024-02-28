@@ -11,10 +11,16 @@ codec_paths:
 verbosity: 1
 
 dump_yuv:
-  dump_yuv_input: True
+  dump_yuv_input: False
   yuv_packing_input_dir: ${..output_dir}
   dump_yuv_packing_dec: False
   yuv_packing_dec_dir: ${..output_dir}
 encoder_config:
   qp: 42
   preset: "medium" # faster, fast, medium, slow, slower
+  intra_period: 1
+  parallel_encoding: False
+  hash_check: 1
+  stash_outputs: True
+  chroma_format: "420"
+  input_bitdepth: 8

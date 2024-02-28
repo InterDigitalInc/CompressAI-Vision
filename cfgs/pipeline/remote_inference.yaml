@@ -13,7 +13,7 @@
 ###########################################################################################
 
 name: "remote-inference"
-type: "image" 
+type: "video" 
 output_dir_root: ${paths._run_root}/${.name}-${.type}
 
 codec:

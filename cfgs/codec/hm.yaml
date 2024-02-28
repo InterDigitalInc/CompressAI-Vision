@@ -23,5 +23,6 @@ encoder_config:
   parallel_encoding: False
   hash_check: 1
   stash_outputs: True
-  chroma_format: "420"
-  input_bitdepth: 8
+  chroma_format: "400" # "420" for remote inference
+  input_bitdepth: 10 # 8 for remote inference
+  output_bitdepth: 10

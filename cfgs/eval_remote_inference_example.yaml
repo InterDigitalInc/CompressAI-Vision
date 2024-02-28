@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 pipeline:
-  type: "remote" # alternative is image
+  type: "video" # alternative is image
   
 vision_model:
   arch: faster_rcnn_X_101_32x8d_FPN_3x
