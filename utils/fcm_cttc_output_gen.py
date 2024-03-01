@@ -26,8 +26,7 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# Copyright (c) 2022-2024, InterDigital Communications, Inc
-# All rights reserved.
+
 r"""
 Compute evaluation metrics and generate csv with computed metrics in CTTC format.
 """
@@ -40,10 +39,10 @@ from pathlib import Path
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
 from mpeg_template_format import (
-    add_columns,
-    pd_append,
+    df_add_columns,
+    df_append,
+    generate_classwise_df,
     read_df_rec,
-    classwise_computation,
 )
 
 import utils
@@ -51,7 +50,7 @@ from compressai_vision.datasets import get_seq_info
 from compressai_vision.evaluators.evaluators import BaseEvaluator
 
 
-def _generate_csv_classwise_video_map(
+def generate_csv_classwise_video_map(
     result_path, dataset_path, list_of_classwise_seq, seq_list, metric="AP"
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
@@ -95,22 +94,20 @@ def _generate_csv_classwise_video_map(
             name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
             matched_seq_names.append(name)
 
-        class_wise_results_df = classwise_computation(
+        class_wise_results_df = generate_classwise_df(
             results_df, {classwise_name: matched_seq_names}
         )
         class_wise_results_df["end_accuracy"] = class_wise_maps
 
-        output_df = pd_append(output_df, class_wise_results_df)
+        output_df = df_append(output_df, class_wise_results_df)
 
     # add columns
-    output_df = add_columns(output_df)
+    output_df = df_add_columns(output_df)
 
     return output_df
 
 
-def _generate_csv_classwise_video_mota(
-    result_path, dataset_path, list_of_classwise_seq
-):
+def generate_csv_classwise_video_mota(result_path, dataset_path, list_of_classwise_seq):
     results_df = read_df_rec(result_path)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
@@ -148,21 +145,21 @@ def _generate_csv_classwise_video_mota(
             name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
             matched_seq_names.append(name)
 
-        class_wise_results_df = classwise_computation(
+        class_wise_results_df = generate_classwise_df(
             results_df, {classwise_name: matched_seq_names}
         )
 
         class_wise_results_df["end_accuracy"] = class_wise_motas
 
-        output_df = pd_append(output_df, class_wise_results_df)
+        output_df = df_append(output_df, class_wise_results_df)
 
     # add columns
-    output_df = add_columns(output_df)
+    output_df = df_add_columns(output_df)
 
     return output_df
 
 
-def _generate_csv(result_path):
+def generate_csv(result_path):
     result_df = read_df_rec(result_path)
 
     # sort
@@ -172,7 +169,7 @@ def _generate_csv(result_path):
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
 
     # add columns
-    result_df = add_columns(result_df)
+    result_df = df_add_columns(result_df)
 
     return result_df
 
@@ -255,7 +252,7 @@ if __name__ == "__main__":
             "RaceHorses_416x240_30",
         ]
 
-        output_df = _generate_csv_classwise_video_map(
+        output_df = generate_csv_classwise_video_map(
             args.result_path,
             args.dataset_path,
             [class_ab, class_c, class_d],
@@ -263,16 +260,16 @@ if __name__ == "__main__":
             metric,
         )
     elif args.dataset_name == "OIV6":
-        output_df = _generate_csv(args.result_path)
+        output_df = generate_csv(args.result_path)
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
-        output_df = _generate_csv_classwise_video_mota(
+        output_df = generate_csv_classwise_video_mota(
             args.result_path, args.dataset_path, [tvd_all]
         )
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
         hieve_720p = {"HIEVE-720P": ["2", "17", "18"]}
-        output_df = _generate_csv_classwise_video_mota(
+        output_df = generate_csv_classwise_video_mota(
             args.result_path, args.dataset_path, [hieve_1080p, hieve_720p]
         )
         # sort for FCM template - comply with the template provided in wg04n00459
