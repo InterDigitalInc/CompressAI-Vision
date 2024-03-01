@@ -40,9 +40,9 @@ from pathlib import Path
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
 from mpeg_template_format import (
-    _add_columns,
-    _append,
-    _read_df_rec,
+    add_columns,
+    pd_append,
+    read_df_rec,
     classwise_computation,
 )
 
@@ -55,7 +55,7 @@ def _generate_csv_classwise_video_map(
     result_path, dataset_path, list_of_classwise_seq, seq_list, metric="AP"
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = _read_df_rec(result_path)
+    results_df = read_df_rec(result_path)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -100,10 +100,10 @@ def _generate_csv_classwise_video_map(
         )
         class_wise_results_df["end_accuracy"] = class_wise_maps
 
-        output_df = _append(output_df, class_wise_results_df)
+        output_df = pd_append(output_df, class_wise_results_df)
 
     # add columns
-    output_df = _add_columns(output_df)
+    output_df = add_columns(output_df)
 
     return output_df
 
@@ -111,7 +111,7 @@ def _generate_csv_classwise_video_map(
 def _generate_csv_classwise_video_mota(
     result_path, dataset_path, list_of_classwise_seq
 ):
-    results_df = _read_df_rec(result_path)
+    results_df = read_df_rec(result_path)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
@@ -154,16 +154,16 @@ def _generate_csv_classwise_video_mota(
 
         class_wise_results_df["end_accuracy"] = class_wise_motas
 
-        output_df = _append(output_df, class_wise_results_df)
+        output_df = pd_append(output_df, class_wise_results_df)
 
     # add columns
-    output_df = _add_columns(output_df)
+    output_df = add_columns(output_df)
 
     return output_df
 
 
 def _generate_csv(result_path):
-    result_df = _read_df_rec(result_path)
+    result_df = read_df_rec(result_path)
 
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -172,7 +172,7 @@ def _generate_csv(result_path):
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
 
     # add columns
-    result_df = _add_columns(result_df)
+    result_df = add_columns(result_df)
 
     return result_df
 
