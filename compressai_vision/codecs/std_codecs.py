@@ -107,6 +107,7 @@ class VTM(nn.Module):
         self.eval_encode = kwargs["eval_encode"]
 
         self.dump_yuv = kwargs["dump_yuv"]
+        self.fpn_sizes_json_dump = kwargs["fpn_sizes_json_dump"]
         self.vision_model = vision_model
 
         self.datacatalog = dataset.datacatalog
@@ -388,21 +389,8 @@ class VTM(nn.Module):
 
             # Generate json files with fpn sizes for the decoder
             # manually activate the following and run in encode_only mode
-            fpn_sizes_json_dump = False
-            if fpn_sizes_json_dump:
-                filename = (
-                    file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
-                )
-                fpn_sizes_json = codec_output_dir / f"{filename}.json"
-                with fpn_sizes_json.open("wb") as f:
-                    output = {
-                        "fpn": self.feature_size,
-                        "subframe_heights": self.subframe_heights,
-                    }
-                    f.write(json.dumps(output, indent=4).encode())
-                print(f"fpn sizes json dump generated, exiting")
-                raise SystemExit(0)
-                # end of dumping fpn sizes
+            if self.fpn_sizes_json_dump:
+                self.dump_fpn_sizes_json(file_prefix, bitstream_name, codec_output_dir)
 
             minv, maxv = self.min_max_dataset
             frames, mid_level = min_max_normalization(
@@ -678,6 +666,18 @@ class VTM(nn.Module):
             min_max_buffer.append(min_max)
 
         return min_max_buffer
+
+    def dump_fpn_sizes_json(self, file_prefix, bitstream_name, codec_output_dir):
+        filename = file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
+        fpn_sizes_json = codec_output_dir / f"{filename}.json"
+        with fpn_sizes_json.open("wb") as f:
+            output = {
+                "fpn": self.feature_size,
+                "subframe_heights": self.subframe_heights,
+            }
+            f.write(json.dumps(output, indent=4).encode())
+        print(f"fpn sizes json dump generated, exiting")
+        raise SystemExit(0)
 
 
 @register_codec("hm")
