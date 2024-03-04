@@ -326,8 +326,7 @@ class VTM(nn.Module):
         yuv_in_path = f"{file_prefix}_input.yuv"
 
         pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
-        if chroma_format == "400":
-            chroma_format = "gray"
+        chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}"
 
         # TODO (fracape)
         # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
