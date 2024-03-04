@@ -66,7 +66,7 @@ class x264(nn.Module):
 
         self.eval_encode = kwargs["eval_encode"]
 
-        self.dump_yuv = kwargs["dump_yuv"]
+        self.dump = kwargs["dump"]
         self.vision_model = vision_model
         self.datacatalog = dataset.datacatalog
         self.dataset_name = dataset.config["dataset_name"]
@@ -219,7 +219,7 @@ class x264(nn.Module):
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
 
-        if not self.dump_yuv["dump_yuv_input"]:
+        if not self.dump["dump_yuv_input"]:
             Path(yuv_in_path).unlink()
             # Path(yuv_in_converted_path).unlink()
 
@@ -305,7 +305,7 @@ class x264(nn.Module):
             packing_all_in_one=True,
         )
 
-        if not self.dump_yuv["dump_yuv_packing_dec"]:
+        if not self.dump["dump_yuv_packing_dec"]:
             Path(yuv_dec_path).unlink()
 
         output = {"data": features}

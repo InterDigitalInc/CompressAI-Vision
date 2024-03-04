@@ -106,8 +106,8 @@ class VTM(nn.Module):
         self.qp = self.enc_cfgs["qp"]
         self.eval_encode = kwargs["eval_encode"]
 
-        self.dump_yuv = kwargs["dump_yuv"]
-        self.fpn_sizes_json_dump = kwargs["fpn_sizes_json_dump"]
+        self.dump = kwargs["dump"]
+        self.fpn_sizes_json_dump = self.dump["fpn_sizes_json_dump"]
         self.vision_model = vision_model
 
         self.datacatalog = dataset.datacatalog
@@ -465,7 +465,7 @@ class VTM(nn.Module):
             with open(bitstream_path, "wb") as fw:
                 fw.write(bitstream)
 
-        if not self.dump_yuv["dump_yuv_input"]:
+        if not self.dump["dump_yuv_input"]:
             Path(yuv_in_path).unlink()
 
         # to be compatible with the pipelines
@@ -619,7 +619,7 @@ class VTM(nn.Module):
                 json_dict["subframe_heights"],
                 packing_all_in_one=True,
             )
-            if not self.dump_yuv["dump_yuv_packing_dec"]:
+            if not self.dump["dump_yuv_packing_dec"]:
                 Path(yuv_dec_path).unlink()
 
             output = {"data": features}

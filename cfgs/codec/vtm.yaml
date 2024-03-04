@@ -11,11 +11,12 @@ codec_paths:
 
 verbosity: 1
 
-dump_yuv:
+dump:
   dump_yuv_input: False
   yuv_packing_input_dir: ${..output_dir}
   dump_yuv_packing_dec: False
   yuv_packing_dec_dir: ${..output_dir}
+  fpn_sizes_json_dump: False
 encoder_config:
   qp: 42
   intra_period: 1
