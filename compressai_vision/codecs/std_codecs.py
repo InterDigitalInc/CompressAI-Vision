@@ -558,7 +558,10 @@ class VTM(nn.Module):
                 prefix = output_file_prefix.split("qp")[0]
                 output_png = f"{dec_path}/{prefix}%03d.png"
                 convert_cmd += ["-start_number", "0"]
-            elif self.datacatalog in ["MPEGHIEVE", "MPEGTVDTRACKING"]:
+            elif self.datacatalog in ["MPEGHIEVE"]:
+                convert_cmd += ["-start_number", "0"]
+                output_png = f"{dec_path}/%06d.png"
+            elif self.datacatalog in ["MPEGTVDTRACKING"]:
                 convert_cmd += ["-start_number", "1"]
                 output_png = f"{dec_path}/%06d.png"
             convert_cmd.append(output_png)
