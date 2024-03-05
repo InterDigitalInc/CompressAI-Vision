@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# This runs the evaluation of the defaul models, whitout compression
+# This runs the evaluation of original models, whitout compression 
 # make sure you sourced the virtual environment that contains up-to-date installed compressai-vision
 # see provided installation scripts
 set -eu
