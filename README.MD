@@ -6,21 +6,19 @@ CompressAI-Vision helps you to develop, test and evaluate compression models wit
 
 It currently focuses on two types of pipeline:
 
-- Video compression for remote analysis, which corresponds to the MPEG "Video Coding for Machines" (VCM) activity.
+- Video compression for remote inference (`compressai-remote-inference`), which corresponds to the MPEG "Video Coding for Machines" (VCM) activity.
 
-- Split inference, which  includes an evaluation framework for compressing intermediate features produced in the context of split models. The software supports all thepipelines considered in the related MPEG  activity: "Feature Compression for Machines" (FCM).
-
-The figure below shows the split inference pipeline:
+- Split inference (`compressai-split-inference`), which  includes an evaluation framework for compressing intermediate features produced in the context of split models. The software supports all thepipelines considered in the related MPEG  activity: "Feature Compression for Machines" (FCM).
 
 <p align="center">
-  <img src="docs/source/media/images/fcvcm-scope.png" alt="split model evaluation pipeline">
+  <img src="docs/source/media/images/compressai-vision-pipelines.png" alt="CompressAI-Vision supported pipelines">
 </p>
 
 ## Features
 
 - [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) is used for object detection (Faster-RCNN) and instance segmentation (Mask-RCNN)
 
-- JDE is used for Object Tracking
+- [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT) is used for Object Tracking
 
 ## Documentation
 
@@ -91,8 +89,6 @@ make static-analysis
 ```
 
 ### Compiling documentation
-
-Tutorials are produced from notebooks that are in [docs/source/tutorials](docs/source/tutorials).  If you update the notebooks, first you need to run ``compile.bash`` therein.
 
 To produce the html documentation, from [docs/](docs/), run:
 ```
