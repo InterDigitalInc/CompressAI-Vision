@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>compressai_vision.pipelines.split_inference &#8212; CompressAI Vision</title>
+    <title>compressai_vision.pipelines.remote_inference &#8212; CompressAI Vision</title>
   
   
   
@@ -41,11 +41,11 @@
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'compressai_vision/pipelines/split_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'compressai_vision/pipelines/remote_inference';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="compressai_vision.pipelines.remote_inference" href="remote_inference.html" />
-    <link rel="prev" title="compressai_vision.pipelines" href="index.html" />
+    <link rel="next" title="compressai_vision.model_wrappers" href="../model_wrappers.html" />
+    <link rel="prev" title="compressai_vision.pipelines.split_inference" href="split_inference.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -155,8 +155,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../datasets.html">compressai_vision.datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluators.html">compressai_vision.evaluators</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">compressai_vision.pipelines</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">compressai_vision.pipelines.split_inference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compressai_vision.pipelines.remote_inference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -252,7 +252,7 @@
       
       
       
-      <li><a href="../../_sources/compressai_vision/pipelines/split_inference.rst" target="_blank"
+      <li><a href="../../_sources/compressai_vision/pipelines/remote_inference.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -320,7 +320,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>compressai_vision.pipelines.split_inference</h1>
+    <h1>compressai_vision.pipelines.remote_inference</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -330,13 +330,13 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference"><code class="docutils literal notranslate"><span class="pre">ImageRemoteInference</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference.training"><code class="docutils literal notranslate"><span class="pre">ImageRemoteInference.training</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.build_input_lists()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference.build_input_lists()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.training"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference.training</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -350,29 +350,29 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-compressai_vision.pipelines.split_inference">
-<span id="compressai-vision-pipelines-split-inference"></span><h1>compressai_vision.pipelines.split_inference<a class="headerlink" href="#module-compressai_vision.pipelines.split_inference" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.ImageSplitInference">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.split_inference.</span></span><span class="sig-name descname"><span class="pre">ImageSplitInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/image_split_inference.html#ImageSplitInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.ImageSplitInference" title="Permalink to this definition">#</a></dt>
+  <section id="compressai-vision-pipelines-remote-inference">
+<h1>compressai_vision.pipelines.remote_inference<a class="headerlink" href="#compressai-vision-pipelines-remote-inference" title="Permalink to this heading">#</a></h1>
+<span class="target" id="module-compressai_vision.pipelines.remote_inference"></span><dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_inference.ImageRemoteInference">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.remote_inference.</span></span><span class="sig-name descname"><span class="pre">ImageRemoteInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/remote_inference/image_remote_inference.html#ImageRemoteInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.ImageSplitInference.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_inference.ImageRemoteInference.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.split_inference.</span></span><span class="sig-name descname"><span class="pre">VideoSplitInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/video_split_inference.html#VideoSplitInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_inference.VideoRemoteInference">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.remote_inference.</span></span><span class="sig-name descname"><span class="pre">VideoRemoteInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/remote_inference/video_remote_inference.html#VideoRemoteInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists">
-<span class="sig-name descname"><span class="pre">build_input_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataloader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataLoader</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/video_split_inference.html#VideoSplitInference.build_input_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists">
+<span class="sig-name descname"><span class="pre">build_input_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataloader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataLoader</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/remote_inference/video_remote_inference.html#VideoRemoteInference.build_input_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="compressai_vision.pipelines.remote_inference.VideoRemoteInference.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -391,20 +391,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="split_inference.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">compressai_vision.pipelines</p>
+        <p class="prev-next-title">compressai_vision.pipelines.split_inference</p>
       </div>
     </a>
     <a class="right-next"
-       href="remote_inference.html"
+       href="../model_wrappers.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">compressai_vision.pipelines.remote_inference</p>
+        <p class="prev-next-title">compressai_vision.model_wrappers</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -423,13 +423,13 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference"><code class="docutils literal notranslate"><span class="pre">ImageRemoteInference</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.ImageRemoteInference.training"><code class="docutils literal notranslate"><span class="pre">ImageRemoteInference.training</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.build_input_lists()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference.build_input_lists()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.remote_inference.VideoRemoteInference.training"><code class="docutils literal notranslate"><span class="pre">VideoRemoteInference.training</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>compressai_vision.pipelines.split_inference.video_split_inference &#8212; CompressAI Vision</title>
+    <title>compressai_vision.pipelines.remote_inference.video_remote_inference &#8212; CompressAI Vision</title>
   
   
   
@@ -42,7 +42,7 @@
     <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/split_inference/video_split_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/remote_inference/video_remote_inference';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -283,7 +283,7 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <h1>Source code for compressai_vision.pipelines.split_inference.video_split_inference</h1><div class="highlight"><pre>
+  <h1>Source code for compressai_vision.pipelines.remote_inference.video_remote_inference</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2022-2024, InterDigital Communications, Inc</span>
 <span class="c1"># All rights reserved.</span>
 
@@ -313,10 +313,11 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
@@ -324,40 +325,43 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compressai_vision.evaluators</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">metric_tracking</span><span class="p">,</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
 
 <span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
 
-<span class="sd">&quot;&quot;&quot; A schematic for the split-inference pipline</span>
+<span class="sd">&quot;&quot;&quot; A schematic for the remote-inference pipline</span>
 
 <span class="sd">.. code-block:: none</span>
 
-<span class="sd">             Fold                                                        Fold</span>
-<span class="sd">           ┌ ─── ┐                                                     ┌ ─── ┐</span>
-<span class="sd">           |     |                                                     |     |</span>
-<span class="sd">           |     │                                                     |     │</span>
-<span class="sd">     ┌─────┴─────▼─────┐                                         ┌─────┴─────▼─────┐</span>
-<span class="sd">     │                 │     ┌───────────┐     ┌───────────┐     │                 │</span>
-<span class="sd">     │     NN Task     │     │           │     │           │     │      NN Task    │</span>
-<span class="sd">────►│                 ├────►│  Encoder  ├────►│  Decoder  ├────►│                 ├────►</span>
-<span class="sd">     │      Part 1     │     │           │     │           │     │      Part 2     │</span>
-<span class="sd">     │                 │     └───────────┘     └───────────┘     │                 │</span>
-<span class="sd">     └─────────────────┘                                         └─────────────────┘</span>
+
+<span class="sd">          Fold</span>
+<span class="sd">        ┌ ─── ┐</span>
+<span class="sd">        |     |</span>
+<span class="sd">        |     │                            ┌─────────────────┐</span>
+<span class="sd">     ┌──┴─────▼──┐       ┌───────────┐     │                 │</span>
+<span class="sd">     │           │       │           │     │      NN Task    │</span>
+<span class="sd">────►│  Encoder  ├──────►│  Decoder  ├────►│                 ├────►</span>
+<span class="sd">     │           │       │           │     │                 │</span>
+<span class="sd">     └───────────┘       └───────────┘     │                 │</span>
+<span class="sd">                                           └─────────────────┘</span>
+<span class="sd">                         &lt;---------------- Remote Server -------------&gt;</span>
+<span class="sd">──►──────►──────►────────►──────►──────►──────►──────►──────►──────►──────►</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="VideoSplitInference"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/split_inference.html#compressai_vision.pipelines.split_inference.VideoSplitInference">[docs]</a><span class="nd">@register_pipeline</span><span class="p">(</span><span class="s2">&quot;video-split-inference&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">VideoSplitInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoRemoteInference"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/remote_inference.html#compressai_vision.pipelines.remote_inference.VideoRemoteInference">[docs]</a><span class="nd">@register_pipeline</span><span class="p">(</span><span class="s2">&quot;video-remote-inference&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VideoRemoteInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="VideoSplitInference.build_input_lists"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/split_inference.html#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists">[docs]</a>    <span class="k">def</span> <span class="nf">build_input_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
+<div class="viewcode-block" id="VideoRemoteInference.build_input_lists"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/remote_inference.html#compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists">[docs]</a>    <span class="k">def</span> <span class="nf">build_input_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
         <span class="n">gt_inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">file_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataloader</span><span class="p">):</span>
@@ -382,71 +386,39 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_codec_configs_at_pipeline_level</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
 
-        <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">gt_inputs</span><span class="p">,</span> <span class="n">file_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_input_lists</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span>
 
-        <span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;decode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;nn_part_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">timing</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;encode&quot;</span><span class="p">:</span> <span class="n">metric_tracking</span><span class="p">(),</span>
+            <span class="s2">&quot;decode&quot;</span><span class="p">:</span> <span class="n">metric_tracking</span><span class="p">(),</span>
+            <span class="s2">&quot;nn_task&quot;</span><span class="p">:</span> <span class="n">metric_tracking</span><span class="p">(),</span>
+        <span class="p">}</span>
 
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;decode_only&quot;</span><span class="p">]:</span>
-            <span class="c1">## NN-part-1</span>
-            <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)):</span>
-                <span class="n">output_file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;img_id_</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">org_input_size</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">width</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">frames</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;frame_skip&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_skip_n_frames</span><span class="p">,</span>
+                <span class="s2">&quot;last_frame&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_end_frame_idx</span><span class="p">,</span>
+                <span class="s2">&quot;file_names&quot;</span><span class="p">:</span> <span class="n">file_names</span><span class="p">,</span>
+                <span class="s2">&quot;org_input_size&quot;</span><span class="p">:</span> <span class="n">org_input_size</span><span class="p">,</span>
+            <span class="p">}</span>
 
-                <span class="k">if</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_skip_n_frames</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_end_frame_idx</span><span class="p">:</span>
-                    <span class="k">break</span>
-
-                <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">output_file_prefix</span><span class="p">)</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-
-                <span class="k">assert</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">res</span>
-
-                <span class="n">num_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_data_collecting</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
-
-                <span class="k">del</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_skip_n_frames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">org_img_size</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]}</span>
-                    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">org_img_size</span>
-                    <span class="n">features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
-
-                    <span class="n">out_res</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                    <span class="k">del</span> <span class="p">(</span>
-                        <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
-                        <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span>
-                        <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span>
-                        <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">],</span>
-                    <span class="p">)</span>
-                    <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">])</span>
-                    <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-
-                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span>
-
-            <span class="k">assert</span> <span class="n">num_items</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_n_frames_to_be_encoded</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;nn_task_part1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">generate_features_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;features generated in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s1">&#39;nn_task_part1&#39;</span><span class="p">][</span><span class="s1">&#39;feature_dir&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2"> exiting&quot;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-            <span class="c1"># concatenate a list of tensors at each keyword item</span>
-            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reform_ftesnros_in_list_to_dict</span><span class="p">()</span>
-
-            <span class="c1"># Feature Compression</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
-                <span class="n">codec</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">codec</span><span class="p">,</span>
+                <span class="n">frames</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="p">,</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">img_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-
-            <span class="c1"># for bypass mode, &#39;data&#39; should be deleted.</span>
-            <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="k">del</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;encode_only&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bitstreams generated, exiting&quot;</span><span class="p">)</span>
@@ -470,67 +442,53 @@ document.write(`
 
         <span class="c1"># Feature Deompression</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-        <span class="n">dec_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
-            <span class="n">codec</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">dec_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
+            <span class="n">codec</span><span class="o">=</span><span class="n">codec</span><span class="p">,</span>
+            <span class="n">bitstream</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span>
+            <span class="n">codec_output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">org_img_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">img_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-        <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+        <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
-        <span class="c1"># dec_features should contain &quot;org_input_size&quot; and &quot;input_size&quot;</span>
-        <span class="c1"># When using anchor codecs, that&#39;s not the case, we read input images to derive them</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;org_input_size&quot;</span> <span class="ow">in</span> <span class="n">dec_features</span> <span class="ow">or</span> <span class="ow">not</span> <span class="s2">&quot;input_size&quot;</span> <span class="ow">in</span> <span class="n">dec_features</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Hacky: &#39;org_input_size&#39; and &#39;input_size&#39; retrived from input dataset.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">first_frame</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
-            <span class="n">org_img_size</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">first_frame</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">first_frame</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">],</span>
-            <span class="p">}</span>
-            <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">org_img_size</span>
-            <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_size</span><span class="p">(</span>
-                <span class="n">vision_model</span><span class="p">,</span> <span class="n">first_frame</span>
-            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing remote NN&quot;</span><span class="p">)</span>
 
-        <span class="c1"># separate a tensor of each keyword item into a list of tensors</span>
-        <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reform_dict_to_list</span><span class="p">(</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
-            <span class="n">dec_ftensors_list</span>
-        <span class="p">),</span> <span class="s2">&quot;The number of decoded frames are not equal to the number of frames supposed to be decoded&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing NN-Part2...&quot;</span><span class="p">)</span>
         <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iterate_items</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)):</span>
-            <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-            <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_names</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
-            <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;qp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">org_map_func</span> <span class="o">=</span> <span class="n">dataloader</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_org_mapper_func</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)):</span>
+
+            <span class="c1"># some assertion needed to check if d is matched with dec_seq[e]</span>
+
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
+            <span class="n">dec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">dec_seq</span><span class="p">[</span><span class="s2">&quot;file_names&quot;</span><span class="p">][</span><span class="n">e</span><span class="p">]}</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">vision_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">org_map_func</span><span class="p">(</span><span class="n">dec_d</span><span class="p">))</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
+            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_task&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+            <span class="n">evaluator</span><span class="o">.</span><span class="n">digest</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+
+            <span class="n">out_res</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span>
+            <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;qp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s2">&quot;uncmp&quot;</span> <span class="k">if</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span>
             <span class="p">)</span>  <span class="c1"># Assuming one qp will be used</span>
 
-            <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_features_to_output</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dec_features</span><span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-
-            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-
-            <span class="n">evaluator</span><span class="o">.</span><span class="n">digest</span><span class="p">(</span><span class="n">gt_inputs</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">pred</span><span class="p">)</span>
-
-            <span class="n">out_res</span> <span class="o">=</span> <span class="n">dec_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">del</span> <span class="p">(</span><span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;decode_only&quot;</span><span class="p">]:</span>
                 <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bitstream_bytes</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">][</span><span class="n">e</span><span class="p">]</span>
             <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;coded_order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e</span>
-            <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">x</span><span class="si">{</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
+            <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">x</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
 
             <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_res</span><span class="p">)</span>
 
         <span class="c1"># performance evaluation on end-task</span>
         <span class="n">eval_performance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">timing</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">timing</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">sum</span>
 
         <span class="k">return</span> <span class="n">timing</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="n">output_list</span><span class="p">,</span> <span class="n">eval_performance</span>
 
@@ -548,10 +506,11 @@ document.write(`
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_reform_ftesnros_in_list_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_reform_list_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">for</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ftensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -561,10 +520,6 @@ document.write(`
 
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ftensor</span> <span class="ow">in</span> <span class="n">ftensors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ftensor</span><span class="p">)</span>
-
-            <span class="k">del</span> <span class="n">ftensors</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ftensors</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>

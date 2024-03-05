@@ -155,13 +155,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -169,7 +163,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
@@ -290,7 +284,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for compressai_vision.codecs.base</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (c) 2022-2023, InterDigital Communications, Inc</span>
+<span></span><span class="c1"># Copyright (c) 2022-2024, InterDigital Communications, Inc</span>
 <span class="c1"># All rights reserved.</span>
 
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -321,7 +315,6 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
@@ -357,6 +350,7 @@ document.write(`
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">bitstream_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">img_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bypass encoder</span>
@@ -365,6 +359,18 @@ document.write(`
         <span class="k">del</span> <span class="n">file_prefix</span>  <span class="c1"># used in other codecs that write bitstream files</span>
         <span class="k">del</span> <span class="n">bitstream_name</span>  <span class="c1"># used in other codecs that write bitstream files</span>
         <span class="k">del</span> <span class="n">codec_output_dir</span>  <span class="c1"># used in other codecs that write log files</span>
+
+        <span class="k">if</span> <span class="n">img_input</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">org_fH</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
+            <span class="n">org_fW</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
+
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="n">org_fH</span> <span class="o">*</span> <span class="n">org_fW</span>
+            <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;file_names&quot;</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">num_elements</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_frames</span><span class="p">,</span>
+                <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">,</span>
+            <span class="p">}</span>
 
         <span class="c1"># for n-bit quantization error experiments</span>
         <span class="n">max_lvl</span> <span class="o">=</span> <span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">nbit_quant</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbit_quant</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
@@ -401,9 +407,17 @@ document.write(`
         <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">img_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="k">del</span> <span class="n">org_img_size</span>
         <span class="k">del</span> <span class="n">file_prefix</span>  <span class="c1"># used in other codecs that write log files</span>
         <span class="k">del</span> <span class="n">codec_output_dir</span>  <span class="c1"># used in other codecs that write log files</span>
+
+        <span class="k">if</span> <span class="n">img_input</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s2">&quot;file_names&quot;</span> <span class="ow">in</span> <span class="nb">input</span>
+            <span class="k">return</span> <span class="nb">input</span>
+
         <span class="k">return</span> <span class="nb">input</span></div></div>
 
 

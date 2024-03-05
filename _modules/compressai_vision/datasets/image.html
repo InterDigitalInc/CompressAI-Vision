@@ -155,13 +155,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -169,7 +163,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
@@ -290,7 +284,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for compressai_vision.datasets.image</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (c) 2022-2023, InterDigital Communications, Inc</span>
+<span></span><span class="c1"># Copyright (c) 2022-2024, InterDigital Communications, Inc</span>
 <span class="c1"># All rights reserved.</span>
 
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -322,6 +316,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
@@ -330,13 +325,14 @@ document.write(`
 <span class="kn">from</span> <span class="nn">detectron2.data.dataset_mapper</span> <span class="kn">import</span> <span class="n">DatasetMapper</span>
 <span class="kn">from</span> <span class="nn">detectron2.data.datasets</span> <span class="kn">import</span> <span class="n">load_coco_json</span><span class="p">,</span> <span class="n">register_coco_instances</span>
 <span class="kn">from</span> <span class="nn">detectron2.data.samplers</span> <span class="kn">import</span> <span class="n">InferenceSampler</span>
+<span class="kn">from</span> <span class="nn">detectron2.utils.serialize</span> <span class="kn">import</span> <span class="n">PicklableWrapper</span>
 <span class="kn">from</span> <span class="nn">jde.utils.io</span> <span class="kn">import</span> <span class="n">read_results</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_datacatalog</span><span class="p">,</span> <span class="n">register_dataset</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">JDECustomMapper</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">JDECustomMapper</span><span class="p">,</span> <span class="n">LinearMapper</span>
 
 
 <span class="k">def</span> <span class="nf">bypass_collator</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
@@ -364,12 +360,16 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;annotation_file&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;annotation_file&quot;</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">annotation_path</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;annotation_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;annotation_file&quot;</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">annotation_path</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">seqinfo_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;seqinfo&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">seqinfo_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">seqinfo_path</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;seqinfo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seqinfo_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">seqinfo_path</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">imgs_folder</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">imgs_folder_path</span>
@@ -377,6 +377,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">org_mapper_func</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">thing_classes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span> <span class="o">=</span> <span class="p">[]</span>
@@ -423,15 +424,20 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;transforms&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ret_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;ret_name&quot;</span><span class="p">]</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">InferenceSampler</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">bypass_collator</span>
+
+        <span class="n">_dataset</span> <span class="o">=</span> <span class="n">DatasetFromList</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="s2">&quot;cfg&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">InferenceSampler</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">bypass_collator</span>
-
-                <span class="n">_dataset</span> <span class="o">=</span> <span class="n">DatasetFromList</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">mapper</span> <span class="o">=</span> <span class="n">DatasetMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">mapper</span><span class="p">)</span>
+
+                <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">LinearMapper</span><span class="p">(</span><span class="n">bgr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_BGR</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -445,6 +451,7 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_BGR</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -487,15 +494,26 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">bypass_collator</span>
 
         <span class="n">_dataset</span> <span class="o">=</span> <span class="n">DatasetFromList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">mapper</span> <span class="o">=</span> <span class="n">DatasetMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;linear_mapper&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">LinearMapper</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;A proper mapper information via cfg must be provided&quot;</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">DatasetMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">mapper</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span> <span class="o">=</span> <span class="n">PicklableWrapper</span><span class="p">(</span><span class="n">DatasetMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">))</span>
 
         <span class="n">metaData</span> <span class="o">=</span> <span class="n">MetadataCatalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thing_classes</span> <span class="o">=</span> <span class="n">metaData</span><span class="o">.</span><span class="n">thing_classes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">metaData</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span>
         <span class="p">)</span>
+
+<div class="viewcode-block" id="Detectron2Dataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.Detectron2Dataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span> <span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span></div>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -515,7 +533,17 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">bypass_collator</span>
 
         <span class="n">_dataset</span> <span class="o">=</span> <span class="n">DatasetFromList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">JDECustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;linear_mapper&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">LinearMapper</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">JDECustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">mapper</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span> <span class="o">=</span> <span class="n">PicklableWrapper</span><span class="p">(</span><span class="n">JDECustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">]))</span>
+
+<div class="viewcode-block" id="TrackingDataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.TrackingDataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span> <span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span></div>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -539,23 +567,27 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_imgs_folder</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid image sample directory &quot;</span><span class="si">{</span><span class="n">_imgs_folder</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
 
-        <span class="n">_annotation_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">annotation_file</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_annotation_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid annotation file &quot;</span><span class="si">{</span><span class="n">_annotation_file</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">annotation_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_annotation_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">annotation_file</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_annotation_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid annotation file &quot;</span><span class="si">{</span><span class="n">_annotation_file</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_file</span> <span class="o">=</span> <span class="n">_annotation_file</span>
 
-        <span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">seqinfo</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_annotation_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Sequence information does not exist at the given path </span><span class="si">{</span><span class="n">_sequence_info_file</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="n">_sequence_info_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">seqinfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">seqinfo</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_annotation_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Sequence information does not exist at the given path </span><span class="si">{</span><span class="n">_sequence_info_file</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="n">_sequence_info_file</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_imgs_folder</span> <span class="o">=</span> <span class="n">_imgs_folder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_file</span> <span class="o">=</span> <span class="n">_annotation_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_img_ext</span> <span class="o">=</span> <span class="n">ext</span>
 
     <span class="nd">@property</span>
@@ -865,6 +897,64 @@ document.write(`
 
     <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;IMAGES&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">IMAGES</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder with images and no annotations</span>
+<span class="sd">    (Currently this class supports none of training related operation ):</span>
+
+<span class="sd">    .. code-block:: none</span>
+<span class="sd">        - rootdir/</span>
+<span class="sd">            - [test_folder]</span>
+<span class="sd">                - img000.jpg</span>
+<span class="sd">                - img001.jpg</span>
+<span class="sd">                - imgxxx.jpg</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root (string): root directory of the dataset</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+        <span class="n">annotation_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">seqinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;kodak&quot;</span><span class="p">,</span>
+        <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">root</span><span class="p">,</span>
+            <span class="n">imgs_folder</span><span class="o">=</span><span class="n">imgs_folder</span><span class="p">,</span>
+            <span class="n">annotation_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">seqinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span>
+            <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">all_files</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">f</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgs_folder_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
+            <span class="n">img_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\d]+&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_id</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+            <span class="n">fw</span><span class="p">,</span> <span class="n">fh</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">fh</span><span class="p">,</span>
+                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">fw</span><span class="p">,</span>
+                <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">img_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 </pre></div>
 
                 </article>

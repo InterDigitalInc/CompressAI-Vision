@@ -155,13 +155,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/index.html">compressai_vision.pipelines.remote_analysis</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/pipeline.html">compressai_vision.pipelines.remote_analysis.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/fo.html">compressai_vision.compressai_vision.pipelines.remote_analysis.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/conversion.html">compressai_vision.pipelines.remote_analysis.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_analysis/faq.html">FAQ</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -169,7 +163,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
@@ -290,7 +284,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for compressai_vision.codecs.ffmpeg</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (c) 2022-2023, InterDigital Communications, Inc</span>
+<span></span><span class="c1"># Copyright (c) 2022-2024, InterDigital Communications, Inc</span>
 <span class="c1"># All rights reserved.</span>
 
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -320,15 +314,11 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 <span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">errno</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
@@ -336,33 +326,14 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.utils.dataio</span> <span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils.external_exec</span> <span class="kn">import</span> <span class="n">run_cmdline</span>
 
 <span class="kn">from</span> <span class="nn">.encdec_utils</span> <span class="kn">import</span> <span class="n">get_raw_video_file_info</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">MIN_MAX_DATASET</span><span class="p">,</span> <span class="n">min_max_inv_normalization</span><span class="p">,</span> <span class="n">min_max_normalization</span>
 
 
-<span class="c1"># TODO (fracape) ffmpeg codecs could inherit from HM/VTM</span>
 <span class="k">def</span> <span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
-
-
-<span class="k">def</span> <span class="nf">run_cmdline</span><span class="p">(</span><span class="n">cmdline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">logpath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">cmdline</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmdline</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--&gt; Running: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdline</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">logpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmdline</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-        <span class="k">return</span>
-
-    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdline</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">logpath</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">bline</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">bline</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-    <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="x264"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;x264&quot;</span><span class="p">)</span>
@@ -381,7 +352,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;eval_encode&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dump_yuv&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span> <span class="o">=</span> <span class="n">vision_model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">datacatalog</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dataset_name&quot;</span><span class="p">]</span>
@@ -480,6 +451,7 @@ document.write(`
         <span class="n">codec_output_dir</span><span class="p">,</span>
         <span class="n">bitstream_name</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">img_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">bitdepth</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># TODO (fracape) (add this as config)</span>
 
@@ -529,11 +501,11 @@ document.write(`
         <span class="c1"># self.logger.debug(cmd)</span>
 
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">run_cmdline</span><span class="p">([</span><span class="n">cmd</span><span class="p">],</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
         <span class="n">enc_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
         <span class="c1"># self.logger.debug(f&quot;enc_time:{enc_time}&quot;)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_input&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">[</span><span class="s2">&quot;dump_yuv_input&quot;</span><span class="p">]:</span>
             <span class="n">Path</span><span class="p">(</span><span class="n">yuv_in_path</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
             <span class="c1"># Path(yuv_in_converted_path).unlink()</span>
 
@@ -570,7 +542,7 @@ document.write(`
         <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_dec.log&quot;</span><span class="p">)</span>
 
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">run_cmdline</span><span class="p">([</span><span class="n">cmd</span><span class="p">],</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
         <span class="n">dec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
         <span class="c1"># self.logger.debug(f&quot;dec_time:{dec_time}&quot;)</span>
 
@@ -619,7 +591,7 @@ document.write(`
             <span class="n">packing_all_in_one</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_yuv</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_dec&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_dec&quot;</span><span class="p">]:</span>
             <span class="n">Path</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">}</span>
