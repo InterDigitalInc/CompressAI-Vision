@@ -82,7 +82,7 @@ echo "Intra Period for Inner Codec: "${INTRA_PERIOD}
 echo "Other Parameters:   " ${PIPELINE_PARAMS}
 echo "=================================================================================================="
 
-${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
+${CMD} --config-name=${CONF_NAME}.yaml \
         ++pipeline.type=video \
         ++paths._run_root=${OUTPUT_DIR} \
 	++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
@@ -106,3 +106,4 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
         ++misc.device=${DEVICE} \
+        ${PIPELINE_PARAMS} \

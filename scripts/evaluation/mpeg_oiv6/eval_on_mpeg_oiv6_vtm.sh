@@ -50,7 +50,7 @@ echo "Intra Period for Inner Codec: "${INTRA_PERIOD}
 echo "Other Parameters:   " ${PIPELINE_PARAMS}
 echo "=================================================================================================="
  
-${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
+${CMD} --config-name=${CONF_NAME}.yaml \
         ++pipeline.type=image \
         ++paths._run_root=${OUTPUT_DIR} \
         ++vision_model.arch=${NETWORK_MODEL} \
@@ -73,3 +73,4 @@ ${CMD} --config-name=${CONF_NAME}.yaml ${PIPELINE_PARAMS} \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
         ++misc.device=${DEVICE} \
+        ${PIPELINE_PARAMS} \
