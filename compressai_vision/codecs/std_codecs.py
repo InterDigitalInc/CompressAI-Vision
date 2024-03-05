@@ -568,7 +568,7 @@ class VTM(nn.Module):
             run_cmdline(convert_cmd)
 
             rec_frames = []
-            for file_path in dec_path.glob("*.png"):
+            for file_path in sorted(dec_path.glob("*.png")):
                 # rec_frames.append(read_image_to_rgb_tensor(file_path))
                 rec_frames.append(str(file_path))
 
