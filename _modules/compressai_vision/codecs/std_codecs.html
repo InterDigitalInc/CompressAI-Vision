@@ -612,7 +612,7 @@ document.write(`
         <span class="n">yuv_in_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_input.yuv&quot;</span>
 
         <span class="n">pix_fmt_suffix</span> <span class="o">=</span> <span class="s2">&quot;10le&quot;</span> <span class="k">if</span> <span class="n">input_bitdepth</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">chroma_format</span> <span class="o">=</span> <span class="s2">&quot;gray&quot;</span> <span class="k">if</span> <span class="n">chroma_format</span> <span class="o">==</span> <span class="s2">&quot;400&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;yuv</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">chroma_format</span> <span class="o">=</span> <span class="s2">&quot;gray&quot;</span> <span class="k">if</span> <span class="n">chroma_format</span> <span class="o">==</span> <span class="s2">&quot;400&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;yuv</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}</span><span class="s2">p&quot;</span>
 
         <span class="c1"># TODO (fracape)</span>
         <span class="c1"># we don&#39;t enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode</span>
@@ -631,7 +631,7 @@ document.write(`
             <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
             <span class="s2">&quot;rawvideo&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;yuv</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}</span><span class="s2">p</span><span class="si">{</span><span class="n">pix_fmt_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}{</span><span class="n">pix_fmt_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
         <span class="n">convert_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yuv_in_path</span><span class="p">)</span>
