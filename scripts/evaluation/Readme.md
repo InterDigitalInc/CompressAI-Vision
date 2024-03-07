@@ -6,13 +6,25 @@ This folder contains exemplary scripts to run the split and remote inference pip
 Here is a template command to run a split of the HiEve dataset, directly using HEVC refenrence software HM:
 compressai-remote-inference
 ```
-bash ${script_path} "${fcm_testdata}" "${inner_codec_path}" "${output_dir}" "${exp_name}" "${device}" "${qp}" "${seq_name}" "${pipeline_params}" "${config_name}"
+bash ${script_path} \
+    --testdata "${fcm_testdata}" \
+    --pipeline "${pipeline}"
+    --inner_codec "${inner_codec_path}" \
+    --output_dir "${output_dir}" \
+    --exp_name "${exp_name}" 
+    --device "${device}" 
+    --qp "${qp}" 
+    --seq_name "${seq_name}" \
+    --extra_params "${pipeline_params}" \
+    --config "${config_name}"
 ```
 with 
 - `${script_path}`: one of the bash scripts within that directory, e.g., mpeg_oiv6_vtm.sh
+- `${pipeline}`: split/remote, default="split"
 - `${fcm_testdata}`: path to the test dataset, e.g. path/to/fcm_testdata/
 - `${inner_codec_path}`: path to core codec, e.g. /path/to/VTM_repo (that contains subfolders bin/ cfg/ ...) 
 - `${output_dir}`: root of output folder for logs and artifacts
+- `${exp_name}`: name of the experiments to locate/label outputs
 - `${device}`: cuda or cpu
 - `${qp}`: quality level, depends on the inner codec
 - `${seq_name}`: sequence name as used in testdata root folder. E.g., "Traffic_2560x1600_30_val" in sfu_hw_obj
@@ -23,8 +35,6 @@ with
 ++codec.encoder_config.input_bitdepth=8 \
 ++codec.encoder_config.output_bitdepth=10"
 ```
-
-- `${config_name}`: config root that drives the pipeline used (`eval_split_inference_example` or `eval_remote_inference_example`)
 
 ## Test your environment
 In addition, the following script is provided to test your environment
