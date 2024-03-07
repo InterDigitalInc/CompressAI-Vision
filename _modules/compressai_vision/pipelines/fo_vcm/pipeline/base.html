@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compressai_vision.pipelines.fo_vcm.pipeline.base &#8212; CompressAI Vision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/fo_vcm/pipeline/base';</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/logo.svg" class="logo__image only-light" alt="CompressAI Vision - Home"/>
+    <script>document.write(`<img src="../../../../../_static/logo.svg" class="logo__image only-dark" alt="CompressAI Vision - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docker.html">Docker</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/InterDigitalInc/CompressAI-Vision" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for compressai_vision.pipelines.fo_vcm.pipeline.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2022-2024 InterDigital Communications, Inc</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted (subject to the limitations in the disclaimer</span>
+<span class="c1"># below) provided that the following conditions are met:</span>
+
+<span class="c1"># * Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer.</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1">#   and/or other materials provided with the distribution.</span>
+<span class="c1"># * Neither the name of InterDigital Communications, Inc nor the names of its</span>
+<span class="c1">#   contributors may be used to endorse or promote products derived from this</span>
+<span class="c1">#   software without specific prior written permission.</span>
+
+<span class="c1"># NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY&#39;S PATENT RIGHTS ARE GRANTED BY</span>
+<span class="c1"># THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND</span>
+<span class="c1"># CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A</span>
+<span class="c1"># PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</span>
+<span class="c1"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</span>
+<span class="c1"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</span>
+<span class="c1"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1"># OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,</span>
+<span class="c1"># WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR</span>
+<span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
+<span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">pytorch_msssim</span> <span class="kn">import</span> <span class="n">ms_ssim</span>
+
+
+<div class="viewcode-block" id="EncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">EncoderDecoder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NOTE: virtual class that *you* need to subclass</span>
+
+<span class="sd">    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image, resulting in &quot;transformed&quot; image.</span>
+
+<span class="sd">    Transformed image is similar to the original image, while the encoding+decoding process might have introduced some distortion.</span>
+
+<span class="sd">    The instance may (say, H266 video encoder+decoder) or may not (say, jpeg encoder+decoder) have an internal state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># helpers</span>
+<div class="viewcode-block" id="EncoderDecoder.compute_psnr"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_psnr">[docs]</a>    <span class="k">def</span> <span class="nf">compute_psnr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">mse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EncoderDecoder.compute_msssim"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_msssim">[docs]</a>    <span class="k">def</span> <span class="nf">compute_msssim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ms_ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="EncoderDecoder.computeMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.computeMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">computeMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span> <span class="o">=</span> <span class="n">state</span></div>
+
+<div class="viewcode-block" id="EncoderDecoder.getMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.getMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">getMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns tuple with (psnr, mssim) from latest encode+decode calculation&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="EncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the internal state of the encoder &amp; decoder, if there is any&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push images(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images</span>
+
+<span class="sd">        :param x: a FloatTensor with dimensions (batch, channels, y, x)</span>
+
+<span class="sd">        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="EncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>
+<span class="sd">        :param tag: a string that can be used to identify &amp; cache images (optional)</span>
+
+<span class="sd">        Takes in an BGR image, pushes it through encoder + decoder.</span>
+
+<span class="sd">        Returns nbits, transformed BGR image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="VoidEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">VoidEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Does no encoding/decoding whatsoever.  Use for debugging.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VoidEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the internal state of the encoder &amp; decoder, if any&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images</span>
+
+<span class="sd">        :param x: a FloatTensor with dimensions (batch, channels, y, x)</span>
+
+<span class="sd">        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span>
+
+<div class="viewcode-block" id="VoidEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>
+<span class="sd">        :param tag: a string that can be used to identify &amp; cache images (optional)</span>
+
+<span class="sd">        Returns BGR image that has gone through transformation (the encoding + decoding process)</span>
+
+<span class="sd">        Returns nbits, transformed BGR image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bgr_image</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By InterDigital Communications, Inc.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, InterDigital Communications, Inc..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

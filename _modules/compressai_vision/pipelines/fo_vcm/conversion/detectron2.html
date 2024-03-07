@@ -1,0 +1,726 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compressai_vision.pipelines.fo_vcm.conversion.detectron2 &#8212; CompressAI Vision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/fo_vcm/conversion/detectron2';</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/logo.svg" class="logo__image only-light" alt="CompressAI Vision - Home"/>
+    <script>document.write(`<img src="../../../../../_static/logo.svg" class="logo__image only-dark" alt="CompressAI Vision - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docker.html">Docker</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/InterDigitalInc/CompressAI-Vision" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for compressai_vision.pipelines.fo_vcm.conversion.detectron2</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2022-2024 InterDigital Communications, Inc</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted (subject to the limitations in the disclaimer</span>
+<span class="c1"># below) provided that the following conditions are met:</span>
+
+<span class="c1"># * Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer.</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1">#   and/or other materials provided with the distribution.</span>
+<span class="c1"># * Neither the name of InterDigital Communications, Inc nor the names of its</span>
+<span class="c1">#   contributors may be used to endorse or promote products derived from this</span>
+<span class="c1">#   software without specific prior written permission.</span>
+
+<span class="c1"># NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY&#39;S PATENT RIGHTS ARE GRANTED BY</span>
+<span class="c1"># THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND</span>
+<span class="c1"># CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A</span>
+<span class="c1"># PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</span>
+<span class="c1"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</span>
+<span class="c1"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</span>
+<span class="c1"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1"># OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,</span>
+<span class="c1"># WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR</span>
+<span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
+<span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="sd">&quot;&quot;&quot;From 51 dataset into Detectron2-compatible dataset</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
+
+<span class="c1"># import cv2</span>
+<span class="c1"># import detectron2</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># from detectron2.data import MetadataCatalog</span>
+<span class="kn">from</span> <span class="nn">detectron2.structures</span> <span class="kn">import</span> <span class="n">BoxMode</span>
+
+<span class="c1"># from fiftyone import ProgressBar</span>
+<span class="kn">from</span> <span class="nn">fiftyone.core.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">fiftyone.core.labels</span> <span class="kn">import</span> <span class="n">Detection</span><span class="p">,</span> <span class="n">Detections</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+
+<div class="viewcode-block" id="findLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findLabels">[docs]</a><span class="k">def</span> <span class="nf">findLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.detections.label&quot;</span> <span class="o">%</span> <span class="n">detection_field</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="findVideoLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findVideoLabels">[docs]</a><span class="k">def</span> <span class="nf">findVideoLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Video datasets look like this:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        Name:        sfu-hw-objects-v1</span>
+<span class="sd">        Media type:  video</span>
+<span class="sd">        Num samples: 1</span>
+<span class="sd">        Persistent:  True</span>
+<span class="sd">        Tags:        []</span>
+<span class="sd">        Sample fields:</span>
+<span class="sd">            id:         fiftyone.core.fields.ObjectIdField</span>
+<span class="sd">            filepath:   fiftyone.core.fields.StringField</span>
+<span class="sd">            tags:       fiftyone.core.fields.ListField(fiftyone.core.fields.StringField)</span>
+<span class="sd">            metadata:   fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.metadata.VideoMetadata)</span>
+<span class="sd">            media_type: fiftyone.core.fields.StringField</span>
+<span class="sd">            class_tag:  fiftyone.core.fields.StringField</span>
+<span class="sd">            name_tag:   fiftyone.core.fields.StringField</span>
+<span class="sd">        Frame fields:</span>
+<span class="sd">            id:           fiftyone.core.fields.ObjectIdField</span>
+<span class="sd">            frame_number: fiftyone.core.fields.FrameNumberField</span>
+<span class="sd">            detections:   fiftyone.core.fields.EmbeddedDocumentField(fiftyone.core.labels.Detections)</span>
+
+<span class="sd">    Frame labels can be accessed like this:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        dataset.distinct(&quot;frames.%s.detections.label&quot; % detection_field)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="s2">&quot;frames.</span><span class="si">%s</span><span class="s2">.detections.label&quot;</span> <span class="o">%</span> <span class="n">detection_field</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FO2DetectronDataset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.FO2DetectronDataset">[docs]</a><span class="k">class</span> <span class="nc">FO2DetectronDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to construct a Detectron2 dataset from a FiftyOne dataset.</span>
+<span class="sd">    Subclass of ``torch.utils.data.Dataset``.</span>
+
+<span class="sd">    :param fo_dataset: fiftyone dataset</span>
+<span class="sd">    :param detection_field: name of member in the FiftyOne Sample where the</span>
+<span class="sd">        detector (ground truth) is put into.  Default: &quot;detections&quot;.</span>
+<span class="sd">    :param model_catids: a list of category labels as provided from Detectron2</span>
+<span class="sd">        model&#39;s metadata.  Used to transform fiftyone category label into an</span>
+<span class="sd">        index number used by Detectron2</span>
+
+<span class="sd">    NOTE: Usually we are more interested in going from Detectron results to</span>
+<span class="sd">    FiftyOne format, so you might not use this torch Dataset class that much</span>
+
+<span class="sd">    refs:</span>
+
+<span class="sd">    - https://voxel51.com/docs/fiftyone/user_guide/using_datasets.html</span>
+<span class="sd">    - https://towardsdatascience.com/stop-wasting-time-with-pytorch-datasets-17cac2c22fa8</span>
+<span class="sd">    - https://medium.com/voxel51/how-to-train-your-dragon-detector-a35ed4672ca7</span>
+
+
+<span class="sd">    WARNING: at the moment, only detection (not segmentation) is supported</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fo_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">detection_field</span><span class="o">=</span><span class="s2">&quot;detections&quot;</span><span class="p">,</span>
+        <span class="c1"># let&#39;s use &quot;detections&quot; or &quot;ground-truths&quot; for GT and &quot;predictions&quot; for</span>
+        <span class="c1"># detectron2-give predictions</span>
+        <span class="n">model_catids</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># noqa: B006</span>
+        <span class="c1"># TODO (sampsa) &quot;Do not use mutable data structures for argument defaults&quot;</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">fo_dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;please provide fo_dataset (fiftyone dataset)&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">model_catids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">),</span> <span class="s2">&quot;please provide MODEL&#39;s ORIGINAL category label list.  Get his from detectron2 model&#39;s metadata.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fo_dataset</span> <span class="o">=</span> <span class="n">fo_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detection_field</span> <span class="o">=</span> <span class="n">detection_field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_catids</span> <span class="o">=</span> <span class="n">model_catids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fo_dataset</span><span class="o">.</span><span class="n">values</span><span class="p">(</span>
+            <span class="s2">&quot;filepath&quot;</span>
+        <span class="p">)</span>  <span class="c1"># list of all filepaths in the dataset</span>
+        <span class="c1"># Get list of distinct labels that exist in the view</span>
+        <span class="c1"># self.classes = self.fo_dataset.distinct(</span>
+        <span class="c1">#    &quot;%s.detections.label&quot; % detection_field</span>
+        <span class="c1"># )</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fo_dataset</span><span class="p">[</span>
+            <span class="n">img_path</span>
+        <span class="p">]</span>  <span class="c1"># datasets are allowed to be index with ids, filenames, etc. only (not with plain integers)</span>
+        <span class="c1"># metadata = sample.metadata</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Example detectron2 formatted sample:</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            {&#39;file_name&#39;: &#39;/home/sampsa/fiftyone/openimagev6_mpeg_vcm_small_COCO/data/001997021f01f208.jpg&#39;,</span>
+<span class="sd">            &#39;height&#39;: 1024,</span>
+<span class="sd">            &#39;width&#39;: 760,</span>
+<span class="sd">            &#39;image_id&#39;: 1,</span>
+<span class="sd">            &#39;annotations&#39;: [</span>
+<span class="sd">                {&#39;iscrowd&#39;: 0,</span>
+<span class="sd">                &#39;bbox&#39;: [219.874232, 250.02800128, 58.95175599999998, 74.84913663999998],</span>
+<span class="sd">                &#39;category_id&#39;: 32,</span>
+<span class="sd">                &#39;bbox_mode&#39;: &lt;BoxMode.XYWH_ABS: 1&gt;},</span>
+<span class="sd">                {&#39;iscrowd&#39;: 0,</span>
+<span class="sd">                &#39;bbox&#39;: [430.188652, 410.87401984, 82.85117200000002, 95.55209215999997],</span>
+<span class="sd">                &#39;category_id&#39;: 32,</span>
+<span class="sd">                &#39;bbox_mode&#39;: &lt;BoxMode.XYWH_ABS: 1&gt;}</span>
+<span class="sd">            ]</span>
+
+
+<span class="sd">        Example fiftyone sample:</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            &lt;Sample: {</span>
+<span class="sd">                &#39;id&#39;: &#39;62e55b386fa654ded87ece8e&#39;,</span>
+<span class="sd">                &#39;media_type&#39;: &#39;image&#39;,</span>
+<span class="sd">                &#39;filepath&#39;: &#39;/tmp/compressai-vision/data/83bf8172abed42d7.jpg&#39;,</span>
+<span class="sd">                &#39;tags&#39;: BaseList([]),</span>
+<span class="sd">                &#39;metadata&#39;: None,</span>
+<span class="sd">                &#39;open_images_id&#39;: &#39;83bf8172abed42d7&#39;,</span>
+<span class="sd">                &#39;detections&#39;:   # can have several members whose class is Detections.  Typically named &quot;ground_truth&quot; or &quot;prediction&quot;</span>
+<span class="sd">                    # evaluators then use both fields</span>
+<span class="sd">                    &lt;Detections: {</span>
+<span class="sd">                    &#39;detections&#39;: BaseList([</span>
+<span class="sd">                        &lt;Detection: {</span>
+<span class="sd">                            &#39;id&#39;: &#39;62e55b386fa654ded87ecda5&#39;,</span>
+<span class="sd">                            &#39;attributes&#39;: BaseDict({}),</span>
+<span class="sd">                            &#39;tags&#39;: BaseList([]),</span>
+<span class="sd">                            &#39;label&#39;: &#39;bird&#39;,</span>
+<span class="sd">                            &#39;bounding_box&#39;: BaseList([</span>
+<span class="sd">                                0.27138644,</span>
+<span class="sd">                                0.086283185,</span>
+<span class="sd">                                0.72861356,</span>
+<span class="sd">                                0.913716815,</span>
+<span class="sd">                            ]),</span>
+<span class="sd">                            &#39;mask&#39;: None,</span>
+<span class="sd">                            &#39;confidence&#39;: None,</span>
+<span class="sd">                            &#39;index&#39;: None,</span>
+<span class="sd">                            &#39;IsOccluded&#39;: False,</span>
+<span class="sd">                            &#39;IsTruncated&#39;: False,</span>
+<span class="sd">                            &#39;IsGroupOf&#39;: False,</span>
+<span class="sd">                            &#39;IsDepiction&#39;: False,</span>
+<span class="sd">                            &#39;IsInside&#39;: False,</span>
+<span class="sd">                        }&gt;,</span>
+<span class="sd">                    ]),</span>
+<span class="sd">                }&gt;,</span>
+<span class="sd">            }&gt;</span>
+
+<span class="sd">        OpenImageV6 bbox format: xMin, xMax, yMin, yMax (or starting with yMin, depending what tool you use(!)</span>
+<span class="sd">        https://stackoverflow.com/questions/55832578/how-to-make-sense-of-open-images-datasets-bounding-box-annotations)</span>
+<span class="sd">        fiftyone bbox format: all relative coordinates: [x0, y0, w, h] (origo at left up)</span>
+<span class="sd">        Detectron2 bbox format: see: https://detectron2.readthedocs.io/en/latest/modules/structures.html#detectron2.structures.BoxMode</span>
+<span class="sd">        (OpenImageV6 bbox seems to be equal to BoxMode.XYWH_REL = 3)</span>
+
+<span class="sd">        Detectron2 visualizer tool says for BoxMode.XYWH_REAL:</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            AssertionError: Relative mode not yet supported!</span>
+
+<span class="sd">        So I deduce that all other than BoxMode.XYWH_ABS are in reality, useless</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">sample</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">detection_field</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">detection_field</span><span class="p">]</span><span class="o">.</span><span class="n">detections</span>
+        <span class="k">if</span> <span class="n">detections</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
+                <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">w_</span><span class="p">,</span> <span class="n">h_</span> <span class="o">=</span> <span class="n">detection</span><span class="o">.</span><span class="n">bounding_box</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">floor</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">op</span><span class="p">(</span><span class="n">x_</span> <span class="o">*</span> <span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">),</span>
+                    <span class="n">op</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span>
+                    <span class="n">op</span><span class="p">(</span><span class="n">w_</span> <span class="o">*</span> <span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">),</span>
+                    <span class="n">op</span><span class="p">(</span><span class="n">h_</span> <span class="o">*</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span>
+                <span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_catids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">detection</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;found a label name that is not in the &#39;model_catids&#39; provided&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span>
+                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;iscrowd&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                        <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">,</span>
+                        <span class="c1"># category_id = 0, # from label to catid</span>
+                        <span class="s2">&quot;category_id&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+                        <span class="c1"># &quot;bbox_mode&quot; : BoxMode.XYWH_REL # does not work</span>
+                        <span class="s2">&quot;bbox_mode&quot;</span><span class="p">:</span> <span class="n">BoxMode</span><span class="o">.</span><span class="n">XYWH_ABS</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotations</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_paths</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="detectron251"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.detectron251">[docs]</a><span class="k">def</span> <span class="nf">detectron251</span><span class="p">(</span>
+    <span class="n">res</span><span class="p">,</span>
+    <span class="n">model_catids</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>  <span class="c1"># noqa: B006</span>
+    <span class="c1"># TODO (sampsa) &quot;Do not use mutable data structures for argument defaults&quot;</span>
+    <span class="n">allowed_labels</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detectron2 formatted results, i.e. ``{&#39;instances&#39;: Instances}`` into FiftyOne-formatted results</span>
+
+<span class="sd">    This works for detectors and instance segmentation, where a segmentation is always accompanied with a bounding box</span>
+
+<span class="sd">    :param res: Detectron2 predictor output (a dictionary ``{&#39;instances&#39;: Instances}``)</span>
+<span class="sd">    :param model_catids: A category label list, as provided by Detectron2 model&#39;s metadata</span>
+
+<span class="sd">    Returns FiftyOne ``Detections`` instance that can be attached to a FiftyOne ``Sample`` instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">model_catids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">),</span> <span class="s2">&quot;please provide MODEL&#39;s ORIGINAL category label list.  Get it from detectron2 model&#39;s metadata.&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Which you would do with:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        model_dataset=cfg.DATASETS.TRAIN[0]</span>
+<span class="sd">        model_meta=MetadataCatalog.get(model_dataset)</span>
+<span class="sd">        model_meta.thing_classes</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">instances</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        Instances(num_instances=5, image_height=447, image_width=1024, fields=[pred_boxes: Boxes(tensor([[130.7466,  12.2867, 962.2325, 354.4287],</span>
+<span class="sd">            [941.1395, 268.9208, 978.8932, 300.9435],</span>
+<span class="sd">            [891.1142, 275.1706, 942.4617, 299.9345],</span>
+<span class="sd">            [112.7023, 152.5475, 307.6531, 241.2931],</span>
+<span class="sd">            [815.8085, 311.5709, 898.5360, 346.5404]])),</span>
+<span class="sd">            scores: tensor([0.9964, 0.9494, 0.9204, 0.7443, 0.6773]), pred_classes: tensor([4, 7, 7, 4, 7])])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># all models give scores &amp; pred_classes</span>
+    <span class="c1"># for bbox, score, pred_class in zip(instances.pred_boxes, instances.scores, instances.pred_classes):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">instances</span><span class="o">.</span><span class="n">scores</span><span class="p">):</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">class_index</span> <span class="o">=</span> <span class="n">instances</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">pred_classes</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="c1"># index to label</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">model_catids</span><span class="p">[</span><span class="n">class_index</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;model gave pred_class&quot;</span><span class="p">,</span>
+                <span class="n">class_index</span><span class="p">,</span>
+                <span class="s2">&quot;but the model_catids provided length is only&quot;</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">model_catids</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="k">if</span> <span class="n">allowed_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_labels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;detectron251: skipping label&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="c1"># print(bbox.to(&quot;cpu&quot;).tolist(), score.to(&quot;cpu&quot;).item())</span>
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">instances</span><span class="o">.</span><span class="n">image_size</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;https://voxel51.com/docs/fiftyone/api/fiftyone.core.labels.html#fiftyone.core.labels.Detection</span>
+<span class="sd">        bbox format: relative (0-&gt;1) bbox coordinates: [&lt;top-left-x&gt;, &lt;top-left-y&gt;, &lt;width&gt;, &lt;height&gt;]</span>
+<span class="sd">        mask: an instance segmentation mask for the detection within its bounding box, which should be a 2D binary or 0/1 integer numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># bboxes</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="s2">&quot;pred_boxes&quot;</span><span class="p">):</span>
+            <span class="n">boxObject</span> <span class="o">=</span> <span class="n">instances</span><span class="o">.</span><span class="n">pred_boxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># indexing returns a Boxes object</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">boxObject</span><span class="p">:</span>  <span class="c1"># noqa: B007</span>
+                <span class="c1"># TODO (sampsa) &quot;Loop control variable &#39;t&#39; not used within the loop body&quot;</span>
+                <span class="c1"># so annoying.. only way to get the tensor is to iterate</span>
+                <span class="k">pass</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># detectron2: abs coordinates</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span> <span class="o">/</span> <span class="n">width</span><span class="p">,</span>
+                <span class="n">y</span> <span class="o">/</span> <span class="n">height</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">width</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">height</span><span class="p">,</span>
+            <span class="p">]</span>  <span class="c1"># fiftyone: rex, rely, relw, relh</span>
+            <span class="c1"># print(bbox)</span>
+        <span class="c1"># segmentation</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="s2">&quot;pred_masks&quot;</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">instances</span><span class="o">.</span><span class="n">pred_masks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">x_</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">y_</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">x2_</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+            <span class="n">y2_</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">y2</span><span class="p">)</span>
+            <span class="n">small_mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="n">y_</span><span class="p">:</span><span class="n">y2_</span><span class="p">,</span> <span class="n">x_</span><span class="p">:</span><span class="n">x2_</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># TODO: What if we need both metrics when using Mask R-CNN?</span>
+            <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Detection</span><span class="p">(</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="n">score</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">bounding_box</span><span class="o">=</span><span class="n">bbox</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># we have also a mask</span>
+                <span class="n">dets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Detection</span><span class="p">(</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                        <span class="n">confidence</span><span class="o">=</span><span class="n">score</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                        <span class="n">bounding_box</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span>
+                        <span class="n">mask</span><span class="o">=</span><span class="n">small_mask</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="n">detections</span> <span class="o">=</span> <span class="n">Detections</span><span class="p">(</span><span class="n">detections</span><span class="o">=</span><span class="n">dets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">detections</span></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By InterDigital Communications, Inc.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, InterDigital Communications, Inc..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

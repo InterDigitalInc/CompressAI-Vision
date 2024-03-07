@@ -1,4 +1,4 @@
-CompressAI Trainer
+CompressAI-Vision
 ==================
 
 .. image:: https://img.shields.io/github/license/InterDigitalInc/CompressAI-Vision?color=blue
@@ -42,15 +42,6 @@ To get started, please go to through the installation steps.
    compressai_vision/pipelines/index
    compressai_vision/model_wrappers
    compressai_vision/registry
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials
-   :hidden:
-
-   tutorials/index
-
-
 
 
 .. toctree::

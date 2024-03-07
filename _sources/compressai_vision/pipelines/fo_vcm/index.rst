@@ -1,8 +1,8 @@
 
-compressai_vision.pipelines.remote_analysis
+compressai_vision.pipelines.fo_vcm
 ===========================================
 
-.. currentmodule:: compressai_vision.pipelines.remote_analysis.evaluation
+.. currentmodule:: compressai_vision.pipelines.fo_vcm.evaluation
 
 Tools for evaluating pipelines:
 

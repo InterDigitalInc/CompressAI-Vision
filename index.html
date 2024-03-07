@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>CompressAI Trainer &#8212; CompressAI Vision</title>
+    <title>CompressAI-Vision &#8212; CompressAI Vision</title>
   
   
   
@@ -156,28 +156,17 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compressai_vision/registry.html">compressai_vision.registry</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials VCM</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/fiftyone.html">Fiftyone and MongoDB</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_1.html">1. Datasets and Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_2.html">2. Registering Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_3.html">3. MPEG-VCM Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_4.html">4. Evaluate Custom Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_5.html">5. Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_6.html">6. VTM benchmark generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/cli_tutorial_7.html">7. Importing and Using Video</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/download.html">1. Download Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/detectron2.html">2. Run Detectron2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/evaluate.html">3. Evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/encdec.html">4. Creating an EncoderDecoder class</a></li>
-</ul>
-</li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul class="nav bd-sidenav">
@@ -317,7 +306,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>CompressAI Trainer</h1>
+    <h1>CompressAI-Vision</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -331,16 +320,14 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="compressai-trainer">
-<h1>CompressAI Trainer<a class="headerlink" href="#compressai-trainer" title="Permalink to this heading">#</a></h1>
+  <section id="compressai-vision">
+<h1>CompressAI-Vision<a class="headerlink" href="#compressai-vision" title="Permalink to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://github.com/InterDigitalInc/CompressAI-Vision/blob/master/LICENSE"><img alt="https://img.shields.io/github/license/InterDigitalInc/CompressAI-Vision?color=blue" src="https://img.shields.io/github/license/InterDigitalInc/CompressAI-Vision?color=blue" /></a>
 <p>CompressAI-Vision helps you to develop, test and evaluate compression models with standardized tests in the context of “Feature Coding for Machines” (FCM) and “Video Coding for Machines” (VCM), i.e. compression methods optimized for machine tasks algorithms such as Neural-Network (NN)-based detectors.</p>
 <p>The goal of this platform is to develop and compare the following pipelines:</p>
 <img alt="_images/fcm-vs-vcm.svg" src="_images/fcm-vs-vcm.svg" /><p>CompressAI-Vision now supports the Common Test Conditions defined by the ISO/MPEG FCM Ad-hoc Group, including datasets (OpenImageV6 subsets, SFU, Tencent Video Dataset, HiEve…), evaluation protocols (OpenImageV6, COCO…) and anchor pipelines based on the compression using the state-of-the-art H.266/VCC codec.</p>
 <p>This documentation site for FCM is in reconstruction, please also refer to the Readme files within code.</p>
 <p>To get started, please go to through the installation steps.</p>
-<div class="toctree-wrapper compound">
-</div>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">

@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1 &#8212; CompressAI Vision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/fo_vcm/conversion/sfu_hw_objects_v1';</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/logo.svg" class="logo__image only-light" alt="CompressAI Vision - Home"/>
+    <script>document.write(`<img src="../../../../../_static/logo.svg" class="logo__image only-dark" alt="CompressAI Vision - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docker.html">Docker</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/InterDigitalInc/CompressAI-Vision" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+
+<span class="c1"># pick your choice..</span>
+<span class="c1"># container_format = &quot;y4m&quot;  # yuv @ y4m</span>
+<span class="n">container_format</span> <span class="o">=</span> <span class="s2">&quot;mp4&quot;</span>  <span class="c1"># lossless H264 @ mp4 # USE THIS!</span>
+<span class="c1"># container_format = &quot;webm&quot; # lossless VP9 @ webm (i.e. matroska/mkv)</span>
+
+
+<span class="n">classmap</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># COCO-compatible</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;person&quot;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;bicycle&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;car&quot;</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;bus&quot;</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;truck&quot;</span><span class="p">,</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;boat&quot;</span><span class="p">,</span>
+    <span class="mi">13</span><span class="p">:</span> <span class="s2">&quot;bench&quot;</span><span class="p">,</span>
+    <span class="mi">17</span><span class="p">:</span> <span class="s2">&quot;horse&quot;</span><span class="p">,</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="s2">&quot;backpack&quot;</span><span class="p">,</span>
+    <span class="mi">25</span><span class="p">:</span> <span class="s2">&quot;umbrella&quot;</span><span class="p">,</span>
+    <span class="mi">26</span><span class="p">:</span> <span class="s2">&quot;handbag&quot;</span><span class="p">,</span>
+    <span class="mi">27</span><span class="p">:</span> <span class="s2">&quot;tie&quot;</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">:</span> <span class="s2">&quot;sports ball&quot;</span><span class="p">,</span>
+    <span class="mi">41</span><span class="p">:</span> <span class="s2">&quot;cup&quot;</span><span class="p">,</span>
+    <span class="mi">56</span><span class="p">:</span> <span class="s2">&quot;chair&quot;</span><span class="p">,</span>
+    <span class="mi">58</span><span class="p">:</span> <span class="s2">&quot;potted plant&quot;</span><span class="p">,</span>
+    <span class="mi">60</span><span class="p">:</span> <span class="s2">&quot;dining table&quot;</span><span class="p">,</span>
+    <span class="mi">63</span><span class="p">:</span> <span class="s2">&quot;laptop&quot;</span><span class="p">,</span>
+    <span class="mi">67</span><span class="p">:</span> <span class="s2">&quot;cell phone&quot;</span><span class="p">,</span>
+    <span class="mi">74</span><span class="p">:</span> <span class="s2">&quot;clock&quot;</span><span class="p">,</span>
+    <span class="mi">77</span><span class="p">:</span> <span class="s2">&quot;teddy bear&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="video_convert"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.video_convert">[docs]</a><span class="k">def</span> <span class="nf">video_convert</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts video from YUV to lossless RAW@MP4</span>
+
+<span class="sd">    Assumes this directory structure:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        basedir/</span>
+<span class="sd">        ├── ClassA</span>
+<span class="sd">        │   ├── Annotations</span>
+<span class="sd">        │   │   ├── PeopleOnStreet [151 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   │   └── Traffic [151 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   ├── PeopleOnStreet_2560x1600_30_crop.yuv</span>
+<span class="sd">        │   └── Traffic_2560x1600_30_crop.yuv</span>
+<span class="sd">        ├── ClassB</span>
+<span class="sd">        │   ├── Annotations</span>
+<span class="sd">        │   │   ├── BasketballDrive [501 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   │   ├── BQTerrace [601 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   │   ├── Cactus [501 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   │   ├── Kimono [241 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   │   └── ParkScene [241 entries exceeds filelimit, not opening dir]</span>
+<span class="sd">        │   ├── BasketballDrive_1920x1080_50Hz_8bit_P420.yuv</span>
+<span class="sd">            etc. etc.</span>
+<span class="sd">        ```</span>
+
+<span class="sd">    Takes ``ClassA/Annotations/PeopleOnStreet_2560x1600_30_crop.yuv`` and</span>
+<span class="sd">    converts it into ``ClassA/Annotations/PeopleOnStreet/video.webm`` at the lossless</span>
+<span class="sd">    VP9 format.</span>
+
+<span class="sd">    Same thing for all .yuv files found in the directory tree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(.*)\_(\d*)x(\d*)\_(\d*).*\.yuv&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;finding .yuv files from&quot;</span><span class="p">,</span> <span class="n">basedir</span><span class="p">)</span>
+    <span class="n">foundsome</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;*.yuv&quot;</span><span class="p">)):</span>
+        <span class="n">foundsome</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># print(path) # /home/sampsa/silo/interdigital/mock2/ClassA/BQTerrace_1920x1080_60Hz_8bit_P420.yuv</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># BQTerrace_1920x1080_60Hz_8bit_P420.yuv</span>
+        <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># BQTerrace</span>
+        <span class="c1"># print(fname)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">lis</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;could not get x,y,fps from &quot;</span> <span class="o">+</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">nametag</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fps</span> <span class="o">=</span> <span class="n">lis</span>  <span class="c1"># BQTerrace 1920 1080 60</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fps</span><span class="p">)</span>
+        <span class="n">inpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="s2">&quot;Annotations&quot;</span><span class="p">,</span> <span class="n">nametag</span>
+        <span class="p">)</span>  <span class="c1"># /home/sampsa/silo/interdigital/mock2/ClassA/Annotations/BQTerrace</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">inpath</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;Check your directory structure! Missing path &quot;</span> <span class="o">+</span> <span class="n">inpath</span>
+        <span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;media formats that visualize nicely in the browser:</span>
+
+<span class="sd">        container formats:</span>
+<span class="sd">        https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers#index_of_media_container_formats_file_types</span>
+
+<span class="sd">        mp4 in particular:</span>
+<span class="sd">        https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers#mpeg-4_mp4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(nametag, x, y, fps, inpath)</span>
+        <span class="c1"># -r {fps} ## DON&#39;T USE!</span>
+        <span class="k">if</span> <span class="n">container_format</span> <span class="o">==</span> <span class="s2">&quot;webm&quot;</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="s2">&quot;video.webm&quot;</span><span class="p">)</span>
+            <span class="c1"># webm (aka matrosk/mkv) accepts vp9, but not raw video</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="s2">&quot;ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size </span><span class="si">{x}</span><span class="s2">x</span><span class="si">{y}</span><span class="s2"> -i </span><span class="si">{input}</span><span class="s2"> -c:v libvpx-vp9 -lossless 1 </span><span class="si">{output}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">container_format</span> <span class="o">==</span> <span class="s2">&quot;mp4&quot;</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>
+            <span class="c1"># lossless H264 @ mp4 .. did this work in the browser or not..?</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="s2">&quot;ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size </span><span class="si">{x}</span><span class="s2">x</span><span class="si">{y}</span><span class="s2"> -i </span><span class="si">{input}</span><span class="s2"> -an -c:v h264 -q 0 </span><span class="si">{output}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span>
+            <span class="p">)</span>
+            <span class="c1"># NOTE: raw yuv @ mp4 is not allowed</span>
+        <span class="k">elif</span> <span class="n">container_format</span> <span class="o">==</span> <span class="s2">&quot;y4m&quot;</span><span class="p">:</span>
+            <span class="c1"># WARNING: does not work</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="s2">&quot;video.y4m&quot;</span><span class="p">)</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="s2">&quot;ffmpeg -y -f rawvideo -pixel_format yuv420p -video_size </span><span class="si">{x}</span><span class="s2">x</span><span class="si">{y}</span><span class="s2"> -i </span><span class="si">{input}</span><span class="s2"> -an -c:v copy -q 0 </span><span class="si">{output}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span>
+            <span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if os.path.exists(output):</span>
+<span class="sd">            print(</span>
+<span class="sd">                &quot;\nWARNING: converted video file&quot;,</span>
+<span class="sd">                output,</span>
+<span class="sd">                &quot;exists already.  Will skip conversion.  Remove manually if needed\n&quot;,</span>
+<span class="sd">            )</span>
+<span class="sd">        else:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">foundsome</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;could not find any .yuv files: check your directory &amp; file structure&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;video conversion done&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sfu_txt_files_to_list"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.sfu_txt_files_to_list">[docs]</a><span class="k">def</span> <span class="nf">sfu_txt_files_to_list</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Looks from basedir for files</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        something_NNN.txt</span>
+
+<span class="sd">    where N is an integer.</span>
+
+<span class="sd">    The frame numbering starts from &quot;000&quot;.</span>
+
+<span class="sd">    Returns a sorted list of tuples (index, filename), where indexes are taken (correctly) from the filenames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">basedir</span><span class="p">)</span>
+    <span class="n">lis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*\_(\d\d\d)\.txt&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">)):</span>
+        <span class="c1"># print(fname)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">itxt</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;inconsistent filename&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">itxt</span><span class="p">)</span>  <span class="c1"># NOTE: index is taken from the filename</span>
+        <span class="n">lis</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ind</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+    <span class="n">lis</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">lis</span></div>
+
+
+<div class="viewcode-block" id="read_detections"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.read_detections">[docs]</a><span class="k">def</span> <span class="nf">read_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">lis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;reads detections into a video sample</span>
+
+<span class="sd">    :param sample: fiftyone.Sample</span>
+<span class="sd">    :param lis: a list of tuples with (frame_number, path)</span>
+
+<span class="sd">    the file indicated by path has the following annotations format:</span>
+
+<span class="sd">    class_num, x0, y0, w, h [all in relative coords]</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        0 0.343100 0.912700 0.181200 0.167800</span>
+<span class="sd">        0 0.696700 0.166200 0.120700 0.314900</span>
+<span class="sd">        ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">lis</span><span class="p">:</span>
+        <span class="c1"># print(&quot;reading&quot;, fname)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>  <span class="c1"># per frame</span>
+            <span class="n">dets</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>  <span class="c1"># per detection</span>
+                <span class="c1"># print(line)</span>
+                <span class="n">n_class</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">line</span>
+                <span class="n">n_class</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_class</span><span class="p">)</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y0</span><span class="p">)</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+                <span class="c1"># not top-left but bbox center coords</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">classmap</span><span class="p">[</span><span class="n">n_class</span><span class="p">]</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span>
+                <span class="n">dets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">fo</span><span class="o">.</span><span class="n">Detection</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">Detections</span><span class="p">(</span><span class="n">detections</span><span class="o">=</span><span class="n">dets</span><span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">detections</span><span class="o">=</span><span class="n">detections</span><span class="p">)</span>
+            <span class="n">sample</span><span class="o">.</span><span class="n">frames</span><span class="o">.</span><span class="n">add_frame</span><span class="p">(</span>
+                <span class="n">frame</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">frame_number</span><span class="o">=</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>  <span class="c1"># NOTE: frame numbering starts from 1</span></div>
+            <span class="c1"># sample.frames.add_frame(frame=f, frame_number=ind+10) # TEST/DEBUG: inducing index mismatch</span>
+
+
+<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sfu-hw-objects-v1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register SFU-HW-Objects-v1 video directory into fiftyone</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        ├── ClassA</span>
+<span class="sd">        │   ├── Annotations</span>
+<span class="sd">        │       ├── PeopleOnStreet / .txt files, video.webm</span>
+<span class="sd">        │       └── Traffic / .txt files, video.webm</span>
+<span class="sd">        ├── ClassB</span>
+<span class="sd">        │   ├── Annotations</span>
+<span class="sd">        │       ├── BasketballDrive</span>
+<span class="sd">        │       ├── BQTerrace</span>
+<span class="sd">        │       ├── Cactus</span>
+<span class="sd">        │       ├── Kimono</span>
+<span class="sd">        │       └── ParkScene</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">classdirs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;Class*&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;searching for&quot;</span><span class="p">,</span> <span class="n">classdirs</span><span class="p">)</span>
+    <span class="n">dirlist</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">classdirs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dirlist</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no directories found, will exit.  Check your path&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">fo</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;exists.  Will remove it first&quot;</span><span class="p">)</span>
+        <span class="n">fo</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">classdir</span> <span class="ow">in</span> <span class="n">dirlist</span><span class="p">:</span>
+        <span class="c1"># /path/to/ClassA</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">In class directory&quot;</span><span class="p">,</span> <span class="n">classdir</span><span class="p">)</span>
+        <span class="n">class_tag</span> <span class="o">=</span> <span class="n">classdir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># ClassA</span>
+        <span class="n">annotation_dirs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">classdir</span><span class="p">,</span> <span class="s2">&quot;Annotations&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;searching for&quot;</span><span class="p">,</span> <span class="n">annotation_dirs</span><span class="p">)</span>
+        <span class="n">annotation_dirlist</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">annotation_dirs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation_dirlist</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no directories found, will exit. Check your directory structure&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">annotations_dir</span> <span class="ow">in</span> <span class="n">annotation_dirlist</span><span class="p">:</span>
+            <span class="c1"># /path/to/ClassA/Annotations/PeopleOnStreet</span>
+            <span class="n">name_tag</span> <span class="o">=</span> <span class="n">annotations_dir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># PeopleOnStreet</span>
+            <span class="c1"># filepath=os.path.join(annotations_dir, &quot;video.webm&quot;)</span>
+            <span class="c1"># filepath=os.path.join(annotations_dir, &quot;video.mp4&quot;)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">annotations_dir</span><span class="p">,</span> <span class="s2">&quot;video.&quot;</span> <span class="o">+</span> <span class="n">container_format</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="s2">&quot;file &quot;</span> <span class="o">+</span> <span class="n">filepath</span> <span class="o">+</span> <span class="s2">&quot; missing&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&gt; registering video&quot;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+            <span class="n">custom_id</span> <span class="o">=</span> <span class="n">class_tag</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">name_tag</span>
+            <span class="c1"># metadata=fo.VideoMetadata(frame_width=imWidth, frame_height=imHeight)</span>
+            <span class="n">video_sample</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span>
+                <span class="n">media_type</span><span class="o">=</span><span class="s2">&quot;video&quot;</span><span class="p">,</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
+                <span class="c1"># metadata=metadata,</span>
+                <span class="n">class_tag</span><span class="o">=</span><span class="n">class_tag</span><span class="p">,</span>
+                <span class="n">name_tag</span><span class="o">=</span><span class="n">name_tag</span><span class="p">,</span>
+                <span class="n">custom_id</span><span class="o">=</span><span class="n">custom_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># print(annotations_dir, class_tag, name_tag)</span>
+            <span class="n">n_filelist</span> <span class="o">=</span> <span class="n">sfu_txt_files_to_list</span><span class="p">(</span><span class="n">annotations_dir</span><span class="p">)</span>
+            <span class="c1"># for n, filename in n_filelist:</span>
+            <span class="c1">#    print(n, filename)</span>
+            <span class="n">read_detections</span><span class="p">(</span><span class="n">video_sample</span><span class="p">,</span> <span class="n">n_filelist</span><span class="p">)</span>
+            <span class="c1"># video_sample now has the detections</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">video_sample</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;--&gt; registered new video sample:&quot;</span><span class="p">,</span>
+                <span class="n">class_tag</span><span class="p">,</span>
+                <span class="n">name_tag</span><span class="p">,</span>
+                <span class="s2">&quot;with&quot;</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">n_filelist</span><span class="p">),</span>
+                <span class="s2">&quot;frames&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">dataset</span><span class="o">.</span><span class="n">persistent</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dataset saved&quot;</span><span class="p">)</span></div>
+    <span class="c1"># print(dataset)</span>
+
+
+<span class="sd">&quot;&quot;&quot;Example usage:</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    import fiftyone as fo</span>
+<span class="sd">    from fiftyone import ViewField as F</span>
+<span class="sd">    import cv2</span>
+
+<span class="sd">    from compressai_vision.conversion.sfu_hw_objects_v1 import video_convert</span>
+<span class="sd">    from compressai_vision.conversion.sfu_hw_objects_v1 import register</span>
+
+<span class="sd">    video_convert(&quot;/path/to/sfu_hw_objects_v1&quot;) # might take a while!</span>
+<span class="sd">    # creates converted files into the directory structure:</span>
+<span class="sd">    # ClassA/Annotations/PeopleOnStreets/video.webm</span>
+<span class="sd">    # etc.</span>
+<span class="sd">    # once that do you can do:</span>
+<span class="sd">    register(&quot;/path/to/sfu_hw_objects_v1&quot;)</span>
+<span class="sd">    # ..now it&#39;s all in fiftyone!</span>
+
+<span class="sd">    dataset=fo.load_dataset(&quot;sfu_hw_objects_v1&quot;)</span>
+<span class="sd">    # each sample in the dataset corresponds to video:</span>
+<span class="sd">    # i.e. SAMPLE = VIDEO</span>
+<span class="sd">    sample=dataset.first()</span>
+<span class="sd">    print(sample)</span>
+<span class="sd">    # each sample has Frame objects -&gt; detections for each frame</span>
+<span class="sd">    # i.e. FRAME = BBOXES, etc.</span>
+<span class="sd">    print(sample.frames[1])</span>
+<span class="sd">    # accessing different samples, aka videos</span>
+<span class="sd">    print(dataset.distinct(&quot;filepath&quot;))</span>
+<span class="sd">    tmpset=ds[(F(&quot;class_tag&quot;) == &quot;ClassA&quot;) &amp; F(&quot;name_tag&quot;) == &quot;Traffic&quot;]</span>
+<span class="sd">    print(tmpset)</span>
+
+<span class="sd">    # accessing frame images</span>
+<span class="sd">    vid=cv2.VideoCapture(sample.filepath)</span>
+<span class="sd">    # go to frame number 11</span>
+<span class="sd">    ok = vid.set(cv2.CAP_PROP_POS_FRAMES, 11-1)</span>
+<span class="sd">    ok, arr = vid.read() # BGR image in arr</span>
+<span class="sd">    # accessing corresponding detection data:</span>
+<span class="sd">    sample.frames[11].detections</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By InterDigital Communications, Inc.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, InterDigital Communications, Inc..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

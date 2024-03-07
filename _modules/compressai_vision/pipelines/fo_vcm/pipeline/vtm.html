@@ -1,0 +1,935 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compressai_vision.pipelines.fo_vcm.pipeline.vtm &#8212; CompressAI Vision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compressai_vision/pipelines/fo_vcm/pipeline/vtm';</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/logo.svg" class="logo__image only-light" alt="CompressAI Vision - Home"/>
+    <script>document.write(`<img src="../../../../../_static/logo.svg" class="logo__image only-dark" alt="CompressAI Vision - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../index.html">Home</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../walkthrough.html">Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_usage.html">Command line usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docker.html">Docker</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Library API</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/codecs.html">compressai_vision.codecs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/datasets.html">compressai_vision.datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/evaluators.html">compressai_vision.evaluators</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../compressai_vision/registry.html">compressai_vision.registry</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/InterDigitalInc/CompressAI-Vision">Github repository</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/InterDigitalInc/CompressAI-Vision" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for compressai_vision.pipelines.fo_vcm.pipeline.vtm</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2022-2024 InterDigital Communications, Inc</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted (subject to the limitations in the disclaimer</span>
+<span class="c1"># below) provided that the following conditions are met:</span>
+
+<span class="c1"># * Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer.</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1">#   and/or other materials provided with the distribution.</span>
+<span class="c1"># * Neither the name of InterDigital Communications, Inc nor the names of its</span>
+<span class="c1">#   contributors may be used to endorse or promote products derived from this</span>
+<span class="c1">#   software without specific prior written permission.</span>
+
+<span class="c1"># NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY&#39;S PATENT RIGHTS ARE GRANTED BY</span>
+<span class="c1"># THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND</span>
+<span class="c1"># CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A</span>
+<span class="c1"># PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</span>
+<span class="c1"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</span>
+<span class="c1"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</span>
+<span class="c1"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;</span>
+<span class="c1"># OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,</span>
+<span class="c1"># WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR</span>
+<span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
+<span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span> <span class="k">as</span> <span class="n">uuid</span>
+
+<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.constant</span> <span class="kn">import</span> <span class="n">inv_vf_per_scale</span><span class="p">,</span> <span class="n">vf_per_scale</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.ffmpeg</span> <span class="kn">import</span> <span class="n">FFMpeg</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.tools</span> <span class="kn">import</span> <span class="n">dumpImageArray</span><span class="p">,</span> <span class="n">test_command</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">EncoderDecoder</span>
+
+
+<div class="viewcode-block" id="removeFileIf"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.removeFileIf">[docs]</a><span class="k">def</span> <span class="nf">removeFileIf</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="VTMEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.VTMEncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">VTMEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;EncoderDecoder class for VTM encoder</span>
+
+<span class="sd">    :param encoderApp: VTM encoder command</span>
+<span class="sd">    :param decoderApp: VTM decoder command</span>
+<span class="sd">    :param vtm_cfg: path of encoder cfg file</span>
+<span class="sd">    :param ffmpeg: ffmpeg command used for padding/scaling</span>
+<span class="sd">    :param qp: the default quantization parameter of the instance. Integer from 0 to 63.  Default=30.</span>
+<span class="sd">    :param scale: enable the VCM working group defined padding/scaling pre &amp; post-processings steps.</span>
+<span class="sd">                  Possible values: 100 (default), 75, 50, 25.  Special value: None = ffmpeg scaling.  100 equals to a simple padding operation</span>
+<span class="sd">    :param save: save intermediate steps into member ``saved`` (for debugging). Default: False.</span>
+<span class="sd">    :param cache: (optional) define a directory where all encoded bitstreams are cached.</span>
+<span class="sd">                  NOTE: If scale is defined, &quot;scale/qp/&quot; is appended to the cache path.  If no scale is defined, the appended path is &quot;0/qp/&quot;</span>
+<span class="sd">    :param dump: debugging option: dump input, intermediate and output images to disk in local directory</span>
+<span class="sd">    :param skip: if bitstream is found in cache, then do absolutely nothing.  Good for restarting the bitstream generation. default: False.</span>
+<span class="sd">                 When enabled, method BGR returns (0, None).  NOTE: do not use if you want to verify the bitstream files.</span>
+<span class="sd">    :param warn: warn always when a bitstream is generated.  default: False.</span>
+
+<span class="sd">    This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream</span>
+<span class="sd">    is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        import cv2, os, logging</span>
+<span class="sd">        from compressai_vision.evaluation.pipeline import VTMEncoderDecoder</span>
+<span class="sd">        from compressai_vision.pipelines.fo_vcm.tools import getDataFile</span>
+
+<span class="sd">        path=&quot;/path/to/VVCSoftware_VTM/bin&quot;</span>
+<span class="sd">        encoderApp=os.path.join(path, &quot;EncoderAppStatic&quot;)</span>
+<span class="sd">        decoderApp=os.path.join(path, &quot;DecoderAppStatic&quot;)</span>
+
+<span class="sd">        # enable debugging log to see explicitly all the steps</span>
+<span class="sd">        loglev=logging.DEBUG</span>
+<span class="sd">        quickLog(&quot;VTMEncoderDecoder&quot;, loglev)</span>
+
+<span class="sd">        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg=&quot;ffmpeg&quot;, vtm_cfg=getDataFile(&quot;encoder_intra_vtm_1.cfg&quot;), qp=47)</span>
+<span class="sd">        nbits, img_hat = encdec.BGR(cv2.imread(&quot;fname.png&quot;))</span>
+
+<span class="sd">    You can enable caching and avoid re-encoding of images:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        encdec=VTMEncoderDecoder(encoderApp=encoderApp, decoderApp=decoderApp, ffmpeg=&quot;ffmpeg&quot;, vtm_cfg=getDataFile(&quot;encoder_intra_vtm_1.cfg&quot;), qp=47, cache=&quot;/tmp/kokkelis&quot;)</span>
+<span class="sd">        nbits, img_hat = encdec.BGR(cv2.imread(&quot;fname.png&quot;), tag=&quot;a_unique_tag&quot;)</span>
+
+<span class="sd">    Cache can be inspected with:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        encdec.dump()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">encoderApp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">decoderApp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ffmpeg</span><span class="o">=</span><span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+        <span class="n">vtm_cfg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">qp</span><span class="o">=</span><span class="mi">47</span><span class="p">,</span>
+        <span class="n">scale</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">base_path</span><span class="o">=</span><span class="s2">&quot;/dev/shm&quot;</span><span class="p">,</span>
+        <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dump</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">encoderApp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;please give encoder command&quot;</span>
+        <span class="k">assert</span> <span class="n">decoderApp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;please give decoder command&quot;</span>
+        <span class="k">assert</span> <span class="n">vtm_cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;please give VTM config file&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="ow">in</span> <span class="n">vf_per_scale</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="s2">&quot;wrong scaling factor&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vtm_cfg</span> <span class="o">=</span> <span class="n">vtm_cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qp</span> <span class="o">=</span> <span class="n">qp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span> <span class="o">=</span> <span class="n">save</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span> <span class="o">=</span> <span class="n">base_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">caching</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump</span> <span class="o">=</span> <span class="n">dump</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="o">=</span> <span class="n">skip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span> <span class="o">=</span> <span class="s2">&quot;vtm_encoder_decoder&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Will save intermediate images to local folder </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span>
+            <span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;creating </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+            <span class="c1"># let&#39;s make the life easier for the user</span>
+            <span class="c1"># for caching, they won&#39;t remember to include the quality parameter</span>
+            <span class="c1"># value into the path anyway (so that files corresponding to different qps don&#39;t get mixed up)</span>
+            <span class="c1"># so we&#39;ll do it here:</span>
+            <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">caching</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">caching</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># uid=str(id(self))</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>  <span class="c1"># safer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;vtm_&quot;</span> <span class="o">+</span> <span class="n">uid</span><span class="p">)</span>
+
+        <span class="c1"># test commands</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoderApp</span> <span class="o">=</span> <span class="n">test_command</span><span class="p">(</span><span class="n">encoderApp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoderApp</span> <span class="o">=</span> <span class="n">test_command</span><span class="p">(</span><span class="n">decoderApp</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_comm</span> <span class="o">=</span> <span class="n">test_command</span><span class="p">(</span><span class="n">ffmpeg</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;cant find ffmpeg&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">vtm_cfg</span><span class="p">),</span> <span class="s2">&quot;can&#39;t find &quot;</span> <span class="o">+</span> <span class="n">vtm_cfg</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">base_path</span><span class="p">),</span> <span class="s2">&quot;can&#39;t find &quot;</span> <span class="o">+</span> <span class="n">base_path</span>
+
+        <span class="c1"># self.encoderApp = encoderApp</span>
+        <span class="c1"># self.decoderApp = decoderApp</span>
+        <span class="c1"># self.ffmpeg = ffmpeg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span> <span class="o">=</span> <span class="n">FFMpeg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_comm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;folder </span><span class="si">%s</span><span class="s2"> exists already&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;encoderApp:   &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderApp</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;decoderApp:   &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoderApp</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;ffmpeg    :   &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;qp        :   &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;path      :   &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">+=</span> <span class="s2">&quot;CACHING ENABLED</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">st</span>
+
+<div class="viewcode-block" id="VTMEncoderDecoder.dump"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.VTMEncoderDecoder.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dumps files cached on disk by the VTMEncoderDecoder&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;contents of&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    &quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VTMEncoderDecoder.getCacheDir"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.VTMEncoderDecoder.getCacheDir">[docs]</a>    <span class="k">def</span> <span class="nf">getCacheDir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns directory where temporary and cached files are saved&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span></div>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;caching&quot;</span><span class="p">):</span>
+            <span class="k">return</span>  <span class="c1"># means ctor crashed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># print(&quot;VTM: __del__&quot;, len(glob.glob(os.path.join(self.folder,&quot;*&quot;))))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="c1"># add some security here if user fat-fingers self.base_bath --&gt; self.folder</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot;there are multiple files in </span><span class="si">%s</span><span class="s2"> : please remove manually&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># print(&quot;removing&quot;, self.folder)</span>
+        <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># if False:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;removing </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VTMEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.VTMEncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset encoder/decoder internal state.  At the moment, there ain&#39;t any.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imcount</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="nf">__VTMEncode__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp_yuv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_yuv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bin_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">inp_yuv_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">out_yuv_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">bin_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{encoderApp}</span><span class="s2"> -c </span><span class="si">{vtm_cfg}</span><span class="s2"> -i </span><span class="si">{inp_yuv_path}</span><span class="s2"> -b </span><span class="si">{bin_path}</span><span class="s2"> -o </span><span class="si">{out_yuv_path}</span><span class="s2"> -fr 1 -f 1 -wdt </span><span class="si">{wdt}</span><span class="s2"> -hgt </span><span class="si">{hgt}</span><span class="s2"> -q </span><span class="si">{qp}</span><span class="s2"> --ConformanceWindowMode=1 --InternalBitDepth=10&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">encoderApp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoderApp</span><span class="p">,</span>
+            <span class="n">vtm_cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vtm_cfg</span><span class="p">,</span>
+            <span class="n">inp_yuv_path</span><span class="o">=</span><span class="n">inp_yuv_path</span><span class="p">,</span>  <span class="c1"># IN</span>
+            <span class="n">out_yuv_path</span><span class="o">=</span><span class="n">out_yuv_path</span><span class="p">,</span>  <span class="c1"># OUT # NOT USED</span>
+            <span class="n">bin_path</span><span class="o">=</span><span class="n">bin_path</span><span class="p">,</span>  <span class="c1"># OUT</span>
+            <span class="n">wdt</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">hgt</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">qp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qp</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+        <span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            raise (</span>
+<span class="sd">                AssertionError(</span>
+<span class="sd">                    &quot;VTM encode failed with:\n&quot;</span>
+<span class="sd">                    + stderr.decode(&quot;utf-8&quot;)</span>
+<span class="sd">                    + &quot;\nYOU PROBABLY SHOULD ENABLE FFMPEG SCALING\n&quot;</span>
+<span class="sd">                )</span>
+<span class="sd">            )</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s2">&quot;VTM encode failed with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YOU PROBABLY SHOULD ENABLE FFMPEG SCALING</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__VTMDecode__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bin_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rec_yuv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">bin_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">rec_yuv_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{decoderApp}</span><span class="s2"> -b </span><span class="si">{bin_path}</span><span class="s2"> -o </span><span class="si">{rec_yuv_path}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">decoderApp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decoderApp</span><span class="p">,</span>
+            <span class="n">bin_path</span><span class="o">=</span><span class="n">bin_path</span><span class="p">,</span>  <span class="c1"># IN</span>
+            <span class="n">rec_yuv_path</span><span class="o">=</span><span class="n">rec_yuv_path</span><span class="p">,</span>  <span class="c1"># OUT</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+        <span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># raise (AssertionError(&quot;VTM decode failed with &quot; + stderr.decode(&quot;utf-8&quot;)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s2">&quot;VTM encode failed with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="VTMEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.vtm.VTMEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>
+<span class="sd">        :param tag: a string that can be used to identify &amp; cache images (optional).  Necessary if you&#39;re using caching</span>
+
+<span class="sd">        Returns BGR image that has gone through VTM encoding and decoding process and all other operations as defined by MPEG/VCM.</span>
+
+<span class="sd">        Returns a tuple of (nbits, transformed_bgr_image)</span>
+
+<span class="sd">        This method is somewhat complex: in addition to perform the necessary image transformation, it also handles caching of bitstreams,</span>
+<span class="sd">        inspection if bitstreams exist, etc.  Error conditions from ffmpeg and/or from VTMEncoder/Decoder must be taken correctly into account.</span>
+
+<span class="sd">        VCM working group ops:</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            padded_hgt = math.ceil(height/2)*2</span>
+<span class="sd">            padded_wdt = math.ceil(width/2)*2</span>
+<span class="sd">            1. ffmpeg vf -i {input_tmp_path} -o {input_padded_tmp_path}</span>
+
+<span class="sd">            vf depends on the scale:</span>
+
+<span class="sd">            for 100%: -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2”           # NOTE: simply padding</span>
+<span class="sd">            for 75%:  -vf &quot;scale=ceil(iw*3/8)*2:ceil(ih*3/8)*2&quot;</span>
+<span class="sd">            for 50%:  -vf &quot;scale=ceil(iw/4)*2:ceil(ih/4)*2&quot;</span>
+<span class="sd">            for 25%:  -vf &quot;scale=ceil(iw/8)*2:ceil(ih/8)*2&quot;</span>
+
+<span class="sd">            2. ffmpeg -i {input_padded_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}</span>
+<span class="sd">            3. {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path} -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt}</span>
+<span class="sd">                -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10</span>
+<span class="sd">            4. {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}</span>
+<span class="sd">            5. ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1 -pix_fmt rgb24 {rec_png_path}</span>
+<span class="sd">            6. ffmpeg -y -i {rec_png_path} -vf &quot;crop={width}:{height}&quot; {rec_image_path} # NOTE: This can be done only if scale=100%, i.e. to remove padding</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># we could use this to create unique filename if we want cache &amp; later identify the images:</span>
+        <span class="c1"># &quot;X&quot;.join([str(n) for n in md5(bgr_image).digest()])</span>
+        <span class="c1"># but it&#39;s better to use explicit tags as provided by the user</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;caching requested, but got no tag&quot;</span>
+            <span class="n">fname_bin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;bin_&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>  <span class="c1"># bin produced by VTM</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if no caching, we have a unique directory where all this stuff goes, so no need to separate the files</span>
+            <span class="c1"># with uuids</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">fname_bin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span>  <span class="c1"># bin produced by VTM</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span><span class="p">,</span> <span class="s2">&quot;skip requires caching enabled&quot;</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A separate checkmode is not a good idea.. either check if the file exists (quickcheck) or otherwise</span>
+<span class="sd">        do the whole pipeline (using the existing bitstream)</span>
+
+<span class="sd">        if self.caching and self.checkmode:</span>
+<span class="sd">            self.logger.debug(&quot;checkmode: looking for file %s&quot;, fname_bin)</span>
+<span class="sd">            # just check if required bitstream exists.  return 0 if ok, -1 if not there</span>
+<span class="sd">            if os.path.isfile(fname_bin):</span>
+<span class="sd">                self.logger.debug(&quot;checkmode: test reading file %s&quot;, fname_bin)</span>
+<span class="sd">                with open(fname_bin, &quot;rb&quot;) as f:</span>
+<span class="sd">                    bitstream = f.read()</span>
+<span class="sd">                if len(bitstream) &lt; 1:</span>
+<span class="sd">                    self.logger.warning(&quot;checkmode: found empty file for %s: will remove&quot;, fname_bin)</span>
+<span class="sd">                    removeFileIf(fname_bin)</span>
+<span class="sd">                # cached bitstream exists allright</span>
+<span class="sd">                return 0, None</span>
+<span class="sd">            else:</span>
+<span class="sd">                self.logger.debug(&quot;Checkmode: %s does not exist&quot;, fname_bin)</span>
+<span class="sd">                return -1, None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Found file </span><span class="si">%s</span><span class="s2"> from cache &amp; skip enabled: returning 0, None&quot;</span><span class="p">,</span>
+                    <span class="n">fname_bin</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Couldn&#39;t find file </span><span class="si">%s</span><span class="s2"> from cache (or its zero-length) &amp; skip enabled: returning -1, None&quot;</span><span class="p">,</span>
+                    <span class="n">fname_bin</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># uid=str(uuid())</span>
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">tag</span>  <span class="c1"># the tag is supposedly unique, so use that to mark all files</span>
+        <span class="n">fname_yuv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;tmp_</span><span class="si">%s</span><span class="s2">.yuv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># yuv produced by ffmpeg</span>
+        <span class="n">fname_yuv_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;nada_</span><span class="si">%s</span><span class="s2">.yuv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># yuv produced VTM.. not used</span>
+
+        <span class="n">fname_rec</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;rec_</span><span class="si">%s</span><span class="s2">.yuv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># yuv produced by VTM</span>
+
+        <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">bgr_image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># BGR --&gt; RGB</span>
+        <span class="c1"># apply ffmpeg commands as defined in MPEG/VCM group docs</span>
+        <span class="c1"># each submethod should cite the correct command</span>
+
+        <span class="n">do_scaling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        rgb_image       original img</span>
+<span class="sd">        padded          scaled image (1)</span>
+<span class="sd">        padded_hat      encoded &amp; decoded with compressai</span>
+<span class="sd">        rgb_image_hat   scaling removed (1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">:</span>
+            <span class="n">dumpImageArray</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span><span class="p">,</span> <span class="s2">&quot;original_&quot;</span> <span class="o">+</span> <span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">do_scaling</span><span class="p">:</span>
+            <span class="c1"># 1. MPEG-VCM: ffmpeg -i {input_jpg_path} -vf “pad=ceil(iw/2)*2:ceil(ih/2)*2” {input_tmp_path}</span>
+            <span class="n">vf</span> <span class="o">=</span> <span class="n">vf_per_scale</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">]</span>
+            <span class="n">padded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span><span class="o">.</span><span class="n">ff_op</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="n">vf</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">padded</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                    <span class="s2">&quot;ffmpeg scale operation failed: will skip image </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tag</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">padded</span> <span class="o">=</span> <span class="n">rgb_image</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">:</span>
+            <span class="n">dumpImageArray</span><span class="p">(</span><span class="n">padded</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span><span class="p">,</span> <span class="s2">&quot;padded_&quot;</span> <span class="o">+</span> <span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating file </span><span class="si">%s</span><span class="s2"> with ffmpeg&quot;</span><span class="p">,</span> <span class="n">fname_yuv</span><span class="p">)</span>
+            <span class="c1"># 2. MPEG-VCM: ffmpeg -i {input_tmp_path} -f rawvideo -pix_fmt yuv420p -dst_range 1 {yuv_image_path}</span>
+            <span class="n">yuv_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span><span class="o">.</span><span class="n">ff_RGB24ToRAW</span><span class="p">(</span><span class="n">padded</span><span class="p">,</span> <span class="s2">&quot;yuv420p&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">yuv_bytes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                    <span class="s2">&quot;ffmpeg to yuv conversion failed: will skip image </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tag</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="c1"># this is not needed since each VTMEncoderDecoder has its own directory</span>
+            <span class="c1"># tmu=int(time.time()*1E6) # microsec timestamp</span>
+            <span class="c1"># fname=os.path.join(self.folder, str(tmu))</span>
+            <span class="c1"># ..you could also use the tag to cache the encoded images if you&#39;d like to do caching</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;writing </span><span class="si">%s</span><span class="s2"> output from ffmpeg to disk (for VTMEncode to read it)&quot;</span><span class="p">,</span>
+                <span class="n">fname_yuv</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname_yuv</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yuv_bytes</span><span class="p">)</span>
+
+            <span class="c1"># 3. MPEG-VCM: {VTM_encoder_path} -c {VTM_AI_cfg} -i {yuv_image_path} -b {bin_image_path}</span>
+            <span class="c1">#               -o {temp_yuv_path} -fr 1 -f 1 -wdt {padded_wdt} -hgt {padded_hgt} -q {qp} --ConformanceWindowMode=1 --InternalBitDepth=10</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;creating bitstream </span><span class="si">%s</span><span class="s2"> with VTMEncode from scratch&quot;</span><span class="p">,</span> <span class="n">fname_bin</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;creating bitstream </span><span class="si">%s</span><span class="s2"> with VTMEncode from scratch&quot;</span><span class="p">,</span> <span class="n">fname_bin</span>
+                <span class="p">)</span>
+
+            <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__VTMEncode__</span><span class="p">(</span>
+                <span class="n">inp_yuv_path</span><span class="o">=</span><span class="n">fname_yuv</span><span class="p">,</span>
+                <span class="n">out_yuv_path</span><span class="o">=</span><span class="n">fname_yuv_out</span><span class="p">,</span>
+                <span class="n">bin_path</span><span class="o">=</span><span class="n">fname_bin</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">padded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">padded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="c1"># cleanup</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;removing </span><span class="si">%s</span><span class="s2"> from ffmpeg&quot;</span><span class="p">,</span> <span class="n">fname_yuv</span><span class="p">)</span>
+                <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_yuv</span><span class="p">)</span>  <span class="c1"># cleanup</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;removing </span><span class="si">%s</span><span class="s2"> from VTMEncode&quot;</span><span class="p">,</span> <span class="n">fname_yuv_out</span><span class="p">)</span>
+                <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_yuv_out</span><span class="p">)</span>  <span class="c1"># cleanup</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ok</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s2">&quot;VTMEncode failed: will skip image </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using existing file </span><span class="si">%s</span><span class="s2"> from cache&quot;</span><span class="p">,</span> <span class="n">fname_bin</span><span class="p">)</span>
+
+        <span class="c1"># calculate nbits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2"> from VTMEncode&quot;</span><span class="p">,</span> <span class="n">fname_bin</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">n_bytes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">n_bytes</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                <span class="s2">&quot;Empty output from VTMEncode: will skip image </span><span class="si">%s</span><span class="s2"> &amp; remove the bitstream file&quot;</span><span class="p">,</span>
+                <span class="n">tag</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">nbits</span> <span class="o">=</span> <span class="n">n_bytes</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># / (rgb_image.shape[1] * rgb_image.shape[0])</span>
+
+        <span class="c1"># 4. MPEG-VCM: {VTM_decoder_path} -b {bin_image_path} -o {rec_yuv_path}</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__VTMDecode__</span><span class="p">(</span><span class="n">bin_path</span><span class="o">=</span><span class="n">fname_bin</span><span class="p">,</span> <span class="n">rec_yuv_path</span><span class="o">=</span><span class="n">fname_rec</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ok</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname_rec</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                <span class="s2">&quot;VTMDecode failed: will skip image </span><span class="si">%s</span><span class="s2"> &amp; remove the bitstream file&quot;</span><span class="p">,</span> <span class="n">tag</span>
+            <span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_rec</span><span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2"> from VTMDecode&quot;</span><span class="p">,</span> <span class="n">fname_rec</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname_rec</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yuv_bytes_hat</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yuv_bytes_hat</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                <span class="s2">&quot;Empty output from VTMDecode: will skip image </span><span class="si">%s</span><span class="s2"> &amp; remove the bitstream file&quot;</span><span class="p">,</span>
+                <span class="n">tag</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_rec</span><span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;removing </span><span class="si">%s</span><span class="s2"> from VTMDecode&quot;</span><span class="p">,</span> <span class="n">fname_rec</span><span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_rec</span><span class="p">)</span>  <span class="c1"># cleanup</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">caching</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;removing </span><span class="si">%s</span><span class="s2"> from VTMEncode&quot;</span><span class="p">,</span> <span class="n">fname_bin</span><span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+
+        <span class="c1"># 5. MPEG-VCM: ffmpeg -y -f rawvideo -pix_fmt yuv420p10le -s {padded_wdt}x{padded_hgt} -src_range 1 -i {rec_yuv_path} -frames 1  -pix_fmt rgb24 {rec_png_path}</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="s2">&quot;yuv420p10le&quot;</span>
+        <span class="n">padded_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span><span class="o">.</span><span class="n">ff_RAWToRGB24</span><span class="p">(</span>
+            <span class="n">yuv_bytes_hat</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">padded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">padded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">padded_hat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                <span class="s2">&quot;ffmpeg raw-&gt;rgb24 operation failed: will skip image </span><span class="si">%s</span><span class="s2"> &amp; remove bitstream file (if cached)&quot;</span><span class="p">,</span>
+                <span class="n">tag</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">:</span>
+            <span class="n">dumpImageArray</span><span class="p">(</span><span class="n">padded_hat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span><span class="p">,</span> <span class="s2">&quot;padded_hat_&quot;</span> <span class="o">+</span> <span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">do_scaling</span><span class="p">:</span>
+            <span class="c1"># was scaled, so need to backscale</span>
+            <span class="c1"># NOTE: this can only be done to the 100% &quot;scaling&quot; which is nothing else than just cropping</span>
+            <span class="c1"># so we &quot;backcrop&quot; &amp; remove the added borders</span>
+            <span class="c1"># 6. MPEG-VCM: ffmpeg -y -i {rec_png_path} -vf &quot;crop={width}:{height}&quot; {rec_image_path}</span>
+            <span class="n">vf</span> <span class="o">=</span> <span class="n">inv_vf_per_scale</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">]</span>
+            <span class="n">rgb_image_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span><span class="o">.</span><span class="n">ff_op</span><span class="p">(</span>
+                <span class="n">padded_hat</span><span class="p">,</span>
+                <span class="n">vf</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">rgb_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">rgb_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">rgb_image_hat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span>
+                    <span class="s2">&quot;ffmpeg crop operation failed: will skip image </span><span class="si">%s</span><span class="s2"> &amp; remove bitstream file (if cached)&quot;</span><span class="p">,</span>
+                    <span class="n">tag</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">removeFileIf</span><span class="p">(</span><span class="n">fname_bin</span><span class="p">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rgb_image_hat</span> <span class="o">=</span> <span class="n">padded_hat</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">:</span>
+            <span class="n">dumpImageArray</span><span class="p">(</span>
+                <span class="n">rgb_image_hat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_folder</span><span class="p">,</span> <span class="s2">&quot;rgb_image_hat_&quot;</span> <span class="o">+</span> <span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;rgb_image&quot;</span><span class="p">:</span> <span class="n">rgb_image</span><span class="p">,</span>
+                <span class="s2">&quot;padded&quot;</span><span class="p">:</span> <span class="n">padded</span><span class="p">,</span>
+                <span class="s2">&quot;padded_hat&quot;</span><span class="p">:</span> <span class="n">padded_hat</span><span class="p">,</span>
+                <span class="s2">&quot;rgb_image_hat&quot;</span><span class="p">:</span> <span class="n">rgb_image_hat</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">bgr_image_hat</span> <span class="o">=</span> <span class="n">rgb_image_hat</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># RGB --&gt; BGR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;input &amp; output sizes: </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">. nbits = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">bgr_image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">bgr_image_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">nbits</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imcount</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">nbits</span><span class="p">,</span> <span class="n">bgr_image_hat</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By InterDigital Communications, Inc.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, InterDigital Communications, Inc..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
