@@ -32,7 +32,7 @@
 import os
 import sys
 
-from compressai_vision.pipelines.remote_analysis.tools import getDataFile
+from compressai_vision.pipelines.fo_vcm.tools import getDataFile
 
 # define legit filenames.. there are inconsistencies here
 fname_list = [

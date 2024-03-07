@@ -34,12 +34,12 @@ from detectron2.data import MetadataCatalog
 from fiftyone import ProgressBar
 from fiftyone.core.dataset import Dataset
 
-from compressai_vision.pipelines.remote_analysis.conversion.detectron2 import (
+from compressai_vision.pipelines.fo_vcm.conversion.detectron2 import (
     detectron251,
     findLabels,
     findVideoLabels,
 )
-from compressai_vision.pipelines.remote_analysis.pipeline.base import EncoderDecoder
+from compressai_vision.pipelines.fo_vcm.pipeline.base import EncoderDecoder
 
 
 def annexPredictions(  # noqa: C901

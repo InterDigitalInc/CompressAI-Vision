@@ -57,17 +57,33 @@ bash scritps/install.sh --help
 
 ## Usage
 
-For split-inference pipelines, after installing, please use the following entry point:
+### Split inference pipelines
 
+To run split-inference pipelines, please use the following command:
+```
+compressai-split-inference --help
+```
+
+Note that the following entry point is kept for backward compability. It runs split inference as well. 
 ```
 compressai-vision-eval --help
 ```
 
-For example for full pipelines without any compression, run
+
+For example for testing a full split inference pipelines without any compression, run
 
 ```
-compressai-vision-eval --config-name=eval_example
+compressai-vision-eval --config-name=eval_split_inference_example
 ```
+
+### Remote inference pipelines
+
+For remote inference (MPEG VCM-like) pipelines, please run:
+```
+compressai-remote-inference --help
+```
+
+### Configurations
 
 Please check other configuration examples provided in ./cfgs as well as examplary scripts in ./scripts
 

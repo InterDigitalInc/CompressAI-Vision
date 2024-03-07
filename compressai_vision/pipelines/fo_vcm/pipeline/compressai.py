@@ -34,15 +34,9 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-from compressai_vision.pipelines.remote_analysis.constant import (
-    inv_vf_per_scale,
-    vf_per_scale,
-)
-from compressai_vision.pipelines.remote_analysis.ffmpeg import FFMpeg
-from compressai_vision.pipelines.remote_analysis.tools import (
-    dumpImageArray,
-    test_command,
-)
+from compressai_vision.pipelines.fo_vcm.constant import inv_vf_per_scale, vf_per_scale
+from compressai_vision.pipelines.fo_vcm.ffmpeg import FFMpeg
+from compressai_vision.pipelines.fo_vcm.tools import dumpImageArray, test_command
 
 from .base import EncoderDecoder
 

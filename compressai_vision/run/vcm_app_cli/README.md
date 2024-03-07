@@ -3,7 +3,7 @@ You can access these files in your code without knowing the exact dir location w
 
 this:
 ```
-from compressai_vision.pipelines.remote_analysis.tools import getDataFile
+from compressai_vision.pipelines.fo_vcm.tools import getDataFile
 
 filename=getDataFile("README.md")
 ```

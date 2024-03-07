@@ -166,9 +166,9 @@ def main(p):  # noqa: C901
     #     annexPredictions,
     # )
     from compressai_vision.evaluation.pipeline import VTMEncoderDecoder
-    from compressai_vision.pipelines.remote_analysis.constant import vf_per_scale
+    from compressai_vision.pipelines.fo_vcm.constant import vf_per_scale
 
-    # from compressai_vision.pipelines.remote_analysis.tools import getDataFile
+    # from compressai_vision.pipelines.fo_vcm.tools import getDataFile
 
     assert p.dataset_name is not None, "please provide dataset name"
     try:

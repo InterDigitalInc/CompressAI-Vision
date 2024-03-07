@@ -94,7 +94,7 @@ def main(p):
 
     # compressai_vision
     from compressai_vision.conversion import imageIdFileList
-    from compressai_vision.pipelines.remote_analysis.tools import pathExists
+    from compressai_vision.pipelines.fo_vcm.tools import pathExists
 
     if p.dataset_name is None:
         p.dataset_name = "open-images-v6"

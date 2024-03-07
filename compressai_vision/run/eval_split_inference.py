@@ -29,7 +29,18 @@
 
 r"""
 Runs and evaluates a split-inference pipeline
+
+To evaluate the compression and accuracy performance in the split-inference pipeline, please run the following command:
+
+.. code-block:: bash
+
+    compressai-split-inference \
+        --config-path="cfgs/eval_split_inference_example" 
+        ...
+
+Please check the scripts provided in scripts/evaluation for examples with supported codecs and datasets
 """
+
 from __future__ import annotations
 
 import logging

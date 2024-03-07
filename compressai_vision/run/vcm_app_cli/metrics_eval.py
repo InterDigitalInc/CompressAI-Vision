@@ -182,7 +182,7 @@ def main(p):  # noqa: C901
         CompressAIEncoderDecoder,
         VTMEncoderDecoder,
     )
-    from compressai_vision.pipelines.remote_analysis.constant import vf_per_scale
+    from compressai_vision.pipelines.fo_vcm.constant import vf_per_scale
 
     try:
         dataset = fo.load_dataset(p.dataset_name)

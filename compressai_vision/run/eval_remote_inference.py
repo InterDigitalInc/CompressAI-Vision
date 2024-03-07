@@ -29,6 +29,16 @@
 
 r"""
 Runs and evaluates a remote-inference pipeline
+
+To evaluate the compression and accuracy performance in the remote-inference pipeline, please run the following command:
+
+.. code-block:: bash
+
+    compressai-remote-inference \
+        --config-path="cfgs/eval_remote_inference_example" 
+        ...
+
+Please check the scripts provided in scripts/evaluation for examples with supported codecs and datasets
 """
 from __future__ import annotations
 
