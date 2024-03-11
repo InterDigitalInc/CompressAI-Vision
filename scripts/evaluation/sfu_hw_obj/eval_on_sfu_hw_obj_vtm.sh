@@ -131,7 +131,6 @@ compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++dataset.config.annotation_file=annotations/${SEQ}.json \
         ++dataset.config.dataset_name=sfu-hw-${SEQ} \
         ++evaluator.type=COCO-EVAL \
-	++evaluator.eval_criteria=AP50 \
         ++codec.experiment=${EXPERIMENT} \
 	codec=vtm.yaml \
         ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
