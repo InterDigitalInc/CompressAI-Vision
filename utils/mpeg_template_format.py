@@ -155,7 +155,7 @@ def generate_csv_classwise_video_map(
     seq_list,
     metric="AP",
     is_remote_inference: bool = False,
-    nb_rate_points: int = 4,
+    nb_operation_points: int = 4,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path)
@@ -175,7 +175,7 @@ def generate_csv_classwise_video_map(
         classwise_seqs = list(seqs_by_class.values())[0]
 
         class_wise_maps = []
-        for q in range(nb_rate_points):
+        for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
@@ -216,7 +216,7 @@ def generate_csv_classwise_video_mota(
     dataset_path,
     list_of_classwise_seq,
     is_remote_inference: bool = False,
-    nb_rate_points: int = 4,
+    nb_operation_points: int = 4,
 ):
     results_df = read_df_rec(result_path)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -233,7 +233,7 @@ def generate_csv_classwise_video_mota(
         classwise_seqs = list(seqs_by_class.values())[0]
 
         class_wise_motas = []
-        for q in range(nb_rate_points):
+        for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
@@ -321,7 +321,7 @@ if __name__ == "__main__":
         help="Collect results from a remote inference pipeline.",
     )
     parser.add_argument(
-        "--nb_rate_points",
+        "--nb_operation_points",
         type=int,
         default=4,
         help="number of rate points (qps) per sequence / class",
@@ -381,12 +381,10 @@ if __name__ == "__main__":
             seq_list,
             metric,
             args.remote_inference,
-            args.nb_rate_points,
+            args.nb_operation_points,
         )
     elif args.dataset_name == "OIV6":
-        output_df = generate_csv(
-            args.result_path, args.remote_inference, args.nb_rate_points
-        )
+        output_df = generate_csv(args.result_path, args.remote_inference)
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
         output_df = generate_csv_classwise_video_mota(
@@ -394,7 +392,7 @@ if __name__ == "__main__":
             args.dataset_path,
             [tvd_all],
             args.remote_inference,
-            args.nb_rate_points,
+            args.nb_operation_points,
         )
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
@@ -404,7 +402,7 @@ if __name__ == "__main__":
             args.dataset_path,
             [hieve_1080p, hieve_720p],
             args.remote_inference,
-            args.nb_rate_points,
+            args.nb_operation_points,
         )
         # sort for FCM template - comply with the template provided in wg04n00459
         seq_list = [
