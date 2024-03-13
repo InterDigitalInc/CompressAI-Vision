@@ -341,9 +341,9 @@ class VTM(nn.Module):
             "-f",
             "rawvideo",
             "-pix_fmt",
-            "dst_range",
-            "1",  #  (fracape) convert to full range for now
             f"{chroma_format}{pix_fmt_suffix}",
+            "-dst_range",
+            "1",  #  (fracape) convert to full range for now
         ]
 
         convert_cmd.append(yuv_in_path)
