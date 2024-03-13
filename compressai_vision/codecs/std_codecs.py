@@ -525,6 +525,12 @@ class VTM(nn.Module):
         self.logger.debug(f"dec_time:{dec_time}")
 
         if img_input:
+            assert (
+                "420" in video_info["format"].value
+            ), f"Only support yuv420, but got {video_info['format']}"
+            pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
+            chroma_format = f"yuv420p"
+
             convert_cmd = [
                 "ffmpeg",
                 "-y",
@@ -536,7 +542,7 @@ class VTM(nn.Module):
                 "-s",
                 f"{frame_width}x{frame_height}",
                 "-pix_fmt",
-                video_info["bitdepth"],
+                f"{chroma_format}{pix_fmt_suffix}",
                 "-src_range",
                 "1",  # (fracape) assume dec yuv is full range for now
                 "-i",
