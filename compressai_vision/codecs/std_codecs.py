@@ -347,10 +347,63 @@ class VTM(nn.Module):
         ]
 
         convert_cmd.append(yuv_in_path)
+        self.logger.debug(convert_cmd)
 
         run_cmdline(convert_cmd)
 
         return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
+
+    def convert_yuv_to_pngs(
+        self, output_file_prefix: str, dec_path: str, yuv_dec_path: str
+    ):
+        video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
+        frame_width = video_info["width"]
+        frame_height = video_info["height"]
+
+        assert (
+            "420" in video_info["format"].value
+        ), f"Only support yuv420, but got {video_info['format']}"
+        pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
+        chroma_format = f"yuv420p"
+
+        convert_cmd = [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-f",
+            "rawvideo",
+            "-s",
+            f"{frame_width}x{frame_height}",
+            "-pix_fmt",
+            f"{chroma_format}{pix_fmt_suffix}",
+            "-src_range",
+            "1",  # (fracape) assume dec yuv is full range for now
+            "-i",
+            yuv_dec_path,
+        ]
+
+        # not cropping for now
+        # crop_cmd = ["-vf", f"crop={org_img_size['width']}:{org_img_size['height']}"]
+        # convert_cmd += [crop_cmd]
+
+        # TODO (fracape) hacky, clean this
+        if self.datacatalog == "MPEGOIV6":
+            output_png = f"{dec_path}/{output_file_prefix}.png"
+        elif self.datacatalog == "SFUHW":
+            prefix = output_file_prefix.split("qp")[0]
+            output_png = f"{dec_path}/{prefix}%03d.png"
+            convert_cmd += ["-start_number", "0"]
+        elif self.datacatalog in ["MPEGHIEVE"]:
+            convert_cmd += ["-start_number", "0"]
+            output_png = f"{dec_path}/%06d.png"
+        elif self.datacatalog in ["MPEGTVDTRACKING"]:
+            convert_cmd += ["-start_number", "1"]
+            output_png = f"{dec_path}/%06d.png"
+        convert_cmd.append(output_png)
+
+        run_cmdline(convert_cmd)
 
     def encode(
         self,
@@ -369,6 +422,7 @@ class VTM(nn.Module):
 
         print(f"\n-- encoding ${file_prefix}", file=sys.stdout)
 
+        # Conversion: reshape data to yuv domain (e.g. 420 or 400)
         if img_input:
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
                 self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
@@ -388,6 +442,7 @@ class VTM(nn.Module):
             if self.fpn_sizes_json_dump:
                 self.dump_fpn_sizes_json(file_prefix, bitstream_name, codec_output_dir)
 
+            # normalization wrt to the bitdepth of the input to VTM
             minv, maxv = self.min_max_dataset
             frames, mid_level = min_max_normalization(
                 frames, minv, maxv, bitdepth=input_bitdepth
@@ -397,7 +452,6 @@ class VTM(nn.Module):
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
             chroma_format = self.enc_cfgs["chroma_format"]
             file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate }fps_{input_bitdepth}bit_p{chroma_format}"
-
             yuv_in_path = f"{file_prefix}_input.yuv"
 
             self.yuvio.setWriter(
@@ -424,7 +478,6 @@ class VTM(nn.Module):
             parallel_encoding=self.parallel_encoding,
             hash_check=self.hash_check,
         )
-        # self.logger.debug(cmd)
 
         start = time.time()
         if len(cmds) > 1:  # post parallel encoding
@@ -493,93 +546,54 @@ class VTM(nn.Module):
         dec_path.mkdir(parents=True, exist_ok=True)
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
 
-        if img_input:
-            video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
-            frame_width = video_info["width"]
-            frame_height = video_info["height"]
+        if img_input:  # remote inference pipeline
+            bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
+                "bitdepth"
+            ]
             yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
+
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
                 yuv_dec_path=yuv_dec_path,
-                output_bitdepth=video_info["bitdepth"],
+                output_bitdepth=bitdepth,
             )
-            # self.logger.debug(cmd)
-        else:
+            self.logger.debug(cmd)
+
+            start = time_measure()
+            run_cmdline(cmd, logpath=logpath)
+            dec_time = time_measure() - start
+            self.logger.debug(f"dec_time:{dec_time}")
+
+            self.convert_yuv_to_pngs(output_file_prefix, dec_path, yuv_dec_path)
+
+            # output the list of file paths for each frame
+            rec_frames = []
+            for file_path in sorted(dec_path.glob("*.png")):
+                rec_frames.append(str(file_path))
+            output = {"file_names": rec_frames}
+
+        else:  # split inference pipeline
             bitstream = load_bitstream(bitstream_path)
             # read header in the case of split computing
-            self.read_n_bit(bitstream)
+            bitdepth = self.read_n_bit(bitstream)
             _, _ = self.read_rft_chSize(bitstream)
-            _, _ = self.read_packed_frame_size(bitstream)
+            frame_height, frame_width = self.read_packed_frame_size(bitstream)
             _ = self.read_min_max_values(bitstream)
             with open(bitstream_path, "wb") as fw:
                 fw.write(bitstream.read())
+
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
                 yuv_dec_path=yuv_dec_path,
-                output_bitdepth=video_info["bitdepth"],
+                output_bitdepth=bitdepth,
             )
+            self.logger.debug(cmd)
 
-        start = time_measure()
-        run_cmdline(cmd, logpath=logpath)
-        dec_time = time_measure() - start
-        self.logger.debug(f"dec_time:{dec_time}")
+            start = time_measure()
+            run_cmdline(cmd, logpath=logpath)
+            dec_time = time_measure() - start
+            self.logger.debug(f"dec_time:{dec_time}")
 
-        if img_input:
-            assert (
-                "420" in video_info["format"].value
-            ), f"Only support yuv420, but got {video_info['format']}"
-            pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
-            chroma_format = f"yuv420p"
-
-            convert_cmd = [
-                "ffmpeg",
-                "-y",
-                "-hide_banner",
-                "-loglevel",
-                "error",
-                "-f",
-                "rawvideo",
-                "-s",
-                f"{frame_width}x{frame_height}",
-                "-pix_fmt",
-                f"{chroma_format}{pix_fmt_suffix}",
-                "-src_range",
-                "1",  # (fracape) assume dec yuv is full range for now
-                "-i",
-                yuv_dec_path,
-            ]
-
-            # not cropping for now
-            # crop_cmd = ["-vf", f"crop={org_img_size['width']}:{org_img_size['height']}"]
-            # convert_cmd += [crop_cmd]
-
-            # TODO (fracape) hacky, clean this
-            if self.datacatalog == "MPEGOIV6":
-                output_png = f"{dec_path}/{output_file_prefix}.png"
-            elif self.datacatalog == "SFUHW":
-                prefix = output_file_prefix.split("qp")[0]
-                output_png = f"{dec_path}/{prefix}%03d.png"
-                convert_cmd += ["-start_number", "0"]
-            elif self.datacatalog in ["MPEGHIEVE"]:
-                convert_cmd += ["-start_number", "0"]
-                output_png = f"{dec_path}/%06d.png"
-            elif self.datacatalog in ["MPEGTVDTRACKING"]:
-                convert_cmd += ["-start_number", "1"]
-                output_png = f"{dec_path}/%06d.png"
-            convert_cmd.append(output_png)
-
-            run_cmdline(convert_cmd)
-
-            rec_frames = []
-            for file_path in sorted(dec_path.glob("*.png")):
-                # rec_frames.append(read_image_to_rgb_tensor(file_path))
-                rec_frames.append(str(file_path))
-
-            # output the list of file paths for each frame
-            # output = {"data": rec_frames}
-            output = {"file_names": rec_frames}
-
-        else:
             self.yuvio.setReader(
                 read_path=yuv_dec_path,
                 frmWidth=frame_width,
