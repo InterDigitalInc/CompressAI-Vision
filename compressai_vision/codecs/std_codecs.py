@@ -537,7 +537,8 @@ class VTM(nn.Module):
                 f"{frame_width}x{frame_height}",
                 "-pix_fmt",
                 video_info["bitdepth"],
-                "src_range" "1",  # (fracape) assume dec yuv is full range for now
+                "-src_range",
+                "1",  # (fracape) assume dec yuv is full range for now
                 "-i",
                 yuv_dec_path,
             ]
