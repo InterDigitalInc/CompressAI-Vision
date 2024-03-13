@@ -309,10 +309,6 @@ class VTM(nn.Module):
                 "glob",
                 "-i",
                 filename_pattern,
-                # "-start_number",
-                # "0",  # warning, start frame is 0 for now
-                # "-vframes",
-                # f"{nb_frames}",
             ]
         else:
             input_info = ["-i", file_names[0]]
@@ -345,6 +341,8 @@ class VTM(nn.Module):
             "-f",
             "rawvideo",
             "-pix_fmt",
+            "dst_range",
+            "1",  #  (fracape) convert to full range for now
             f"{chroma_format}{pix_fmt_suffix}",
         ]
 
@@ -362,8 +360,7 @@ class VTM(nn.Module):
         file_prefix: str = "",
         img_input=False,
     ) -> bool:
-
-        bitdepth = 10  # TODO (fracape) (add this as config)
+        input_bitdepth = self.enc_cfgs["input_bitdepth"]
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
@@ -393,7 +390,7 @@ class VTM(nn.Module):
 
             minv, maxv = self.min_max_dataset
             frames, mid_level = min_max_normalization(
-                frames, minv, maxv, bitdepth=bitdepth
+                frames, minv, maxv, bitdepth=input_bitdepth
             )
 
             nb_frames, frame_height, frame_width = frames.size()
@@ -509,13 +506,13 @@ class VTM(nn.Module):
             # self.logger.debug(cmd)
         else:
             bitstream = load_bitstream(bitstream_path)
-            n_bit = self.read_n_bit(bitstream)
-            chH, chW = self.read_rft_chSize(bitstream)
-            frmH, frmW = self.read_packed_frame_size(bitstream)
-            _min_max_buffer = self.read_min_max_values(bitstream)
+            # read header in the case of split computing
+            self.read_n_bit(bitstream)
+            _, _ = self.read_rft_chSize(bitstream)
+            _, _ = self.read_packed_frame_size(bitstream)
+            _ = self.read_min_max_values(bitstream)
             with open(bitstream_path, "wb") as fw:
                 fw.write(bitstream.read())
-            bitstream_path_tm = f"{file_prefix}_tmp.bin"
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
                 yuv_dec_path=yuv_dec_path,
@@ -528,8 +525,6 @@ class VTM(nn.Module):
         self.logger.debug(f"dec_time:{dec_time}")
 
         if img_input:
-
-            # TODO assumes 8bit 420
             convert_cmd = [
                 "ffmpeg",
                 "-y",
@@ -541,7 +536,8 @@ class VTM(nn.Module):
                 "-s",
                 f"{frame_width}x{frame_height}",
                 "-pix_fmt",
-                "yuv420p",
+                video_info["bitdepth"],
+                "src_range" "1",  # (fracape) assume dec yuv is full range for now
                 "-i",
                 yuv_dec_path,
             ]

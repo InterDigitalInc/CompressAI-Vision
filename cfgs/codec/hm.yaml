@@ -25,5 +25,5 @@ encoder_config:
   hash_check: 1
   stash_outputs: True
   chroma_format: "400" # "420" for remote inference
-  input_bitdepth: 10 # 8 for remote inference
+  input_bitdepth: 10
   output_bitdepth: 10
