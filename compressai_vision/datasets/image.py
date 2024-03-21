@@ -31,6 +31,7 @@
 import base64
 import logging
 import re
+from glob import glob
 from pathlib import Path
 from typing import Dict, List
 
@@ -47,6 +48,30 @@ from torch.utils.data import Dataset
 from compressai_vision.registry import register_datacatalog, register_dataset
 
 from .utils import JDECustomMapper, LinearMapper
+
+
+def manual_load_data(path, ext):
+    img_list = sorted(glob(f"{path}/*.{ext}"))
+
+    datalist = []
+
+    for img_addr in img_list:
+
+        img_id = Path(img_addr).stem
+        img = Image.open(img_addr)
+        fW, fH = img.size
+
+        d = {
+            "file_name": img_addr,
+            "height": fH,
+            "width": fW,
+            "image_id": img_id,
+            "annotations": None,
+        }
+
+        datalist.append(d)
+
+    return datalist
 
 
 def bypass_collator(batch):
@@ -199,10 +224,11 @@ class Detectron2Dataset(BaseDataset):
         try:
             DatasetCatalog.get(dataset_name)
         except KeyError:
-            register_coco_instances(
-                dataset_name, {}, self.annotation_path, self.images_folder
-            )
-            self.logger.info(f'"{dataset_name}" successfully registred.')
+            if self.annotation_path:
+                register_coco_instances(
+                    dataset_name, {}, self.annotation_path, self.images_folder
+                )
+                self.logger.info(f'"{dataset_name}" successfully registred.')
 
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
@@ -221,10 +247,13 @@ class Detectron2Dataset(BaseDataset):
         self._org_mapper_func = PicklableWrapper(DatasetMapper(kwargs["cfg"], False))
 
         metaData = MetadataCatalog.get(dataset_name)
-        self.thing_classes = metaData.thing_classes
-        self.thing_dataset_id_to_contiguous_id = (
-            metaData.thing_dataset_id_to_contiguous_id
-        )
+        try:
+            self.thing_classes = metaData.thing_classes
+            self.thing_dataset_id_to_contiguous_id = (
+                metaData.thing_dataset_id_to_contiguous_id
+            )
+        except AttributeError:
+            self.logger.warning("No attribute: thing_classes")
 
     def get_org_mapper_func(self):
         return self._org_mapper_func
@@ -282,14 +311,16 @@ class DataCatalog:
             raise RuntimeError(f'Invalid image sample directory "{_imgs_folder}"')
 
         self._annotation_file = None
-        if annotation_file is not None:
+        if annotation_file.lower() != "none":
             _annotation_file = Path(root) / annotation_file
             if not _annotation_file.is_file():
                 raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
             self._annotation_file = _annotation_file
+        else:  # annotation_file is not available
+            self.logger.warning("No annotation, there would be no evaluation output\n")
 
         self._sequence_info_file = None
-        if seqinfo is not None:
+        if seqinfo.lower() != "none":
             _sequence_info_file = Path(root) / seqinfo
             if not _annotation_file.is_file():
                 self.logger.warning(
@@ -298,6 +329,8 @@ class DataCatalog:
                 self._sequence_info_file = None
             else:
                 self._sequence_info_file = _sequence_info_file
+        else:  # seqinfo is not available
+            self.logger.warning("No sequence information provided\n")
 
         self._dataset_name = dataset_name
         self._dataset = None
@@ -487,9 +520,13 @@ class MPEGOIV6(DataCatalog):
             ext=ext,
         )
 
-        self._dataset = load_coco_json(
-            self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
-        )
+        if self.annotation_path:
+            self._dataset = load_coco_json(
+                self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
+            )
+        else:
+            self._dataset = manual_load_data(self.imgs_folder_path, "jpg")
+
         self.task = "detection"
         if "segmentation" in dataset_name:
             self.task = "segmentation"

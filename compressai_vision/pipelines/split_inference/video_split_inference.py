@@ -227,7 +227,8 @@ class VideoSplitInference(BasePipeline):
 
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
-            evaluator.digest(gt_inputs[e], pred)
+            if evaluator:
+                evaluator.digest(gt_inputs[e], pred)
 
             out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])

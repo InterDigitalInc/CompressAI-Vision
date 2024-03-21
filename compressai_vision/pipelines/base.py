@@ -249,9 +249,10 @@ class BasePipeline(nn.Module):
         if self.configs["evaluation"].dump:
             save_path = self._create_folder(self.configs["evaluation"].evaluation_dir)
 
-        out = evaluator.results(save_path)
+        if evaluator:
+            return evaluator.results(save_path)
 
-        return out
+        return None
 
     def _create_folder(self, dir: Path = None) -> Path:
         if dir is None:

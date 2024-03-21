@@ -112,6 +112,15 @@ title = lambda a: str(a.__class__).split("<class '")[-1].split("'>")[0].split(".
 def print_specs(pipeline, **kwargs):
     logger = logging.getLogger(__name__)
 
+    # optional inputs
+    annotation_path = "N/A"
+    if kwargs["dataloader"].dataset.annotation_path:
+        annotation_path = Path(kwargs["dataloader"].dataset.annotation_path).resolve()
+
+    seqinfo_path = "N/A"
+    if kwargs["dataloader"].dataset.seqinfo_path:
+        seqinfo_path = Path(kwargs["dataloader"].dataset.seqinfo_path).resolve()
+
     logger.info(
         f"\
                 \n {'='*60}\
@@ -127,17 +136,24 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Skip N-Frames          : {pipeline.configs['codec'].skip_n_frames} \
                 \n  -- # Frames To Be Coded   : {pipeline.configs['codec'].n_frames_to_be_encoded} \
                 \n  -- Bitstream              : {pipeline.bitstream_name}.bin \
-                \n Dataset                    : {kwargs['evaluator'].dataset_name} \
+                \n Dataset                    : {kwargs['dataloader'].dataset.dataset_name} \
                 \n  -- Data                   : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
-                \n  -- Annotation             : {Path(kwargs['dataloader'].dataset.annotation_path).resolve()} \
-                \n  -- SEQ-INFO               : {Path(kwargs['dataloader'].dataset.seqinfo_path).resolve()} \
+                \n  -- Annotation             : {annotation_path} \
+                \n  -- SEQ-INFO               : {seqinfo_path} \
+                \n\n\
+    "
+    )
+
+    if kwargs["evaluator"]:
+        logger.info(
+            f"\
                 \n Evaluator                  : {title(kwargs['evaluator']):<30s}\
                 \n  -- DataCatalog            : {kwargs['evaluator'].datacatalog_name} \
                 \n  -- Output Dir             : {Path(kwargs['evaluator'].output_dir).resolve()} \
                 \n  -- Output file            : {kwargs['evaluator'].output_file_name} \
                 \n\n\
-    "
-    )
+        "
+        )
 
 
 @hydra.main(version_base=None, config_path=str(config_path))
@@ -164,6 +180,10 @@ def main(conf: DictConfig):
             stralign="center",
         )
     )
+
+    if modules["evaluator"] is None:
+        print("\tNo evaluation assigned - Pipeline end\n")
+        return
 
     # summarize results
     evaluator_name = _get_evaluator_name(**modules)

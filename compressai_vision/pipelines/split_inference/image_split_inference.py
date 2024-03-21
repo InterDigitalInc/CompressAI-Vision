@@ -153,7 +153,8 @@ class ImageSplitInference(BasePipeline):
             end = time_measure()
             timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
 
-            evaluator.digest(d, pred)
+            if evaluator:
+                evaluator.digest(d, pred)
 
             out_res = d[0].copy()
             del (
