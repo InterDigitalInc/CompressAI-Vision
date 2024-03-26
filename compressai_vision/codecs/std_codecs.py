@@ -354,7 +354,11 @@ class VTM(nn.Module):
         return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
 
     def convert_yuv_to_pngs(
-        self, output_file_prefix: str, dec_path: str, yuv_dec_path: str
+        self,
+        output_file_prefix: str,
+        dec_path: str,
+        yuv_dec_path: str,
+        org_img_size: Dict = None,
     ):
         video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
         frame_width = video_info["width"]
@@ -384,10 +388,6 @@ class VTM(nn.Module):
             yuv_dec_path,
         ]
 
-        # not cropping for now
-        # crop_cmd = ["-vf", f"crop={org_img_size['width']}:{org_img_size['height']}"]
-        # convert_cmd += [crop_cmd]
-
         # TODO (fracape) hacky, clean this
         if self.datacatalog == "MPEGOIV6":
             output_png = f"{dec_path}/{output_file_prefix}.png"
@@ -404,6 +404,41 @@ class VTM(nn.Module):
         convert_cmd.append(output_png)
 
         run_cmdline(convert_cmd)
+
+        if org_img_size is not None:
+            discrepancy = (
+                True
+                if frame_height != org_img_size["height"]
+                or frame_width != org_img_size["width"]
+                else False
+            )
+
+            if discrepancy:
+                self.logger.warning(
+                    f"Different original input size found. It must be {org_img_size['width']}x{org_img_size['height']}, but {frame_width}x{frame_height} are parsed from YUV"
+                )
+                self.logger.warning(
+                    f"Use {org_img_size['width']}x{org_img_size['height']}, instead of {frame_width}x{frame_height}"
+                )
+
+                final_png = f"{dec_path}/{Path(output_png).stem}_tmp.png"
+
+                convert_cmd = [
+                    "ffmpeg",
+                    "-y",
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-i",
+                    output_png,
+                    "-vf",
+                    f"crop={org_img_size['width']}:{org_img_size['height']}",
+                    final_png,  # no name change
+                ]
+                run_cmdline(convert_cmd)
+
+                Path(output_png).unlink()
+                Path(final_png).rename(output_png)
 
     def encode(
         self,
@@ -535,7 +570,7 @@ class VTM(nn.Module):
         org_img_size: Dict = None,
         img_input=False,
     ) -> bool:
-        del org_img_size
+        # del org_img_size
 
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
@@ -547,6 +582,8 @@ class VTM(nn.Module):
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
 
         if img_input:  # remote inference pipeline
+            # del org_img_size # should be from bitstream but ... [hacky]
+
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
                 "bitdepth"
             ]
@@ -564,7 +601,9 @@ class VTM(nn.Module):
             dec_time = time_measure() - start
             self.logger.debug(f"dec_time:{dec_time}")
 
-            self.convert_yuv_to_pngs(output_file_prefix, dec_path, yuv_dec_path)
+            self.convert_yuv_to_pngs(
+                output_file_prefix, dec_path, yuv_dec_path, org_img_size
+            )
 
             # output the list of file paths for each frame
             rec_frames = []
@@ -573,6 +612,8 @@ class VTM(nn.Module):
             output = {"file_names": rec_frames}
 
         else:  # split inference pipeline
+            del org_img_size  # irrelvant info
+
             bitstream = load_bitstream(bitstream_path)
             # read header in the case of split computing
             bitdepth = self.read_n_bit(bitstream)
