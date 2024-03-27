@@ -378,14 +378,16 @@ class VTM(nn.Module):
             "error",
             "-f",
             "rawvideo",
-            "-s",
-            f"{frame_width}x{frame_height}",
             "-pix_fmt",
             f"{chroma_format}{pix_fmt_suffix}",
+            "-s",
+            f"{frame_width}x{frame_height}",
             "-src_range",
             "1",  # (fracape) assume dec yuv is full range for now
             "-i",
             yuv_dec_path,
+            "-pix_fmt",
+            "rgb24",
         ]
 
         # TODO (fracape) hacky, clean this
