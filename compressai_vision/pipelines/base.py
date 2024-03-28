@@ -75,6 +75,10 @@ class BasePipeline(nn.Module):
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self._create_folder(self.codec_output_dir)
 
+    @staticmethod
+    def _get_title(a):
+        return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
+
     def _update_codec_configs_at_pipeline_level(self, total_num_frames):
         # Sanity check
         self._codec_skip_n_frames = self.configs["codec"]["skip_n_frames"]
@@ -219,6 +223,14 @@ class BasePipeline(nn.Module):
     def _compress(
         self, codec, x, codec_output_dir, bitstream_name, filename: str, img_input=False
     ):
+        if self._get_title(codec).lower() == "fctm":
+            return codec.encode(
+                x,
+                codec_output_dir,
+                bitstream_name,
+                filename,
+            )
+
         return codec.encode(
             x,
             codec_output_dir,
@@ -236,6 +248,14 @@ class BasePipeline(nn.Module):
         org_img_size: Dict = None,
         img_input=False,
     ):
+        if self._get_title(codec).lower() == "fctm":
+            return codec.decode(
+                bitstream,
+                codec_output_dir,
+                filename,
+                org_img_size=org_img_size,
+            )
+
         return codec.decode(
             bitstream,
             codec_output_dir,
