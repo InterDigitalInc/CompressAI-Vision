@@ -21,7 +21,7 @@ encoder_config:
   qp: 42
   intra_period: 1
   parallel_encoding: False
-  hash_check: 1
+  hash_check: 0
   stash_outputs: True
   chroma_format: "400" # "420" for remote inference
   input_bitdepth: 10
