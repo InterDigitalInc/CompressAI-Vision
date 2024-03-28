@@ -253,7 +253,6 @@ class BasePipeline(nn.Module):
                 bitstream,
                 codec_output_dir,
                 filename,
-                org_img_size=org_img_size,
             )
 
         return codec.decode(
