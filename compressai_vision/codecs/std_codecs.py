@@ -46,11 +46,7 @@ import torch.nn as nn
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils import time_measure
-from compressai_vision.utils.dataio import (
-    PixelFormat,
-    read_image_to_rgb_tensor,
-    readwriteYUV,
-)
+from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_parallel
 
 from .encdec_utils import *
@@ -58,11 +54,25 @@ from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normaliza
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
+    """
+    Get the size of a file in bytes.
+    Args:
+        filepath (Union[Path, str]): The path to the file. Can be a string or a Path object.
+    Returns:
+        int: The size of the file in bytes.
+    """
     return Path(filepath).stat().st_size
 
 
 # TODO (fracape) belongs to somewhere else?
 def load_bitstream(path):
+    """
+    Load a bitstream and return it as a "bytes" object.
+    Args:
+        path (str): path to the file containing the bitstream.
+    Returns:
+        bytes: The loaded bitstream.
+    """
     with open(path, "rb") as fd:
         buf = BytesIO(fd.read())
 
@@ -165,6 +175,23 @@ class VTM(nn.Module):
         input_bitdepth: int = 10,
         output_bitdepth: int = 0,
     ) -> List[Any]:
+        """
+        Generates the command to encode a video file using VTM software.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV file.
+            qp (int): The quantization parameter.
+            bitstream_path (Path): The path to the output bitstream file.
+            width (int): The width of the video.
+            height (int): The height of the video.
+            nb_frames (int, optional): The number of frames in the video. Defaults to 1.
+            parallel_encoding (bool, optional): Whether to perform parallel encoding. Defaults to False.
+            hash_check (int, optional): The hash check value. Defaults to 0.
+            chroma_format (str, optional): The chroma format of the video. Defaults to "400".
+            input_bitdepth (int, optional): The bit depth of the input video. Defaults to 10.
+            output_bitdepth (int, optional): The bit depth of the output video. Defaults to 0.
+        Returns:
+            List[Any]: the command line as a list.
+        """
         level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
@@ -258,6 +285,13 @@ class VTM(nn.Module):
         self,
         bitstream_path: str,
     ) -> List[Any]:
+        """
+        Returns a list of commands and bitstream lists needed to concatenate bitstream files.
+        Args:
+            bitstream_path (str): The path to the bitstream file.
+        Returns:
+            Tuple[List[Any], List[str]]: the command to concatenate the bitstream files in the folder.
+        """
         pdir = Path(bitstream_path).parent
         fstem = Path(bitstream_path).stem
         ext = str(Path(bitstream_path).suffix)
@@ -276,6 +310,15 @@ class VTM(nn.Module):
     def get_decode_cmd(
         self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth: int = 10
     ) -> List[Any]:
+        """
+        Get command line for decoding a video bitstream with an external VTM decoder.
+        Args:
+            yuv_dec_path (Path): The path to the output YUV file.
+            bitstream_path (Path): The path to the video bitstream file.
+            output_bitdepth (int, optional): The bitdepth of the output YUV file. Defaults to 10.
+        Returns:
+            List[Any]: command line arguments for decoding the video bitstream.
+        """
         cmd = [
             self.decoder_path,
             "-b",
@@ -290,6 +333,25 @@ class VTM(nn.Module):
         return cmd
 
     def convert_input_to_yuv(self, input: Dict, file_prefix: str):
+        """
+        Converts the input image or video to YUV format using ffmpeg.
+        Args:
+            input (Dict): A dictionary containing information about the input. It should have the following keys:
+                - file_names (List[str]): A list of file names for the input. If it contains more than one file, it is considered a video.
+                - last_frame (int): The last frame number of the video.
+                - frame_skip (int): The number of frames to skip in the video.
+                - org_input_size (Dict[str, int]): A dictionary containing the width and height of the input.
+            file_prefix (str): The prefix for the output file name.
+        Returns:
+            Tuple[str, int, int, int, str]: A tuple containing the following:
+                - yuv_in_path (str): The path to the converted YUV input file.
+                - nb_frames (int): The number of frames in the input.
+                - frame_width (int): The width of the frames in the input.
+                - frame_height (int): The height of the frames in the input.
+                - file_prefix (str): The updated file prefix.
+        Raises:
+            AssertionError: If the number of images in the input folder does not match the expected number of frames.
+        """
         nb_frames = 1
         file_names = input["file_names"]
         if len(file_names) > 1:  # video
@@ -360,6 +422,18 @@ class VTM(nn.Module):
         yuv_dec_path: str,
         org_img_size: Dict = None,
     ):
+        """
+        Converts a YUV file to a series of PNG images using ffmpeg.
+        Args:
+            output_file_prefix (str): The prefix of the output file name.
+            dec_path (str): The path to the directory where the PNG images will be saved.
+            yuv_dec_path (str): The path to the input YUV file.
+            org_img_size (Dict, optional): The original image size. Defaults to None.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the video format is not YUV420.
+        """
         video_info = get_raw_video_file_info(output_file_prefix.split("qp")[-1])
         frame_width = video_info["width"]
         frame_height = video_info["height"]
@@ -448,8 +522,19 @@ class VTM(nn.Module):
         codec_output_dir,
         bitstream_name,
         file_prefix: str = "",
-        img_input=False,
-    ) -> bool:
+        remote_inference=False,
+    ) -> Dict:
+        """
+        Encodes the input data.
+        Args:
+            x (Dict): The input data to be encoded.
+            codec_output_dir (str): The directory where the output bitstream will be saved.
+            bitstream_name (str): The name of the output bitstream.
+            file_prefix (str, optional): The prefix to be added to the output file name. Defaults to "".
+            remote_inference (bool, optional): Indicates if the encoding is done remotely. Defaults to False.
+        Returns:
+            dict: A dictionary containing the bytes per frame and the path to the output bitstream.
+        """
         input_bitdepth = self.enc_cfgs["input_bitdepth"]
 
         if file_prefix == "":
@@ -460,7 +545,7 @@ class VTM(nn.Module):
         print(f"\n-- encoding ${file_prefix}", file=sys.stdout)
 
         # Conversion: reshape data to yuv domain (e.g. 420 or 400)
-        if img_input:
+        if remote_inference:
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
                 self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
             )
@@ -536,7 +621,7 @@ class VTM(nn.Module):
             bitstream_path
         ).is_file(), f"bitstream {bitstream_path} was not created"
 
-        if not img_input:
+        if not remote_inference:
             inner_codec_bitstream = load_bitstream(bitstream_path)
 
             # Bistream header to make bitstream self-decodable
@@ -570,10 +655,21 @@ class VTM(nn.Module):
         codec_output_dir: str = "",
         file_prefix: str = "",
         org_img_size: Dict = None,
-        img_input=False,
-    ) -> bool:
-        # del org_img_size
+        remote_inference=False,
+    ) -> Dict:
+        """
+        Decodes the bitstream and returns the output features .
 
+        Args:
+            bitstream_path (Path): The path to the bitstream file.
+            codec_output_dir (str): The directory to store codec output.
+            file_prefix (str): The prefix for the output files.
+            org_img_size (Dict): The original image size.
+            remote_inference (bool): Specifies if the remote inference pipeline is used.
+
+        Returns:
+            Dict: The dictionary of output features.
+        """
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
@@ -583,9 +679,7 @@ class VTM(nn.Module):
         dec_path.mkdir(parents=True, exist_ok=True)
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
 
-        if img_input:  # remote inference pipeline
-            # del org_img_size # should be from bitstream but ... [hacky]
-
+        if remote_inference:  # remote inference pipeline
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
                 "bitdepth"
             ]
@@ -627,14 +721,17 @@ class VTM(nn.Module):
             output = {"file_names": rec_frames}
 
         else:  # split inference pipeline
-            del org_img_size  # irrelvant info
+            del org_img_size  # not needed in this pipeline
 
             bitstream = load_bitstream(bitstream_path)
-            # read header in the case of split computing
+
+            # read header bitstream header
             bitdepth = self.read_n_bit(bitstream)
             _, _ = self.read_rft_chSize(bitstream)
             frame_height, frame_width = self.read_packed_frame_size(bitstream)
             _ = self.read_min_max_values(bitstream)
+
+            # we need this to read the std codec part of the bitstream
             with open(bitstream_path, "wb") as fw:
                 fw.write(bitstream.read())
 
@@ -743,6 +840,21 @@ class VTM(nn.Module):
         return min_max_buffer
 
     def dump_fpn_sizes_json(self, file_prefix, bitstream_name, codec_output_dir):
+        """
+        Dump the FPN sizes JSON file.
+        This function dumps the FPN sizes JSON file for a given split model.
+
+        Args:
+        - file_prefix (str): The file prefix to be used for the JSON file. If empty, it uses the bitstream name.
+        - bitstream_name (str): The name of the bitstream.
+        - codec_output_dir (Path): The directory where the codec output is located.
+
+        Raises:
+        - SystemExit: This function is just meant to be used once to dump file and exit.
+
+        Returns:
+        - None
+        """
         filename = file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
         fpn_sizes_json = codec_output_dir / f"{filename}.json"
         with fpn_sizes_json.open("wb") as f:
@@ -781,6 +893,23 @@ class HM(VTM):
         input_bitdepth: int = 10,
         output_bitdepth: int = 0,
     ) -> List[Any]:
+        """
+        Generates the command to encode a video using the specified parameters.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV file.
+            qp (int): The quantization parameter.
+            bitstream_path (Path): The path to the output bitstream file.
+            width (int): The width of the video.
+            height (int): The height of the video.
+            nb_frames (int, optional): The number of frames in the video. Defaults to 1.
+            parallel_encoding (bool, optional): Whether to enable parallel encoding. Defaults to False.
+            hash_check (int, optional): The hash check value. Defaults to 0.
+            chroma_format (str, optional): The chroma format of the video. Defaults to "400".
+            input_bitdepth (int, optional): The bitdepth of the input video. Defaults to 10.
+            output_bitdepth (int, optional): The bitdepth of the output video. Defaults to 0.
+        Returns:
+            List[Any]: commands line to encode the video.
+        """
         level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
@@ -888,6 +1017,18 @@ class VVENC(VTM):
         height: int,
         nb_frames: int = 1,
     ) -> List[Any]:
+        """
+        Generate a command to encode a YUV video file using VVENCs.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV video file.
+            qp (int): The quantization parameter for the encoding process.
+            bitstream_path (Path): The path to save the encoded bitstream.
+            width (int): The width of the video frame.
+            height (int): The height of the video frame.
+            nb_frames (int, optional): The number of frames to encode (default is 1).
+        Returns:
+            List[Any]: A list of strings representing the encoding command.
+        """
         cmd = [
             self.encoder_path,
             "-i",

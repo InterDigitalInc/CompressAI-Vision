@@ -108,7 +108,7 @@ class ImageRemoteInference(BasePipeline):
                     self.codec_output_dir,
                     self.bitstream_name,
                     file_prefix,
-                    img_input=True,
+                    remote_inference=True,
                 )
                 end = time_measure()
                 timing["encode"].append((end - start))

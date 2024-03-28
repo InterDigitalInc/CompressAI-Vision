@@ -165,7 +165,7 @@ class x264(nn.Module):
         codec_output_dir,
         bitstream_name,
         file_prefix: str = "",
-        img_input=False,
+        remote_inference=False,
     ) -> bool:
         bitdepth = 10  # TODO (fracape) (add this as config)
 

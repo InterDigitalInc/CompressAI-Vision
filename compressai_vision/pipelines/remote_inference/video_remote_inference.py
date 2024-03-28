@@ -129,7 +129,7 @@ class VideoRemoteInference(BasePipeline):
                 self.codec_output_dir,
                 self.bitstream_name,
                 "",
-                img_input=True,
+                remote_inference=True,
             )
             end = time_measure()
             timing["encode"].append((end - start))
@@ -162,7 +162,7 @@ class VideoRemoteInference(BasePipeline):
             codec_output_dir=self.codec_output_dir,
             filename="",  # must be empty like this
             org_img_size=None,
-            img_input=True,
+            remote_inference=True,
         )
         end = time_measure()
         timing["decode"].append((end - start))

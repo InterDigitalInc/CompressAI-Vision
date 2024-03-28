@@ -221,7 +221,13 @@ class BasePipeline(nn.Module):
         )
 
     def _compress(
-        self, codec, x, codec_output_dir, bitstream_name, filename: str, img_input=False
+        self,
+        codec,
+        x,
+        codec_output_dir,
+        bitstream_name,
+        filename: str,
+        remote_inference=False,
     ):
         if self._get_title(codec).lower() == "fctm":
             return codec.encode(
@@ -236,7 +242,7 @@ class BasePipeline(nn.Module):
             codec_output_dir,
             bitstream_name,
             filename,
-            img_input=img_input,
+            remote_inference=remote_inference,
         )
 
     def _decompress(
@@ -246,7 +252,7 @@ class BasePipeline(nn.Module):
         codec_output_dir: str,
         filename: str,
         org_img_size: Dict = None,
-        img_input=False,
+        remote_inference=False,
     ):
         if self._get_title(codec).lower() == "fctm":
             return codec.decode(
@@ -260,7 +266,7 @@ class BasePipeline(nn.Module):
             codec_output_dir,
             filename,
             org_img_size=org_img_size,
-            img_input=img_input,
+            remote_inference=remote_inference,
         )
 
     def _evaluation(self, evaluator: Callable) -> Dict:

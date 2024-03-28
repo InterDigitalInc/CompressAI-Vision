@@ -64,7 +64,7 @@ class Bypass(nn.Module):
         codec_output_dir: str = "",
         bitstream_name: str = "",
         file_prefix: str = "",
-        img_input=False,
+        remote_inference=False,
     ) -> Dict:
         """
         Bypass encoder
@@ -74,7 +74,7 @@ class Bypass(nn.Module):
         del bitstream_name  # used in other codecs that write bitstream files
         del codec_output_dir  # used in other codecs that write log files
 
-        if img_input is True:
+        if remote_inference is True:
             org_fH = input["org_input_size"]["height"]
             org_fW = input["org_input_size"]["width"]
 
@@ -122,13 +122,13 @@ class Bypass(nn.Module):
         codec_output_dir: str = "",
         file_prefix: str = "",
         org_img_size: Dict = None,
-        img_input=False,
+        remote_inference=False,
     ):
         del org_img_size
         del file_prefix  # used in other codecs that write log files
         del codec_output_dir  # used in other codecs that write log files
 
-        if img_input:
+        if remote_inference:
             assert "file_names" in input
             return input
 
