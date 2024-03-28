@@ -404,7 +404,7 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="p">,</span>
                 <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="n">img_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">remote_inference</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
@@ -435,9 +435,9 @@ document.write(`
             <span class="n">codec</span><span class="o">=</span><span class="n">codec</span><span class="p">,</span>
             <span class="n">bitstream</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span>
             <span class="n">codec_output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># must be empty like this</span>
             <span class="n">org_img_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">img_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">remote_inference</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
         <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>

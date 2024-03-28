@@ -502,7 +502,8 @@ document.write(`
 
             <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
 
-            <span class="n">evaluator</span><span class="o">.</span><span class="n">digest</span><span class="p">(</span><span class="n">gt_inputs</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">pred</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">evaluator</span><span class="p">:</span>
+                <span class="n">evaluator</span><span class="o">.</span><span class="n">digest</span><span class="p">(</span><span class="n">gt_inputs</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">pred</span><span class="p">)</span>
 
             <span class="n">out_res</span> <span class="o">=</span> <span class="n">dec_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">del</span> <span class="p">(</span><span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">])</span>

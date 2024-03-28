@@ -339,7 +339,7 @@ document.write(`
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">bitstream_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">img_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">remote_inference</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bypass encoder</span>
@@ -349,7 +349,7 @@ document.write(`
         <span class="k">del</span> <span class="n">bitstream_name</span>  <span class="c1"># used in other codecs that write bitstream files</span>
         <span class="k">del</span> <span class="n">codec_output_dir</span>  <span class="c1"># used in other codecs that write log files</span>
 
-        <span class="k">if</span> <span class="n">img_input</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">remote_inference</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">org_fH</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
             <span class="n">org_fW</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
 
@@ -397,13 +397,13 @@ document.write(`
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">img_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">remote_inference</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">del</span> <span class="n">org_img_size</span>
         <span class="k">del</span> <span class="n">file_prefix</span>  <span class="c1"># used in other codecs that write log files</span>
         <span class="k">del</span> <span class="n">codec_output_dir</span>  <span class="c1"># used in other codecs that write log files</span>
 
-        <span class="k">if</span> <span class="n">img_input</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">remote_inference</span><span class="p">:</span>
             <span class="k">assert</span> <span class="s2">&quot;file_names&quot;</span> <span class="ow">in</span> <span class="nb">input</span>
             <span class="k">return</span> <span class="nb">input</span>
 
