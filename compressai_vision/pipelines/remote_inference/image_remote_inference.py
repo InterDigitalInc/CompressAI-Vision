@@ -183,3 +183,80 @@ class ImageRemoteInference(BasePipeline):
             timing[key] = val.sum
 
         return timing, codec.eval_encode_type, output_list, eval_performance
+
+
+# Please leave this function for reference
+def debugging(file_prefix, d, old_file_name):
+    import math
+
+    from compressai_vision.utils.external_exec import run_cmdline
+
+    dst = "local/folder"
+    # jpg --> yuv
+    frame_width = math.ceil(d[0]["width"] / 2) * 2
+    frame_height = math.ceil(d[0]["height"] / 2) * 2
+    file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_1fps_10bit_pyuv420"
+    yuv_in_path = f"{file_prefix}_input.yuv"
+
+    convert_cmd = [
+        "ffmpeg",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        old_file_name,
+        "-vf",
+        "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "yuv420p10le",
+        "-dst_range",
+        "1",  #  (fracape) convert to full range for now
+        f"{dst}/{yuv_in_path}",
+    ]
+
+    run_cmdline(convert_cmd)
+
+    # yuv --> png
+    output_file_prefix = f"{file_prefix}_tmp.png"
+    convert_cmd = [
+        "ffmpeg",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "yuv420p10le",
+        "-s",
+        f"{frame_width}x{frame_height}",
+        "-src_range",
+        "1",  # (fracape) assume dec yuv is full range for now
+        "-i",
+        f"{dst}/{yuv_in_path}",
+        "-pix_fmt",
+        "rgb24",
+        f"{dst}/{output_file_prefix}",
+    ]
+
+    run_cmdline(convert_cmd)
+
+    final_png = f"{file_prefix}.png"
+    convert_cmd = [
+        "ffmpeg",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        f"{dst}/{output_file_prefix}",
+        "-vf",
+        f"crop={d[0]['width']}:{d[0]['height']}",
+        f"{dst}/{final_png}",  # no name change
+    ]
+    run_cmdline(convert_cmd)
+
+    return {"file_name": f"{dst}/{final_png}"}

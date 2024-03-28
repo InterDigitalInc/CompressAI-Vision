@@ -160,7 +160,7 @@ class VideoRemoteInference(BasePipeline):
             codec=codec,
             bitstream=res["bitstream"],
             codec_output_dir=self.codec_output_dir,
-            filename="",
+            filename="",  # must be empty like this
             org_img_size=None,
             img_input=True,
         )

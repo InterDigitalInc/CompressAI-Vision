@@ -609,8 +609,21 @@ class VTM(nn.Module):
 
             # output the list of file paths for each frame
             rec_frames = []
-            for file_path in sorted(dec_path.glob("*.png")):
-                rec_frames.append(str(file_path))
+            if file_prefix == "":  # Video pipeline
+                for file_path in sorted(dec_path.glob("*.png")):
+                    rec_frames.append(str(file_path))
+                # expecting the length of rec_frames are greather than 1
+            else:  # Image pipeline
+                for file_path in sorted(Path(dec_path).glob(f"*{file_prefix}*.png")):
+                    rec_frames.append(str(file_path))
+
+                assert (
+                    file_prefix in rec_frames[0]
+                ), f"Can't find a correct filename with {file_prefix} in {dec_path}"
+                assert (
+                    len(rec_frames) == 1
+                ), f"Number of retrieved file must be 1, but got {len(rec_frames)}"
+
             output = {"file_names": rec_frames}
 
         else:  # split inference pipeline
