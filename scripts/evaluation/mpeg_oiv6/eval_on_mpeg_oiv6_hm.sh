@@ -11,9 +11,6 @@ SEQ=""
 PIPELINE_PARAMS=""
 PIPELINE="split"
 
-export DNNL_MAX_CPU_ISA=AVX2
-export DEVICE=${DEVICE}
-
 #parse args
 while [[ $# -gt 0 ]]
 do
@@ -21,22 +18,19 @@ do
     case $key in
         -h|--help)
 cat << _EOF_
-Installs CompressAI-Vision and its dependencies within a virtual environment.
-Before running, create a virtual env, i.e.:
-$ python3 -m venv venv
-$ source venv/bin/activate
+Runs an evaluation pipeline (split or remote) using HM as codec
 
 RUN OPTIONS:
                 [-t|--testdata) path to the test dataset, e.g. path/to/fcm_testdata/, default=""]
                 [-p|--pipeline) type of pipeline, split/remote, default="split"]
-                [-i|--inner_codec) path to core codec, e.g. /path/to/VTM_repo (that contains subfolders bin/ cfg/ ...), default=""]
+                [-i|--inner_codec) path to core codec, e.g. /path/to/HM_repo (that contains subfolders bin/ cfg/ ...), default=""]
                 [-o|--output_dir) root of output folder for logs and artifacts, default=""]
                 [-e|--exp_name) name of the experiments to locate/label outputs, default="test"]
                 [-d|--device) cuda or cpu, default="cpu"]
                 [-q|--qp) quality level, depends on the inner codec, default=42]
                 [-s|--seq_name) sequence name as used in testdata root folder. E.g., "Traffic_2560x1600_30_val" in sfu_hw_obj, default="42"]
                 [-x|--extra_params) additional parameters to override default configs (pipeline/codec/evaluation...), default=""]
-EXAMPLE         [bash install_models.sh -t /patht/to/testdata -i /path/to/vtm -o ./here -e test1 -d cuda -q 32 -s Traffic_2560x1600_30_val]
+EXAMPLE         [bash eval_on_mpeg_oiv6_hm.sh -t /path/to/testdata -p split -i /path/to/VTM_repo -d cpu -q 32 -s Traffic_2560x1600_30_val]
 _EOF_
             exit;
             ;;
@@ -52,6 +46,9 @@ _EOF_
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
+
+export DNNL_MAX_CPU_ISA=AVX2
+export DEVICE=${DEVICE}
 
 DATASET_SRC="${FCM_TESTDATA}/mpeg-oiv6"
 
