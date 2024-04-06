@@ -224,10 +224,24 @@ def main(conf: DictConfig):
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
     print(f"\nSummary files saved in : {evaluator_filepath}\n")
-    result_df.to_csv(
-        os.path.join(evaluator_filepath, f"summary.csv"),
-        index=False,
-    )
+
+    if conf.pipeline["codec"]["encode_only"] is True:
+        start_frm_num = conf.pipeline["codec"]["skip_n_frames"]
+        end_frm_num = start_frm_num + conf.pipeline["codec"]["n_frames_to_be_encoded"]
+
+        result_df.to_csv(
+            os.path.join(
+                evaluator_filepath,
+                f"summary_encode_only_between_{start_frm_num:05d}_and_{end_frm_num:05d}.csv",
+            ),
+            index=False,
+        )
+    else:
+        result_df.to_csv(
+            os.path.join(evaluator_filepath, f"summary.csv"),
+            index=False,
+        )
+
     coded_res_df.to_csv(
         os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
         index=False,
