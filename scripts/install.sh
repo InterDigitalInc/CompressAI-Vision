@@ -41,6 +41,11 @@ RUN OPTIONS:
 
 
 EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
+
+NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB.
+compressai_vision/weights/jde/jde.1088x608.uncertainty.pt
+The file can be downloaded at the following link (in place of the above file path):
+"https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
 _EOF_
             exit;
             ;;
@@ -196,16 +201,9 @@ echo "Installing compressai-vision"
 echo
 
 pip3 install -e "${SCRIPT_DIR}/.."
-<<<<<<< Updated upstream
-=======
-
-
-echo
-echo "Installation donecompressai-vision"
 echo
 echo "NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB:"
 echo "compressai_vision/weights/jde/jde.1088x608.uncertainty.pt"
 echo "The file can be downloaded at the following link (in place of the above file path):"
 echo "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
 echo
->>>>>>> Stashed changes

@@ -52,8 +52,14 @@ bash scripts/install.sh
 
 For more otions, check:
 ```
-bash scritps/install.sh --help
+bash scripts/install.sh --help
 ```
+
+NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB.
+compressai_vision/weights/jde/jde.1088x608.uncertainty.pt
+The file can be downloaded at the following link (in place of the above file path):
+"https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
+
 
 ## Usage
 
