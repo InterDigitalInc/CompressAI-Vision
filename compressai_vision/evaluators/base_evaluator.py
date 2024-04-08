@@ -47,6 +47,11 @@ class BaseEvaluator(nn.Module):
             f"{self.__class__.__name__}_on_{datacatalog_name}_{dataset_name}"
         )
 
+        path = Path(self.output_dir)
+        if (not path.is_dir()) and not path.exists():
+            self._logger.info(f"creating output folder: {path}")
+            path.mkdir(parents=True, exist_ok=True)
+
         self.annotation_path = dataset.annotation_path
         self.seqinfo_path = dataset.seqinfo_path
 
