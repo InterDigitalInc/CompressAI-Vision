@@ -177,7 +177,7 @@ class ImageSplitInference(BasePipeline):
 
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
-            raise SystemExit(0)
+            return timing, codec.eval_encode_type, None, None
 
         eval_performance = self._evaluation(evaluator)
 

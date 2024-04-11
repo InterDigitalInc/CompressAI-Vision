@@ -163,32 +163,72 @@ def main(conf: DictConfig):
     print_specs(pipeline, **modules)
     timing, eval_encode_type, coded_res, performance = pipeline(**modules)
 
-    # pretty output
-    coded_res_df = pd.DataFrame(coded_res)
+    if coded_res is not None:  # Encode Only
+        # pretty output
+        coded_res_df = pd.DataFrame(coded_res)
 
-    print("=" * 100)
-    print(f"Encoding Information [Top 5 Rows...][{pipeline}]")
-    coded_res_df["file_name"] = coded_res_df["file_name"].apply(lambda x: Path(x).name)
-    coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
-        lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
-    )
-    print(
-        tabulate(
-            coded_res_df.head(5),
-            headers="keys",
-            tablefmt="fancy_grid",
-            stralign="center",
+        print("=" * 100)
+        print(f"Encoding Information [Top 5 Rows...][{pipeline}]")
+        coded_res_df["file_name"] = coded_res_df["file_name"].apply(
+            lambda x: Path(x).name
         )
-    )
+        coded_res_df["total_pixels"] = coded_res_df["org_input_size"].apply(
+            lambda x: int(x.split("x")[0]) * int(x.split("x")[1])
+        )
+        print(
+            tabulate(
+                coded_res_df.head(5),
+                headers="keys",
+                tablefmt="fancy_grid",
+                stralign="center",
+            )
+        )
 
     if modules["evaluator"] is None:
-        print("\tNo evaluation assigned - Pipeline end\n")
+        print("[End of process] Terminated - No evaluation assigned\n")
         return
 
     # summarize results
     evaluator_name = _get_evaluator_name(**modules)
     evaluator_filepath = _get_evaluator_filepath(**modules)
     seq_info_path = _get_seqinfo_path(**modules)
+
+    print(f"\nSummary files saved in : {evaluator_filepath}\n")
+    if conf.pipeline["codec"]["encode_only"] is True:
+        start_frm_idx = conf.pipeline["codec"]["skip_n_frames"]
+        end_frm_idx = start_frm_idx + conf.pipeline["codec"]["n_frames_to_be_encoded"]
+
+        result_df = pd.DataFrame(
+            {
+                "start_frm_idx": start_frm_idx,
+                "end_frm_idx": end_frm_idx,
+                **timing,
+            },
+            index=[0],
+        )
+        print(tabulate(result_df, headers="keys", tablefmt="psql"))
+
+        result_df.to_csv(
+            os.path.join(
+                evaluator_filepath,
+                f"summary_encode_only_between_{start_frm_idx:05d}_and_{end_frm_idx:05d}.csv",
+            ),
+            index=False,
+        )
+        print("[End of process] Terminated - Encoding only has finished\n")
+        return
+
+    if conf.pipeline["codec"]["decode_only"] is True:
+        enc_summary = pd.DataFrame()
+        for file_path in Path(evaluator_filepath).glob(
+            "summary_encode_only_between_*.csv"
+        ):
+            df = pd.read_csv(file_path)
+            enc_summary = pd.concat([enc_summary, df])
+
+        timing["nn_part_1"] = enc_summary["nn_part_1"].sum()
+        timing["encode"] = enc_summary["encode"].sum()
+
     performance, eval_criteria = _summerize_performance(
         evaluator_name, performance, conf.evaluator.eval_criteria
     )
@@ -223,24 +263,10 @@ def main(conf: DictConfig):
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
-    print(f"\nSummary files saved in : {evaluator_filepath}\n")
-
-    if conf.pipeline["codec"]["encode_only"] is True:
-        start_frm_num = conf.pipeline["codec"]["skip_n_frames"]
-        end_frm_num = start_frm_num + conf.pipeline["codec"]["n_frames_to_be_encoded"]
-
-        result_df.to_csv(
-            os.path.join(
-                evaluator_filepath,
-                f"summary_encode_only_between_{start_frm_num:05d}_and_{end_frm_num:05d}.csv",
-            ),
-            index=False,
-        )
-    else:
-        result_df.to_csv(
-            os.path.join(evaluator_filepath, f"summary.csv"),
-            index=False,
-        )
+    result_df.to_csv(
+        os.path.join(evaluator_filepath, f"summary.csv"),
+        index=False,
+    )
 
     coded_res_df.to_csv(
         os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
