@@ -28,7 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from .registers import (
+from .registry import (
     CODECS,
     DATACATALOGS,
     DATASETS,
