@@ -120,6 +120,18 @@ class x264(nn.Module):
         height: int,
         frmRate: int = 1,
     ) -> List[Any]:
+        """
+        Generates the ffmpeg command (x264 lib) for encoding the input YUV video to H.264 format with the specified parameters.
+        Args:
+            inp_yuv_path (Path): The input YUV video file path.
+            qp (int): The quantization parameter for the video encoding.
+            bitstream_path (Path): The output bitstream file path.
+            width (int): The width of the video frame.
+            height (int): The height of the video frame.
+            frmRate (int, optional): The frame rate of the video. Defaults to 1.
+        Returns:
+            List[Any]: The generated ffmpeg command for encoding the video.
+        """
         cmd = [
             "ffmpeg",
             "-y",
@@ -148,6 +160,14 @@ class x264(nn.Module):
         return cmd
 
     def get_decode_cmd(self, bitstream_path: Path, yuv_dec_path: Path) -> List[Any]:
+        """
+        Get the ffmpeg decode command (x264 lib) for the given bitstream path and YUV decode path.
+        Args:
+            bitstream_path (Path): The path to the bitstream file.
+            yuv_dec_path (Path): The path to save the YUV decoded file.
+        Returns:
+            List[Any]: The list containing the ffmpeg command for decoding.
+        """
         cmd = [
             "ffmpeg",
             "-y",
@@ -167,6 +187,18 @@ class x264(nn.Module):
         file_prefix: str = "",
         remote_inference=False,
     ) -> bool:
+        """
+        Encodes the input feature tensors and returns the encoded bitstream.
+        Args:
+            x (Dict): The input data dictionary.
+            codec_output_dir (str): The directory for codec output.
+            bitstream_name (str): The name of the bitstream.
+            file_prefix (str, optional): The prefix for the file. Defaults to "".
+            remote_inference (bool): Flag for remote inference.
+        Returns:
+            Dict: numbers of bytes per frame and bitstream path.
+        """
+        del remote_inference  # TODO (fracape) remote inference not supported yet
         bitdepth = 10  # TODO (fracape) (add this as config)
 
         (
@@ -239,6 +271,16 @@ class x264(nn.Module):
         codec_output_dir: str = "",
         file_prefix: str = "",
     ) -> bool:
+        """
+        Decodes a bitstream into video frames and extract features from the decoded frames.
+        Args:
+            bitstream_path (Path): The path to the input bitstream file.
+            codec_output_dir (str): The directory where the codec output will be stored.
+            file_prefix (str): The prefix to be used for the output files.
+
+        Returns:
+            Dict: dictionary of output features.
+        """
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
@@ -336,6 +378,18 @@ class x265(x264):
         height: int,
         frmRate: int = 1,
     ) -> List[Any]:
+        """
+        Generates the ffmpeg command (x265 lib) for encoding the input YUV video to H.265 format with the specified parameters.
+        Args:
+            inp_yuv_path (Path): The input YUV video file path.
+            qp (int): The quantization parameter for the video encoding.
+            bitstream_path (Path): The output bitstream file path.
+            width (int): The width of the video frame.
+            height (int): The height of the video frame.
+            frmRate (int, optional): The frame rate of the video. Defaults to 1.
+        Returns:
+            List[Any]: The generated ffmpeg command for encoding the video.
+        """
         cmd = [
             "ffmpeg",
             "-y" "-s:v",
