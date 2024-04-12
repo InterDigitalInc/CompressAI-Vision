@@ -90,10 +90,19 @@ class VideoSplitInference(BasePipeline):
         dataloader: DataLoader,
         evaluator: BaseEvaluator,
     ) -> Dict:
-        """Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
-
-        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
+        Processes input data with the split inference video pipeline: compresses features, decompresses features, and evaluates performance.
+
+        Args:
+            vision_model (BaseWrapper): The vision model wrapper.
+            codec: The codec used for compression.
+            dataloader (DataLoader): The data loader for input data.
+            evaluator (BaseEvaluator): The evaluator used for performance evaluation.
+
+        Returns:
+            Dict: A dictionary containing timing information, codec evaluation type, a list of output results, and performance evaluation metrics.
+        """
+
         self._update_codec_configs_at_pipeline_level(len(dataloader))
 
         features = {}
@@ -118,7 +127,7 @@ class VideoSplitInference(BasePipeline):
 
                 assert "data" in res
 
-                num_items = self._input_data_collecting(res["data"])
+                num_items = self._collect_input_data(res["data"])
 
                 del res["data"]
 
@@ -148,7 +157,7 @@ class VideoSplitInference(BasePipeline):
                 raise SystemExit(0)
 
             # concatenate a list of tensors at each keyword item
-            features["data"] = self._reform_ftesnros_in_list_to_dict()
+            features["data"] = self._feature_tensor_list_to_dict()
 
             # Feature Compression
             start = time_measure()
@@ -207,7 +216,7 @@ class VideoSplitInference(BasePipeline):
             )
 
         # separate a tensor of each keyword item into a list of tensors
-        dec_ftensors_list = self._reform_dict_to_list(dec_features["data"])
+        dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
         assert len(dataloader) == len(
             dec_ftensors_list
         ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
@@ -249,11 +258,15 @@ class VideoSplitInference(BasePipeline):
 
         return timing, codec.eval_encode_type, output_list, eval_performance
 
-    def _input_data_collecting(self, data: Dict):
+    def _collect_input_data(self, data: Dict):
         """
-        Pull up input data and move to generic memory in case it was on GPU memory
-        """
+        Collects input data, transforms the tensors to CPU, appends the transformed data to the input feature tensor buffer, and returns the length of the input feature tensor buffer.
 
+        Args:
+            data:A dictionary containing input data.
+        Returns:
+            An integer representing the length of the input feature tensor.
+        """
         d = {}
         for key, tensor in data.items():
             d[key] = to_cpu(tensor)
@@ -263,7 +276,10 @@ class VideoSplitInference(BasePipeline):
 
         return len(self._input_ftensor_buffer)
 
-    def _reform_ftesnros_in_list_to_dict(self):
+    def _feature_tensor_list_to_dict(self):
+        """
+        Converts a list of feature tensors into a dictionary format.
+        """
         output = None
 
         for ftensors in self._input_ftensor_buffer:
@@ -287,7 +303,10 @@ class VideoSplitInference(BasePipeline):
         return output
 
     @staticmethod
-    def _reform_dict_to_list(data: Dict):
+    def _feature_tensor_dict_to_list(data: Dict):
+        """
+        Converts a dict of feature tensors into a list of tensors.
+        """
         output = []
         tmp = {}
         total_len = -1

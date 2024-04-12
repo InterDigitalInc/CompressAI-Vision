@@ -72,9 +72,17 @@ class ImageSplitInference(BasePipeline):
         dataloader: DataLoader,
         evaluator: BaseEvaluator,
     ) -> Dict:
-        """Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images
+        """
+        Processes input data with the split inference image pipeline: compresses features, decompresses features, and evaluates performance.
 
-        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
+        Args:
+            vision_model (BaseWrapper): The vision model wrapper.
+            codec: The codec used for compression.
+            dataloader (DataLoader): The data loader for input data.
+            evaluator (BaseEvaluator): The evaluator used for performance evaluation.
+
+        Returns:
+            Dict: A dictionary containing timing information, codec evaluation type, a list of output results, and performance evaluation metrics.
         """
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []
