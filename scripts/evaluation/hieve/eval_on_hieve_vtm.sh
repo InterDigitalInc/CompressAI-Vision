@@ -82,7 +82,7 @@ echo "============================== RUNNING COMPRESSAI-VISION EVAL== ==========
 echo "Pipeline Type:      " ${PIPELINE} " Video"
 echo "Datatset location:  " ${FCM_TESTDATA}
 echo "Output directory:   " ${OUTPUT_DIR}
-echo "Experiment folder:  " "hm"${EXPERIMENT}
+echo "Experiment folder:  " "vtm"${EXPERIMENT}
 echo "Running Device:     " ${DEVICE}
 echo "Input sequence:     " ${SEQ}
 echo "Seq. Framerate:     " ${FRAME_RATE}
