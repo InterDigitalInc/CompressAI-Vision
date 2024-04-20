@@ -187,7 +187,7 @@ def generate_csv_classwise_video_map(
 
             assert (
                 len(items) > 0
-            ), "Nothing relevant information found from given directories..."
+            ), "No evaluation information found in provided result directories..."
 
             summary = compute_overall_mAP(classwise_name, items)
             maps = summary.values[0][opts_metrics[metric]]
@@ -332,7 +332,7 @@ if __name__ == "__main__":
     assert (
         args.dataset_name.lower() in Path(args.dataset_path).name.lower()
         and args.dataset_name.lower() in Path(args.result_path).name.lower()
-    )
+    ), "Please check correspondance between input dataset name and result directory"
 
     if args.dataset_name == "SFU":
         metric = args.metric
