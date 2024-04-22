@@ -9,9 +9,9 @@ This allows us to dynamically create an object depending on the given string nam
 .. automodule:: compressai_vision.registry
 
 
-registries
------------
+registry
+--------
 
-.. automodule:: compressai_vision.registry.registers
+.. automodule:: compressai_vision.registry.registry
    :members:
    :undoc-members:

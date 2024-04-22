@@ -156,13 +156,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -365,10 +358,19 @@ document.write(`
         <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span>
         <span class="n">evaluator</span><span class="p">:</span> <span class="n">BaseEvaluator</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes input data with the split inference video pipeline: compresses features, decompresses features, and evaluates performance.</span>
 
-<span class="sd">        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process</span>
+<span class="sd">        Args:</span>
+<span class="sd">            vision_model (BaseWrapper): The vision model wrapper.</span>
+<span class="sd">            codec: The codec used for compression.</span>
+<span class="sd">            dataloader (DataLoader): The data loader for input data.</span>
+<span class="sd">            evaluator (BaseEvaluator): The evaluator used for performance evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: A dictionary containing timing information, codec evaluation type, a list of output results, and performance evaluation metrics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_codec_configs_at_pipeline_level</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
 
         <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
@@ -393,7 +395,7 @@ document.write(`
 
                 <span class="k">assert</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">res</span>
 
-                <span class="n">num_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_data_collecting</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+                <span class="n">num_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collect_input_data</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
 
                 <span class="k">del</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
 
@@ -423,7 +425,7 @@ document.write(`
                 <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># concatenate a list of tensors at each keyword item</span>
-            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reform_ftesnros_in_list_to_dict</span><span class="p">()</span>
+            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_list_to_dict</span><span class="p">()</span>
 
             <span class="c1"># Feature Compression</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
@@ -482,7 +484,7 @@ document.write(`
             <span class="p">)</span>
 
         <span class="c1"># separate a tensor of each keyword item into a list of tensors</span>
-        <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reform_dict_to_list</span><span class="p">(</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+        <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_dict_to_list</span><span class="p">(</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
             <span class="n">dec_ftensors_list</span>
         <span class="p">),</span> <span class="s2">&quot;The number of decoded frames are not equal to the number of frames supposed to be decoded&quot;</span>
@@ -524,11 +526,15 @@ document.write(`
 
         <span class="k">return</span> <span class="n">timing</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="n">output_list</span><span class="p">,</span> <span class="n">eval_performance</span>
 
-    <span class="k">def</span> <span class="nf">_input_data_collecting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_collect_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Pull up input data and move to generic memory in case it was on GPU memory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Collects input data, transforms the tensors to CPU, appends the transformed data to the input feature tensor buffer, and returns the length of the input feature tensor buffer.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            data:A dictionary containing input data.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            An integer representing the length of the input feature tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_cpu</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
@@ -538,7 +544,10 @@ document.write(`
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_reform_ftesnros_in_list_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_feature_tensor_list_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a list of feature tensors into a dictionary format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">for</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">:</span>
@@ -562,7 +571,10 @@ document.write(`
         <span class="k">return</span> <span class="n">output</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_reform_dict_to_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_feature_tensor_dict_to_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a dict of feature tensors into a list of tensors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">total_len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>

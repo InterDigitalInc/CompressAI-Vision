@@ -156,13 +156,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -395,6 +388,18 @@ document.write(`
         <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the ffmpeg command (x264 lib) for encoding the input YUV video to H.264 format with the specified parameters.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inp_yuv_path (Path): The input YUV video file path.</span>
+<span class="sd">            qp (int): The quantization parameter for the video encoding.</span>
+<span class="sd">            bitstream_path (Path): The output bitstream file path.</span>
+<span class="sd">            width (int): The width of the video frame.</span>
+<span class="sd">            height (int): The height of the video frame.</span>
+<span class="sd">            frmRate (int, optional): The frame rate of the video. Defaults to 1.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Any]: The generated ffmpeg command for encoding the video.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
@@ -423,6 +428,14 @@ document.write(`
         <span class="k">return</span> <span class="n">cmd</span></div>
 
 <div class="viewcode-block" id="x264.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.get_decode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the ffmpeg decode command (x264 lib) for the given bitstream path and YUV decode path.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bitstream_path (Path): The path to the bitstream file.</span>
+<span class="sd">            yuv_dec_path (Path): The path to save the YUV decoded file.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Any]: The list containing the ffmpeg command for decoding.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
@@ -442,6 +455,18 @@ document.write(`
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">remote_inference</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encodes the input feature tensors and returns the encoded bitstream.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (Dict): The input data dictionary.</span>
+<span class="sd">            codec_output_dir (str): The directory for codec output.</span>
+<span class="sd">            bitstream_name (str): The name of the bitstream.</span>
+<span class="sd">            file_prefix (str, optional): The prefix for the file. Defaults to &quot;&quot;.</span>
+<span class="sd">            remote_inference (bool): Flag for remote inference.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: numbers of bytes per frame and bitstream path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">remote_inference</span>  <span class="c1"># TODO (fracape) remote inference not supported yet</span>
         <span class="n">bitdepth</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># TODO (fracape) (add this as config)</span>
 
         <span class="p">(</span>
@@ -514,6 +539,16 @@ document.write(`
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decodes a bitstream into video frames and extract features from the decoded frames.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bitstream_path (Path): The path to the input bitstream file.</span>
+<span class="sd">            codec_output_dir (str): The directory where the codec output will be stored.</span>
+<span class="sd">            file_prefix (str): The prefix to be used for the output files.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: dictionary of output features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">bitstream_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
 
@@ -611,6 +646,18 @@ document.write(`
         <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">frmRate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the ffmpeg command (x265 lib) for encoding the input YUV video to H.265 format with the specified parameters.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inp_yuv_path (Path): The input YUV video file path.</span>
+<span class="sd">            qp (int): The quantization parameter for the video encoding.</span>
+<span class="sd">            bitstream_path (Path): The output bitstream file path.</span>
+<span class="sd">            width (int): The width of the video frame.</span>
+<span class="sd">            height (int): The height of the video frame.</span>
+<span class="sd">            frmRate (int, optional): The frame rate of the video. Defaults to 1.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Any]: The generated ffmpeg command for encoding the video.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-y&quot;</span> <span class="s2">&quot;-s:v&quot;</span><span class="p">,</span>

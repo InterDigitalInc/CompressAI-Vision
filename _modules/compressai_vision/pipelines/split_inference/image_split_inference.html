@@ -156,13 +156,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../compressai_vision/pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../compressai_vision/pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../compressai_vision/pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../compressai_vision/pipelines/fo_vcm/faq.html">FAQ</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../compressai_vision/model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -347,9 +340,17 @@ document.write(`
         <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span>
         <span class="n">evaluator</span><span class="p">:</span> <span class="n">BaseEvaluator</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push image(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes input data with the split inference image pipeline: compresses features, decompresses features, and evaluates performance.</span>
 
-<span class="sd">        Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process</span>
+<span class="sd">        Args:</span>
+<span class="sd">            vision_model (BaseWrapper): The vision model wrapper.</span>
+<span class="sd">            codec: The codec used for compression.</span>
+<span class="sd">            dataloader (DataLoader): The data loader for input data.</span>
+<span class="sd">            evaluator (BaseEvaluator): The evaluator used for performance evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: A dictionary containing timing information, codec evaluation type, a list of output results, and performance evaluation metrics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_codec_configs_at_pipeline_level</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
         <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -452,7 +453,7 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;encode_only&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bitstreams generated, exiting&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">timing</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="n">eval_performance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
 

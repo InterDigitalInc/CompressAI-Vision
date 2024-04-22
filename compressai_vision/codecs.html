@@ -157,13 +157,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="pipelines/index.html">compressai_vision.pipelines</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pipelines/split_inference.html">compressai_vision.pipelines.split_inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pipelines/remote_inference.html">compressai_vision.pipelines.remote_inference</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="pipelines/fo_vcm/index.html">compressai_vision.pipelines.fo_vcm</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="pipelines/fo_vcm/pipeline.html">compressai_vision.pipelines.fo_vcm.pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines/fo_vcm/fo.html">compressai_vision.compressai_vision.pipelines.fo_vcm.fo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines/fo_vcm/conversion.html">compressai_vision.pipelines.fo_vcm.conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines/fo_vcm/faq.html">FAQ</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="model_wrappers.html">compressai_vision.model_wrappers</a></li>
@@ -767,12 +760,46 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.decode">
 <span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bitstream_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec_output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/compressai_vision/codecs/ffmpeg.html#x264.decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.x264.decode" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Decodes a bitstream into video frames and extract features from the decoded frames.
+:param bitstream_path: The path to the input bitstream file.
+:type bitstream_path: Path
+:param codec_output_dir: The directory where the codec output will be stored.
+:type codec_output_dir: str
+:param file_prefix: The prefix to be used for the output files.
+:type file_prefix: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dictionary of output features.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.encode">
 <span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstream_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_inference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/compressai_vision/codecs/ffmpeg.html#x264.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.x264.encode" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Encodes the input feature tensors and returns the encoded bitstream.
+:param x: The input data dictionary.
+:type x: Dict
+:param codec_output_dir: The directory for codec output.
+:type codec_output_dir: str
+:param bitstream_name: The name of the bitstream.
+:type bitstream_name: str
+:param file_prefix: The prefix for the file. Defaults to “”.
+:type file_prefix: str, optional
+:param remote_inference: Flag for remote inference.
+:type remote_inference: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numbers of bytes per frame and bitstream path.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.eval_encode_type">
@@ -782,12 +809,46 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.get_decode_cmd">
 <span class="sig-name descname"><span class="pre">get_decode_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bitstream_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yuv_dec_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/compressai_vision/codecs/ffmpeg.html#x264.get_decode_cmd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.x264.get_decode_cmd" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the ffmpeg decode command (x264 lib) for the given bitstream path and YUV decode path.
+:param bitstream_path: The path to the bitstream file.
+:type bitstream_path: Path
+:param yuv_dec_path: The path to save the YUV decoded file.
+:type yuv_dec_path: Path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list containing the ffmpeg command for decoding.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.get_encode_cmd">
 <span class="sig-name descname"><span class="pre">get_encode_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp_yuv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstream_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frmRate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/compressai_vision/codecs/ffmpeg.html#x264.get_encode_cmd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.x264.get_encode_cmd" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generates the ffmpeg command (x264 lib) for encoding the input YUV video to H.264 format with the specified parameters.
+:param inp_yuv_path: The input YUV video file path.
+:type inp_yuv_path: Path
+:param qp: The quantization parameter for the video encoding.
+:type qp: int
+:param bitstream_path: The output bitstream file path.
+:type bitstream_path: Path
+:param width: The width of the video frame.
+:type width: int
+:param height: The height of the video frame.
+:type height: int
+:param frmRate: The frame rate of the video. Defaults to 1.
+:type frmRate: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The generated ffmpeg command for encoding the video.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x264.qp_value">
@@ -808,7 +869,28 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x265.get_encode_cmd">
 <span class="sig-name descname"><span class="pre">get_encode_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp_yuv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitstream_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frmRate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/compressai_vision/codecs/ffmpeg.html#x265.get_encode_cmd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.x265.get_encode_cmd" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generates the ffmpeg command (x265 lib) for encoding the input YUV video to H.265 format with the specified parameters.
+:param inp_yuv_path: The input YUV video file path.
+:type inp_yuv_path: Path
+:param qp: The quantization parameter for the video encoding.
+:type qp: int
+:param bitstream_path: The output bitstream file path.
+:type bitstream_path: Path
+:param width: The width of the video frame.
+:type width: int
+:param height: The height of the video frame.
+:type height: int
+:param frmRate: The frame rate of the video. Defaults to 1.
+:type frmRate: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The generated ffmpeg command for encoding the video.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="compressai_vision.codecs.x265.training">
