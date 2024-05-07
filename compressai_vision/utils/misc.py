@@ -41,6 +41,16 @@ def time_measure():
     return time.perf_counter()
 
 
+def dict_sum(a, b):
+    c = {}
+
+    for k in set(a) | set(b):
+        v = a.get(k, 0) + b.get(k, 0)
+        c[k] = v
+
+    return c
+
+
 class metric_tracking:
     def __init__(self):
         self._buffer = []

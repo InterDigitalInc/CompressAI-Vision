@@ -74,6 +74,29 @@ class BasePipeline(nn.Module):
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self._create_folder(self.codec_output_dir)
+        self.init_time_measure()
+
+    def init_time_measure(self):
+        self.elapsed_time = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+
+    def update_time_elapsed(self, mname, elapsed):
+        assert mname in self.elapsed_time
+        self.elapsed_time[mname] = self.elapsed_time[mname] + elapsed
+
+    def add_time_details(self, mname: str, details):
+        updates = {}
+        for k, v in self.elapsed_time.items():
+            updates[k] = v
+            if k == mname and details is not None:
+                assert isinstance(details, dict)
+                for sk, sv in details.items():
+                    updates[f"{mname}_{sk}"] = sv
+
+        self.elapsed_time = updates
+
+    @property
+    def time_elapsed_by_module(self):
+        return self.elapsed_time
 
     @staticmethod
     def _get_title(a):

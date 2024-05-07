@@ -36,7 +36,7 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import time_measure
+from compressai_vision.utils import dict_sum, time_measure
 
 from ..base import BasePipeline
 
@@ -86,7 +86,11 @@ class ImageSplitInference(BasePipeline):
         """
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []
-        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+
+        self.init_time_measure()
+        accum_enc_by_module = None
+        accum_dec_by_module = None
+
         for e, d in enumerate(tqdm(dataloader)):
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
             file_prefix = f'img_id_{d[0]["image_id"]}'
@@ -99,21 +103,25 @@ class ImageSplitInference(BasePipeline):
 
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
-                end = time_measure()
-                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+                self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 featureT["org_input_size"] = org_img_size
 
                 start = time_measure()
-                res = self._compress(
+                res, enc_time_by_module = self._compress(
                     codec,
                     featureT,
                     self.codec_output_dir,
                     self.bitstream_name,
                     file_prefix,
                 )
-                end = time_measure()
-                timing["encode"] = timing["encode"] + (end - start)
+                self.update_time_elapsed("encode", (time_measure() - start))
+                if accum_enc_by_module is None:
+                    accum_enc_by_module = enc_time_by_module
+                else:
+                    accum_enc_by_module = dict_sum(
+                        accum_enc_by_module, enc_time_by_module
+                    )
             else:
                 res = {}
                 bin_files = [
@@ -137,11 +145,14 @@ class ImageSplitInference(BasePipeline):
                 continue
 
             start = time_measure()
-            dec_features = self._decompress(
+            dec_features, dec_time_by_module = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
-            end = time_measure()
-            timing["decode"] = timing["decode"] + (end - start)
+            self.update_time_elapsed("decode", (time_measure() - start))
+            if accum_dec_by_module is None:
+                accum_dec_by_module = dec_time_by_module
+            else:
+                accum_dec_by_module = dict_sum(accum_dec_by_module, dec_time_by_module)
 
             # dec_features should contain "org_input_size" and "input_size"
             # When using anchor codecs, that's not the case, we read input images to derive them
@@ -158,8 +169,7 @@ class ImageSplitInference(BasePipeline):
             pred = self._from_features_to_output(
                 vision_model, dec_features, file_prefix
             )
-            end = time_measure()
-            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
+            self.update_time_elapsed("nn_part_2", (time_measure() - start))
 
             if evaluator:
                 evaluator.digest(d, pred)
@@ -183,10 +193,20 @@ class ImageSplitInference(BasePipeline):
             out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
 
+        # if dec_only is True, accum_enc_by_module is None
+        self.add_time_details("encode", accum_enc_by_module)
+        # if enc_only is True, accum_dec_by_module is None
+        self.add_time_details("decode", accum_dec_by_module)
+
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
-            return timing, codec.eval_encode_type, None, None
+            return self.time_elapsed_by_module, codec.eval_encode_type, None, None
 
         eval_performance = self._evaluation(evaluator)
 
-        return timing, codec.eval_encode_type, output_list, eval_performance
+        return (
+            self.time_elapsed_by_module,
+            codec.eval_encode_type,
+            output_list,
+            eval_performance,
+        )

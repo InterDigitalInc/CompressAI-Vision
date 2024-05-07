@@ -108,7 +108,7 @@ class VideoSplitInference(BasePipeline):
         features = {}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
-        timing = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
+        self.init_time_measure()
 
         if not self.configs["codec"]["decode_only"]:
             ## NN-part-1
@@ -122,8 +122,7 @@ class VideoSplitInference(BasePipeline):
 
                 start = time_measure()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
-                end = time_measure()
-                timing["nn_part_1"] = timing["nn_part_1"] + (end - start)
+                self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 assert "data" in res
 
@@ -161,11 +160,11 @@ class VideoSplitInference(BasePipeline):
 
             # Feature Compression
             start = time_measure()
-            res = self._compress(
+            res, enc_time_by_module = self._compress(
                 codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
-            end = time_measure()
-            timing["encode"] = timing["encode"] + (end - start)
+            self.update_time_elapsed("encode", (time_measure() - start))
+            self.add_time_details("encode", enc_time_by_module)
 
             # for bypass mode, 'data' should be deleted.
             if "data" in res["bitstream"] is False:
@@ -193,11 +192,11 @@ class VideoSplitInference(BasePipeline):
 
         # Feature Deompression
         start = time_measure()
-        dec_features = self._decompress(
+        dec_features, dec_time_by_module = self._decompress(
             codec, res["bitstream"], self.codec_output_dir, ""
         )
-        end = time_measure()
-        timing["decode"] = timing["decode"] + (end - start)
+        self.update_time_elapsed("decode", (time_measure() - start))
+        self.add_time_details("decode", dec_time_by_module)
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
@@ -232,9 +231,7 @@ class VideoSplitInference(BasePipeline):
 
             start = time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
-            end = time_measure()
-
-            timing["nn_part_2"] = timing["nn_part_2"] + (end - start)
+            self.update_time_elapsed("nn_part_2", (time_measure() - start))
 
             if evaluator:
                 evaluator.digest(gt_inputs[e], pred)
@@ -256,7 +253,12 @@ class VideoSplitInference(BasePipeline):
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
 
-        return timing, codec.eval_encode_type, output_list, eval_performance
+        return (
+            self.time_elapsed_by_module,
+            codec.eval_encode_type,
+            output_list,
+            eval_performance,
+        )
 
     def _collect_input_data(self, data: Dict):
         """

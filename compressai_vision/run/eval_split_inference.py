@@ -161,7 +161,7 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
-    timing, eval_encode_type, coded_res, performance = pipeline(**modules)
+    elap_times, eval_encode_type, coded_res, performance = pipeline(**modules)
 
     if coded_res is not None:  # Encode Only
         # pretty output
@@ -202,7 +202,7 @@ def main(conf: DictConfig):
             {
                 "start_frm_idx": start_frm_idx,
                 "end_frm_idx": end_frm_idx,
-                **timing,
+                **elap_times,
             },
             index=[0],
         )
@@ -226,8 +226,24 @@ def main(conf: DictConfig):
             df = pd.read_csv(file_path)
             enc_summary = pd.concat([enc_summary, df])
 
-        timing["nn_part_1"] = enc_summary["nn_part_1"].sum()
-        timing["encode"] = enc_summary["encode"].sum()
+        if len(enc_summary) > 0:
+            # [TODO] should be cleaned up
+            elap_times["nn_part_1"] = enc_summary["nn_part_1"].sum()
+
+            tmp_dict = {}
+            for k in enc_summary:
+                if "encode" in k:
+                    tmp_dict[k] = enc_summary[k].sum()
+
+            updates = {}
+            # add time details after encode
+            for k, v in elap_times.items():
+                updates[k] = v
+                if k == "encode":
+                    for sk, sv in tmp_dict.items():
+                        updates[sk] = sv
+
+            elap_times = updates
 
     performance, eval_criteria = _summerize_performance(
         evaluator_name, performance, conf.evaluator.eval_criteria
@@ -243,7 +259,7 @@ def main(conf: DictConfig):
                 "qp": coded_res_df["qp"][0],
                 "avg_bpp": avg_bpp,
                 "end_accuracy": performance,
-                **timing,
+                **elap_times,
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
@@ -258,7 +274,7 @@ def main(conf: DictConfig):
                 "qp": coded_res_df["qp"][0],
                 "bitrate (kbps)": bitrate,
                 "end_accuracy": performance,
-                **timing,
+                **elap_times,
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
