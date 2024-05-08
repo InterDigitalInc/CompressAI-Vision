@@ -38,12 +38,7 @@ from pathlib import Path
 
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
-from mpeg_template_format import (
-    df_add_columns,
-    df_append,
-    generate_classwise_df,
-    read_df_rec,
-)
+from mpeg_template_format import df_append, generate_classwise_df, read_df_rec
 
 import utils
 from compressai_vision.datasets import get_seq_info
@@ -101,9 +96,6 @@ def generate_csv_classwise_video_map(
 
         output_df = df_append(output_df, class_wise_results_df)
 
-    # add columns
-    output_df = df_add_columns(output_df)
-
     return output_df
 
 
@@ -153,9 +145,6 @@ def generate_csv_classwise_video_mota(result_path, dataset_path, list_of_classwi
 
         output_df = df_append(output_df, class_wise_results_df)
 
-    # add columns
-    output_df = df_add_columns(output_df)
-
     return output_df
 
 
@@ -167,9 +156,6 @@ def generate_csv(result_path):
 
     # accuracy in % for MPEG template
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
-
-    # add columns
-    result_df = df_add_columns(result_df)
 
     return result_df
 
