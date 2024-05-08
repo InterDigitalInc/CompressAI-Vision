@@ -304,7 +304,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compressai_vision.evaluators</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">dict_sum</span><span class="p">,</span> <span class="n">time_measure</span>
 
 <span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
 
@@ -354,7 +354,11 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_codec_configs_at_pipeline_level</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
         <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;decode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;nn_part_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_time_measure</span><span class="p">()</span>
+        <span class="n">accum_enc_by_module</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">accum_dec_by_module</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)):</span>
             <span class="n">org_img_size</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]}</span>
             <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;img_id_</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -367,21 +371,25 @@ document.write(`
 
                 <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
                 <span class="n">featureT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">)</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
                 <span class="n">featureT</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">org_img_size</span>
 
                 <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
+                <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_by_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
                     <span class="n">codec</span><span class="p">,</span>
                     <span class="n">featureT</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="p">,</span>
                     <span class="n">file_prefix</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;encode&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;encode&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">accum_enc_by_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">accum_enc_by_module</span> <span class="o">=</span> <span class="n">enc_time_by_module</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">accum_enc_by_module</span> <span class="o">=</span> <span class="n">dict_sum</span><span class="p">(</span>
+                        <span class="n">accum_enc_by_module</span><span class="p">,</span> <span class="n">enc_time_by_module</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">bin_files</span> <span class="o">=</span> <span class="p">[</span>
@@ -405,11 +413,14 @@ document.write(`
                 <span class="k">continue</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">dec_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
+            <span class="n">dec_features</span><span class="p">,</span> <span class="n">dec_time_by_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
                 <span class="n">codec</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span> <span class="n">file_prefix</span>
             <span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">accum_dec_by_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">accum_dec_by_module</span> <span class="o">=</span> <span class="n">dec_time_by_module</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">accum_dec_by_module</span> <span class="o">=</span> <span class="n">dict_sum</span><span class="p">(</span><span class="n">accum_dec_by_module</span><span class="p">,</span> <span class="n">dec_time_by_module</span><span class="p">)</span>
 
             <span class="c1"># dec_features should contain &quot;org_input_size&quot; and &quot;input_size&quot;</span>
             <span class="c1"># When using anchor codecs, that&#39;s not the case, we read input images to derive them</span>
@@ -426,8 +437,7 @@ document.write(`
             <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_features_to_output</span><span class="p">(</span>
                 <span class="n">vision_model</span><span class="p">,</span> <span class="n">dec_features</span><span class="p">,</span> <span class="n">file_prefix</span>
             <span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">evaluator</span><span class="p">:</span>
                 <span class="n">evaluator</span><span class="o">.</span><span class="n">digest</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
@@ -451,13 +461,23 @@ document.write(`
             <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_res</span><span class="p">)</span>
 
+        <span class="c1"># if dec_only is True, accum_enc_by_module is None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_time_details</span><span class="p">(</span><span class="s2">&quot;encode&quot;</span><span class="p">,</span> <span class="n">accum_enc_by_module</span><span class="p">)</span>
+        <span class="c1"># if enc_only is True, accum_dec_by_module is None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_time_details</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span> <span class="n">accum_dec_by_module</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;encode_only&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bitstreams generated, exiting&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">timing</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_elapsed_by_module</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="n">eval_performance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">timing</span><span class="p">,</span> <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span> <span class="n">output_list</span><span class="p">,</span> <span class="n">eval_performance</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_elapsed_by_module</span><span class="p">,</span>
+            <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span>
+            <span class="n">output_list</span><span class="p">,</span>
+            <span class="n">eval_performance</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </pre></div>
 
                 </article>
