@@ -54,6 +54,9 @@ class Parts(Enum):
     Evaluation = "evaluation"
 
 
+EXT = ".h5"
+
+
 class BasePipeline(nn.Module):
     def __init__(
         self,
@@ -95,10 +98,6 @@ class BasePipeline(nn.Module):
     @property
     def time_elapsed_by_module(self):
         return self.elapsed_time
-
-    @property
-    def EXT(self):
-        return ".h5"
 
     @staticmethod
     def _get_title(a):
@@ -150,7 +149,7 @@ class BasePipeline(nn.Module):
         # run NN Part 1 or load pre-computed features
         feature_dir = self.configs["nn_task_part1"].feature_dir
 
-        features_file = f"{feature_dir}/{seq_name}{self.EXT}"
+        features_file = f"{feature_dir}/{seq_name}{EXT}"
 
         if (
             self.configs["nn_task_part1"].load_features
@@ -187,7 +186,7 @@ class BasePipeline(nn.Module):
 
         output_results_dir = self.configs["nn_task_part2"].output_results_dir
 
-        results_file = f"{output_results_dir}/{seq_name}{self.EXT}"
+        results_file = f"{output_results_dir}/{seq_name}{EXT}"
 
         assert "data" in x
 
