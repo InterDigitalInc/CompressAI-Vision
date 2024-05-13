@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -35,6 +36,7 @@ import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
+from detectron2.structures import ImageList
 from torch import Tensor
 
 from compressai_vision.model_wrappers.utils import compute_frame_resolution
@@ -49,6 +51,15 @@ __all__ = [
     "faster_rcnn_R_50_FPN_3x",
     "mask_rcnn_R_50_FPN_3x",
 ]
+
+
+class Split_Points(Enum):
+    def __str__(self):
+        return str(self.value)
+
+    FeaturePyramidNetwork = "fpn"
+    Res2 = "r2"
+
 
 thisdir = Path(__file__).parent
 root_path = thisdir.joinpath("../..")
@@ -73,8 +84,18 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
 
+        self.supported_split_points = Split_Points
+
         assert "splits" in kwargs, "Split layer ids must be provided"
-        self.split_layer_list = kwargs["splits"]
+        self.split_id = str(kwargs["splits"]).lower()
+
+        if self.split_id == str(self.supported_split_points.FeaturePyramidNetwork):
+            self.split_layer_list = ["p2", "p3", "p4", "p5"]
+        elif self.split_id == str(self.supported_split_points.Res2):
+            self.split_layer_list = ["r2"]
+        else:
+            raise NotImplementedError
+
         self.features_at_splits = dict(
             zip(self.split_layer_list, [None] * len(self.split_layer_list))
         )
@@ -82,24 +103,68 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         assert self.top_block is not None
         assert self.proposal_generator is not None
 
+    @property
+    def SPLIT_FPN(self):
+        return str(self.supported_split_points.FeaturePyramidNetwork)
+
+    @property
+    def SPLIT_R2(self):
+        return str(self.supported_split_points.Res2)
+
+    @property
+    def size_divisibility(self):
+        return self.backbone.size_divisibility
+
+    def input_resize(self, images: List):
+        return ImageList.from_tensors(images, self.size_divisibility)
+
     def input_to_features(self, x) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
-        return self._input_to_feature_pyramid(x)
+
+        if self.split_id == self.SPLIT_FPN:
+            return self._input_to_feature_pyramid(x)
+        elif self.split_id == self.SPLIT_R2:
+            return self._input_to_r2(x)
+        else:
+            self.logger.error(f"Not supported split point {self.split_id}")
+
+        raise NotImplementedError
 
     def features_to_output(self, x: Dict):
         """Complete the downstream task from the intermediate deep features"""
-        return self._feature_pyramid_to_output(
-            x["data"], x["org_input_size"], x["input_size"]
-        )
+
+        if self.split_id == self.SPLIT_FPN:
+            return self._feature_pyramid_to_output(
+                x["data"], x["org_input_size"], x["input_size"]
+            )
+        elif self.split_id == self.SPLIT_R2:
+            return self._feature_r2_to_output(
+                x["data"], x["org_input_size"], x["input_size"]
+            )
+        else:
+            self.logger.error(f"Not supported split points {self.split_id}")
+
+        raise NotImplementedError
 
     @torch.no_grad()
     def _input_to_feature_pyramid(self, x):
-        """Computes and return feture pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
+        """Computes and return feature pyramid ['p2', 'p3', 'p4', 'p5'] all the way from the input"""
         imgs = self.model.preprocess_image(x)
         feature_pyramid = self.backbone(imgs.tensor)
         del feature_pyramid["p6"]
 
         return {"data": feature_pyramid, "input_size": imgs.image_sizes}
+
+    @torch.no_grad()
+    def _input_to_r2(self, x):
+        """Computes and return feature tensor at R2 from input"""
+        imgs = self.model.preprocess_image(x)
+
+        # Resnet FPN
+        stem_out = self.backbone.bottom_up.stem(imgs.tensor)
+        r2_out = self.backbone.bottom_up.res2(stem_out)
+
+        return {"data": {"r2": r2_out}, "input_size": imgs.image_sizes}
 
     @torch.no_grad()
     def get_input_size(self, x):
@@ -138,6 +203,45 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         assert (
             not torch.jit.is_scripting()
         ), "Scripting is not supported for postprocess."
+        return self.model._postprocess(
+            results,
+            [
+                org_img_size,
+            ],
+            input_img_size,
+        )
+
+    @torch.no_grad()
+    def _feature_r2_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+        assert "r2" in x
+
+        r2_out = x["r2"]
+        r3_out = self.backbone.bottom_up.res3(r2_out)
+        r4_out = self.backbone.bottom_up.res4(r3_out)
+        r5_out = self.backbone.bottom_up.res5(r4_out)
+
+        bottom_up_features = {
+            "res2": r2_out,
+            "res3": r3_out,
+            "res4": r4_out,
+            "res5": r5_out,
+        }
+
+        fptensors = self.backbone(bottom_up_features, no_bottom_up=True)
+
+        class dummy:
+            def __init__(self, img_size: list):
+                self.image_sizes = img_size
+
+        cdummy = dummy(input_img_size)
+
+        proposals, _ = self.proposal_generator(cdummy, fptensors, None)
+        results, _ = self.roi_heads(cdummy, fptensors, proposals, None)
+
+        assert (
+            not torch.jit.is_scripting()
+        ), "Scripting is not supported for postprocess."
+
         return self.model._postprocess(
             results,
             [

@@ -95,6 +95,10 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
         pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
         wait
     fi
+
+    # '!' egating set -e when patching has been applied already
+    ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
+    
     pip3 install -e .
 
     # back to project root

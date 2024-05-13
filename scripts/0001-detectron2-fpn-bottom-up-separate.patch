@@ -1,0 +1,28 @@
+diff --git a/detectron2/modeling/backbone/fpn.py b/detectron2/modeling/backbone/fpn.py
+index d0bdfc9..3b8767e 100644
+--- a/detectron2/modeling/backbone/fpn.py
++++ b/detectron2/modeling/backbone/fpn.py
+@@ -110,7 +110,7 @@ class FPN(Backbone):
+     def size_divisibility(self):
+         return self._size_divisibility
+ 
+-    def forward(self, x):
++    def forward(self, x, no_bottom_up=False):
+         """
+         Args:
+             input (dict[str->Tensor]): mapping feature map name (e.g., "res5") to
+@@ -123,7 +123,13 @@ class FPN(Backbone):
+                 paper convention: "p<stage>", where stage has stride = 2 ** stage e.g.,
+                 ["p2", "p3", ..., "p6"].
+         """
+-        bottom_up_features = self.bottom_up(x)
++
++        if no_bottom_up is False:
++            bottom_up_features = self.bottom_up(x)
++        else:
++            assert isinstance(x, dict)
++            bottom_up_features = x
++
+         results = []
+         prev_features = self.lateral_convs[0](bottom_up_features[self.in_features[-1]])
+         results.append(self.output_convs[0](prev_features))
