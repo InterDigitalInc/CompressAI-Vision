@@ -42,8 +42,6 @@ from torch import Tensor
 
 from compressai_vision.model_wrappers import BaseWrapper
 
-EXT = ".h5"
-
 
 class Parts(Enum):
     def __str__(self):
@@ -98,6 +96,10 @@ class BasePipeline(nn.Module):
     def time_elapsed_by_module(self):
         return self.elapsed_time
 
+    @property
+    def EXT(self):
+        return ".h5"
+
     @staticmethod
     def _get_title(a):
         return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
@@ -148,7 +150,7 @@ class BasePipeline(nn.Module):
         # run NN Part 1 or load pre-computed features
         feature_dir = self.configs["nn_task_part1"].feature_dir
 
-        features_file = f"{feature_dir}/{seq_name}{EXT}"
+        features_file = f"{feature_dir}/{seq_name}{self.EXT}"
 
         if (
             self.configs["nn_task_part1"].load_features
@@ -185,7 +187,7 @@ class BasePipeline(nn.Module):
 
         output_results_dir = self.configs["nn_task_part2"].output_results_dir
 
-        results_file = f"{output_results_dir}/{seq_name}{EXT}"
+        results_file = f"{output_results_dir}/{seq_name}{self.EXT}"
 
         assert "data" in x
 
