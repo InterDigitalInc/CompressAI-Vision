@@ -27,16 +27,14 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
-from detectron2.structures import ImageList
 from torch import Tensor
 
 from compressai_vision.model_wrappers.utils import compute_frame_resolution
@@ -110,13 +108,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     @property
     def SPLIT_R2(self):
         return str(self.supported_split_points.Res2)
-
-    @property
-    def size_divisibility(self):
-        return self.backbone.size_divisibility
-
-    def input_resize(self, images: List):
-        return ImageList.from_tensors(images, self.size_divisibility)
 
     def input_to_features(self, x) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
