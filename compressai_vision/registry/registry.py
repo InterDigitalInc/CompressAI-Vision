@@ -40,6 +40,7 @@ DATASETS: Dict[str, Callable[..., Dataset]] = {}
 VISIONMODELS: Dict[str, Callable[..., nn.Module]] = {}
 EVALUATORS: Dict[str, Callable[..., nn.Module]] = {}
 CODECS: Dict[str, Callable[..., nn.Module]] = {}
+MULTASK_CODECS: Dict[str, Callable[..., nn.Module]] = {}
 
 TRANSFORMS: Dict[str, Callable[..., Callable]] = {
     k: v for k, v in transforms.__dict__.items() if k[0].isupper()
@@ -51,6 +52,7 @@ TVisionModel_b = TypeVar("TVisionModel_b", bound=nn.Module)
 TEvaluator_b = TypeVar("TEvaluator_b", bound=nn.Module)
 TPipeline_b = TypeVar("TPipeline_b", bound=nn.Module)
 TCodec_b = TypeVar("TCodec_b", bound=nn.Module)
+TMultaskCodec_b = TypeVar("TMultaskCodec_b", bound=nn.Module)
 
 
 def register_datacatalog(name: str):
@@ -108,6 +110,16 @@ def register_codec(name: str):
 
     def decorator(cls: Type[TCodec_b]) -> Type[TCodec_b]:
         CODECS[name] = cls
+        return cls
+
+    return decorator
+
+
+def register_multask_codec(name: str):
+    """Decorator for registering a multi-task codec"""
+
+    def decorator(cls: Type[TMultaskCodec_b]) -> Type[TMultaskCodec_b]:
+        MULTASK_CODECS[name] = cls
         return cls
 
     return decorator

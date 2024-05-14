@@ -47,6 +47,7 @@ from compressai_vision.registry import (
     DATACATALOGS,
     DATASETS,
     EVALUATORS,
+    MULTASK_CODECS,
     PIPELINES,
     TRANSFORMS,
     VISIONMODELS,
@@ -62,6 +63,9 @@ def configure_conf(conf: DictConfig):
 
 
 def create_vision_model(device: str, conf: DictConfig) -> nn.Module:
+    if conf.arch.lower() == "none":
+        return None
+
     return VISIONMODELS[conf.arch](device, **conf[conf.arch]).eval()
 
 
@@ -127,11 +131,16 @@ def create_evaluator(
     ):
         return None
 
-    return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
+    return EVALUATORS[conf.type](
+        catalog, datasetname, dataset, conf.output, conf.eval_criteria
+    )
 
 
 def create_pipline(conf: DictConfig, device: str):
-    pipeline_type = conf.type + "-" + conf.name
+    if conf.type == "":
+        pipeline_type = conf.name
+    else:
+        pipeline_type = conf.type + "-" + conf.name
 
     # OmegaConf.to_container(conf.config, resolve=True)
     return PIPELINES[pipeline_type](dict(conf), device)
@@ -148,3 +157,12 @@ def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig)
     kwargs = cast(Dict[str, Any], kwargs)
     del kwargs["type"]
     return CODECS[conf.type](**kwargs)
+
+
+def create_multi_task_codec(conf: DictConfig, vmodels: list, device: str):
+    kwargs = OmegaConf.to_container(conf, resolve=True)
+    kwargs = cast(Dict[str, Any], kwargs)
+    del kwargs["type"]
+    kwargs["vmodels"] = vmodels
+
+    return MULTASK_CODECS[conf.type](device, **kwargs)

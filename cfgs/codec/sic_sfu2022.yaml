@@ -1,0 +1,38 @@
+type: "sic_sfu2022"
+eval_encode: "bpp"
+experiment: "" # e.g. "_test_xy_margin_decay" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qidx}"
+bitstream_name: "${dataset.config.dataset_name}_qidx_${codec.encoder_config.qidx}"
+
+verbosity: 1
+num_tasks: "${pipeline.codec.num_tasks}"
+target_task_layer: "${pipeline.codec.target_task_layer}"
+
+encoder_config:
+  qidx: 1
+  bottleneck_chs: [96,32,64]
+  feature_chs: [256, 256]
+  strides: 
+    lst_layer1: [2, 2, 1, 1]
+    lst_layer2: [2, 2, 1, 1]
+
+  #"256"
+  #"256,256"
+  #"128,64",
+  #"96,32,64",
+
+decoder_config:
+  tlayer0:
+    output_results_dir: "${codec.output_dir}/output_results/tlayer0"
+    vision_arch: faster_rcnn_R_50_FPN_3x
+    dump_results: True
+
+  tlayer1:
+    output_results_dir: "${codec.output_dir}/output_results/tlayer1"
+    vision_arch: mask_rcnn_R_50_FPN_3x
+    dump_results: True
+
+  tlayer2:
+    output_results_dir: "${codec.output_dir}/output_results/tlayer2"
+    vision_arch: None
+    dump_results: False

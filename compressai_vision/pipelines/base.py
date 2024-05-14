@@ -54,9 +54,6 @@ class Parts(Enum):
     Evaluation = "evaluation"
 
 
-EXT = ".h5"
-
-
 class BasePipeline(nn.Module):
     def __init__(
         self,
@@ -72,6 +69,7 @@ class BasePipeline(nn.Module):
         assert self.output_dir, "please provide output directory!"
         self._create_folder(self.output_dir)
         self.bitstream_name = self.configs["codec"]["bitstream_name"]
+        self._output_ext = ".h5"
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self._create_folder(self.codec_output_dir)
@@ -149,7 +147,7 @@ class BasePipeline(nn.Module):
         # run NN Part 1 or load pre-computed features
         feature_dir = self.configs["nn_task_part1"].feature_dir
 
-        features_file = f"{feature_dir}/{seq_name}{EXT}"
+        features_file = f"{feature_dir}/{seq_name}{self._output_ext}"
 
         if (
             self.configs["nn_task_part1"].load_features
@@ -186,7 +184,7 @@ class BasePipeline(nn.Module):
 
         output_results_dir = self.configs["nn_task_part2"].output_results_dir
 
-        results_file = f"{output_results_dir}/{seq_name}{EXT}"
+        results_file = f"{output_results_dir}/{seq_name}{self._output_ext}"
 
         assert "data" in x
 

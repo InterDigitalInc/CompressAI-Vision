@@ -1,7 +1,0 @@
-name: 'single-input-multiple-task'
-
-
-cache: 
-  enabled: False
-  keep: False
-  dir:

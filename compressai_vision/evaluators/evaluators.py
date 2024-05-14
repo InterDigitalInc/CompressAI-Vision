@@ -27,10 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import copy
 import json
-import os
-import time
+import math
 from pathlib import Path
 
 import motmetrics as mm
@@ -39,11 +37,12 @@ import pandas as pd
 import torch
 from detectron2.evaluation import COCOEvaluator
 from jde.utils.io import unzip_objs
+from pytorch_msssim import ms_ssim
 from tqdm import tqdm
 
 from compressai_vision.datasets import deccode_compressed_rle
 from compressai_vision.registry import register_evaluator
-from compressai_vision.utils import to_cpu
+from compressai_vision.utils import time_measure, to_cpu
 
 from .base_evaluator import BaseEvaluator
 from .tf_evaluation_utils import (
@@ -59,9 +58,16 @@ from .tf_evaluation_utils import (
 @register_evaluator("COCO-EVAL")
 class COCOEVal(BaseEvaluator):
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="AP",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
 
         self._evaluator = COCOEvaluator(
             dataset_name, False, output_dir=output_dir, use_fast_impl=False
@@ -96,9 +102,16 @@ class COCOEVal(BaseEvaluator):
 @register_evaluator("OIC-EVAL")
 class OpenImagesChallengeEval(BaseEvaluator):
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="AP50",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
 
         with open(dataset.annotation_path) as f:
             json_dict = json.load(f)
@@ -296,17 +309,17 @@ class OpenImagesChallengeEval(BaseEvaluator):
             self._logger.warning("There is no detected objects to evaluate")
             return
 
-        start = time.time()
+        start = time_measure()
         for pred_dict in self._predictions:
             img_id = pred_dict["img_id"]
             processed_dict = self._process_prediction(pred_dict)
             self._oic_evaluator.add_single_detected_image_info(img_id, processed_dict)
 
         self._logger.info(
-            f"Elapsed time to process and register the predicted items to the evaluator: {time.time() - start:.02f} sec"
+            f"Elapsed time to process and register the predicted items to the evaluator: {time_measure() - start:.02f} sec"
         )
         out = self._oic_evaluator.evaluate()
-        self._logger.info(f"Total evaluation time: {time.time() - start:.02f} sec")
+        self._logger.info(f"Total evaluation time: {time_measure() - start:.02f} sec")
 
         if save_path:
             self.write_results(out, save_path)
@@ -340,9 +353,16 @@ class MOT_JDE_Eval(BaseEvaluator):
     """
 
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="MOTA",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
 
         mm.lap.default_solver = "lap"
         self.dataset = dataset.dataset
@@ -514,9 +534,16 @@ class MOT_TVD_Eval(MOT_JDE_Eval):
     """
 
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="MOTA",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
 
         self._gt_pd = self._load_gt_in_motchallenge(self.annotation_path)
 
@@ -558,9 +585,16 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
     """
 
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="MOTA",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
 
         mm.lap.default_solver = "munkres"
 
@@ -596,6 +630,89 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
 @register_evaluator("YOLO-EVAL")
 class YOLOEval(BaseEvaluator):
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="AP50",
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir)
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.set_annotation_info(dataset)
+
+
+@register_evaluator("VISUAL-QUALITY-EVAL")
+class VisualQualityEval(BaseEvaluator):
+    def __init__(
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria="psnr",
+    ):
+        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+
+        self.reset()
+
+    @staticmethod
+    def compute_psnr(a, b):
+        mse = torch.mean((a - b) ** 2).item()
+        return -10 * math.log10(mse)
+
+    @staticmethod
+    def compute_msssim(a, b):
+        return ms_ssim(a, b, data_range=1.0).item()
+
+    def reset(self):
+        self._evaluations = []
+        self._sum_psnr = 0
+        self._sum_msssim = 0
+        self._cc = 0
+
+    def write_results(self, path: str = None):
+        if path is None:
+            path = f"{self.output_dir}"
+
+        path = Path(path)
+        if not path.is_dir():
+            self._logger.info(f"creating output folder: {path}")
+            path.mkdir(parents=True, exist_ok=True)
+
+        with open(f"{path}/{self.output_file_name}.json", "w", encoding="utf-8") as f:
+            json.dump(self._evaluations, f, ensure_ascii=False, indent=4)
+
+    def digest(self, gt, pred):
+        ref = gt[0]["image"].unsqueeze(0).cpu()
+        tst = pred.unsqueeze(0).cpu()
+
+        assert ref.shape == tst.shape
+
+        psnr = self.compute_psnr(ref, tst)
+        msssim = self.compute_msssim(ref, tst)
+
+        eval_dict = {
+            "img_id": gt[0]["image_id"],
+            "img_size": (gt[0]["height"], gt[0]["width"]),
+            "msssim": msssim,
+            "psnr": psnr,
+        }
+
+        self._sum_psnr += psnr
+        self._sum_msssim += msssim
+        self._evaluations.append(eval_dict)
+
+        self._cc += 1
+
+    def results(self, save_path: str = None):
+        if save_path:
+            self.write_results(save_path)
+
+        self.write_results()
+
+        summary = {
+            "msssim": (self._sum_msssim / self._cc),
+            "psnr": (self._sum_psnr / self._cc),
+        }
+        return summary

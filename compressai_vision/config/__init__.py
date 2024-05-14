@@ -32,6 +32,7 @@ from .config import (
     create_codec,
     create_dataloader,
     create_evaluator,
+    create_multi_task_codec,
     create_pipline,
     create_vision_model,
 )
@@ -49,4 +50,5 @@ __all__ = [
     "create_evaluator",
     "create_pipline",
     "create_codec",
+    "create_multi_task_codec",
 ]

@@ -37,12 +37,18 @@ import torch.nn as nn
 
 class BaseEvaluator(nn.Module):
     def __init__(
-        self, datacatalog_name, dataset_name, dataset, output_dir="./vision_output/"
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        criteria=None,
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.datacatalog_name = datacatalog_name
         self.dataset_name = dataset_name
         self.output_dir = output_dir
+        self.criteria = criteria
         self.output_file_name = (
             f"{self.__class__.__name__}_on_{datacatalog_name}_{dataset_name}"
         )
@@ -52,9 +58,9 @@ class BaseEvaluator(nn.Module):
             self._logger.info(f"creating output folder: {path}")
             path.mkdir(parents=True, exist_ok=True)
 
+    def set_annotation_info(self, dataset):
         self.annotation_path = dataset.annotation_path
         self.seqinfo_path = dataset.seqinfo_path
-
         self.thing_classes = dataset.thing_classes
         self.thing_id_mapping = dataset.thing_dataset_id_to_contiguous_id
 

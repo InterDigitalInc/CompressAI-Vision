@@ -109,6 +109,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def SPLIT_R2(self):
         return str(self.supported_split_points.Res2)
 
+    @property
+    def size_divisibility(self):
+        return self.backbone.size_divisibility
+
     def input_to_features(self, x) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
 

@@ -1,0 +1,46 @@
+###########################################################################################
+# A schematic for the single-input multiple-task
+#                                     ┌───────────────────────┐
+#                                     │                       │
+#                                     │      NN Task 3        │
+#                          ┌─────────▶│       Part 2          │
+#                          │          │ (i.e., Pixel Decoder) │
+#                          │          └───────────────────────┘
+# ┌────────────────┐       │          ┌───────────────────────┐
+# │                │       │          │                       │
+# │    Encoder     ├───────┘          │      NN Task 2        │
+# │                ├─────────────────▶│       Part 2          │
+# │                ├────────────┐     │ (i.e., Segmentation)  │
+# └────────────────┘            │     └───────────────────────┘
+#                               │     ┌───────────────────────┐
+#                               │     │                       │
+#                               │     │      NN Task 1        │
+#                               └────▶│       Part 2          │
+#                                     │ (i.e., Obj. Detection)│
+#                                     └───────────────────────┘
+###########################################################################################
+
+
+name: "multi-task-inference"
+type: ""
+output_dir_root: ${paths._run_root}/${.name}
+
+codec:
+    encode_only: False
+    decode_only: False
+    # following variables fetched from codec cfg, needed for decode_only pipeline 
+    codec_output_dir: "${codec.output_dir}/codec_output"
+    bitstream_name: "${codec.bitstream_name}"
+    skip_n_frames: 0 # This is encoder only option
+    n_frames_to_be_encoded: -1  #(-1 = encode all input), This is encoder only option
+    num_tasks: 3
+    target_task_layer: 0
+
+nn_task_part2:
+    dump_results: False
+    output_results_dir: "${codec.output_dir}/output_results"
+
+evaluation:
+    bypass: False
+    dump: True
+    evaluation_dir: "${codec.output_dir}/evaluation"

@@ -27,6 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import torch.nn.functional as F
+
 MIN_MAX_DATASET = {
     "mpeg-oiv6-detection": (
         -26.426828384399414,
@@ -50,3 +53,47 @@ def min_max_inv_normalization(x, min: float, max: float, bitdepth: int = 10):
     out = x / ((2**bitdepth) - 1)
     out = (out * (max - min)) + min
     return out
+
+
+def pad(x, p=2**6, bottom_right=False):
+    h, w = x.size(2), x.size(3)
+    H = (h + p - 1) // p * p
+    W = (w + p - 1) // p * p
+
+    if bottom_right is True:
+        padding_left = 0
+        padding_top = 0
+    else:
+        padding_left = (W - w) // 2
+        padding_top = (H - h) // 2
+
+    padding_right = W - w - padding_left
+    padding_bottom = H - h - padding_top
+    return F.pad(
+        x,
+        (padding_left, padding_right, padding_top, padding_bottom),
+        mode="constant",
+        value=0,
+    )
+
+
+def crop(x, size, bottom_right=False):
+    H, W = x.size(2), x.size(3)
+    h, w = size
+
+    if bottom_right is True:
+        padding_left = 0
+        padding_top = 0
+    else:
+        padding_left = (W - w) // 2
+        padding_top = (H - h) // 2
+
+    padding_right = W - w - padding_left
+    padding_bottom = H - h - padding_top
+
+    return F.pad(
+        x,
+        (-padding_left, -padding_right, -padding_top, -padding_bottom),
+        mode="constant",
+        value=0,
+    )

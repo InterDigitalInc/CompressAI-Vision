@@ -33,6 +33,7 @@ from .registry import (
     DATACATALOGS,
     DATASETS,
     EVALUATORS,
+    MULTASK_CODECS,
     PIPELINES,
     TRANSFORMS,
     VISIONMODELS,
@@ -40,6 +41,7 @@ from .registry import (
     register_datacatalog,
     register_dataset,
     register_evaluator,
+    register_multask_codec,
     register_pipeline,
     register_vision_model,
 )
@@ -51,6 +53,7 @@ __all__ = [
     "EVALUATORS",
     "TRANSFORMS",
     "PIPELINES",
+    "MULTASK_CODECS",
     "CODECS",
     "register_dataset",
     "register_vision_model",
@@ -58,4 +61,5 @@ __all__ = [
     "register_evaluator",
     "register_pipeline",
     "register_codec",
+    "register_multask_codec",
 ]

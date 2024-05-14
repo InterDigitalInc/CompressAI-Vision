@@ -1,0 +1,35 @@
+defaults:
+  - paths: default
+  - env: default
+  - misc: default
+  - dataset: default
+  - vision_model: default
+  - pipeline: multitask_inference
+  - codec: sic_sfu2022
+  - _self_
+  
+dataset: 
+  type: 'Detectron2Dataset'
+  
+  datacatalog: 'COCO'
+  config:
+    root: "/data/datasets/COCODataset/coco2017"
+    imgs_folder: "val2017"
+    annotation_file: "annotations/instances_val2017.json"
+    dataset_name: "coco2017_val"
+
+evaluator:
+  tlayer0:
+    type: 'COCO-EVAL'
+    output: "${pipeline.evaluation.evaluation_dir}/tlayer0"
+    eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria)
+
+  tlayer1:
+    type: 'COCO-EVAL'
+    output: "${pipeline.evaluation.evaluation_dir}/tlayer1"
+    eval_criteria: "AP"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria)
+
+  tlayer2:
+    type: 'VISUAL-QUALITY-EVAL'
+    output: "${pipeline.evaluation.evaluation_dir}/tlayer2"
+    eval_criteria: "PSNR"  # For COCO-EVAL: AP, AP50, AP75 (If empty, will use the default evaluation criteria)

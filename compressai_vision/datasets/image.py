@@ -317,7 +317,9 @@ class DataCatalog:
                 raise RuntimeError(f'Invalid annotation file "{_annotation_file}"')
             self._annotation_file = _annotation_file
         else:  # annotation_file is not available
-            self.logger.warning("No annotation, there would be no evaluation output\n")
+            self.logger.warning(
+                "No annotation found, there may be no evaluation output based on groundtruth\n"
+            )
 
         self._sequence_info_file = None
         if seqinfo.lower() != "none":
@@ -678,11 +680,11 @@ class IMAGES(DataCatalog):
     ):
         super().__init__(
             root,
-            imgs_folder=imgs_folder,
-            annotation_file=None,
-            seqinfo=None,
-            dataset_name=dataset_name,
-            ext=ext,
+            imgs_folder,
+            annotation_file,
+            seqinfo,
+            dataset_name,
+            ext,
         )
 
         all_files = [
