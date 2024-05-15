@@ -96,6 +96,7 @@ setup(
             "compressai-vision-eval = compressai_vision.run.eval_split_inference:main",  # to be deprecated
             "compressai-split-inference = compressai_vision.run.eval_split_inference:main",
             "compressai-remote-inference = compressai_vision.run.eval_remote_inference:main",
+            "compressai-multi-task-inference = compressai_vision.run.eval_multitask_inference:main",
         ]
     },
     # metadata for upload to PyPI
