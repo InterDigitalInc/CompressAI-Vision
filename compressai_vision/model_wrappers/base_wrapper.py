@@ -68,7 +68,7 @@ class BaseWrapper(nn.Module):
 
     @property
     def pretrained_weight_path(self):
-        return self.model_info["weight"]
+        return self.model_info["weights"]
 
     @property
     def model_cfg_path(self):

@@ -55,9 +55,6 @@ __all__ = [
     "jde_1088x608",
 ]
 
-thisdir = Path(__file__).parent
-root_path = thisdir.joinpath("../..")
-
 
 @register_vision_model("jde_1088x608")
 class jde_1088x608(BaseWrapper):
@@ -66,8 +63,8 @@ class jde_1088x608(BaseWrapper):
 
         self.device = device
         self.model_info = {
-            "cfg": f"{root_path}/{kwargs['cfg']}",
-            "weight": f"{root_path}/{kwargs['weight']}",
+            "cfg": kwargs["cfg"],
+            "weights": kwargs["weights"],
         }
 
         self.model_configs = {
@@ -90,7 +87,7 @@ class jde_1088x608(BaseWrapper):
 
         self.darknet = Darknet(self.model_info["cfg"], device, nID=14455)
         self.darknet.load_state_dict(
-            torch.load(self.model_info["weight"], map_location="cpu")["model"],
+            torch.load(self.model_info["weights"], map_location="cpu")["model"],
             strict=False,
         )
         self.darknet.to(device).eval()

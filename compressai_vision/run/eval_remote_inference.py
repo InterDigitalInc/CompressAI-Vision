@@ -117,7 +117,7 @@ def print_specs(pipeline, **kwargs):
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
                 \n  -- Cfg                    : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
-                \n  -- Weight                 : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
+                \n  -- Weights                : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
                 \n Codec                      : {title(kwargs['codec']):<30s}\
                 \n  -- Counted # CPUs for use : {get_max_num_cpus()}\
                 \n  -- Enc. Only              : {pipeline.configs['codec'].encode_only} \

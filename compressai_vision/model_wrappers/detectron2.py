@@ -59,10 +59,6 @@ class Split_Points(Enum):
     Res2 = "r2"
 
 
-thisdir = Path(__file__).parent
-root_path = thisdir.joinpath("../..")
-
-
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device="cpu", **kwargs):
         super().__init__()
@@ -70,7 +66,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.device = device
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
-        self._cfg.merge_from_file(f"{root_path}/{kwargs['cfg']}")
+        self._cfg.merge_from_file(f"{kwargs['cfg']}")
         self.model = build_model(self._cfg).to(device).eval()
 
         self.backbone = self.model.backbone
@@ -78,9 +74,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(f"{root_path}/{kwargs['weight']}")
+        DetectionCheckpointer(self.model).load(f"{kwargs['weights']}")
 
-        self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
+        self.model_info = {"cfg": kwargs["cfg"], "weights": kwargs["weights"]}
 
         self.supported_split_points = Split_Points
 
