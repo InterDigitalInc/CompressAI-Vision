@@ -29,7 +29,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, default=all]
+                [-m|--model, vision models to install, (detectron2/jde/none/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -199,6 +199,10 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt
 fi
 
+echo
+echo "Installing compressai"
+echo
+pip3 install -e "${SCRIPT_DIR}/../compressai"
 
 echo
 echo "Installing compressai-vision"

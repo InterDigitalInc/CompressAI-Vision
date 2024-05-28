@@ -26,6 +26,8 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 
 ## installation
 
+
+### initialization of the environment
 To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
 
 ```
@@ -38,8 +40,9 @@ The CompressAI library providing learned compresion modules is available as a su
 ```
 git submodule update --init --recursive
 ```
+Note: the installation script documented below installs compressai from source expects the submodule to be populated. 
 
-To install the models relevant for the FCM (feature compression):
+### installation of compressai-vision and supported vision models:
 
 First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
 ```
