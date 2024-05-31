@@ -55,7 +55,7 @@ For more otions, check:
 bash scripts/install.sh --help
 ```
 
-NOTE 1: install.sh gives you the possibility to install vision models' source and weights at specified locations so that mutliple versions of compressai-vision can point to he same installed vision models
+NOTE 1: install.sh gives you the possibility to install vision models' source and weights at specified locations so that mutliple versions of compressai-vision can point to the same installed vision models
 
 NOTE 2: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB.
 path/to/weights/jde/jde.1088x608.uncertainty.pt

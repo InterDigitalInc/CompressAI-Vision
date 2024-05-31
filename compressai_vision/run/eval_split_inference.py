@@ -121,8 +121,7 @@ def print_specs(pipeline, **kwargs):
     if kwargs["dataloader"].dataset.seqinfo_path:
         seqinfo_path = Path(kwargs["dataloader"].dataset.seqinfo_path).resolve()
 
-    logger.info(
-        f"\
+    info = f"\
                 \n {'='*60}\
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
@@ -140,20 +139,18 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Data                   : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
                 \n  -- Annotation             : {annotation_path} \
                 \n  -- SEQ-INFO               : {seqinfo_path} \
-                \n\n\
-    "
-    )
+        "
 
     if kwargs["evaluator"]:
-        logger.info(
-            f"\
+        info += f"\
                 \n Evaluator                  : {title(kwargs['evaluator']):<30s}\
                 \n  -- DataCatalog            : {kwargs['evaluator'].datacatalog_name} \
                 \n  -- Output Dir             : {Path(kwargs['evaluator'].output_dir).resolve()} \
                 \n  -- Output file            : {kwargs['evaluator'].output_file_name} \
-                \n\n\
         "
-        )
+    info += f"\n\n"
+
+    logger.info(info)
 
 
 @hydra.main(version_base=None, config_path=str(config_path))
