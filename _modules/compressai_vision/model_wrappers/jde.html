@@ -323,9 +323,6 @@ document.write(`
     <span class="s2">&quot;jde_1088x608&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">thisdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">root_path</span> <span class="o">=</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;../..&quot;</span><span class="p">)</span>
-
 
 <div class="viewcode-block" id="jde_1088x608"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;jde_1088x608&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">jde_1088x608</span><span class="p">(</span><span class="n">BaseWrapper</span><span class="p">):</span>
@@ -334,8 +331,8 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;cfg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cfg&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">],</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span> <span class="o">=</span> <span class="p">{</span>
@@ -358,7 +355,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span> <span class="o">=</span> <span class="n">Darknet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="n">device</span><span class="p">,</span> <span class="n">nID</span><span class="o">=</span><span class="mi">14455</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">],</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">],</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
             <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>

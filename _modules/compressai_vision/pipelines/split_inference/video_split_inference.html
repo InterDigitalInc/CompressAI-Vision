@@ -447,7 +447,10 @@ document.write(`
             <span class="n">bin_files</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">file_path</span>
                 <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.bin&quot;</span><span class="p">,</span> <span class="s2">&quot;.mp4&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.bin&quot;</span><span class="p">,</span> <span class="s2">&quot;.mp4&quot;</span><span class="p">])</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="s2">&quot;_tmp&quot;</span> <span class="ow">in</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
             <span class="p">]</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">bin_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>

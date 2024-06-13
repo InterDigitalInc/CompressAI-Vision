@@ -295,9 +295,9 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">detectron2.checkpoint</span> <span class="kn">import</span> <span class="n">DetectionCheckpointer</span>
@@ -318,8 +318,13 @@ document.write(`
     <span class="s2">&quot;mask_rcnn_R_50_FPN_3x&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">thisdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">root_path</span> <span class="o">=</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;../..&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Split_Points</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="n">FeaturePyramidNetwork</span> <span class="o">=</span> <span class="s2">&quot;fpn&quot;</span>
+    <span class="n">Res2</span> <span class="o">=</span> <span class="s2">&quot;r2&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Rcnn_R_50_X_101_FPN</span><span class="p">(</span><span class="n">BaseWrapper</span><span class="p">):</span>
@@ -329,7 +334,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">get_cfg</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">MODEL</span><span class="o">.</span><span class="n">DEVICE</span> <span class="o">=</span> <span class="n">device</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">merge_from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">merge_from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span>
@@ -337,12 +342,22 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">proposal_generator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roi_heads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">roi_heads</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_postprocess</span>
-        <span class="n">DetectionCheckpointer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">DetectionCheckpointer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cfg&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cfg&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">]}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span> <span class="o">=</span> <span class="n">Split_Points</span>
 
         <span class="k">assert</span> <span class="s2">&quot;splits&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;Split layer ids must be provided&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;splits&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;splits&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">FeaturePyramidNetwork</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;p2&quot;</span><span class="p">,</span> <span class="s2">&quot;p3&quot;</span><span class="p">,</span> <span class="s2">&quot;p4&quot;</span><span class="p">,</span> <span class="s2">&quot;p5&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Res2</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;r2&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span><span class="p">))</span>
         <span class="p">)</span>
@@ -350,24 +365,61 @@ document.write(`
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">SPLIT_FPN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">FeaturePyramidNetwork</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">SPLIT_R2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Res2</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes deep features at the intermediate layer(s) all the way from the input&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_pyramid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_FPN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_pyramid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_R2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_r2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported split point </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Complete the downstream task from the intermediate deep features&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_pyramid_to_output</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_FPN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_pyramid_to_output</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_R2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_r2_to_output</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported split points </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">_input_to_feature_pyramid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feture pyramid [&#39;p2&#39;, &#39;p3&#39;, &#39;p4&#39;, &#39;p5&#39;] all the way from the input&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature pyramid [&#39;p2&#39;, &#39;p3&#39;, &#39;p4&#39;, &#39;p5&#39;] all the way from the input&quot;&quot;&quot;</span>
         <span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">preprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">feature_pyramid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">feature_pyramid</span><span class="p">[</span><span class="s2">&quot;p6&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">feature_pyramid</span><span class="p">,</span> <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="n">imgs</span><span class="o">.</span><span class="n">image_sizes</span><span class="p">}</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_input_to_r2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature tensor at R2 from input&quot;&quot;&quot;</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">preprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Resnet FPN</span>
+        <span class="n">stem_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
+        <span class="n">r2_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="o">.</span><span class="n">res2</span><span class="p">(</span><span class="n">stem_out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="n">r2_out</span><span class="p">},</span> <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="n">imgs</span><span class="o">.</span><span class="n">image_sizes</span><span class="p">}</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">get_input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -406,6 +458,45 @@ document.write(`
         <span class="k">assert</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span>
         <span class="p">),</span> <span class="s2">&quot;Scripting is not supported for postprocess.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_postprocess</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">org_img_size</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">input_img_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_feature_r2_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="s2">&quot;r2&quot;</span> <span class="ow">in</span> <span class="n">x</span>
+
+        <span class="n">r2_out</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;r2&quot;</span><span class="p">]</span>
+        <span class="n">r3_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="o">.</span><span class="n">res3</span><span class="p">(</span><span class="n">r2_out</span><span class="p">)</span>
+        <span class="n">r4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="o">.</span><span class="n">res4</span><span class="p">(</span><span class="n">r3_out</span><span class="p">)</span>
+        <span class="n">r5_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="o">.</span><span class="n">res5</span><span class="p">(</span><span class="n">r4_out</span><span class="p">)</span>
+
+        <span class="n">bottom_up_features</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;res2&quot;</span><span class="p">:</span> <span class="n">r2_out</span><span class="p">,</span>
+            <span class="s2">&quot;res3&quot;</span><span class="p">:</span> <span class="n">r3_out</span><span class="p">,</span>
+            <span class="s2">&quot;res4&quot;</span><span class="p">:</span> <span class="n">r4_out</span><span class="p">,</span>
+            <span class="s2">&quot;res5&quot;</span><span class="p">:</span> <span class="n">r5_out</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">fptensors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="p">(</span><span class="n">bottom_up_features</span><span class="p">,</span> <span class="n">no_bottom_up</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">class</span> <span class="nc">dummy</span><span class="p">:</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_size</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">image_sizes</span> <span class="o">=</span> <span class="n">img_size</span>
+
+        <span class="n">cdummy</span> <span class="o">=</span> <span class="n">dummy</span><span class="p">(</span><span class="n">input_img_size</span><span class="p">)</span>
+
+        <span class="n">proposals</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">fptensors</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi_heads</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">fptensors</span><span class="p">,</span> <span class="n">proposals</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span>
+        <span class="p">),</span> <span class="s2">&quot;Scripting is not supported for postprocess.&quot;</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_postprocess</span><span class="p">(</span>
             <span class="n">results</span><span class="p">,</span>
             <span class="p">[</span>
