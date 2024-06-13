@@ -179,7 +179,10 @@ class VideoSplitInference(BasePipeline):
             bin_files = [
                 file_path
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
-                if file_path.suffix in [".bin", ".mp4"]
+                if (
+                    (file_path.suffix in [".bin", ".mp4"])
+                    and not "_tmp" in file_path.name
+                )
             ]
             assert (
                 len(bin_files) > 0
