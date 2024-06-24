@@ -14,6 +14,9 @@ pipeline:
   codec:
     encode_only: False
 
+vision_model:
+  arch: faster_rcnn_X_101_32x8d_FPN_3x
+
 dataset:
   type: "Detectron2Dataset"
   datacatalog: 'SFUHW'
