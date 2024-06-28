@@ -9,7 +9,7 @@ CUDA_VERSION=""
 MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-WEIGHTS_ROOT_DIR="${SCRIPT_DIR}/../weigths"
+WEIGHTS_ROOT_DIR="${SCRIPT_DIR}/../weights"
 MODELS_ROOT_DIR="${SCRIPT_DIR}/../models"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
@@ -37,7 +37,7 @@ RUN OPTIONS:
                     "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
-                [--weights_dir directory to download vision model weights to, default: compressai_vision_root/weigths]
+                [--weights_dir directory to download vision model weights to, default: compressai_vision_root/weights]
                 [--models_dir directory to install vision models to, default: compressai_vision_root/models]
 
 

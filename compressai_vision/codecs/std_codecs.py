@@ -551,6 +551,7 @@ class VTM(nn.Module):
             )
 
         else:
+            start = time.time()
             (
                 frames,
                 self.feature_size,
@@ -569,6 +570,9 @@ class VTM(nn.Module):
             frames, mid_level = min_max_normalization(
                 frames, minv, maxv, bitdepth=input_bitdepth
             )
+
+            conversion_time = time.time() - start
+            self.logger.debug(f"conversion time:{conversion_time}")
 
             nb_frames, frame_height, frame_width = frames.size()
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
@@ -644,10 +648,16 @@ class VTM(nn.Module):
         avg_bytes_per_frame = get_filesize(bitstream_path) / nb_frames
         all_bytes_per_frame = [avg_bytes_per_frame] * nb_frames
 
-        return {
+        output = {
             "bytes": all_bytes_per_frame,
             "bitstream": bitstream_path,
         }
+        enc_times = {
+            "video": enc_time,
+            "conversion": conversion_time,
+        }
+
+        return output, enc_times
 
     def decode(
         self,
@@ -762,6 +772,7 @@ class VTM(nn.Module):
 
             rec_frames = torch.stack(rec_frames)
 
+            start = time_measure()
             minv, maxv = self.min_max_dataset
             rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
@@ -788,12 +799,21 @@ class VTM(nn.Module):
                 json_dict["subframe_heights"],
                 packing_all_in_one=True,
             )
+
+            conversion_time = time_measure() - start
+            self.logger.debug(f"conversion_time:{conversion_time}")
+
             if not self.dump["dump_yuv_packing_dec"]:
                 Path(yuv_dec_path).unlink()
 
             output = {"data": features}
 
-        return output
+        dec_times = {
+            "video": dec_time,
+            "conversion": conversion_time,
+        }
+
+        return output, dec_times
 
     # Functions required in the context of FCM to write a header that enables a self decodable bitstream
     def write_n_bit(self, n_bit):

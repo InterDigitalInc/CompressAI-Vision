@@ -39,6 +39,7 @@ import torch.nn as nn
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
+from compressai_vision.utils import time_measure
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 from compressai_vision.utils.external_exec import run_cmdline
 
@@ -211,6 +212,9 @@ class x264(nn.Module):
         minv, maxv = self.min_max_dataset
         frames, mid_level = min_max_normalization(frames, minv, maxv, bitdepth=bitdepth)
 
+        conversion_time = time.time() - start
+        self.logger.debug(f"conversion time:{conversion_time}")
+
         nbframes, frame_height, frame_width = frames.size()
         frmRate = self.frame_rate if nbframes > 1 else 1
 
@@ -260,10 +264,15 @@ class x264(nn.Module):
         avg_bytes_per_frame = get_filesize(bitstream_path) / nbframes
         all_bytes_per_frame = [avg_bytes_per_frame] * nbframes
 
-        return {
+        output = {
             "bytes": all_bytes_per_frame,
             "bitstream": bitstream_path,
         }
+        enc_times = {
+            "video": enc_time,
+            "conversion": conversion_time,
+        }
+        return output, enc_times
 
     def decode(
         self,
@@ -320,6 +329,7 @@ class x264(nn.Module):
 
         rec_frames = torch.stack(rec_frames)
 
+        start = time_measure()
         minv, maxv = self.min_max_dataset
         rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
@@ -347,12 +357,19 @@ class x264(nn.Module):
             packing_all_in_one=True,
         )
 
+        conversion_time = time_measure() - start
+        self.logger.debug(f"conversion_time:{conversion_time}")
+
         if not self.dump["dump_yuv_packing_dec"]:
             Path(yuv_dec_path).unlink()
 
         output = {"data": features}
+        dec_times = {
+            "video": dec_time,
+            "conversion": conversion_time,
+        }
 
-        return output
+        return output, dec_times
 
 
 @register_codec("x265")
