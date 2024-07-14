@@ -9,8 +9,7 @@ CUDA_VERSION=""
 MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-WEIGHTS_ROOT_DIR="${SCRIPT_DIR}/../weights"
-MODELS_ROOT_DIR="${SCRIPT_DIR}/../models"
+MODELS_ROOT_DIR="${SCRIPT_DIR}/.."
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
 export DNNL_MAX_CPU_ISA=AVX2
@@ -56,14 +55,16 @@ _EOF_
         --cpu) CPU="True"; shift; ;;
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
         --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
-        --weights_dir) shift; WEIGHTS_ROOT_DIR="$1"; shift; ;;
         --models_dir) shift; MODELS_ROOT_DIR="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
 
-mkdir -p ${MODELS_ROOT_DIR}
-mkdir -p ${WEIGHTS_ROOT_DIR}
+MODELS_SOURCE_DIR=${MODELS_ROOT_DIR}/models
+MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
+
+mkdir -p ${MODELS_SOURCE_DIR}
+mkdir -p ${MODELS_WEIGHT_DIR}
 
 ## Make sure we have up-to-date pip and wheel
 pip3 install -U pip wheel
@@ -76,10 +77,10 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     echo
 
     # clone
-    if [ -z "$(ls -A ${MODELS_ROOT_DIR}/detectron2)" ]; then
-        git clone https://github.com/facebookresearch/detectron2.git ${MODELS_ROOT_DIR}/detectron2
+    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/detectron2)" ]; then
+        git clone https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
     fi
-    cd ${MODELS_ROOT_DIR}/detectron2
+    cd ${MODELS_SOURCE_DIR}/detectron2
 
     echo
     echo "checkout the version used for MPEG FCM"
@@ -111,28 +112,28 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     cd ${SCRIPT_DIR}/..
 
 
-    if [ -z "$(ls -A ${WEIGHTS_ROOT_DIR}/detectron2)" ]; then
+    if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/detectron2)" ]; then
         echo
         echo "Downloading model weights"
         echo
     
         # FASTER R-CNN X-101 32x8d FPN
-        WEIGHT_DIR="${WEIGHTS_ROOT_DIR}/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
+        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
         mkdir -p ${WEIGHT_DIR}
         wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl -P ${WEIGHT_DIR}
 
         # FASTER R-CNN R-50 FPN
-        WEIGHT_DIR="${WEIGHTS_ROOT_DIR}/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
+        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
         mkdir -p ${WEIGHT_DIR}
         wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl -P ${WEIGHT_DIR}
 
         # MASK R-CNN X-101 32x8d FPN
-        WEIGHT_DIR="${WEIGHTS_ROOT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
+        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
         mkdir -p ${WEIGHT_DIR}
         wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl -P ${WEIGHT_DIR}
 
         # MASK R-CNN R-50 FPN
-        WEIGHT_DIR="${WEIGHTS_ROOT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
+        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
         mkdir -p ${WEIGHT_DIR}
         wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
 
@@ -167,10 +168,10 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     pip3 install -e .
 
     # clone
-    if [ -z "$(ls -A ${MODELS_ROOT_DIR}/Towards-Realtime-MOT)" ]; then
-        git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git ${MODELS_ROOT_DIR}/Towards-Realtime-MOT
+    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
+        git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT
     fi
-    cd ${MODELS_ROOT_DIR}/Towards-Realtime-MOT
+    cd ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT
 
     # git checkout
     echo
@@ -200,23 +201,24 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     cd ${SCRIPT_DIR}/..
 
     # download weights
-    if [ -z "$(ls -A ${WEIGHTS_ROOT_DIR}/jde)"]; then
+    # NOTE commmented out for now as downloading via wget is blocked by provider
+    # if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
 
-        echo
-        echo "Downloading weights..."
-        echo
+    #     echo
+    #     echo "Downloading weights..."
+    #     echo
 
-        WEIGHT_DIR="${WEIGHTS_ROOT_DIR}/jde"
-        mkdir -p ${WEIGHT_DIR}
+    #     WEIGHT_DIR="${MODELS_WEIGHT_DIR}/jde"
+    #     mkdir -p ${WEIGHT_DIR}
 
-        FILEID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
-        OUTFILE='jde.1088x608.uncertainty.pt'
-        wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt
-    else
-        echo
-        echo "JDE Weights directory not empty, using existing model"
-        echo
-    fi
+    #     FILEID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
+    #     OUTFILE='jde.1088x608.uncertainty.pt'
+    #     wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt
+    # else
+    #     echo
+    #     echo "JDE Weights directory not empty, using existing model"
+    #     echo
+    # fi
 fi
 
 
@@ -227,8 +229,8 @@ echo
 pip3 install -e "${SCRIPT_DIR}/.."
 pip3 install ptflops
 echo
-echo "NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB:"
-echo "${WEIGHTS_ROOT_DIR}/jde/jde.1088x608.uncertainty.pt"
-echo "The file can be downloaded at the following link (in place of the above file path):"
+echo "NOTE: JDE pretrained weights can't be downloaded automatically"
+echo "The file can be downloaded from the following link:"
 echo "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
+echo "and placed in the corresponding directory: ${MODELS_WEIGHT_DIR}/jde/jde.1088x608.uncertainty.pt"
 echo

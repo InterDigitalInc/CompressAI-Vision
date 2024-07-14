@@ -50,6 +50,9 @@ __all__ = [
     "mask_rcnn_R_50_FPN_3x",
 ]
 
+thisdir = Path(__file__).parent
+root_path = thisdir.joinpath("../..")
+
 
 class Split_Points(Enum):
     def __str__(self):
@@ -66,7 +69,11 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.device = device
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
-        self._cfg.merge_from_file(f"{kwargs['cfg']}")
+        _path_prefix = (
+            f"{root_path}/" if kwargs["model_path_prefix"] == "default" else ""
+        )
+        self._cfg.merge_from_file(f"{_path_prefix}{kwargs['cfg']}")
+
         self.model = build_model(self._cfg).to(device).eval()
 
         self.backbone = self.model.backbone
@@ -74,7 +81,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(f"{kwargs['weights']}")
+        DetectionCheckpointer(self.model).load(f"{_path_prefix}{kwargs['weights']}")
 
         self.model_info = {"cfg": kwargs["cfg"], "weights": kwargs["weights"]}
 

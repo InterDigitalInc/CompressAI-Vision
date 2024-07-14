@@ -55,6 +55,9 @@ __all__ = [
     "jde_1088x608",
 ]
 
+thisdir = Path(__file__).parent
+root_path = thisdir.joinpath("../..")
+
 
 @register_vision_model("jde_1088x608")
 class jde_1088x608(BaseWrapper):
@@ -62,9 +65,12 @@ class jde_1088x608(BaseWrapper):
         super().__init__()
 
         self.device = device
+        _path_prefix = (
+            f"{root_path}/" if kwargs["model_path_prefix"] == "default" else ""
+        )
         self.model_info = {
-            "cfg": kwargs["cfg"],
-            "weights": kwargs["weights"],
+            "cfg": f"{_path_prefix}{kwargs['cfg']}",
+            "weights": f"{_path_prefix}{kwargs['weights']}",
         }
 
         self.model_configs = {
