@@ -59,6 +59,7 @@ class Split_Points(Enum):
         return str(self.value)
 
     FeaturePyramidNetwork = "fpn"
+    C2 = "c2"
     Res2 = "r2"
 
 
@@ -92,6 +93,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if self.split_id == str(self.supported_split_points.FeaturePyramidNetwork):
             self.split_layer_list = ["p2", "p3", "p4", "p5"]
+        elif self.split_id == str(self.supported_split_points.C2):
+            self.split_layer_list = ["c2", "c3", "c4", "c5"]
         elif self.split_id == str(self.supported_split_points.Res2):
             self.split_layer_list = ["r2"]
         else:
@@ -109,6 +112,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         return str(self.supported_split_points.FeaturePyramidNetwork)
 
     @property
+    def SPLIT_C2(self):
+        return str(self.supported_split_points.C2)
+
+    @property
     def SPLIT_R2(self):
         return str(self.supported_split_points.Res2)
 
@@ -117,6 +124,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if self.split_id == self.SPLIT_FPN:
             return self._input_to_feature_pyramid(x)
+        elif self.split_id == self.SPLIT_C2:
+            return self._input_to_c2(x)
         elif self.split_id == self.SPLIT_R2:
             return self._input_to_r2(x)
         else:
@@ -129,6 +138,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if self.split_id == self.SPLIT_FPN:
             return self._feature_pyramid_to_output(
+                x["data"], x["org_input_size"], x["input_size"]
+            )
+        elif self.split_id == self.SPLIT_C2:
+            return self._feature_c2_to_output(
                 x["data"], x["org_input_size"], x["input_size"]
             )
         elif self.split_id == self.SPLIT_R2:
@@ -148,6 +161,28 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         del feature_pyramid["p6"]
 
         return {"data": feature_pyramid, "input_size": imgs.image_sizes}
+
+    @torch.no_grad()
+    def _input_to_c2(self, x):
+        """Computes and return feature tensors at C2 from input"""
+        imgs = self.model.preprocess_image(x)
+
+        c_features = self.split_layer_list
+        ref_features = self.backbone.in_features
+
+        results = []
+
+        # Resnet FPN
+        bottom_up_features = self.backbone.bottom_up(imgs.tensor)
+
+        for idx, lateral_conv in enumerate(self.backbone.lateral_convs):
+            features = bottom_up_features[ref_features[-idx - 1]]
+            results.insert(0, lateral_conv(features))
+
+        assert len(c_features) == len(results)
+        out = {f: res for f, res in zip(c_features, results)}
+
+        return {"data": out, "input_size": imgs.image_sizes}
 
     @torch.no_grad()
     def _input_to_r2(self, x):
@@ -190,6 +225,42 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         # Replacing tag names for interfacing with NN-part2
         x = dict(zip(self.features_at_splits.keys(), x.values()))
         x.update({"p6": self.top_block(x["p5"])[0]})
+
+        proposals, _ = self.proposal_generator(cdummy, x, None)
+        results, _ = self.roi_heads(cdummy, x, proposals, None)
+
+        assert (
+            not torch.jit.is_scripting()
+        ), "Scripting is not supported for postprocess."
+        return self.model._postprocess(
+            results,
+            [
+                org_img_size,
+            ],
+            input_img_size,
+        )
+
+    @torch.no_grad()
+    def _feature_c2_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+        """
+        performs  downstream task using the c2 ['c2', 'c3', 'c4', 'c5']
+
+        Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
+        Unnecessary parts for split inference are removed or modified properly.
+
+        Please find the license statement in the downloaded original Detectron2 source codes or at here:
+        https://github.com/facebookresearch/detectron2/blob/main/LICENSE
+
+        """
+        # Replacing tag names for interfacing with NN-part2
+        x = dict(zip(self.features_at_splits.keys(), x.values()))
+        x = self.backbone.forward_after_c2(x)
+
+        class dummy:
+            def __init__(self, img_size: list):
+                self.image_sizes = img_size
+
+        cdummy = dummy(input_img_size)
 
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
