@@ -32,9 +32,9 @@ import math
 from typing import Dict, Tuple
 
 import torch.nn as nn
-from fctm.utils.tools import time_measure
 
 from compressai_vision.registry import register_codec
+from compressai_vision.utils import time_measure
 
 
 @register_codec("bypass")

@@ -1,6 +1,6 @@
 arch: "faster_rcnn_R_50_FPN_3x"
 
-model_root_path: "default" # replace with your model root path [default=compressai_vision_repo/models]
+model_root_path: "default" # replace with your model root path [default=compressai_vision_repo]
 
 faster_rcnn_R_50_FPN_3x:
   model_path_prefix: ${..model_root_path}

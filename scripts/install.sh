@@ -36,8 +36,7 @@ RUN OPTIONS:
                     "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
-                [--weights_dir directory to download vision model weights to, default: compressai_vision_root/weights]
-                [--models_dir directory to install vision models to, default: compressai_vision_root/models]
+                [--models_dir directory to install vision models to, default: compressai_vision_root]
 
 
 EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
