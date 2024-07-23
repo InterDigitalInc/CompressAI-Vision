@@ -112,13 +112,13 @@ def get_seq_info_path_by_seq_num(seq_num, _path):
     return seq_info_path, gt_path
 
 
-def get_seq_info_path_by_seq_name(seq_name, _path):
-    eval_folder, _dname = get_folder_path_by_seq_name(seq_name, _path)
+def get_seq_info_path_by_seq_name(seq_name, path, gt_folder):
+    eval_folder, _dname = get_folder_path_by_seq_name(seq_name, path)
 
     seq_info_path = f"{eval_folder}/seqinfo.ini"
     check_file_validity(seq_info_path)
 
-    gt_path = f"{eval_folder}/annotations/{_dname}.json"
+    gt_path = f"{eval_folder}/{gt_folder}/{_dname}.json"
     check_file_validity(gt_path)
 
     return seq_info_path, gt_path
@@ -152,6 +152,7 @@ def search_items(
     seq_list: list,
     eval_func: callable,
     by_name=False,
+    gt_folder="annotations",
 ):
     _ret_list = []
     for seq_name in seq_list:
@@ -160,7 +161,7 @@ def search_items(
                 seq_name, result_path, rate_point, eval_func
             )
             seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
-                seq_name, dataset_path
+                seq_name, dataset_path, gt_folder
             )
         else:  # by number
             seq_num = get_seq_number(seq_name)
