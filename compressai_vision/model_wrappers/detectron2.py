@@ -64,10 +64,9 @@ class Split_Points(Enum):
 
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__()
 
-        self.device = device
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
         _path_prefix = (
@@ -119,8 +118,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def SPLIT_R2(self):
         return str(self.supported_split_points.Res2)
 
-    def input_to_features(self, x) -> Dict:
+    def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
+
+        self.model = self.model.to(device).eval()
 
         if self.split_id == self.SPLIT_FPN:
             return self._input_to_feature_pyramid(x)
@@ -133,8 +134,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         raise NotImplementedError
 
-    def features_to_output(self, x: Dict):
+    def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
+
+        self.model = self.model.to(device).eval()
 
         if self.split_id == self.SPLIT_FPN:
             return self._feature_pyramid_to_output(
@@ -320,6 +323,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """
         compute accuracy proxy at the deeper layer than NN-Part1
         """
+        raise NotImplementedError
 
         d = {}
         for e, ft in enumerate(x["data"].values()):
@@ -404,40 +408,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         return packed_frames, feature_size, subframe_heights
 
-    def reshape_frame_to_feature_pyramid(
-        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
-    ):
-        """reshape a frame of channels into the feature pyramid"""
-
-        assert isinstance(x, (Tensor, Dict))
-        assert packing_all_in_one is True, "False is not supported yet"
-
-        top_y = 0
-        tiled_frames = {}
-        if packing_all_in_one:
-            for key, height in subframe_height.items():
-                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
-                top_y = top_y + height
-        else:
-            raise NotImplementedError
-            assert isinstance(x, Dict)
-            tiled_frames = x
-
-        feature_tensor = {}
-        for key, frames in tiled_frames.items():
-            _, numChs, chH, chW = tensor_shape[key]
-
-            tensors = []
-            for frame in frames:
-                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
-                tensors.append(tensor)
-            tensors = torch.cat(tensors, dim=0)
-            assert tensors.size(1) == numChs
-
-            feature_tensor.update({key: tensors})
-
-        return feature_tensor
-
     @property
     def cfg(self):
         return self._cfg
@@ -445,23 +415,23 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
 @register_vision_model("faster_rcnn_X_101_32x8d_FPN_3x")
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("mask_rcnn_X_101_32x8d_FPN_3x")
 class mask_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("faster_rcnn_R_50_FPN_3x")
 class faster_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("mask_rcnn_R_50_FPN_3x")
 class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)

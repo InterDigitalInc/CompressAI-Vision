@@ -61,13 +61,18 @@ class BasePipeline(nn.Module):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__()
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.configs = configs
-        self.device = device
+
+        assert isinstance(device, Dict)
+
+        self.device_nn_part1 = device["nn_part1"]
+        self.device_nn_part2 = device["nn_part2"]
+
         self.output_dir = self.configs["output_dir_root"]
         assert self.output_dir, "please provide output directory!"
         self._create_folder(self.output_dir)
@@ -200,20 +205,20 @@ class BasePipeline(nn.Module):
             if Path(features_file).is_file():
                 self.logger.debug(f"loading features: {features_file}")
                 # features = torch.load(features_file)
-                features = torch.load(features_file, map_location=self.device)
+                features = torch.load(features_file, map_location=self.device_nn_part1)
             else:
                 if self.configs["nn_task_part1"].load_features:
                     raise FileNotFoundError(
                         errno.ENOENT, os.strerror(errno.ENOENT), features_file
                     )
                 else:
-                    features = vision_model.input_to_features(x)
+                    features = vision_model.input_to_features(x, self.device_nn_part1)
                     if self.configs["nn_task_part1"].dump_features:
                         self._create_folder(feature_dir)
                         self.logger.debug(f"dumping features in: {feature_dir}")
                         torch.save(features, features_file)
         else:
-            features = vision_model.input_to_features(x)
+            features = vision_model.input_to_features(x, self.device_nn_part1)
             if self.configs["nn_task_part1"].dump_features:
                 self._create_folder(feature_dir)
                 self.logger.debug(f"dumping features in: {feature_dir}")
@@ -249,11 +254,11 @@ class BasePipeline(nn.Module):
 
         # suppose that the order of keys and values is matched
         x["data"] = {
-            k: v.to(device=self.device)
+            k: v.to(device=self.device_nn_part2)
             for k, v in zip(vision_model.split_layer_list, x["data"].values())
         }
 
-        results = vision_model.features_to_output(x)
+        results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
             self._create_folder(output_results_dir)
             torch.save(results, results_file)

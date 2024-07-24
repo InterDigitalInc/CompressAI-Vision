@@ -67,7 +67,7 @@ class ImageSplitInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__(configs, device)
 

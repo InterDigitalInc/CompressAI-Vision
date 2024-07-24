@@ -50,7 +50,7 @@ from typing import Any
 
 import hydra
 import pandas as pd
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from tabulate import tabulate
 
 from compressai_vision.datasets import get_seq_info
@@ -74,8 +74,10 @@ from compressai_vision.config import (
 def setup(conf: DictConfig) -> dict[str, Any]:
     configure_conf(conf)
 
-    vision_model = create_vision_model(conf.misc.device, conf.vision_model)
-    dataloader = create_dataloader(conf.dataset, conf.misc.device, vision_model.cfg)
+    vision_model = create_vision_model(conf.misc.device.nn_parts, conf.vision_model)
+    dataloader = create_dataloader(
+        conf.dataset, conf.misc.device.nn_parts, vision_model.cfg
+    )
     evaluator = create_evaluator(
         conf.evaluator,
         conf.dataset.datacatalog,

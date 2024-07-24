@@ -1,4 +1,5 @@
 type: "bypass"
+device: "cpu"
 eval_encode: "bpp" # or "bitrate"
 experiment: "_default" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/uncmp"

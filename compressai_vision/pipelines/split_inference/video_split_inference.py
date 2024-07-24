@@ -72,7 +72,7 @@ class VideoSplitInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__(configs, device)
         self._input_ftensor_buffer = []
@@ -247,7 +247,9 @@ class VideoSplitInference(BasePipeline):
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
+        for e, data in tqdm(
+            self._iterate_items(dec_ftensors_list, self.device_nn_part2)
+        ):
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["qp"] = (

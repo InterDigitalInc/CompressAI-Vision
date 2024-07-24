@@ -44,11 +44,11 @@ class BaseWrapper(nn.Module):
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def input_to_features(self, x) -> Dict:
+    def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
         raise NotImplementedError
 
-    def features_to_output(self, x: Dict):
+    def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
         raise NotImplementedError
 

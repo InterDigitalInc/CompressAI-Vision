@@ -130,18 +130,15 @@ def create_evaluator(
     return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
 
 
-def create_pipline(conf: DictConfig, device: str):
+def create_pipline(conf: DictConfig, devices: DictConfig):
     pipeline_type = conf.type + "-" + conf.name
-
-    # OmegaConf.to_container(conf.config, resolve=True)
-    return PIPELINES[pipeline_type](dict(conf), device)
+    return PIPELINES[pipeline_type](dict(conf), dict(devices))
 
 
 def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig):
     kwargs = OmegaConf.to_container(conf, resolve=True)
 
-    if "device" not in kwargs:
-        kwargs["device"] = vision_model.device
+    assert "device" in kwargs, "No device setup"
 
     kwargs["vision_model"] = vision_model
     kwargs["dataset"] = dataset
