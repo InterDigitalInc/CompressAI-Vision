@@ -32,9 +32,11 @@ from .base import Bypass
 from .ffmpeg import x264, x265
 from .std_codecs import HM, VTM, VVENC
 
+__all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC"]
+
 try:
     from .fctm import FCTM
-
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC", "FCTM"]
-except ImportError:
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC"]
+except ImportError as e:
+    raise e
+else:
+    __all__.append("FCTM")

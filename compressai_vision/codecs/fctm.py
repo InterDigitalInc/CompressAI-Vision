@@ -29,10 +29,16 @@
 
 import logging
 
+from compressai_vision.registry import register_codec
+
 try:
     from fctm import feature_coding_model
-
-    from compressai_vision.registry import register_codec
+except ModuleNotFoundError as e:
+    if e.name == "fctm":
+        logging.warning(f"FCTM is not installed")
+    else:
+        raise e
+else:
 
     @register_codec("fctm")
     class FCTM(feature_coding_model):
@@ -56,6 +62,3 @@ try:
         @property
         def eval_encode_type(self):
             return self.eval_encode
-
-except ImportError:
-    logging.warning(f"FCTM is not installed")
