@@ -372,7 +372,6 @@ class VTM(nn.Module):
         Raises:
             AssertionError: If the number of images in the input folder does not match the expected number of frames.
         """
-        nb_frames = 1
         file_names = input["file_names"]
         if len(file_names) > 1:  # video
             # NOTE: using glob for now, should be more robust and look at skipped
