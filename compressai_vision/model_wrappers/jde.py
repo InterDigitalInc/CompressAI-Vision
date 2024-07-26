@@ -45,11 +45,9 @@ from jde.utils.kalman_filter import KalmanFilter
 from jde.utils.utils import non_max_suppression, scale_coords
 from torch import Tensor
 
-from compressai_vision.model_wrappers.utils import compute_frame_resolution
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-from .utils import tensor_to_tiled, tiled_to_tensor
 
 __all__ = [
     "jde_1088x608",

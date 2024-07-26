@@ -49,8 +49,16 @@ from compressai_vision.utils import time_measure
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_parallel
 
+
 from .encdec_utils import *
-from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
+from .utils import (
+    MIN_MAX_DATASET,
+    min_max_inv_normalization,
+    min_max_normalization,
+    compute_frame_resolution,
+    tensor_to_tiled,
+    tiled_to_tensor,
+)
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
@@ -164,11 +172,25 @@ class VTM(nn.Module):
     def eval_encode_type(self):
         return self.eval_encode
 
+    def __del__(self):
+        self.close_bitstream_file()
+
     def reset(self):
         self._header_writer = HeaderWriter()
         self._header_reader = HeaderReader()
         self._frame_info_buffer = []
         self._temp_io_buffer = BytesIO()
+        self._bitstream_fd = None
+
+    def open_bitstream_file(self, path, mode="rb"):
+        self._bitstream_fd = open(path, mode)
+        return self._bitstream_fd
+
+    def close_bitstream_file(self):
+        if self._bitstream_fd is not None:
+            self._bitstream_fd.flush()
+            self._bitstream_fd.close()
+            self._bitstream_fd = None
 
     def get_encode_cmd(
         self,
@@ -533,6 +555,8 @@ class VTM(nn.Module):
         Returns:
             dict: A dictionary containing the bytes per frame and the path to the output bitstream.
         """
+
+        self.reset()
         input_bitdepth = self.enc_cfgs["input_bitdepth"]
         output_bitdepth = self.enc_cfgs["output_bitdepth"]
 
@@ -541,7 +565,7 @@ class VTM(nn.Module):
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        print(f"\n-- encoding ${file_prefix}", file=sys.stdout)
+        print(f"\n-- encoding {file_prefix}", file=sys.stdout)
 
         # Conversion: reshape data to yuv domain (e.g. 420 or 400)
         if remote_inference:
@@ -551,11 +575,7 @@ class VTM(nn.Module):
 
         else:
             start = time.time()
-            (
-                frames,
-                self.feature_size,
-                self.subframe_heights,
-            ) = self.vision_model.reshape_feature_pyramid_to_frame(
+            frames = self.reshape_feature_pyramid_to_frame(
                 x["data"], packing_all_in_one=True
             )
 
@@ -584,6 +604,7 @@ class VTM(nn.Module):
             self.logger.debug(f"conversion time:{conversion_time}")
 
             nb_frames, frame_height, frame_width = frames.size()
+            nb_frames = 1
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
             chroma_format = self.enc_cfgs["chroma_format"]
             file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate }fps_{input_bitdepth}bit_p{chroma_format}"
@@ -706,8 +727,11 @@ class VTM(nn.Module):
 
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
+        yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
         yuv_dec_path = Path(f"{dec_path}/{output_file_prefix}_dec.yuv")
+
+        print(f"\n-- decoding ${output_file_prefix}", file=sys.stdout)
 
         if remote_inference:  # remote inference pipeline
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
@@ -752,8 +776,7 @@ class VTM(nn.Module):
         else:  # split inference pipeline
             del org_img_size  # not needed in this pipeline
 
-            with open(bitstream_path, "rb") as fd:
-                bitstream_fd = BytesIO(fd.read())
+            bitstream_fd = self.open_bitstream_file(bitstream_path, "rb")
 
             # read header bitstream header
             sequence_info = self._header_reader.read_sequence_info(bitstream_fd)
@@ -767,8 +790,6 @@ class VTM(nn.Module):
             # we need this to read the std codec part of the bitstream
             with open(bitstream_path, "wb") as fw:
                 fw.write(bitstream_fd.read())
-
-            bitstream_fd.close()
 
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
@@ -788,6 +809,7 @@ class VTM(nn.Module):
                 frmHeight=frame_height,
             )
 
+            # TODO (fracape) expects raw yuv400 10b coded on 16 bit
             nb_frames = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
 
             rec_frames = []
@@ -824,7 +846,7 @@ class VTM(nn.Module):
                     print(f'Error reading file "{fpn_sizes}"')
                     raise err
 
-            features = self.vision_model.reshape_frame_to_feature_pyramid(
+            features = self.reshape_frame_to_feature_pyramid(
                 rec_frames,
                 json_dict["fpn"],
                 json_dict["subframe_heights"],
@@ -875,6 +897,101 @@ class VTM(nn.Module):
             f.write(json.dumps(output, indent=4).encode())
         print(f"fpn sizes json dump generated, exiting")
         raise SystemExit(0)
+
+    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
+        """rehape the feature pyramid to a frame"""
+
+        # find the largest tensor
+        x_sorted = sorted(
+            x.values(), key=lambda item: math.prod(item[1].size()), reverse=True
+        )
+
+        nbframes, C, H, W = x_sorted[0].size()
+        _, fixedW = compute_frame_resolution(C, H, W)
+
+        assert packing_all_in_one == True, "packing_all_in_one False is not support yet"
+
+        # compute packing subframes
+        self.subframe_heights = []
+        self.subframe_widths = []
+        for i, tensor in enumerate(x_sorted):
+            single_tensor = tensor[0:1, ::]
+            _, C, H, W = single_tensor.shape
+
+            frmH, frmW = compute_frame_resolution(C, H, W)
+
+            rescale = fixedW // frmW if packing_all_in_one else 1
+
+            new_frmH = frmH // rescale
+            new_frmW = frmW * rescale
+
+            self.subframe_heights.append(new_frmH)
+            self.subframe_widths.append(new_frmW)
+
+        packed_frame_list = []
+        for n in range(nbframes):
+            tiles = []
+            for i, tensor in enumerate(x_sorted):
+                single_tensor = tensor[n : n + 1, ::]
+                N, C, H, W = single_tensor.size()
+
+                assert N == 1, f"the batch size shall be one, but got {N}"
+
+                tile = tensor_to_tiled(
+                    single_tensor, (self.subframe_heights[i], self.subframe_widths[i])
+                )
+
+                tiles.append(tile)
+
+            if packing_all_in_one:
+                cur_frame = []
+                for f, subframe in enumerate(tiles):
+                    if f == 0:
+                        cur_frame = subframe
+                    else:
+                        cur_frame = torch.cat([cur_frame, subframe], dim=0)
+
+                packed_frame_list.append(cur_frame)
+
+        packed_frames = torch.stack(packed_frame_list)
+
+        return packed_frames
+
+    def reshape_frame_to_feature_pyramid(
+        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
+    ):
+        """reshape a frame of channels into the feature pyramid"""
+
+        assert isinstance(x, (Tensor, Dict))
+        assert (
+            packing_all_in_one is True
+        ), "packing_all_in_one = False is not supported yet"
+
+        top_y = 0
+        tiled_frames = {}
+        if packing_all_in_one:
+            for key, height in subframe_height.items():
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
+                top_y = top_y + height
+        else:
+            raise NotImplementedError
+            assert isinstance(x, Dict)
+            tiled_frames = x
+
+        feature_tensor = {}
+        for key, frames in tiled_frames.items():
+            _, numChs, chH, chW = tensor_shape[key]
+
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
+
+        return feature_tensor
 
 
 @register_codec("hm")

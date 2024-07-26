@@ -127,6 +127,7 @@ def print_specs(pipeline, **kwargs):
                 \n {'='*60}\
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
+                \n  -- Split Point            : {Path(kwargs['vision_model'].split_id).resolve()}\
                 \n  -- Cfg                    : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
                 \n  -- Weights                : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
                 \n Codec                      : {title(kwargs['codec']):<30s}\

@@ -5,6 +5,7 @@ output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.dataca
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
 
 verbosity: 1
+device: "${misc.device}"
 
 dump:
   dump_yuv_input: False

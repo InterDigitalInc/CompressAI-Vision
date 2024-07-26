@@ -9,6 +9,7 @@ codec_paths:
   cfg_file: "/pa/home/racapef/vvc/vvenc/cfg/randomaccess_${codec.encoder_config.preset}.cfg"
 
 verbosity: 1
+device: "${misc.device}"
 
 dump:
   dump_yuv_input: False
