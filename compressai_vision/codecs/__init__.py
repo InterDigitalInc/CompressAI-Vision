@@ -37,6 +37,10 @@ __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC"]
 try:
     from .fctm import FCTM
 except ImportError as e:
-    raise e
+    if e.name == f"{__package__}.fctm":
+        # Could not import "FCTM".
+        pass
+    else:
+        raise e
 else:
     __all__.append("FCTM")
