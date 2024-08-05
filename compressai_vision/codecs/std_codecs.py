@@ -774,6 +774,7 @@ class VTM(nn.Module):
 
         else:  # split inference pipeline
             del org_img_size  # not needed in this pipeline
+            bitstream_path_tmp = f"{file_prefix}_tmp.bin"
 
             bitstream_fd = self.open_bitstream_file(bitstream_path, "rb")
 
@@ -787,11 +788,12 @@ class VTM(nn.Module):
             frame_height, frame_width = sequence_info["frame_size"]
 
             # we need this to read the std codec part of the bitstream
-            with open(bitstream_path, "wb") as fw:
+            with open(bitstream_path_tmp, "wb") as fw:
                 fw.write(bitstream_fd.read())
+                fw.flush()
 
             cmd = self.get_decode_cmd(
-                bitstream_path=bitstream_path,
+                bitstream_path=bitstream_path_tmp,
                 yuv_dec_path=yuv_dec_path,
                 output_bitdepth=bitdepth,
             )
@@ -857,6 +859,8 @@ class VTM(nn.Module):
 
             if not self.dump["dump_yuv_packing_dec"]:
                 yuv_dec_path.unlink()
+            if self.stash_outputs:
+                Path(bitstream_path_tmp).unlink()
 
             output = {"data": features}
 
@@ -983,7 +987,7 @@ class VTM(nn.Module):
 
             tensors = []
             for frame in frames:
-                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
+                tensor = tiled_to_tensor(frame, (chH, chW))
                 tensors.append(tensor)
             tensors = torch.cat(tensors, dim=0)
             assert tensors.size(1) == numChs
