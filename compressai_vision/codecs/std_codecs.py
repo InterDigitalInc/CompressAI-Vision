@@ -536,6 +536,7 @@ class VTM(nn.Module):
             dict: A dictionary containing the bytes per frame and the path to the output bitstream.
         """
         input_bitdepth = self.enc_cfgs["input_bitdepth"]
+        output_bitdepth = self.enc_cfgs["output_bitdepth"]
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
@@ -629,7 +630,7 @@ class VTM(nn.Module):
             inner_codec_bitstream = load_bitstream(bitstream_path)
 
             # Bistream header to make bitstream self-decodable
-            _ = self.write_n_bit(self.bitdepth)
+            _ = self.write_n_bit(output_bitdepth)
             _ = self.write_rft_chSize(x["chSize"])
             _ = self.write_packed_frame_size((frame_height, frame_width))
             _ = self.write_min_max_values()
