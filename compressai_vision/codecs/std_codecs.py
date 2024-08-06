@@ -603,7 +603,6 @@ class VTM(nn.Module):
             self.logger.debug(f"conversion time:{conversion_time}")
 
             nb_frames, frame_height, frame_width = frames.size()
-            nb_frames = 1
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
             chroma_format = self.enc_cfgs["chroma_format"]
             file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate }fps_{input_bitdepth}bit_p{chroma_format}"
@@ -726,7 +725,6 @@ class VTM(nn.Module):
 
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
-        yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
         yuv_dec_path = Path(f"{dec_path}/{output_file_prefix}_dec.yuv")
 
@@ -1083,6 +1081,116 @@ class HM(VTM):
             cmds = self._parallel_encode_cmd(base_cmd, bitstream_path, nb_frames)
 
         return cmds
+
+
+@register_codec("jm")
+class JM(VTM):
+    """Encoder / Decoder class for AVC - JM reference software"""
+
+    def __init__(
+        self,
+        vision_model: BaseWrapper,
+        dataset: Dict,
+        **kwargs,
+    ):
+        super().__init__(vision_model, dataset, **kwargs)
+
+        self.default_cfg_file = Path(self.enc_cfgs["default_cfg_file"])
+
+    def get_encode_cmd(
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nb_frames: int = 1,
+        parallel_encoding: bool = False,
+        hash_check: int = 0,
+        chroma_format: str = "400",
+        input_bitdepth: int = 10,
+        output_bitdepth: int = 0,
+    ) -> List[Any]:
+        """
+        Generates the command to encode a video using the specified parameters.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV file.
+            qp (int): The quantization parameter.
+            bitstream_path (Path): The path to the output bitstream file.
+            width (int): The width of the video.
+            height (int): The height of the video.
+            nb_frames (int, optional): The number of frames in the video. Defaults to 1.
+            parallel_encoding (bool, optional): Whether to enable parallel encoding. Defaults to False.
+            hash_check (int, optional): The hash check value. Defaults to 0.
+            chroma_format (str, optional): The chroma format of the video. Defaults to "400".
+            input_bitdepth (int, optional): The bitdepth of the input video. Defaults to 10.
+            output_bitdepth (int, optional): The bitdepth of the output video. Defaults to 0.
+        Returns:
+            List[Any]: commands line to encode the video.
+        """
+
+        assert parallel_encoding == False, "JM does not support parallel coding"
+        # level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
+        if output_bitdepth == 0:
+            output_bitdepth = input_bitdepth
+
+        # decodingRefreshType = 1 if self.intra_period >= 1 else 0
+        cmd = [
+            self.encoder_path,
+            "-d",
+            self.default_cfg_file,
+            "-f",
+            self.cfg_file,
+            "-p",
+            f"InputFile={inp_yuv_path}",
+            "-p",
+            f"QPISlice={qp}",
+            "-p",
+            f"QPPSlice={qp}",
+            "-p",
+            f"QPBSlice={qp}",
+            "-p",
+            f"SourceWidth={width}",
+            "-p",
+            f"OutputWidth={width}",
+            "-p",
+            f"SourceHeight={height}",
+            "-p",
+            f"OutputHeight={height}",
+            # "-p",
+            # f"FrameRate={frmRate}",
+            "-p",
+            f"IntraPeriod={self.intra_period}",
+            "-p",
+            "YUVFormat=0",
+            # "-p",
+            # f"SourceBitDepthLuma={bitdepth}",
+            "-p",
+            "ChromaWeightSupport=0",
+            "-p",
+            f"OutputFile={bitstream_path}",
+            "-p",
+            f"FramesToBeEncoded={nb_frames}",
+        ]
+        cmd = list(map(str, cmd))
+        self.logger.debug(cmd)
+        return [cmd]
+
+    def get_decode_cmd(self, yuv_dec_path: Path, bitstream_path: Path) -> List[Any]:
+        cmd = [
+            self.decoder_path,
+            "-p",
+            f"InputFile={bitstream_path}",
+            "-p",
+            f"OutputFile={yuv_dec_path}",
+            "-p",
+            "WriteUV=0",
+        ]
+
+        cl = list(map(str, cmd))
+        self.logger.debug(cl)
+
+        return [cl]
 
 
 @register_codec("vvenc")
