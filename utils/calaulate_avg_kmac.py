@@ -30,127 +30,166 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import os
 from pathlib import Path
 
-import csv
 import pandas as pd
 
+
 def generate_csv_classwise_image_gmac(dataset_name, result_path, list_of_classwise_seq):
-    prefix = 'mpeg-oiv6'    
-    seq_wise_results=[]
-    cls_wise_results=[]
+    prefix = "mpeg-oiv6"
+    seq_wise_results = []
+    cls_wise_results = []
     for cls_seqs in list_of_classwise_seq:
         complexity_lst_class_wise = []
-        seq_name = f'{prefix}-{cls_seqs}'
-        base_path = f'{result_path}/{seq_name}'
-        qps = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
+        seq_name = f"{prefix}-{cls_seqs}"
+        base_path = f"{result_path}/{seq_name}"
+        qps = [
+            f
+            for f in os.listdir(base_path)
+            if os.path.isdir(os.path.join(base_path, f))
+        ]
         qps = sorted(qps)
         for idx, qp in enumerate(qps):
-            complexity_dict = {'Dataset':seq_name, 'pp':idx}
-            comp_path = f'{base_path}/{qp}/evaluation/summary_complexity.csv'
-            summary_path = f'{base_path}/{qp}/evaluation/summary.csv'
-            with open(summary_path, mode='r', newline='', encoding='utf-8') as file:
+            complexity_dict = {"Dataset": seq_name, "pp": idx}
+            comp_path = f"{base_path}/{qp}/evaluation/summary_complexity.csv"
+            summary_path = f"{base_path}/{qp}/evaluation/summary.csv"
+            with open(summary_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
                 nb_frame = 5000
-                complexity_dict['qp'] = data['qp']
-                
-            with open(comp_path, mode='r', newline='', encoding='utf-8') as file:
+                complexity_dict["qp"] = data["qp"]
+
+            with open(comp_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
-                del data['Metric']
-                avg_kmac = {k: float(v)/(float(nb_frame)*1000) for k, v in data.items()}
-            
+                del data["Metric"]
+                avg_kmac = {
+                    k: float(v) / (float(nb_frame) * 1000) for k, v in data.items()
+                }
+
             for k, v in avg_kmac.items():
                 complexity_dict[k] = v
-            
+
             complexity_lst_class_wise.append(complexity_dict)
             seq_wise_results.append(complexity_dict)
-    
 
         # class-wise calculation
-        nn_part1_lst, ft_reduction_lst, ft_restoration_lst, nn_part2_lst = [], [], [], []
+        nn_part1_lst, ft_reduction_lst, ft_restoration_lst, nn_part2_lst = (
+            [],
+            [],
+            [],
+            [],
+        )
         for seq_data in complexity_lst_class_wise:
-            nn_part1_lst.append(seq_data['nn_part1'])
-            ft_reduction_lst.append(seq_data['feature reduction'])
-            ft_restoration_lst.append(seq_data['feature restoration'])
-            nn_part2_lst.append(seq_data['nn_part2'])
-        
-        cls_wise_result = {'Dataset':f'{seq_name}-avg', 'pp':0, 'qp':0, 
-                            'nn_part1':sum(nn_part1_lst)/len(nn_part1_lst) , 
-                            'feature reduction':sum(ft_reduction_lst)/len(ft_reduction_lst),
-                            'feature restoration':sum(ft_restoration_lst)/len(ft_restoration_lst),
-                            'nn_part2':sum(nn_part2_lst)/len(nn_part2_lst)}                
-                
+            nn_part1_lst.append(seq_data["nn_part1"])
+            ft_reduction_lst.append(seq_data["feature reduction"])
+            ft_restoration_lst.append(seq_data["feature restoration"])
+            nn_part2_lst.append(seq_data["nn_part2"])
+
+        cls_wise_result = {
+            "Dataset": f"{seq_name}-avg",
+            "pp": 0,
+            "qp": 0,
+            "nn_part1": sum(nn_part1_lst) / len(nn_part1_lst),
+            "feature reduction": sum(ft_reduction_lst) / len(ft_reduction_lst),
+            "feature restoration": sum(ft_restoration_lst) / len(ft_restoration_lst),
+            "nn_part2": sum(nn_part2_lst) / len(nn_part2_lst),
+        }
+
         cls_wise_results.append(cls_wise_result)
-        
-    results = pd.DataFrame(seq_wise_results + cls_wise_results)              
+
+    results = pd.DataFrame(seq_wise_results + cls_wise_results)
 
     return results
-        
-        
-def generate_csv_classwise_video_gmac(dataset_name, result_path, list_of_classwise_seq, seq_lst):  
-    if dataset_name == 'SFU':
-        prefix = 'sfu-hw'
+
+
+def generate_csv_classwise_video_gmac(
+    dataset_name, result_path, list_of_classwise_seq, seq_lst
+):
+    if dataset_name == "SFU":
+        prefix = "sfu-hw"
     else:
-        prefix = 'mpeg'
-    
-    seq_wise_results=[]
-    cls_wise_results=[]
+        prefix = "mpeg"
+
+    seq_wise_results = []
+    cls_wise_results = []
     for cls_seqs in list_of_classwise_seq:
         for cls_name, seqs in cls_seqs.items():
-            print(f'\n[{cls_name}]')
+            print(f"\n[{cls_name}]")
             complexity_lst_class_wise = []
             for seq in seqs:
                 seq_name = [seq_name for seq_name in seq_lst if seq in seq_name][0]
-                base_path = f'{result_path}/{prefix}-{seq_name}_val'
-                qps = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
+                base_path = f"{result_path}/{prefix}-{seq_name}_val"
+                qps = [
+                    f
+                    for f in os.listdir(base_path)
+                    if os.path.isdir(os.path.join(base_path, f))
+                ]
                 qps = sorted(qps)
                 for idx, qp in enumerate(qps):
-                    complexity_dict = {'Dataset':seq_name, 'pp':idx}
-                    comp_path = f'{base_path}/{qp}/evaluation/summary_complexity.csv'
-                    summary_path = f'{base_path}/{qp}/evaluation/summary.csv'
-                    with open(summary_path, mode='r', newline='', encoding='utf-8') as file:
+                    complexity_dict = {"Dataset": seq_name, "pp": idx}
+                    comp_path = f"{base_path}/{qp}/evaluation/summary_complexity.csv"
+                    summary_path = f"{base_path}/{qp}/evaluation/summary.csv"
+                    with open(
+                        summary_path, mode="r", newline="", encoding="utf-8"
+                    ) as file:
                         reader = csv.DictReader(file)
                         data = [row for row in reader][0]
-                        nb_frame = data['num_of_coded_frame']
-                        complexity_dict['qp'] = data['qp']
-                        
-                    with open(comp_path, mode='r', newline='', encoding='utf-8') as file:
+                        nb_frame = data["num_of_coded_frame"]
+                        complexity_dict["qp"] = data["qp"]
+
+                    with open(
+                        comp_path, mode="r", newline="", encoding="utf-8"
+                    ) as file:
                         reader = csv.DictReader(file)
                         data = [row for row in reader][0]
-                        del data['Metric']
-                        avg_kmac = {k: float(v)/(float(nb_frame)*1000) for k, v in data.items()}
-                    
+                        del data["Metric"]
+                        avg_kmac = {
+                            k: float(v) / (float(nb_frame) * 1000)
+                            for k, v in data.items()
+                        }
+
                     for k, v in avg_kmac.items():
                         complexity_dict[k] = v
-                    
+
                     complexity_lst_class_wise.append(complexity_dict)
                     seq_wise_results.append(complexity_dict)
-            
+
             # class-wise calculation
             for idx in range(4):
-                nn_part1_lst, ft_reduction_lst, ft_restoration_lst, nn_part2_lst = [], [], [], []
+                nn_part1_lst, ft_reduction_lst, ft_restoration_lst, nn_part2_lst = (
+                    [],
+                    [],
+                    [],
+                    [],
+                )
                 for seq_data in complexity_lst_class_wise:
-                    if seq_data['pp'] == idx:
-                        nn_part1_lst.append(seq_data['nn_part1'])
-                        ft_reduction_lst.append(seq_data['feature reduction'])
-                        ft_restoration_lst.append(seq_data['feature restoration'])
-                        nn_part2_lst.append(seq_data['nn_part2'])
-                
-                cls_wise_result = {'Dataset':cls_name, 'pp':idx, 'qp':0, 
-                                   'nn_part1':sum(nn_part1_lst)/len(nn_part1_lst) , 
-                                   'feature reduction':sum(ft_reduction_lst)/len(ft_reduction_lst),
-                                   'feature restoration':sum(ft_restoration_lst)/len(ft_restoration_lst),
-                                   'nn_part2':sum(nn_part2_lst)/len(nn_part2_lst)}                
-                       
+                    if seq_data["pp"] == idx:
+                        nn_part1_lst.append(seq_data["nn_part1"])
+                        ft_reduction_lst.append(seq_data["feature reduction"])
+                        ft_restoration_lst.append(seq_data["feature restoration"])
+                        nn_part2_lst.append(seq_data["nn_part2"])
+
+                cls_wise_result = {
+                    "Dataset": cls_name,
+                    "pp": idx,
+                    "qp": 0,
+                    "nn_part1": sum(nn_part1_lst) / len(nn_part1_lst),
+                    "feature reduction": sum(ft_reduction_lst) / len(ft_reduction_lst),
+                    "feature restoration": sum(ft_restoration_lst)
+                    / len(ft_restoration_lst),
+                    "nn_part2": sum(nn_part2_lst) / len(nn_part2_lst),
+                }
+
                 cls_wise_results.append(cls_wise_result)
-            
-    results = pd.DataFrame(seq_wise_results + cls_wise_results)              
-    
+
+    results = pd.DataFrame(seq_wise_results + cls_wise_results)
+
     return results
-                    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -171,9 +210,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    assert (
-        args.dataset_name.lower() in Path(args.result_path).name.lower()
-    )
+    assert args.dataset_name.lower() in Path(args.result_path).name.lower()
 
     if args.dataset_name == "SFU":
         class_ab = {
@@ -221,14 +258,14 @@ if __name__ == "__main__":
             seq_list,
         )
     elif args.dataset_name == "OIV6":
-        oiv6 = ['detection', 'segmentation']
+        oiv6 = ["detection", "segmentation"]
         output_df = generate_csv_classwise_image_gmac(
             args.dataset_name, args.result_path, oiv6
         )
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
         seq_list = ["TVD-01", "TVD-02", "TVD-03"]
-        
+
         output_df = generate_csv_classwise_video_gmac(
             args.dataset_name, args.result_path, [tvd_all], seq_list
         )
@@ -246,7 +283,7 @@ if __name__ == "__main__":
             args.dataset_name, args.result_path, [hieve_1080p, hieve_720p], seq_list
         )
         # sort for FCM template - comply with the template provided in wg04n00459
-        
+
         sorterIndex = dict(zip(seq_list, range(len(seq_list))))
         output_df["ds_rank"] = output_df["Dataset"].map(sorterIndex)
         output_df.sort_values(["ds_rank", "qp"], ascending=[True, True], inplace=True)
@@ -255,7 +292,9 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     # save
-    final_csv_path = os.path.join(args.result_path, f"final_{args.dataset_name}_kmac.csv")
+    final_csv_path = os.path.join(
+        args.result_path, f"final_{args.dataset_name}_kmac.csv"
+    )
     output_df.to_csv(final_csv_path, sep=",", encoding="utf-8")
     print(output_df)
     print(f"Final CSV Saved at: {final_csv_path}")

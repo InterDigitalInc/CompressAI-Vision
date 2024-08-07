@@ -39,7 +39,12 @@ from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import time_measure, to_cpu
-from compressai_vision.utils.measure_complexity import calc_complexity_nn_part1_plyr, calc_complexity_nn_part2_plyr, calc_complexity_nn_part1_dn53, calc_complexity_nn_part2_dn53
+from compressai_vision.utils.measure_complexity import (
+    calc_complexity_nn_part1_dn53,
+    calc_complexity_nn_part1_plyr,
+    calc_complexity_nn_part2_dn53,
+    calc_complexity_nn_part2_plyr,
+)
 
 from ..base import BasePipeline
 
@@ -121,14 +126,14 @@ class VideoSplitInference(BasePipeline):
                     continue
                 if e >= self._codec_end_frame_idx:
                     break
-                
+
                 if self.is_mac_calculation and e == self._codec_skip_n_frames:
-                    if hasattr(vision_model, 'darknet'):    # for jde                        
+                    if hasattr(vision_model, "darknet"):  # for jde
                         macs = calc_complexity_nn_part1_dn53(vision_model, d)
-                    else:                                   # for detectron2        
-                        macs = calc_complexity_nn_part1_plyr(vision_model, d)                    
+                    else:  # for detectron2
+                        macs = calc_complexity_nn_part1_plyr(vision_model, d)
                     self.add_kmac_measure("nn_part_1", macs)
-                
+
                 start = time_measure()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
@@ -246,12 +251,14 @@ class VideoSplitInference(BasePipeline):
             )  # Assuming one qp will be used
 
             if e == 0:
-                if hasattr(vision_model, 'darknet'):    # for jde                    
+                if hasattr(vision_model, "darknet"):  # for jde
                     macs = calc_complexity_nn_part2_dn53(vision_model, dec_features)
-                else:                                   # for detectron2        
-                    macs = calc_complexity_nn_part2_plyr(vision_model, data, dec_features)
+                else:  # for detectron2
+                    macs = calc_complexity_nn_part2_plyr(
+                        vision_model, data, dec_features
+                    )
                 self.add_kmac_measure("nn_part_2", macs)
-                            
+
             start = time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
             self.update_time_elapsed("nn_part_2", (time_measure() - start))
@@ -275,9 +282,13 @@ class VideoSplitInference(BasePipeline):
 
         # Calculate mac considering number of coded feature frames
         if self.is_mac_calculation:
-            frames = len(dataloader) // 2 + 1 if codec.ft_reduction.temporal_resampling_is_enabled is True else len(dataloader)
+            frames = (
+                len(dataloader) // 2 + 1
+                if codec.ft_reduction.temporal_resampling_is_enabled is True
+                else len(dataloader)
+            )
             self.calc_total_kmac_video_task(frames)
-        
+
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
 

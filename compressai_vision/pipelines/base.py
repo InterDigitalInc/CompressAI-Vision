@@ -87,21 +87,26 @@ class BasePipeline(nn.Module):
         self.elapsed_time[mname] = self.elapsed_time[mname] + elapsed
 
     def init_complexity_measure(self):
-        self.mac_complexity = {"nn_part_1": 0, "feature_reduction": 0, "feature_restoration": 0, "nn_part_2": 0}
+        self.mac_complexity = {
+            "nn_part_1": 0,
+            "feature_reduction": 0,
+            "feature_restoration": 0,
+            "nn_part_2": 0,
+        }
 
     def add_kmac_measure(self, mname, complexity):
         assert mname in self.mac_complexity
         self.mac_complexity[mname] = complexity
-    
-    def calc_total_kmac_image_task(self, mname, complexity): # for image task
+
+    def calc_total_kmac_image_task(self, mname, complexity):  # for image task
         # accumulate
         assert mname in self.mac_complexity
         self.mac_complexity[mname] = self.mac_complexity[mname] + complexity
-    
-    def calc_total_kmac_video_task(self, nbframes): # for video task
+
+    def calc_total_kmac_video_task(self, nbframes):  # for video task
         # multiplication
         self.mac_complexity = {k: v * nbframes for k, v in self.mac_complexity.items()}
-    
+
     def add_time_details(self, mname: str, details):
         updates = {}
         for k, v in self.elapsed_time.items():
@@ -116,7 +121,7 @@ class BasePipeline(nn.Module):
     @property
     def time_elapsed_by_module(self):
         return self.elapsed_time
-    
+
     @property
     def complexity_calc_by_module(self):
         return self.mac_complexity

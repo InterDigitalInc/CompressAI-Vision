@@ -37,7 +37,12 @@ from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import dict_sum, time_measure
-from compressai_vision.utils.measure_complexity import calc_complexity_nn_part1_plyr, calc_complexity_nn_part2_plyr, calc_complexity_nn_part1_dn53, calc_complexity_nn_part2_dn53
+from compressai_vision.utils.measure_complexity import (
+    calc_complexity_nn_part1_dn53,
+    calc_complexity_nn_part1_plyr,
+    calc_complexity_nn_part2_dn53,
+    calc_complexity_nn_part2_plyr,
+)
 
 from ..base import BasePipeline
 
@@ -102,11 +107,11 @@ class ImageSplitInference(BasePipeline):
                     continue
                 if e >= self._codec_end_frame_idx:
                     break
-                
+
                 if self.is_mac_calculation:
-                    macs = calc_complexity_nn_part1_plyr(vision_model, d)                    
+                    macs = calc_complexity_nn_part1_plyr(vision_model, d)
                     self.calc_total_kmac_image_task("nn_part_1", macs)
-                
+
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
@@ -124,7 +129,7 @@ class ImageSplitInference(BasePipeline):
                 self.update_time_elapsed("encode", (time_measure() - start))
                 if self.is_mac_calculation:
                     self.calc_total_kmac_image_task("feature_reduction", enc_complexity)
-                
+
                 if accum_enc_by_module is None:
                     accum_enc_by_module = enc_time_by_module
                 else:
@@ -160,7 +165,7 @@ class ImageSplitInference(BasePipeline):
             self.update_time_elapsed("decode", (time_measure() - start))
             if self.is_mac_calculation:
                 self.calc_total_kmac_image_task("feature_restoration", dec_complexity)
-            
+
             if accum_dec_by_module is None:
                 accum_dec_by_module = dec_time_by_module
             else:
@@ -177,7 +182,9 @@ class ImageSplitInference(BasePipeline):
 
             dec_features["file_name"] = d[0]["file_name"]
             if self.is_mac_calculation:
-                macs = calc_complexity_nn_part2_plyr(vision_model, dec_features["data"], dec_features)
+                macs = calc_complexity_nn_part2_plyr(
+                    vision_model, dec_features["data"], dec_features
+                )
                 self.calc_total_kmac_image_task("nn_part_2", macs)
 
             start = time_measure()
