@@ -146,12 +146,9 @@ def generate_csv_classwise_video_gmac(
                         reader = csv.DictReader(file)
                         data = [row for row in reader][0]
                         del data["Metric"]
-                        avg_kmac = {
-                            k: float(v) / (float(nb_frame) * 1000)
-                            for k, v in data.items()
-                        }
+                        kmac_per_pixels = {k: float(v) for k, v in data.items()}
 
-                    for k, v in avg_kmac.items():
+                    for k, v in kmac_per_pixels.items():
                         complexity_dict[k] = v
 
                     complexity_lst_class_wise.append(complexity_dict)
