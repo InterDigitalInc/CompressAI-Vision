@@ -746,17 +746,20 @@ class VTM(nn.Module):
         else:  # split inference pipeline
             del org_img_size  # not needed in this pipeline
 
-            bitstream = load_bitstream(bitstream_path)
+            with open(bitstream_path, "rb") as fd:
+                bitstream_fd = BytesIO(fd.read())
 
             # read header bitstream header
-            bitdepth = self.read_n_bit(bitstream)
-            _, _ = self.read_rft_chSize(bitstream)
-            frame_height, frame_width = self.read_packed_frame_size(bitstream)
-            _ = self.read_min_max_values(bitstream)
+            bitdepth = self.read_n_bit(bitstream_fd)
+            _, _ = self.read_rft_chSize(bitstream_fd)
+            frame_height, frame_width = self.read_packed_frame_size(bitstream_fd)
+            _ = self.read_min_max_values(bitstream_fd)
 
             # we need this to read the std codec part of the bitstream
             with open(bitstream_path, "wb") as fw:
-                fw.write(bitstream.read())
+                fw.write(bitstream_fd.read())
+
+            bitstream_fd.close()
 
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
