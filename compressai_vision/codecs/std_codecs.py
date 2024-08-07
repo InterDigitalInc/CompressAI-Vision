@@ -37,7 +37,7 @@ import sys
 import time
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -164,7 +164,8 @@ class VTM(nn.Module):
         return self.eval_encode
 
     def reset(self):
-        self._min_max_buffer = []
+        self._header_writer = HeaderWriter()
+        self._header_reader = HeaderReader()
         self._frame_info_buffer = []
         self._temp_io_buffer = BytesIO()
 
@@ -569,7 +570,15 @@ class VTM(nn.Module):
                 frames, minv, maxv, bitdepth=input_bitdepth
             )
 
-            self.register_minmax_to_buffer(minv, maxv)
+            num_frames, *_ = frames.shape
+
+            # Same minv, maxv for all frames.
+            for _ in range(num_frames):
+                frame_info = {
+                    "minv": minv,
+                    "maxv": maxv,
+                }
+                self._frame_info_buffer.append(frame_info)
 
             conversion_time = time.time() - start
             self.logger.debug(f"conversion time:{conversion_time}")
@@ -628,11 +637,19 @@ class VTM(nn.Module):
         if not remote_inference:
             inner_codec_bitstream = load_bitstream(bitstream_path)
 
+            sequence_info = {
+                "bitdepth": output_bitdepth,
+                "frame_size": (frame_height, frame_width),
+                "num_frames": nb_frames,
+            }
+
+            assert sequence_info["num_frames"] == len(self._frame_info_buffer)
+
             # Bistream header to make bitstream self-decodable
-            _ = self.write_n_bit(output_bitdepth)
-            _ = self.write_rft_chSize([0, 0])  # NOTE: Unused.  # x["chSize"]
-            _ = self.write_packed_frame_size((frame_height, frame_width))
-            _ = self.write_min_max_values()
+            fd = self._temp_io_buffer
+            self._header_writer.write_sequence_info(fd, sequence_info)
+            for frame_info in self._frame_info_buffer:
+                self._header_writer.write_frame_info(fd, frame_info)
 
             pre_info_bitstream = self.get_io_buffer_contents()
             bitstream = pre_info_bitstream + inner_codec_bitstream
@@ -739,10 +756,13 @@ class VTM(nn.Module):
                 bitstream_fd = BytesIO(fd.read())
 
             # read header bitstream header
-            bitdepth = self.read_n_bit(bitstream_fd)
-            _, _ = self.read_rft_chSize(bitstream_fd)
-            frame_height, frame_width = self.read_packed_frame_size(bitstream_fd)
-            _ = self.read_min_max_values(bitstream_fd)
+            sequence_info = self._header_reader.read_sequence_info(bitstream_fd)
+            frame_infos = [
+                self._header_reader.read_frame_info(bitstream_fd)
+                for _ in range(sequence_info["num_frames"])
+            ]
+            bitdepth = sequence_info["bitdepth"]
+            frame_height, frame_width = sequence_info["frame_size"]
 
             # we need this to read the std codec part of the bitstream
             with open(bitstream_path, "wb") as fw:
@@ -779,6 +799,12 @@ class VTM(nn.Module):
 
             start = time_measure()
             minv, maxv = self.min_max_dataset
+            tol = dict(rel_tol=1e-4, abs_tol=1e-4)
+            assert all(
+                math.isclose(frame_info["minv"], minv, **tol)
+                and math.isclose(frame_info["maxv"], maxv, **tol)
+                for frame_info in frame_infos
+            )
             rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
             # (fracape) should feature sizes be part of bitstream?
@@ -820,59 +846,8 @@ class VTM(nn.Module):
 
         return output, dec_times
 
-    def register_minmax_to_buffer(self, minv, maxv):
-        # assert minv.dtype == maxv.dtype == torch.float32
-        self._min_max_buffer.append((float(minv), float(maxv)))
-
-    def get_minmax_buffer_size(self):
-        return len(self._min_max_buffer)
-
     def get_io_buffer_contents(self):
         return self._temp_io_buffer.getvalue()
-
-    # Functions required in the context of FCM to write a header that enables a self decodable bitstream
-    def write_n_bit(self, n_bit):
-        # adhoc method, warning redundant information
-        return write_uchars(self._temp_io_buffer, (n_bit,))
-
-    def write_rft_chSize(self, chSize):
-        # adhoc method
-        return write_uints(self._temp_io_buffer, chSize)
-
-    def write_packed_frame_size(self, frmSize):
-        # adhoc method, warning redundant information
-        return write_uints(self._temp_io_buffer, frmSize)
-
-    def write_min_max_values(self):
-        # adhoc method to make bitstream self-decodable
-        byte_cnts = write_uints(self._temp_io_buffer, (self.get_minmax_buffer_size(),))
-        for min_max in self._min_max_buffer:
-            byte_cnts += write_float32(self._temp_io_buffer, min_max)
-
-        return byte_cnts
-
-    def read_n_bit(self, fd):
-        # adhoc method, warning redundant information
-        return read_uchars(fd, 1)[0]
-
-    def read_rft_chSize(self, fd):
-        # adhoc method,
-        return read_uints(fd, 2)
-
-    def read_packed_frame_size(self, fd):
-        # adhoc method, warning redundant information
-        return read_uints(fd, 2)
-
-    def read_min_max_values(self, fd):
-        # adhoc method to make bitstream self-decodable
-        num_minmax_pairs = read_uints(fd, 1)[0]
-
-        min_max_buffer = []
-        for _ in range(num_minmax_pairs):
-            min_max = read_float32(fd, 2)
-            min_max_buffer.append(min_max)
-
-        return min_max_buffer
 
     def dump_fpn_sizes_json(self, file_prefix, bitstream_name, codec_output_dir):
         """
@@ -1043,6 +1018,77 @@ class VVENC(VTM):
             "fast",
         ]
         return list(map(str, cmd))
+
+
+class HeaderWriter:
+    def __init__(self):
+        pass
+
+    def write_sequence_info(self, fd, sequence_info):
+        expected_keys = [
+            "bitdepth",
+            "frame_size",
+            "num_frames",
+        ]
+        assert set(sequence_info.keys()) == set(expected_keys), sequence_info.keys()
+
+        return sum(
+            [
+                write_uchars(fd, (sequence_info["bitdepth"],)),
+                write_uints(fd, sequence_info["frame_size"]),
+                write_uints(fd, (sequence_info["num_frames"],)),
+            ]
+        )
+
+    def write_frame_info(self, fd, frame_info):
+        expected_keys = [
+            "minv",
+            "maxv",
+        ]
+        assert set(frame_info.keys()) == set(expected_keys)
+
+        return sum(
+            [
+                write_float32(fd, (frame_info["minv"],)),
+                write_float32(fd, (frame_info["maxv"],)),
+            ]
+        )
+
+
+class HeaderReader:
+    def __init__(self):
+        self._sequence_info = None
+        self._num_frames_read = 0
+
+    def read_sequence_info(self, fd):
+        [bitdepth] = read_uchars(fd, 1)
+        frame_size = read_uints(fd, 2)
+        [num_frames] = read_uints(fd, 1)
+
+        sequence_info = {
+            "bitdepth": bitdepth,
+            "frame_size": frame_size,
+            "num_frames": num_frames,
+        }
+
+        self._sequence_info = sequence_info
+
+        return sequence_info
+
+    def read_frame_info(self, fd):
+        frame_id = self._num_frames_read
+        [minv] = read_float32(fd, 1)
+        [maxv] = read_float32(fd, 1)
+
+        frame_info = {
+            "frame_id": frame_id,
+            "minv": minv,
+            "maxv": maxv,
+        }
+
+        self._num_frames_read += 1
+
+        return frame_info
 
 
 def _distribute_parallel_work(num_frames: int, num_workers: int, intra_period: int):

@@ -57,6 +57,11 @@ def write_uints(fd, values, fmt=">{:d}I"):
     return len(values) * 4
 
 
+def write_ushorts(fd, values, fmt=">{:d}H"):
+    fd.write(struct.pack(fmt.format(len(values)), *values))
+    return len(values) * struct.calcsize("H")
+
+
 def write_uchars(fd, values, fmt=">{:d}B"):
     fd.write(struct.pack(fmt.format(len(values)), *values))
     return len(values) * 1
@@ -71,6 +76,11 @@ def read_float32(fd, n, fmt=">{:d}f"):
 
 def read_uints(fd, n, fmt=">{:d}I"):
     sz = struct.calcsize("I")
+    return struct.unpack(fmt.format(n), fd.read(n * sz))
+
+
+def read_ushorts(fd, n, fmt=">{:d}H"):
+    sz = struct.calcsize("H")
     return struct.unpack(fmt.format(n), fd.read(n * sz))
 
 
