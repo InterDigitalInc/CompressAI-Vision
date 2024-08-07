@@ -109,8 +109,9 @@ class VTM(nn.Module):
 
         for file_path in check_list_of_paths:
             if not file_path.is_file():
-                raise FileNotFoundError(
-                    errno.ENOENT, os.strerror(errno.ENOENT), file_path
+                raise ValueError(
+                    f"Could not find path {file_path}. Consider specifying "
+                    "++codec.codec_paths._root='/local/path/vtm-12.0'."
                 )
 
         self.qp = self.enc_cfgs["qp"]

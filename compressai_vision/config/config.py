@@ -129,7 +129,8 @@ def create_pipline(conf: DictConfig, devices: DictConfig):
 def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig):
     kwargs = OmegaConf.to_container(conf, resolve=True)
 
-    assert "device" in kwargs, "No device setup"
+    if "device" not in kwargs:
+        raise ValueError("Please specify the argument ++codec.device=cpu or cuda.")
 
     kwargs["vision_model"] = vision_model
     kwargs["dataset"] = dataset
