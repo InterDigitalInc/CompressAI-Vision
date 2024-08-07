@@ -225,6 +225,7 @@ echo "Installing compressai-vision"
 echo
 
 pip3 install -e "${SCRIPT_DIR}/.."
+pip3 install ptflops
 echo
 echo "NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB:"
 echo "${WEIGHTS_ROOT_DIR}/jde/jde.1088x608.uncertainty.pt"
