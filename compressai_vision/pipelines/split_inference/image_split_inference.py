@@ -103,8 +103,9 @@ class ImageSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
                 
-                macs = calc_complexity_nn_part1_plyr(vision_model, d)                    
-                self.calc_total_kmac_image_task("nn_part_1", macs)
+                if self.is_mac_calculation:
+                    macs = calc_complexity_nn_part1_plyr(vision_model, d)                    
+                    self.calc_total_kmac_image_task("nn_part_1", macs)
                 
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
@@ -121,7 +122,8 @@ class ImageSplitInference(BasePipeline):
                     file_prefix,
                 )
                 self.update_time_elapsed("encode", (time_measure() - start))
-                self.calc_total_kmac_image_task("feature_reduction", enc_complexity)
+                if self.is_mac_calculation:
+                    self.calc_total_kmac_image_task("feature_reduction", enc_complexity)
                 
                 if accum_enc_by_module is None:
                     accum_enc_by_module = enc_time_by_module
@@ -156,7 +158,8 @@ class ImageSplitInference(BasePipeline):
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
             self.update_time_elapsed("decode", (time_measure() - start))
-            self.calc_total_kmac_image_task("feature_restoration", dec_complexity)
+            if self.is_mac_calculation:
+                self.calc_total_kmac_image_task("feature_restoration", dec_complexity)
             
             if accum_dec_by_module is None:
                 accum_dec_by_module = dec_time_by_module
@@ -173,8 +176,9 @@ class ImageSplitInference(BasePipeline):
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
 
             dec_features["file_name"] = d[0]["file_name"]
-            macs = calc_complexity_nn_part2_plyr(vision_model, dec_features["data"], dec_features)
-            self.calc_total_kmac_image_task("nn_part_2", macs)
+            if self.is_mac_calculation:
+                macs = calc_complexity_nn_part2_plyr(vision_model, dec_features["data"], dec_features)
+                self.calc_total_kmac_image_task("nn_part_2", macs)
 
             start = time_measure()
             pred = self._from_features_to_output(

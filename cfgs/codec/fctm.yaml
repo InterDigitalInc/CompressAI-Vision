@@ -32,6 +32,7 @@ tools:
     # temporal_resampling_enabled = True and
     # "cfgs/codec/vtm-12.0/encoder_lowdelay_vtm_gop4.cfg" must be used
     intra_period: ${codec.enc_configs.intra_period} # as reference
+    complexity_measure: "${pipeline.codec.measure_complexity}" # gmac calculation
 
   conversion:
     type: 'tensor_packing' # or 'bypass'

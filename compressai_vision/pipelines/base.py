@@ -74,6 +74,7 @@ class BasePipeline(nn.Module):
         self.bitstream_name = self.configs["codec"]["bitstream_name"]
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
+        self.is_mac_calculation = self.configs["codec"]["measure_complexity"]
         self._create_folder(self.codec_output_dir)
         self.init_time_measure()
         self.init_complexity_measure()

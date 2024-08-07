@@ -1,5 +1,4 @@
 import torch
-               
 from ptflops import get_model_complexity_info
 
 def calc_complexity_nn_part1_dn53(vision_model, img):
@@ -46,8 +45,6 @@ def calc_complexity_nn_part1_plyr(vision_model, img):
     macs, _ = measure_mac(partial_model=partial_model, 
                                 input_res=(C, H, W), 
                                 input_constructor=None)
-                
-    print('[NN part1: backbone]', 'macs=', macs)
     
     return macs
 
@@ -90,10 +87,7 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
                              input_constructor=input_constructure)
         
         macs_sum = macs_sum + macs
-        
-
-    print('[NN part2: All]', 'macs=', macs_sum)
-    
+            
     return macs_sum
 
 def measure_mac(partial_model, input_res, input_constructor):

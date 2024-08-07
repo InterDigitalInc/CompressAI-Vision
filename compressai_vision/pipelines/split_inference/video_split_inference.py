@@ -122,7 +122,7 @@ class VideoSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
                 
-                if e == self._codec_skip_n_frames:
+                if self.is_mac_calculation and e == self._codec_skip_n_frames:
                     if hasattr(vision_model, 'darknet'):    # for jde                        
                         macs = calc_complexity_nn_part1_dn53(vision_model, d)
                     else:                                   # for detectron2        
@@ -174,7 +174,8 @@ class VideoSplitInference(BasePipeline):
             )
             self.update_time_elapsed("encode", (time_measure() - start))
             self.add_time_details("encode", enc_time_by_module)
-            self.add_kmac_measure("feature_reduction", enc_complexity)
+            if self.is_mac_calculation:
+                self.add_kmac_measure("feature_reduction", enc_complexity)
 
             # for bypass mode, 'data' should be deleted.
             if "data" in res["bitstream"] is False:
@@ -210,7 +211,8 @@ class VideoSplitInference(BasePipeline):
         )
         self.update_time_elapsed("decode", (time_measure() - start))
         self.add_time_details("decode", dec_time_by_module)
-        self.add_kmac_measure("feature_restoration", dec_complexity)
+        if self.is_mac_calculation:
+            self.add_kmac_measure("feature_restoration", dec_complexity)
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
@@ -272,8 +274,9 @@ class VideoSplitInference(BasePipeline):
             output_list.append(out_res)
 
         # Calculate mac considering number of coded feature frames
-        frames = len(dataloader) // 2 + 1 if codec.ft_reduction.temporal_resampling_is_enabled is True else len(dataloader)
-        self.calc_total_kmac_video_task(frames)
+        if self.is_mac_calculation:
+            frames = len(dataloader) // 2 + 1 if codec.ft_reduction.temporal_resampling_is_enabled is True else len(dataloader)
+            self.calc_total_kmac_video_task(frames)
         
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)

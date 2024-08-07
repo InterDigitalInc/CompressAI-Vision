@@ -276,17 +276,23 @@ def main(conf: DictConfig):
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
-    calc_mac_df = pd.DataFrame(
-        {
-            "Metric": 'MAC',
-            "nn_part1": mac_complexity['nn_part_1'],
-            "feature reduction": mac_complexity['feature_reduction'],
-            "feature restoration": mac_complexity['feature_restoration'],
-            "nn_part2": mac_complexity['nn_part_2'],
-        },index=[0]
-    )
-    print("Complexity Measurement (MAC)")
-    print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
+    if modules['codec'].ft_reduction.complexity_measure:
+        calc_mac_df = pd.DataFrame(
+            {
+                "Metric": 'MAC',
+                "nn_part1": mac_complexity['nn_part_1'],
+                "feature reduction": mac_complexity['feature_reduction'],
+                "feature restoration": mac_complexity['feature_restoration'],
+                "nn_part2": mac_complexity['nn_part_2'],
+            },index=[0]
+        )
+        print("Complexity Measurement (MAC)")
+        print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
+        
+        calc_mac_df.to_csv(
+            os.path.join(evaluator_filepath, f"summary_complexity.csv"),
+            index=False,
+        )
     
     result_df.to_csv(
         os.path.join(evaluator_filepath, f"summary.csv"),
@@ -298,10 +304,6 @@ def main(conf: DictConfig):
         index=False,
     )
     
-    calc_mac_df.to_csv(
-        os.path.join(evaluator_filepath, f"summary_complexity.csv"),
-        index=False,
-    )
 
 
 def _calc_bitrate(coded_res_df, seq_info_path):
