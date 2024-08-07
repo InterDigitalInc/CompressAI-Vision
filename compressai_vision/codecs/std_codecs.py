@@ -35,7 +35,6 @@ import math
 import os
 import sys
 import time
-from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -236,58 +235,56 @@ class VTM(nn.Module):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
-            base_cmd.append(f"--BitstreamFile={bitstream_path}")
-            base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
-            cmd = list(map(str, base_cmd))
+        if parallel_encoding is False or nb_frames <= self.intra_period + 1:
+            # No need for parallel encoding.
+            cmd = [
+                *base_cmd,
+                f"--BitstreamFile={bitstream_path}",
+                f"--FramesToBeEncoded={nb_frames}",
+            ]
+            cmd = [str(x) for x in cmd]
             self.logger.debug(cmd)
-            return [cmd]
+            cmds = [cmd]
+        else:
+            cmds = self._parallel_encode_cmd(base_cmd, bitstream_path, nb_frames)
 
-        num_parallels = round((nb_frames / self.intra_period) + 0.5)
+        return cmds
 
-        list_of_num_of_frameSkip = []
-        list_of_num_of_framesToBeEncoded = []
-        total_num_frames_to_code = nb_frames
+    def _parallel_encode_cmd(
+        self, base_cmd: List, bitstream_path: Path, nb_frames: int
+    ):
+        num_workers = round((nb_frames / self.intra_period) + 0.5)
 
-        frameSkip = 0
-        nb_framesToBeEncoded = self.intra_period + 1
-        for _ in range(num_parallels):
-            list_of_num_of_frameSkip.append(frameSkip)
+        frame_offsets, frame_counts = _distribute_parallel_work(
+            nb_frames, num_workers, self.intra_period
+        )
 
-            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
+        bitstream_path = Path(bitstream_path)
 
-            frameSkip += self.intra_period
-            total_num_frames_to_code -= self.intra_period
+        cmds = []
 
-        bitstream_path_p = Path(bitstream_path).parent
-        file_stem = Path(bitstream_path).stem
-        ext = Path(bitstream_path).suffix
+        assert num_workers < 10**3  # Due to the string formatting below.
 
-        parallel_cmds = []
-        for e, items in enumerate(
-            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
+        for worker_idx, (frameSkip, framesToBeEncoded) in enumerate(
+            zip(frame_offsets, frame_counts)
         ):
-            frameSkip, framesToBeEncoded = items
-            sbitstream_path = (
-                str(bitstream_path_p)
-                + "/"
-                + str(file_stem)
-                + f"-part-{e:03d}"
-                + str(ext)
+            worker_bitstream_path = (
+                f"{bitstream_path.parent}/"
+                f"{bitstream_path.stem}-part-{worker_idx:03d}{bitstream_path.suffix}"
             )
 
-            pcmd = deepcopy(base_cmd)
-            pcmd.append(f"--BitstreamFile={sbitstream_path}")
-            pcmd.append(f"--FrameSkip={frameSkip}")
-            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+            cmd = [
+                *base_cmd,
+                f"--BitstreamFile={worker_bitstream_path}",
+                f"--FrameSkip={frameSkip}",
+                f"--FramesToBeEncoded={framesToBeEncoded}",
+            ]
 
-            cmd = list(map(str, pcmd))
+            cmd = [str(x) for x in cmd]
             self.logger.debug(cmd)
+            cmds.append(cmd)
 
-            parallel_cmds.append(cmd)
-
-        return parallel_cmds
+        return cmds
 
     def get_parcat_cmd(
         self,
@@ -988,58 +985,17 @@ class HM(VTM):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
+        if parallel_encoding is False or nb_frames <= self.intra_period + 1:
+            # No need for parallel encoding.
             base_cmd.append(f"--BitstreamFile={bitstream_path}")
             base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
             cmd = list(map(str, base_cmd))
             self.logger.debug(cmd)
-            return [cmd]
+            cmds = [cmd]
+        else:
+            cmds = self._parallel_encode_cmd(base_cmd, bitstream_path, nb_frames)
 
-        num_parallels = round((nb_frames / self.intra_period) + 0.5)
-
-        list_of_num_of_frameSkip = []
-        list_of_num_of_framesToBeEncoded = []
-        total_num_frames_to_code = nb_frames
-
-        frameSkip = 0
-        nb_framesToBeEncoded = self.intra_period + 1
-        for _ in range(num_parallels):
-            list_of_num_of_frameSkip.append(frameSkip)
-
-            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
-
-            frameSkip += self.intra_period
-            total_num_frames_to_code -= self.intra_period
-
-        bitstream_path_p = Path(bitstream_path).parent
-        file_stem = Path(bitstream_path).stem
-        ext = Path(bitstream_path).suffix
-
-        parallel_cmds = []
-        for e, items in enumerate(
-            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
-        ):
-            frameSkip, framesToBeEncoded = items
-            sbitstream_path = (
-                str(bitstream_path_p)
-                + "/"
-                + str(file_stem)
-                + f"-part-{e:03d}"
-                + str(ext)
-            )
-
-            pcmd = deepcopy(base_cmd)
-            pcmd.append(f"--BitstreamFile={sbitstream_path}")
-            pcmd.append(f"--FrameSkip={frameSkip}")
-            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
-
-            cmd = list(map(str, pcmd))
-            self.logger.debug(cmd)
-
-            parallel_cmds.append(cmd)
-
-        return parallel_cmds
+        return cmds
 
 
 @register_codec("vvenc")
@@ -1095,3 +1051,35 @@ class VVENC(VTM):
             "fast",
         ]
         return list(map(str, cmd))
+
+
+def _distribute_parallel_work(num_frames: int, num_workers: int, intra_period: int):
+    """Distributes frame encoding work.
+
+    worker[i] is to be assigned frames in the interval
+    [offsets[i], offsets[i] + counts[i]).
+    """
+    offsets = []
+    counts = []
+
+    offset = 0
+    num_remaining = num_frames
+
+    # WARN: Current implementation assumes one worker per intra period.
+    assert num_workers == num_frames // intra_period
+
+    for _ in range(num_workers):
+        assert num_remaining > 0
+
+        # NOTE: The first and last frames must both be intra-frames, hence the +1.
+        count = min(intra_period + 1, num_remaining)
+
+        offsets.append(offset)
+        counts.append(count)
+
+        offset += intra_period
+        num_remaining -= intra_period
+
+    assert offsets[-1] + counts[-1] == num_frames
+
+    return offsets, counts
