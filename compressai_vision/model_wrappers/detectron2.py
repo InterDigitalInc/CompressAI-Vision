@@ -397,13 +397,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
                 packed_frames.update({key: tile})
 
             if packing_all_in_one:
-                for key, subframe in packed_frames.items():
-                    if key == "p2":
-                        out = subframe
-                    else:
-                        out = torch.cat([out, subframe], dim=0)
-
-                packed_frame_list.append(out)
+                packed_frame_list.append(torch.cat([*packed_frames.values()], dim=0))
 
         packed_frames = torch.stack(packed_frame_list)
 
