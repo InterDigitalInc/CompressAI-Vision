@@ -1,5 +1,5 @@
 type: "x265"
-eval_encode: "bpp" # or "bitrate" 
+eval_encode: "bitrate" # or "bitrate" 
 experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
