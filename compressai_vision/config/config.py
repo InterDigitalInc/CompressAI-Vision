@@ -76,11 +76,6 @@ def create_data_transform(conf: DictConfig) -> transforms.Compose:
     )
 
 
-def Merge(dictA: Dict, dictB: Dict) -> Dict:
-    dictA.update(dictB)
-    return dictA
-
-
 def create_datacatalog(catalog: str, conf: DictConfig) -> DataCatalog:
     return DATACATALOGS[catalog](**conf)
 
@@ -95,10 +90,10 @@ def create_dataset(_type: str, args: Dict) -> Dataset:
 
 
 def create_dataloader(conf: DictConfig, device: str, cfg: Any = None) -> DataLoader:
-    args = Merge(
-        OmegaConf.to_container(conf.config, resolve=True),
-        OmegaConf.to_container(conf.settings, resolve=True),
-    )
+    args = {
+        **OmegaConf.to_container(conf.config, resolve=True),
+        **OmegaConf.to_container(conf.settings, resolve=True),
+    }
 
     args["dataset"] = create_datacatalog(conf.datacatalog, conf.config)
     args["transforms"] = create_data_transform(conf.transforms)
