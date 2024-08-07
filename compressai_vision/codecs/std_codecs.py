@@ -689,12 +689,12 @@ class VTM(nn.Module):
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
+        yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
 
         if remote_inference:  # remote inference pipeline
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
                 "bitdepth"
             ]
-            yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
 
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
