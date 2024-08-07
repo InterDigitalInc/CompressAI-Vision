@@ -58,18 +58,15 @@ def generate_csv_classwise_image_gmac(dataset_name, result_path, list_of_classwi
             with open(summary_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
-                nb_frame = 5000
                 complexity_dict["qp"] = data["qp"]
 
             with open(comp_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
                 del data["Metric"]
-                avg_kmac = {
-                    k: float(v) / (float(nb_frame) * 1000) for k, v in data.items()
-                }
+                kmac_per_pixels = {k: float(v) for k, v in data.items()}
 
-            for k, v in avg_kmac.items():
+            for k, v in kmac_per_pixels.items():
                 complexity_dict[k] = v
 
             complexity_lst_class_wise.append(complexity_dict)
@@ -156,7 +153,13 @@ def generate_csv_classwise_video_gmac(
 
             # class-wise calculation
             for idx in range(4):
-                nn_part1_lst, ft_reduction_lst, ft_restoration_lst, nn_part2_lst, nbframe_lst = (
+                (
+                    nn_part1_lst,
+                    ft_reduction_lst,
+                    ft_restoration_lst,
+                    nn_part2_lst,
+                    nbframe_lst,
+                ) = (
                     [],
                     [],
                     [],
@@ -169,18 +172,42 @@ def generate_csv_classwise_video_gmac(
                         ft_reduction_lst.append(seq_data["feature reduction"])
                         ft_restoration_lst.append(seq_data["feature restoration"])
                         nn_part2_lst.append(seq_data["nn_part2"])
-                        nbframe_lst.append(int(seq_data['nb_frame']))
-                        
+                        nbframe_lst.append(int(seq_data["nb_frame"]))
+
                 total_frame = sum(nbframe_lst)
 
                 cls_wise_result = {
                     "Dataset": cls_name,
                     "pp": idx,
                     "qp": 0,
-                    "nn_part1": sum([kmac*frames for kmac, frames in zip(nn_part1_lst, nbframe_lst)]) / total_frame,
-                    "feature reduction": sum([kmac*frames for kmac, frames in zip(ft_reduction_lst, nbframe_lst)]) / total_frame,
-                    "feature restoration": sum([kmac*frames for kmac, frames in zip(ft_restoration_lst, nbframe_lst)]) / total_frame,
-                    "nn_part2": sum([kmac*frames for kmac, frames in zip(nn_part2_lst, nbframe_lst)]) / total_frame,
+                    "nn_part1": sum(
+                        [
+                            kmac * frames
+                            for kmac, frames in zip(nn_part1_lst, nbframe_lst)
+                        ]
+                    )
+                    / total_frame,
+                    "feature reduction": sum(
+                        [
+                            kmac * frames
+                            for kmac, frames in zip(ft_reduction_lst, nbframe_lst)
+                        ]
+                    )
+                    / total_frame,
+                    "feature restoration": sum(
+                        [
+                            kmac * frames
+                            for kmac, frames in zip(ft_restoration_lst, nbframe_lst)
+                        ]
+                    )
+                    / total_frame,
+                    "nn_part2": sum(
+                        [
+                            kmac * frames
+                            for kmac, frames in zip(nn_part2_lst, nbframe_lst)
+                        ]
+                    )
+                    / total_frame,
                 }
 
                 cls_wise_results.append(cls_wise_result)

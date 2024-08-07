@@ -281,7 +281,7 @@ def main(conf: DictConfig):
     if modules["codec"].ft_reduction.complexity_measure:
         calc_mac_df = pd.DataFrame(
             {
-                "Metric": "MAC",
+                "Metric": "KMAC/pixel",
                 "nn_part1": mac_complexity["nn_part_1"],
                 "feature reduction": mac_complexity["feature_reduction"],
                 "feature restoration": mac_complexity["feature_restoration"],
@@ -289,7 +289,7 @@ def main(conf: DictConfig):
             },
             index=[0],
         )
-        print("Complexity Measurement (MAC)")
+        print("Complexity Measurement (KMAC/pixel)")
         print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
 
         calc_mac_df.to_csv(

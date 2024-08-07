@@ -1,3 +1,6 @@
+import operator
+from functools import reduce
+
 import torch
 from ptflops import get_model_complexity_info
 
@@ -10,13 +13,15 @@ def calc_complexity_nn_part1_dn53(vision_model, img):
 
     # backbone
     partial_model = vision_model.darknet
-    macs, _ = measure_mac(
+    kmacs, _ = measure_mac(
         partial_model=partial_model,
         input_res=(img, vision_model.features_at_splits, True),
         input_constructor=prepare_jde_darknet_input,
     )
 
-    return macs
+    pixels = reduce(operator.mul, [p_size for p_size in img.shape])
+
+    return kmacs, pixels
 
 
 def calc_complexity_nn_part2_dn53(vision_model, dec_features):
@@ -34,13 +39,17 @@ def calc_complexity_nn_part2_dn53(vision_model, dec_features):
 
     # nn part2 - part1 (darknet)
     partial_model = vision_model.darknet
-    macs, _ = measure_mac(
+    kmacs, _ = measure_mac(
         partial_model=partial_model,
         input_res=(None, x, False),
         input_constructor=prepare_jde_darknet_input,
     )
 
-    return macs
+    pixels = sum(
+        [reduce(operator.mul, [p_size for p_size in d.shape]) for d in x.values()]
+    )
+
+    return kmacs, pixels
 
 
 def calc_complexity_nn_part1_plyr(vision_model, img):
@@ -52,11 +61,13 @@ def calc_complexity_nn_part1_plyr(vision_model, img):
     # backbone
     partial_model = vision_model.backbone
 
-    macs, _ = measure_mac(
+    kmacs, _ = measure_mac(
         partial_model=partial_model, input_res=(C, H, W), input_constructor=None
     )
 
-    return macs
+    pixels = reduce(operator.mul, [p_size for p_size in imgs.tensor.shape])
+
+    return kmacs, pixels
 
 
 def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
@@ -90,20 +101,24 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     partial_model_lst.append(vision_model.roi_heads)
     input_constructure_lst.append(prepare_roi_head_input_fpn)
 
-    macs_sum = 0
+    kmacs_sum = 0
     for partial_model, input_res, input_constructure in zip(
         partial_model_lst, input_res_list, input_constructure_lst
     ):
 
-        macs, _ = measure_mac(
+        kmacs, _ = measure_mac(
             partial_model=partial_model,
             input_res=input_res,
             input_constructor=input_constructure,
         )
 
-        macs_sum = macs_sum + macs
+        kmacs_sum = kmacs_sum + kmacs
 
-    return macs_sum
+    pixels = sum(
+        [reduce(operator.mul, [p_size for p_size in d.shape]) for d in data.values()]
+    )
+
+    return kmacs_sum, pixels
 
 
 def measure_mac(partial_model, input_res, input_constructor):
@@ -115,7 +130,7 @@ def measure_mac(partial_model, input_res, input_constructor):
         print_per_layer_stat=False,
         verbose=False,
     )
-    return macs, params
+    return macs / 1_000, params
 
 
 class dummy:

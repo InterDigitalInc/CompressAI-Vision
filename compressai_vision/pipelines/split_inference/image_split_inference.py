@@ -109,8 +109,8 @@ class ImageSplitInference(BasePipeline):
                     break
 
                 if self.is_mac_calculation:
-                    macs = calc_complexity_nn_part1_plyr(vision_model, d)
-                    self.calc_total_kmac_image_task("nn_part_1", macs)
+                    macs, pixels = calc_complexity_nn_part1_plyr(vision_model, d)
+                    self.acc_kmac_and_pixels_info("nn_part_1", macs, pixels)
 
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
@@ -128,7 +128,9 @@ class ImageSplitInference(BasePipeline):
                 )
                 self.update_time_elapsed("encode", (time_measure() - start))
                 if self.is_mac_calculation:
-                    self.calc_total_kmac_image_task("feature_reduction", enc_complexity)
+                    self.acc_kmac_and_pixels_info(
+                        "feature_reduction", enc_complexity[0], enc_complexity[1]
+                    )
 
                 if accum_enc_by_module is None:
                     accum_enc_by_module = enc_time_by_module
@@ -164,7 +166,9 @@ class ImageSplitInference(BasePipeline):
             )
             self.update_time_elapsed("decode", (time_measure() - start))
             if self.is_mac_calculation:
-                self.calc_total_kmac_image_task("feature_restoration", dec_complexity)
+                self.acc_kmac_and_pixels_info(
+                    "feature_restoration", dec_complexity[0], dec_complexity[1]
+                )
 
             if accum_dec_by_module is None:
                 accum_dec_by_module = dec_time_by_module
@@ -182,10 +186,10 @@ class ImageSplitInference(BasePipeline):
 
             dec_features["file_name"] = d[0]["file_name"]
             if self.is_mac_calculation:
-                macs = calc_complexity_nn_part2_plyr(
+                macs, pixels = calc_complexity_nn_part2_plyr(
                     vision_model, dec_features["data"], dec_features
                 )
-                self.calc_total_kmac_image_task("nn_part_2", macs)
+                self.acc_kmac_and_pixels_info("nn_part_2", macs, pixels)
 
             start = time_measure()
             pred = self._from_features_to_output(
@@ -219,6 +223,9 @@ class ImageSplitInference(BasePipeline):
         self.add_time_details("encode", accum_enc_by_module)
         # if enc_only is True, accum_dec_by_module is None
         self.add_time_details("decode", accum_dec_by_module)
+
+        if self.is_mac_calculation:
+            self.calc_kmac_per_pixels_image_task()
 
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
