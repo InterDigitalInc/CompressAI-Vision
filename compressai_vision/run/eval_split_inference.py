@@ -158,7 +158,7 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
-    elap_times, eval_encode_type, coded_res, performance = pipeline(**modules)
+    elap_times, eval_encode_type, coded_res, performance, mac_complexity = pipeline(**modules)
 
     if coded_res is not None:  # Encode Only
         # pretty output
@@ -276,6 +276,18 @@ def main(conf: DictConfig):
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
+    calc_mac_df = pd.DataFrame(
+        {
+            "Metric": 'MAC',
+            "nn_part1": mac_complexity['nn_part_1'],
+            "feature reduction": mac_complexity['feature_reduction'],
+            "feature restoration": mac_complexity['feature_restoration'],
+            "nn_part2": mac_complexity['nn_part_2'],
+        },index=[0]
+    )
+    print("Complexity Measurement (MAC)")
+    print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
+    
     result_df.to_csv(
         os.path.join(evaluator_filepath, f"summary.csv"),
         index=False,
@@ -283,6 +295,11 @@ def main(conf: DictConfig):
 
     coded_res_df.to_csv(
         os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
+        index=False,
+    )
+    
+    calc_mac_df.to_csv(
+        os.path.join(evaluator_filepath, f"summary_complexity.csv"),
         index=False,
     )
 
