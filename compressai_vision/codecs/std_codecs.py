@@ -42,6 +42,7 @@ from typing import Any, Dict, List, Union
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
@@ -151,6 +152,8 @@ class VTM(nn.Module):
 
         self.logger.setLevel(logging_level)
 
+        self.reset()
+
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def qp_value(self):
@@ -160,6 +163,11 @@ class VTM(nn.Module):
     @property
     def eval_encode_type(self):
         return self.eval_encode
+
+    def reset(self):
+        self._min_max_buffer = []
+        self._frame_info_buffer = []
+        self._temp_io_buffer = BytesIO()
 
     def get_encode_cmd(
         self,
@@ -572,6 +580,8 @@ class VTM(nn.Module):
                 frames, minv, maxv, bitdepth=input_bitdepth
             )
 
+            self.register_minmax_to_buffer(minv, maxv)
+
             conversion_time = time.time() - start
             self.logger.debug(f"conversion time:{conversion_time}")
 
@@ -681,6 +691,8 @@ class VTM(nn.Module):
         Returns:
             Dict: The dictionary of output features.
         """
+        self.reset()
+
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
@@ -815,6 +827,16 @@ class VTM(nn.Module):
         }
 
         return output, dec_times
+
+    def register_minmax_to_buffer(self, minv, maxv):
+        # assert minv.dtype == maxv.dtype == torch.float32
+        self._min_max_buffer.append((float(minv), float(maxv)))
+
+    def get_minmax_buffer_size(self):
+        return len(self._min_max_buffer)
+
+    def get_io_buffer_contents(self):
+        return self._temp_io_buffer.getvalue()
 
     # Functions required in the context of FCM to write a header that enables a self decodable bitstream
     def write_n_bit(self, n_bit):

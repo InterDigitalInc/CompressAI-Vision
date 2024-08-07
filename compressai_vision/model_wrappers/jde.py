@@ -489,3 +489,36 @@ class jde_1088x608(BaseWrapper):
         packed_frames = torch.stack(packed_frame_list)
 
         return packed_frames, feature_size, subframe_heights
+
+    def reshape_frame_to_feature_pyramid(
+        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
+    ):
+        """reshape a frame of channels into the feature pyramid"""
+
+        assert isinstance(x, (Tensor, Dict))
+
+        top_y = 0
+        tiled_frames = {}
+        if packing_all_in_one:
+            for key, height in subframe_height.items():
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
+                top_y = top_y + height
+        else:
+            raise NotImplementedError
+            assert isinstance(x, Dict)
+            tiled_frames = x
+
+        feature_tensor = {}
+        for key, frames in tiled_frames.items():
+            _, numChs, chH, chW = tensor_shape[key]
+
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
+
+        return feature_tensor
