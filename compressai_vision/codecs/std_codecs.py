@@ -631,7 +631,7 @@ class VTM(nn.Module):
 
             # Bistream header to make bitstream self-decodable
             _ = self.write_n_bit(output_bitdepth)
-            _ = self.write_rft_chSize(x["chSize"])
+            _ = self.write_rft_chSize([0, 0])  # NOTE: Unused.  # x["chSize"]
             _ = self.write_packed_frame_size((frame_height, frame_width))
             _ = self.write_min_max_values()
 
