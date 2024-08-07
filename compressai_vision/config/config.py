@@ -115,11 +115,7 @@ def create_dataloader(conf: DictConfig, device: str, cfg: Any = None) -> DataLoa
 def create_evaluator(
     conf: DictConfig, catalog: str, datasetname: str, dataset: Dataset
 ):
-    if (
-        str(conf.type).lower() == "VOID"
-        or str(conf.type).lower() == "none"
-        or conf.type == None
-    ):
+    if conf.type is None:
         return None
 
     return EVALUATORS[conf.type](catalog, datasetname, dataset, conf.output)
