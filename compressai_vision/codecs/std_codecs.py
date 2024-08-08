@@ -297,18 +297,10 @@ class VTM(nn.Module):
         Returns:
             Tuple[List[Any], List[str]]: the command to concatenate the bitstream files in the folder.
         """
-        pdir = Path(bitstream_path).parent
-        fstem = Path(bitstream_path).stem
-        ext = str(Path(bitstream_path).suffix)
-
-        bitstream_lists = sorted(Path(pdir).glob(f"{fstem}-part-*{ext}"))
-
-        cmd = [self.parcat_path]
-        for bpath in bitstream_lists:
-            cmd.append(str(bpath))
-        cmd.append(bitstream_path)
-
-        cmd = list(map(str, cmd))
+        bp = Path(bitstream_path)
+        bitstream_lists = sorted(bp.parent.glob(f"{bp.stem}-part-*{bp.suffix}"))
+        cmd = [self.parcat_path, *bitstream_lists, bitstream_path]
+        cmd = [str(x) for x in cmd]
         self.logger.debug(cmd)
         return cmd, bitstream_lists
 
