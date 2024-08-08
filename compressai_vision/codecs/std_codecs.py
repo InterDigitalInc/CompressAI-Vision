@@ -289,14 +289,14 @@ class VTM(nn.Module):
 
     def get_parcat_cmd(
         self,
-        bitstream_path: str,
-    ) -> List[Any]:
+        bitstream_path: Path,
+    ) -> Tuple[List[Any], List[Path]]:
         """
         Returns a list of commands and bitstream lists needed to concatenate bitstream files.
         Args:
-            bitstream_path (str): The path to the bitstream file.
+            bitstream_path (Path): The path to the bitstream file.
         Returns:
-            Tuple[List[Any], List[str]]: the command to concatenate the bitstream files in the folder.
+            Tuple[List[Any], List[Path]]: the command to concatenate the bitstream files in the folder.
         """
         bp = Path(bitstream_path)
         bitstream_lists = sorted(bp.parent.glob(f"{bp.stem}-part-*{bp.suffix}"))
@@ -318,15 +318,14 @@ class VTM(nn.Module):
             List[Any]: command line arguments for decoding the video bitstream.
         """
         cmd = [
-            self.decoder_path,
+            f"{self.decoder_path}",
             "-b",
-            bitstream_path,
+            f"{bitstream_path}",
             "-o",
-            yuv_dec_path,
+            f"{yuv_dec_path}",
             "-d",
-            output_bitdepth,
+            f"{output_bitdepth}",
         ]
-        cmd = list(map(str, cmd))
         self.logger.debug(cmd)
         return cmd
 
@@ -417,7 +416,7 @@ class VTM(nn.Module):
         self,
         output_file_prefix: str,
         dec_path: str,
-        yuv_dec_path: str,
+        yuv_dec_path: Path,
         org_img_size: Dict = None,
     ):
         """
@@ -425,7 +424,7 @@ class VTM(nn.Module):
         Args:
             output_file_prefix (str): The prefix of the output file name.
             dec_path (str): The path to the directory where the PNG images will be saved.
-            yuv_dec_path (str): The path to the input YUV file.
+            yuv_dec_path (Path): The path to the input YUV file.
             org_img_size (Dict, optional): The original image size. Defaults to None.
         Returns:
             None
@@ -457,7 +456,7 @@ class VTM(nn.Module):
             "-src_range",
             "1",  # (fracape) assume dec yuv is full range for now
             "-i",
-            yuv_dec_path,
+            f"{yuv_dec_path}",
             "-pix_fmt",
             "rgb24",
         ]
@@ -598,7 +597,7 @@ class VTM(nn.Module):
             for frame in frames:
                 self.yuvio.write_one_frame(frame, mid_level=mid_level)
 
-        bitstream_path = f"{file_prefix}.bin"
+        bitstream_path = Path(f"{file_prefix}.bin")
         logpath = Path(f"{file_prefix}_enc.log")
         cmds = self.get_encode_cmd(
             yuv_in_path,
@@ -667,7 +666,7 @@ class VTM(nn.Module):
 
         output = {
             "bytes": all_bytes_per_frame,
-            "bitstream": bitstream_path,
+            "bitstream": str(bitstream_path),
         }
         enc_times = {
             "video": enc_time,
@@ -707,7 +706,7 @@ class VTM(nn.Module):
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
-        yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
+        yuv_dec_path = Path(f"{dec_path}/{output_file_prefix}_dec.yuv")
 
         if remote_inference:  # remote inference pipeline
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
@@ -783,7 +782,7 @@ class VTM(nn.Module):
             self.logger.debug(f"dec_time:{dec_time}")
 
             self.yuvio.setReader(
-                read_path=yuv_dec_path,
+                read_path=str(yuv_dec_path),
                 frmWidth=frame_width,
                 frmHeight=frame_height,
             )
@@ -835,7 +834,7 @@ class VTM(nn.Module):
             self.logger.debug(f"conversion_time:{conversion_time}")
 
             if not self.dump["dump_yuv_packing_dec"]:
-                Path(yuv_dec_path).unlink()
+                yuv_dec_path.unlink()
 
             output = {"data": features}
 
