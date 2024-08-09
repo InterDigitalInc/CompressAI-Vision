@@ -27,8 +27,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from torch import Tensor
 import math
+
+from torch import Tensor
 
 MIN_MAX_DATASET = {
     "mpeg-oiv6-detection": (

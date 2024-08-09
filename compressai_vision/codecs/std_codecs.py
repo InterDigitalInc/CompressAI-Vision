@@ -49,13 +49,12 @@ from compressai_vision.utils import time_measure
 from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_parallel
 
-
 from .encdec_utils import *
 from .utils import (
     MIN_MAX_DATASET,
+    compute_frame_resolution,
     min_max_inv_normalization,
     min_max_normalization,
-    compute_frame_resolution,
     tensor_to_tiled,
     tiled_to_tensor,
 )
