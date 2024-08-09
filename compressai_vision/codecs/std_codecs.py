@@ -771,7 +771,7 @@ class VTM(nn.Module):
 
         else:  # split inference pipeline
             del org_img_size  # not needed in this pipeline
-            bitstream_path_tmp = f"{file_prefix}_tmp.bin"
+            bitstream_path_tmp = f"{codec_output_dir}/{output_file_prefix}_tmp.bin"
 
             bitstream_fd = self.open_bitstream_file(bitstream_path, "rb")
 
