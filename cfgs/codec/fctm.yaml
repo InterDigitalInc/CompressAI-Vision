@@ -22,6 +22,7 @@ enc_configs:
   default_cfg_file: "optional/use/local/path/for/JM-19.1/cfgs/encoder.cfg"
   parallel_encoding: False # std inner codec parallel option
   hash_check: 0 # md5 hash check
+  complexity_measure: True # gmac calculation
 
 tools:
   feature_reduction: # reserved for restoration part as well
@@ -33,7 +34,6 @@ tools:
     # temporal_resampling_enabled = True and
     # "cfgs/codec/vtm-23.3/encoder_lowdelay_vtm_gop4.cfg" must be used
     intra_period: ${codec.enc_configs.intra_period} # as reference
-    complexity_measure: "${pipeline.codec.measure_complexity}" # gmac calculation
 
   conversion:
     type: 'tensor_packing' # or 'bypass'

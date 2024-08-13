@@ -290,7 +290,7 @@ class VideoSplitInference(BasePipeline):
         if self.is_mac_calculation:
             frames = (
                 len(dataloader) // 2 + 1
-                if codec.ft_reduction.temporal_resampling_enabled is True
+                if codec.enc_tools["feature_reduction"]["temporal_resampling_enabled"] is True
                 else len(dataloader)
             )
             self.calc_kmac_per_pixels_video_task(frames, len(dataloader))
