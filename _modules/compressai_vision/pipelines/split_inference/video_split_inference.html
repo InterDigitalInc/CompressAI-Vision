@@ -307,6 +307,12 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils.measure_complexity</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calc_complexity_nn_part1_dn53</span><span class="p">,</span>
+    <span class="n">calc_complexity_nn_part1_plyr</span><span class="p">,</span>
+    <span class="n">calc_complexity_nn_part2_dn53</span><span class="p">,</span>
+    <span class="n">calc_complexity_nn_part2_plyr</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
 
@@ -377,6 +383,7 @@ document.write(`
         <span class="n">gt_inputs</span><span class="p">,</span> <span class="n">file_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_input_lists</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">init_time_measure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_complexity_measure</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;decode_only&quot;</span><span class="p">]:</span>
             <span class="c1">## NN-part-1</span>
@@ -387,6 +394,13 @@ document.write(`
                     <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_end_frame_idx</span><span class="p">:</span>
                     <span class="k">break</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mac_calculation</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_skip_n_frames</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="s2">&quot;darknet&quot;</span><span class="p">):</span>  <span class="c1"># for jde</span>
+                        <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span> <span class="o">=</span> <span class="n">calc_complexity_nn_part1_dn53</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># for detectron2</span>
+                        <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span> <span class="o">=</span> <span class="n">calc_complexity_nn_part1_plyr</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_kmac_and_pixels_info</span><span class="p">(</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">,</span> <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span><span class="p">)</span>
 
                 <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">output_file_prefix</span><span class="p">)</span>
@@ -428,11 +442,15 @@ document.write(`
 
             <span class="c1"># Feature Compression</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_by_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
+            <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_by_module</span><span class="p">,</span> <span class="n">enc_complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
                 <span class="n">codec</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitstream_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;encode&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_time_details</span><span class="p">(</span><span class="s2">&quot;encode&quot;</span><span class="p">,</span> <span class="n">enc_time_by_module</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mac_calculation</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_kmac_and_pixels_info</span><span class="p">(</span>
+                    <span class="s2">&quot;feature_reduction&quot;</span><span class="p">,</span> <span class="n">enc_complexity</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">enc_complexity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
 
             <span class="c1"># for bypass mode, &#39;data&#39; should be deleted.</span>
             <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -463,11 +481,15 @@ document.write(`
 
         <span class="c1"># Feature Deompression</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-        <span class="n">dec_features</span><span class="p">,</span> <span class="n">dec_time_by_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
+        <span class="n">dec_features</span><span class="p">,</span> <span class="n">dec_time_by_module</span><span class="p">,</span> <span class="n">dec_complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
             <span class="n">codec</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_time_details</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span> <span class="n">dec_time_by_module</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mac_calculation</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_kmac_and_pixels_info</span><span class="p">(</span>
+                <span class="s2">&quot;feature_restoration&quot;</span><span class="p">,</span> <span class="n">dec_complexity</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dec_complexity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
 
         <span class="c1"># dec_features should contain &quot;org_input_size&quot; and &quot;input_size&quot;</span>
         <span class="c1"># When using anchor codecs, that&#39;s not the case, we read input images to derive them</span>
@@ -500,6 +522,17 @@ document.write(`
                 <span class="s2">&quot;uncmp&quot;</span> <span class="k">if</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span>
             <span class="p">)</span>  <span class="c1"># Assuming one qp will be used</span>
 
+            <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="s2">&quot;darknet&quot;</span><span class="p">):</span>  <span class="c1"># for jde</span>
+                    <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span> <span class="o">=</span> <span class="n">calc_complexity_nn_part2_dn53</span><span class="p">(</span>
+                        <span class="n">vision_model</span><span class="p">,</span> <span class="n">dec_features</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># for detectron2</span>
+                    <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span> <span class="o">=</span> <span class="n">calc_complexity_nn_part2_plyr</span><span class="p">(</span>
+                        <span class="n">vision_model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dec_features</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_kmac_and_pixels_info</span><span class="p">(</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">,</span> <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span><span class="p">)</span>
+
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_features_to_output</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dec_features</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;nn_part_2&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
@@ -521,6 +554,16 @@ document.write(`
 
             <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_res</span><span class="p">)</span>
 
+        <span class="c1"># Calculate mac considering number of coded feature frames</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mac_calculation</span><span class="p">:</span>
+            <span class="n">frames</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">codec</span><span class="o">.</span><span class="n">enc_tools</span><span class="p">[</span><span class="s2">&quot;feature_reduction&quot;</span><span class="p">][</span><span class="s2">&quot;temporal_resampling_enabled&quot;</span><span class="p">]</span>
+                <span class="ow">is</span> <span class="kc">True</span>
+                <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_kmac_per_pixels_video_task</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">))</span>
+
         <span class="c1"># performance evaluation on end-task</span>
         <span class="n">eval_performance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
 
@@ -529,6 +572,7 @@ document.write(`
             <span class="n">codec</span><span class="o">.</span><span class="n">eval_encode_type</span><span class="p">,</span>
             <span class="n">output_list</span><span class="p">,</span>
             <span class="n">eval_performance</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">complexity_calc_by_module</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_collect_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
