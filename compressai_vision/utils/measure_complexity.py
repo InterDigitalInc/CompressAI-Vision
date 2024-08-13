@@ -26,7 +26,7 @@ def calc_complexity_nn_part1_dn53(vision_model, img):
 
 def calc_complexity_nn_part2_dn53(vision_model, dec_features):
     assert "data" in dec_features
-    device = torch.device(vision_model.device)
+    device = vision_model.device
 
     if isinstance(dec_features["data"][0], list):  # image task
         x = {k: v[0] for k, v in x.items()}
@@ -75,7 +75,7 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     if isinstance(data[0], list):  # image task
         data = {k: v[0] for k, v in data.items()}
 
-    device = torch.device(vision_model.device)
+    device = vision_model.device
 
     input_res_list, partial_model_lst, input_constructure_lst = [], [], []
 
@@ -88,7 +88,7 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     # for proposal generator
     C, H, W = data[0].shape  # p2 shape
     cdummy = dummy(dec_features["input_size"])
-    input_res_list.append((cdummy, (1, C, H, W)))
+    input_res_list.append((cdummy, (1, C, H, W), device))
     partial_model_lst.append(vision_model.proposal_generator)
     input_constructure_lst.append(prepare_proposal_input_fpn)
 
@@ -97,7 +97,7 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     feature_pyramid.update({"p6": vision_model.top_block(feature_pyramid["p5"])[0]})
     feature_pyramid = {k: v.unsqueeze(0) for k, v in feature_pyramid.items()}
     proposals, _ = vision_model.proposal_generator(cdummy, feature_pyramid, None)
-    input_res_list.append((cdummy, (1, C, H, W), proposals))
+    input_res_list.append((cdummy, (1, C, H, W), proposals, device))
     partial_model_lst.append(vision_model.roi_heads)
     input_constructure_lst.append(prepare_roi_head_input_fpn)
 
@@ -150,12 +150,13 @@ def get_downsampled_shape(h, w, ratio):
 def prepare_proposal_input_fpn(resolutions):
     b, c, h, w = resolutions[1]
     resized_img = resolutions[0]
-    feature_lst = [torch.FloatTensor(*resolutions[1])]
+    device = resolutions[2]
+    feature_lst = [torch.FloatTensor(*resolutions[1]).to(device)]
     feature_shape = [feature_lst[0].shape]
     for i in range(4):
         b, c, h, w = feature_shape[i]
         feature_shape.append((b, c, *get_downsampled_shape(h, w, 2)))
-        feature_lst.append(torch.FloatTensor(*feature_shape[-1]))
+        feature_lst.append(torch.FloatTensor(*feature_shape[-1]).to(device))
 
     feature_dict = {f"p{e+2}": feature for e, feature in enumerate(feature_lst)}
 
@@ -166,12 +167,13 @@ def prepare_roi_head_input_fpn(resolutions):
     b, c, h, w = resolutions[1]
     resized_img = resolutions[0]
     proposals = resolutions[2]
-    feature_lst = [torch.FloatTensor(*resolutions[1])]
+    device = resolutions[3]
+    feature_lst = [torch.FloatTensor(*resolutions[1]).to(device)]
     feature_shape = [feature_lst[0].shape]
     for i in range(4):
         b, c, h, w = feature_shape[i]
         feature_shape.append((b, c, *get_downsampled_shape(h, w, 2)))
-        feature_lst.append(torch.FloatTensor(*feature_shape[-1]))
+        feature_lst.append(torch.FloatTensor(*feature_shape[-1]).to(device))
 
     feature_dict = {f"p{e+2}": feature for e, feature in enumerate(feature_lst)}
     return dict(
