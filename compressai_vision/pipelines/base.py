@@ -74,8 +74,10 @@ class BasePipeline(nn.Module):
         self.bitstream_name = self.configs["codec"]["bitstream_name"]
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
+        self.is_mac_calculation = self.configs["codec"]["measure_complexity"]
         self._create_folder(self.codec_output_dir)
         self.init_time_measure()
+        self.init_complexity_measure()
 
     def init_time_measure(self):
         self.elapsed_time = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
@@ -83,6 +85,42 @@ class BasePipeline(nn.Module):
     def update_time_elapsed(self, mname, elapsed):
         assert mname in self.elapsed_time
         self.elapsed_time[mname] = self.elapsed_time[mname] + elapsed
+
+    def init_complexity_measure(self):
+        self.kmacs = {
+            "nn_part_1": 0,
+            "feature_reduction": 0,
+            "feature_restoration": 0,
+            "nn_part_2": 0,
+        }
+        self.pixels = {
+            "nn_part_1": 0,
+            "feature_reduction": 0,
+            "feature_restoration": 0,
+            "nn_part_2": 0,
+        }
+
+    def add_kmac_and_pixels_info(self, mname, kmac, pixels):
+        assert mname in self.kmacs
+        self.kmacs[mname] = kmac
+        self.pixels[mname] = pixels
+
+    def acc_kmac_and_pixels_info(self, mname, kmac, pixels):  # for image task
+        # accumulate
+        assert mname in self.kmacs
+        self.kmacs[mname] = self.kmacs[mname] + kmac
+        self.pixels[mname] = self.pixels[mname] + pixels
+
+    def calc_kmac_per_pixels_image_task(self):  # for video task
+        # multiplication
+        self.kmac_per_pixels = {k: (v / self.pixels[k]) for k, v in self.kmacs.items()}
+
+    def calc_kmac_per_pixels_video_task(self, nbframes, ori_nbframes):  # for video task
+        # multiplication
+        self.kmac_per_pixels = {
+            k: (v * nbframes) / (self.pixels[k] * ori_nbframes)
+            for k, v in self.kmacs.items()
+        }
 
     def add_time_details(self, mname: str, details):
         updates = {}
@@ -98,6 +136,10 @@ class BasePipeline(nn.Module):
     @property
     def time_elapsed_by_module(self):
         return self.elapsed_time
+
+    @property
+    def complexity_calc_by_module(self):
+        return self.kmac_per_pixels
 
     @staticmethod
     def _get_title(a):
