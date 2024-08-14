@@ -278,7 +278,7 @@ def main(conf: DictConfig):
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
 
-    if conf.codec["enc_configs"]["complexity_measure"]:
+    if conf.codec["mac_computation"]:
         calc_mac_df = pd.DataFrame(
             {
                 "Metric": "KMAC/pixel",
