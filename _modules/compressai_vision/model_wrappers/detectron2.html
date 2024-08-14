@@ -318,23 +318,31 @@ document.write(`
     <span class="s2">&quot;mask_rcnn_R_50_FPN_3x&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
+<span class="n">thisdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">root_path</span> <span class="o">=</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;../..&quot;</span><span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">Split_Points</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="n">FeaturePyramidNetwork</span> <span class="o">=</span> <span class="s2">&quot;fpn&quot;</span>
+    <span class="n">C2</span> <span class="o">=</span> <span class="s2">&quot;c2&quot;</span>
     <span class="n">Res2</span> <span class="o">=</span> <span class="s2">&quot;r2&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Rcnn_R_50_X_101_FPN</span><span class="p">(</span><span class="n">BaseWrapper</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">get_cfg</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">MODEL</span><span class="o">.</span><span class="n">DEVICE</span> <span class="o">=</span> <span class="n">device</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">merge_from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_path_prefix</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/&quot;</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;model_path_prefix&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">merge_from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_path_prefix</span><span class="si">}{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span>
@@ -342,7 +350,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">proposal_generator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roi_heads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">roi_heads</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_postprocess</span>
-        <span class="n">DetectionCheckpointer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">DetectionCheckpointer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_path_prefix</span><span class="si">}{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cfg&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">],</span> <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">]}</span>
 
@@ -353,6 +361,8 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">FeaturePyramidNetwork</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;p2&quot;</span><span class="p">,</span> <span class="s2">&quot;p3&quot;</span><span class="p">,</span> <span class="s2">&quot;p4&quot;</span><span class="p">,</span> <span class="s2">&quot;p5&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">C2</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c2&quot;</span><span class="p">,</span> <span class="s2">&quot;c3&quot;</span><span class="p">,</span> <span class="s2">&quot;c4&quot;</span><span class="p">,</span> <span class="s2">&quot;c5&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Res2</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;r2&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -370,14 +380,22 @@ document.write(`
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">FeaturePyramidNetwork</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">SPLIT_C2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">C2</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">SPLIT_R2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Res2</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes deep features at the intermediate layer(s) all the way from the input&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_FPN</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_pyramid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_C2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_c2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_R2</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_r2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -385,11 +403,17 @@ document.write(`
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Complete the downstream task from the intermediate deep features&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_FPN</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_pyramid_to_output</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_C2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_c2_to_output</span><span class="p">(</span>
                 <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_R2</span><span class="p">:</span>
@@ -409,6 +433,28 @@ document.write(`
         <span class="k">del</span> <span class="n">feature_pyramid</span><span class="p">[</span><span class="s2">&quot;p6&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">feature_pyramid</span><span class="p">,</span> <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="n">imgs</span><span class="o">.</span><span class="n">image_sizes</span><span class="p">}</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_input_to_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature tensors at C2 from input&quot;&quot;&quot;</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">preprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">c_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span>
+        <span class="n">ref_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">in_features</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Resnet FPN</span>
+        <span class="n">bottom_up_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">bottom_up</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">lateral_conv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">lateral_convs</span><span class="p">):</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">bottom_up_features</span><span class="p">[</span><span class="n">ref_features</span><span class="p">[</span><span class="o">-</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lateral_conv</span><span class="p">(</span><span class="n">features</span><span class="p">))</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_features</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">res</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">c_features</span><span class="p">,</span> <span class="n">results</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">out</span><span class="p">,</span> <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="n">imgs</span><span class="o">.</span><span class="n">image_sizes</span><span class="p">}</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">_input_to_r2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -451,6 +497,42 @@ document.write(`
         <span class="c1"># Replacing tag names for interfacing with NN-part2</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="n">x</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;p6&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_block</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;p5&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]})</span>
+
+        <span class="n">proposals</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi_heads</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">proposals</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span>
+        <span class="p">),</span> <span class="s2">&quot;Scripting is not supported for postprocess.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_postprocess</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">org_img_size</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">input_img_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_feature_c2_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        performs  downstream task using the c2 [&#39;c2&#39;, &#39;c3&#39;, &#39;c4&#39;, &#39;c5&#39;]</span>
+
+<span class="sd">        Detectron2 source codes are referenced for this function, specifically the class &quot;GeneralizedRCNN&quot;</span>
+<span class="sd">        Unnecessary parts for split inference are removed or modified properly.</span>
+
+<span class="sd">        Please find the license statement in the downloaded original Detectron2 source codes or at here:</span>
+<span class="sd">        https://github.com/facebookresearch/detectron2/blob/main/LICENSE</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Replacing tag names for interfacing with NN-part2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">forward_after_c2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">class</span> <span class="nc">dummy</span><span class="p">:</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_size</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">image_sizes</span> <span class="o">=</span> <span class="n">img_size</span>
+
+        <span class="n">cdummy</span> <span class="o">=</span> <span class="n">dummy</span><span class="p">(</span><span class="n">input_img_size</span><span class="p">)</span>
 
         <span class="n">proposals</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal_generator</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">results</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi_heads</span><span class="p">(</span><span class="n">cdummy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">proposals</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -510,6 +592,7 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        compute accuracy proxy at the deeper layer than NN-Part1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">ft</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -582,13 +665,7 @@ document.write(`
                 <span class="n">packed_frames</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">tile</span><span class="p">})</span>
 
             <span class="k">if</span> <span class="n">packing_all_in_one</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">subframe</span> <span class="ow">in</span> <span class="n">packed_frames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;p2&quot;</span><span class="p">:</span>
-                        <span class="n">out</span> <span class="o">=</span> <span class="n">subframe</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">out</span><span class="p">,</span> <span class="n">subframe</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-                <span class="n">packed_frame_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+                <span class="n">packed_frame_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="o">*</span><span class="n">packed_frames</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
         <span class="n">packed_frames</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">packed_frame_list</span><span class="p">)</span>
 
@@ -635,25 +712,25 @@ document.write(`
 
 <div class="viewcode-block" id="faster_rcnn_X_101_32x8d_FPN_3x"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.faster_rcnn_X_101_32x8d_FPN_3x">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;faster_rcnn_X_101_32x8d_FPN_3x&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">faster_rcnn_X_101_32x8d_FPN_3x</span><span class="p">(</span><span class="n">Rcnn_R_50_X_101_FPN</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="mask_rcnn_X_101_32x8d_FPN_3x"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.mask_rcnn_X_101_32x8d_FPN_3x">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;mask_rcnn_X_101_32x8d_FPN_3x&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">mask_rcnn_X_101_32x8d_FPN_3x</span><span class="p">(</span><span class="n">Rcnn_R_50_X_101_FPN</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="faster_rcnn_R_50_FPN_3x"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.faster_rcnn_R_50_FPN_3x">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;faster_rcnn_R_50_FPN_3x&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">faster_rcnn_R_50_FPN_3x</span><span class="p">(</span><span class="n">Rcnn_R_50_X_101_FPN</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="mask_rcnn_R_50_FPN_3x"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.mask_rcnn_R_50_FPN_3x">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;mask_rcnn_R_50_FPN_3x&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">mask_rcnn_R_50_FPN_3x</span><span class="p">(</span><span class="n">Rcnn_R_50_X_101_FPN</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </pre></div>
 

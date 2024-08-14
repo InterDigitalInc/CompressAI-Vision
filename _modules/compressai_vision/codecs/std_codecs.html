@@ -303,13 +303,13 @@ document.write(`
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
@@ -377,8 +377,9 @@ document.write(`
 
         <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">check_list_of_paths</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                    <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">),</span> <span class="n">file_path</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not find path </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">. Consider specifying &quot;</span>
+                    <span class="s2">&quot;++codec.codec_paths._root=&#39;/local/path/vtm-12.0&#39;.&quot;</span>
                 <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">qp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;qp&quot;</span><span class="p">]</span>
@@ -419,6 +420,8 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -428,6 +431,12 @@ document.write(`
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span>
+
+<div class="viewcode-block" id="VTM.reset"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header_writer</span> <span class="o">=</span> <span class="n">HeaderWriter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header_reader</span> <span class="o">=</span> <span class="n">HeaderReader</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_info_buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="VTM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -496,82 +505,72 @@ document.write(`
             <span class="sa">f</span><span class="s2">&quot;--DecodingRefreshType=</span><span class="si">{</span><span class="n">decodingRefreshType</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">parallel_encoding</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">nb_frames</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">base_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">base_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">nb_frames</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">base_cmd</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">parallel_encoding</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">nb_frames</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># No need for parallel encoding.</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="o">*</span><span class="n">base_cmd</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">nb_frames</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+            <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_encode_cmd</span><span class="p">(</span><span class="n">base_cmd</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">)</span>
 
-        <span class="n">num_parallels</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">nb_frames</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmds</span></div>
 
-        <span class="n">list_of_num_of_frameSkip</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">list_of_num_of_framesToBeEncoded</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">total_num_frames_to_code</span> <span class="o">=</span> <span class="n">nb_frames</span>
+    <span class="k">def</span> <span class="nf">_parallel_encode_cmd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">base_cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">nb_frames</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
 
-        <span class="n">frameSkip</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">nb_framesToBeEncoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_parallels</span><span class="p">):</span>
-            <span class="n">list_of_num_of_frameSkip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frameSkip</span><span class="p">)</span>
+        <span class="n">frame_offsets</span><span class="p">,</span> <span class="n">frame_counts</span> <span class="o">=</span> <span class="n">_distribute_parallel_work</span><span class="p">(</span>
+            <span class="n">nb_frames</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span>
+        <span class="p">)</span>
 
-            <span class="n">nb_framesToBeEncoded</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">total_num_frames_to_code</span><span class="p">,</span> <span class="n">nb_framesToBeEncoded</span><span class="p">)</span>
-            <span class="n">list_of_num_of_framesToBeEncoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_framesToBeEncoded</span><span class="p">)</span>
+        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
 
-            <span class="n">frameSkip</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span>
-            <span class="n">total_num_frames_to_code</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">bitstream_path_p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-        <span class="n">file_stem</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="k">assert</span> <span class="n">num_workers</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">**</span><span class="mi">3</span>  <span class="c1"># Due to the string formatting below.</span>
 
-        <span class="n">parallel_cmds</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-            <span class="nb">zip</span><span class="p">(</span><span class="n">list_of_num_of_frameSkip</span><span class="p">,</span> <span class="n">list_of_num_of_framesToBeEncoded</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">worker_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">frameSkip</span><span class="p">,</span> <span class="n">framesToBeEncoded</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">frame_offsets</span><span class="p">,</span> <span class="n">frame_counts</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">frameSkip</span><span class="p">,</span> <span class="n">framesToBeEncoded</span> <span class="o">=</span> <span class="n">items</span>
-            <span class="n">sbitstream_path</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">bitstream_path_p</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
-                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_stem</span><span class="p">)</span>
-                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;-part-</span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+            <span class="n">worker_bitstream_path</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">/&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">-part-</span><span class="si">{</span><span class="n">worker_idx</span><span class="si">:</span><span class="s2">03d</span><span class="si">}{</span><span class="n">bitstream_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-            <span class="n">pcmd</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">base_cmd</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">sbitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FrameSkip=</span><span class="si">{</span><span class="n">frameSkip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">framesToBeEncoded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="o">*</span><span class="n">base_cmd</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">worker_bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;--FrameSkip=</span><span class="si">{</span><span class="n">frameSkip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">framesToBeEncoded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
 
-            <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pcmd</span><span class="p">))</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 
-            <span class="n">parallel_cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">parallel_cmds</span></div>
+        <span class="k">return</span> <span class="n">cmds</span>
 
 <div class="viewcode-block" id="VTM.get_parcat_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_parcat_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_parcat_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">bitstream_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of commands and bitstream lists needed to concatenate bitstream files.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            bitstream_path (str): The path to the bitstream file.</span>
+<span class="sd">            bitstream_path (Path): The path to the bitstream file.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[List[Any], List[str]]: the command to concatenate the bitstream files in the folder.</span>
+<span class="sd">            Tuple[List[Any], List[Path]]: the command to concatenate the bitstream files in the folder.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-        <span class="n">fstem</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
-
-        <span class="n">bitstream_lists</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">pdir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fstem</span><span class="si">}</span><span class="s2">-part-*</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parcat_path</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">bpath</span> <span class="ow">in</span> <span class="n">bitstream_lists</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">bpath</span><span class="p">))</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
-
-        <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span>
+        <span class="n">bp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
+        <span class="n">bitstream_lists</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bp</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bp</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">-part-*</span><span class="si">{</span><span class="n">bp</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parcat_path</span><span class="p">,</span> <span class="o">*</span><span class="n">bitstream_lists</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">]</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">bitstream_lists</span></div>
 
@@ -588,15 +587,14 @@ document.write(`
 <span class="sd">            List[Any]: command line arguments for decoding the video bitstream.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
-            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-            <span class="n">yuv_dec_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yuv_dec_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
-            <span class="n">output_bitdepth</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_bitdepth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
@@ -687,7 +685,7 @@ document.write(`
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">dec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -695,7 +693,7 @@ document.write(`
 <span class="sd">        Args:</span>
 <span class="sd">            output_file_prefix (str): The prefix of the output file name.</span>
 <span class="sd">            dec_path (str): The path to the directory where the PNG images will be saved.</span>
-<span class="sd">            yuv_dec_path (str): The path to the input YUV file.</span>
+<span class="sd">            yuv_dec_path (Path): The path to the input YUV file.</span>
 <span class="sd">            org_img_size (Dict, optional): The original image size. Defaults to None.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
@@ -727,7 +725,7 @@ document.write(`
             <span class="s2">&quot;-src_range&quot;</span><span class="p">,</span>
             <span class="s2">&quot;1&quot;</span><span class="p">,</span>  <span class="c1"># (fracape) assume dec yuv is full range for now</span>
             <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-            <span class="n">yuv_dec_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yuv_dec_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
             <span class="s2">&quot;rgb24&quot;</span><span class="p">,</span>
         <span class="p">]</span>
@@ -804,6 +802,7 @@ document.write(`
 <span class="sd">            dict: A dictionary containing the bytes per frame and the path to the output bitstream.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">input_bitdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;input_bitdepth&quot;</span><span class="p">]</span>
+        <span class="n">output_bitdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;output_bitdepth&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">file_prefix</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bitstream_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -819,6 +818,7 @@ document.write(`
             <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="p">(</span>
                 <span class="n">frames</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">feature_size</span><span class="p">,</span>
@@ -838,6 +838,19 @@ document.write(`
                 <span class="n">frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="n">input_bitdepth</span>
             <span class="p">)</span>
 
+            <span class="n">num_frames</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">shape</span>
+
+            <span class="c1"># Same minv, maxv for all frames.</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+                <span class="n">frame_info</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;minv&quot;</span><span class="p">:</span> <span class="n">minv</span><span class="p">,</span>
+                    <span class="s2">&quot;maxv&quot;</span><span class="p">:</span> <span class="n">maxv</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_frame_info_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame_info</span><span class="p">)</span>
+
+            <span class="n">conversion_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;conversion time:</span><span class="si">{</span><span class="n">conversion_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
             <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
             <span class="n">input_bitdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;input_bitdepth&quot;</span><span class="p">]</span>
             <span class="n">chroma_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;chroma_format&quot;</span><span class="p">]</span>
@@ -853,7 +866,7 @@ document.write(`
             <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">write_one_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">mid_level</span><span class="o">=</span><span class="n">mid_level</span><span class="p">)</span>
 
-        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.bin&quot;</span>
+        <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.bin&quot;</span><span class="p">)</span>
         <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_enc.log&quot;</span><span class="p">)</span>
         <span class="n">cmds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_encode_cmd</span><span class="p">(</span>
             <span class="n">yuv_in_path</span><span class="p">,</span>
@@ -892,11 +905,19 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="n">remote_inference</span><span class="p">:</span>
             <span class="n">inner_codec_bitstream</span> <span class="o">=</span> <span class="n">load_bitstream</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
 
+            <span class="n">sequence_info</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;bitdepth&quot;</span><span class="p">:</span> <span class="n">output_bitdepth</span><span class="p">,</span>
+                <span class="s2">&quot;frame_size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">),</span>
+                <span class="s2">&quot;num_frames&quot;</span><span class="p">:</span> <span class="n">nb_frames</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="k">assert</span> <span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;num_frames&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_info_buffer</span><span class="p">)</span>
+
             <span class="c1"># Bistream header to make bitstream self-decodable</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_n_bit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bitdepth</span><span class="p">)</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_rft_chSize</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;chSize&quot;</span><span class="p">])</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_packed_frame_size</span><span class="p">((</span><span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">))</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_min_max_values</span><span class="p">()</span>
+            <span class="n">fd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_header_writer</span><span class="o">.</span><span class="n">write_sequence_info</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">sequence_info</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">frame_info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_info_buffer</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_header_writer</span><span class="o">.</span><span class="n">write_frame_info</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">frame_info</span><span class="p">)</span>
 
             <span class="n">pre_info_bitstream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_io_buffer_contents</span><span class="p">()</span>
             <span class="n">bitstream</span> <span class="o">=</span> <span class="n">pre_info_bitstream</span> <span class="o">+</span> <span class="n">inner_codec_bitstream</span>
@@ -912,10 +933,16 @@ document.write(`
         <span class="n">avg_bytes_per_frame</span> <span class="o">=</span> <span class="n">get_filesize</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">nb_frames</span>
         <span class="n">all_bytes_per_frame</span> <span class="o">=</span> <span class="p">[</span><span class="n">avg_bytes_per_frame</span><span class="p">]</span> <span class="o">*</span> <span class="n">nb_frames</span>
 
-        <span class="k">return</span> <span class="p">{</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="n">all_bytes_per_frame</span><span class="p">,</span>
-            <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="n">bitstream_path</span><span class="p">,</span>
-        <span class="p">}</span></div>
+            <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">enc_times</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">enc_time</span><span class="p">,</span>
+            <span class="s2">&quot;conversion&quot;</span><span class="p">:</span> <span class="n">conversion_time</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">enc_times</span></div>
 
 <div class="viewcode-block" id="VTM.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -938,6 +965,8 @@ document.write(`
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict: The dictionary of output features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
         <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">bitstream_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
 
@@ -946,12 +975,12 @@ document.write(`
         <span class="n">dec_path</span> <span class="o">=</span> <span class="n">codec_output_dir</span> <span class="o">/</span> <span class="s2">&quot;dec&quot;</span>
         <span class="n">dec_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">_dec.log&quot;</span><span class="p">)</span>
+        <span class="n">yuv_dec_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">_dec.yuv&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">remote_inference</span><span class="p">:</span>  <span class="c1"># remote inference pipeline</span>
             <span class="n">bitdepth</span> <span class="o">=</span> <span class="n">get_raw_video_file_info</span><span class="p">(</span><span class="n">output_file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;qp&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span>
                 <span class="s2">&quot;bitdepth&quot;</span>
             <span class="p">]</span>
-            <span class="n">yuv_dec_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">_dec.yuv&quot;</span>
 
             <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decode_cmd</span><span class="p">(</span>
                 <span class="n">bitstream_path</span><span class="o">=</span><span class="n">bitstream_path</span><span class="p">,</span>
@@ -991,17 +1020,23 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># split inference pipeline</span>
             <span class="k">del</span> <span class="n">org_img_size</span>  <span class="c1"># not needed in this pipeline</span>
 
-            <span class="n">bitstream</span> <span class="o">=</span> <span class="n">load_bitstream</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+                <span class="n">bitstream_fd</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
             <span class="c1"># read header bitstream header</span>
-            <span class="n">bitdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_n_bit</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_rft_chSize</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span>
-            <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_packed_frame_size</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_min_max_values</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span>
+            <span class="n">sequence_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header_reader</span><span class="o">.</span><span class="n">read_sequence_info</span><span class="p">(</span><span class="n">bitstream_fd</span><span class="p">)</span>
+            <span class="n">frame_infos</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_header_reader</span><span class="o">.</span><span class="n">read_frame_info</span><span class="p">(</span><span class="n">bitstream_fd</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;num_frames&quot;</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="n">bitdepth</span> <span class="o">=</span> <span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;bitdepth&quot;</span><span class="p">]</span>
+            <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span> <span class="o">=</span> <span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;frame_size&quot;</span><span class="p">]</span>
 
             <span class="c1"># we need this to read the std codec part of the bitstream</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fw</span><span class="p">:</span>
-                <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bitstream</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bitstream_fd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="n">bitstream_fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
             <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_decode_cmd</span><span class="p">(</span>
                 <span class="n">bitstream_path</span><span class="o">=</span><span class="n">bitstream_path</span><span class="p">,</span>
@@ -1016,7 +1051,7 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dec_time:</span><span class="si">{</span><span class="n">dec_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span><span class="o">.</span><span class="n">setReader</span><span class="p">(</span>
-                <span class="n">read_path</span><span class="o">=</span><span class="n">yuv_dec_path</span><span class="p">,</span>
+                <span class="n">read_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="p">),</span>
                 <span class="n">frmWidth</span><span class="o">=</span><span class="n">frame_width</span><span class="p">,</span>
                 <span class="n">frmHeight</span><span class="o">=</span><span class="n">frame_height</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1030,7 +1065,14 @@ document.write(`
 
             <span class="n">rec_frames</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">)</span>
 
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">frame_info</span><span class="p">[</span><span class="s2">&quot;minv&quot;</span><span class="p">],</span> <span class="n">minv</span><span class="p">,</span> <span class="o">**</span><span class="n">tol</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">frame_info</span><span class="p">[</span><span class="s2">&quot;maxv&quot;</span><span class="p">],</span> <span class="n">maxv</span><span class="p">,</span> <span class="o">**</span><span class="n">tol</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">frame_info</span> <span class="ow">in</span> <span class="n">frame_infos</span>
+            <span class="p">)</span>
             <span class="n">rec_frames</span> <span class="o">=</span> <span class="n">min_max_inv_normalization</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">,</span> <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
             <span class="c1"># (fracape) should feature sizes be part of bitstream?</span>
@@ -1056,56 +1098,24 @@ document.write(`
                 <span class="n">json_dict</span><span class="p">[</span><span class="s2">&quot;subframe_heights&quot;</span><span class="p">],</span>
                 <span class="n">packing_all_in_one</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
+
+            <span class="n">conversion_time</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;conversion_time:</span><span class="si">{</span><span class="n">conversion_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span><span class="p">[</span><span class="s2">&quot;dump_yuv_packing_dec&quot;</span><span class="p">]:</span>
-                <span class="n">Path</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                <span class="n">yuv_dec_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
             <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">output</span></div>
+        <span class="n">dec_times</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">dec_time</span><span class="p">,</span>
+            <span class="s2">&quot;conversion&quot;</span><span class="p">:</span> <span class="n">conversion_time</span><span class="p">,</span>
+        <span class="p">}</span>
 
-    <span class="c1"># Functions required in the context of FCM to write a header that enables a self decodable bitstream</span>
-<div class="viewcode-block" id="VTM.write_n_bit"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.write_n_bit">[docs]</a>    <span class="k">def</span> <span class="nf">write_n_bit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_bit</span><span class="p">):</span>
-        <span class="c1"># adhoc method, warning redundant information</span>
-        <span class="k">return</span> <span class="n">write_uchars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="p">,</span> <span class="p">(</span><span class="n">n_bit</span><span class="p">,))</span></div>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">dec_times</span></div>
 
-<div class="viewcode-block" id="VTM.write_rft_chSize"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.write_rft_chSize">[docs]</a>    <span class="k">def</span> <span class="nf">write_rft_chSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chSize</span><span class="p">):</span>
-        <span class="c1"># adhoc method</span>
-        <span class="k">return</span> <span class="n">write_uints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="p">,</span> <span class="n">chSize</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="VTM.write_packed_frame_size"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.write_packed_frame_size">[docs]</a>    <span class="k">def</span> <span class="nf">write_packed_frame_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frmSize</span><span class="p">):</span>
-        <span class="c1"># adhoc method, warning redundant information</span>
-        <span class="k">return</span> <span class="n">write_uints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="p">,</span> <span class="n">frmSize</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="VTM.write_min_max_values"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.write_min_max_values">[docs]</a>    <span class="k">def</span> <span class="nf">write_min_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># adhoc method to make bitstream self-decodable</span>
-        <span class="n">byte_cnts</span> <span class="o">=</span> <span class="n">write_uints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_minmax_buffer_size</span><span class="p">(),))</span>
-        <span class="k">for</span> <span class="n">min_max</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_max_buffer</span><span class="p">:</span>
-            <span class="n">byte_cnts</span> <span class="o">+=</span> <span class="n">write_float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="p">,</span> <span class="n">min_max</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">byte_cnts</span></div>
-
-<div class="viewcode-block" id="VTM.read_n_bit"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.read_n_bit">[docs]</a>    <span class="k">def</span> <span class="nf">read_n_bit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
-        <span class="c1"># adhoc method, warning redundant information</span>
-        <span class="k">return</span> <span class="n">read_uchars</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="VTM.read_rft_chSize"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.read_rft_chSize">[docs]</a>    <span class="k">def</span> <span class="nf">read_rft_chSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
-        <span class="c1"># adhoc method,</span>
-        <span class="k">return</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="VTM.read_packed_frame_size"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.read_packed_frame_size">[docs]</a>    <span class="k">def</span> <span class="nf">read_packed_frame_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
-        <span class="c1"># adhoc method, warning redundant information</span>
-        <span class="k">return</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="VTM.read_min_max_values"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.read_min_max_values">[docs]</a>    <span class="k">def</span> <span class="nf">read_min_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
-        <span class="c1"># adhoc method to make bitstream self-decodable</span>
-        <span class="n">num_minmax_pairs</span> <span class="o">=</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="n">min_max_buffer</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_minmax_pairs</span><span class="p">):</span>
-            <span class="n">min_max</span> <span class="o">=</span> <span class="n">read_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">min_max_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">min_max</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">min_max_buffer</span></div>
+<div class="viewcode-block" id="VTM.get_io_buffer_contents"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_io_buffer_contents">[docs]</a>    <span class="k">def</span> <span class="nf">get_io_buffer_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="VTM.dump_fpn_sizes_json"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.dump_fpn_sizes_json">[docs]</a>    <span class="k">def</span> <span class="nf">dump_fpn_sizes_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">bitstream_name</span><span class="p">,</span> <span class="n">codec_output_dir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1210,58 +1220,17 @@ document.write(`
             <span class="sa">f</span><span class="s2">&quot;--DecodingRefreshType=</span><span class="si">{</span><span class="n">decodingRefreshType</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">parallel_encoding</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">nb_frames</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">parallel_encoding</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">nb_frames</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># No need for parallel encoding.</span>
             <span class="n">base_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">base_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">nb_frames</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">base_cmd</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+            <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_encode_cmd</span><span class="p">(</span><span class="n">base_cmd</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">)</span>
 
-        <span class="n">num_parallels</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">nb_frames</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
-
-        <span class="n">list_of_num_of_frameSkip</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">list_of_num_of_framesToBeEncoded</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">total_num_frames_to_code</span> <span class="o">=</span> <span class="n">nb_frames</span>
-
-        <span class="n">frameSkip</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">nb_framesToBeEncoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_parallels</span><span class="p">):</span>
-            <span class="n">list_of_num_of_frameSkip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frameSkip</span><span class="p">)</span>
-
-            <span class="n">nb_framesToBeEncoded</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">total_num_frames_to_code</span><span class="p">,</span> <span class="n">nb_framesToBeEncoded</span><span class="p">)</span>
-            <span class="n">list_of_num_of_framesToBeEncoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_framesToBeEncoded</span><span class="p">)</span>
-
-            <span class="n">frameSkip</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span>
-            <span class="n">total_num_frames_to_code</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span>
-
-        <span class="n">bitstream_path_p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-        <span class="n">file_stem</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
-
-        <span class="n">parallel_cmds</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-            <span class="nb">zip</span><span class="p">(</span><span class="n">list_of_num_of_frameSkip</span><span class="p">,</span> <span class="n">list_of_num_of_framesToBeEncoded</span><span class="p">)</span>
-        <span class="p">):</span>
-            <span class="n">frameSkip</span><span class="p">,</span> <span class="n">framesToBeEncoded</span> <span class="o">=</span> <span class="n">items</span>
-            <span class="n">sbitstream_path</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">bitstream_path_p</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
-                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_stem</span><span class="p">)</span>
-                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;-part-</span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
-            <span class="p">)</span>
-
-            <span class="n">pcmd</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">base_cmd</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--BitstreamFile=</span><span class="si">{</span><span class="n">sbitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FrameSkip=</span><span class="si">{</span><span class="n">frameSkip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">pcmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--FramesToBeEncoded=</span><span class="si">{</span><span class="n">framesToBeEncoded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pcmd</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-
-            <span class="n">parallel_cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">parallel_cmds</span></div></div>
+        <span class="k">return</span> <span class="n">cmds</span></div></div>
 
 
 <div class="viewcode-block" id="VVENC"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vvenc&quot;</span><span class="p">)</span>
@@ -1317,6 +1286,109 @@ document.write(`
             <span class="s2">&quot;fast&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">HeaderWriter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">write_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">sequence_info</span><span class="p">):</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;bitdepth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;frame_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;num_frames&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sequence_info</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_keys</span><span class="p">),</span> <span class="n">sequence_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">write_uchars</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;bitdepth&quot;</span><span class="p">],)),</span>
+                <span class="n">write_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;frame_size&quot;</span><span class="p">]),</span>
+                <span class="n">write_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="n">sequence_info</span><span class="p">[</span><span class="s2">&quot;num_frames&quot;</span><span class="p">],)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">frame_info</span><span class="p">):</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;minv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;maxv&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">frame_info</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_keys</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">write_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="n">frame_info</span><span class="p">[</span><span class="s2">&quot;minv&quot;</span><span class="p">],)),</span>
+                <span class="n">write_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="n">frame_info</span><span class="p">[</span><span class="s2">&quot;maxv&quot;</span><span class="p">],)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">HeaderReader</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_frames_read</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">read_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+        <span class="p">[</span><span class="n">bitdepth</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_uchars</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">frame_size</span> <span class="o">=</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">num_frames</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">sequence_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;bitdepth&quot;</span><span class="p">:</span> <span class="n">bitdepth</span><span class="p">,</span>
+            <span class="s2">&quot;frame_size&quot;</span><span class="p">:</span> <span class="n">frame_size</span><span class="p">,</span>
+            <span class="s2">&quot;num_frames&quot;</span><span class="p">:</span> <span class="n">num_frames</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info</span> <span class="o">=</span> <span class="n">sequence_info</span>
+
+        <span class="k">return</span> <span class="n">sequence_info</span>
+
+    <span class="k">def</span> <span class="nf">read_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+        <span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_frames_read</span>
+        <span class="p">[</span><span class="n">minv</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">maxv</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">frame_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;frame_id&quot;</span><span class="p">:</span> <span class="n">frame_id</span><span class="p">,</span>
+            <span class="s2">&quot;minv&quot;</span><span class="p">:</span> <span class="n">minv</span><span class="p">,</span>
+            <span class="s2">&quot;maxv&quot;</span><span class="p">:</span> <span class="n">maxv</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_frames_read</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">frame_info</span>
+
+
+<span class="k">def</span> <span class="nf">_distribute_parallel_work</span><span class="p">(</span><span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Distributes frame encoding work.</span>
+
+<span class="sd">    worker[i] is to be assigned frames in the interval</span>
+<span class="sd">    [offsets[i], offsets[i] + counts[i]).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_remaining</span> <span class="o">=</span> <span class="n">num_frames</span>
+
+    <span class="c1"># WARN: Current implementation assumes one worker per intra period.</span>
+    <span class="k">assert</span> <span class="n">num_workers</span> <span class="o">==</span> <span class="n">num_frames</span> <span class="o">//</span> <span class="n">intra_period</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_workers</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">num_remaining</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="c1"># NOTE: The first and last frames must both be intra-frames, hence the +1.</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">intra_period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_remaining</span><span class="p">)</span>
+
+        <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">intra_period</span>
+        <span class="n">num_remaining</span> <span class="o">-=</span> <span class="n">intra_period</span>
+
+    <span class="k">assert</span> <span class="n">offsets</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">num_frames</span>
+
+    <span class="k">return</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">counts</span>
 </pre></div>
 
                 </article>
