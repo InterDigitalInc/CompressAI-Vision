@@ -50,6 +50,7 @@ else:
                 kwargs["tools"],
                 kwargs["device"],
                 kwargs["verbosity"],
+                kwargs["mac_computation"],
             )
 
             self.qp = kwargs["enc_configs"]["qp"]
