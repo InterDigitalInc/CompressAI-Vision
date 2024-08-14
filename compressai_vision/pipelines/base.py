@@ -139,7 +139,9 @@ class BasePipeline(nn.Module):
 
     @property
     def complexity_calc_by_module(self):
-        return self.kmac_per_pixels if hasattr(self, 'kmac_per_pixels') is True else None
+        return (
+            self.kmac_per_pixels if hasattr(self, "kmac_per_pixels") is True else None
+        )
 
     @staticmethod
     def _get_title(a):
