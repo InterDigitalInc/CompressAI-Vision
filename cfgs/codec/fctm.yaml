@@ -34,16 +34,17 @@ tools:
     # "cfgs/codec/vtm-23.3/encoder_lowdelay_vtm_gop4.cfg" must be used
     intra_period: ${codec.enc_configs.intra_period} # as reference
 
+  refinements:
+    on_restored_ftensor:
+      enabled: True
+      period: ${codec.enc_configs.intra_period}
+    on_fused_ftensor:
+      enabled: True
+      period: ${codec.enc_configs.intra_period}
+
   conversion:
     type: 'tensor_packing' # or 'bypass'
     n_bit: ${codec.enc_configs.n_bit}
-    refinements:
-      on_restored_ftensor:
-        enabled: True
-        period: ${codec.enc_configs.intra_period}
-      on_fused_ftensor:
-        enabled: True
-        period: ${codec.enc_configs.intra_period}
     packing:
       symmetric_feature_channel_flipping: False
 
