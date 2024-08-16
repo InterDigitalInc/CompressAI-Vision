@@ -104,8 +104,8 @@ class VTM(nn.Module):
         self.encoder_path = Path(codec_paths["encoder_exe"])
         self.decoder_path = Path(codec_paths["decoder_exe"])
         self.cfg_file = Path(codec_paths["cfg_file"])
-
         self.parcat_path = Path(codec_paths["parcat_exe"])  # optional
+
         self.parallel_encoding = self.enc_cfgs["parallel_encoding"]  # parallel option
         self.hash_check = self.enc_cfgs["hash_check"]  # md5 hash check
         self.stash_outputs = self.enc_cfgs["stash_outputs"]
@@ -807,8 +807,11 @@ class VTM(nn.Module):
                 frmHeight=frame_height,
             )
 
-            # TODO (fracape) expects raw yuv400 10b coded on 16 bit
-            nb_frames = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
+            # TODO (fracape) expects raw yuv400 coded on 8 or 16 bit
+            factor = int((bitdepth + 7) / 8)
+            nb_frames = get_filesize(yuv_dec_path) // (
+                frame_width * frame_height * factor
+            )
 
             rec_frames = []
             for i in range(nb_frames):
@@ -1094,7 +1097,7 @@ class JM(VTM):
     ):
         super().__init__(vision_model, dataset, **kwargs)
 
-        self.default_cfg_file = Path(self.enc_cfgs["default_cfg_file"])
+        self.default_cfg_file = Path(kwargs["codec_paths"]["default_cfg_file"])
 
     def get_encode_cmd(
         self,
@@ -1129,7 +1132,7 @@ class JM(VTM):
         """
 
         assert parallel_encoding == False, "JM does not support parallel coding"
-        # level = 5.1 if nb_frames > 1 else 6.2  # according to MPEG's anchor
+        level = 62  # enable large frames
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth
 
@@ -1156,28 +1159,33 @@ class JM(VTM):
             f"SourceHeight={height}",
             "-p",
             f"OutputHeight={height}",
-            # "-p",
-            # f"FrameRate={frmRate}",
+            "-p",
+            f"FrameRate={self.frame_rate}",
             "-p",
             f"IntraPeriod={self.intra_period}",
             "-p",
             "YUVFormat=0",
-            # "-p",
-            # f"SourceBitDepthLuma={bitdepth}",
+            "-p",
+            f"SourceBitDepthLuma={output_bitdepth}",
             "-p",
             "ChromaWeightSupport=0",
             "-p",
             f"OutputFile={bitstream_path}",
             "-p",
             f"FramesToBeEncoded={nb_frames}",
+            "-p",
+            f"LevelIDC={level}",
         ]
         cmd = list(map(str, cmd))
         self.logger.debug(cmd)
         return [cmd]
 
-    def get_decode_cmd(self, yuv_dec_path: Path, bitstream_path: Path) -> List[Any]:
+    def get_decode_cmd(
+        self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth=None
+    ) -> List[Any]:
+        del output_bitdepth
         cmd = [
-            self.decoder_path,
+            f"{self.decoder_path}",
             "-p",
             f"InputFile={bitstream_path}",
             "-p",
@@ -1186,10 +1194,8 @@ class JM(VTM):
             "WriteUV=0",
         ]
 
-        cl = list(map(str, cmd))
-        self.logger.debug(cl)
-
-        return [cl]
+        self.logger.debug(cmd)
+        return cmd
 
 
 @register_codec("vvenc")
