@@ -88,7 +88,14 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=["hydra-core", "omegaconf", "yuvio", "pandas", "pillow<=9.5.0"],
+    install_requires=[
+        "hydra-core",
+        "omegaconf",
+        "yuvio",
+        "pandas",
+        "pillow<=9.5.0",
+        "ptflops>=0.7.3",
+    ],
     packages=find_packages(),
     # include_package_data=True,
     entry_points={
