@@ -326,6 +326,7 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM"><code class="docutils literal notranslate"><span class="pre">VTM</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.close_bitstream_file"><code class="docutils literal notranslate"><span class="pre">VTM.close_bitstream_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.convert_input_to_yuv"><code class="docutils literal notranslate"><span class="pre">VTM.convert_input_to_yuv()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.convert_yuv_to_pngs"><code class="docutils literal notranslate"><span class="pre">VTM.convert_yuv_to_pngs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.decode"><code class="docutils literal notranslate"><span class="pre">VTM.decode()</span></code></a></li>
@@ -336,8 +337,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_encode_cmd"><code class="docutils literal notranslate"><span class="pre">VTM.get_encode_cmd()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_io_buffer_contents"><code class="docutils literal notranslate"><span class="pre">VTM.get_io_buffer_contents()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_parcat_cmd"><code class="docutils literal notranslate"><span class="pre">VTM.get_parcat_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.open_bitstream_file"><code class="docutils literal notranslate"><span class="pre">VTM.open_bitstream_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.qp_value"><code class="docutils literal notranslate"><span class="pre">VTM.qp_value</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reset"><code class="docutils literal notranslate"><span class="pre">VTM.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reshape_feature_pyramid_to_frame"><code class="docutils literal notranslate"><span class="pre">VTM.reshape_feature_pyramid_to_frame()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reshape_frame_to_feature_pyramid"><code class="docutils literal notranslate"><span class="pre">VTM.reshape_frame_to_feature_pyramid()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.training"><code class="docutils literal notranslate"><span class="pre">VTM.training</span></code></a></li>
 </ul>
 </li>
@@ -458,6 +462,11 @@ Returns the input and calculates its raw size</p>
 <dt class="sig sig-object py" id="compressai_vision.codecs.VTM">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.codecs.</span></span><span class="sig-name descname"><span class="pre">VTM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vision_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="model_wrappers.html#compressai_vision.model_wrappers.BaseWrapper" title="compressai_vision.model_wrappers.base_wrapper.BaseWrapper"><span class="pre">BaseWrapper</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM" title="Permalink to this definition">#</a></dt>
 <dd><p>Encoder/Decoder class for VVC - VTM reference software</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.codecs.VTM.close_bitstream_file">
+<span class="sig-name descname"><span class="pre">close_bitstream_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.close_bitstream_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.close_bitstream_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="compressai_vision.codecs.VTM.convert_input_to_yuv">
 <span class="sig-name descname"><span class="pre">convert_input_to_yuv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.convert_input_to_yuv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.convert_input_to_yuv" title="Permalink to this definition">#</a></dt>
@@ -663,6 +672,11 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.codecs.VTM.open_bitstream_file">
+<span class="sig-name descname"><span class="pre">open_bitstream_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rb'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.open_bitstream_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.open_bitstream_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="compressai_vision.codecs.VTM.qp_value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qp_value</span></span><a class="headerlink" href="#compressai_vision.codecs.VTM.qp_value" title="Permalink to this definition">#</a></dt>
@@ -672,6 +686,18 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 <dt class="sig sig-object py" id="compressai_vision.codecs.VTM.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.reset" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.codecs.VTM.reshape_feature_pyramid_to_frame">
+<span class="sig-name descname"><span class="pre">reshape_feature_pyramid_to_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packing_all_in_one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.reshape_feature_pyramid_to_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.reshape_feature_pyramid_to_frame" title="Permalink to this definition">#</a></dt>
+<dd><p>rehape the feature pyramid to a frame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.codecs.VTM.reshape_frame_to_feature_pyramid">
+<span class="sig-name descname"><span class="pre">reshape_frame_to_feature_pyramid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subframe_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packing_all_in_one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/codecs/std_codecs.html#VTM.reshape_frame_to_feature_pyramid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.codecs.VTM.reshape_frame_to_feature_pyramid" title="Permalink to this definition">#</a></dt>
+<dd><p>reshape a frame of channels into the feature pyramid</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="compressai_vision.codecs.VTM.training">
@@ -923,6 +949,7 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM"><code class="docutils literal notranslate"><span class="pre">VTM</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.close_bitstream_file"><code class="docutils literal notranslate"><span class="pre">VTM.close_bitstream_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.convert_input_to_yuv"><code class="docutils literal notranslate"><span class="pre">VTM.convert_input_to_yuv()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.convert_yuv_to_pngs"><code class="docutils literal notranslate"><span class="pre">VTM.convert_yuv_to_pngs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.decode"><code class="docutils literal notranslate"><span class="pre">VTM.decode()</span></code></a></li>
@@ -933,8 +960,11 @@ This function dumps the FPN sizes JSON file for a given split model.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_encode_cmd"><code class="docutils literal notranslate"><span class="pre">VTM.get_encode_cmd()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_io_buffer_contents"><code class="docutils literal notranslate"><span class="pre">VTM.get_io_buffer_contents()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.get_parcat_cmd"><code class="docutils literal notranslate"><span class="pre">VTM.get_parcat_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.open_bitstream_file"><code class="docutils literal notranslate"><span class="pre">VTM.open_bitstream_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.qp_value"><code class="docutils literal notranslate"><span class="pre">VTM.qp_value</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reset"><code class="docutils literal notranslate"><span class="pre">VTM.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reshape_feature_pyramid_to_frame"><code class="docutils literal notranslate"><span class="pre">VTM.reshape_feature_pyramid_to_frame()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.reshape_frame_to_feature_pyramid"><code class="docutils literal notranslate"><span class="pre">VTM.reshape_frame_to_feature_pyramid()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.codecs.VTM.training"><code class="docutils literal notranslate"><span class="pre">VTM.training</span></code></a></li>
 </ul>
 </li>
