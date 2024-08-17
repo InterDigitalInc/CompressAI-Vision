@@ -62,9 +62,8 @@ class Split_Points(Enum):
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device: str, **kwargs):
-        super().__init__()
+        super().__init__(device)
 
-        self.device = device
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
         _path_prefix = (

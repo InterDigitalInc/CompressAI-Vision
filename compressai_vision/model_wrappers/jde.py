@@ -60,7 +60,7 @@ root_path = thisdir.joinpath("../..")
 @register_vision_model("jde_1088x608")
 class jde_1088x608(BaseWrapper):
     def __init__(self, device: str, **kwargs):
-        super().__init__()
+        super().__init__(device)
 
         _path_prefix = (
             f"{root_path}/" if kwargs["model_path_prefix"] == "default" else ""

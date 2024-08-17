@@ -40,9 +40,10 @@ class BaseWrapper(nn.Module):
     An instance of this class helps you to wrap an off-the-shelf model so that the wrapped model can behave in various modes such as "full" and "partial" to process the input frames.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, device) -> None:
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.device = device
 
     def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
