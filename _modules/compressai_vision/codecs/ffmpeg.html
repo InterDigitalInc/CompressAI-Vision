@@ -540,7 +540,10 @@ document.write(`
             <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">enc_time</span><span class="p">,</span>
             <span class="s2">&quot;conversion&quot;</span><span class="p">:</span> <span class="n">conversion_time</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">enc_times</span></div>
+
+        <span class="n">mac_calculations</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># no NN-related complexity calculation with std codecs</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">enc_times</span><span class="p">,</span> <span class="n">mac_calculations</span></div>
 
 <div class="viewcode-block" id="x264.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
