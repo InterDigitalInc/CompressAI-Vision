@@ -692,7 +692,9 @@ class VTM(nn.Module):
             "conversion": conversion_time,
         }
 
-        return output, enc_times
+        mac_calculations = None  # no NN-related complexity calculation with std codecs
+
+        return output, enc_times, mac_calculations
 
     def decode(
         self,
