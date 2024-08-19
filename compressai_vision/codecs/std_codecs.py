@@ -769,6 +769,7 @@ class VTM(nn.Module):
                     len(rec_frames) == 1
                 ), f"Number of retrieved file must be 1, but got {len(rec_frames)}"
 
+            conversion_time = 0
             output = {"file_names": rec_frames}
 
         else:  # split inference pipeline
