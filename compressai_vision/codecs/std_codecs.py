@@ -33,6 +33,7 @@ import json
 import logging
 import math
 import os
+import shutil
 import sys
 import time
 from io import BytesIO
@@ -88,6 +89,40 @@ def load_bitstream(path):
     return buf.getvalue()
 
 
+# From VCM-RS Scripts/utils.py
+def update_cfg_from_ini(ini_file, cfg, section=None):
+    current_section = ""
+    with open(ini_file, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.replace("\r", "").replace("\n", "").strip()
+            if line.startswith("#"):
+                continue
+            if line.startswith("["):
+                current_section = line.lstrip("[").rstrip("]")
+                continue
+            if section is None or section == current_section:
+                pos = line.find("=")
+                key = line[0:pos].strip()
+                value = line[pos + 1 :].strip()
+                cfg[key] = value
+
+
+# From VCM-RS Scripts/utils.py
+def get_descriptor_files(data_dir, scenario, cfg, dataset, video_id):
+    main_dir = data_dir  # os.path.dirname(os.path.dirname(data_dir))
+    descriptor_variant = "TemporalResampleRatio4"
+    if scenario == "AI_e2e" or scenario == "LD_e2e":
+        descriptor_variant = "TemporalResampleOFF"
+    descriptor_dir = os.path.join(main_dir, "Descriptors", descriptor_variant, dataset)
+    roi_descriptor = os.path.join(descriptor_dir, "ROI", f"{video_id}.txt")
+    spatial_descriptor = os.path.join(
+        descriptor_dir, "SpatialResample", f"{video_id}.csv"
+    )
+
+    return roi_descriptor, spatial_descriptor
+
+
 @register_codec("vtm")
 class VTM(nn.Module):
     """Encoder/Decoder class for VVC - VTM reference software"""
@@ -101,18 +136,13 @@ class VTM(nn.Module):
         super().__init__()
 
         self.enc_cfgs = kwargs["encoder_config"]
-        codec_paths = kwargs["codec_paths"]
-
-        self.encoder_path = Path(codec_paths["encoder_exe"])
-        self.decoder_path = Path(codec_paths["decoder_exe"])
-        self.cfg_file = Path(codec_paths["cfg_file"])
-        self.parcat_path = Path(codec_paths["parcat_exe"])  # optional
+        self.codec_paths = kwargs["codec_paths"]
 
         self.parallel_encoding = self.enc_cfgs["parallel_encoding"]  # parallel option
         self.hash_check = self.enc_cfgs["hash_check"]  # md5 hash check
         self.stash_outputs = self.enc_cfgs["stash_outputs"]
 
-        check_list_of_paths = [self.encoder_path, self.decoder_path, self.cfg_file]
+        check_list_of_paths = self.get_check_list_of_paths()
         if self.parallel_encoding:  # miminum
             check_list_of_paths.append(self.parcat_path)
 
@@ -177,6 +207,13 @@ class VTM(nn.Module):
         self.fpn_utils = FpnUtils()
 
         self.reset()
+
+    def get_check_list_of_paths(self):
+        self.encoder_path = Path(self.codec_paths["encoder_exe"])
+        self.decoder_path = Path(self.codec_paths["decoder_exe"])
+        self.cfg_file = Path(self.codec_paths["cfg_file"])
+        self.parcat_path = Path(self.codec_paths["parcat_exe"])  # optional
+        return [self.encoder_path, self.decoder_path, self.cfg_file]
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -368,6 +405,231 @@ class VTM(nn.Module):
         self.logger.debug(cmd)
         return cmd
 
+    def convert_input_to_yuv(self, input: Dict, file_prefix: str):
+        """
+        Converts the input image or video to YUV format using ffmpeg, or use existing YUV if available.
+        Args:
+            input (Dict): A dictionary containing information about the input. It should have the following keys:
+                - file_names (List[str]): A list of file names for the input. If it contains more than one file, it is considered a video.
+                - last_frame (int): The last frame number of the video.
+                - frame_skip (int): The number of frames to skip in the video.
+                - org_input_size (Dict[str, int]): A dictionary containing the width and height of the input.
+            file_prefix (str): The prefix for the output file name.
+        Returns:
+            Tuple[str, int, int, int, str]: A tuple containing the following:
+                - yuv_in_path (str): The path to the converted YUV input file.
+                - nb_frames (int): The number of frames in the input.
+                - frame_width (int): The width of the frames in the input.
+                - frame_height (int): The height of the frames in the input.
+                - file_prefix (str): The updated file prefix.
+        Raises:
+            AssertionError: If the number of images in the input folder does not match the expected number of frames.
+        """
+        file_names = input["file_names"]
+        yuv_file = None
+        if len(file_names) > 1:  # video
+            # NOTE: using glob for now, should be more robust and look at skipped
+            # NOTE: somewhat rigid pattern (lowercase png)
+            filename_pattern = f"{str(Path(file_names[0]).parent)}/*.png"
+            nb_frames = input["last_frame"] - input["frame_skip"]
+            images_in_folder = len(
+                [file for file in Path(file_names[0]).parent.glob("*.png")]
+            )
+            assert (
+                images_in_folder == nb_frames
+            ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+
+            input_info = [
+                "-pattern_type",
+                "glob",
+                "-i",
+                filename_pattern,
+            ]
+
+            yuv_file = Path(f"{Path(file_names[0]).parent.parent}.yuv")
+            print(f"Checking if YUV is available: {yuv_file}")
+            if not yuv_file.is_file():
+                yuv_file = None
+        else:
+            input_info = ["-i", file_names[0]]
+
+        chroma_format = self.enc_cfgs["chroma_format"]
+        input_bitdepth = self.enc_cfgs["input_bitdepth"]
+
+        frame_width = math.ceil(input["org_input_size"]["width"] / 2) * 2
+        frame_height = math.ceil(input["org_input_size"]["height"] / 2) * 2
+        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
+        yuv_in_path = f"{file_prefix}_input.yuv"
+
+        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
+        chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}p"
+
+        # Use existing YUV (if found):
+        if yuv_file is not None:
+            size = yuv_file.stat().st_size
+            bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
+            bytes_per_sample = (input_bitdepth + 7) >> 3
+            expected_size = int(
+                frame_width
+                * frame_height
+                * bytes_per_luma_sample
+                * bytes_per_sample
+                * nb_frames
+            )
+            assert (
+                size == expected_size
+            ), f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
+            shutil.copy(yuv_file, yuv_in_path)
+            print(f"Using pre-existing YUV file: {yuv_file}")
+            return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
+
+        # TODO (fracape)
+        # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
+
+        convert_cmd = [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            f"{self.ffmpeg_loglevel}",
+        ]
+        convert_cmd += input_info
+        convert_cmd += [
+            "-vf",
+            "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            f"{chroma_format}{pix_fmt_suffix}",
+            "-dst_range",
+            "1",  #  (fracape) convert to full range for now
+        ]
+
+        convert_cmd.append(yuv_in_path)
+        self.logger.debug(convert_cmd)
+
+        run_cmdline(convert_cmd)
+
+        return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
+
+    def convert_yuv_to_pngs(
+        self,
+        output_file_prefix: str,
+        dec_path: str,
+        yuv_dec_path: Path,
+        org_img_size: Dict = None,
+        vcm_mode: bool = False,
+    ):
+        """
+        Converts a YUV file to a series of PNG images using ffmpeg.
+        Args:
+            output_file_prefix (str): The prefix of the output file name.
+            dec_path (str): The path to the directory where the PNG images will be saved.
+            yuv_dec_path (Path): The path to the input YUV file.
+            org_img_size (Dict, optional): The original image size. Defaults to None.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the video format is not YUV420.
+        """
+        video_info = get_raw_video_file_info(yuv_dec_path.split("qp")[-1])
+        frame_width = video_info["width"]
+        frame_height = video_info["height"]
+
+        assert (
+            "420" in video_info["format"].value
+        ), f"Only support yuv420, but got {video_info['format']}"
+        pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
+        chroma_format = f"yuv420p"
+
+        convert_cmd = [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            f"{chroma_format}{pix_fmt_suffix}",
+            "-s",
+            f"{frame_width}x{frame_height}",
+        ]
+        if not vcm_mode:
+            convert_cmd.extend(
+                [
+                    "-src_range",
+                    "1",  # (fracape) assume dec yuv is full range for now
+                ]
+            )
+        convert_cmd.extend(
+            [
+                "-i",
+                f"{yuv_dec_path}",
+                "-pix_fmt",
+                "rgb24",
+            ]
+        )
+        if vcm_mode:
+            convert_cmd.extend(
+                [
+                    "-vsync",
+                    "1",
+                ]
+            )
+
+        # TODO (fracape) hacky, clean this
+        if self.datacatalog == "MPEGOIV6":
+            output_png = f"{dec_path}/{output_file_prefix}.png"
+        elif self.datacatalog == "SFUHW":
+            prefix = output_file_prefix.split("qp")[0]
+            output_png = f"{dec_path}/{prefix}%03d.png"
+            convert_cmd += ["-start_number", "0"]
+        elif self.datacatalog in ["MPEGHIEVE"]:
+            convert_cmd += ["-start_number", "0"]
+            output_png = f"{dec_path}/%06d.png"
+        elif self.datacatalog in ["MPEGTVDTRACKING"]:
+            convert_cmd += ["-start_number", "1"]
+            output_png = f"{dec_path}/%06d.png"
+        convert_cmd.append(output_png)
+
+        run_cmdline(convert_cmd)
+
+        if org_img_size is not None:
+            discrepancy = (
+                True
+                if frame_height != org_img_size["height"]
+                or frame_width != org_img_size["width"]
+                else False
+            )
+
+            if discrepancy:
+                self.logger.warning(
+                    f"Different original input size found. It must be {org_img_size['width']}x{org_img_size['height']}, but {frame_width}x{frame_height} are parsed from YUV"
+                )
+                self.logger.warning(
+                    f"Use {org_img_size['width']}x{org_img_size['height']}, instead of {frame_width}x{frame_height}"
+                )
+
+                final_png = f"{dec_path}/{Path(output_png).stem}_tmp.png"
+
+                convert_cmd = [
+                    "ffmpeg",
+                    "-y",
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-i",
+                    output_png,
+                    "-vf",
+                    f"crop={org_img_size['width']}:{org_img_size['height']}",
+                    final_png,  # no name change
+                ]
+                run_cmdline(convert_cmd)
+
+                Path(output_png).unlink()
+                Path(final_png).rename(output_png)
+
     def encode(
         self,
         x: Dict,
@@ -539,6 +801,7 @@ class VTM(nn.Module):
         file_prefix: str = "",
         org_img_size: Dict = None,
         remote_inference=False,
+        vcm_mode=False,
     ) -> Dict:
         """
         Decodes the bitstream and returns the output features .
@@ -568,9 +831,10 @@ class VTM(nn.Module):
         print(f"\n-- decoding ${output_file_prefix}", file=sys.stdout)
 
         if remote_inference:  # remote inference pipeline
-            bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
-                "bitdepth"
-            ]
+            yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
+            if vcm_mode:
+                yuv_dec_path = yuv_dec_path.replace("8bit", "10bit")
+            bitdepth = get_raw_video_file_info(yuv_dec_path.split("qp")[-1])["bitdepth"]
 
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
@@ -585,7 +849,7 @@ class VTM(nn.Module):
             self.logger.debug(f"dec_time:{dec_time}")
 
             self.convert_yuv_to_pngs(
-                output_file_prefix, dec_path, yuv_dec_path, org_img_size
+                output_file_prefix, dec_path, yuv_dec_path, org_img_size, vcm_mode
             )
 
             # output the list of file paths for each frame
@@ -970,6 +1234,155 @@ class VVENC(VTM):
             "fast",
         ]
         return list(map(str, cmd))
+
+
+@register_codec("vcmrs")
+class VCMRS(VTM):
+    """Encoder / Decoder class for VCM-RS"""
+
+    def __init__(
+        self,
+        vision_model: BaseWrapper,
+        dataset: Dict,
+        **kwargs,
+    ):
+        super().__init__(vision_model, dataset, **kwargs)
+        self.use_descriptors = True
+        self.tmp_dir = Path(self.codec_paths["tmp_dir"])
+
+    def get_check_list_of_paths(self):
+        self.cfg_file = Path(self.codec_paths["cfg_file"])
+        return [self.cfg_file]
+
+    def get_encode_cmd(
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nb_frames: int = 1,
+        parallel_encoding: bool = False,
+        hash_check: int = 0,
+        chroma_format: str = "400",
+        input_bitdepth: int = 8,
+        output_bitdepth: int = 0,
+    ) -> List[Any]:
+        """
+        Generate a command to encode a YUV video file using VVENCs.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV video file.
+            qp (int): The quantization parameter for the encoding process.
+            bitstream_path (Path): The path to save the encoded bitstream.
+            width (int): The width of the video frame.
+            height (int): The height of the video frame.
+            nb_frames (int, optional): The number of frames to encode (default is 1).
+        Returns:
+            List[Any]: A list of strings representing the encoding command.
+        """
+        config = self.enc_cfgs["config"]
+        nn_intra_qp_offset = -5  # self.enc_cfgs["nn_intra_qp_offset"]
+        seq_roi_cfg_network = self.enc_cfgs["seq_roi_cfg_network"]
+        output_dir = os.path.dirname(str(bitstream_path))
+        recon_fname = str(bitstream_path).replace(".bin", ".yuv")
+        num_workers = 1
+
+        assert chroma_format == "420"
+
+        cfg = {
+            "SourceWidth": width,
+            "SourceHeight": height,
+            "FrameRate": self.frame_rate,
+            "IntraPeriod": self.intra_period,
+            "quality": qp,
+            "NNIntraQPOffset": nn_intra_qp_offset,
+            "working_dir": os.path.join(output_dir, "working_dir"),  # self.tmp_dir,
+            "output_dir": output_dir,
+            "output_bitstream_fname": bitstream_path,
+            "output_recon_fname": recon_fname,
+            "InputBitDepth": input_bitdepth,
+            "InputChromaFormat": chroma_format,
+            "InnerCodec": "VTM",
+            "num_workers": num_workers,
+            "RoIGenerationNetwork": seq_roi_cfg_network,
+            "SpatialDescriptorMode": "UsingDescriptor",
+            # FramesToBeEncoded" : nb_frames,
+            # "Configuration" : config,
+            # "input_files",
+        }
+
+        descriptor_dir = Path(self.cfg_file).parent.parent
+        update_cfg_from_ini(self.cfg_file, cfg)
+        items = str(bitstream_path).split("/")
+        dataset = {
+            "SFUHW": "SFU",
+            "MPEGTVDTRACKING": "TVD",
+        }[items[-5]]
+        sequence = items[-4]
+        for remove in ["sfu-hw-", "_val", "mpeg-"]:
+            sequence = sequence.replace(remove, "")
+        if dataset == "TVD":
+            sequence = sequence[:-2] + "_" + sequence[-1]
+        roi_descriptor, spatial_descriptor = get_descriptor_files(
+            descriptor_dir, config, None, dataset, sequence
+        )
+
+        cfg.update(
+            {
+                "RoIDescriptor": roi_descriptor,
+                "SpatialDescriptor": spatial_descriptor,
+            }
+        )
+
+        cmd = [
+            sys.executable,
+            "-m",
+            "vcmrs.encoder",
+            "--single_chunk",
+            "--directory_as_video",
+            "--debug_source_checksum",
+        ]
+
+        for c in cfg.keys():
+            cmd.append("--" + c)
+            cmd.append(str(cfg[c]))
+
+        cmd.append(inp_yuv_path)
+
+        cmd = list(map(str, cmd))
+        return [cmd]
+
+    def get_decode_cmd(
+        self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth: int = 10
+    ) -> List[Any]:
+        """
+        Get command line for decoding a video bitstream with an external VTM decoder.
+        Args:
+            yuv_dec_path (Path): The path to the output YUV file.
+            bitstream_path (Path): The path to the video bitstream file.
+            output_bitdepth (int, optional): The bitdepth of the output YUV file. Defaults to 10.
+        Returns:
+            List[Any]: command line arguments for decoding the video bitstream.
+        """
+        assert yuv_dec_path.endswith(".yuv")
+        output_dir = os.path.dirname(str(bitstream_path))
+        cmd = [
+            sys.executable,
+            "-m",
+            "vcmrs.decoder",
+            bitstream_path,
+            "--working_dir",
+            os.path.join(output_dir, "working_dir"),  # self.tmp_dir,
+            "--InnerCodec",
+            "VTM",
+            "--output_recon_fname",
+            yuv_dec_path[:-4],  # Drop .yuv as VCM-RS will add this.
+            # "-d",
+            # output_bitdepth,
+        ]
+        cmd = list(map(str, cmd))
+        self.logger.debug(cmd)
+        return cmd
 
 
 class HeaderWriter:

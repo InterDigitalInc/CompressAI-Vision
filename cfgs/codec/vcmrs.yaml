@@ -1,0 +1,29 @@
+type: "vcmrs"
+eval_encode: "bpp" # or "bitrate"
+experiment: "" # e.g. "_tool_on" name experiment preceded by "_"
+output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}"
+bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
+codec_paths:
+  cfg_file: "/local/path/vcmrs/Scripts/LD_inner.ini"
+  tmp_dir: "/temp/path"
+mac_computation: False
+
+verbosity: 1
+
+dump:
+  dump_yuv_input: False
+  yuv_packing_input_dir: ${..output_dir}
+  dump_yuv_packing_dec: False
+  yuv_packing_dec_dir: ${..output_dir}
+  fpn_sizes_json_dump: False
+encoder_config:
+  qp: 42
+  config: LD_inner
+  intra_period: 1
+  parallel_encoding: False
+  hash_check: 0
+  stash_outputs: True
+  chroma_format: "420"
+  input_bitdepth: 10
+  output_bitdepth: 10
+  seq_roi_cfg_network: yolov3_1088x608

@@ -41,6 +41,10 @@ from pathlib import Path
 import pandas as pd
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
+from curve_fitting import (
+    convert_to_monotonic_points_SFU,
+    convert_to_monotonic_points_TVD,
+)
 
 import utils
 from compressai_vision.datasets import get_seq_info
@@ -133,6 +137,7 @@ def generate_csv_classwise_video_map(
     metric="AP",
     gt_folder="annotations",
     nb_operation_points: int = 4,
+    skip_classwise: bool = False,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path)
@@ -167,21 +172,23 @@ def generate_csv_classwise_video_map(
                 len(items) > 0
             ), "No evaluation information found in provided result directories..."
 
-            summary = compute_overall_mAP(classwise_name, items)
-            maps = summary.values[0][opts_metrics[metric]]
-            class_wise_maps.append(maps)
+            if not skip_classwise:
+                summary = compute_overall_mAP(classwise_name, items)
+                maps = summary.values[0][opts_metrics[metric]]
+                class_wise_maps.append(maps)
 
-        matched_seq_names = []
-        for seq_info in items:
-            name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-            matched_seq_names.append(name)
+        if not skip_classwise:
+            matched_seq_names = []
+            for seq_info in items:
+                name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
+                matched_seq_names.append(name)
 
-        class_wise_results_df = generate_classwise_df(
-            results_df, {classwise_name: matched_seq_names}
-        )
-        class_wise_results_df["end_accuracy"] = class_wise_maps
+            class_wise_results_df = generate_classwise_df(
+                results_df, {classwise_name: matched_seq_names}
+            )
+            class_wise_results_df["end_accuracy"] = class_wise_maps
 
-        output_df = df_append(output_df, class_wise_results_df)
+            output_df = df_append(output_df, class_wise_results_df)
 
     # add empty y_psnr column
     output_df.insert(
@@ -309,6 +316,18 @@ if __name__ == "__main__":
         default="annotations",
         help="folder name for ground truth annotation (default: %(default)s)",
     )
+    parser.add_argument(
+        "--mode",
+        default="FCM",
+        choices=["FCM", "VCM"],
+        help="CTTC/CTC evaluation mode (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--include_optional",
+        action="store_true",
+        default=False,
+        help="Include optional sequences.",
+    )
 
     args = parser.parse_args()
 
@@ -329,6 +348,9 @@ if __name__ == "__main__":
                 "BQTerrace",
             ]
         }
+        if args.mode == "VCM":
+            class_ab["CLASS-AB"].remove("Kimono")
+            class_ab["CLASS-AB"].remove("Cactus")
         class_c = {
             "CLASS-C": ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"]
         }
@@ -340,6 +362,16 @@ if __name__ == "__main__":
                 "RaceHorses_416x240",
             ]
         }
+        classes = [class_ab, class_c, class_d]
+        if args.mode == "VCM" and args.include_optional:
+            class_o = {
+                "CLASS-O" : [
+                    "Kimono",
+                    "Cactus",
+                ]
+            }
+            classes.append(class_o)
+
         seq_list = [
             "Traffic_2560x1600_30",
             "Kimono_1920x1080_24",
@@ -356,26 +388,71 @@ if __name__ == "__main__":
             "BlowingBubbles_416x240_50",
             "RaceHorses_416x240_30",
         ]
+        if args.mode == "VCM" and not args.include_optional:
+            seq_list.remove("Kimono_1920x1080_24")
+            seq_list.remove("Cactus_1920x1080_50")
 
         output_df = generate_csv_classwise_video_map(
             args.result_path,
             args.dataset_path,
-            [class_ab, class_c, class_d],
+            classes,
             seq_list,
             metric,
             args.gt_folder,
             args.nb_operation_points,
+            args.mode == "VCM", # skip classwise evaluation
         )
+
+        if args.mode == "VCM":
+            output_df = convert_to_monotonic_points_SFU(
+                output_df,
+                non_mono_only=False,
+                perf_name="end_accuracy",
+                rate_name="bitrate (kbps)",
+            )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(args.result_path)
     elif args.dataset_name == "TVD":
-        tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
-        output_df = generate_csv_classwise_video_mota(
-            args.result_path,
-            args.dataset_path,
-            [tvd_all],
-            args.nb_operation_points,
-        )
+        if args.mode == "FCM":
+            tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
+            output_df = generate_csv_classwise_video_mota(
+                args.result_path,
+                args.dataset_path,
+                [tvd_all],
+                args.nb_operation_points,
+            )
+        else:
+            tvd_all = {
+                "TVD": [
+                    "TVD-01_1",
+                    "TVD-01_2",
+                    "TVD-01_3",
+                    "TVD-02",
+                    "TVD-03_1",
+                    "TVD-03_2",
+                    "TVD-03_3",
+                ]
+            }
+
+            results_df = read_df_rec(args.result_path)
+            results_df = results_df.sort_values(
+                by=["Dataset", "qp"], ascending=[True, True]
+            )
+
+            # accuracy in % for MPEG template
+            results_df["end_accuracy"] = results_df["end_accuracy"].apply(lambda x: x * 100)
+
+            output_df = results_df.copy()
+            ## drop columns
+            output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+            output_df = convert_to_monotonic_points_SFU(
+                output_df,
+                non_mono_only=False,
+                perf_name="end_accuracy",
+                rate_name="bitrate (kbps)",
+            )
+
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
         hieve_720p = {"HIEVE-720P": ["2", "17", "18"]}

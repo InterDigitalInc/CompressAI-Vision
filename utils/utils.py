@@ -84,13 +84,18 @@ def get_eval_info_path_by_seq_num(seq_num, _path, qidx: int, name_func: callable
 
 
 def get_eval_info_path_by_seq_name(seq_name, _path, _qidx: int, name_func: callable):
-    eval_folder, _dname = get_folder_path_by_seq_name(seq_name, _path)
+    result = get_folder_path_by_seq_name(seq_name, _path)
+    if result is None:
+        return
+    eval_folder, _dname = result
 
     if _qidx != -1:
         folders = Path(eval_folder).glob("qp*")
         sorted_files = sorted(
             folders, key=lambda x: int(re.search(r"qp(-?\d+)", str(x)).group(1))
         )
+        if len(sorted_files) < _qidx + 1:
+            return None
         eval_folder = sorted_files[_qidx]
 
     eval_info_path = f"{eval_folder}/evaluation/{name_func(_dname)}"
@@ -157,9 +162,12 @@ def search_items(
     _ret_list = []
     for seq_name in seq_list:
         if by_name is True:
-            eval_info_path, dname = get_eval_info_path_by_seq_name(
+            result = get_eval_info_path_by_seq_name(
                 seq_name, result_path, rate_point, eval_func
             )
+            if result is None:
+                continue
+            eval_info_path, dname = result
             seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
                 seq_name, dataset_path, gt_folder
             )
