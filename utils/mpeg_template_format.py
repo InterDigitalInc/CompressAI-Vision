@@ -36,6 +36,10 @@ from pathlib import Path
 import pandas as pd
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
+from curve_fitting import (
+    convert_to_monotonic_points_SFU,
+    convert_to_monotonic_points_TVD,
+)
 
 import utils
 from compressai_vision.datasets import get_seq_info
@@ -304,7 +308,7 @@ if __name__ == "__main__":
         "--dataset_name",
         required=True,
         default="SFU",
-        choices=["SFU", "OIV6", "TVD", "HIEVE"],
+        choices=["SFU", "OIV6", "TVD", "TVDVCM", "HIEVE"],
         help="CTTC Evaluation Dataset (default: %(default)s)",
     )
     parser.add_argument(
@@ -326,12 +330,21 @@ if __name__ == "__main__":
         default=4,
         help="number of rate points (qps) per sequence / class",
     )
+    parser.add_argument(
+        "--curve_fit",
+        action="store_true",
+        default=False,
+        help="Include end accurucy points from curve-fitting method.",
+    )
 
     args = parser.parse_args()
 
+    # Hack
+    dataset_name = args.dataset_name.lower().replace("tvdvcm", "tvd")
+
     assert (
-        args.dataset_name.lower() in Path(args.dataset_path).name.lower()
-        and args.dataset_name.lower() in Path(args.result_path).name.lower()
+        dataset_name in Path(args.dataset_path).name.lower()
+        and dataset_name in Path(args.result_path).name.lower()
     ), "Please check correspondance between input dataset name and result directory"
 
     if args.dataset_name == "SFU":
@@ -339,9 +352,9 @@ if __name__ == "__main__":
         class_ab = {
             "CLASS-AB": [
                 "Traffic",
-                "Kimono",
+                # "Kimono",
                 "ParkScene",
-                "Cactus",
+                # "Cactus",
                 "BasketballDrive",
                 "BQTerrace",
             ]
@@ -359,9 +372,9 @@ if __name__ == "__main__":
         }
         seq_list = [
             "Traffic_2560x1600_30",
-            "Kimono_1920x1080_24",
+            # "Kimono_1920x1080_24",
             "ParkScene_1920x1080_24",
-            "Cactus_1920x1080_50",
+            # "Cactus_1920x1080_50",
             "BasketballDrive_1920x1080_50",
             "BQTerrace_1920x1080_60",
             "BasketballDrill_832x480_50",
@@ -383,6 +396,14 @@ if __name__ == "__main__":
             args.remote_inference,
             args.nb_operation_points,
         )
+
+        if args.curve_fit:
+            output_df = convert_to_monotonic_points_SFU(
+                output_df,
+                non_mono_only=False,
+                perf_name="end_accuracy",
+                rate_name="bitrate (kbps)",
+            )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(args.result_path, args.remote_inference)
     elif args.dataset_name == "TVD":
@@ -394,6 +415,46 @@ if __name__ == "__main__":
             args.remote_inference,
             args.nb_operation_points,
         )
+    elif args.dataset_name == "TVDVCM":
+        tvd_all = {
+            "TVD": [
+                "TVD-01_1",
+                "TVD-01_2",
+                "TVD-01_3",
+                "TVD-02",
+                "TVD-03_1",
+                "TVD-03_2",
+                "TVD-03_3",
+            ]
+        }
+
+        results_df = read_df_rec(args.result_path)
+        results_df = results_df.sort_values(
+            by=["Dataset", "qp"], ascending=[True, True]
+        )
+
+        # accuracy in % for MPEG template
+        results_df["end_accuracy"] = results_df["end_accuracy"].apply(lambda x: x * 100)
+
+        output_df = results_df.copy()
+        ## drop columns
+        output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+        if args.curve_fit:
+            output_df = convert_to_monotonic_points_SFU(
+                output_df,
+                non_mono_only=False,
+                perf_name="end_accuracy",
+                rate_name="bitrate (kbps)",
+            )
+        # output_df = generate_csv_classwise_video_mota(
+        #    args.result_path,
+        #    args.dataset_path,
+        #    [tvd_all],
+        #    args.remote_inference,
+        #    args.nb_operation_points,
+        # )
+
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
         hieve_720p = {"HIEVE-720P": ["2", "17", "18"]}

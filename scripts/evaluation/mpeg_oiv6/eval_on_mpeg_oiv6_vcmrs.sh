@@ -30,7 +30,7 @@ RUN OPTIONS:
                 [-q|--qp) quality level, depends on the inner codec, default=42]
                 [-s|--seq_name) sequence name as used in testdata root folder. E.g., "Traffic_2560x1600_30_val" in sfu_hw_obj, default="42"]
                 [-x|--extra_params) additional parameters to override default configs (pipeline/codec/evaluation...), default=""]
-EXAMPLE         [bash eval_on_mpeg_sfu_hw_vtm.sh -t /path/to/testdata -p split -i /path/to/VTM_repo -d cpu -q 32 -s Traffic_2560x1600_30_val]
+EXAMPLE         [bash eval_on_mpeg_oiv6_vcmrs.sh -t /path/to/testdata -p split -i /path/to/VTM_repo -d cpu -q 32 -s Traffic_2560x1600_30_val]
 _EOF_
             exit;
             ;;
@@ -47,10 +47,7 @@ _EOF_
     esac;
 done;
 
-export DNNL_MAX_CPU_ISA=AVX2
-export DEVICE=${DEVICE}
-
-DATASET_SRC="${FCM_TESTDATA}/SFU_HW_Obj"
+DATASET_SRC="${FCM_TESTDATA}/mpeg-oiv6"
 
 CONF_NAME="eval_split_inference_example.yaml"
 if [[ ${PIPELINE} == "remote" ]]; then
@@ -58,59 +55,26 @@ if [[ ${PIPELINE} == "remote" ]]; then
 fi
 
 
-declare -A intra_period_dict
-declare -A fr_dict
+declare -A network_model
+declare -A task_type
 
-intra_period_dict["Traffic_2560x1600_30_val"]=32
-fr_dict["Traffic_2560x1600_30_val"]=30
+network_model["mpeg-oiv6-detection"]="faster_rcnn_X_101_32x8d_FPN_3x"
+task_type["mpeg-oiv6-detection"]="obj"
 
-intra_period_dict["Kimono_1920x1080_24_val"]=32
-fr_dict["Kimono_1920x1080_24_val"]=24
+network_model["mpeg-oiv6-segmentation"]="mask_rcnn_X_101_32x8d_FPN_3x"
+task_type["mpeg-oiv6-segmentation"]="seg"
 
-intra_period_dict["ParkScene_1920x1080_24_val"]=32
-fr_dict["ParkScene_1920x1080_24_val"]=24
 
-intra_period_dict["Cactus_1920x1080_50_val"]=64
-fr_dict["Cactus_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrive_1920x1080_50_val"]=64
-fr_dict["BasketballDrive_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrill_832x480_50_val"]=64
-fr_dict["BasketballDrill_832x480_50_val"]=50
-
-intra_period_dict["BQTerrace_1920x1080_60_val"]=64
-fr_dict["BQTerrace_1920x1080_60_val"]=60
-
-intra_period_dict["BQSquare_416x240_60_val"]=64
-fr_dict["BQSquare_416x240_60_val"]=60
-
-intra_period_dict["PartyScene_832x480_50_val"]=64
-fr_dict["PartyScene_832x480_50_val"]=50
-
-intra_period_dict["RaceHorses_832x480_30_val"]=32
-fr_dict["RaceHorses_832x480_30_val"]=30
-
-intra_period_dict["RaceHorses_416x240_30_val"]=32
-fr_dict["RaceHorses_416x240_30_val"]=30
-
-intra_period_dict["BlowingBubbles_416x240_50_val"]=64
-fr_dict["BlowingBubbles_416x240_50_val"]=50
-
-intra_period_dict["BasketballPass_416x240_50_val"]=64
-fr_dict["BasketballPass_416x240_50_val"]=50
-
-intra_period_dict["BQMall_832x480_60_val"]=64
-fr_dict["BQMall_832x480_60_val"]=60
-
-INTRA_PERIOD=${intra_period_dict[${SEQ}]}
-FRAME_RATE=${fr_dict[${SEQ}]}
+NETWORK_MODEL=${network_model[${SEQ}]}
+TASK_TYPE=${task_type[${SEQ}]}
+INTRA_PERIOD=1
+FRAME_RATE=1
 
 echo "============================== RUNNING COMPRESSAI-VISION EVAL== =================================="
 echo "Pipeline Type:      " ${PIPELINE} " Video"
 echo "Datatset location:  " ${FCM_TESTDATA}
 echo "Output directory:   " ${OUTPUT_DIR}
-echo "Experiment folder:  " "vtm"${EXPERIMENT}
+echo "Experiment folder:  " "vcmrs"${EXPERIMENT}
 echo "Running Device:     " ${DEVICE}
 echo "Input sequence:     " ${SEQ}
 echo "Seq. Framerate:     " ${FRAME_RATE}
@@ -118,28 +82,27 @@ echo "QP for Inner Codec: " ${QP}
 echo "Intra Period for Inner Codec: "${INTRA_PERIOD}
 echo "Other Parameters:   " ${PIPELINE_PARAMS}
 echo "=================================================================================================="
-
+ 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
-        ++pipeline.type=video \
-        ++pipeline.codec.vcm_mode=True \
+        ++pipeline.type=image \
         ++paths._run_root=${OUTPUT_DIR} \
-	++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+        ++vision_model.arch=${NETWORK_MODEL} \
         ++dataset.type=Detectron2Dataset \
-        ++dataset.datacatalog=SFUHW \
-        ++dataset.config.root=${DATASET_SRC}/${SEQ} \
-        ++dataset.config.annotation_file=annotations/${SEQ}.json \
-        ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-        ++evaluator.type=COCO-EVAL \
+        ++dataset.datacatalog=MPEGOIV6 \
+        ++dataset.config.root=${DATASET_SRC} \
+        ++dataset.config.annotation_file=annotations/${SEQ}-coco.json \
+        ++dataset.config.dataset_name=${SEQ} \
+        ++evaluator.type=OIC-EVAL \
         ++codec.experiment=${EXPERIMENT} \
-	codec=vtm.yaml \
+        codec=vcmrs.yaml \
         ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
-        ++codec.encoder_config.parallel_encoding=True \
+        ++codec.encoder_config.parallel_encoding=False \
         ++codec.encoder_config.qp=${QP} \
-        ++codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
+	++codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
         ++codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/DecoderAppStatic' \
         ++codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
-        ++codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_lowdelay_vtm.cfg' \
-        ++codec.eval_encode='bitrate' \
+	++codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_intra_vtm.cfg' \
+        ++codec.eval_encode='bpp' \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
         ++misc.device.nn_parts=${DEVICE} \
