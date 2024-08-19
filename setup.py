@@ -34,7 +34,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 package_name = "compressai_vision"
-version = "1.1.11.dev0"
+version = "1.1.12"
 git_hash = "unknown"
 
 cwd = Path(__file__).resolve().parent
