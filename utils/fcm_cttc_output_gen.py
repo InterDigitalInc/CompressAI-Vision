@@ -216,9 +216,9 @@ if __name__ == "__main__":
         class_ab = {
             "CLASS-AB": [
                 "Traffic",
-                "Kimono",
+                # "Kimono",
                 "ParkScene",
-                "Cactus",
+                # "Cactus",
                 "BasketballDrive",
                 "BQTerrace",
             ]
@@ -236,9 +236,9 @@ if __name__ == "__main__":
         }
         seq_list = [
             "Traffic_2560x1600_30",
-            "Kimono_1920x1080_24",
+            # "Kimono_1920x1080_24",
             "ParkScene_1920x1080_24",
-            "Cactus_1920x1080_50",
+            # "Cactus_1920x1080_50",
             "BasketballDrive_1920x1080_50",
             "BQTerrace_1920x1080_60",
             "BasketballDrill_832x480_50",

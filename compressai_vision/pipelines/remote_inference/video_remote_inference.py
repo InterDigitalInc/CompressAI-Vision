@@ -74,6 +74,7 @@ class VideoRemoteInference(BasePipeline):
         super().__init__(configs, device)
 
         self._input_ftensor_buffer = []
+        self._video_yuv = configs["yuv"] if "yuv" in configs else None
 
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
         gt_inputs = []
@@ -123,7 +124,7 @@ class VideoRemoteInference(BasePipeline):
             }
 
             start = time_measure()
-            res, enc_time_details, _ = self._compress(
+            res, enc_time_by_module, enc_complexity = self._compress(
                 codec,
                 frames,
                 self.codec_output_dir,
@@ -156,13 +157,14 @@ class VideoRemoteInference(BasePipeline):
 
         # Feature Deompression
         start = time_measure()
-        dec_seq = self._decompress(
+        dec_seq, dec_time_by_module = self._decompress(
             codec=codec,
             bitstream=res["bitstream"],
             codec_output_dir=self.codec_output_dir,
             filename="",  # must be empty like this
             org_img_size=None,
             remote_inference=True,
+            vcm_mode=self.configs["codec"]["vcm_mode"],
         )
         end = time_measure()
         timing["decode"].append((end - start))

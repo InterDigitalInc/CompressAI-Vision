@@ -55,9 +55,9 @@ CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D"]
 SEQS_BY_CLASS = {
     CLASSES[0]: [
         "Traffic",
-        "Kimono",
+        # "Kimono",
         "ParkScene",
-        "Cactus",
+        # "Cactus",
         "BasketballDrive",
         "BQTerrace",
     ],
@@ -67,9 +67,9 @@ SEQS_BY_CLASS = {
 
 SEQUENCE_TO_OFFSET = {
     "Traffic": 10000,
-    "Kimono": 20000,
+    # "Kimono": 20000,
     "ParkScene": 30000,
-    "Cactus": 40000,
+    # "Cactus": 40000,
     "BasketballDrive": 50000,
     "BQTerrace": 60000,
     "BasketballDrill": 70000,
