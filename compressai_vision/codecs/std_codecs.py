@@ -567,10 +567,12 @@ class VTM(nn.Module):
 
         # Conversion: reshape data to yuv domain (e.g. 420 or 400)
         if remote_inference:
+            start = time.time()
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
                 self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
             )
-
+            conversion_time = time.time() - start
+            self.logger.debug(f"conversion time:{conversion_time}")
         else:
             start = time.time()
             frames = self.reshape_feature_pyramid_to_frame(
