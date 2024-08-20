@@ -1037,6 +1037,7 @@ document.write(`
                     <span class="nb">len</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
                 <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Number of retrieved file must be 1, but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rec_frames</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
+            <span class="n">conversion_time</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_names&quot;</span><span class="p">:</span> <span class="n">rec_frames</span><span class="p">}</span>
 
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># split inference pipeline</span>
@@ -1607,7 +1608,7 @@ document.write(`
     <span class="n">num_remaining</span> <span class="o">=</span> <span class="n">num_frames</span>
 
     <span class="c1"># WARN: Current implementation assumes one worker per intra period.</span>
-    <span class="k">assert</span> <span class="n">num_workers</span> <span class="o">==</span> <span class="n">num_frames</span> <span class="o">//</span> <span class="n">intra_period</span>
+    <span class="c1"># assert num_workers == num_frames // intra_period</span>
 
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_workers</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">num_remaining</span> <span class="o">&gt;</span> <span class="mi">0</span>
