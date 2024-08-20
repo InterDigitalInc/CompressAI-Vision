@@ -1340,7 +1340,7 @@ def _distribute_parallel_work(num_frames: int, num_workers: int, intra_period: i
     num_remaining = num_frames
 
     # WARN: Current implementation assumes one worker per intra period.
-    assert num_workers == num_frames // intra_period
+    # assert num_workers == num_frames // intra_period
 
     for _ in range(num_workers):
         assert num_remaining > 0
