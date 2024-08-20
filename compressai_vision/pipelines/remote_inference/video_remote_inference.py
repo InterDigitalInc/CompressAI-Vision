@@ -123,7 +123,7 @@ class VideoRemoteInference(BasePipeline):
             }
 
             start = time_measure()
-            res = self._compress(
+            res, enc_time_details, _ = self._compress(
                 codec,
                 frames,
                 self.codec_output_dir,
