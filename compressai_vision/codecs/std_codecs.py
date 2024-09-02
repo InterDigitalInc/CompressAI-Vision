@@ -134,12 +134,7 @@ class VTM(nn.Module):
         super().__init__()
 
         self.enc_cfgs = kwargs["encoder_config"]
-        codec_paths = kwargs["codec_paths"]
-
-        self.encoder_path = Path(codec_paths["encoder_exe"])
-        self.decoder_path = Path(codec_paths["decoder_exe"])
-        self.cfg_file = Path(codec_paths["cfg_file"])
-        self.parcat_path = Path(codec_paths["parcat_exe"])  # optional
+        self.codec_paths = kwargs["codec_paths"]
 
         self.parallel_encoding = self.enc_cfgs["parallel_encoding"]  # parallel option
         self.hash_check = self.enc_cfgs["hash_check"]  # md5 hash check
@@ -197,6 +192,10 @@ class VTM(nn.Module):
         self.reset()
 
     def get_check_list_of_paths(self):
+        self.encoder_path = Path(self.codec_paths["encoder_exe"])
+        self.decoder_path = Path(self.codec_paths["decoder_exe"])
+        self.cfg_file = Path(self.codec_paths["cfg_file"])
+        self.parcat_path = Path(self.codec_paths["parcat_exe"]) # optional
         return [self.encoder_path, self.decoder_path, self.cfg_file]
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
@@ -1352,11 +1351,11 @@ class VCMRS(VTM):
     ):
         super().__init__(vision_model, dataset, **kwargs)
         self.use_descriptors = True
-        codec_paths = kwargs["codec_paths"]
-        self.tmp_dir = Path(codec_paths["tmp_dir"])
+        self.tmp_dir = Path(self.codec_paths["tmp_dir"])
 
     def get_check_list_of_paths(self):
-        return []
+        self.cfg_file = Path(self.codec_paths["cfg_file"])
+        return [self.cfg_file]
 
     def get_encode_cmd(
         self,
@@ -1400,7 +1399,7 @@ class VCMRS(VTM):
             "IntraPeriod": self.intra_period,
             "quality": qp,
             "NNIntraQPOffset": nn_intra_qp_offset,
-            "working_dir": self.tmp_dir,
+            "working_dir": os.path.join(output_dir, "working_dir"), # self.tmp_dir,
             "output_dir": output_dir,
             "output_bitstream_fname": bitstream_path,
             "output_recon_fname": recon_fname,
@@ -1469,13 +1468,14 @@ class VCMRS(VTM):
             List[Any]: command line arguments for decoding the video bitstream.
         """
         assert yuv_dec_path.endswith(".yuv")
+        output_dir = os.path.dirname(str(bitstream_path))
         cmd = [
             "python",
             "-m",
             "vcmrs.decoder",
             bitstream_path,
             "--working_dir",
-            self.tmp_dir,
+            os.path.join(output_dir, "working_dir"), # self.tmp_dir,
             "--InnerCodec",
             "VTM",
             "--output_recon_fname",
