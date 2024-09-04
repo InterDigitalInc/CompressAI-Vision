@@ -63,11 +63,13 @@ class jde_1088x608(BaseWrapper):
         super().__init__(device)
 
         _path_prefix = (
-            f"{root_path}/" if kwargs["model_path_prefix"] == "default" else ""
+            f"{root_path}"
+            if kwargs["model_path_prefix"] == "default"
+            else kwargs["model_path_prefix"]
         )
         self.model_info = {
-            "cfg": f"{_path_prefix}{kwargs['cfg']}",
-            "weights": f"{_path_prefix}{kwargs['weights']}",
+            "cfg": f"{_path_prefix}/{kwargs['cfg']}",
+            "weights": f"{_path_prefix}/{kwargs['weights']}",
         }
 
         self.model_configs = {
