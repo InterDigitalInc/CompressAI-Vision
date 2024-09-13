@@ -144,22 +144,22 @@ class x264(nn.Module):
             "-framerate",
             f"{frmRate}",
             "-i",
-            inp_yuv_path,
+            f"{inp_yuv_path}",
             "-c:v",
             "h264",
             "-crf",
-            qp,
+            f"{qp}",
             "-preset",
             self.preset,
             "-bf",
-            0,
+            "0",
             "-tune",
             self.tune,
             "-pix_fmt",
             "yuv444p10le",  # to be checked
             "-threads",
             "4",
-            bitstream_path,
+            f"{bitstream_path}",
         ]
         return cmd
 
@@ -176,10 +176,10 @@ class x264(nn.Module):
             "ffmpeg",
             "-y",
             "-i",
-            bitstream_path,
+            f"{bitstream_path}",
             "-pix_fmt",
             "yuv444p10le",
-            yuv_dec_path,
+            f"{yuv_dec_path}",
         ]
         return cmd
 
@@ -202,8 +202,10 @@ class x264(nn.Module):
         Returns:
             Dict: numbers of bytes per frame and bitstream path.
         """
-        del remote_inference  # TODO (fracape) remote inference not supported yet
+        assert not remote_inference  # TODO (fracape) remote inference not supported yet
         bitdepth = 10  # TODO (fracape) (add this as config)
+
+        start = time.time()
 
         frames = self.fpn_utils.reshape_feature_pyramid_to_frame(
             x["data"], packing_all_in_one=True
@@ -250,7 +252,7 @@ class x264(nn.Module):
         # self.logger.debug(cmd)
 
         start = time.time()
-        run_cmdline([cmd], logpath=logpath)
+        run_cmdline(cmd, logpath=logpath)
         enc_time = time.time() - start
         # self.logger.debug(f"enc_time:{enc_time}")
 
@@ -281,6 +283,8 @@ class x264(nn.Module):
         bitstream_path: Path = None,
         codec_output_dir: str = "",
         file_prefix: str = "",
+        org_img_size: Dict = None,
+        remote_inference=False,
     ) -> bool:
         """
         Decodes a bitstream into video frames and extract features from the decoded frames.
@@ -292,6 +296,7 @@ class x264(nn.Module):
         Returns:
             Dict: dictionary of output features.
         """
+        assert not remote_inference  # TODO (fracape) remote inference not supported yet
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
@@ -309,7 +314,7 @@ class x264(nn.Module):
         logpath = Path(f"{codec_output_dir}/{file_prefix}_dec.log")
 
         start = time.time()
-        run_cmdline([cmd], logpath=logpath)
+        run_cmdline(cmd, logpath=logpath)
         dec_time = time.time() - start
         # self.logger.debug(f"dec_time:{dec_time}")
 
@@ -381,10 +386,10 @@ class x265(x264):
     def __init__(
         self,
         vision_model: BaseWrapper,
-        dataset_name: "str" = "",
+        dataset: Dict,
         **kwargs,
     ):
-        super().__init__(vision_model, dataset_name, **kwargs)
+        super().__init__(vision_model, dataset, **kwargs)
         self.colorformat = "444"
         self.yuvio = readwriteYUV(device="cpu", format=PixelFormat.YUV444_10le)
 
@@ -411,16 +416,17 @@ class x265(x264):
         """
         cmd = [
             "ffmpeg",
-            "-y" "-s:v",
+            "-y",
+            "-s:v",
             f"{width}x{height}",
             "-framerate",
             f"{frmRate}",
             "-i",
-            inp_yuv_path,
+            f"{inp_yuv_path}",
             "-c:v",
             "hevc",
             "-crf",
-            qp,
+            f"{qp}",
             "-preset",
             self.preset,
             "-x265-params",
@@ -431,6 +437,6 @@ class x265(x264):
             "gray10le",
             "-threads",
             "4",
-            bitstream_path,
+            f"{bitstream_path}",
         ]
         return cmd
