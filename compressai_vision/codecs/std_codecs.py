@@ -391,6 +391,7 @@ class VTM(nn.Module):
                 filename_pattern,
             ]
         else:
+            nb_frames = 1
             input_info = ["-i", file_names[0]]
 
         chroma_format = self.enc_cfgs["chroma_format"]
