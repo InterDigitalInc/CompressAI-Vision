@@ -708,7 +708,9 @@ class VTM(nn.Module):
             "conversion": conversion_time,
         }
 
-        return output, dec_times
+        mac_calculations = None  # no NN-related complexity calculation with std codecs
+
+        return output, dec_times, mac_calculations
 
     def get_io_buffer_contents(self):
         return self._temp_io_buffer.getvalue()

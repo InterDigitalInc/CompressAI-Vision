@@ -376,7 +376,9 @@ class x264(nn.Module):
             "conversion": conversion_time,
         }
 
-        return output, dec_times
+        mac_calculations = None  # no NN-related complexity calculation with std codecs
+
+        return output, dec_times, mac_calculations
 
 
 @register_codec("x265")

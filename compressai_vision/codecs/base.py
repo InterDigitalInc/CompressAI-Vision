@@ -117,10 +117,16 @@ class Bypass(nn.Module):
             "bypass": time_measure() - start_time,
         }
 
-        return {
-            "bytes": total_bytes,
-            "bitstream": input,
-        }, enc_time
+        mac_calculations = None  # no NN-related complexity calculation
+
+        return (
+            {
+                "bytes": total_bytes,
+                "bitstream": input,
+            },
+            enc_time,
+            mac_calculations,
+        )
 
     def decode(
         self,
@@ -140,7 +146,9 @@ class Bypass(nn.Module):
 
         dec_time = {"bypass": 0}
 
-        return input, dec_time
+        mac_calculations = None  # no NN-related complexity calculation
+
+        return input, dec_time, mac_calculations
 
 
 def _number_of_elements(data: Tuple):

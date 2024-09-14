@@ -264,7 +264,7 @@ class VideoSplitInference(BasePipeline):
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            if e == 0:
+            if self.is_mac_calculation and e == 0:
                 if hasattr(vision_model, "darknet"):  # for jde
                     kmacs, pixels = calc_complexity_nn_part2_dn53(
                         vision_model, dec_features
