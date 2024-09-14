@@ -27,8 +27,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import json
 import math
+from typing import Dict
 
+import torch
 import torch.nn.functional as F
 from torch import Tensor
 
@@ -156,3 +159,129 @@ def tiled_to_tensor(x: Tensor, channel_resolution):
     )
 
     return feature_tensor
+
+
+class FpnUtils:
+    """Utilities for feature pyramid networks (FPN)."""
+
+    def dump_fpn_sizes_json(self, file_prefix, bitstream_name, codec_output_dir):
+        """
+        Dump the FPN sizes JSON file.
+        This function dumps the FPN sizes JSON file for a given split model.
+
+        Args:
+        - file_prefix (str): The file prefix to be used for the JSON file. If empty, it uses the bitstream name.
+        - bitstream_name (str): The name of the bitstream.
+        - codec_output_dir (Path): The directory where the codec output is located.
+
+        Raises:
+        - SystemExit: This function is just meant to be used once to dump file and exit.
+
+        Returns:
+        - None
+        """
+        filename = file_prefix if file_prefix != "" else bitstream_name.split("_qp")[0]
+        fpn_sizes_json = codec_output_dir / f"{filename}.json"
+        with fpn_sizes_json.open("wb") as f:
+            output = {
+                "fpn": self.feature_size,
+                "subframe_heights": self.subframe_heights,
+            }
+            f.write(json.dumps(output, indent=4).encode())
+        print(f"fpn sizes json dump generated, exiting")
+        raise SystemExit(0)
+
+    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
+        """rehape the feature pyramid to a frame"""
+
+        # find the largest tensor
+        x_sorted = sorted(
+            x.values(), key=lambda item: math.prod(item[1].size()), reverse=True
+        )
+
+        nbframes, C, H, W = x_sorted[0].size()
+        _, fixedW = compute_frame_resolution(C, H, W)
+
+        assert packing_all_in_one == True, "packing_all_in_one False is not support yet"
+
+        # compute packing subframes
+        self.subframe_heights = []
+        self.subframe_widths = []
+        for i, tensor in enumerate(x_sorted):
+            single_tensor = tensor[0:1, ::]
+            _, C, H, W = single_tensor.shape
+
+            frmH, frmW = compute_frame_resolution(C, H, W)
+
+            rescale = fixedW // frmW if packing_all_in_one else 1
+
+            new_frmH = frmH // rescale
+            new_frmW = frmW * rescale
+
+            self.subframe_heights.append(new_frmH)
+            self.subframe_widths.append(new_frmW)
+
+        packed_frame_list = []
+        for n in range(nbframes):
+            tiles = []
+            for i, tensor in enumerate(x_sorted):
+                single_tensor = tensor[n : n + 1, ::]
+                N, C, H, W = single_tensor.size()
+
+                assert N == 1, f"the batch size shall be one, but got {N}"
+
+                tile = tensor_to_tiled(
+                    single_tensor, (self.subframe_heights[i], self.subframe_widths[i])
+                )
+
+                tiles.append(tile)
+
+            if packing_all_in_one:
+                cur_frame = []
+                for f, subframe in enumerate(tiles):
+                    if f == 0:
+                        cur_frame = subframe
+                    else:
+                        cur_frame = torch.cat([cur_frame, subframe], dim=0)
+
+                packed_frame_list.append(cur_frame)
+
+        packed_frames = torch.stack(packed_frame_list)
+
+        return packed_frames
+
+    def reshape_frame_to_feature_pyramid(
+        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
+    ):
+        """reshape a frame of channels into the feature pyramid"""
+
+        assert isinstance(x, (Tensor, Dict))
+        assert (
+            packing_all_in_one is True
+        ), "packing_all_in_one = False is not supported yet"
+
+        top_y = 0
+        tiled_frames = {}
+        if packing_all_in_one:
+            for key, height in subframe_height.items():
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
+                top_y = top_y + height
+        else:
+            raise NotImplementedError
+            assert isinstance(x, Dict)
+            tiled_frames = x
+
+        feature_tensor = {}
+        for key, frames in tiled_frames.items():
+            _, numChs, chH, chW = tensor_shape[key]
+
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW))
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
+
+        return feature_tensor

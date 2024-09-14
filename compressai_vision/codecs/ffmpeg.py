@@ -37,6 +37,7 @@ from typing import Any, Dict, List, Union
 import torch
 import torch.nn as nn
 
+from compressai_vision.codecs.utils import FpnUtils
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
 from compressai_vision.utils import time_measure
@@ -101,6 +102,8 @@ class x264(nn.Module):
             logging_level = logging.DEBUG
 
         self.logger.setLevel(logging_level)
+
+        self.fpn_utils = FpnUtils()
 
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
@@ -202,11 +205,7 @@ class x264(nn.Module):
         del remote_inference  # TODO (fracape) remote inference not supported yet
         bitdepth = 10  # TODO (fracape) (add this as config)
 
-        (
-            frames,
-            self.feature_size,
-            self.subframe_heights,
-        ) = self.vision_model.reshape_feature_pyramid_to_frame(
+        frames = self.fpn_utils.reshape_feature_pyramid_to_frame(
             x["data"], packing_all_in_one=True
         )
         minv, maxv = self.min_max_dataset
@@ -353,7 +352,7 @@ class x264(nn.Module):
                 print(f'Error reading file "{fpn_sizes}"')
                 raise err
 
-        features = self.vision_model.reshape_frame_to_feature_pyramid(
+        features = self.fpn_utils.reshape_frame_to_feature_pyramid(
             rec_frames,
             json_dict["fpn"],
             json_dict["subframe_heights"],
