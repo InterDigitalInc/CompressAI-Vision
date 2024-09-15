@@ -237,14 +237,7 @@ class FpnUtils:
                 tiles.append(tile)
 
             if packing_all_in_one:
-                cur_frame = []
-                for f, subframe in enumerate(tiles):
-                    if f == 0:
-                        cur_frame = subframe
-                    else:
-                        cur_frame = torch.cat([cur_frame, subframe], dim=0)
-
-                packed_frame_list.append(cur_frame)
+                packed_frame_list.append(torch.cat(tiles))
 
         packed_frames = torch.stack(packed_frame_list)
 
@@ -275,11 +268,9 @@ class FpnUtils:
         for key, frames in tiled_frames.items():
             _, numChs, chH, chW = tensor_shape[key]
 
-            tensors = []
-            for frame in frames:
-                tensor = tiled_to_tensor(frame, (chH, chW))
-                tensors.append(tensor)
-            tensors = torch.cat(tensors, dim=0)
+            tensors = torch.cat(
+                [tiled_to_tensor(frame, (chH, chW)) for frame in frames]
+            )
             assert tensors.size(1) == numChs
 
             feature_tensor.update({key: tensors})
