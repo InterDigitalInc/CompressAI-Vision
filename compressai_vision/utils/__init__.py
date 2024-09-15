@@ -29,7 +29,7 @@
 
 from . import dataio, git, pip, system
 from .external_exec import get_max_num_cpus
-from .misc import dict_sum, metric_tracking, time_measure, to_cpu
+from .misc import dict_sum, dl_to_ld, ld_to_dl, metric_tracking, time_measure, to_cpu
 
 __all__ = [
     "dataio",
@@ -41,4 +41,6 @@ __all__ = [
     "get_max_num_cpus",
     "metric_tracking",
     "dict_sum",
+    "dl_to_ld",
+    "ld_to_dl",
 ]

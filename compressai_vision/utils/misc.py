@@ -28,9 +28,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import time
+from typing import Dict, List, TypeVar
 
 import torch
 from torch import Tensor
+
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 def to_cpu(data: Tensor):
@@ -49,6 +53,27 @@ def dict_sum(a, b):
         c[k] = v
 
     return c
+
+
+def ld_to_dl(ld: List[Dict[K, V]]) -> Dict[K, List[V]]:
+    """Converts a list of dicts into a dict of lists."""
+    dl = {}
+    for d in ld:
+        for k, v in d.items():
+            if k not in dl:
+                dl[k] = []
+            dl[k].append(v)
+    return dl
+
+
+def dl_to_ld(dl: Dict[K, List[V]]) -> List[Dict[K, V]]:
+    """Converts a dict of lists into a list of dicts."""
+    if not dl:
+        return []
+    expected_len = len(next(iter(dl.values())))
+    assert all(len(v) == expected_len for v in dl.values())
+    ld = [dict(zip(dl.keys(), v)) for v in zip(*dl.values())]
+    return ld
 
 
 class metric_tracking:

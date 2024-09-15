@@ -28,7 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, TypeVar
 
 import torch
 from torch import Tensor
@@ -38,7 +38,7 @@ from tqdm import tqdm
 from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
-from compressai_vision.utils import time_measure, to_cpu
+from compressai_vision.utils import dl_to_ld, ld_to_dl, time_measure, to_cpu
 from compressai_vision.utils.measure_complexity import (
     calc_complexity_nn_part1_dn53,
     calc_complexity_nn_part1_plyr,
@@ -65,6 +65,9 @@ from ..base import BasePipeline
      └─────────────────┘                                         └─────────────────┘
 
 """
+
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 @register_pipeline("video-split-inference")
@@ -138,9 +141,9 @@ class VideoSplitInference(BasePipeline):
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
-                assert "data" in res
-
-                num_items = self._collect_input_data(res["data"])
+                self._input_ftensor_buffer.append(
+                    {k: to_cpu(tensor) for k, tensor in res["data"].items()}
+                )
 
                 del res["data"]
 
@@ -161,7 +164,7 @@ class VideoSplitInference(BasePipeline):
 
                 del d[0]["image"]
 
-            assert num_items == self._codec_n_frames_to_be_encoded
+            assert len(self._input_ftensor_buffer) == self._codec_n_frames_to_be_encoded
 
             if self.configs["nn_task_part1"].generate_features_only is True:
                 print(
@@ -170,7 +173,10 @@ class VideoSplitInference(BasePipeline):
                 raise SystemExit(0)
 
             # concatenate a list of tensors at each keyword item
-            features["data"] = self._feature_tensor_list_to_dict()
+            features["data"] = self._feature_tensor_list_to_dict(
+                self._input_ftensor_buffer
+            )
+            self._input_ftensor_buffer = []
 
             # Feature Compression
             start = time_measure()
@@ -241,9 +247,11 @@ class VideoSplitInference(BasePipeline):
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
-        assert len(dataloader) == len(
-            dec_ftensors_list
-        ), "The number of decoded frames are not equal to the number of frames supposed to be decoded"
+
+        assert len(dec_ftensors_list) == len(dataloader), (
+            f"The number of decoded frames ({len(dec_ftensors_list)}) is not equal "
+            f"to the number of frames supposed to be decoded ({len(dataloader)})"
+        )
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
@@ -309,82 +317,31 @@ class VideoSplitInference(BasePipeline):
             self.complexity_calc_by_module,
         )
 
-    def _collect_input_data(self, data: Dict):
-        """
-        Collects input data, transforms the tensors to CPU, appends the transformed data to the input feature tensor buffer, and returns the length of the input feature tensor buffer.
-
-        Args:
-            data:A dictionary containing input data.
-        Returns:
-            An integer representing the length of the input feature tensor.
-        """
-        d = {}
-        for key, tensor in data.items():
-            d[key] = to_cpu(tensor)
-
-        del data
-        self._input_ftensor_buffer.append(d)
-
-        return len(self._input_ftensor_buffer)
-
-    def _feature_tensor_list_to_dict(self):
+    @staticmethod
+    def _feature_tensor_list_to_dict(
+        data: List[Dict[str, Tensor]]
+    ) -> Dict[str, Tensor]:
         """
         Converts a list of feature tensors into a dictionary format.
         """
-        output = None
-
-        for ftensors in self._input_ftensor_buffer:
-            assert isinstance(ftensors, dict)
-
-            if output is None:
-                output = dict(
-                    zip(ftensors.keys(), [[] for _ in range(len(ftensors.keys()))])
-                )
-
-            for key, ftensor in ftensors.items():
-                output[key].append(ftensor)
-
-            del ftensors
-
-        self._input_ftensor_buffer = []
-
-        for key, ftensors in output.items():
-            output[key] = torch.concat(ftensors, dim=0)
-
-        return output
+        return {k: torch.cat(ftensors) for k, ftensors in ld_to_dl(data).items()}
 
     @staticmethod
     def _feature_tensor_dict_to_list(data: Dict):
         """
         Converts a dict of feature tensors into a list of tensors.
         """
-        output = []
-        tmp = {}
-        total_len = -1
-        for key, tensor in data.items():
-            if isinstance(tensor, Tensor):
-                tmp[key] = list(tensor.chunk(len(tensor)))
-            elif isinstance(tensor, List):
-                tmp[key] = tensor
-            else:
-                raise NotImplementedError
 
-            total_len = len(tmp[key])
+        def coerce_tensors(vs) -> List[Tensor]:
+            assert isinstance(vs, Tensor) or (
+                isinstance(vs, list) and all(isinstance(v, Tensor) for v in vs)
+            )
+            return list(vs)
 
-        assert all(len(item) == total_len for item in tmp.values())
-
-        keys = list(data.keys())
-        for ftensors in zip(*(tmp.values())):
-            d = dict(zip(keys, ftensors))
-            output.append(d)
-
-        return output
+        return dl_to_ld({k: coerce_tensors(tensors) for k, tensors in data.items()})
 
     @staticmethod
     def _iterate_items(data: List, device):
         for e, ftensors in enumerate(tqdm(data)):
-            out_dict = {}
-            for key, val in ftensors.items():
-                out_dict[key] = val.to(device)
-
+            out_dict = {k: v.to(device) for k, v in ftensors.items()}
             yield e, out_dict

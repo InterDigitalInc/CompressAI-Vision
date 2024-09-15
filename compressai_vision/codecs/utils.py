@@ -257,7 +257,7 @@ class FpnUtils:
         tiled_frames = {}
         if packing_all_in_one:
             for key, height in subframe_height.items():
-                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
+                tiled_frames[key] = x[:, top_y : top_y + height, :]
                 top_y = top_y + height
         else:
             raise NotImplementedError
@@ -273,6 +273,6 @@ class FpnUtils:
             )
             assert tensors.size(1) == numChs
 
-            feature_tensor.update({key: tensors})
+            feature_tensor[key] = tensors
 
         return feature_tensor
