@@ -255,9 +255,9 @@ class VideoSplitInference(BasePipeline):
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in tqdm(
-            self._iterate_items(dec_ftensors_list, self.device_nn_part2)
-        ):
+
+        for e, ftensors in enumerate(tqdm(dec_ftensors_list)):
+            data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["qp"] = (
@@ -339,9 +339,3 @@ class VideoSplitInference(BasePipeline):
             return list(vs)
 
         return dl_to_ld({k: coerce_tensors(tensors) for k, tensors in data.items()})
-
-    @staticmethod
-    def _iterate_items(data: List, device):
-        for e, ftensors in enumerate(tqdm(data)):
-            out_dict = {k: v.to(device) for k, v in ftensors.items()}
-            yield e, out_dict
