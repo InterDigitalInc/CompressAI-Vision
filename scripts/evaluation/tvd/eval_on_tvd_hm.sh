@@ -42,7 +42,7 @@ _EOF_
         -d|--device) shift; DEVICE="$1"; shift; ;;
         -q|--qp) shift; QP="$1"; shift; ;;
         -s|--seq_name) shift; SEQ="$1"; shift; ;;
-        -x|--extra_params) shift; PIPELINE_PARAMS="$1"; shift; ;;
+        -x|--extra_params) shift; declare -a PIPELINE_PARAMS="($1)"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
@@ -83,7 +83,7 @@ echo "Input sequence:     " ${SEQ}
 echo "Seq. Framerate:     " ${FRAME_RATE}
 echo "QP for Inner Codec: " ${QP}
 echo "Intra Period for Inner Codec: "${INTRA_PERIOD}
-echo "Other Parameters:   " ${PIPELINE_PARAMS}
+echo "Other Parameters:   " ${PIPELINE_PARAMS[@]}
 echo "=================================================================================================="
 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
@@ -112,5 +112,5 @@ compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
         ++misc.device.nn_parts=${DEVICE} \
-        ${PIPELINE_PARAMS} \
-        
+        "${PIPELINE_PARAMS[@]}" \
+
