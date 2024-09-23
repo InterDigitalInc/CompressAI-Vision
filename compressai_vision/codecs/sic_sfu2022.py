@@ -112,6 +112,11 @@ class SIC_SFU2022:
         self.num_tasks = int(kwargs["num_tasks"])
 
         # temp
+        self.logger.warning(
+            "Multi-task compression with SIC SFU2022 is not supported yet"
+        )
+        raise NotImplementedError
+
         assert self.num_tasks == 3, f"Currently only three tasks model is available"
 
         if self.num_tasks == 2:
@@ -158,16 +163,7 @@ class SIC_SFU2022:
         if self.target_tlayer < (self.num_tasks - 1):
             self.ftensor_alignment_size = self.trg_vmodel.size_divisibility
 
-        weights_url = {
-            2: {
-                1: f"{root_url}/two_layers/sfu2022_two_layer_q1-33a07028.pth.tar",
-                2: f"{root_url}/two_layers/sfu2022_two_layer_q2-2d319686.pth.tar",
-                3: f"{root_url}/two_layers/sfu2022_two_layer_q3-c5265e16.pth.tar",
-                4: f"{root_url}/two_layers/sfu2022_two_layer_q4-08f98ce2.pth.tar",
-                5: f"{root_url}/two_layers/sfu2022_two_layer_q5-5e9b3de6.pth.tar",
-                6: f"{root_url}/two_layers/sfu2022_two_layer_q6-5187feb3.pth.tar",
-            },
-        }
+        weights_url = {None: None}
 
         self.padding_size = 64
 
