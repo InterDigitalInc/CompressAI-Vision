@@ -36,10 +36,12 @@ from .readwrite import (
     read_float32,
     read_uchars,
     read_uints,
+    read_ushorts,
     write_bytes,
     write_float32,
     write_uchars,
     write_uints,
+    write_ushorts,
 )
 
 __all__ = [
@@ -48,9 +50,11 @@ __all__ = [
     "filesize",
     "write_float32",
     "write_uints",
+    "write_ushorts",
     "write_uchars",
     "read_float32",
     "read_uints",
+    "read_ushorts",
     "read_uchars",
     "write_bytes",
     "read_bytes",

@@ -80,11 +80,6 @@ def create_data_transform(conf: DictConfig) -> transforms.Compose:
     )
 
 
-def Merge(dictA: Dict, dictB: Dict) -> Dict:
-    dictA.update(dictB)
-    return dictA
-
-
 def create_datacatalog(catalog: str, conf: DictConfig) -> DataCatalog:
     return DATACATALOGS[catalog](**conf)
 
@@ -99,10 +94,10 @@ def create_dataset(_type: str, args: Dict) -> Dataset:
 
 
 def create_dataloader(conf: DictConfig, device: str, cfg: Any = None) -> DataLoader:
-    args = Merge(
-        OmegaConf.to_container(conf.config, resolve=True),
-        OmegaConf.to_container(conf.settings, resolve=True),
-    )
+    args = {
+        **OmegaConf.to_container(conf.config, resolve=True),
+        **OmegaConf.to_container(conf.settings, resolve=True),
+    }
 
     args["dataset"] = create_datacatalog(conf.datacatalog, conf.config)
     args["transforms"] = create_data_transform(conf.transforms)
@@ -124,11 +119,7 @@ def create_dataloader(conf: DictConfig, device: str, cfg: Any = None) -> DataLoa
 def create_evaluator(
     conf: DictConfig, catalog: str, datasetname: str, dataset: Dataset
 ):
-    if (
-        str(conf.type).lower() == "VOID"
-        or str(conf.type).lower() == "none"
-        or conf.type == None
-    ):
+    if conf.type is None:
         return None
 
     return EVALUATORS[conf.type](
@@ -142,7 +133,6 @@ def create_pipline(conf: DictConfig, device: str):
     else:
         pipeline_type = conf.type + "-" + conf.name
 
-    # OmegaConf.to_container(conf.config, resolve=True)
     return PIPELINES[pipeline_type](dict(conf), device)
 
 
@@ -150,7 +140,7 @@ def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig)
     kwargs = OmegaConf.to_container(conf, resolve=True)
 
     if "device" not in kwargs:
-        kwargs["device"] = vision_model.device
+        raise ValueError("Please specify the argument ++codec.device=cpu or cuda.")
 
     kwargs["vision_model"] = vision_model
     kwargs["dataset"] = dataset

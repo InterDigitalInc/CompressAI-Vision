@@ -50,7 +50,7 @@ from typing import Any
 
 import hydra
 import pandas as pd
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from tabulate import tabulate
 
 from compressai_vision.datasets import get_seq_info
@@ -74,8 +74,10 @@ from compressai_vision.config import (
 def setup(conf: DictConfig) -> dict[str, Any]:
     configure_conf(conf)
 
-    vision_model = create_vision_model(conf.misc.device, conf.vision_model)
-    dataloader = create_dataloader(conf.dataset, conf.misc.device, vision_model.cfg)
+    vision_model = create_vision_model(conf.misc.device.nn_parts, conf.vision_model)
+    dataloader = create_dataloader(
+        conf.dataset, conf.misc.device.nn_parts, vision_model.cfg
+    )
     evaluator = create_evaluator(
         conf.evaluator,
         conf.dataset.datacatalog,
@@ -121,13 +123,13 @@ def print_specs(pipeline, **kwargs):
     if kwargs["dataloader"].dataset.seqinfo_path:
         seqinfo_path = Path(kwargs["dataloader"].dataset.seqinfo_path).resolve()
 
-    logger.info(
-        f"\
+    info = f"\
                 \n {'='*60}\
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
+                \n  -- Split Point            : {kwargs['vision_model'].split_layer_list}\
                 \n  -- Cfg                    : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
-                \n  -- Weight                 : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
+                \n  -- Weights                : {Path(kwargs['vision_model'].pretrained_weight_path).resolve()}\
                 \n Codec                      : {title(kwargs['codec']):<30s}\
                 \n  -- Counted # CPUs for use : {get_max_num_cpus()}\
                 \n  -- Enc. Only              : {pipeline.configs['codec'].encode_only} \
@@ -140,20 +142,18 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Data                   : {Path(kwargs['dataloader'].dataset.images_folder).resolve()} \
                 \n  -- Annotation             : {annotation_path} \
                 \n  -- SEQ-INFO               : {seqinfo_path} \
-                \n\n\
-    "
-    )
+        "
 
     if kwargs["evaluator"]:
-        logger.info(
-            f"\
+        info += f"\
                 \n Evaluator                  : {title(kwargs['evaluator']):<30s}\
                 \n  -- DataCatalog            : {kwargs['evaluator'].datacatalog_name} \
                 \n  -- Output Dir             : {Path(kwargs['evaluator'].output_dir).resolve()} \
                 \n  -- Output file            : {kwargs['evaluator'].output_file_name} \
-                \n\n\
         "
-        )
+    info += f"\n\n"
+
+    logger.info(info)
 
 
 @hydra.main(version_base=None, config_path=str(config_path))
@@ -161,7 +161,9 @@ def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
     print_specs(pipeline, **modules)
-    elap_times, eval_encode_type, coded_res, performance = pipeline(**modules)
+    elap_times, eval_encode_type, coded_res, performance, mac_complexity = pipeline(
+        **modules
+    )
 
     if coded_res is not None:  # Encode Only
         # pretty output
@@ -278,6 +280,25 @@ def main(conf: DictConfig):
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
+
+    if conf.codec["mac_computation"]:
+        calc_mac_df = pd.DataFrame(
+            {
+                "Metric": "KMAC/pixel",
+                "nn_part1": mac_complexity["nn_part_1"],
+                "feature reduction": mac_complexity["feature_reduction"],
+                "feature restoration": mac_complexity["feature_restoration"],
+                "nn_part2": mac_complexity["nn_part_2"],
+            },
+            index=[0],
+        )
+        print("Complexity Measurement (KMAC/pixel)")
+        print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
+
+        calc_mac_df.to_csv(
+            os.path.join(evaluator_filepath, f"summary_complexity.csv"),
+            index=False,
+        )
 
     result_df.to_csv(
         os.path.join(evaluator_filepath, f"summary.csv"),

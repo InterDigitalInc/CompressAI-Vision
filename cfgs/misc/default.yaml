@@ -1,2 +1,5 @@
-device: "cuda"
+device:
+  nn_parts : "cuda"
+  nn_part1: ${misc.device.nn_parts}
+  nn_part2: ${misc.device.nn_parts}
 seed: 1234

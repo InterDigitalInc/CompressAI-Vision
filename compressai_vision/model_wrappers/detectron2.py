@@ -36,13 +36,10 @@ from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 from detectron2.structures import ImageList
-from torch import Tensor
 
-from compressai_vision.model_wrappers.utils import compute_frame_resolution
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-from .utils import tensor_to_tiled, tiled_to_tensor
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -51,27 +48,32 @@ __all__ = [
     "mask_rcnn_R_50_FPN_3x",
 ]
 
+thisdir = Path(__file__).parent
+root_path = thisdir.joinpath("../..")
+
 
 class Split_Points(Enum):
     def __str__(self):
         return str(self.value)
 
     FeaturePyramidNetwork = "fpn"
+    C2 = "c2"
     Res2 = "r2"
 
 
-thisdir = Path(__file__).parent
-root_path = thisdir.joinpath("../..")
-
-
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
-    def __init__(self, device="cpu", **kwargs):
-        super().__init__()
+    def __init__(self, device: str, **kwargs):
+        super().__init__(device)
 
-        self.device = device
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
-        self._cfg.merge_from_file(f"{root_path}/{kwargs['cfg']}")
+        _path_prefix = (
+            f"{root_path}"
+            if kwargs["model_path_prefix"] == "default"
+            else kwargs["model_path_prefix"]
+        )
+        self._cfg.merge_from_file(f"{_path_prefix}/{kwargs['cfg']}")
+
         self.model = build_model(self._cfg).to(device).eval()
 
         self.backbone = self.model.backbone
@@ -79,9 +81,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(f"{root_path}/{kwargs['weight']}")
+        DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
 
-        self.model_info = {"cfg": kwargs["cfg"], "weight": kwargs["weight"]}
+        self.model_info = {"cfg": kwargs["cfg"], "weights": kwargs["weights"]}
 
         self.supported_split_points = Split_Points
 
@@ -90,6 +92,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if self.split_id == str(self.supported_split_points.FeaturePyramidNetwork):
             self.split_layer_list = ["p2", "p3", "p4", "p5"]
+        elif self.split_id == str(self.supported_split_points.C2):
+            self.split_layer_list = ["c2", "c3", "c4", "c5"]
         elif self.split_id == str(self.supported_split_points.Res2):
             self.split_layer_list = ["r2"]
         else:
@@ -107,6 +111,10 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         return str(self.supported_split_points.FeaturePyramidNetwork)
 
     @property
+    def SPLIT_C2(self):
+        return str(self.supported_split_points.C2)
+
+    @property
     def SPLIT_R2(self):
         return str(self.supported_split_points.Res2)
 
@@ -117,11 +125,15 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def input_resize(self, images: List):
         return ImageList.from_tensors(images, self.size_divisibility)
 
-    def input_to_features(self, x) -> Dict:
+    def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
+
+        self.model = self.model.to(device).eval()
 
         if self.split_id == self.SPLIT_FPN:
             return self._input_to_feature_pyramid(x)
+        elif self.split_id == self.SPLIT_C2:
+            return self._input_to_c2(x)
         elif self.split_id == self.SPLIT_R2:
             return self._input_to_r2(x)
         else:
@@ -129,11 +141,17 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         raise NotImplementedError
 
-    def features_to_output(self, x: Dict):
+    def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
+
+        self.model = self.model.to(device).eval()
 
         if self.split_id == self.SPLIT_FPN:
             return self._feature_pyramid_to_output(
+                x["data"], x["org_input_size"], x["input_size"]
+            )
+        elif self.split_id == self.SPLIT_C2:
+            return self._feature_c2_to_output(
                 x["data"], x["org_input_size"], x["input_size"]
             )
         elif self.split_id == self.SPLIT_R2:
@@ -153,6 +171,28 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         del feature_pyramid["p6"]
 
         return {"data": feature_pyramid, "input_size": imgs.image_sizes}
+
+    @torch.no_grad()
+    def _input_to_c2(self, x):
+        """Computes and return feature tensors at C2 from input"""
+        imgs = self.model.preprocess_image(x)
+
+        c_features = self.split_layer_list
+        ref_features = self.backbone.in_features
+
+        results = []
+
+        # Resnet FPN
+        bottom_up_features = self.backbone.bottom_up(imgs.tensor)
+
+        for idx, lateral_conv in enumerate(self.backbone.lateral_convs):
+            features = bottom_up_features[ref_features[-idx - 1]]
+            results.insert(0, lateral_conv(features))
+
+        assert len(c_features) == len(results)
+        out = {f: res for f, res in zip(c_features, results)}
+
+        return {"data": out, "input_size": imgs.image_sizes}
 
     @torch.no_grad()
     def _input_to_r2(self, x):
@@ -195,6 +235,42 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         # Replacing tag names for interfacing with NN-part2
         x = dict(zip(self.features_at_splits.keys(), x.values()))
         x.update({"p6": self.top_block(x["p5"])[0]})
+
+        proposals, _ = self.proposal_generator(cdummy, x, None)
+        results, _ = self.roi_heads(cdummy, x, proposals, None)
+
+        assert (
+            not torch.jit.is_scripting()
+        ), "Scripting is not supported for postprocess."
+        return self.model._postprocess(
+            results,
+            [
+                org_img_size,
+            ],
+            input_img_size,
+        )
+
+    @torch.no_grad()
+    def _feature_c2_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+        """
+        performs  downstream task using the c2 ['c2', 'c3', 'c4', 'c5']
+
+        Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
+        Unnecessary parts for split inference are removed or modified properly.
+
+        Please find the license statement in the downloaded original Detectron2 source codes or at here:
+        https://github.com/facebookresearch/detectron2/blob/main/LICENSE
+
+        """
+        # Replacing tag names for interfacing with NN-part2
+        x = dict(zip(self.features_at_splits.keys(), x.values()))
+        x = self.backbone.forward_after_c2(x)
+
+        class dummy:
+            def __init__(self, img_size: list):
+                self.image_sizes = img_size
+
+        cdummy = dummy(input_img_size)
 
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
@@ -254,6 +330,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """
         compute accuracy proxy at the deeper layer than NN-Part1
         """
+        raise NotImplementedError
 
         d = {}
         for e, ft in enumerate(x["data"].values()):
@@ -283,95 +360,6 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         # test
         return self.model([x])
 
-    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
-        """rehape the feature pyramid to a frame"""
-
-        # 'p2' is the base for the size of to-be-formed frame
-
-        nbframes, C, H, W = x["p2"].size()
-        _, fixedW = compute_frame_resolution(C, H, W)
-
-        packed_frames = {}
-        feature_size = {}
-        subframe_heights = {}
-        subframe_widths = {}
-
-        assert packing_all_in_one == True, "False is not support yet"
-
-        packed_frame_list = []
-        for n in range(nbframes):
-            for key, tensor in x.items():
-                single_tensor = tensor[n : n + 1, ::]
-                N, C, H, W = single_tensor.size()
-
-                assert N == 1, f"the batch size shall be one, but got {N}"
-
-                if n == 0:
-                    feature_size.update({key: single_tensor.size()})
-
-                    frmH, frmW = compute_frame_resolution(C, H, W)
-
-                    rescale = fixedW // frmW if packing_all_in_one else 1
-
-                    new_frmH = frmH // rescale
-                    new_frmW = frmW * rescale
-
-                    subframe_heights.update({key: new_frmH})
-                    subframe_widths.update({key: new_frmW})
-
-                tile = tensor_to_tiled(
-                    single_tensor, (subframe_heights[key], subframe_widths[key])
-                )
-
-                packed_frames.update({key: tile})
-
-            if packing_all_in_one:
-                for key, subframe in packed_frames.items():
-                    if key == "p2":
-                        out = subframe
-                    else:
-                        out = torch.cat([out, subframe], dim=0)
-
-                packed_frame_list.append(out)
-
-        packed_frames = torch.stack(packed_frame_list)
-
-        return packed_frames, feature_size, subframe_heights
-
-    def reshape_frame_to_feature_pyramid(
-        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
-    ):
-        """reshape a frame of channels into the feature pyramid"""
-
-        assert isinstance(x, (Tensor, Dict))
-        assert packing_all_in_one is True, "False is not supported yet"
-
-        top_y = 0
-        tiled_frames = {}
-        if packing_all_in_one:
-            for key, height in subframe_height.items():
-                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
-                top_y = top_y + height
-        else:
-            raise NotImplementedError
-            assert isinstance(x, Dict)
-            tiled_frames = x
-
-        feature_tensor = {}
-        for key, frames in tiled_frames.items():
-            _, numChs, chH, chW = tensor_shape[key]
-
-            tensors = []
-            for frame in frames:
-                tensor = tiled_to_tensor(frame, (chH, chW)).to(self.device)
-                tensors.append(tensor)
-            tensors = torch.cat(tensors, dim=0)
-            assert tensors.size(1) == numChs
-
-            feature_tensor.update({key: tensors})
-
-        return feature_tensor
-
     @property
     def cfg(self):
         return self._cfg
@@ -379,23 +367,23 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
 @register_vision_model("faster_rcnn_X_101_32x8d_FPN_3x")
 class faster_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("mask_rcnn_X_101_32x8d_FPN_3x")
 class mask_rcnn_X_101_32x8d_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("faster_rcnn_R_50_FPN_3x")
 class faster_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
 
 @register_vision_model("mask_rcnn_R_50_FPN_3x")
 class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
-    def __init__(self, device="cpu", **kwargs):
+    def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)

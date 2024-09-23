@@ -34,7 +34,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 package_name = "compressai_vision"
-version = "1.1.9.dev0"
+version = "1.1.12.dev0"
 git_hash = "unknown"
 
 cwd = Path(__file__).resolve().parent
@@ -88,7 +88,14 @@ def get_extra_requirements():
 setup(
     name="compressai-vision",
     version=version,
-    install_requires=["hydra-core", "omegaconf", "yuvio", "pandas", "pillow<=9.5.0"],
+    install_requires=[
+        "hydra-core",
+        "omegaconf",
+        "yuvio",
+        "pandas",
+        "pillow<=9.5.0",
+        "ptflops>=0.7.3",
+    ],
     packages=find_packages(),
     # include_package_data=True,
     entry_points={

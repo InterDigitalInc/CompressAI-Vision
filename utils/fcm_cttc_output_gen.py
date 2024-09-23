@@ -46,7 +46,12 @@ from compressai_vision.evaluators.evaluators import BaseEvaluator
 
 
 def generate_csv_classwise_video_map(
-    result_path, dataset_path, list_of_classwise_seq, seq_list, metric="AP"
+    result_path,
+    dataset_path,
+    list_of_classwise_seq,
+    seq_list,
+    metric="AP",
+    gt_folder="annotations",
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path)
@@ -74,6 +79,7 @@ def generate_csv_classwise_video_map(
                 classwise_seqs,
                 BaseEvaluator.get_coco_eval_info_name,
                 by_name=True,
+                gt_folder=gt_folder,
             )
 
             assert (
@@ -191,6 +197,13 @@ if __name__ == "__main__":
         help="Evaluation Metric (default: %(default)s)",
     )
 
+    parser.add_argument(
+        "--gt_folder",
+        required=False,
+        default="annotations",
+        help="folder name for ground truth annotation (default: %(default)s)",
+    )
+
     args = parser.parse_args()
 
     assert (
@@ -244,6 +257,7 @@ if __name__ == "__main__":
             [class_ab, class_c, class_d],
             seq_list,
             metric,
+            args.gt_folder,
         )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(args.result_path)

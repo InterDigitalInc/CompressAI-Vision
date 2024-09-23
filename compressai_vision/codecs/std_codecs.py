@@ -35,13 +35,13 @@ import math
 import os
 import sys
 import time
-from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_codec
@@ -50,7 +50,14 @@ from compressai_vision.utils.dataio import PixelFormat, readwriteYUV
 from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_parallel
 
 from .encdec_utils import *
-from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
+from .utils import (
+    MIN_MAX_DATASET,
+    compute_frame_resolution,
+    min_max_inv_normalization,
+    min_max_normalization,
+    tensor_to_tiled,
+    tiled_to_tensor,
+)
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
@@ -97,8 +104,8 @@ class VTM(nn.Module):
         self.encoder_path = Path(codec_paths["encoder_exe"])
         self.decoder_path = Path(codec_paths["decoder_exe"])
         self.cfg_file = Path(codec_paths["cfg_file"])
-
         self.parcat_path = Path(codec_paths["parcat_exe"])  # optional
+
         self.parallel_encoding = self.enc_cfgs["parallel_encoding"]  # parallel option
         self.hash_check = self.enc_cfgs["hash_check"]  # md5 hash check
         self.stash_outputs = self.enc_cfgs["stash_outputs"]
@@ -109,8 +116,9 @@ class VTM(nn.Module):
 
         for file_path in check_list_of_paths:
             if not file_path.is_file():
-                raise FileNotFoundError(
-                    errno.ENOENT, os.strerror(errno.ENOENT), file_path
+                raise ValueError(
+                    f"Could not find path {file_path}. Consider specifying "
+                    "++codec.codec_paths._root='/local/path/vtm-12.0'."
                 )
 
         self.qp = self.enc_cfgs["qp"]
@@ -151,6 +159,8 @@ class VTM(nn.Module):
 
         self.logger.setLevel(logging_level)
 
+        self.reset()
+
     # can be added to base class (if inherited) | Should we inherit from the base codec?
     @property
     def qp_value(self):
@@ -160,6 +170,26 @@ class VTM(nn.Module):
     @property
     def eval_encode_type(self):
         return self.eval_encode
+
+    def __del__(self):
+        self.close_bitstream_file()
+
+    def reset(self):
+        self._header_writer = HeaderWriter()
+        self._header_reader = HeaderReader()
+        self._frame_info_buffer = []
+        self._temp_io_buffer = BytesIO()
+        self._bitstream_fd = None
+
+    def open_bitstream_file(self, path, mode="rb"):
+        self._bitstream_fd = open(path, mode)
+        return self._bitstream_fd
+
+    def close_bitstream_file(self):
+        if self._bitstream_fd is not None:
+            self._bitstream_fd.flush()
+            self._bitstream_fd.close()
+            self._bitstream_fd = None
 
     def get_encode_cmd(
         self,
@@ -228,82 +258,72 @@ class VTM(nn.Module):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
-            base_cmd.append(f"--BitstreamFile={bitstream_path}")
-            base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
-            cmd = list(map(str, base_cmd))
+        if parallel_encoding is False or nb_frames <= self.intra_period + 1:
+            # No need for parallel encoding.
+            cmd = [
+                *base_cmd,
+                f"--BitstreamFile={bitstream_path}",
+                f"--FramesToBeEncoded={nb_frames}",
+            ]
+            cmd = [str(x) for x in cmd]
             self.logger.debug(cmd)
-            return [cmd]
+            cmds = [cmd]
+        else:
+            cmds = self._parallel_encode_cmd(base_cmd, bitstream_path, nb_frames)
 
-        num_parallels = round((nb_frames / self.intra_period) + 0.5)
+        return cmds
 
-        list_of_num_of_frameSkip = []
-        list_of_num_of_framesToBeEncoded = []
-        total_num_frames_to_code = nb_frames
+    def _parallel_encode_cmd(
+        self, base_cmd: List, bitstream_path: Path, nb_frames: int
+    ):
+        num_workers = round((nb_frames / self.intra_period) + 0.5)
 
-        frameSkip = 0
-        nb_framesToBeEncoded = self.intra_period + 1
-        for _ in range(num_parallels):
-            list_of_num_of_frameSkip.append(frameSkip)
+        frame_offsets, frame_counts = _distribute_parallel_work(
+            nb_frames, num_workers, self.intra_period
+        )
 
-            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
+        bitstream_path = Path(bitstream_path)
 
-            frameSkip += self.intra_period
-            total_num_frames_to_code -= self.intra_period
+        cmds = []
 
-        bitstream_path_p = Path(bitstream_path).parent
-        file_stem = Path(bitstream_path).stem
-        ext = Path(bitstream_path).suffix
+        assert num_workers < 10**3  # Due to the string formatting below.
 
-        parallel_cmds = []
-        for e, items in enumerate(
-            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
+        for worker_idx, (frameSkip, framesToBeEncoded) in enumerate(
+            zip(frame_offsets, frame_counts)
         ):
-            frameSkip, framesToBeEncoded = items
-            sbitstream_path = (
-                str(bitstream_path_p)
-                + "/"
-                + str(file_stem)
-                + f"-part-{e:03d}"
-                + str(ext)
+            worker_bitstream_path = (
+                f"{bitstream_path.parent}/"
+                f"{bitstream_path.stem}-part-{worker_idx:03d}{bitstream_path.suffix}"
             )
 
-            pcmd = deepcopy(base_cmd)
-            pcmd.append(f"--BitstreamFile={sbitstream_path}")
-            pcmd.append(f"--FrameSkip={frameSkip}")
-            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+            cmd = [
+                *base_cmd,
+                f"--BitstreamFile={worker_bitstream_path}",
+                f"--FrameSkip={frameSkip}",
+                f"--FramesToBeEncoded={framesToBeEncoded}",
+            ]
 
-            cmd = list(map(str, pcmd))
+            cmd = [str(x) for x in cmd]
             self.logger.debug(cmd)
+            cmds.append(cmd)
 
-            parallel_cmds.append(cmd)
-
-        return parallel_cmds
+        return cmds
 
     def get_parcat_cmd(
         self,
-        bitstream_path: str,
-    ) -> List[Any]:
+        bitstream_path: Path,
+    ) -> Tuple[List[Any], List[Path]]:
         """
         Returns a list of commands and bitstream lists needed to concatenate bitstream files.
         Args:
-            bitstream_path (str): The path to the bitstream file.
+            bitstream_path (Path): The path to the bitstream file.
         Returns:
-            Tuple[List[Any], List[str]]: the command to concatenate the bitstream files in the folder.
+            Tuple[List[Any], List[Path]]: the command to concatenate the bitstream files in the folder.
         """
-        pdir = Path(bitstream_path).parent
-        fstem = Path(bitstream_path).stem
-        ext = str(Path(bitstream_path).suffix)
-
-        bitstream_lists = sorted(Path(pdir).glob(f"{fstem}-part-*{ext}"))
-
-        cmd = [self.parcat_path]
-        for bpath in bitstream_lists:
-            cmd.append(str(bpath))
-        cmd.append(bitstream_path)
-
-        cmd = list(map(str, cmd))
+        bp = Path(bitstream_path)
+        bitstream_lists = sorted(bp.parent.glob(f"{bp.stem}-part-*{bp.suffix}"))
+        cmd = [self.parcat_path, *bitstream_lists, bitstream_path]
+        cmd = [str(x) for x in cmd]
         self.logger.debug(cmd)
         return cmd, bitstream_lists
 
@@ -320,15 +340,14 @@ class VTM(nn.Module):
             List[Any]: command line arguments for decoding the video bitstream.
         """
         cmd = [
-            self.decoder_path,
+            f"{self.decoder_path}",
             "-b",
-            bitstream_path,
+            f"{bitstream_path}",
             "-o",
-            yuv_dec_path,
+            f"{yuv_dec_path}",
             "-d",
-            output_bitdepth,
+            f"{output_bitdepth}",
         ]
-        cmd = list(map(str, cmd))
         self.logger.debug(cmd)
         return cmd
 
@@ -352,7 +371,6 @@ class VTM(nn.Module):
         Raises:
             AssertionError: If the number of images in the input folder does not match the expected number of frames.
         """
-        nb_frames = 1
         file_names = input["file_names"]
         if len(file_names) > 1:  # video
             # NOTE: using glob for now, should be more robust and look at skipped
@@ -419,7 +437,7 @@ class VTM(nn.Module):
         self,
         output_file_prefix: str,
         dec_path: str,
-        yuv_dec_path: str,
+        yuv_dec_path: Path,
         org_img_size: Dict = None,
     ):
         """
@@ -427,7 +445,7 @@ class VTM(nn.Module):
         Args:
             output_file_prefix (str): The prefix of the output file name.
             dec_path (str): The path to the directory where the PNG images will be saved.
-            yuv_dec_path (str): The path to the input YUV file.
+            yuv_dec_path (Path): The path to the input YUV file.
             org_img_size (Dict, optional): The original image size. Defaults to None.
         Returns:
             None
@@ -459,7 +477,7 @@ class VTM(nn.Module):
             "-src_range",
             "1",  # (fracape) assume dec yuv is full range for now
             "-i",
-            yuv_dec_path,
+            f"{yuv_dec_path}",
             "-pix_fmt",
             "rgb24",
         ]
@@ -535,27 +553,29 @@ class VTM(nn.Module):
         Returns:
             dict: A dictionary containing the bytes per frame and the path to the output bitstream.
         """
+
+        self.reset()
         input_bitdepth = self.enc_cfgs["input_bitdepth"]
+        output_bitdepth = self.enc_cfgs["output_bitdepth"]
 
         if file_prefix == "":
             file_prefix = f"{codec_output_dir}/{bitstream_name}"
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        print(f"\n-- encoding ${file_prefix}", file=sys.stdout)
+        print(f"\n-- encoding {file_prefix}", file=sys.stdout)
 
         # Conversion: reshape data to yuv domain (e.g. 420 or 400)
         if remote_inference:
+            start = time.time()
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
                 self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
             )
-
+            conversion_time = time.time() - start
+            self.logger.debug(f"conversion time:{conversion_time}")
         else:
-            (
-                frames,
-                self.feature_size,
-                self.subframe_heights,
-            ) = self.vision_model.reshape_feature_pyramid_to_frame(
+            start = time.time()
+            frames = self.reshape_feature_pyramid_to_frame(
                 x["data"], packing_all_in_one=True
             )
 
@@ -569,6 +589,19 @@ class VTM(nn.Module):
             frames, mid_level = min_max_normalization(
                 frames, minv, maxv, bitdepth=input_bitdepth
             )
+
+            num_frames, *_ = frames.shape
+
+            # Same minv, maxv for all frames.
+            for _ in range(num_frames):
+                frame_info = {
+                    "minv": minv,
+                    "maxv": maxv,
+                }
+                self._frame_info_buffer.append(frame_info)
+
+            conversion_time = time.time() - start
+            self.logger.debug(f"conversion time:{conversion_time}")
 
             nb_frames, frame_height, frame_width = frames.size()
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
@@ -585,7 +618,7 @@ class VTM(nn.Module):
             for frame in frames:
                 self.yuvio.write_one_frame(frame, mid_level=mid_level)
 
-        bitstream_path = f"{file_prefix}.bin"
+        bitstream_path = Path(f"{file_prefix}.bin")
         logpath = Path(f"{file_prefix}_enc.log")
         cmds = self.get_encode_cmd(
             yuv_in_path,
@@ -624,11 +657,19 @@ class VTM(nn.Module):
         if not remote_inference:
             inner_codec_bitstream = load_bitstream(bitstream_path)
 
+            sequence_info = {
+                "bitdepth": output_bitdepth,
+                "frame_size": (frame_height, frame_width),
+                "num_frames": nb_frames,
+            }
+
+            assert sequence_info["num_frames"] == len(self._frame_info_buffer)
+
             # Bistream header to make bitstream self-decodable
-            _ = self.write_n_bit(self.bitdepth)
-            _ = self.write_rft_chSize(x["chSize"])
-            _ = self.write_packed_frame_size((frame_height, frame_width))
-            _ = self.write_min_max_values()
+            fd = self._temp_io_buffer
+            self._header_writer.write_sequence_info(fd, sequence_info)
+            for frame_info in self._frame_info_buffer:
+                self._header_writer.write_frame_info(fd, frame_info)
 
             pre_info_bitstream = self.get_io_buffer_contents()
             bitstream = pre_info_bitstream + inner_codec_bitstream
@@ -644,10 +685,18 @@ class VTM(nn.Module):
         avg_bytes_per_frame = get_filesize(bitstream_path) / nb_frames
         all_bytes_per_frame = [avg_bytes_per_frame] * nb_frames
 
-        return {
+        output = {
             "bytes": all_bytes_per_frame,
-            "bitstream": bitstream_path,
+            "bitstream": str(bitstream_path),
         }
+        enc_times = {
+            "video": enc_time,
+            "conversion": conversion_time,
+        }
+
+        mac_calculations = None  # no NN-related complexity calculation with std codecs
+
+        return output, enc_times, mac_calculations
 
     def decode(
         self,
@@ -670,6 +719,8 @@ class VTM(nn.Module):
         Returns:
             Dict: The dictionary of output features.
         """
+        self.reset()
+
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 
@@ -678,12 +729,14 @@ class VTM(nn.Module):
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
         logpath = Path(f"{dec_path}/{output_file_prefix}_dec.log")
+        yuv_dec_path = Path(f"{dec_path}/{output_file_prefix}_dec.yuv")
+
+        print(f"\n-- decoding ${output_file_prefix}", file=sys.stdout)
 
         if remote_inference:  # remote inference pipeline
             bitdepth = get_raw_video_file_info(output_file_prefix.split("qp")[-1])[
                 "bitdepth"
             ]
-            yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
 
             cmd = self.get_decode_cmd(
                 bitstream_path=bitstream_path,
@@ -718,25 +771,31 @@ class VTM(nn.Module):
                     len(rec_frames) == 1
                 ), f"Number of retrieved file must be 1, but got {len(rec_frames)}"
 
+            conversion_time = 0
             output = {"file_names": rec_frames}
 
         else:  # split inference pipeline
             del org_img_size  # not needed in this pipeline
+            bitstream_path_tmp = f"{codec_output_dir}/{output_file_prefix}_tmp.bin"
 
-            bitstream = load_bitstream(bitstream_path)
+            bitstream_fd = self.open_bitstream_file(bitstream_path, "rb")
 
             # read header bitstream header
-            bitdepth = self.read_n_bit(bitstream)
-            _, _ = self.read_rft_chSize(bitstream)
-            frame_height, frame_width = self.read_packed_frame_size(bitstream)
-            _ = self.read_min_max_values(bitstream)
+            sequence_info = self._header_reader.read_sequence_info(bitstream_fd)
+            frame_infos = [
+                self._header_reader.read_frame_info(bitstream_fd)
+                for _ in range(sequence_info["num_frames"])
+            ]
+            bitdepth = sequence_info["bitdepth"]
+            frame_height, frame_width = sequence_info["frame_size"]
 
             # we need this to read the std codec part of the bitstream
-            with open(bitstream_path, "wb") as fw:
-                fw.write(bitstream.read())
+            with open(bitstream_path_tmp, "wb") as fw:
+                fw.write(bitstream_fd.read())
+                fw.flush()
 
             cmd = self.get_decode_cmd(
-                bitstream_path=bitstream_path,
+                bitstream_path=bitstream_path_tmp,
                 yuv_dec_path=yuv_dec_path,
                 output_bitdepth=bitdepth,
             )
@@ -748,12 +807,16 @@ class VTM(nn.Module):
             self.logger.debug(f"dec_time:{dec_time}")
 
             self.yuvio.setReader(
-                read_path=yuv_dec_path,
+                read_path=str(yuv_dec_path),
                 frmWidth=frame_width,
                 frmHeight=frame_height,
             )
 
-            nb_frames = get_filesize(yuv_dec_path) // (frame_width * frame_height * 2)
+            # TODO (fracape) expects raw yuv400 coded on 8 or 16 bit
+            factor = int((bitdepth + 7) / 8)
+            nb_frames = get_filesize(yuv_dec_path) // (
+                frame_width * frame_height * factor
+            )
 
             rec_frames = []
             for i in range(nb_frames):
@@ -762,7 +825,14 @@ class VTM(nn.Module):
 
             rec_frames = torch.stack(rec_frames)
 
+            start = time_measure()
             minv, maxv = self.min_max_dataset
+            tol = dict(rel_tol=1e-4, abs_tol=1e-4)
+            assert all(
+                math.isclose(frame_info["minv"], minv, **tol)
+                and math.isclose(frame_info["maxv"], maxv, **tol)
+                for frame_info in frame_infos
+            )
             rec_frames = min_max_inv_normalization(rec_frames, minv, maxv, bitdepth=10)
 
             # (fracape) should feature sizes be part of bitstream?
@@ -782,62 +852,32 @@ class VTM(nn.Module):
                     print(f'Error reading file "{fpn_sizes}"')
                     raise err
 
-            features = self.vision_model.reshape_frame_to_feature_pyramid(
+            features = self.reshape_frame_to_feature_pyramid(
                 rec_frames,
                 json_dict["fpn"],
                 json_dict["subframe_heights"],
                 packing_all_in_one=True,
             )
+
+            conversion_time = time_measure() - start
+            self.logger.debug(f"conversion_time:{conversion_time}")
+
             if not self.dump["dump_yuv_packing_dec"]:
-                Path(yuv_dec_path).unlink()
+                yuv_dec_path.unlink()
+            if self.stash_outputs:
+                Path(bitstream_path_tmp).unlink()
 
             output = {"data": features}
 
-        return output
+        dec_times = {
+            "video": dec_time,
+            "conversion": conversion_time,
+        }
 
-    # Functions required in the context of FCM to write a header that enables a self decodable bitstream
-    def write_n_bit(self, n_bit):
-        # adhoc method, warning redundant information
-        return write_uchars(self._temp_io_buffer, (n_bit,))
+        return output, dec_times
 
-    def write_rft_chSize(self, chSize):
-        # adhoc method
-        return write_uints(self._temp_io_buffer, chSize)
-
-    def write_packed_frame_size(self, frmSize):
-        # adhoc method, warning redundant information
-        return write_uints(self._temp_io_buffer, frmSize)
-
-    def write_min_max_values(self):
-        # adhoc method to make bitstream self-decodable
-        byte_cnts = write_uints(self._temp_io_buffer, (self.get_minmax_buffer_size(),))
-        for min_max in self._min_max_buffer:
-            byte_cnts += write_float32(self._temp_io_buffer, min_max)
-
-        return byte_cnts
-
-    def read_n_bit(self, fd):
-        # adhoc method, warning redundant information
-        return read_uchars(fd, 1)[0]
-
-    def read_rft_chSize(self, fd):
-        # adhoc method,
-        return read_uints(fd, 2)
-
-    def read_packed_frame_size(self, fd):
-        # adhoc method, warning redundant information
-        return read_uints(fd, 2)
-
-    def read_min_max_values(self, fd):
-        # adhoc method to make bitstream self-decodable
-        num_minmax_pairs = read_uints(fd, 1)[0]
-
-        min_max_buffer = []
-        for _ in range(num_minmax_pairs):
-            min_max = read_float32(fd, 2)
-            min_max_buffer.append(min_max)
-
-        return min_max_buffer
+    def get_io_buffer_contents(self):
+        return self._temp_io_buffer.getvalue()
 
     def dump_fpn_sizes_json(self, file_prefix, bitstream_name, codec_output_dir):
         """
@@ -865,6 +905,101 @@ class VTM(nn.Module):
             f.write(json.dumps(output, indent=4).encode())
         print(f"fpn sizes json dump generated, exiting")
         raise SystemExit(0)
+
+    def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):
+        """rehape the feature pyramid to a frame"""
+
+        # find the largest tensor
+        x_sorted = sorted(
+            x.values(), key=lambda item: math.prod(item[1].size()), reverse=True
+        )
+
+        nbframes, C, H, W = x_sorted[0].size()
+        _, fixedW = compute_frame_resolution(C, H, W)
+
+        assert packing_all_in_one == True, "packing_all_in_one False is not support yet"
+
+        # compute packing subframes
+        self.subframe_heights = []
+        self.subframe_widths = []
+        for i, tensor in enumerate(x_sorted):
+            single_tensor = tensor[0:1, ::]
+            _, C, H, W = single_tensor.shape
+
+            frmH, frmW = compute_frame_resolution(C, H, W)
+
+            rescale = fixedW // frmW if packing_all_in_one else 1
+
+            new_frmH = frmH // rescale
+            new_frmW = frmW * rescale
+
+            self.subframe_heights.append(new_frmH)
+            self.subframe_widths.append(new_frmW)
+
+        packed_frame_list = []
+        for n in range(nbframes):
+            tiles = []
+            for i, tensor in enumerate(x_sorted):
+                single_tensor = tensor[n : n + 1, ::]
+                N, C, H, W = single_tensor.size()
+
+                assert N == 1, f"the batch size shall be one, but got {N}"
+
+                tile = tensor_to_tiled(
+                    single_tensor, (self.subframe_heights[i], self.subframe_widths[i])
+                )
+
+                tiles.append(tile)
+
+            if packing_all_in_one:
+                cur_frame = []
+                for f, subframe in enumerate(tiles):
+                    if f == 0:
+                        cur_frame = subframe
+                    else:
+                        cur_frame = torch.cat([cur_frame, subframe], dim=0)
+
+                packed_frame_list.append(cur_frame)
+
+        packed_frames = torch.stack(packed_frame_list)
+
+        return packed_frames
+
+    def reshape_frame_to_feature_pyramid(
+        self, x, tensor_shape: Dict, subframe_height: Dict, packing_all_in_one=False
+    ):
+        """reshape a frame of channels into the feature pyramid"""
+
+        assert isinstance(x, (Tensor, Dict))
+        assert (
+            packing_all_in_one is True
+        ), "packing_all_in_one = False is not supported yet"
+
+        top_y = 0
+        tiled_frames = {}
+        if packing_all_in_one:
+            for key, height in subframe_height.items():
+                tiled_frames.update({key: x[:, top_y : top_y + height, :]})
+                top_y = top_y + height
+        else:
+            raise NotImplementedError
+            assert isinstance(x, Dict)
+            tiled_frames = x
+
+        feature_tensor = {}
+        for key, frames in tiled_frames.items():
+            _, numChs, chH, chW = tensor_shape[key]
+
+            tensors = []
+            for frame in frames:
+                tensor = tiled_to_tensor(frame, (chH, chW))
+                tensors.append(tensor)
+            tensors = torch.cat(tensors, dim=0)
+            assert tensors.size(1) == numChs
+
+            feature_tensor.update({key: tensors})
+
+        return feature_tensor
 
 
 @register_codec("hm")
@@ -942,58 +1077,130 @@ class HM(VTM):
             f"--DecodingRefreshType={decodingRefreshType}",
         ]
 
-        if parallel_encoding is False or nb_frames <= (self.intra_period + 1):
+        if parallel_encoding is False or nb_frames <= self.intra_period + 1:
+            # No need for parallel encoding.
             base_cmd.append(f"--BitstreamFile={bitstream_path}")
             base_cmd.append(f"--FramesToBeEncoded={nb_frames}")
             cmd = list(map(str, base_cmd))
             self.logger.debug(cmd)
-            return [cmd]
+            cmds = [cmd]
+        else:
+            cmds = self._parallel_encode_cmd(base_cmd, bitstream_path, nb_frames)
 
-        num_parallels = round((nb_frames / self.intra_period) + 0.5)
+        return cmds
 
-        list_of_num_of_frameSkip = []
-        list_of_num_of_framesToBeEncoded = []
-        total_num_frames_to_code = nb_frames
 
-        frameSkip = 0
-        nb_framesToBeEncoded = self.intra_period + 1
-        for _ in range(num_parallels):
-            list_of_num_of_frameSkip.append(frameSkip)
+@register_codec("jm")
+class JM(VTM):
+    """Encoder / Decoder class for AVC - JM reference software"""
 
-            nb_framesToBeEncoded = min(total_num_frames_to_code, nb_framesToBeEncoded)
-            list_of_num_of_framesToBeEncoded.append(nb_framesToBeEncoded)
+    def __init__(
+        self,
+        vision_model: BaseWrapper,
+        dataset: Dict,
+        **kwargs,
+    ):
+        super().__init__(vision_model, dataset, **kwargs)
 
-            frameSkip += self.intra_period
-            total_num_frames_to_code -= self.intra_period
+        self.default_cfg_file = Path(kwargs["codec_paths"]["default_cfg_file"])
 
-        bitstream_path_p = Path(bitstream_path).parent
-        file_stem = Path(bitstream_path).stem
-        ext = Path(bitstream_path).suffix
+    def get_encode_cmd(
+        self,
+        inp_yuv_path: Path,
+        qp: int,
+        bitstream_path: Path,
+        width: int,
+        height: int,
+        nb_frames: int = 1,
+        parallel_encoding: bool = False,
+        hash_check: int = 0,
+        chroma_format: str = "400",
+        input_bitdepth: int = 10,
+        output_bitdepth: int = 0,
+    ) -> List[Any]:
+        """
+        Generates the command to encode a video using the specified parameters.
+        Args:
+            inp_yuv_path (Path): The path to the input YUV file.
+            qp (int): The quantization parameter.
+            bitstream_path (Path): The path to the output bitstream file.
+            width (int): The width of the video.
+            height (int): The height of the video.
+            nb_frames (int, optional): The number of frames in the video. Defaults to 1.
+            parallel_encoding (bool, optional): Whether to enable parallel encoding. Defaults to False.
+            hash_check (int, optional): The hash check value. Defaults to 0.
+            chroma_format (str, optional): The chroma format of the video. Defaults to "400".
+            input_bitdepth (int, optional): The bitdepth of the input video. Defaults to 10.
+            output_bitdepth (int, optional): The bitdepth of the output video. Defaults to 0.
+        Returns:
+            List[Any]: commands line to encode the video.
+        """
 
-        parallel_cmds = []
-        for e, items in enumerate(
-            zip(list_of_num_of_frameSkip, list_of_num_of_framesToBeEncoded)
-        ):
-            frameSkip, framesToBeEncoded = items
-            sbitstream_path = (
-                str(bitstream_path_p)
-                + "/"
-                + str(file_stem)
-                + f"-part-{e:03d}"
-                + str(ext)
-            )
+        assert parallel_encoding == False, "JM does not support parallel coding"
+        level = 62  # enable large frames
+        if output_bitdepth == 0:
+            output_bitdepth = input_bitdepth
 
-            pcmd = deepcopy(base_cmd)
-            pcmd.append(f"--BitstreamFile={sbitstream_path}")
-            pcmd.append(f"--FrameSkip={frameSkip}")
-            pcmd.append(f"--FramesToBeEncoded={framesToBeEncoded}")
+        # decodingRefreshType = 1 if self.intra_period >= 1 else 0
+        cmd = [
+            self.encoder_path,
+            "-d",
+            self.default_cfg_file,
+            "-f",
+            self.cfg_file,
+            "-p",
+            f"InputFile={inp_yuv_path}",
+            "-p",
+            f"QPISlice={qp}",
+            "-p",
+            f"QPPSlice={qp}",
+            "-p",
+            f"QPBSlice={qp}",
+            "-p",
+            f"SourceWidth={width}",
+            "-p",
+            f"OutputWidth={width}",
+            "-p",
+            f"SourceHeight={height}",
+            "-p",
+            f"OutputHeight={height}",
+            "-p",
+            f"FrameRate={self.frame_rate}",
+            "-p",
+            f"IntraPeriod={self.intra_period}",
+            "-p",
+            "YUVFormat=0",
+            "-p",
+            f"SourceBitDepthLuma={output_bitdepth}",
+            "-p",
+            "ChromaWeightSupport=0",
+            "-p",
+            f"OutputFile={bitstream_path}",
+            "-p",
+            f"FramesToBeEncoded={nb_frames}",
+            "-p",
+            f"LevelIDC={level}",
+        ]
+        cmd = list(map(str, cmd))
+        self.logger.debug(cmd)
+        return [cmd]
 
-            cmd = list(map(str, pcmd))
-            self.logger.debug(cmd)
+    def get_decode_cmd(
+        self, yuv_dec_path: Path, bitstream_path: Path, output_bitdepth=None
+    ) -> List[Any]:
+        del output_bitdepth
+        cmd = [
+            f"{self.decoder_path}",
+            "-p",
+            f"InputFile={bitstream_path}",
+            "-p",
+            f"OutputFile={yuv_dec_path}",
+            "-p",
+            "WriteUV=0",
+        ]
 
-            parallel_cmds.append(cmd)
-
-        return parallel_cmds
+        self.logger.debug(cmd)
+        return cmd
 
 
 @register_codec("vvenc")
@@ -1049,3 +1256,106 @@ class VVENC(VTM):
             "fast",
         ]
         return list(map(str, cmd))
+
+
+class HeaderWriter:
+    def __init__(self):
+        pass
+
+    def write_sequence_info(self, fd, sequence_info):
+        expected_keys = [
+            "bitdepth",
+            "frame_size",
+            "num_frames",
+        ]
+        assert set(sequence_info.keys()) == set(expected_keys), sequence_info.keys()
+
+        return sum(
+            [
+                write_uchars(fd, (sequence_info["bitdepth"],)),
+                write_uints(fd, sequence_info["frame_size"]),
+                write_uints(fd, (sequence_info["num_frames"],)),
+            ]
+        )
+
+    def write_frame_info(self, fd, frame_info):
+        expected_keys = [
+            "minv",
+            "maxv",
+        ]
+        assert set(frame_info.keys()) == set(expected_keys)
+
+        return sum(
+            [
+                write_float32(fd, (frame_info["minv"],)),
+                write_float32(fd, (frame_info["maxv"],)),
+            ]
+        )
+
+
+class HeaderReader:
+    def __init__(self):
+        self._sequence_info = None
+        self._num_frames_read = 0
+
+    def read_sequence_info(self, fd):
+        [bitdepth] = read_uchars(fd, 1)
+        frame_size = read_uints(fd, 2)
+        [num_frames] = read_uints(fd, 1)
+
+        sequence_info = {
+            "bitdepth": bitdepth,
+            "frame_size": frame_size,
+            "num_frames": num_frames,
+        }
+
+        self._sequence_info = sequence_info
+
+        return sequence_info
+
+    def read_frame_info(self, fd):
+        frame_id = self._num_frames_read
+        [minv] = read_float32(fd, 1)
+        [maxv] = read_float32(fd, 1)
+
+        frame_info = {
+            "frame_id": frame_id,
+            "minv": minv,
+            "maxv": maxv,
+        }
+
+        self._num_frames_read += 1
+
+        return frame_info
+
+
+def _distribute_parallel_work(num_frames: int, num_workers: int, intra_period: int):
+    """Distributes frame encoding work.
+
+    worker[i] is to be assigned frames in the interval
+    [offsets[i], offsets[i] + counts[i]).
+    """
+    offsets = []
+    counts = []
+
+    offset = 0
+    num_remaining = num_frames
+
+    # WARN: Current implementation assumes one worker per intra period.
+    # assert num_workers == num_frames // intra_period
+
+    for _ in range(num_workers):
+        assert num_remaining > 0
+
+        # NOTE: The first and last frames must both be intra-frames, hence the +1.
+        count = min(intra_period + 1, num_remaining)
+
+        offsets.append(offset)
+        counts.append(count)
+
+        offset += intra_period
+        num_remaining -= intra_period
+
+    assert offsets[-1] + counts[-1] == num_frames
+
+    return offsets, counts

@@ -34,6 +34,7 @@ from typing import Dict, Tuple
 import torch.nn as nn
 
 from compressai_vision.registry import register_codec
+from compressai_vision.utils import time_measure
 
 
 @register_codec("bypass")
@@ -90,6 +91,7 @@ class Bypass(nn.Module):
         max_lvl = ((2**self.nbit_quant) - 1) if self.nbit_quant != -1 else None
 
         total_elements = 0
+        start_time = time_measure()
         for tag, ft in input["data"].items():
             N = ft.size(0)
             total_elements += _number_of_elements(ft.size())
@@ -111,10 +113,14 @@ class Bypass(nn.Module):
 
         total_bytes = [total_bytes / N] * N
 
+        enc_time = {
+            "bypass": time_measure() - start_time,
+        }
+
         return {
             "bytes": total_bytes,
             "bitstream": input,
-        }
+        }, enc_time
 
     def decode(
         self,
@@ -132,7 +138,9 @@ class Bypass(nn.Module):
             assert "file_names" in input
             return input
 
-        return input
+        dec_time = {"bypass": 0}
+
+        return input, dec_time
 
 
 def _number_of_elements(data: Tuple):

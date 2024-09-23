@@ -39,6 +39,12 @@ from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import time_measure, to_cpu
+from compressai_vision.utils.measure_complexity import (
+    calc_complexity_nn_part1_dn53,
+    calc_complexity_nn_part1_plyr,
+    calc_complexity_nn_part2_dn53,
+    calc_complexity_nn_part2_plyr,
+)
 
 from ..base import BasePipeline
 
@@ -66,7 +72,7 @@ class VideoSplitInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__(configs, device)
         self._input_ftensor_buffer = []
@@ -109,6 +115,7 @@ class VideoSplitInference(BasePipeline):
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
         self.init_time_measure()
+        self.init_complexity_measure()
 
         if not self.configs["codec"]["decode_only"]:
             ## NN-part-1
@@ -119,6 +126,13 @@ class VideoSplitInference(BasePipeline):
                     continue
                 if e >= self._codec_end_frame_idx:
                     break
+
+                if self.is_mac_calculation and e == self._codec_skip_n_frames:
+                    if hasattr(vision_model, "darknet"):  # for jde
+                        kmacs, pixels = calc_complexity_nn_part1_dn53(vision_model, d)
+                    else:  # for detectron2
+                        kmacs, pixels = calc_complexity_nn_part1_plyr(vision_model, d)
+                    self.add_kmac_and_pixels_info("nn_part_1", kmacs, pixels)
 
                 start = time_measure()
                 res = self._from_input_to_features(vision_model, d, output_file_prefix)
@@ -160,11 +174,15 @@ class VideoSplitInference(BasePipeline):
 
             # Feature Compression
             start = time_measure()
-            res, enc_time_by_module = self._compress(
+            res, enc_time_by_module, enc_complexity = self._compress(
                 codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
             self.update_time_elapsed("encode", (time_measure() - start))
             self.add_time_details("encode", enc_time_by_module)
+            if self.is_mac_calculation:
+                self.add_kmac_and_pixels_info(
+                    "feature_reduction", enc_complexity[0], enc_complexity[1]
+                )
 
             # for bypass mode, 'data' should be deleted.
             if "data" in res["bitstream"] is False:
@@ -179,24 +197,31 @@ class VideoSplitInference(BasePipeline):
             bin_files = [
                 file_path
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
-                if file_path.suffix in [".bin", ".mp4"]
+                if (
+                    (file_path.suffix in [".bin", ".mp4"])
+                    and not "_tmp" in file_path.name
+                )
             ]
             assert (
                 len(bin_files) > 0
-            ), f"no bitstream file matching {self.bitstream_name}*"
+            ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
             assert (
                 len(bin_files) == 1
-            ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
+            ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
             bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
         start = time_measure()
-        dec_features, dec_time_by_module = self._decompress(
+        dec_features, dec_time_by_module, dec_complexity = self._decompress(
             codec, res["bitstream"], self.codec_output_dir, ""
         )
         self.update_time_elapsed("decode", (time_measure() - start))
         self.add_time_details("decode", dec_time_by_module)
+        if self.is_mac_calculation:
+            self.add_kmac_and_pixels_info(
+                "feature_restoration", dec_complexity[0], dec_complexity[1]
+            )
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
@@ -222,12 +247,25 @@ class VideoSplitInference(BasePipeline):
 
         self.logger.info("Processing NN-Part2...")
         output_list = []
-        for e, data in tqdm(self._iterate_items(dec_ftensors_list, self.device)):
+        for e, data in tqdm(
+            self._iterate_items(dec_ftensors_list, self.device_nn_part2)
+        ):
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
+
+            if e == 0:
+                if hasattr(vision_model, "darknet"):  # for jde
+                    kmacs, pixels = calc_complexity_nn_part2_dn53(
+                        vision_model, dec_features
+                    )
+                else:  # for detectron2
+                    kmacs, pixels = calc_complexity_nn_part2_plyr(
+                        vision_model, data, dec_features
+                    )
+                self.add_kmac_and_pixels_info("nn_part_2", kmacs, pixels)
 
             start = time_measure()
             pred = self._from_features_to_output(vision_model, dec_features)
@@ -250,6 +288,16 @@ class VideoSplitInference(BasePipeline):
 
             output_list.append(out_res)
 
+        # Calculate mac considering number of coded feature frames
+        if self.is_mac_calculation:
+            frames = (
+                len(dataloader) // 2 + 1
+                if codec.enc_tools["feature_reduction"]["temporal_resampling_enabled"]
+                is True
+                else len(dataloader)
+            )
+            self.calc_kmac_per_pixels_video_task(frames, len(dataloader))
+
         # performance evaluation on end-task
         eval_performance = self._evaluation(evaluator)
 
@@ -258,6 +306,7 @@ class VideoSplitInference(BasePipeline):
             codec.eval_encode_type,
             output_list,
             eval_performance,
+            self.complexity_calc_by_module,
         )
 
     def _collect_input_data(self, data: Dict):

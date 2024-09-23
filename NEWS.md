@@ -1,3 +1,8 @@
+2024-08-15: 
+- support for multiple split points of detectron2
+- support for AVC reference software as codec
+- support for counting operations per input pixels to the Network (e.g., NN Head, codec, NN tail)
+
 2024-02-27: CompressAI-Vision supports VCM-like pipelines (remote inference) for all MPEG FCM use cases
 
 2024-02-16: CompressAI-Vision includes CompressAI as a submodule

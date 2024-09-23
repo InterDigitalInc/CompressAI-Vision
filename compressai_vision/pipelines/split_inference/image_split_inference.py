@@ -37,6 +37,12 @@ from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import dict_sum, time_measure
+from compressai_vision.utils.measure_complexity import (
+    calc_complexity_nn_part1_dn53,
+    calc_complexity_nn_part1_plyr,
+    calc_complexity_nn_part2_dn53,
+    calc_complexity_nn_part2_plyr,
+)
 
 from ..base import BasePipeline
 
@@ -61,7 +67,7 @@ class ImageSplitInference(BasePipeline):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__(configs, device)
 
@@ -88,6 +94,7 @@ class ImageSplitInference(BasePipeline):
         output_list = []
 
         self.init_time_measure()
+        self.init_complexity_measure()
         accum_enc_by_module = None
         accum_dec_by_module = None
 
@@ -101,6 +108,10 @@ class ImageSplitInference(BasePipeline):
                 if e >= self._codec_end_frame_idx:
                     break
 
+                if self.is_mac_calculation:
+                    macs, pixels = calc_complexity_nn_part1_plyr(vision_model, d)
+                    self.acc_kmac_and_pixels_info("nn_part_1", macs, pixels)
+
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
@@ -108,7 +119,7 @@ class ImageSplitInference(BasePipeline):
                 featureT["org_input_size"] = org_img_size
 
                 start = time_measure()
-                res, enc_time_by_module = self._compress(
+                res, enc_time_by_module, enc_complexity = self._compress(
                     codec,
                     featureT,
                     self.codec_output_dir,
@@ -116,6 +127,11 @@ class ImageSplitInference(BasePipeline):
                     file_prefix,
                 )
                 self.update_time_elapsed("encode", (time_measure() - start))
+                if self.is_mac_calculation:
+                    self.acc_kmac_and_pixels_info(
+                        "feature_reduction", enc_complexity[0], enc_complexity[1]
+                    )
+
                 if accum_enc_by_module is None:
                     accum_enc_by_module = enc_time_by_module
                 else:
@@ -129,14 +145,17 @@ class ImageSplitInference(BasePipeline):
                     for file_path in self.codec_output_dir.glob(
                         f"{self.bitstream_name}-{file_prefix}*"
                     )
-                    if file_path.suffix in [".bin", ".mp4"]
+                    if (
+                        (file_path.suffix in [".bin", ".mp4"])
+                        and not "_tmp" in file_path.name
+                    )
                 ]
                 assert (
                     len(bin_files) > 0
-                ), f"no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}-{file_prefix}*"
                 assert (
                     len(bin_files) == 1
-                ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
+                ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
 
                 res["bitstream"] = bin_files[0]
                 print(f"reading bitstream... {res['bitstream']}")
@@ -145,10 +164,15 @@ class ImageSplitInference(BasePipeline):
                 continue
 
             start = time_measure()
-            dec_features, dec_time_by_module = self._decompress(
+            dec_features, dec_time_by_module, dec_complexity = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
             self.update_time_elapsed("decode", (time_measure() - start))
+            if self.is_mac_calculation:
+                self.acc_kmac_and_pixels_info(
+                    "feature_restoration", dec_complexity[0], dec_complexity[1]
+                )
+
             if accum_dec_by_module is None:
                 accum_dec_by_module = dec_time_by_module
             else:
@@ -164,6 +188,11 @@ class ImageSplitInference(BasePipeline):
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
 
             dec_features["file_name"] = d[0]["file_name"]
+            if self.is_mac_calculation:
+                macs, pixels = calc_complexity_nn_part2_plyr(
+                    vision_model, dec_features["data"], dec_features
+                )
+                self.acc_kmac_and_pixels_info("nn_part_2", macs, pixels)
 
             start = time_measure()
             pred = self._from_features_to_output(
@@ -198,9 +227,12 @@ class ImageSplitInference(BasePipeline):
         # if enc_only is True, accum_dec_by_module is None
         self.add_time_details("decode", accum_dec_by_module)
 
+        if self.is_mac_calculation:
+            self.calc_kmac_per_pixels_image_task()
+
         if self.configs["codec"]["encode_only"] is True:
             print(f"bitstreams generated, exiting")
-            return self.time_elapsed_by_module, codec.eval_encode_type, None, None
+            return self.time_elapsed_by_module, codec.eval_encode_type, None, None, None
 
         eval_performance = self._evaluation(evaluator)
 
@@ -209,4 +241,5 @@ class ImageSplitInference(BasePipeline):
             codec.eval_encode_type,
             output_list,
             eval_performance,
+            self.complexity_calc_by_module,
         )

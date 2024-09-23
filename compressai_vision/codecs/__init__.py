@@ -33,9 +33,15 @@ from .ffmpeg import x264, x265
 from .sic_sfu2022 import SIC_SFU2022
 from .std_codecs import HM, VTM, VVENC
 
+__all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC", "SIC_SFU2022"]
+
 try:
     from .fctm import FCTM
-
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC", "SIC_SFU2022", "FCTM"]
-except ImportError:
-    __all__ = ["Bypass", "HM", "VTM", "x264", "x265", "VVENC", "SIC_SFU2022"]
+except ImportError as e:
+    if e.name == f"{__package__}.fctm":
+        # Could not import "FCTM".
+        pass
+    else:
+        raise e
+else:
+    __all__.append("FCTM")

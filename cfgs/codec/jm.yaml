@@ -1,14 +1,15 @@
-type: "hm"
+type: "jm"
 eval_encode: "bitrate" # or "bitrate"
 experiment: "" # e.g. "_tool_on" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.encoder_config.qp}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.encoder_config.qp}"
 codec_paths:
-  _root: "/local/path/hm"
-  encoder_exe: "${._root}/bin/TAppEncoderStatic"
-  decoder_exe: "${._root}/bin/TAppDecoderStatic"
-  parcat_exe: "${._root}/bin/parcatStatic"
-  cfg_file: "${._root}/cfg/encoder_intra_main10.cfg"
+  _root: "/path/to/jm"
+  encoder_exe: "${._root}/bin/lencod_static"
+  decoder_exe: "${._root}/bin/ldecod_static"
+  parcat_exe: ""
+  cfg_file: "${._root}/cfg/HM-like/encoder_JM_LB_HE.cfg"
+  cfg_file_default: "${._root}/cfg/encoder.cfg"
 
 verbosity: 1
 device: "cpu" # unused for now, traditional codecs

@@ -116,5 +116,5 @@ compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++codec.eval_encode='bitrate' \
         ++codec.verbosity=0 \
 	++codec.device=${DEVICE} \
-        ++misc.device=${DEVICE} \
+        ++misc.device.nn_parts=${DEVICE} \
         ${PIPELINE_PARAMS} \

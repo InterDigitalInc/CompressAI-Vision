@@ -27,8 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import math
 
 import torch.nn.functional as F
+from torch import Tensor
 
 MIN_MAX_DATASET = {
     "mpeg-oiv6-detection": (
@@ -97,3 +99,60 @@ def crop(x, size, bottom_right=False):
         mode="constant",
         value=0,
     )
+
+
+def compute_frame_resolution(num_channels, channel_height, channel_width):
+    short_edge = int(math.sqrt(num_channels))
+
+    while (num_channels % short_edge) != 0:
+        short_edge -= 1
+
+    long_edge = num_channels // short_edge
+
+    assert (short_edge * long_edge) == num_channels
+
+    # try to make it close to a square
+    if channel_height > channel_width:
+        height = short_edge * channel_height
+        width = long_edge * channel_width
+    else:
+        width = short_edge * channel_width
+        height = long_edge * channel_height
+
+    return (height, width)
+
+
+def tensor_to_tiled(x: Tensor, tiled_frame_resolution):
+    assert x.dim() == 4 and isinstance(x, Tensor)
+    _, _, H, W = x.size()
+
+    num_channels_in_height = tiled_frame_resolution[0] // H
+    num_channels_in_width = tiled_frame_resolution[1] // W
+
+    A = x.reshape(num_channels_in_height, num_channels_in_width, H, W)
+    B = A.swapaxes(1, 2)
+    tiled = B.reshape(tiled_frame_resolution[0], tiled_frame_resolution[1])
+
+    return tiled
+
+
+def tiled_to_tensor(x: Tensor, channel_resolution):
+    assert x.dim() == 2 and isinstance(x, Tensor)
+    frmH, frmW = x.size()
+
+    num_channels_in_height = frmH // channel_resolution[0]
+    num_channels_in_width = frmW // channel_resolution[1]
+    total_num_channels = int(num_channels_in_height * num_channels_in_width)
+
+    A = x.reshape(
+        num_channels_in_height,
+        channel_resolution[0],
+        num_channels_in_width,
+        channel_resolution[1],
+    )
+    B = A.swapaxes(1, 2)
+    feature_tensor = B.reshape(
+        1, total_num_channels, channel_resolution[0], channel_resolution[1]
+    )
+
+    return feature_tensor

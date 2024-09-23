@@ -58,13 +58,18 @@ class BasePipeline(nn.Module):
     def __init__(
         self,
         configs: Dict,
-        device: str,
+        device: Dict,
     ):
         super().__init__()
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.configs = configs
-        self.device = device
+
+        assert isinstance(device, Dict)
+
+        self.device_nn_part1 = device["nn_part1"]
+        self.device_nn_part2 = device["nn_part2"]
+
         self.output_dir = self.configs["output_dir_root"]
         assert self.output_dir, "please provide output directory!"
         self._create_folder(self.output_dir)
@@ -72,8 +77,10 @@ class BasePipeline(nn.Module):
         self._output_ext = ".h5"
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
+        self.is_mac_calculation = self.configs["codec"]["measure_complexity"]
         self._create_folder(self.codec_output_dir)
         self.init_time_measure()
+        self.init_complexity_measure()
 
     def init_time_measure(self):
         self.elapsed_time = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}
@@ -81,6 +88,42 @@ class BasePipeline(nn.Module):
     def update_time_elapsed(self, mname, elapsed):
         assert mname in self.elapsed_time
         self.elapsed_time[mname] = self.elapsed_time[mname] + elapsed
+
+    def init_complexity_measure(self):
+        self.kmacs = {
+            "nn_part_1": 0,
+            "feature_reduction": 0,
+            "feature_restoration": 0,
+            "nn_part_2": 0,
+        }
+        self.pixels = {
+            "nn_part_1": 0,
+            "feature_reduction": 0,
+            "feature_restoration": 0,
+            "nn_part_2": 0,
+        }
+
+    def add_kmac_and_pixels_info(self, mname, kmac, pixels):
+        assert mname in self.kmacs
+        self.kmacs[mname] = kmac
+        self.pixels[mname] = pixels
+
+    def acc_kmac_and_pixels_info(self, mname, kmac, pixels):  # for image task
+        # accumulate
+        assert mname in self.kmacs
+        self.kmacs[mname] = self.kmacs[mname] + kmac
+        self.pixels[mname] = self.pixels[mname] + pixels
+
+    def calc_kmac_per_pixels_image_task(self):  # for video task
+        # multiplication
+        self.kmac_per_pixels = {k: (v / self.pixels[k]) for k, v in self.kmacs.items()}
+
+    def calc_kmac_per_pixels_video_task(self, nbframes, ori_nbframes):  # for video task
+        # multiplication
+        self.kmac_per_pixels = {
+            k: (v * nbframes) / (self.pixels[k] * ori_nbframes)
+            for k, v in self.kmacs.items()
+        }
 
     def add_time_details(self, mname: str, details):
         updates = {}
@@ -96,6 +139,12 @@ class BasePipeline(nn.Module):
     @property
     def time_elapsed_by_module(self):
         return self.elapsed_time
+
+    @property
+    def complexity_calc_by_module(self):
+        return (
+            self.kmac_per_pixels if hasattr(self, "kmac_per_pixels") is True else None
+        )
 
     @staticmethod
     def _get_title(a):
@@ -156,20 +205,20 @@ class BasePipeline(nn.Module):
             if Path(features_file).is_file():
                 self.logger.debug(f"loading features: {features_file}")
                 # features = torch.load(features_file)
-                features = torch.load(features_file, map_location=self.device)
+                features = torch.load(features_file, map_location=self.device_nn_part1)
             else:
                 if self.configs["nn_task_part1"].load_features:
                     raise FileNotFoundError(
                         errno.ENOENT, os.strerror(errno.ENOENT), features_file
                     )
                 else:
-                    features = vision_model.input_to_features(x)
+                    features = vision_model.input_to_features(x, self.device_nn_part1)
                     if self.configs["nn_task_part1"].dump_features:
                         self._create_folder(feature_dir)
                         self.logger.debug(f"dumping features in: {feature_dir}")
                         torch.save(features, features_file)
         else:
-            features = vision_model.input_to_features(x)
+            features = vision_model.input_to_features(x, self.device_nn_part1)
             if self.configs["nn_task_part1"].dump_features:
                 self._create_folder(feature_dir)
                 self.logger.debug(f"dumping features in: {feature_dir}")
@@ -205,11 +254,11 @@ class BasePipeline(nn.Module):
 
         # suppose that the order of keys and values is matched
         x["data"] = {
-            k: v.to(device=self.device)
+            k: v.to(device=self.device_nn_part2)
             for k, v in zip(vision_model.split_layer_list, x["data"].values())
         }
 
-        results = vision_model.features_to_output(x)
+        results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
             self._create_folder(output_results_dir)
             torch.save(results, results_file)

@@ -29,6 +29,7 @@ codec:
     bitstream_name: "${codec.bitstream_name}"
     skip_n_frames: 0 # This is encoder only option
     n_frames_to_be_encoded: -1  #(-1 = encode all input), This is encoder only option
+    measure_complexity: "${codec.mac_computation}"
 nn_task_part2:
     dump_results: False
     output_results_dir: "${codec.output_dir}/output_results"
