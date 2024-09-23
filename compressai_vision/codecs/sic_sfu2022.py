@@ -167,14 +167,6 @@ class SIC_SFU2022:
                 5: f"{root_url}/two_layers/sfu2022_two_layer_q5-5e9b3de6.pth.tar",
                 6: f"{root_url}/two_layers/sfu2022_two_layer_q6-5187feb3.pth.tar",
             },
-            3: {
-                1: f"{root_url}/three_layers/sfu2022_three_layer_q1-fa854384.pth.tar",
-                2: f"{root_url}/three_layers/sfu2022_three_layer_q2-e235695e.pth.tar",
-                3: f"{root_url}/three_layers/sfu2022_three_layer_q3-c35217ec.pth.tar",
-                4: f"{root_url}/three_layers/sfu2022_three_layer_q4-f6927cf3.pth.tar",
-                5: f"{root_url}/three_layers/sfu2022_three_layer_q5-83b7b89d.pth.tar",
-                6: f"{root_url}/three_layers/sfu2022_three_layer_q6-95f1695d.pth.tar",
-            },
         }
 
         self.padding_size = 64
