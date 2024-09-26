@@ -120,41 +120,12 @@ def compute_class_wise_results(result_df, name, sequences):
     return output
 
 
-def df_add_columns(result_df, is_remote_inference: bool = False):
-    result_df.insert(
-        loc=4, column="y_psnr", value=["" for i in range(result_df.shape[0])]
-    )
-    if not is_remote_inference:
-        result_df.insert(
-            loc=6,
-            column="feat_cov_plus_nn_part_1",
-            value=result_df["nn_part_1"].tolist(),
-        )
-        result_df.insert(
-            loc=8,
-            column="encode_total",
-            value=(result_df["feat_cov_plus_nn_part_1"] + result_df["encode"]).tolist(),
-        )
-        result_df.insert(
-            loc=10,
-            column="inv_conv_plus_nn_part_2",
-            value=result_df["nn_part_2"].tolist(),
-        )
-        result_df.insert(
-            loc=12,
-            column="dec_total",
-            value=(result_df["inv_conv_plus_nn_part_2"] + result_df["decode"]).tolist(),
-        )
-    return result_df
-
-
 def generate_csv_classwise_video_map(
     result_path,
     dataset_path,
     list_of_classwise_seq,
     seq_list,
     metric="AP",
-    is_remote_inference: bool = False,
     nb_operation_points: int = 4,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
@@ -205,8 +176,10 @@ def generate_csv_classwise_video_map(
 
         output_df = df_append(output_df, class_wise_results_df)
 
-    # add columns
-    output_df = df_add_columns(output_df, is_remote_inference)
+    # add empty y_psnr column
+    output_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
+    )
 
     return output_df
 
@@ -215,7 +188,6 @@ def generate_csv_classwise_video_mota(
     result_path,
     dataset_path,
     list_of_classwise_seq,
-    is_remote_inference: bool = False,
     nb_operation_points: int = 4,
 ):
     results_df = read_df_rec(result_path)
@@ -263,13 +235,15 @@ def generate_csv_classwise_video_mota(
 
         output_df = df_append(output_df, class_wise_results_df)
 
-    # add columns
-    output_df = df_add_columns(output_df, is_remote_inference)
+    # add empty y_psnr column
+    output_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
+    )
 
     return output_df
 
 
-def generate_csv(result_path, is_remote_inference: bool = False):
+def generate_csv(result_path):
     result_df = read_df_rec(result_path)
 
     # sort
@@ -278,8 +252,10 @@ def generate_csv(result_path, is_remote_inference: bool = False):
     # accuracy in % for MPEG template
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
 
-    # add columns
-    result_df = df_add_columns(result_df, is_remote_inference)
+    # add empty y_psnr column
+    result_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(result_df.shape[0])]
+    )
 
     return result_df
 
@@ -313,12 +289,6 @@ if __name__ == "__main__":
         default="AP",
         choices=["AP", "AP50"],
         help="Evaluation Metric (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--remote_inference",
-        action="store_true",
-        default=False,
-        help="Collect results from a remote inference pipeline.",
     )
     parser.add_argument(
         "--nb_operation_points",
@@ -380,18 +350,16 @@ if __name__ == "__main__":
             [class_ab, class_c, class_d],
             seq_list,
             metric,
-            args.remote_inference,
             args.nb_operation_points,
         )
     elif args.dataset_name == "OIV6":
-        output_df = generate_csv(args.result_path, args.remote_inference)
+        output_df = generate_csv(args.result_path)
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
         output_df = generate_csv_classwise_video_mota(
             args.result_path,
             args.dataset_path,
             [tvd_all],
-            args.remote_inference,
             args.nb_operation_points,
         )
     elif args.dataset_name == "HIEVE":
@@ -401,7 +369,6 @@ if __name__ == "__main__":
             args.result_path,
             args.dataset_path,
             [hieve_1080p, hieve_720p],
-            args.remote_inference,
             args.nb_operation_points,
         )
         # sort for FCM template - comply with the template provided in wg04n00459
