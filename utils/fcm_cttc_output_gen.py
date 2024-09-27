@@ -34,15 +34,95 @@ from __future__ import annotations
 
 import argparse
 import os
+from glob import iglob
+from os.path import join
 from pathlib import Path
 
+import pandas as pd
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
-from mpeg_template_format import df_append, generate_classwise_df, read_df_rec
 
 import utils
 from compressai_vision.datasets import get_seq_info
 from compressai_vision.evaluators.evaluators import BaseEvaluator
+
+DATASETS = ["TVD", "SFU", "OIV6", "HIEVE"]
+
+
+def read_df_rec(path, fn_regex=r"summary.csv"):
+    return pd.concat(
+        (pd.read_csv(f) for f in iglob(join(path, "**", fn_regex), recursive=True)),
+        ignore_index=True,
+    )
+
+
+def df_append(df1, df2):
+    out = pd.concat([df1, df2], ignore_index=True)
+    out.reset_index()
+    return out
+
+
+def generate_classwise_df(result_df, classes: dict):
+    classwise = pd.DataFrame(columns=result_df.columns)
+    classwise.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+    for tag, item in classes.items():
+        output = compute_class_wise_results(result_df, tag, item)
+        classwise_df = df_append(classwise, output)
+
+    return classwise_df
+
+
+def compute_class_wise_results(result_df, name, sequences):
+    samples = None
+    num_points = prev_num_points = -1
+    output = pd.DataFrame(columns=result_df.columns)
+    output.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+    for seq in sequences:
+        d = result_df.loc[(result_df["Dataset"] == seq)]
+
+        if samples is None:
+            samples = d
+        else:
+            samples = df_append(samples, d)
+
+        if prev_num_points == -1:
+            num_points = prev_num_points = d.shape[0]
+        else:
+            assert prev_num_points == d.shape[0]
+
+    samples["length"] = samples["num_of_coded_frame"] / samples["fps"]
+
+    for i in range(num_points):
+        # print(f"Set - {i}")
+        points = samples.iloc[range(i, samples.shape[0], num_points)]
+        total_length = points["length"].sum()
+
+        # print(points)
+
+        new_row = {
+            output.columns[0]: [
+                name,
+            ],
+            output.columns[1]: [
+                i,
+            ],
+        }
+        for column in output.columns[2:]:
+            # this will be recalculated
+            if column == "end_accuracy":
+                new_row[column] = -1
+                continue
+
+            weighted = points[column] * points["length"]
+            new_row[column] = [
+                (1 / total_length) * weighted.sum(),
+            ]
+
+        output = df_append(output, pd.DataFrame(new_row))
+
+    return output
 
 
 def generate_csv_classwise_video_map(
@@ -52,6 +132,7 @@ def generate_csv_classwise_video_map(
     seq_list,
     metric="AP",
     gt_folder="annotations",
+    nb_operation_points: int = 4,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path)
@@ -71,7 +152,7 @@ def generate_csv_classwise_video_map(
         classwise_seqs = list(seqs_by_class.values())[0]
 
         class_wise_maps = []
-        for q in range(4):
+        for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
@@ -84,7 +165,7 @@ def generate_csv_classwise_video_map(
 
             assert (
                 len(items) > 0
-            ), "Nothing relevant information found from given directories..."
+            ), "No evaluation information found in provided result directories..."
 
             summary = compute_overall_mAP(classwise_name, items)
             maps = summary.values[0][opts_metrics[metric]]
@@ -102,10 +183,20 @@ def generate_csv_classwise_video_map(
 
         output_df = df_append(output_df, class_wise_results_df)
 
+    # add empty y_psnr column
+    output_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
+    )
+
     return output_df
 
 
-def generate_csv_classwise_video_mota(result_path, dataset_path, list_of_classwise_seq):
+def generate_csv_classwise_video_mota(
+    result_path,
+    dataset_path,
+    list_of_classwise_seq,
+    nb_operation_points: int = 4,
+):
     results_df = read_df_rec(result_path)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
@@ -121,7 +212,7 @@ def generate_csv_classwise_video_mota(result_path, dataset_path, list_of_classwi
         classwise_seqs = list(seqs_by_class.values())[0]
 
         class_wise_motas = []
-        for q in range(4):
+        for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
@@ -151,6 +242,11 @@ def generate_csv_classwise_video_mota(result_path, dataset_path, list_of_classwi
 
         output_df = df_append(output_df, class_wise_results_df)
 
+    # add empty y_psnr column
+    output_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
+    )
+
     return output_df
 
 
@@ -162,6 +258,11 @@ def generate_csv(result_path):
 
     # accuracy in % for MPEG template
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
+
+    # add empty y_psnr column
+    result_df.insert(
+        loc=4, column="y_psnr", value=["" for i in range(result_df.shape[0])]
+    )
 
     return result_df
 
@@ -196,7 +297,12 @@ if __name__ == "__main__":
         choices=["AP", "AP50"],
         help="Evaluation Metric (default: %(default)s)",
     )
-
+    parser.add_argument(
+        "--nb_operation_points",
+        type=int,
+        default=4,
+        help="number of rate points (qps) per sequence / class",
+    )
     parser.add_argument(
         "--gt_folder",
         required=False,
@@ -209,7 +315,7 @@ if __name__ == "__main__":
     assert (
         args.dataset_name.lower() in Path(args.dataset_path).name.lower()
         and args.dataset_name.lower() in Path(args.result_path).name.lower()
-    )
+    ), "Please check correspondance between input dataset name and result directory"
 
     if args.dataset_name == "SFU":
         metric = args.metric
@@ -258,19 +364,26 @@ if __name__ == "__main__":
             seq_list,
             metric,
             args.gt_folder,
+            args.nb_operation_points,
         )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(args.result_path)
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
         output_df = generate_csv_classwise_video_mota(
-            args.result_path, args.dataset_path, [tvd_all]
+            args.result_path,
+            args.dataset_path,
+            [tvd_all],
+            args.nb_operation_points,
         )
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
         hieve_720p = {"HIEVE-720P": ["2", "17", "18"]}
         output_df = generate_csv_classwise_video_mota(
-            args.result_path, args.dataset_path, [hieve_1080p, hieve_720p]
+            args.result_path,
+            args.dataset_path,
+            [hieve_1080p, hieve_720p],
+            args.nb_operation_points,
         )
         # sort for FCM template - comply with the template provided in wg04n00459
         seq_list = [
