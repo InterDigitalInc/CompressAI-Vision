@@ -305,12 +305,18 @@ document.write(`
 
 <div class="viewcode-block" id="BaseEvaluator"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.BaseEvaluator">[docs]</a><span class="k">class</span> <span class="nc">BaseEvaluator</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog_name</span> <span class="o">=</span> <span class="n">datacatalog_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criteria</span> <span class="o">=</span> <span class="n">criteria</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_file_name</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">_on_</span><span class="si">{</span><span class="n">datacatalog_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -320,11 +326,11 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;creating output folder: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+<div class="viewcode-block" id="BaseEvaluator.set_annotation_info"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.BaseEvaluator.set_annotation_info">[docs]</a>    <span class="k">def</span> <span class="nf">set_annotation_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">annotation_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seqinfo_path</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">seqinfo_path</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">thing_classes</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">thing_classes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thing_id_mapping</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thing_id_mapping</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span></div>
 
 <div class="viewcode-block" id="BaseEvaluator.get_jde_eval_info_name"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.BaseEvaluator.get_jde_eval_info_name">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_jde_eval_info_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>

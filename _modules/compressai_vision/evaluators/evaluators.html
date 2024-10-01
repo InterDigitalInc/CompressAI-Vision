@@ -295,10 +295,8 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span> <span class="nn">motmetrics</span> <span class="k">as</span> <span class="nn">mm</span>
@@ -307,11 +305,12 @@ document.write(`
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">detectron2.evaluation</span> <span class="kn">import</span> <span class="n">COCOEvaluator</span>
 <span class="kn">from</span> <span class="nn">jde.utils.io</span> <span class="kn">import</span> <span class="n">unzip_objs</span>
+<span class="kn">from</span> <span class="nn">pytorch_msssim</span> <span class="kn">import</span> <span class="n">ms_ssim</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">compressai_vision.datasets</span> <span class="kn">import</span> <span class="n">deccode_compressed_rle</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_evaluator</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">to_cpu</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
 
 <span class="kn">from</span> <span class="nn">.base_evaluator</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
 <span class="kn">from</span> <span class="nn">.tf_evaluation_utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -327,9 +326,16 @@ document.write(`
 <div class="viewcode-block" id="COCOEVal"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;COCO-EVAL&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">COCOEVal</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;AP&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span> <span class="o">=</span> <span class="n">COCOEvaluator</span><span class="p">(</span>
             <span class="n">dataset_name</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">use_fast_impl</span><span class="o">=</span><span class="kc">False</span>
@@ -364,9 +370,16 @@ document.write(`
 <div class="viewcode-block" id="OpenImagesChallengeEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;OIC-EVAL&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">OpenImagesChallengeEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;AP50&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -564,17 +577,17 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;There is no detected objects to evaluate&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">pred_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span><span class="p">:</span>
             <span class="n">img_id</span> <span class="o">=</span> <span class="n">pred_dict</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">]</span>
             <span class="n">processed_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_prediction</span><span class="p">(</span><span class="n">pred_dict</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_oic_evaluator</span><span class="o">.</span><span class="n">add_single_detected_image_info</span><span class="p">(</span><span class="n">img_id</span><span class="p">,</span> <span class="n">processed_dict</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Elapsed time to process and register the predicted items to the evaluator: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.02f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Elapsed time to process and register the predicted items to the evaluator: </span><span class="si">{</span><span class="n">time_measure</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.02f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
         <span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oic_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total evaluation time: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.02f</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total evaluation time: </span><span class="si">{</span><span class="n">time_measure</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.02f</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
@@ -608,9 +621,16 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;MOTA&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="n">mm</span><span class="o">.</span><span class="n">lap</span><span class="o">.</span><span class="n">default_solver</span> <span class="o">=</span> <span class="s2">&quot;lap&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span>
@@ -782,9 +802,16 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;MOTA&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_gt_pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_gt_in_motchallenge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
 
@@ -826,9 +853,16 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;MOTA&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="n">mm</span><span class="o">.</span><span class="n">lap</span><span class="o">.</span><span class="n">default_solver</span> <span class="o">=</span> <span class="s2">&quot;munkres&quot;</span>
 
@@ -864,9 +898,92 @@ document.write(`
 <div class="viewcode-block" id="YOLOEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;YOLO-EVAL&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">YOLOEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;AP50&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VisualQualityEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;VISUAL-QUALITY-EVAL&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VisualQualityEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datacatalog_name</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;psnr&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VisualQualityEval.compute_psnr"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.compute_psnr">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_psnr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">mse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualQualityEval.compute_msssim"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.compute_msssim">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_msssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ms_ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VisualQualityEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sum_psnr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sum_msssim</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="VisualQualityEval.write_results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.write_results">[docs]</a>    <span class="k">def</span> <span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;creating output folder: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file_name</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluations</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualQualityEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.digest">[docs]</a>    <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">tst</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="n">ref</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">tst</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">psnr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_psnr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">tst</span><span class="p">)</span>
+        <span class="n">msssim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_msssim</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">tst</span><span class="p">)</span>
+
+        <span class="n">eval_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;img_id&quot;</span><span class="p">:</span> <span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image_id&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;img_size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;msssim&quot;</span><span class="p">:</span> <span class="n">msssim</span><span class="p">,</span>
+            <span class="s2">&quot;psnr&quot;</span><span class="p">:</span> <span class="n">psnr</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sum_psnr</span> <span class="o">+=</span> <span class="n">psnr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sum_msssim</span> <span class="o">+=</span> <span class="n">msssim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eval_dict</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="VisualQualityEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">()</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;msssim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sum_msssim</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span><span class="p">),</span>
+            <span class="s2">&quot;psnr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sum_psnr</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">summary</span></div></div>
 </pre></div>
 
                 </article>

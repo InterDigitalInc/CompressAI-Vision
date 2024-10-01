@@ -585,7 +585,9 @@ document.write(`
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid annotation file &quot;</span><span class="si">{</span><span class="n">_annotation_file</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_file</span> <span class="o">=</span> <span class="n">_annotation_file</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># annotation_file is not available</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No annotation, there would be no evaluation output</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No annotation found, there may be no evaluation output based on groundtruth</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">seqinfo</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
@@ -946,11 +948,11 @@ document.write(`
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">root</span><span class="p">,</span>
-            <span class="n">imgs_folder</span><span class="o">=</span><span class="n">imgs_folder</span><span class="p">,</span>
-            <span class="n">annotation_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">seqinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span>
-            <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span>
+            <span class="n">imgs_folder</span><span class="p">,</span>
+            <span class="n">annotation_file</span><span class="p">,</span>
+            <span class="n">seqinfo</span><span class="p">,</span>
+            <span class="n">dataset_name</span><span class="p">,</span>
+            <span class="n">ext</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">all_files</span> <span class="o">=</span> <span class="p">[</span>

@@ -305,6 +305,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 
+<span class="kn">from</span> <span class="nn">compressai_vision.codecs.utils</span> <span class="kn">import</span> <span class="n">FpnUtils</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span>
@@ -370,6 +371,8 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpn_utils</span> <span class="o">=</span> <span class="n">FpnUtils</span><span class="p">()</span>
+
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -409,22 +412,22 @@ document.write(`
             <span class="s2">&quot;-framerate&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frmRate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-            <span class="n">inp_yuv_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">inp_yuv_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-c:v&quot;</span><span class="p">,</span>
             <span class="s2">&quot;h264&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-crf&quot;</span><span class="p">,</span>
-            <span class="n">qp</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-preset&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">preset</span><span class="p">,</span>
             <span class="s2">&quot;-bf&quot;</span><span class="p">,</span>
-            <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-tune&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tune</span><span class="p">,</span>
             <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
             <span class="s2">&quot;yuv444p10le&quot;</span><span class="p">,</span>  <span class="c1"># to be checked</span>
             <span class="s2">&quot;-threads&quot;</span><span class="p">,</span>
             <span class="s2">&quot;4&quot;</span><span class="p">,</span>
-            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
@@ -441,10 +444,10 @@ document.write(`
             <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
             <span class="s2">&quot;yuv444p10le&quot;</span><span class="p">,</span>
-            <span class="n">yuv_dec_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yuv_dec_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
@@ -467,14 +470,12 @@ document.write(`
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict: numbers of bytes per frame and bitstream path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="n">remote_inference</span>  <span class="c1"># TODO (fracape) remote inference not supported yet</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">remote_inference</span>  <span class="c1"># TODO (fracape) remote inference not supported yet</span>
         <span class="n">bitdepth</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># TODO (fracape) (add this as config)</span>
 
-        <span class="p">(</span>
-            <span class="n">frames</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">feature_size</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subframe_heights</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span><span class="o">.</span><span class="n">reshape_feature_pyramid_to_frame</span><span class="p">(</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpn_utils</span><span class="o">.</span><span class="n">reshape_feature_pyramid_to_frame</span><span class="p">(</span>
             <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">packing_all_in_one</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
         <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_max_dataset</span>
@@ -519,7 +520,7 @@ document.write(`
         <span class="c1"># self.logger.debug(cmd)</span>
 
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">run_cmdline</span><span class="p">([</span><span class="n">cmd</span><span class="p">],</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
         <span class="n">enc_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
         <span class="c1"># self.logger.debug(f&quot;enc_time:{enc_time}&quot;)</span>
 
@@ -550,6 +551,8 @@ document.write(`
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">remote_inference</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decodes a bitstream into video frames and extract features from the decoded frames.</span>
@@ -561,6 +564,7 @@ document.write(`
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict: dictionary of output features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">remote_inference</span>  <span class="c1"># TODO (fracape) remote inference not supported yet</span>
         <span class="n">bitstream_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">bitstream_path</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">bitstream_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
 
@@ -578,7 +582,7 @@ document.write(`
         <span class="n">logpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codec_output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_dec.log&quot;</span><span class="p">)</span>
 
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">run_cmdline</span><span class="p">([</span><span class="n">cmd</span><span class="p">],</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
+        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logpath</span><span class="o">=</span><span class="n">logpath</span><span class="p">)</span>
         <span class="n">dec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
         <span class="c1"># self.logger.debug(f&quot;dec_time:{dec_time}&quot;)</span>
 
@@ -621,7 +625,7 @@ document.write(`
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error reading file &quot;</span><span class="si">{</span><span class="n">fpn_sizes</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="n">err</span>
 
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vision_model</span><span class="o">.</span><span class="n">reshape_frame_to_feature_pyramid</span><span class="p">(</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpn_utils</span><span class="o">.</span><span class="n">reshape_frame_to_feature_pyramid</span><span class="p">(</span>
             <span class="n">rec_frames</span><span class="p">,</span>
             <span class="n">json_dict</span><span class="p">[</span><span class="s2">&quot;fpn&quot;</span><span class="p">],</span>
             <span class="n">json_dict</span><span class="p">[</span><span class="s2">&quot;subframe_heights&quot;</span><span class="p">],</span>
@@ -640,7 +644,9 @@ document.write(`
             <span class="s2">&quot;conversion&quot;</span><span class="p">:</span> <span class="n">conversion_time</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">dec_times</span></div></div>
+        <span class="n">mac_calculations</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># no NN-related complexity calculation with std codecs</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">dec_times</span><span class="p">,</span> <span class="n">mac_calculations</span></div></div>
 
 
 <div class="viewcode-block" id="x265"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x265">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;x265&quot;</span><span class="p">)</span>
@@ -650,10 +656,10 @@ document.write(`
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
-        <span class="n">dataset_name</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">colorformat</span> <span class="o">=</span> <span class="s2">&quot;444&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span> <span class="o">=</span> <span class="n">readwriteYUV</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">PixelFormat</span><span class="o">.</span><span class="n">YUV444_10le</span><span class="p">)</span>
 
@@ -680,16 +686,17 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-y&quot;</span> <span class="s2">&quot;-s:v&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-s:v&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-framerate&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frmRate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-            <span class="n">inp_yuv_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">inp_yuv_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-c:v&quot;</span><span class="p">,</span>
             <span class="s2">&quot;hevc&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-crf&quot;</span><span class="p">,</span>
-            <span class="n">qp</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-preset&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">preset</span><span class="p">,</span>
             <span class="s2">&quot;-x265-params&quot;</span><span class="p">,</span>
@@ -700,7 +707,7 @@ document.write(`
             <span class="s2">&quot;gray10le&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-threads&quot;</span><span class="p">,</span>
             <span class="s2">&quot;4&quot;</span><span class="p">,</span>
-            <span class="n">bitstream_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitstream_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span></div></div>
 </pre></div>

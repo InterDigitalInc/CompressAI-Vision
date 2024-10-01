@@ -296,7 +296,7 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
@@ -306,7 +306,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compressai_vision.evaluators</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
+<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">dl_to_ld</span><span class="p">,</span> <span class="n">ld_to_dl</span><span class="p">,</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
 <span class="kn">from</span> <span class="nn">compressai_vision.utils.measure_complexity</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">calc_complexity_nn_part1_dn53</span><span class="p">,</span>
     <span class="n">calc_complexity_nn_part1_plyr</span><span class="p">,</span>
@@ -333,6 +333,9 @@ document.write(`
 <span class="sd">     └─────────────────┘                                         └─────────────────┘</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">K</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">)</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="VideoSplitInference"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/split_inference.html#compressai_vision.pipelines.split_inference.VideoSplitInference">[docs]</a><span class="nd">@register_pipeline</span><span class="p">(</span><span class="s2">&quot;video-split-inference&quot;</span><span class="p">)</span>
@@ -406,9 +409,9 @@ document.write(`
                 <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">output_file_prefix</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
-                <span class="k">assert</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">res</span>
-
-                <span class="n">num_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collect_input_data</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">to_cpu</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="p">)</span>
 
                 <span class="k">del</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
 
@@ -429,7 +432,7 @@ document.write(`
 
                 <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span>
 
-            <span class="k">assert</span> <span class="n">num_items</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_n_frames_to_be_encoded</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_codec_n_frames_to_be_encoded</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;nn_task_part1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">generate_features_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
@@ -438,7 +441,10 @@ document.write(`
                 <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># concatenate a list of tensors at each keyword item</span>
-            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_list_to_dict</span><span class="p">()</span>
+            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_list_to_dict</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="c1"># Feature Compression</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
@@ -509,22 +515,24 @@ document.write(`
 
         <span class="c1"># separate a tensor of each keyword item into a list of tensors</span>
         <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_dict_to_list</span><span class="p">(</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
-            <span class="n">dec_ftensors_list</span>
-        <span class="p">),</span> <span class="s2">&quot;The number of decoded frames are not equal to the number of frames supposed to be decoded&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The number of decoded frames (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">)</span><span class="si">}</span><span class="s2">) is not equal &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;to the number of frames supposed to be decoded (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing NN-Part2...&quot;</span><span class="p">)</span>
         <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_items</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_nn_part2</span><span class="p">)</span>
-        <span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">)):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_nn_part2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ftensors</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
             <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_names</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
             <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;qp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s2">&quot;uncmp&quot;</span> <span class="k">if</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">codec</span><span class="o">.</span><span class="n">qp_value</span>
             <span class="p">)</span>  <span class="c1"># Assuming one qp will be used</span>
 
-            <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mac_calculation</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="s2">&quot;darknet&quot;</span><span class="p">):</span>  <span class="c1"># for jde</span>
                     <span class="n">kmacs</span><span class="p">,</span> <span class="n">pixels</span> <span class="o">=</span> <span class="n">calc_complexity_nn_part2_dn53</span><span class="p">(</span>
                         <span class="n">vision_model</span><span class="p">,</span> <span class="n">dec_features</span>
@@ -577,85 +585,28 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">complexity_calc_by_module</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_collect_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Collects input data, transforms the tensors to CPU, appends the transformed data to the input feature tensor buffer, and returns the length of the input feature tensor buffer.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            data:A dictionary containing input data.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            An integer representing the length of the input feature tensor.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_cpu</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
-
-        <span class="k">del</span> <span class="n">data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_feature_tensor_list_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_feature_tensor_list_to_dict</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a list of feature tensors into a dictionary format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">for</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ftensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                    <span class="nb">zip</span><span class="p">(</span><span class="n">ftensors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ftensors</span><span class="o">.</span><span class="n">keys</span><span class="p">()))])</span>
-                <span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ftensor</span> <span class="ow">in</span> <span class="n">ftensors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ftensor</span><span class="p">)</span>
-
-            <span class="k">del</span> <span class="n">ftensors</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ftensors</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">output</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">ftensors</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="n">ld_to_dl</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_feature_tensor_dict_to_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a dict of feature tensors into a list of tensors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">total_len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
-                <span class="n">tmp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tensor</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
-                <span class="n">tmp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-            <span class="n">total_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">coerce_tensors</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">total_len</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tmp</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-
-        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">ftensors</span><span class="p">))</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">output</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_iterate_items</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">ftensors</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
-            <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">ftensors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">out_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-
-            <span class="k">yield</span> <span class="n">e</span><span class="p">,</span> <span class="n">out_dict</span></div>
+        <span class="k">return</span> <span class="n">dl_to_ld</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">coerce_tensors</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">tensors</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
 </pre></div>
 
                 </article>

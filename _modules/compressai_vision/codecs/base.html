@@ -385,10 +385,16 @@ document.write(`
             <span class="s2">&quot;bypass&quot;</span><span class="p">:</span> <span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="n">total_bytes</span><span class="p">,</span>
-            <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">,</span>
-        <span class="p">},</span> <span class="n">enc_time</span></div>
+        <span class="n">mac_calculations</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># no NN-related complexity calculation</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="n">total_bytes</span><span class="p">,</span>
+                <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">enc_time</span><span class="p">,</span>
+            <span class="n">mac_calculations</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Bypass.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.Bypass.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -408,7 +414,9 @@ document.write(`
 
         <span class="n">dec_time</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bypass&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-        <span class="k">return</span> <span class="nb">input</span><span class="p">,</span> <span class="n">dec_time</span></div></div>
+        <span class="n">mac_calculations</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># no NN-related complexity calculation</span>
+
+        <span class="k">return</span> <span class="nb">input</span><span class="p">,</span> <span class="n">dec_time</span><span class="p">,</span> <span class="n">mac_calculations</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_number_of_elements</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
