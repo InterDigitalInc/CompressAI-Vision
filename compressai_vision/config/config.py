@@ -127,13 +127,13 @@ def create_evaluator(
     )
 
 
-def create_pipline(conf: DictConfig, device: str):
+def create_pipline(conf: DictConfig, device: DictConfig):
     if conf.type == "":
         pipeline_type = conf.name
     else:
         pipeline_type = conf.type + "-" + conf.name
 
-    return PIPELINES[pipeline_type](dict(conf), device)
+    return PIPELINES[pipeline_type](dict(conf), dict(device))
 
 
 def create_codec(conf: DictConfig, vision_model: nn.Module, dataset: DictConfig):
