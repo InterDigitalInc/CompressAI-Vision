@@ -116,12 +116,14 @@ class BasePipeline(nn.Module):
 
     def calc_kmac_per_pixels_image_task(self):  # for video task
         # multiplication
-        self.kmac_per_pixels = {k: (v / self.pixels[k]) for k, v in self.kmacs.items()}
+        self.kmac_per_pixels = {
+            k: (v / self.pixels["nn_part_1"]) for k, v in self.kmacs.items()
+        }
 
     def calc_kmac_per_pixels_video_task(self, nbframes, ori_nbframes):  # for video task
         # multiplication
         self.kmac_per_pixels = {
-            k: (v * nbframes) / (self.pixels[k] * ori_nbframes)
+            k: (v * nbframes) / (self.pixels["nn_part_1"] * ori_nbframes)
             for k, v in self.kmacs.items()
         }
 
