@@ -376,7 +376,7 @@ document.write(`
                     <span class="s2">&quot;org_input_size&quot;</span><span class="p">:</span> <span class="n">org_img_size</span><span class="p">,</span>
                 <span class="p">}</span>
 
-                <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
+                <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_details</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
                     <span class="n">codec</span><span class="p">,</span>
                     <span class="n">frame</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
@@ -421,7 +421,8 @@ document.write(`
             <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">dec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">dec_seq</span><span class="p">[</span><span class="s2">&quot;file_names&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="c1"># dec_d = {&quot;file_name&quot;: dec_seq[&quot;file_names&quot;][0]}</span>
+            <span class="n">dec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">dec_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;file_names&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
 
             <span class="n">pred</span> <span class="o">=</span> <span class="n">vision_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">org_map_func</span><span class="p">(</span><span class="n">dec_d</span><span class="p">))</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
