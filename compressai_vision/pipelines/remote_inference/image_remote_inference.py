@@ -102,7 +102,7 @@ class ImageRemoteInference(BasePipeline):
                     "org_input_size": org_img_size,
                 }
 
-                res = self._compress(
+                res, enc_time_details, _ = self._compress(
                     codec,
                     frame,
                     self.codec_output_dir,
@@ -147,7 +147,8 @@ class ImageRemoteInference(BasePipeline):
             timing["decode"].append((end - start))
 
             start = time_measure()
-            dec_d = {"file_name": dec_seq["file_names"][0]}
+            # dec_d = {"file_name": dec_seq["file_names"][0]}
+            dec_d = {"file_name": dec_seq[0]["file_names"][0]}
 
             pred = vision_model.forward(org_map_func(dec_d))
             end = time_measure()

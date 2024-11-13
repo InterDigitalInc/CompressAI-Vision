@@ -75,6 +75,8 @@ class Bypass(nn.Module):
         del bitstream_name  # used in other codecs that write bitstream files
         del codec_output_dir  # used in other codecs that write log files
 
+        mac_calculations = None  # no NN-related complexity calculation
+
         if remote_inference is True:
             org_fH = input["org_input_size"]["height"]
             org_fW = input["org_input_size"]["width"]
@@ -82,10 +84,16 @@ class Bypass(nn.Module):
             num_elements = org_fH * org_fW
             num_frames = len(input["file_names"])
 
-            return {
-                "bytes": [num_elements] * num_frames,
-                "bitstream": input,
-            }
+            enc_time = 0
+
+            return (
+                {
+                    "bytes": [num_elements] * num_frames,
+                    "bitstream": input,
+                },
+                enc_time,
+                mac_calculations,
+            )
 
         # for n-bit quantization error experiments
         max_lvl = ((2**self.nbit_quant) - 1) if self.nbit_quant != -1 else None
@@ -117,8 +125,6 @@ class Bypass(nn.Module):
             "bypass": time_measure() - start_time,
         }
 
-        mac_calculations = None  # no NN-related complexity calculation
-
         return (
             {
                 "bytes": total_bytes,
@@ -140,13 +146,11 @@ class Bypass(nn.Module):
         del file_prefix  # used in other codecs that write log files
         del codec_output_dir  # used in other codecs that write log files
 
+        dec_time = {"bypass": 0}
+        mac_calculations = None  # no NN-related complexity calculation
+
         if remote_inference:
             assert "file_names" in input
-            return input
-
-        dec_time = {"bypass": 0}
-
-        mac_calculations = None  # no NN-related complexity calculation
 
         return input, dec_time, mac_calculations
 

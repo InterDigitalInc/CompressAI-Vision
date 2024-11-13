@@ -7,6 +7,7 @@ set -eu
 
 ENTRY_CMD=$1
 TESTDATA_DIR=$2
+DEVICE=$3
 
 # List of entry cmds 
 CMD_OPTS=("compressai-split-inference", "compressai-remote-inference")
@@ -21,7 +22,7 @@ fi
 
 declare -A configs
 
-configs["compressai-split-inference"]="eval_example"
+configs["compressai-split-inference"]="eval_split_inference_example"
 configs["compressai-remote-inference"]="eval_remote_inference_example"
 
 CONF_NAME=${configs[${ENTRY_CMD}]}
@@ -54,7 +55,8 @@ ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++evaluator.type=OIC-EVAL \
              ++pipeline.nn_task_part1.load_features=False \
              ++pipeline.nn_task_part1.dump_features=False \
-             ++pipeline.nn_task_part2.dump_features=False
+             ++pipeline.nn_task_part2.dump_features=False \
+             ++misc.device.nn_parts=${DEVICE}
 
 # MPEGOIV6 - Segmentation with Mask RCNN
 ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
@@ -70,7 +72,8 @@ ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++evaluator.type=OIC-EVAL \
              ++pipeline.nn_task_part1.load_features=False \
              ++pipeline.nn_task_part1.dump_features=False \
-             ++pipeline.nn_task_part2.dump_features=False
+             ++pipeline.nn_task_part2.dump_features=False \
+             ++misc.device.nn_parts=${DEVICE}
 
 # SFU - Detection with Faster RCNN
 for SEQ in \
@@ -102,7 +105,8 @@ do
                  ++evaluator.type=COCO-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
-                 ++pipeline.nn_task_part2.dump_features=False
+                 ++pipeline.nn_task_part2.dump_features=False \
+                 ++misc.device.nn_parts=${DEVICE}
 done
 
 # TVD - Object Tracking with JDE
@@ -127,7 +131,8 @@ do
                  ++evaluator.type=MOT-TVD-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
-                 ++pipeline.nn_task_part2.dump_features=False
+                 ++pipeline.nn_task_part2.dump_features=False \
+                 ++misc.device.nn_parts=${DEVICE}
 done
 
 # HIEVE - Object Tracking with JDE
@@ -154,5 +159,6 @@ do
                  ++evaluator.type=MOT-HIEVE-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
-                 ++pipeline.nn_task_part2.dump_features=False
+                 ++pipeline.nn_task_part2.dump_features=False \
+                 ++misc.device.nn_parts=${DEVICE}
 done
