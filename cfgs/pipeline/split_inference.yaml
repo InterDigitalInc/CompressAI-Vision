@@ -14,6 +14,7 @@
 name: "split-inference"
 type: "video" # If type is video, all feature tensors for the input video are first computed before proceeding encoding process
 output_dir_root: ${paths._run_root}/${.name}-${.type}
+datatype: float32 # or float16 or bfloat16
 
 nn_task_part1:
     load_features: False
