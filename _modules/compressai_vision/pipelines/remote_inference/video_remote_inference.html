@@ -348,6 +348,7 @@ document.write(`
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_yuv</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="s2">&quot;yuv&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;yuv&quot;</span> <span class="ow">in</span> <span class="n">configs</span> <span class="k">else</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="VideoRemoteInference.build_input_lists"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/remote_inference.html#compressai_vision.pipelines.remote_inference.VideoRemoteInference.build_input_lists">[docs]</a>    <span class="k">def</span> <span class="nf">build_input_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
         <span class="n">gt_inputs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -397,7 +398,7 @@ document.write(`
             <span class="p">}</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_details</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
+            <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_by_module</span><span class="p">,</span> <span class="n">enc_complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
                 <span class="n">codec</span><span class="p">,</span>
                 <span class="n">frames</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
@@ -430,13 +431,14 @@ document.write(`
 
         <span class="c1"># Feature Deompression</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-        <span class="n">dec_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
+        <span class="n">dec_seq</span><span class="p">,</span> <span class="n">dec_time_by_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompress</span><span class="p">(</span>
             <span class="n">codec</span><span class="o">=</span><span class="n">codec</span><span class="p">,</span>
             <span class="n">bitstream</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;bitstream&quot;</span><span class="p">],</span>
             <span class="n">codec_output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_output_dir</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># must be empty like this</span>
             <span class="n">org_img_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">remote_inference</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">vcm_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;vcm_mode&quot;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
         <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;decode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
@@ -450,8 +452,8 @@ document.write(`
             <span class="c1"># some assertion needed to check if d is matched with dec_seq[e]</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-            <span class="c1"># dec_d = {&quot;file_name&quot;: dec_seq[&quot;file_names&quot;][e]}</span>
-            <span class="n">dec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">dec_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;file_names&quot;</span><span class="p">][</span><span class="n">e</span><span class="p">]}</span>
+            <span class="n">dec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">dec_seq</span><span class="p">[</span><span class="s2">&quot;file_names&quot;</span><span class="p">][</span><span class="n">e</span><span class="p">]}</span>
+            <span class="c1"># dec_d = {&quot;file_name&quot;: dec_seq[0][&quot;file_names&quot;][e]}</span>
             <span class="n">pred</span> <span class="o">=</span> <span class="n">vision_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">org_map_func</span><span class="p">(</span><span class="n">dec_d</span><span class="p">))</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">timing</span><span class="p">[</span><span class="s2">&quot;nn_task&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
