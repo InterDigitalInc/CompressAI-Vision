@@ -53,9 +53,15 @@ from compressai_vision.evaluators.evaluators import BaseEvaluator
 DATASETS = ["TVD", "SFU", "OIV6", "HIEVE"]
 
 
-def read_df_rec(path, fn_regex=r"summary.csv"):
+def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv"):
+    summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
+    if nb_operation_points > 0:
+        for sequence in seq_list:
+            assert (
+                len([f for f in summary_csvs if sequence in f]) == nb_operation_points
+            ), f"Did not find {nb_operation_points} results for {sequence}"
     return pd.concat(
-        (pd.read_csv(f) for f in iglob(join(path, "**", fn_regex), recursive=True)),
+        (pd.read_csv(f) for f in summary_csvs),
         ignore_index=True,
     )
 
@@ -140,7 +146,7 @@ def generate_csv_classwise_video_map(
     skip_classwise: bool = False,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = read_df_rec(result_path)
+    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -177,7 +183,7 @@ def generate_csv_classwise_video_map(
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
-        if not skip_classwise:
+        if not skip_classwise and nb_operation_points > 0:
             matched_seq_names = []
             for seq_info in items:
                 name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
@@ -204,7 +210,13 @@ def generate_csv_classwise_video_mota(
     list_of_classwise_seq,
     nb_operation_points: int = 4,
 ):
-    results_df = read_df_rec(result_path)
+    seq_lists = [
+        list(class_seq_dict.values())[0] for class_seq_dict in list_of_classwise_seq
+    ]
+    seq_list = []
+    [seq_list.extend(sequences) for sequences in seq_lists]
+
+    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
@@ -233,21 +245,23 @@ def generate_csv_classwise_video_mota(
             ), "Nothing relevant information found from given directories..."
 
             summary, _ = compute_overall_mota(classwise_name, items)
+
             mota = summary.values[-1][13] * 100.0
             class_wise_motas.append(mota)
 
-        matched_seq_names = []
-        for seq_info in items:
-            name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-            matched_seq_names.append(name)
+        if nb_operation_points > 0:
+            matched_seq_names = []
+            for seq_info in items:
+                name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
+                matched_seq_names.append(name)
 
-        class_wise_results_df = generate_classwise_df(
-            results_df, {classwise_name: matched_seq_names}
-        )
+            class_wise_results_df = generate_classwise_df(
+                results_df, {classwise_name: matched_seq_names}
+            )
 
-        class_wise_results_df["end_accuracy"] = class_wise_motas
+            class_wise_results_df["end_accuracy"] = class_wise_motas
 
-        output_df = df_append(output_df, class_wise_results_df)
+            output_df = df_append(output_df, class_wise_results_df)
 
     # add empty y_psnr column
     output_df.insert(
@@ -257,8 +271,8 @@ def generate_csv_classwise_video_mota(
     return output_df
 
 
-def generate_csv(result_path):
-    result_df = read_df_rec(result_path)
+def generate_csv(result_path, seq_list, nb_operation_points):
+    result_df = read_df_rec(result_path, seq_list, nb_operation_points)
 
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -365,7 +379,7 @@ if __name__ == "__main__":
         classes = [class_ab, class_c, class_d]
         if args.mode == "VCM" and args.include_optional:
             class_o = {
-                "CLASS-O" : [
+                "CLASS-O": [
                     "Kimono",
                     "Cactus",
                 ]
@@ -400,7 +414,7 @@ if __name__ == "__main__":
             metric,
             args.gt_folder,
             args.nb_operation_points,
-            args.mode == "VCM", # skip classwise evaluation
+            args.mode == "VCM",  # skip classwise evaluation
         )
 
         if args.mode == "VCM":
@@ -411,7 +425,9 @@ if __name__ == "__main__":
                 rate_name="bitrate (kbps)",
             )
     elif args.dataset_name == "OIV6":
-        output_df = generate_csv(args.result_path)
+        output_df = generate_csv(
+            args.result_path, ["MPEGOIV6"], args.nb_operation_points
+        )
     elif args.dataset_name == "TVD":
         if args.mode == "FCM":
             tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
@@ -440,7 +456,9 @@ if __name__ == "__main__":
             )
 
             # accuracy in % for MPEG template
-            results_df["end_accuracy"] = results_df["end_accuracy"].apply(lambda x: x * 100)
+            results_df["end_accuracy"] = results_df["end_accuracy"].apply(
+                lambda x: x * 100
+            )
 
             output_df = results_df.copy()
             ## drop columns
@@ -454,8 +472,8 @@ if __name__ == "__main__":
             )
 
     elif args.dataset_name == "HIEVE":
-        hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
-        hieve_720p = {"HIEVE-720P": ["2", "17", "18"]}
+        hieve_1080p = {"HIEVE-1080P": ["mpeg-hieve-13", "mpeg-hieve-16"]}
+        hieve_720p = {"HIEVE-720P": ["mpeg-hieve-2", "mpeg-hieve-17", "mpeg-hieve-18"]}
         output_df = generate_csv_classwise_video_mota(
             args.result_path,
             args.dataset_path,
