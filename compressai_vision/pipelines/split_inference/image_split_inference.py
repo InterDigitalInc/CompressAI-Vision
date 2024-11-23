@@ -119,8 +119,10 @@ class ImageSplitInference(BasePipeline):
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 # datatype conversion
-                # featureT["data"] = {k : v.type(getattr(torch, self.datatype)) for k, v in featureT["data"].items()}
-
+                featureT["data"] = {
+                    k: v.type(getattr(torch, self.datatype))
+                    for k, v in featureT["data"].items()
+                }
                 featureT["org_input_size"] = org_img_size
 
                 start = time_measure()
