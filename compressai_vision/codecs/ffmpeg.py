@@ -285,6 +285,7 @@ class x264(nn.Module):
         file_prefix: str = "",
         org_img_size: Dict = None,
         remote_inference=False,
+        vcm_mode=False,
     ) -> bool:
         """
         Decodes a bitstream into video frames and extract features from the decoded frames.
@@ -297,6 +298,7 @@ class x264(nn.Module):
             Dict: dictionary of output features.
         """
         assert not remote_inference  # TODO (fracape) remote inference not supported yet
+        assert not vcm_mode  # TODO To be developed upon supporting remote inference.
         bitstream_path = Path(bitstream_path)
         assert bitstream_path.is_file()
 

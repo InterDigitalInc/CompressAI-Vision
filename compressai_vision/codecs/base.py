@@ -141,6 +141,7 @@ class Bypass(nn.Module):
         file_prefix: str = "",
         org_img_size: Dict = None,
         remote_inference=False,
+        vcm_mode=False,
     ):
         del org_img_size
         del file_prefix  # used in other codecs that write log files
