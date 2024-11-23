@@ -196,7 +196,7 @@ class FpnUtils:
 
         # find the largest tensor
         x_sorted = sorted(
-            x.values(), key=lambda item: math.prod(item[1].size()), reverse=True
+            x.values(), key=lambda item: math.prod(item[0].size()), reverse=True
         )
 
         nbframes, C, H, W = x_sorted[0].size()

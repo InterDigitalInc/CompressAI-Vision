@@ -10,7 +10,11 @@ bitstream_name: "${dataset.config.dataset_name}_qp${codec.tools.inner_codec.enc_
 verbosity: 0
 
 coding_behaviour: "all"
-device: "cpu"
+device:
+  all: "cpu"
+  enc: ${codec.device.all}
+  dec: ${codec.device.all}
+
 mac_computation: False # multipy-accumulate computation
 
 enc_configs:
@@ -18,8 +22,6 @@ enc_configs:
   frame_rate: 30
   intra_period: 1
   n_bit: 10
-  cfg_file: "use/local/path/of/vtm-23.3/cfg/encoder_intra_vtm.cfg"
-  default_cfg_file: "optional/use/local/path/for/JM-19.1/cfgs/encoder.cfg"
   parallel_encoding: False # std inner codec parallel option
   hash_check: 0 # md5 hash check
 
@@ -38,20 +40,22 @@ tools:
     on_restored_ftensor:
       enabled: True
       period: ${codec.enc_configs.intra_period}
-    on_fused_ftensor:
+    on_reduced_ftensor:
       enabled: True
       period: ${codec.enc_configs.intra_period}
 
   conversion:
     type: 'tensor_packing' # or 'bypass'
     n_bit: ${codec.enc_configs.n_bit}
-    packing:
-      symmetric_feature_channel_flipping: False
 
   inner_codec:
     type: 'vtm'
     stash_outputs: True
     enc_configs: ${codec.enc_configs}
-    enc_exe: "use/local/path/of/vtm-23.3/bin/EncoderAppStatic"
-    dec_exe: "use/local/path/of/vtm-23.3/bin/DecoderAppStatic"
-    merge_exe: "use/local/path/of/vtm-23.3/bin/parcatStatic"
+    codec_paths:
+      _root: "/path/to/vtm" # of HM, JM...
+      enc_exe: "${._root}/bin/EncoderAppStatic" # or TappEncoderStatic, lencod...
+      dec_exe: "${._root}/bin/DecoderAppStatic" # or TappDecoderStatic, ldecod...
+      merge_exe: "${._root}/bin/parcatStatic"
+      cfg_file: "${._root}/cfg/encoder_intra_vtm.cfg"
+      default_cfg_file: "${._root}/cfg/encoder.cfg"
