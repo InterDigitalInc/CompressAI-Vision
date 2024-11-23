@@ -81,6 +81,7 @@ class BasePipeline(nn.Module):
         self._create_folder(self.codec_output_dir)
         self.init_time_measure()
         self.init_complexity_measure()
+        self.eval()
 
     def init_time_measure(self):
         self.elapsed_time = {"nn_part_1": 0, "encode": 0, "decode": 0, "nn_part_2": 0}

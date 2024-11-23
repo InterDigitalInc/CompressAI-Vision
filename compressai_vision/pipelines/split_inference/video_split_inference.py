@@ -177,9 +177,13 @@ class VideoSplitInference(BasePipeline):
             features["data"] = self._feature_tensor_list_to_dict(
                 self._input_ftensor_buffer
             )
-            # datatype conversion
-            features["data"] = {k : v.type(getattr(torch, self.datatype)) for k, v in features["data"]}
             self._input_ftensor_buffer = []
+
+            # datatype conversion
+            features["data"] = {
+                k: v.type(getattr(torch, self.datatype))
+                for k, v in features["data"].items()
+            }
 
             # Feature Compression
             start = time_measure()
@@ -250,9 +254,13 @@ class VideoSplitInference(BasePipeline):
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
-        assert all([self.datatype in str(d.dtype) for d in dec_ftensors_list[0].values()]), "Output features not of expected datatype"
+        assert all(
+            [self.datatype in str(d.dtype) for d in dec_ftensors_list[0].values()]
+        ), "Output features not of expected datatype"
 
-        dec_ftensors_list = [{k : v.type(torch.float32) for k, v in d.items()} for d in dec_ftensors_list]
+        dec_ftensors_list = [
+            {k: v.type(torch.float32) for k, v in d.items()} for d in dec_ftensors_list
+        ]
 
         assert len(dec_ftensors_list) == len(dataloader), (
             f"The number of decoded frames ({len(dec_ftensors_list)}) is not equal "

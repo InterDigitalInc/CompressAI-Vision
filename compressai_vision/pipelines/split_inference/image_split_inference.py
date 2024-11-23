@@ -30,6 +30,7 @@
 import os
 from typing import Dict
 
+import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -70,6 +71,7 @@ class ImageSplitInference(BasePipeline):
         device: Dict,
     ):
         super().__init__(configs, device)
+        self.datatype = configs["datatype"]
 
     def __call__(
         self,
@@ -115,6 +117,9 @@ class ImageSplitInference(BasePipeline):
                 start = time_measure()
                 featureT = self._from_input_to_features(vision_model, d, file_prefix)
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
+
+                # datatype conversion
+                # featureT["data"] = {k : v.type(getattr(torch, self.datatype)) for k, v in featureT["data"].items()}
 
                 featureT["org_input_size"] = org_img_size
 
