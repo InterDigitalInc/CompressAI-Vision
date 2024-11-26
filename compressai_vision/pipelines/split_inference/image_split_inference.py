@@ -222,6 +222,19 @@ class ImageSplitInference(BasePipeline):
             out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
 
+        if not self.configs["codec"]["decode_only"]:
+            accum_enc_by_module = {
+                key: accum_enc_by_module[key]
+                for key in ["feature_reduction", "conversion", "inner_codec"]
+                if key in accum_enc_by_module
+            }
+        if not self.configs["codec"]["encode_only"]:
+            accum_dec_by_module = {
+                key: accum_dec_by_module[key]
+                for key in ["inner_codec", "conversion", "feature_restoration"]
+                if key in accum_dec_by_module
+            }
+
         # if dec_only is True, accum_enc_by_module is None
         self.add_time_details("encode", accum_enc_by_module)
         # if enc_only is True, accum_dec_by_module is None
