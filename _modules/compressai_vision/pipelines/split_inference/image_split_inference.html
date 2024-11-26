@@ -496,6 +496,19 @@ document.write(`
             <span class="n">out_res</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_res</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;decode_only&quot;</span><span class="p">]:</span>
+            <span class="n">accum_enc_by_module</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="n">accum_enc_by_module</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;feature_reduction&quot;</span><span class="p">,</span> <span class="s2">&quot;conversion&quot;</span><span class="p">,</span> <span class="s2">&quot;inner_codec&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">accum_enc_by_module</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;codec&quot;</span><span class="p">][</span><span class="s2">&quot;encode_only&quot;</span><span class="p">]:</span>
+            <span class="n">accum_dec_by_module</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="n">accum_dec_by_module</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;inner_codec&quot;</span><span class="p">,</span> <span class="s2">&quot;conversion&quot;</span><span class="p">,</span> <span class="s2">&quot;feature_restoration&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">accum_dec_by_module</span>
+            <span class="p">}</span>
+
         <span class="c1"># if dec_only is True, accum_enc_by_module is None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_time_details</span><span class="p">(</span><span class="s2">&quot;encode&quot;</span><span class="p">,</span> <span class="n">accum_enc_by_module</span><span class="p">)</span>
         <span class="c1"># if enc_only is True, accum_dec_by_module is None</span>
