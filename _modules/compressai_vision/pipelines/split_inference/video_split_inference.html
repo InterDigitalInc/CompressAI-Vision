@@ -353,6 +353,7 @@ document.write(`
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datatype</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="s2">&quot;datatype&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="VideoSplitInference.build_input_lists"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/split_inference.html#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists">[docs]</a>    <span class="k">def</span> <span class="nf">build_input_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
         <span class="n">gt_inputs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -452,6 +453,12 @@ document.write(`
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_input_ftensor_buffer</span> <span class="o">=</span> <span class="p">[]</span>
 
+            <span class="c1"># datatype conversion</span>
+            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">datatype</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+
             <span class="c1"># Feature Compression</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
             <span class="n">res</span><span class="p">,</span> <span class="n">enc_time_by_module</span><span class="p">,</span> <span class="n">enc_complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span>
@@ -521,6 +528,13 @@ document.write(`
 
         <span class="c1"># separate a tensor of each keyword item into a list of tensors</span>
         <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_tensor_dict_to_list</span><span class="p">(</span><span class="n">dec_features</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">datatype</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dec_ftensors_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="p">),</span> <span class="s2">&quot;Output features not of expected datatype&quot;</span>
+
+        <span class="n">dec_ftensors_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dec_ftensors_list</span>
+        <span class="p">]</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="p">),</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;The number of decoded frames (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dec_ftensors_list</span><span class="p">)</span><span class="si">}</span><span class="s2">) is not equal &quot;</span>
