@@ -38,6 +38,7 @@ from glob import iglob
 from os.path import join
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
@@ -55,11 +56,17 @@ DATASETS = ["TVD", "SFU", "OIV6", "HIEVE"]
 
 def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv"):
     summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
+
     if nb_operation_points > 0:
-        for sequence in seq_list:
+        seq_names = [
+            file_path.split(path)[1].split("/")[0] for file_path in summary_csvs
+        ]
+        unique_seq_names = list(np.unique(seq_names))
+        for sequence in unique_seq_names:
             assert (
                 len([f for f in summary_csvs if sequence in f]) == nb_operation_points
             ), f"Did not find {nb_operation_points} results for {sequence}"
+
     return pd.concat(
         (pd.read_csv(f) for f in summary_csvs),
         ignore_index=True,
@@ -350,6 +357,8 @@ if __name__ == "__main__":
         and args.dataset_name.lower() in Path(args.result_path).name.lower()
     ), "Please check correspondance between input dataset name and result directory"
 
+    norm_result_path = os.path.normpath(args.result_path) + "/"
+
     if args.dataset_name == "SFU":
         metric = args.metric
         class_ab = {
@@ -407,7 +416,7 @@ if __name__ == "__main__":
             seq_list.remove("Cactus_1920x1080_50")
 
         output_df = generate_csv_classwise_video_map(
-            args.result_path,
+            norm_result_path,
             args.dataset_path,
             classes,
             seq_list,
@@ -426,13 +435,13 @@ if __name__ == "__main__":
             )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(
-            args.result_path, ["MPEGOIV6"], args.nb_operation_points
+            norm_result_path, ["MPEGOIV6"], args.nb_operation_points
         )
     elif args.dataset_name == "TVD":
         if args.mode == "FCM":
             tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
             output_df = generate_csv_classwise_video_mota(
-                args.result_path,
+                norm_result_path,
                 args.dataset_path,
                 [tvd_all],
                 args.nb_operation_points,
@@ -450,7 +459,7 @@ if __name__ == "__main__":
                 ]
             }
 
-            results_df = read_df_rec(args.result_path)
+            results_df = read_df_rec(norm_result_path)
             results_df = results_df.sort_values(
                 by=["Dataset", "qp"], ascending=[True, True]
             )
@@ -475,7 +484,7 @@ if __name__ == "__main__":
         hieve_1080p = {"HIEVE-1080P": ["mpeg-hieve-13", "mpeg-hieve-16"]}
         hieve_720p = {"HIEVE-720P": ["mpeg-hieve-2", "mpeg-hieve-17", "mpeg-hieve-18"]}
         output_df = generate_csv_classwise_video_mota(
-            args.result_path,
+            norm_result_path,
             args.dataset_path,
             [hieve_1080p, hieve_720p],
             args.nb_operation_points,
@@ -498,7 +507,7 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     # save
-    final_csv_path = os.path.join(args.result_path, f"final_{args.dataset_name}.csv")
+    final_csv_path = os.path.join(norm_result_path, f"final_{args.dataset_name}.csv")
     output_df.to_csv(final_csv_path, sep=",", encoding="utf-8")
     print(output_df)
     print(f"Final CSV Saved at: {final_csv_path}")
