@@ -53,6 +53,21 @@ else:
                 kwargs["mac_computation"],
             )
 
+            tools = kwargs["tools"]
+            if (
+                tools["feature_reduction"]["type"] == "bypass"
+                and tools["conversion"]["type"] == "bypass"
+                and tools["inner_codec"]["type"] == "bypass"
+            ):
+                print(
+                    "[!WARNING] => Configuration tells no split inference.\n",
+                    "If non-split performance evaluation is needed, \n",
+                    "please refer to 'default_vision_performances.sh' \n",
+                    "under the compressai_vision/scripts/evaluation folder.\n",
+                )
+
+                raise SystemExit()
+
             self.qp = kwargs["enc_configs"]["qp"]
             self.eval_encode = kwargs["eval_encode"]
 
