@@ -40,6 +40,11 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
+from compressai_vision.codecs.utils import (
+    MIN_MAX_DATASET,
+    min_max_inv_normalization,
+    min_max_normalization,
+)
 from compressai_vision.model_wrappers import BaseWrapper
 
 
@@ -193,8 +198,59 @@ class BasePipeline(nn.Module):
             self._codec_skip_n_frames + self._codec_n_frames_to_be_encoded
         )
 
+    @staticmethod
+    def _prep_features_to_dump(features, n_bits, datacatalog_name):
+        output_features = features.copy()
+        assert "data" in output_features
+        del output_features["data"]
+
+        if n_bits == -1:
+            data_features = features["data"]
+        elif n_bits >= 8:
+            assert n_bits == 8, "currently it only supports dumping features in 8 bits"
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
+            ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
+            minv, maxv = MIN_MAX_DATASET[datacatalog_name]
+            data_features = {}
+            for key, data in features["data"].items():
+                assert (
+                    data.min() > minv and data.max() < maxv
+                ), f"{data.min()} should be greater than {minv} and {data.max()} should be less than {maxv}"
+                out, _ = min_max_normalization(data, minv, maxv, bitdepth=n_bits)
+                data_features[key] = out.to(torch.uint8)
+        else:
+            raise NotImplementedError
+
+        output_features["data"] = data_features
+        return output_features
+
+    @staticmethod
+    def _post_process_loaded_features(features, n_bits, datacatalog_name):
+        if n_bits == -1:
+            assert "data" in features
+        elif n_bits >= 8:
+            assert n_bits == 8, "currently it only supports dumping features in 8 bits"
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
+            ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
+            minv, maxv = MIN_MAX_DATASET[datacatalog_name]
+            data_features = {}
+            for key, data in features["data"].items():
+                out = min_max_inv_normalization(data, minv, maxv, bitdepth=n_bits)
+                data_features[key] = out.to(torch.float32)
+        else:
+            raise NotImplementedError
+
+        features["data"] = data_features
+        return features
+
     def _from_input_to_features(
-        self, vision_model: BaseWrapper, x: Dict, seq_name: str = None
+        self,
+        vision_model: BaseWrapper,
+        x: Dict,
+        seq_name: str = None,
+        datacatalog_name=None,
     ):
         # run NN Part 1 or load pre-computed features
         feature_dir = self.configs["nn_task_part1"].feature_dir
@@ -209,6 +265,11 @@ class BasePipeline(nn.Module):
                 self.logger.debug(f"loading features: {features_file}")
                 # features = torch.load(features_file)
                 features = torch.load(features_file, map_location=self.device_nn_part1)
+                features = self._post_process_loaded_features(
+                    features,
+                    self.configs["nn_task_part1"].load_features_n_bits,
+                    datacatalog_name,
+                )
             else:
                 if self.configs["nn_task_part1"].load_features:
                     raise FileNotFoundError(
@@ -219,13 +280,23 @@ class BasePipeline(nn.Module):
                     if self.configs["nn_task_part1"].dump_features:
                         self._create_folder(feature_dir)
                         self.logger.debug(f"dumping features in: {feature_dir}")
-                        torch.save(features, features_file)
+                        features_to_dump = self._prep_features_to_dump(
+                            features,
+                            self.configs["nn_task_part1"].dump_features_n_bits,
+                            datacatalog_name,
+                        )
+                        torch.save(features_to_dump, features_file)
         else:
             features = vision_model.input_to_features(x, self.device_nn_part1)
             if self.configs["nn_task_part1"].dump_features:
                 self._create_folder(feature_dir)
                 self.logger.debug(f"dumping features in: {feature_dir}")
-                torch.save(features, features_file)
+                features_to_dump = self._prep_features_to_dump(
+                    features,
+                    self.configs["nn_task_part1"].dump_features_n_bits,
+                    datacatalog_name,
+                )
+                torch.save(features_to_dump, features_file)
 
         return features
 

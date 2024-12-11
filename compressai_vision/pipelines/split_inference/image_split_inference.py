@@ -115,7 +115,9 @@ class ImageSplitInference(BasePipeline):
                     self.acc_kmac_and_pixels_info("nn_part_1", macs, pixels)
 
                 start = time_measure()
-                featureT = self._from_input_to_features(vision_model, d, file_prefix)
+                featureT = self._from_input_to_features(
+                    vision_model, d, file_prefix, evaluator.datacatalog_name
+                )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 # datatype conversion

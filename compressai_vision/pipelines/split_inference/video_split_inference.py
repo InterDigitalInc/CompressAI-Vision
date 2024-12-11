@@ -139,7 +139,9 @@ class VideoSplitInference(BasePipeline):
                     self.add_kmac_and_pixels_info("nn_part_1", kmacs, pixels)
 
                 start = time_measure()
-                res = self._from_input_to_features(vision_model, d, output_file_prefix)
+                res = self._from_input_to_features(
+                    vision_model, d, output_file_prefix, evaluator.datacatalog_name
+                )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 self._input_ftensor_buffer.append(

@@ -36,10 +36,14 @@ import torch.nn.functional as F
 from torch import Tensor
 
 MIN_MAX_DATASET = {
+    # "mpeg-oiv6-detection": (
+    #    -26.426828384399414,
+    #    28.397470474243164,
+    # ),
     "mpeg-oiv6-detection": (
-        -26.426828384399414,
+        20.246625900268555,
         28.397470474243164,
-    ),  # According to the anchor scripts -> global_max = 20.246625900268555, global_min = -23.09193229675293
+    ),  # According to the anchor scripts
     "mpeg-oiv6-segmentation": (-26.426828384399414, 28.397470474243164),
     "MPEGTVDTRACKING": (-4.722218990325928, 48.58344268798828),
     "MPEGHIEVE": (-1.0795, 11.8232),

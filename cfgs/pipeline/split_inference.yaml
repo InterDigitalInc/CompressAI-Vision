@@ -18,8 +18,10 @@ datatype: float32 # or float16 or bfloat16
 
 nn_task_part1:
     load_features: False
+    load_features_n_bits: -1
     load_features_when_available: False
     dump_features: False
+    dump_features_n_bits: -1
     generate_features_only: False
     feature_dir: "${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}"
 codec:
