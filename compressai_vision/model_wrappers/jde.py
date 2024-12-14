@@ -126,6 +126,12 @@ class jde_1088x608(BaseWrapper):
         self.darknet = self.darknet.to(device).eval()
         self.darknet.device = device  # Please refer to Darknet
 
+        for module_def, module in zip(
+            self.darknet.module_defs[::-1], self.darknet.module_list[::-1]
+        ):
+            if module_def["type"] == "yolo":
+                module[0].device = device
+
         return self._feature_pyramid_to_output(
             x["data"], x["org_input_size"], x["input_size"]
         )
