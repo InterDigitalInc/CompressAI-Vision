@@ -215,7 +215,7 @@ class BasePipeline(nn.Module):
             data_features = {}
             for key, data in features["data"].items():
                 assert (
-                    data.min() > minv and data.max() < maxv
+                    data.min() >= minv and data.max() <= maxv
                 ), f"{data.min()} should be greater than {minv} and {data.max()} should be less than {maxv}"
                 out, _ = min_max_normalization(data, minv, maxv, bitdepth=n_bits)
                 data_features[key] = out.to(torch.uint8)
