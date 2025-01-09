@@ -35,8 +35,105 @@ import cv2
 import numpy as np
 import torch
 from jde.utils.datasets import letterbox
+from torchvision import transforms
 
-__all__ = ["JDECustomMapper", "LinearMapper"]
+__all__ = ["YOLOXCustomMapper", "JDECustomMapper", "LinearMapper"]
+
+
+def yolox_style_scaling(img, input_size, padding=False):
+    r = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
+
+    resized_img = cv2.resize(
+        img,
+        (int(img.shape[1] * r), int(img.shape[0] * r)),
+        interpolation=cv2.INTER_LINEAR,
+    ).astype(np.uint8)
+
+    if padding:
+        padded_img = np.ones((input_size[0], input_size[1], 3), dtype=np.uint8) * 114
+        padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+
+        return padded_img
+
+    return resized_img
+
+
+class YOLOXCustomMapper:
+    """
+    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for YOLOX evaluation,
+    and map it into a format used by the model.
+
+    This is the default callable to be used to map your dataset dict into inference data.
+
+    This callable function refers to
+        preproc function at
+        <https://github.com/Megvii-BaseDetection/YOLOX/yolox/data/data_augment.py>
+
+        Full license statement can be found at
+        <https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme>
+
+    """
+
+    def __init__(self, img_size=[640, 640], aug_transforms=None):
+        """
+        Args:
+            img_size: expected input size (Height, Width)
+        """
+
+        self.input_img_size = img_size
+
+        if aug_transforms != None:
+            self.aug_transforms = aug_transforms
+        else:
+            self.aug_transforms = transforms.Compose([transforms.ToTensor()])
+
+    def __call__(self, dataset_dict):
+        """
+        Args:
+            dataset_dict (dict): Metadata of one image.
+
+        Returns:
+            dict: a format that compressai-vision pipelines accept
+        """
+
+        dataset_dict = copy.deepcopy(dataset_dict)
+        # the copied dictionary will be modified by code below
+
+        dataset_dict.pop("annotations", None)
+
+        # replicate the implemetation of the original codes
+        # Read image
+        org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
+
+        assert (
+            len(org_img.shape) == 3
+        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+
+        dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
+
+        # yolox style input scaling
+        # 1st scaling
+        resized_img = yolox_style_scaling(org_img, self.input_img_size)
+        # 2nd scaling & padding
+        resized_img = yolox_style_scaling(
+            resized_img, self.input_img_size, padding=True
+        )
+
+        tensor_image = self.aug_transforms(
+            np.ascontiguousarray(resized_img, dtype=np.float32)
+        )
+
+        # old way
+        # kept BGR & swap axis
+        # image = resized_img.transpose(2, 0, 1)
+        # normalize contiguous array of image
+        # image = np.ascontiguousarray(image, dtype=np.float32)
+        # to tensor
+        # tensor_image = torch.as_tensor(image)
+
+        dataset_dict["image"] = tensor_image
+
+        return dataset_dict
 
 
 class JDECustomMapper:

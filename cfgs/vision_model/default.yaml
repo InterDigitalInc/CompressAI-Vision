@@ -38,3 +38,12 @@ jde_1088x608:
   frame_rate: 30 # It is odd to consider this at here but following original code.
   splits : [36, 61, 74] # MPEG FCM TEST with JDE on TVD
   #splits : [105, 90, 75] # MPEG FCM TEST with JDE on HiEve
+
+yolox_darknet53:
+  model_path_prefix: ${..model_root_path}
+  cfg: "Built-in configurations"
+  num_classes: 80
+  conf_thres: 0.001
+  nms_thres: 0.65
+  weights: "weights/yolox/darknet53/yolox_darknet.pth"
+  splits: "l13"

@@ -47,7 +47,7 @@ from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
 
-from .utils import JDECustomMapper, LinearMapper
+from .utils import JDECustomMapper, LinearMapper, YOLOXCustomMapper
 
 
 def manual_load_data(path, ext):
@@ -284,6 +284,48 @@ class TrackingDataset(BaseDataset):
 
         self.mapDataset = MapDataset(_dataset, mapper)
         self._org_mapper_func = PicklableWrapper(JDECustomMapper(kwargs["patch_size"]))
+
+    def get_org_mapper_func(self):
+        return self._org_mapper_func
+
+    def __getitem__(self, idx):
+        return self.mapDataset[idx]
+
+    def __len__(self):
+        return len(self.mapDataset)
+
+
+@register_dataset("YOLOXDataset")
+class YOLOXDataset(BaseDataset):
+    def __init__(self, root, dataset_name, imgs_folder, **kwargs):
+        super().__init__(root, dataset_name, imgs_folder, **kwargs)
+
+        self.dataset = kwargs["dataset"].dataset
+
+        self.sampler = InferenceSampler(len(kwargs["dataset"]))
+        self.collate_fn = bypass_collator
+
+        _dataset = DatasetFromList(self.dataset, copy=False)
+
+        if kwargs["linear_mapper"] is True:
+            mapper = LinearMapper()
+        else:
+            mapper = YOLOXCustomMapper(kwargs["patch_size"])
+
+        self.input_size = kwargs["patch_size"]
+        self.mapDataset = MapDataset(_dataset, mapper)
+        self._org_mapper_func = PicklableWrapper(
+            YOLOXCustomMapper(kwargs["patch_size"])
+        )
+
+        metaData = MetadataCatalog.get(dataset_name)
+        try:
+            self.thing_classes = metaData.thing_classes
+            self.thing_dataset_id_to_contiguous_id = (
+                metaData.thing_dataset_id_to_contiguous_id
+            )
+        except AttributeError:
+            self.logger.warning("No attribute: thing_classes")
 
     def get_org_mapper_func(self):
         return self._org_mapper_func

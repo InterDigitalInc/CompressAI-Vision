@@ -339,8 +339,7 @@ def _summerize_performance(evaluator_name, performance, eval_criteria):
             eval_criteria = def_criteria
             value = [v for k, v in performance.items() if k.endswith(eval_criteria)]
         return value, eval_criteria
-
-    if evaluator_name == "COCOEVal":
+    elif evaluator_name == "COCOEVal":
         def_criteria = "AP"
         if not eval_criteria:
             eval_criteria = def_criteria
@@ -352,8 +351,7 @@ def _summerize_performance(evaluator_name, performance, eval_criteria):
             eval_criteria = def_criteria
             value = [v for k, v in performance["bbox"].items() if k == eval_criteria]
         return value, eval_criteria
-
-    if evaluator_name == "MOT_TVD_Eval" or evaluator_name == "MOT_HiEve_Eval":
+    elif evaluator_name == "MOT_TVD_Eval" or evaluator_name == "MOT_HiEve_Eval":
         def_criteria = "mota"
         if not eval_criteria:
             eval_criteria = def_criteria
@@ -365,6 +363,22 @@ def _summerize_performance(evaluator_name, performance, eval_criteria):
             eval_criteria = def_criteria
             value = [v for k, v in performance.items() if k == eval_criteria]
         return value, eval_criteria
+
+    elif evaluator_name == "YOLOXCOCOEval":
+        def_criteria = "AP"
+        if not eval_criteria:
+            eval_criteria = def_criteria
+        value = [v for k, v in performance.items() if k == eval_criteria]
+        if not value:
+            print(
+                f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"
+            )
+            eval_criteria = def_criteria
+            value = [v for k, v in performance.items() if k == eval_criteria]
+        return value, eval_criteria
+    else:
+        raise NotImplementedError
+
     return performance, eval_criteria
 
 

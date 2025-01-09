@@ -29,6 +29,7 @@
 
 import json
 import math
+from collections import defaultdict
 from pathlib import Path
 
 import motmetrics as mm
@@ -37,8 +38,11 @@ import pandas as pd
 import torch
 from detectron2.evaluation import COCOEvaluator
 from jde.utils.io import unzip_objs
+from pycocotools.coco import COCO
 from pytorch_msssim import ms_ssim
 from tqdm import tqdm
+from yolox.data.datasets.coco import remove_useless_info
+from yolox.evaluators import COCOEvaluator as YOLOX_COCOEvaluator
 
 from compressai_vision.datasets import deccode_compressed_rle
 from compressai_vision.registry import register_evaluator
@@ -627,19 +631,75 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
         return self.digest_summary(summary)
 
 
-@register_evaluator("YOLO-EVAL")
-class YOLOEval(BaseEvaluator):
+@register_evaluator("YOLOX-COCO-EVAL")
+class YOLOXCOCOEval(BaseEvaluator):
     def __init__(
         self,
         datacatalog_name,
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="AP50",
+        criteria="AP",
     ):
         super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
 
         self.set_annotation_info(dataset)
+
+        cocoapi = COCO(self.annotation_path)
+        remove_useless_info(cocoapi)
+        class_ids = sorted(cocoapi.getCatIds())
+        cats = cocoapi.loadCats(cocoapi.getCatIds())
+
+        class dummy_dataloader:
+            def __init__(self):
+                class dummy_dataset:
+                    def __init__(self):
+                        self.coco = cocoapi
+                        self.class_ids = class_ids
+                        self.cats = cats
+
+                self.dataset = dummy_dataset()
+                self.batch_size = 1
+
+        dataloader = dummy_dataloader()
+        self._evaluator = YOLOX_COCOEvaluator(
+            dataloader, dataset.input_size, -1, -1, -1
+        )
+        self.reset()
+
+    def reset(self):
+        self.data_list = []
+        self.output_data = defaultdict()
+
+    def digest(self, gt, pred):
+        assert len(gt) == 1
+
+        img_heights = [gt[0]["height"]]
+        img_widths = [gt[0]["width"]]
+        img_ids = [gt[0]["image_id"]]
+
+        data_list_elem, image_wise_data = self._evaluator.convert_to_coco_format(
+            pred, [img_heights, img_widths], img_ids, return_outputs=True
+        )
+        self.data_list.extend(data_list_elem)
+        self.output_data.update(image_wise_data)
+
+    def results(self, save_path: str = None):
+        dummy_statistics = torch.FloatTensor([0, 0, len(self.output_data)])
+        eval_results = self._evaluator.evaluate_prediction(
+            self.data_list, dummy_statistics
+        )
+
+        if save_path:
+            self.write_results(eval_results, save_path)
+
+        self.write_results(eval_results)
+
+        *listed_items, summary = eval_results
+
+        self._logger.info("\n" + summary)
+
+        return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}
 
 
 @register_evaluator("VISUAL-QUALITY-EVAL")

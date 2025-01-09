@@ -35,14 +35,14 @@ from .evaluators import (
     MOT_TVD_Eval,
     OpenImagesChallengeEval,
     VisualQualityEval,
-    YOLOEval,
+    YOLOXCOCOEval,
 )
 
 __all__ = [
     "BaseEvaluator",
     "COCOEVal",
     "OpenImagesChallengeEval",
-    "YOLOEval",
+    "YOLOXCOCOEval",
     "MOT_JDE_Eval",
     "MOT_HiEve_Eval",
     "MOT_TVD_Eval",

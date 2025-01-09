@@ -27,7 +27,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (detectron2/jde/none/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -218,6 +218,39 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     #     echo "JDE Weights directory not empty, using existing model"
     #     echo
     # fi
+fi
+
+if [ ${MODEL} == "YOLOX" ] || [ ${MODEL} == "all" ]; then
+    echo
+    echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
+    echo
+
+    # clone
+    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/yolox)" ]; then
+        git clone https://github.com/Megvii-BaseDetection/YOLOX.git ${MODELS_SOURCE_DIR}/yolox
+        # fixed to a specific commit on Nov.19, 2024 for the compatibility in the future.
+        git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
+    fi
+    cd ${MODELS_SOURCE_DIR}/yolox
+    # miminum requirments - no onnyx, etc.
+    cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
+
+    pip3 install -e .
+
+    if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
+        echo
+        echo "Downloading model weights"
+        echo
+    
+        # YOLOX-Darkent53
+        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/yolox/darknet53"
+        mkdir -p ${WEIGHT_DIR}
+        wget -nc https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth -P ${WEIGHT_DIR}
+    else
+        echo
+        echo "YOLOX Weights directory not empty, using existing models"
+        echo
+    fi
 fi
 
 echo

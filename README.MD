@@ -20,6 +20,8 @@ It currently focuses on two types of pipeline:
 
 - [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT) is used for Object Tracking
 
+- [YOLOX-Darknet53](https://github.com/Megvii-BaseDetection/YOLOX) is used for object detection
+
 ## Documentation
 
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
@@ -136,3 +138,4 @@ Fabien Racapé, Hyomin Choi, Eimran Eimon, Sampsa Riikonen, Jacky Yat-Hong Lam
  * [VVC VTM reference software](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
  * [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html)
  * [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT.git)
+ * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
