@@ -87,7 +87,11 @@ class VideoSplitInference(BasePipeline):
         for _, d in enumerate(dataloader):
             gt_inputs.append(
                 [
-                    {"image_id": d[0]["image_id"]},
+                    {
+                        "image_id": d[0]["image_id"],
+                        "height": d[0]["height"],
+                        "width": d[0]["width"],
+                    },
                 ]
             )
             file_names.append(d[0]["file_name"])
