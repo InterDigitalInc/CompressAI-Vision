@@ -69,7 +69,7 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 pip3 install -U pip wheel
 
 ## Detectron2
-if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
+if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
     echo
     echo "Installing detectron2"
@@ -143,7 +143,7 @@ if [ ${MODEL} == "detectron2" ] || [ ${MODEL} == "all" ]; then
     fi
 fi
 
-if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
+if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
 
     echo
     echo "Installing JDE"
@@ -220,7 +220,7 @@ if [ ${MODEL} == "JDE" ] || [ ${MODEL} == "all" ]; then
     # fi
 fi
 
-if [ ${MODEL} == "YOLOX" ] || [ ${MODEL} == "all" ]; then
+if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
     echo
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
@@ -228,11 +228,15 @@ if [ ${MODEL} == "YOLOX" ] || [ ${MODEL} == "all" ]; then
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/yolox)" ]; then
         git clone https://github.com/Megvii-BaseDetection/YOLOX.git ${MODELS_SOURCE_DIR}/yolox
-        # fixed to a specific commit on Nov.19, 2024 for the compatibility in the future.
+        
+        # checkout specific commit on Nov.19, 2024 for now to avoid compatibility in the future.
+        cd ${MODELS_SOURCE_DIR}/yolox
         git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
+        cd ${SCRIPT_DIR}/..
     fi
+
     cd ${MODELS_SOURCE_DIR}/yolox
-    # miminum requirments - no onnyx, etc.
+    # miminum requirments - no onnx, etc.
     cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
     pip3 install -e .
