@@ -10,6 +10,7 @@ MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 MODELS_ROOT_DIR="${SCRIPT_DIR}/.."
+DOWNLOAD_WEIGHTS="True"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
 export DNNL_MAX_CPU_ISA=AVX2
@@ -37,6 +38,7 @@ RUN OPTIONS:
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--models_dir directory to install vision models to, default: compressai_vision_root]
+                [--no-weights) prevents the installation script from downloading vision model parameters]
 
 
 EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
@@ -55,6 +57,7 @@ _EOF_
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
         --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
         --models_dir) shift; MODELS_ROOT_DIR="$1"; shift; ;;
+        --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
@@ -110,36 +113,37 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
     # back to project root
     cd ${SCRIPT_DIR}/..
 
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]
+        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/detectron2)" ]; then
+            echo
+            echo "Downloading model weights"
+            echo
 
-    if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/detectron2)" ]; then
-        echo
-        echo "Downloading model weights"
-        echo
-    
-        # FASTER R-CNN X-101 32x8d FPN
-        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
-        mkdir -p ${WEIGHT_DIR}
-        wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl -P ${WEIGHT_DIR}
+            # FASTER R-CNN X-101 32x8d FPN
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl -P ${WEIGHT_DIR}
 
-        # FASTER R-CNN R-50 FPN
-        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
-        mkdir -p ${WEIGHT_DIR}
-        wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl -P ${WEIGHT_DIR}
+            # FASTER R-CNN R-50 FPN
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl -P ${WEIGHT_DIR}
 
-        # MASK R-CNN X-101 32x8d FPN
-        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
-        mkdir -p ${WEIGHT_DIR}
-        wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl -P ${WEIGHT_DIR}
+            # MASK R-CNN X-101 32x8d FPN
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl -P ${WEIGHT_DIR}
 
-        # MASK R-CNN R-50 FPN
-        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
-        mkdir -p ${WEIGHT_DIR}
-        wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
+            # MASK R-CNN R-50 FPN
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
 
-    else
-        echo
-        echo "Detectron2 Weights directory not empty, using existing models"
-        echo
+        else
+            echo
+            echo "Detectron2 Weights directory not empty, using existing models"
+            echo
+        fi
     fi
 fi
 
@@ -200,8 +204,9 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
     cd ${SCRIPT_DIR}/..
 
     # download weights
-    # NOTE commmented out for now as downloading via wget is blocked by provider
-    # if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
+    #   NOTE commmented out for now as downloading via wget is blocked by provider
+    #   if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
 
     #     echo
     #     echo "Downloading weights..."
@@ -213,11 +218,21 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
     #     FILEID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
     #     OUTFILE='jde.1088x608.uncertainty.pt'
     #     wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt
-    # else
+    #   else
     #     echo
     #     echo "JDE Weights directory not empty, using existing model"
     #     echo
-    # fi
+    #   fi
+    #
+
+        echo
+        echo "NOTE: JDE pretrained weights can't be downloaded automatically"
+        echo "The file can be downloaded from the following link:"
+        echo "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
+        echo "and placed in the corresponding directory: ${MODELS_WEIGHT_DIR}/jde/jde.1088x608.uncertainty.pt"
+        echo
+    fi
+
 fi
 
 if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
@@ -240,20 +255,21 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
     cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
     pip3 install -e .
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
+        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
+            echo
+            echo "Downloading model weights"
+            echo
 
-    if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
-        echo
-        echo "Downloading model weights"
-        echo
-    
-        # YOLOX-Darkent53
-        WEIGHT_DIR="${MODELS_WEIGHT_DIR}/yolox/darknet53"
-        mkdir -p ${WEIGHT_DIR}
-        wget -nc https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth -P ${WEIGHT_DIR}
-    else
-        echo
-        echo "YOLOX Weights directory not empty, using existing models"
-        echo
+            # YOLOX-Darkent53
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/yolox/darknet53"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth -P ${WEIGHT_DIR}
+        else
+            echo
+            echo "YOLOX Weights directory not empty, using existing models"
+            echo
+        fi
     fi
 fi
 
@@ -268,9 +284,3 @@ echo
 
 pip3 install -e "${SCRIPT_DIR}/.."
 pip3 install ptflops
-echo
-echo "NOTE: JDE pretrained weights can't be downloaded automatically"
-echo "The file can be downloaded from the following link:"
-echo "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
-echo "and placed in the corresponding directory: ${MODELS_WEIGHT_DIR}/jde/jde.1088x608.uncertainty.pt"
-echo
