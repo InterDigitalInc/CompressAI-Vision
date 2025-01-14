@@ -52,15 +52,15 @@ def generate_csv_classwise_image_gmac(dataset_name, result_path, list_of_classwi
             complexity_dict = {"Dataset": seq_name, "pp": idx}
             comp_path = f"{base_path}/{qp}/evaluation/summary_complexity.csv"
             summary_path = f"{base_path}/{qp}/evaluation/summary.csv"
-            
+
             if not (os.path.exists(summary_path) or os.path.exists(summary_path)):
                 continue
-            
+
             with open(summary_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
                 complexity_dict["qp"] = data["qp"]
-            
+
             with open(comp_path, mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 data = [row for row in reader][0]
@@ -80,22 +80,22 @@ def generate_csv_classwise_video_gmac(
 ):
 
     seq_base_path = [
-                    f
-                    for f in os.listdir(result_path)
-                    if os.path.isdir(os.path.join(result_path, f))
-               ]
+        f
+        for f in os.listdir(result_path)
+        if os.path.isdir(os.path.join(result_path, f))
+    ]
 
     seq_wise_results, cls_wise_results = [], []
     for cls_seqs in list_of_classwise_seq:
         for cls_name, seqs in cls_seqs.items():
             complexity_lst_class_wise = []
-            
+
             seq_path = [
-                next(name for name in seq_base_path if s in name) 
+                next(name for name in seq_base_path if s in name)
                 for s in seqs
                 if any(s in name for name in seq_base_path)
             ]
-            
+
             for seq in seq_path:
                 base_path = f"{result_path}/{seq}"
                 qps = [
