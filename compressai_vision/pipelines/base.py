@@ -239,10 +239,11 @@ class BasePipeline(nn.Module):
             for key, data in features["data"].items():
                 out = min_max_inv_normalization(data, minv, maxv, bitdepth=n_bits)
                 data_features[key] = out.to(torch.float32)
+
+            features["data"] = data_features
         else:
             raise NotImplementedError
 
-        features["data"] = data_features
         return features
 
     def _from_input_to_features(
