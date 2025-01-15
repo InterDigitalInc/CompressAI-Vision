@@ -349,6 +349,14 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.mask_rcnn_X_101_32x8d_FPN_3x.training"><code class="docutils literal notranslate"><span class="pre">mask_rcnn_X_101_32x8d_FPN_3x.training</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.SPLIT_L13"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.SPLIT_L13</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.features_to_output"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.features_to_output()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.forward"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.forward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.input_to_features"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.input_to_features()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.training"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.training</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -498,6 +506,39 @@ document.write(`
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.model_wrappers.</span></span><span class="sig-name descname"><span class="pre">yolox_darknet53</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/model_wrappers/yolox.html#yolox_darknet53"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53.SPLIT_L13">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SPLIT_L13</span></span><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53.SPLIT_L13" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53.features_to_output">
+<span class="sig-name descname"><span class="pre">features_to_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/model_wrappers/yolox.html#yolox_darknet53.features_to_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53.features_to_output" title="Permalink to this definition">#</a></dt>
+<dd><p>Complete the downstream task from the intermediate deep features</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/model_wrappers/yolox.html#yolox_darknet53.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Complete the downstream task with end-to-end manner all the way from the input</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53.input_to_features">
+<span class="sig-name descname"><span class="pre">input_to_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../_modules/compressai_vision/model_wrappers/yolox.html#yolox_darknet53.input_to_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53.input_to_features" title="Permalink to this definition">#</a></dt>
+<dd><p>Computes deep features at the intermediate layer(s) all the way from the input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.model_wrappers.yolox_darknet53.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.model_wrappers.yolox_darknet53.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -579,6 +620,14 @@ document.write(`
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.mask_rcnn_X_101_32x8d_FPN_3x"><code class="docutils literal notranslate"><span class="pre">mask_rcnn_X_101_32x8d_FPN_3x</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.mask_rcnn_X_101_32x8d_FPN_3x.training"><code class="docutils literal notranslate"><span class="pre">mask_rcnn_X_101_32x8d_FPN_3x.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.SPLIT_L13"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.SPLIT_L13</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.features_to_output"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.features_to_output()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.forward"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.forward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.input_to_features"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.input_to_features()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.model_wrappers.yolox_darknet53.training"><code class="docutils literal notranslate"><span class="pre">yolox_darknet53.training</span></code></a></li>
 </ul>
 </li>
 </ul>

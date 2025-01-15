@@ -321,18 +321,18 @@ how to go between Detectron2 and fiftyone datasets/structures.</p>
 detectron2 results into a fiftyone dataset and how to evaluate
 detectron2 results with fiftyone.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># common libs</span>
-<span class="kn">import</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">io</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">cv2</span><span class="o">,</span><span class="w"> </span><span class="nn">random</span><span class="o">,</span><span class="w"> </span><span class="nn">logging</span><span class="o">,</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="c1"># torch</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span>
 <span class="c1"># images</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># define a helper function</span>
-<span class="k">def</span> <span class="nf">cv2_imshow</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cv2_imshow</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
     <span class="n">img2</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
@@ -341,27 +341,27 @@ detectron2 results with fiftyone.</p>
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## *** Detectron imports ***</span>
-<span class="kn">import</span> <span class="nn">detectron2</span>
-<span class="kn">from</span> <span class="nn">detectron2.utils.logger</span> <span class="kn">import</span> <span class="n">setup_logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">detectron2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.utils.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_logger</span>
 <span class="n">setup_logger</span><span class="p">()</span>
 
 <span class="c1"># import some common detectron2 utilities</span>
-<span class="kn">from</span> <span class="nn">detectron2</span> <span class="kn">import</span> <span class="n">model_zoo</span>
-<span class="kn">from</span> <span class="nn">detectron2.engine</span> <span class="kn">import</span> <span class="n">DefaultPredictor</span>
-<span class="kn">from</span> <span class="nn">detectron2.config</span> <span class="kn">import</span> <span class="n">get_cfg</span>
-<span class="kn">from</span> <span class="nn">detectron2.utils.visualizer</span> <span class="kn">import</span> <span class="n">Visualizer</span>
-<span class="kn">from</span> <span class="nn">detectron2.data</span> <span class="kn">import</span> <span class="n">MetadataCatalog</span><span class="p">,</span> <span class="n">DatasetCatalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_zoo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultPredictor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_cfg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.utils.visualizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Visualizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetadataCatalog</span><span class="p">,</span> <span class="n">DatasetCatalog</span>
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># CompressAI-Vision</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">FO2DetectronDataset</span> <span class="c1"># convert fiftyone dataset to Detectron2 dataset</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.conversion</span> <span class="kn">import</span> <span class="n">detectron251</span> <span class="c1"># convert Detectron2 results to fiftyone format</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.evaluation.fo</span> <span class="kn">import</span> <span class="n">annexPredictions</span> <span class="c1"># crunch a complete fiftyone dataset through Detectron2 predictor and add the predictions to the fiftyone dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">FO2DetectronDataset</span> <span class="c1"># convert fiftyone dataset to Detectron2 dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">detectron251</span> <span class="c1"># convert Detectron2 results to fiftyone format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.evaluation.fo</span><span class="w"> </span><span class="kn">import</span> <span class="n">annexPredictions</span> <span class="c1"># crunch a complete fiftyone dataset through Detectron2 predictor and add the predictions to the fiftyone dataset</span>
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># fiftyone</span>
-<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
-<span class="kn">import</span> <span class="nn">fiftyone.zoo</span> <span class="k">as</span> <span class="nn">foz</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fiftyone</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fiftyone.zoo</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">foz</span>
 </pre></div>
 </div>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>

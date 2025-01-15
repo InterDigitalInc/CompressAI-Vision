@@ -272,13 +272,13 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">csv</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fiftyone</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fo</span>
 
 <span class="c1"># pick your choice..</span>
 <span class="c1"># container_format = &quot;y4m&quot;  # yuv @ y4m</span>
@@ -311,7 +311,7 @@ document.write(`
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="video_convert"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.video_convert">[docs]</a><span class="k">def</span> <span class="nf">video_convert</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+<div class="viewcode-block" id="video_convert"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.video_convert">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">video_convert</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts video from YUV to lossless RAW@MP4</span>
 
 <span class="sd">    Assumes this directory structure:</span>
@@ -410,7 +410,7 @@ document.write(`
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;video conversion done&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="sfu_txt_files_to_list"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.sfu_txt_files_to_list">[docs]</a><span class="k">def</span> <span class="nf">sfu_txt_files_to_list</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+<div class="viewcode-block" id="sfu_txt_files_to_list"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.sfu_txt_files_to_list">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sfu_txt_files_to_list</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Looks from basedir for files</span>
 
 <span class="sd">    ::</span>
@@ -440,7 +440,7 @@ document.write(`
     <span class="k">return</span> <span class="n">lis</span></div>
 
 
-<div class="viewcode-block" id="read_detections"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.read_detections">[docs]</a><span class="k">def</span> <span class="nf">read_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">lis</span><span class="p">):</span>
+<div class="viewcode-block" id="read_detections"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.read_detections">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">read_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">lis</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;reads detections into a video sample</span>
 
 <span class="sd">    :param sample: fiftyone.Sample</span>
@@ -484,7 +484,7 @@ document.write(`
             <span class="c1"># sample.frames.add_frame(frame=f, frame_number=ind+10) # TEST/DEBUG: inducing index mismatch</span>
 
 
-<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sfu-hw-objects-v1&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.sfu_hw_objects_v1.register">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sfu-hw-objects-v1&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register SFU-HW-Objects-v1 video directory into fiftyone</span>
 
 <span class="sd">    ::</span>

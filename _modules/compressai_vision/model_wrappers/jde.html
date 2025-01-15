@@ -301,27 +301,27 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">jde.models</span> <span class="kn">import</span> <span class="n">Darknet</span>
-<span class="kn">from</span> <span class="nn">jde.tracker</span> <span class="kn">import</span> <span class="n">matching</span>
-<span class="kn">from</span> <span class="nn">jde.tracker.basetrack</span> <span class="kn">import</span> <span class="n">TrackState</span>
-<span class="kn">from</span> <span class="nn">jde.tracker.multitracker</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Darknet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.tracker</span><span class="w"> </span><span class="kn">import</span> <span class="n">matching</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.tracker.basetrack</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrackState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.tracker.multitracker</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">STrack</span><span class="p">,</span>
     <span class="n">joint_stracks</span><span class="p">,</span>
     <span class="n">remove_duplicate_stracks</span><span class="p">,</span>
     <span class="n">sub_stracks</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">jde.utils.kalman_filter</span> <span class="kn">import</span> <span class="n">KalmanFilter</span>
-<span class="kn">from</span> <span class="nn">jde.utils.utils</span> <span class="kn">import</span> <span class="n">non_max_suppression</span><span class="p">,</span> <span class="n">scale_coords</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.utils.kalman_filter</span><span class="w"> </span><span class="kn">import</span> <span class="n">KalmanFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.utils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">non_max_suppression</span><span class="p">,</span> <span class="n">scale_coords</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_vision_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_vision_model</span>
 
-<span class="kn">from</span> <span class="nn">.base_wrapper</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;jde_1088x608&quot;</span><span class="p">,</span>
@@ -332,8 +332,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="jde_1088x608"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;jde_1088x608&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">jde_1088x608</span><span class="p">(</span><span class="n">BaseWrapper</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">jde_1088x608</span><span class="p">(</span><span class="n">BaseWrapper</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
         <span class="n">_path_prefix</span> <span class="o">=</span> <span class="p">(</span>
@@ -380,7 +380,7 @@ document.write(`
         <span class="c1"># reset member variables to use over a sequence of frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="jde_1088x608.reset"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="jde_1088x608.reset"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># variable manage tracks across a sequence of frames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">global_active_tracks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">global_onhold_tracks</span> <span class="o">=</span> <span class="p">[]</span>
@@ -388,24 +388,30 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="jde_1088x608.input_to_features"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.input_to_features">[docs]</a>    <span class="k">def</span> <span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="jde_1088x608.input_to_features"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.input_to_features">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes deep features at the intermediate layer(s) all the way from the input&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>  <span class="c1"># Please refer to Darknet</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_pyramid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="jde_1088x608.features_to_output"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.features_to_output">[docs]</a>    <span class="k">def</span> <span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="jde_1088x608.features_to_output"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.features_to_output">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Complete the downstream task from the intermediate deep features&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>  <span class="c1"># Please refer to Darknet</span>
+
+        <span class="k">for</span> <span class="n">module_def</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">module_defs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">module_list</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">module_def</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yolo&quot;</span><span class="p">:</span>
+                <span class="n">module</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_pyramid_to_output</span><span class="p">(</span>
             <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
         <span class="p">)</span></div>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">_input_to_feature_pyramid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_pyramid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feture pyramid all the way from the input&quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">darknet</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">input_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
@@ -415,13 +421,13 @@ document.write(`
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">,</span> <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">input_size</span><span class="p">]}</span>
 
 <div class="viewcode-block" id="jde_1088x608.get_input_size"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.get_input_size">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get_input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the size of the input image to the network&quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># fixed input scale</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span></div>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">_feature_pyramid_to_output</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_feature_pyramid_to_output</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -447,7 +453,7 @@ document.write(`
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tlwhs&quot;</span><span class="p">:</span> <span class="n">online_tlwhs</span><span class="p">,</span> <span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">online_ids</span><span class="p">}</span>
 
 <div class="viewcode-block" id="jde_1088x608.deeper_features_for_accuracy_proxy"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.deeper_features_for_accuracy_proxy">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">deeper_features_for_accuracy_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deeper_features_for_accuracy_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        compute accuracy proxy at the deeper layer than NN-Part1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -460,7 +466,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">x_deeper</span></div>
 
-    <span class="k">def</span> <span class="nf">_jde_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_jde_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Re-implementation of JDE from Z. Wang, L. Zheng, Y. Liu, and S. Wang:</span>
 <span class="sd">        : `&quot;Towards Real-Time Multi-Object Tracking&quot;`_,</span>
 <span class="sd">        The European Conference on Computer Vision (ECCV), 2020</span>
@@ -685,7 +691,7 @@ document.write(`
         <span class="k">return</span> <span class="n">output_stracks</span>
 
 <div class="viewcode-block" id="jde_1088x608.forward"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.jde_1088x608.forward">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Complete the downstream task with end-to-end manner all the way from the input&quot;&quot;&quot;</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feture pyramid all the way from the input&quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>

@@ -301,14 +301,14 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">pytorch_msssim</span> <span class="kn">import</span> <span class="n">ms_ssim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_msssim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ms_ssim</span>
 
 
-<div class="viewcode-block" id="EncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">EncoderDecoder</span><span class="p">:</span>
+<div class="viewcode-block" id="EncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">EncoderDecoder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;NOTE: virtual class that *you* need to subclass</span>
 
 <span class="sd">    An instance of this class encodes an image, calculates the number of bits and decodes the encoded image, resulting in &quot;transformed&quot; image.</span>
@@ -319,31 +319,31 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># helpers</span>
-<div class="viewcode-block" id="EncoderDecoder.compute_psnr"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_psnr">[docs]</a>    <span class="k">def</span> <span class="nf">compute_psnr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.compute_psnr"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_psnr">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">compute_psnr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">mse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="k">return</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="EncoderDecoder.compute_msssim"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_msssim">[docs]</a>    <span class="k">def</span> <span class="nf">compute_msssim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.compute_msssim"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.compute_msssim">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">compute_msssim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ms_ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span>
 
-<div class="viewcode-block" id="EncoderDecoder.computeMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.computeMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">computeMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.computeMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.computeMetrics">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">computeMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span> <span class="o">=</span> <span class="n">state</span></div>
 
-<div class="viewcode-block" id="EncoderDecoder.getMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.getMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">getMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.getMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.getMetrics">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">getMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns tuple with (psnr, mssim) from latest encode+decode calculation&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="EncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the internal state of the encoder &amp; decoder, if there is any&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Push images(s) through the encoder+decoder, returns number of bits for each image and encoded+decoded images</span>
 
 <span class="sd">        :param x: a FloatTensor with dimensions (batch, channels, y, x)</span>
@@ -354,7 +354,7 @@ document.write(`
         <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="EncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.EncoderDecoder.BGR">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>
 <span class="sd">        :param tag: a string that can be used to identify &amp; cache images (optional)</span>
@@ -366,18 +366,18 @@ document.write(`
         <span class="k">raise</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="VoidEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">VoidEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
+<div class="viewcode-block" id="VoidEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">VoidEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Does no encoding/decoding whatsoever.  Use for debugging.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="VoidEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VoidEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the internal state of the encoder &amp; decoder, if any&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Push images(s) through the encoder+decoder, returns bbps and encoded+decoded images</span>
 
 <span class="sd">        :param x: a FloatTensor with dimensions (batch, channels, y, x)</span>
@@ -387,7 +387,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span>
 
-<div class="viewcode-block" id="VoidEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VoidEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.base.VoidEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>
 <span class="sd">        :param tag: a string that can be used to identify &amp; cache images (optional)</span>

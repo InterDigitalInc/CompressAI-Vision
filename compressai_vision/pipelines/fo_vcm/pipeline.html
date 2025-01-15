@@ -565,9 +565,9 @@ When enabled, method BGR returns (0, None).  NOTE: do not use if you want to ver
 <p>This class tries always to use the cached bitstreams if they are available (for this you need to define a cache directory, see above).  If the bitstream
 is available in cache, it will be used and the encoding step is skipped.  Otherwise encoder is started to produce bitstream.</p>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.evaluation.pipeline</span> <span class="kn">import</span> <span class="n">VTMEncoderDecoder</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.tools</span> <span class="kn">import</span> <span class="n">getDataFile</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.evaluation.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">VTMEncoderDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">getDataFile</span>
 
 <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/VVCSoftware_VTM/bin&quot;</span>
 <span class="n">encoderApp</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;EncoderAppStatic&quot;</span><span class="p">)</span>

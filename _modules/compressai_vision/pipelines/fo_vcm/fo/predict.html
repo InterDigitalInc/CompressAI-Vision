@@ -301,22 +301,22 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">from</span> <span class="nn">detectron2.data</span> <span class="kn">import</span> <span class="n">MetadataCatalog</span>
-<span class="kn">from</span> <span class="nn">fiftyone</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
-<span class="kn">from</span> <span class="nn">fiftyone.core.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetadataCatalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fiftyone</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fiftyone.core.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.conversion.detectron2</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.conversion.detectron2</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">detectron251</span><span class="p">,</span>
     <span class="n">findLabels</span><span class="p">,</span>
     <span class="n">findVideoLabels</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.pipeline.base</span> <span class="kn">import</span> <span class="n">EncoderDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.pipeline.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">EncoderDecoder</span>
 
 
-<div class="viewcode-block" id="annexPredictions"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html#compressai_vision.pipelines.fo_vcm.fo.predict.annexPredictions">[docs]</a><span class="k">def</span> <span class="nf">annexPredictions</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<div class="viewcode-block" id="annexPredictions"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html#compressai_vision.pipelines.fo_vcm.fo.predict.annexPredictions">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">annexPredictions</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">predictors</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fo_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gt_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">,</span>
@@ -464,7 +464,7 @@ document.write(`
     <span class="k">return</span> <span class="n">bpp</span></div>
 
 
-<div class="viewcode-block" id="annexVideoPredictions"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html#compressai_vision.pipelines.fo_vcm.fo.predict.annexVideoPredictions">[docs]</a><span class="k">def</span> <span class="nf">annexVideoPredictions</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<div class="viewcode-block" id="annexVideoPredictions"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/fo.html#compressai_vision.pipelines.fo_vcm.fo.predict.annexVideoPredictions">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">annexVideoPredictions</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">predictors</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fo_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># video dataset</span>
     <span class="n">gt_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">,</span>

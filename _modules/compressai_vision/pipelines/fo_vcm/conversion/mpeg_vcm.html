@@ -337,14 +337,14 @@ document.write(`
 <span class="sd">```</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 
-<div class="viewcode-block" id="imageIdFileList"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.imageIdFileList">[docs]</a><span class="k">def</span> <span class="nf">imageIdFileList</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="imageIdFileList"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.imageIdFileList">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">imageIdFileList</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Just list arguments of .lst files.  They will be combined together.</span>
 
 <span class="sd">    ::</span>
@@ -375,7 +375,7 @@ document.write(`
     <span class="k">return</span> <span class="n">lis</span></div>
 
 
-<div class="viewcode-block" id="MPEGVCMToOpenImageV6"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.MPEGVCMToOpenImageV6">[docs]</a><span class="k">def</span> <span class="nf">MPEGVCMToOpenImageV6</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<div class="viewcode-block" id="MPEGVCMToOpenImageV6"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.MPEGVCMToOpenImageV6">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">MPEGVCMToOpenImageV6</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">validation_csv_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># detection_validation_labels_5k.csv # OR # segmentation_validation_labels_5k.csv # image-level labels</span>
     <span class="n">list_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># detection_validation_input_5k.lst</span>
     <span class="n">bbox_csv_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># detection_validation_5k_bbox.csv # OR # segmentation_validation_bbox_5k.csv # OPTIONAL</span>

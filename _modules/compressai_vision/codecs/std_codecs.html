@@ -301,33 +301,33 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">errno</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">errno</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.codecs.utils</span> <span class="kn">import</span> <span class="n">FpnUtils</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils.dataio</span> <span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils.external_exec</span> <span class="kn">import</span> <span class="n">run_cmdline</span><span class="p">,</span> <span class="n">run_cmdlines_parallel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.codecs.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FpnUtils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.model_wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_codec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.dataio</span><span class="w"> </span><span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.external_exec</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_cmdline</span><span class="p">,</span> <span class="n">run_cmdlines_parallel</span>
 
-<span class="kn">from</span> <span class="nn">.encdec_utils</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.encdec_utils.png_yuv</span> <span class="kn">import</span> <span class="n">PngFilesToYuvFileConverter</span><span class="p">,</span> <span class="n">YuvFileToPngFilesConverter</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils.png_yuv</span><span class="w"> </span><span class="kn">import</span> <span class="n">PngFilesToYuvFileConverter</span><span class="p">,</span> <span class="n">YuvFileToPngFilesConverter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MIN_MAX_DATASET</span><span class="p">,</span>
     <span class="n">compute_frame_resolution</span><span class="p">,</span>
     <span class="n">min_max_inv_normalization</span><span class="p">,</span>
@@ -337,7 +337,7 @@ document.write(`
 <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the size of a file in bytes.</span>
 <span class="sd">    Args:</span>
@@ -349,7 +349,7 @@ document.write(`
 
 
 <span class="c1"># TODO (fracape) belongs to somewhere else?</span>
-<span class="k">def</span> <span class="nf">load_bitstream</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_bitstream</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a bitstream and return it as a &quot;bytes&quot; object.</span>
 <span class="sd">    Args:</span>
@@ -364,7 +364,7 @@ document.write(`
 
 
 <span class="c1"># From VCM-RS Scripts/utils.py</span>
-<span class="k">def</span> <span class="nf">update_cfg_from_ini</span><span class="p">(</span><span class="n">ini_file</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_cfg_from_ini</span><span class="p">(</span><span class="n">ini_file</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">current_section</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ini_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -383,7 +383,7 @@ document.write(`
 
 
 <span class="c1"># From VCM-RS Scripts/utils.py</span>
-<span class="k">def</span> <span class="nf">get_descriptor_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">scenario</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">video_id</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_descriptor_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">scenario</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">video_id</span><span class="p">):</span>
     <span class="n">main_dir</span> <span class="o">=</span> <span class="n">data_dir</span>  <span class="c1"># os.path.dirname(os.path.dirname(data_dir))</span>
     <span class="n">descriptor_variant</span> <span class="o">=</span> <span class="s2">&quot;TemporalResampleRatio4&quot;</span>
     <span class="k">if</span> <span class="n">scenario</span> <span class="o">==</span> <span class="s2">&quot;AI_e2e&quot;</span> <span class="ow">or</span> <span class="n">scenario</span> <span class="o">==</span> <span class="s2">&quot;LD_e2e&quot;</span><span class="p">:</span>
@@ -398,10 +398,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="VTM"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vtm&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">VTM</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VTM</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder/Decoder class for VVC - VTM reference software&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -482,7 +482,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="VTM.get_check_list_of_paths"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_check_list_of_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_check_list_of_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.get_check_list_of_paths"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_check_list_of_paths">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_check_list_of_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_paths</span><span class="p">[</span><span class="s2">&quot;encoder_exe&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_paths</span><span class="p">[</span><span class="s2">&quot;decoder_exe&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_paths</span><span class="p">[</span><span class="s2">&quot;cfg_file&quot;</span><span class="p">])</span>
@@ -491,35 +491,35 @@ document.write(`
 
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qp</span>
 
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close_bitstream_file</span><span class="p">()</span>
 
-<div class="viewcode-block" id="VTM.reset"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.reset"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_header_writer</span> <span class="o">=</span> <span class="n">HeaderWriter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_header_reader</span> <span class="o">=</span> <span class="n">HeaderReader</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame_info_buffer</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="VTM.open_bitstream_file"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.open_bitstream_file">[docs]</a>    <span class="k">def</span> <span class="nf">open_bitstream_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.open_bitstream_file"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.open_bitstream_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">open_bitstream_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span></div>
 
-<div class="viewcode-block" id="VTM.close_bitstream_file"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.close_bitstream_file">[docs]</a>    <span class="k">def</span> <span class="nf">close_bitstream_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.close_bitstream_file"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.close_bitstream_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close_bitstream_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bitstream_fd</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="VTM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_encode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -601,7 +601,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">cmds</span></div>
 
-    <span class="k">def</span> <span class="nf">_parallel_encode_cmd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parallel_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">base_cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">):</span>
         <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">nb_frames</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">intra_period</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
@@ -637,7 +637,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">cmds</span>
 
-<div class="viewcode-block" id="VTM.get_parcat_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_parcat_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_parcat_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.get_parcat_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_parcat_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_parcat_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
@@ -655,7 +655,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">bitstream_lists</span></div>
 
-<div class="viewcode-block" id="VTM.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_decode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_decode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_decode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_bitdepth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -679,7 +679,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
-<div class="viewcode-block" id="VTM.convert_input_to_yuv"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_input_to_yuv">[docs]</a>    <span class="k">def</span> <span class="nf">convert_input_to_yuv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.convert_input_to_yuv"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_input_to_yuv">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_input_to_yuv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts the input image or video to YUV format using ffmpeg, or use existing YUV if available.</span>
 <span class="sd">        Args:</span>
@@ -786,7 +786,7 @@ document.write(`
 
         <span class="k">return</span> <span class="p">(</span><span class="n">yuv_in_path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VTM.convert_yuv_to_pngs"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_yuv_to_pngs">[docs]</a>    <span class="k">def</span> <span class="nf">convert_yuv_to_pngs</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.convert_yuv_to_pngs"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_yuv_to_pngs">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_yuv_to_pngs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">dec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -904,7 +904,7 @@ document.write(`
                 <span class="n">Path</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
                 <span class="n">Path</span><span class="p">(</span><span class="n">final_png</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">,</span>
@@ -1068,7 +1068,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">enc_times</span><span class="p">,</span> <span class="n">mac_calculations</span></div>
 
-<div class="viewcode-block" id="VTM.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
+<div class="viewcode-block" id="VTM.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.decode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -1250,15 +1250,15 @@ document.write(`
 
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">dec_times</span><span class="p">,</span> <span class="n">mac_calculations</span></div>
 
-<div class="viewcode-block" id="VTM.get_io_buffer_contents"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_io_buffer_contents">[docs]</a>    <span class="k">def</span> <span class="nf">get_io_buffer_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VTM.get_io_buffer_contents"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.get_io_buffer_contents">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_io_buffer_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_io_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="HM"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.HM">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;hm&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">HM</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HM</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for HEVC - HM reference software&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -1266,7 +1266,7 @@ document.write(`
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="HM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.HM.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="HM.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.HM.get_encode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1343,10 +1343,10 @@ document.write(`
 
 
 <span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;jm&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">JM</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JM</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for AVC - JM reference software&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -1356,7 +1356,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cfg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;codec_paths&quot;</span><span class="p">][</span><span class="s2">&quot;default_cfg_file&quot;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1437,7 +1437,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_decode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_bitdepth</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
         <span class="k">del</span> <span class="n">output_bitdepth</span>
@@ -1456,10 +1456,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="VVENC"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vvenc&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">VVENC</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VVENC</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for VVC - vvenc/vvdec  software&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -1467,7 +1467,7 @@ document.write(`
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="VVENC.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="VVENC.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VVENC.get_encode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1511,10 +1511,10 @@ document.write(`
 
 
 <span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;vcmrs&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">VCMRS</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VCMRS</span><span class="p">(</span><span class="n">VTM</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for VCM-RS&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -1524,11 +1524,11 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">use_descriptors</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_paths</span><span class="p">[</span><span class="s2">&quot;tmp_dir&quot;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">get_check_list_of_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_check_list_of_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codec_paths</span><span class="p">[</span><span class="s2">&quot;cfg_file&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg_file</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1626,7 +1626,7 @@ document.write(`
         <span class="n">cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_decode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_bitdepth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1659,11 +1659,11 @@ document.write(`
         <span class="k">return</span> <span class="n">cmd</span>
 
 
-<span class="k">class</span> <span class="nc">HeaderWriter</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeaderWriter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">write_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">sequence_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">sequence_info</span><span class="p">):</span>
         <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;bitdepth&quot;</span><span class="p">,</span>
             <span class="s2">&quot;frame_size&quot;</span><span class="p">,</span>
@@ -1679,7 +1679,7 @@ document.write(`
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">write_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">frame_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">frame_info</span><span class="p">):</span>
         <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;minv&quot;</span><span class="p">,</span>
             <span class="s2">&quot;maxv&quot;</span><span class="p">,</span>
@@ -1694,12 +1694,12 @@ document.write(`
         <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">HeaderReader</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeaderReader</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_frames_read</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">read_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_sequence_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
         <span class="p">[</span><span class="n">bitdepth</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_uchars</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">frame_size</span> <span class="o">=</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="p">[</span><span class="n">num_frames</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_uints</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -1714,7 +1714,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">sequence_info</span>
 
-    <span class="k">def</span> <span class="nf">read_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
         <span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_frames_read</span>
         <span class="p">[</span><span class="n">minv</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">[</span><span class="n">maxv</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_float32</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -1730,7 +1730,7 @@ document.write(`
         <span class="k">return</span> <span class="n">frame_info</span>
 
 
-<span class="k">def</span> <span class="nf">_distribute_parallel_work</span><span class="p">(</span><span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_distribute_parallel_work</span><span class="p">(</span><span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">intra_period</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Distributes frame encoding work.</span>
 
 <span class="sd">    worker[i] is to be assigned frames in the interval</span>

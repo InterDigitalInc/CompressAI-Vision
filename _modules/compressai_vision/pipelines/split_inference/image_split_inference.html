@@ -301,25 +301,25 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.evaluators</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">dict_sum</span><span class="p">,</span> <span class="n">time_measure</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils.measure_complexity</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.evaluators</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEvaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.model_wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">dict_sum</span><span class="p">,</span> <span class="n">time_measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.measure_complexity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">calc_complexity_nn_part1_dn53</span><span class="p">,</span>
     <span class="n">calc_complexity_nn_part1_plyr</span><span class="p">,</span>
     <span class="n">calc_complexity_nn_part2_dn53</span><span class="p">,</span>
     <span class="n">calc_complexity_nn_part2_plyr</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePipeline</span>
 
 <span class="sd">&quot;&quot;&quot; A schematic for the split-inference pipline</span>
 
@@ -338,8 +338,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="ImageSplitInference"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/split_inference.html#compressai_vision.pipelines.split_inference.ImageSplitInference">[docs]</a><span class="nd">@register_pipeline</span><span class="p">(</span><span class="s2">&quot;image-split-inference&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ImageSplitInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageSplitInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -347,7 +347,7 @@ document.write(`
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datatype</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="s2">&quot;datatype&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">codec</span><span class="p">,</span>
@@ -389,7 +389,9 @@ document.write(`
                     <span class="bp">self</span><span class="o">.</span><span class="n">acc_kmac_and_pixels_info</span><span class="p">(</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">,</span> <span class="n">macs</span><span class="p">,</span> <span class="n">pixels</span><span class="p">)</span>
 
                 <span class="n">start</span> <span class="o">=</span> <span class="n">time_measure</span><span class="p">()</span>
-                <span class="n">featureT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span><span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">)</span>
+                <span class="n">featureT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_input_to_features</span><span class="p">(</span>
+                    <span class="n">vision_model</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">datacatalog_name</span>
+                <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_time_elapsed</span><span class="p">(</span><span class="s2">&quot;nn_part_1&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">time_measure</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 
                 <span class="c1"># datatype conversion</span>

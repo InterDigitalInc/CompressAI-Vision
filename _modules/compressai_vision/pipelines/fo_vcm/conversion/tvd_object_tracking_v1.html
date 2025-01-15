@@ -272,16 +272,16 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for compressai_vision.pipelines.fo_vcm.conversion.tvd_object_tracking_v1</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">csv</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="c1"># from pathlib import Path</span>
-<span class="kn">import</span> <span class="nn">fiftyone</span> <span class="k">as</span> <span class="nn">fo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fiftyone</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fo</span>
 
 
-<div class="viewcode-block" id="read_detections"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.tvd_object_tracking_v1.read_detections">[docs]</a><span class="k">def</span> <span class="nf">read_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="read_detections"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.tvd_object_tracking_v1.read_detections">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">read_detections</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param sample: fiftyone.Sample</span>
 <span class="sd">    :param fname: frame-by-frame annotations</span>
@@ -361,7 +361,7 @@ document.write(`
         <span class="n">sample</span><span class="o">.</span><span class="n">frames</span><span class="o">.</span><span class="n">add_frame</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">frame_number</span><span class="o">=</span><span class="n">Frame_Index</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.tvd_object_tracking_v1.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tvd-object-tracking-v1&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.tvd_object_tracking_v1.register">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tvd-object-tracking-v1&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register tencent video dataset (TVD), object tracking subset.</span>
 
 <span class="sd">    The directory structure for this looks like:</span>

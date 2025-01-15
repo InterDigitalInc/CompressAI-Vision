@@ -301,36 +301,36 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.codecs.utils</span> <span class="kn">import</span> <span class="n">FpnUtils</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_codec</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils.dataio</span> <span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils.external_exec</span> <span class="kn">import</span> <span class="n">run_cmdline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.codecs.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FpnUtils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.model_wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_codec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.dataio</span><span class="w"> </span><span class="kn">import</span> <span class="n">PixelFormat</span><span class="p">,</span> <span class="n">readwriteYUV</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.external_exec</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_cmdline</span>
 
-<span class="kn">from</span> <span class="nn">.encdec_utils</span> <span class="kn">import</span> <span class="n">get_raw_video_file_info</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">MIN_MAX_DATASET</span><span class="p">,</span> <span class="n">min_max_inv_normalization</span><span class="p">,</span> <span class="n">min_max_normalization</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_raw_video_file_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_MAX_DATASET</span><span class="p">,</span> <span class="n">min_max_inv_normalization</span><span class="p">,</span> <span class="n">min_max_normalization</span>
 
 
-<span class="k">def</span> <span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
 
 
 <div class="viewcode-block" id="x264"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;x264&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">x264</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">x264</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder/Decoder class for x265&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -381,15 +381,15 @@ document.write(`
 
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qp</span>
 
     <span class="c1"># can be added to base class (if inherited) | Should we inherit from the base codec?</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span>
 
-<div class="viewcode-block" id="x264.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="x264.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.get_encode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -437,7 +437,7 @@ document.write(`
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
-<div class="viewcode-block" id="x264.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.get_decode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_decode_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="x264.get_decode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.get_decode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_decode_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the ffmpeg decode command (x264 lib) for the given bitstream path and YUV decode path.</span>
 <span class="sd">        Args:</span>
@@ -457,7 +457,7 @@ document.write(`
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
-<div class="viewcode-block" id="x264.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+<div class="viewcode-block" id="x264.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.encode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">,</span>
@@ -552,7 +552,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">enc_times</span><span class="p">,</span> <span class="n">mac_calculations</span></div>
 
-<div class="viewcode-block" id="x264.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
+<div class="viewcode-block" id="x264.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x264.decode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -658,10 +658,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="x265"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x265">[docs]</a><span class="nd">@register_codec</span><span class="p">(</span><span class="s2">&quot;x265&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">x265</span><span class="p">(</span><span class="n">x264</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">x265</span><span class="p">(</span><span class="n">x264</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder / Decoder class for x265 - ffmpeg&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -671,7 +671,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">colorformat</span> <span class="o">=</span> <span class="s2">&quot;444&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yuvio</span> <span class="o">=</span> <span class="n">readwriteYUV</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">PixelFormat</span><span class="o">.</span><span class="n">YUV444_10le</span><span class="p">)</span>
 
-<div class="viewcode-block" id="x265.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x265.get_encode_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">get_encode_cmd</span><span class="p">(</span>
+<div class="viewcode-block" id="x265.get_encode_cmd"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.x265.get_encode_cmd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_encode_cmd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp_yuv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">qp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>

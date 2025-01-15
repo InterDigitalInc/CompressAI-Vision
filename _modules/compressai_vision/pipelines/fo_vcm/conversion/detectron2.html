@@ -303,26 +303,26 @@ document.write(`
 
 <span class="sd">&quot;&quot;&quot;From 51 dataset into Detectron2-compatible dataset</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">floor</span>
 
 <span class="c1"># import cv2</span>
 <span class="c1"># import detectron2</span>
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
 <span class="c1"># from detectron2.data import MetadataCatalog</span>
-<span class="kn">from</span> <span class="nn">detectron2.structures</span> <span class="kn">import</span> <span class="n">BoxMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.structures</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxMode</span>
 
 <span class="c1"># from fiftyone import ProgressBar</span>
-<span class="kn">from</span> <span class="nn">fiftyone.core.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">fiftyone.core.labels</span> <span class="kn">import</span> <span class="n">Detection</span><span class="p">,</span> <span class="n">Detections</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fiftyone.core.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fiftyone.core.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detection</span><span class="p">,</span> <span class="n">Detections</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
 
-<div class="viewcode-block" id="findLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findLabels">[docs]</a><span class="k">def</span> <span class="nf">findLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<div class="viewcode-block" id="findLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findLabels">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">findLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.detections.label&quot;</span> <span class="o">%</span> <span class="n">detection_field</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="findVideoLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findVideoLabels">[docs]</a><span class="k">def</span> <span class="nf">findVideoLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<div class="viewcode-block" id="findVideoLabels"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.findVideoLabels">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">findVideoLabels</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">detection_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;detections&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Video datasets look like this:</span>
@@ -356,7 +356,7 @@ document.write(`
     <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="s2">&quot;frames.</span><span class="si">%s</span><span class="s2">.detections.label&quot;</span> <span class="o">%</span> <span class="n">detection_field</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FO2DetectronDataset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.FO2DetectronDataset">[docs]</a><span class="k">class</span> <span class="nc">FO2DetectronDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="FO2DetectronDataset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.FO2DetectronDataset">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">FO2DetectronDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to construct a Detectron2 dataset from a FiftyOne dataset.</span>
 <span class="sd">    Subclass of ``torch.utils.data.Dataset``.</span>
 
@@ -380,7 +380,7 @@ document.write(`
 <span class="sd">    WARNING: at the moment, only detection (not segmentation) is supported</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fo_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">detection_field</span><span class="o">=</span><span class="s2">&quot;detections&quot;</span><span class="p">,</span>
@@ -404,7 +404,7 @@ document.write(`
         <span class="c1">#    &quot;%s.detections.label&quot; % detection_field</span>
         <span class="c1"># )</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fo_dataset</span><span class="p">[</span>
             <span class="n">img_path</span>
@@ -529,11 +529,11 @@ document.write(`
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotations</span>
         <span class="k">return</span> <span class="n">d</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_paths</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="detectron251"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.detectron251">[docs]</a><span class="k">def</span> <span class="nf">detectron251</span><span class="p">(</span>
+<div class="viewcode-block" id="detectron251"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/conversion.html#compressai_vision.pipelines.fo_vcm.conversion.detectron251">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">detectron251</span><span class="p">(</span>
     <span class="n">res</span><span class="p">,</span>
     <span class="n">model_catids</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>  <span class="c1"># noqa: B006</span>
     <span class="c1"># TODO (sampsa) &quot;Do not use mutable data structures for argument defaults&quot;</span>

@@ -301,25 +301,29 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">motmetrics</span> <span class="k">as</span> <span class="nn">mm</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">detectron2.evaluation</span> <span class="kn">import</span> <span class="n">COCOEvaluator</span>
-<span class="kn">from</span> <span class="nn">jde.utils.io</span> <span class="kn">import</span> <span class="n">unzip_objs</span>
-<span class="kn">from</span> <span class="nn">pytorch_msssim</span> <span class="kn">import</span> <span class="n">ms_ssim</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">motmetrics</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">COCOEvaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">unzip_objs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycocotools.coco</span><span class="w"> </span><span class="kn">import</span> <span class="n">COCO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_msssim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ms_ssim</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">yolox.data.datasets.coco</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_useless_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">yolox.evaluators</span><span class="w"> </span><span class="kn">import</span> <span class="n">COCOEvaluator</span> <span class="k">as</span> <span class="n">YOLOX_COCOEvaluator</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.datasets</span> <span class="kn">import</span> <span class="n">deccode_compressed_rle</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_evaluator</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">deccode_compressed_rle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_measure</span><span class="p">,</span> <span class="n">to_cpu</span>
 
-<span class="kn">from</span> <span class="nn">.base_evaluator</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
-<span class="kn">from</span> <span class="nn">.tf_evaluation_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEvaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tf_evaluation_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DetectionResultFields</span><span class="p">,</span>
     <span class="n">InputDataFields</span><span class="p">,</span>
     <span class="n">OpenImagesChallengeEvaluator</span><span class="p">,</span>
@@ -330,8 +334,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="COCOEVal"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;COCO-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">COCOEVal</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">COCOEVal</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -352,13 +356,13 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="COCOEVal.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="COCOEVal.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="COCOEVal.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.digest">[docs]</a>    <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+<div class="viewcode-block" id="COCOEVal.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.digest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="COCOEVal.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="COCOEVal.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.COCOEVal.results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
@@ -374,8 +378,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="OpenImagesChallengeEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;OIC-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">OpenImagesChallengeEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenImagesChallengeEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -390,7 +394,7 @@ document.write(`
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_search_category</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_search_category</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thing_classes</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_labelname</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">e</span>
@@ -463,15 +467,15 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="OpenImagesChallengeEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenImagesChallengeEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span> <span class="o">=</span> <span class="mi">0</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_normalize_labelname</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_normalize_labelname</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenImagesChallengeEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.digest">[docs]</a>    <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenImagesChallengeEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.digest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gt</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Batch size must be 1 for the evaluation&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oic_evaluator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -519,7 +523,7 @@ document.write(`
 
         <span class="k">return</span></div>
 
-    <span class="k">def</span> <span class="nf">_process_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred_dict</span><span class="p">):</span>
         <span class="n">valid_cls</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">valid_scores</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">valid_bboxes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -572,7 +576,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">res_dict</span>
 
-<div class="viewcode-block" id="OpenImagesChallengeEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenImagesChallengeEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.OpenImagesChallengeEval.results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oic_evaluator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;There is no assigned evaluator for the class. Evaluator will not work properly&quot;</span>
@@ -609,7 +613,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="MOT_JDE_Eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;MOT-JDE-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MOT_JDE_Eval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MOT_JDE_Eval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Multiple Object Tracking Evaluator</span>
 
@@ -626,7 +630,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -644,16 +648,16 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MOT_JDE_Eval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_JDE_Eval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MOTAccumulator</span><span class="p">(</span><span class="n">auto_id</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span> <span class="o">=</span> <span class="p">{}</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_load_gt_in_motchallenge</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mot15-2D&quot;</span><span class="p">,</span> <span class="n">min_confidence</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_gt_in_motchallenge</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mot15-2D&quot;</span><span class="p">,</span> <span class="n">min_confidence</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">mm</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">min_confidence</span><span class="o">=</span><span class="n">min_confidence</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_format_pd_in_motchallenge</span><span class="p">(</span><span class="n">predictions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_pd_in_motchallenge</span><span class="p">(</span><span class="n">predictions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">all_indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">all_columns</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -672,7 +676,7 @@ document.write(`
         <span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">all_indexes</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;FrameId&quot;</span><span class="p">,</span> <span class="s2">&quot;Id&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_columns</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MOT_JDE_Eval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.digest">[docs]</a>    <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_JDE_Eval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.digest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
         <span class="n">pred_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">tlwh</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="s2">&quot;tlwhs&quot;</span><span class="p">],</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]):</span>
             <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">tlwh</span>
@@ -682,7 +686,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image_id&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">pred_list</span></div>
 
-<div class="viewcode-block" id="MOT_JDE_Eval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_JDE_Eval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mot_eval</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
@@ -693,7 +697,7 @@ document.write(`
         <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="MOT_JDE_Eval.digest_summary"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.digest_summary">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">digest_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">digest_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">keys_lists</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span>
@@ -733,7 +737,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="MOT_JDE_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.mot_eval">[docs]</a>    <span class="k">def</span> <span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_JDE_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_JDE_Eval.mot_eval">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span>
         <span class="p">),</span> <span class="s2">&quot;Total number of frames are mismatch&quot;</span>
@@ -789,25 +793,25 @@ document.write(`
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">digest_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_save_all_eval_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_all_eval_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_info_file_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_all_eval_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_all_eval_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_info_file_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MOT_TVD_Eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_TVD_Eval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;MOT-TVD-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MOT_TVD_Eval</span><span class="p">(</span><span class="n">MOT_JDE_Eval</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MOT_TVD_Eval</span><span class="p">(</span><span class="n">MOT_JDE_Eval</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Multiple Object Tracking Evaluator for TVD</span>
 
 <span class="sd">    This class evaluates MOT performance of tracking model such as JDE specifically on TVD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -823,7 +827,7 @@ document.write(`
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">seqinfo_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Sequence Information must be provided&quot;</span>
 
-<div class="viewcode-block" id="MOT_TVD_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_TVD_Eval.mot_eval">[docs]</a>    <span class="k">def</span> <span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_TVD_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_TVD_Eval.mot_eval">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span>
         <span class="p">),</span> <span class="s2">&quot;Total number of frames are mismatch&quot;</span>
@@ -850,7 +854,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="MOT_HiEve_Eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_HiEve_Eval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;MOT-HIEVE-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MOT_HiEve_Eval</span><span class="p">(</span><span class="n">MOT_JDE_Eval</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MOT_HiEve_Eval</span><span class="p">(</span><span class="n">MOT_JDE_Eval</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Multiple Object Tracking Evaluator for HiEve</span>
 
@@ -858,7 +862,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -876,7 +880,7 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="n">min_confidence</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MOT_HiEve_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval">[docs]</a>    <span class="k">def</span> <span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MOT_HiEve_Eval.mot_eval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.MOT_HiEve_Eval.mot_eval">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mot_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_predictions</span>
         <span class="p">),</span> <span class="s2">&quot;Total number of frames are mismatch&quot;</span>
@@ -901,24 +905,80 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">digest_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="YOLOEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;YOLO-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">YOLOEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="YOLOXCOCOEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOXCOCOEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;YOLOX-COCO-EVAL&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YOLOXCOCOEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
         <span class="n">dataset</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./vision_output/&quot;</span><span class="p">,</span>
-        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;AP50&quot;</span><span class="p">,</span>
+        <span class="n">criteria</span><span class="o">=</span><span class="s2">&quot;AP&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">datacatalog_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_annotation_info</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="n">cocoapi</span> <span class="o">=</span> <span class="n">COCO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+        <span class="n">remove_useless_info</span><span class="p">(</span><span class="n">cocoapi</span><span class="p">)</span>
+        <span class="n">class_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cocoapi</span><span class="o">.</span><span class="n">getCatIds</span><span class="p">())</span>
+        <span class="n">cats</span> <span class="o">=</span> <span class="n">cocoapi</span><span class="o">.</span><span class="n">loadCats</span><span class="p">(</span><span class="n">cocoapi</span><span class="o">.</span><span class="n">getCatIds</span><span class="p">())</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">dummy_dataloader</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">class</span><span class="w"> </span><span class="nc">dummy_dataset</span><span class="p">:</span>
+                    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">coco</span> <span class="o">=</span> <span class="n">cocoapi</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">class_ids</span> <span class="o">=</span> <span class="n">class_ids</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cats</span> <span class="o">=</span> <span class="n">cats</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dummy_dataset</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">dataloader</span> <span class="o">=</span> <span class="n">dummy_dataloader</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span> <span class="o">=</span> <span class="n">YOLOX_COCOEvaluator</span><span class="p">(</span>
+            <span class="n">dataloader</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">input_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="YOLOXCOCOEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOXCOCOEval.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="YOLOXCOCOEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOXCOCOEval.digest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="n">img_heights</span> <span class="o">=</span> <span class="p">[</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]]</span>
+        <span class="n">img_widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]]</span>
+        <span class="n">img_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image_id&quot;</span><span class="p">]]</span>
+
+        <span class="n">data_list_elem</span><span class="p">,</span> <span class="n">image_wise_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">convert_to_coco_format</span><span class="p">(</span>
+            <span class="n">pred</span><span class="p">,</span> <span class="p">[</span><span class="n">img_heights</span><span class="p">,</span> <span class="n">img_widths</span><span class="p">],</span> <span class="n">img_ids</span><span class="p">,</span> <span class="n">return_outputs</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">data_list_elem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">image_wise_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YOLOXCOCOEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.YOLOXCOCOEval.results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">dummy_statistics</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="p">)])</span>
+        <span class="n">eval_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">evaluate_prediction</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_list</span><span class="p">,</span> <span class="n">dummy_statistics</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">eval_results</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">eval_results</span><span class="p">)</span>
+
+        <span class="o">*</span><span class="n">listed_items</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="n">eval_results</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">summary</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;AP&quot;</span><span class="p">:</span> <span class="n">listed_items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;AP50&quot;</span><span class="p">:</span> <span class="n">listed_items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="VisualQualityEval"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval">[docs]</a><span class="nd">@register_evaluator</span><span class="p">(</span><span class="s2">&quot;VISUAL-QUALITY-EVAL&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">VisualQualityEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VisualQualityEval</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datacatalog_name</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -931,21 +991,21 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
 <div class="viewcode-block" id="VisualQualityEval.compute_psnr"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.compute_psnr">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">compute_psnr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_psnr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">mse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="k">return</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VisualQualityEval.compute_msssim"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.compute_msssim">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">compute_msssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_msssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ms_ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="VisualQualityEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VisualQualityEval.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sum_psnr</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sum_msssim</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="VisualQualityEval.write_results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.write_results">[docs]</a>    <span class="k">def</span> <span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VisualQualityEval.write_results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.write_results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -957,7 +1017,7 @@ document.write(`
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file_name</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluations</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VisualQualityEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.digest">[docs]</a>    <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+<div class="viewcode-block" id="VisualQualityEval.digest"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.digest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
         <span class="n">ref</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">tst</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
 
@@ -979,7 +1039,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_cc</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="VisualQualityEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VisualQualityEval.results"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.VisualQualityEval.results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
 

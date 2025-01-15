@@ -302,18 +302,115 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 
-<span class="kn">import</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">jde.utils.datasets</span> <span class="kn">import</span> <span class="n">letterbox</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.utils.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">letterbox</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;JDECustomMapper&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearMapper&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;YOLOXCustomMapper&quot;</span><span class="p">,</span> <span class="s2">&quot;JDECustomMapper&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearMapper&quot;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">JDECustomMapper</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">yolox_style_scaling</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">input_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">resized_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+        <span class="n">img</span><span class="p">,</span>
+        <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+        <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">padding</span><span class="p">:</span>
+        <span class="n">padded_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">input_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">*</span> <span class="mi">114</span>
+        <span class="n">padded_img</span><span class="p">[:</span> <span class="nb">int</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">),</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">)]</span> <span class="o">=</span> <span class="n">resized_img</span>
+
+        <span class="k">return</span> <span class="n">padded_img</span>
+
+    <span class="k">return</span> <span class="n">resized_img</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">YOLOXCustomMapper</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for YOLOX evaluation,</span>
+<span class="sd">    and map it into a format used by the model.</span>
+
+<span class="sd">    This is the default callable to be used to map your dataset dict into inference data.</span>
+
+<span class="sd">    This callable function refers to</span>
+<span class="sd">        preproc function at</span>
+<span class="sd">        &lt;https://github.com/Megvii-BaseDetection/YOLOX/yolox/data/data_augment.py&gt;</span>
+
+<span class="sd">        Full license statement can be found at</span>
+<span class="sd">        &lt;https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">[</span><span class="mi">640</span><span class="p">,</span> <span class="mi">640</span><span class="p">],</span> <span class="n">aug_transforms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            img_size: expected input size (Height, Width)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_img_size</span> <span class="o">=</span> <span class="n">img_size</span>
+
+        <span class="k">if</span> <span class="n">aug_transforms</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aug_transforms</span> <span class="o">=</span> <span class="n">aug_transforms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aug_transforms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_dict (dict): Metadata of one image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: a format that compressai-vision pipelines accept</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dataset_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">)</span>
+        <span class="c1"># the copied dictionary will be modified by code below</span>
+
+        <span class="n">dataset_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># replicate the implemetation of the original codes</span>
+        <span class="c1"># Read image</span>
+        <span class="n">org_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">])</span>  <span class="c1"># return img in BGR by default</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">org_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;detect an input image with 2 chs, </span><span class="si">{</span><span class="n">dataset_dict</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">org_img</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="c1"># yolox style input scaling</span>
+        <span class="c1"># 1st scaling</span>
+        <span class="n">resized_img</span> <span class="o">=</span> <span class="n">yolox_style_scaling</span><span class="p">(</span><span class="n">org_img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_img_size</span><span class="p">)</span>
+        <span class="c1"># 2nd scaling &amp; padding</span>
+        <span class="n">resized_img</span> <span class="o">=</span> <span class="n">yolox_style_scaling</span><span class="p">(</span>
+            <span class="n">resized_img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_img_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">tensor_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aug_transforms</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">resized_img</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># old way</span>
+        <span class="c1"># kept BGR &amp; swap axis</span>
+        <span class="c1"># image = resized_img.transpose(2, 0, 1)</span>
+        <span class="c1"># normalize contiguous array of image</span>
+        <span class="c1"># image = np.ascontiguousarray(image, dtype=np.float32)</span>
+        <span class="c1"># to tensor</span>
+        <span class="c1"># tensor_image = torch.as_tensor(image)</span>
+
+        <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor_image</span>
+
+        <span class="k">return</span> <span class="n">dataset_dict</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">JDECustomMapper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for JDE Tracking,</span>
 <span class="sd">    and map it into a format used by the model.</span>
@@ -329,7 +426,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">[</span><span class="mi">608</span><span class="p">,</span> <span class="mi">1088</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">[</span><span class="mi">608</span><span class="p">,</span> <span class="mi">1088</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            img_size: expected input size (Height, Width)</span>
@@ -337,7 +434,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">img_size</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            dataset_dict (dict): Metadata of one image.</span>
@@ -368,7 +465,7 @@ document.write(`
         <span class="k">return</span> <span class="n">dataset_dict</span>
 
 
-<span class="k">class</span> <span class="nc">LinearMapper</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearMapper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for JDE Tracking,</span>
 <span class="sd">    and map it into a format used by the model.</span>
@@ -384,7 +481,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            img_size: expected input size (Height, Width)</span>
@@ -392,7 +489,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bgr_output</span> <span class="o">=</span> <span class="n">bgr</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            dataset_dict (dict): Metadata of one image.</span>
@@ -423,7 +520,7 @@ document.write(`
         <span class="k">return</span> <span class="n">dataset_dict</span>
 
 
-<div class="viewcode-block" id="get_seq_info"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.get_seq_info">[docs]</a><span class="k">def</span> <span class="nf">get_seq_info</span><span class="p">(</span><span class="n">seq_info_path</span><span class="p">):</span>
+<div class="viewcode-block" id="get_seq_info"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.get_seq_info">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_seq_info</span><span class="p">(</span><span class="n">seq_info_path</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
     <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">seq_info_path</span><span class="p">)</span>
     <span class="n">fps</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">][</span><span class="s2">&quot;frameRate&quot;</span><span class="p">]</span>

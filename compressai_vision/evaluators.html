@@ -366,8 +366,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.VisualQualityEval.write_results"><code class="docutils literal notranslate"><span class="pre">VisualQualityEval.write_results()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval"><code class="docutils literal notranslate"><span class="pre">YOLOEval</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOEval.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.digest"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.reset"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.results"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.training</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -599,11 +602,26 @@ BaseEvaluator is inherited to interface with pipeline architecture in compressai
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOEval">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">YOLOEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AP50'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOEval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOEval" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOEval.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.YOLOEval.training" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOXCOCOEval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.evaluators.</span></span><span class="sig-name descname"><span class="pre">YOLOXCOCOEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datacatalog_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vision_output/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AP'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOXCOCOEval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOXCOCOEval" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOXCOCOEval.digest">
+<span class="sig-name descname"><span class="pre">digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOXCOCOEval.digest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOXCOCOEval.digest" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOXCOCOEval.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOXCOCOEval.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOXCOCOEval.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOXCOCOEval.results">
+<span class="sig-name descname"><span class="pre">results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compressai_vision/evaluators/evaluators.html#YOLOXCOCOEval.results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.evaluators.YOLOXCOCOEval.results" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compressai_vision.evaluators.YOLOXCOCOEval.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.evaluators.YOLOXCOCOEval.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -708,8 +726,11 @@ BaseEvaluator is inherited to interface with pipeline architecture in compressai
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.VisualQualityEval.write_results"><code class="docutils literal notranslate"><span class="pre">VisualQualityEval.write_results()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval"><code class="docutils literal notranslate"><span class="pre">YOLOEval</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOEval.training</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.digest"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.digest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.reset"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.results"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.evaluators.YOLOXCOCOEval.training"><code class="docutils literal notranslate"><span class="pre">YOLOXCOCOEval.training</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -301,19 +301,19 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.evaluators</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.model_wrappers</span> <span class="kn">import</span> <span class="n">BaseWrapper</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_pipeline</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.utils</span> <span class="kn">import</span> <span class="n">metric_tracking</span><span class="p">,</span> <span class="n">time_measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.evaluators</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEvaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.model_wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">metric_tracking</span><span class="p">,</span> <span class="n">time_measure</span>
 
-<span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePipeline</span>
 
 <span class="sd">&quot;&quot;&quot; A schematic for the remote-inference pipline</span>
 
@@ -332,15 +332,15 @@ document.write(`
 
 
 <div class="viewcode-block" id="ImageRemoteInference"><a class="viewcode-back" href="../../../../compressai_vision/pipelines/remote_inference.html#compressai_vision.pipelines.remote_inference.ImageRemoteInference">[docs]</a><span class="nd">@register_pipeline</span><span class="p">(</span><span class="s2">&quot;image-remote-inference&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ImageRemoteInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageRemoteInference</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">vision_model</span><span class="p">:</span> <span class="n">BaseWrapper</span><span class="p">,</span>
         <span class="n">codec</span><span class="p">,</span>
@@ -461,10 +461,10 @@ document.write(`
 
 
 <span class="c1"># Please leave this function for reference</span>
-<span class="k">def</span> <span class="nf">debugging</span><span class="p">(</span><span class="n">file_prefix</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">old_file_name</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">math</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">debugging</span><span class="p">(</span><span class="n">file_prefix</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">old_file_name</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
-    <span class="kn">from</span> <span class="nn">compressai_vision.utils.external_exec</span> <span class="kn">import</span> <span class="n">run_cmdline</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.utils.external_exec</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_cmdline</span>
 
     <span class="n">dst</span> <span class="o">=</span> <span class="s2">&quot;local/folder&quot;</span>
     <span class="c1"># jpg --&gt; yuv</span>

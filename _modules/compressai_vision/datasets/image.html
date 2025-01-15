@@ -302,29 +302,29 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 
-<span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">detectron2.data</span> <span class="kn">import</span> <span class="n">DatasetCatalog</span><span class="p">,</span> <span class="n">MetadataCatalog</span>
-<span class="kn">from</span> <span class="nn">detectron2.data.common</span> <span class="kn">import</span> <span class="n">DatasetFromList</span><span class="p">,</span> <span class="n">MapDataset</span>
-<span class="kn">from</span> <span class="nn">detectron2.data.dataset_mapper</span> <span class="kn">import</span> <span class="n">DatasetMapper</span>
-<span class="kn">from</span> <span class="nn">detectron2.data.datasets</span> <span class="kn">import</span> <span class="n">load_coco_json</span><span class="p">,</span> <span class="n">register_coco_instances</span>
-<span class="kn">from</span> <span class="nn">detectron2.data.samplers</span> <span class="kn">import</span> <span class="n">InferenceSampler</span>
-<span class="kn">from</span> <span class="nn">detectron2.utils.serialize</span> <span class="kn">import</span> <span class="n">PicklableWrapper</span>
-<span class="kn">from</span> <span class="nn">jde.utils.io</span> <span class="kn">import</span> <span class="n">read_results</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetCatalog</span><span class="p">,</span> <span class="n">MetadataCatalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetFromList</span><span class="p">,</span> <span class="n">MapDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data.dataset_mapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_coco_json</span><span class="p">,</span> <span class="n">register_coco_instances</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.data.samplers</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceSampler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">detectron2.utils.serialize</span><span class="w"> </span><span class="kn">import</span> <span class="n">PicklableWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jde.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_results</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_datacatalog</span><span class="p">,</span> <span class="n">register_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_datacatalog</span><span class="p">,</span> <span class="n">register_dataset</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">JDECustomMapper</span><span class="p">,</span> <span class="n">LinearMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">JDECustomMapper</span><span class="p">,</span> <span class="n">LinearMapper</span><span class="p">,</span> <span class="n">YOLOXCustomMapper</span>
 
 
-<span class="k">def</span> <span class="nf">manual_load_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">manual_load_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
     <span class="n">img_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/*.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
 
     <span class="n">datalist</span> <span class="o">=</span> <span class="p">[]</span>
@@ -348,11 +348,11 @@ document.write(`
     <span class="k">return</span> <span class="n">datalist</span>
 
 
-<span class="k">def</span> <span class="nf">bypass_collator</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bypass_collator</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">batch</span>
 
 
-<div class="viewcode-block" id="deccode_compressed_rle"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.deccode_compressed_rle">[docs]</a><span class="k">def</span> <span class="nf">deccode_compressed_rle</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="deccode_compressed_rle"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.deccode_compressed_rle">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">deccode_compressed_rle</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">List</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dict</span><span class="p">):</span>
@@ -366,8 +366,8 @@ document.write(`
                 <span class="n">segm</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">segm</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">])</span></div>
 
 
-<span class="k">class</span> <span class="nc">BaseDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -397,7 +397,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="DefaultDataset"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.DefaultDataset">[docs]</a><span class="nd">@register_dataset</span><span class="p">(</span><span class="s2">&quot;DefaultDataset&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">DefaultDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DefaultDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads an image folder database. testing image samples</span>
 <span class="sd">    are respectively stored in separate directories</span>
@@ -419,7 +419,7 @@ document.write(`
 <span class="sd">            if True the color order of the sample is BGR otherwise RGB returned</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">dataset_name</span><span class="p">,</span>
@@ -452,7 +452,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">LinearMapper</span><span class="p">(</span><span class="n">bgr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_BGR</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            index (int): Index</span>
@@ -481,7 +481,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">img</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">)</span>
 
@@ -489,8 +489,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="Detectron2Dataset"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.Detectron2Dataset">[docs]</a><span class="nd">@register_dataset</span><span class="p">(</span><span class="s2">&quot;Detectron2Dataset&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Detectron2Dataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Detectron2Dataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span>
@@ -529,19 +529,19 @@ document.write(`
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No attribute: thing_classes&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Detectron2Dataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.Detectron2Dataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span> <span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Detectron2Dataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.Detectron2Dataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span></div>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TrackingDataset"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.TrackingDataset">[docs]</a><span class="nd">@register_dataset</span><span class="p">(</span><span class="s2">&quot;TrackingDataset&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">TrackingDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrackingDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span>
@@ -559,18 +559,60 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">mapper</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span> <span class="o">=</span> <span class="n">PicklableWrapper</span><span class="p">(</span><span class="n">JDECustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">]))</span>
 
-<div class="viewcode-block" id="TrackingDataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.TrackingDataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span> <span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TrackingDataset.get_org_mapper_func"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.TrackingDataset.get_org_mapper_func">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span></div>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="DataCatalog"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.DataCatalog">[docs]</a><span class="k">class</span> <span class="nc">DataCatalog</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="nd">@register_dataset</span><span class="p">(</span><span class="s2">&quot;YOLOXDataset&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YOLOXDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">imgs_folder</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dataset</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">InferenceSampler</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">bypass_collator</span>
+
+        <span class="n">_dataset</span> <span class="o">=</span> <span class="n">DatasetFromList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;linear_mapper&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">LinearMapper</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">YOLOXCustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span> <span class="o">=</span> <span class="n">MapDataset</span><span class="p">(</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">mapper</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span> <span class="o">=</span> <span class="n">PicklableWrapper</span><span class="p">(</span>
+            <span class="n">YOLOXCustomMapper</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;patch_size&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="n">metaData</span> <span class="o">=</span> <span class="n">MetadataCatalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thing_classes</span> <span class="o">=</span> <span class="n">metaData</span><span class="o">.</span><span class="n">thing_classes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">metaData</span><span class="o">.</span><span class="n">thing_dataset_id_to_contiguous_id</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No attribute: thing_classes&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_org_mapper_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_mapper_func</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapDataset</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataCatalog"><a class="viewcode-back" href="../../../compressai_vision/datasets.html#compressai_vision.datasets.DataCatalog">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DataCatalog</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
@@ -614,33 +656,33 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_img_ext</span> <span class="o">=</span> <span class="n">ext</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dataset_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">annotation_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotation_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_file</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seqinfo_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seqinfo_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_info_file</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">imgs_folder_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imgs_folder_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imgs_folder</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span></div>
 
         <span class="c1"># super().__init__(dataset_name, dataset, cfg, imgs_folder_path, annotations_file)</span>
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;MPEGTVDTRACKING&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MPEGTVDTRACKING</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MPEGTVDTRACKING</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder database to support testing image samples extracted from MPEG-TVD Objects Tracking videos:</span>
 
 <span class="sd">    .. code-block:: none</span>
@@ -657,7 +699,7 @@ document.write(`
 <span class="sd">            PIL image and returns a transformed version</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
@@ -705,20 +747,20 @@ document.write(`
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_d</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_ground_truth_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ground_truth_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;gt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gt_labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">[]),</span>
             <span class="s2">&quot;gt_ignore&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gt_ignore_labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">maxv</span> <span class="o">=</span> <span class="mf">48.58344268798828</span>
         <span class="n">minv</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4.722218990325928</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">)</span>
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;MPEGHIEVE&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MPEGHIEVE</span><span class="p">(</span><span class="n">MPEGTVDTRACKING</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MPEGHIEVE</span><span class="p">(</span><span class="n">MPEGTVDTRACKING</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder database to support testing image samples extracted from MPEG-HiEve videos:</span>
 
 <span class="sd">    .. code-block:: none</span>
@@ -735,7 +777,7 @@ document.write(`
 <span class="sd">            PIL image and returns a transformed version</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
@@ -753,14 +795,14 @@ document.write(`
             <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">maxv</span> <span class="o">=</span> <span class="mf">11.823183059692383</span>
         <span class="n">minv</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0795124769210815</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span><span class="p">)</span>
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;MPEGOIV6&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MPEGOIV6</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MPEGOIV6</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder database to support testing image samples from MPEG-OpenimagesV6:</span>
 
 <span class="sd">    .. code-block:: none</span>
@@ -778,7 +820,7 @@ document.write(`
 <span class="sd">        use_BGR (Bool): if True the color order of the sample is BGR otherwise RGB returned</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
@@ -811,7 +853,7 @@ document.write(`
         <span class="c1"># if self.task == &#39;segmentation&#39;:</span>
         <span class="c1">#    self.deccode_compressed_rle(dataset)</span>
 
-    <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">==</span> <span class="s2">&quot;segmentation&quot;</span><span class="p">:</span>
             <span class="n">maxv</span> <span class="o">=</span> <span class="mf">28.397489547729492</span>
             <span class="n">minv</span> <span class="o">=</span> <span class="o">-</span><span class="mf">26.426830291748047</span>
@@ -824,7 +866,7 @@ document.write(`
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;SFUHW&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">SFUHW</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SFUHW</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder database with Detectron2 Cfg. testing image samples</span>
 <span class="sd">    and annotations are respectively stored in separate directories</span>
 <span class="sd">    (Currently this class supports none of training related operation ):</span>
@@ -842,7 +884,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
@@ -864,7 +906,7 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgs_folder_path</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset_name</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># from mpeg-fcvcm</span>
         <span class="n">minv</span> <span class="o">=</span> <span class="o">-</span><span class="mf">17.884761810302734</span>
         <span class="n">maxv</span> <span class="o">=</span> <span class="mf">16.694171905517578</span>
@@ -872,7 +914,7 @@ document.write(`
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;COCO&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">COCO</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">COCO</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder database with Detectron2 Cfg. testing image samples</span>
 <span class="sd">    and annotations are respectively stored in separate directories</span>
 <span class="sd">    (Currently this class supports none of training related operation ):</span>
@@ -900,7 +942,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;val2017&quot;</span><span class="p">,</span>
@@ -922,12 +964,12 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgs_folder_path</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset_name</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_max_across_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
 <span class="nd">@register_datacatalog</span><span class="p">(</span><span class="s2">&quot;IMAGES&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">IMAGES</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IMAGES</span><span class="p">(</span><span class="n">DataCatalog</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an image folder with images and no annotations</span>
 <span class="sd">    (Currently this class supports none of training related operation ):</span>
 
@@ -943,7 +985,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">,</span>
         <span class="n">imgs_folder</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>

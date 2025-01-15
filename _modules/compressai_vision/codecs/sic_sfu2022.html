@@ -301,32 +301,32 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="kn">from</span> <span class="nn">compressai.ans</span> <span class="kn">import</span> <span class="n">BufferedRansEncoder</span><span class="p">,</span> <span class="n">RansDecoder</span>
-<span class="kn">from</span> <span class="nn">compressai.entropy_models</span> <span class="kn">import</span> <span class="n">GaussianConditional</span>
-<span class="kn">from</span> <span class="nn">compressai.layers</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai.ans</span><span class="w"> </span><span class="kn">import</span> <span class="n">BufferedRansEncoder</span><span class="p">,</span> <span class="n">RansDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai.entropy_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianConditional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai.layers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MaskedConv2d</span><span class="p">,</span>
     <span class="n">ResidualBlock</span><span class="p">,</span>
     <span class="n">ResidualBlockUpsample</span><span class="p">,</span>
     <span class="n">subpel_conv3x3</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">compressai.models.utils</span> <span class="kn">import</span> <span class="n">update_registered_buffers</span>
-<span class="kn">from</span> <span class="nn">compressai.models.waseda</span> <span class="kn">import</span> <span class="n">Cheng2020Anchor</span>
-<span class="kn">from</span> <span class="nn">torch.hub</span> <span class="kn">import</span> <span class="n">load_state_dict_from_url</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_registered_buffers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai.models.waseda</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cheng2020Anchor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_state_dict_from_url</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.codecs.utils</span> <span class="kn">import</span> <span class="n">crop</span><span class="p">,</span> <span class="n">pad</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.registry</span> <span class="kn">import</span> <span class="n">register_multask_codec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.codecs.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">crop</span><span class="p">,</span> <span class="n">pad</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_multask_codec</span>
 
-<span class="kn">from</span> <span class="nn">.encdec_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">read_bytes</span><span class="p">,</span>
     <span class="n">read_uchars</span><span class="p">,</span>
     <span class="n">read_uints</span><span class="p">,</span>
@@ -336,13 +336,13 @@ document.write(`
 <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid file &quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
 
 
-<span class="k">def</span> <span class="nf">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_state</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_state</span><span class="p">):</span>
     <span class="n">model_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
 
     <span class="n">pretrained_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_state</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">model_dict</span><span class="p">}</span>
@@ -350,15 +350,15 @@ document.write(`
     <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_dict</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">load_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">loaded_weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_weights</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SIC_SFU2022"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022">[docs]</a><span class="nd">@register_multask_codec</span><span class="p">(</span><span class="s2">&quot;sic_sfu2022&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">SIC_SFU2022</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SIC_SFU2022</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -449,7 +449,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">update_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SIC_SFU2022.get_padded_input_size"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.get_padded_input_size">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_padded_input_size</span><span class="p">(</span><span class="n">fSize</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_padded_input_size</span><span class="p">(</span><span class="n">fSize</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">fSize</span>
         <span class="n">H</span> <span class="o">=</span> <span class="p">((</span><span class="n">h</span> <span class="o">+</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span>
         <span class="n">W</span> <span class="o">=</span> <span class="p">((</span><span class="n">w</span> <span class="o">+</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span>
@@ -457,15 +457,15 @@ document.write(`
         <span class="k">return</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval_encode_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_encode</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qidx</span>
 
 <div class="viewcode-block" id="SIC_SFU2022.update_model"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.update_model">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_state</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_state</span><span class="p">):</span>
         <span class="n">model_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
 
         <span class="n">pretrained_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_state</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">model_dict</span><span class="p">}</span>
@@ -474,16 +474,16 @@ document.write(`
         <span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SIC_SFU2022.load_pretrained"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.load_pretrained">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">loaded_weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">update_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loaded_weights</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SIC_SFU2022.reset"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SIC_SFU2022.reset"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target_tlayer</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_tasks</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
 
-<div class="viewcode-block" id="SIC_SFU2022.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
+<div class="viewcode-block" id="SIC_SFU2022.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.encode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">,</span>
@@ -562,7 +562,7 @@ document.write(`
             <span class="s2">&quot;bitstream&quot;</span><span class="p">:</span> <span class="n">all_pathes</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="SIC_SFU2022.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
+<div class="viewcode-block" id="SIC_SFU2022.decode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.SIC_SFU2022.decode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bitstream_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">codec_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -649,13 +649,13 @@ document.write(`
 <span class="n">SCALES_LEVELS</span> <span class="o">=</span> <span class="mi">64</span>
 
 
-<span class="k">def</span> <span class="nf">get_scale_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_scale_table</span><span class="p">(</span>
     <span class="nb">min</span><span class="o">=</span><span class="n">SCALES_MIN</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">SCALES_MAX</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">SCALES_LEVELS</span>
 <span class="p">):</span>  <span class="c1"># pylint: disable=W0622</span>
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">min</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span> <span class="n">levels</span><span class="p">))</span>
 
 
-<span class="k">class</span> <span class="nc">SICHumansMachines</span><span class="p">(</span><span class="n">Cheng2020Anchor</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SICHumansMachines</span><span class="p">(</span><span class="n">Cheng2020Anchor</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;End-to-end image codec for humans and machines from `Scalable Image</span>
 <span class="sd">    Coding for Humans and Machines&quot;</span>
 <span class="sd">    &lt;https://ieeexplore.ieee.org/document/9741390&gt;`_,</span>
@@ -670,7 +670,7 @@ document.write(`
 <span class="sd">        STRIDES_S_F (list of tuples):</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">SCALABLE_NS</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">FEATURE_NS</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
@@ -696,8 +696,8 @@ document.write(`
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TB_N</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">class</span> <span class="nc">LatentSpaceTransform</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">LatentSpaceTransform</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span>
                 <span class="n">bottleneck_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                 <span class="n">feature_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -718,11 +718,11 @@ document.write(`
                     <span class="n">activation</span><span class="p">,</span>
                 <span class="p">)</span>
 
-            <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lst</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="k">class</span> <span class="nc">EntropyModules</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottleneck_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">EntropyModules</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottleneck_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
                 <span class="nb">super</span><span class="p">(</span><span class="n">EntropyModules</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
                 <span class="n">context_prediction</span> <span class="o">=</span> <span class="n">MaskedConv2d</span><span class="p">(</span>
                     <span class="n">bottleneck_n</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bottleneck_n</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span>
@@ -769,10 +769,10 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_conditional</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context_prediction</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">getNumLayers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getNumLayers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUM_LAYERS</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_a</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="n">per_layer_y</span> <span class="o">=</span> <span class="p">[]</span>
@@ -831,7 +831,7 @@ document.write(`
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;out_hats&quot;</span><span class="p">:</span> <span class="n">output_hats</span><span class="p">,</span> <span class="s2">&quot;likelihoods&quot;</span><span class="p">:</span> <span class="n">output_likelihoods</span><span class="p">}</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_state_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_state_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new model instance from `state_dict`.&quot;&quot;&quot;</span>
         <span class="n">N</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s2">&quot;g_a.0.weight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">M</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s2">&quot;g_a.6.weight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -839,7 +839,7 @@ document.write(`
         <span class="n">net</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">net</span>
 
-    <span class="k">def</span> <span class="nf">compress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target_layer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">feature_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target_layer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">feature_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span> <span class="o">!=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;Inference on GPU is not recommended for the autoregressive &quot;</span>
@@ -906,7 +906,7 @@ document.write(`
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;strings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">output_strings</span><span class="p">,</span> <span class="n">z_strings</span><span class="p">],</span> <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]}</span>
 
-    <span class="k">def</span> <span class="nf">_compress_ar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldx</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compress_ar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldx</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
         <span class="n">gaussian_conditional</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entp</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span><span class="o">.</span><span class="n">entp_modules</span><span class="p">[</span><span class="s2">&quot;gaussian_conditional&quot;</span><span class="p">]</span>
         <span class="n">context_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entp</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span><span class="o">.</span><span class="n">entp_modules</span><span class="p">[</span><span class="s2">&quot;context_prediction&quot;</span><span class="p">]</span>
         <span class="n">entropy_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entp</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span><span class="o">.</span><span class="n">entp_modules</span><span class="p">[</span><span class="s2">&quot;entropy_parameters&quot;</span><span class="p">]</span>
@@ -955,7 +955,7 @@ document.write(`
         <span class="n">string</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">string</span><span class="p">,</span> <span class="n">y_hat</span>
 
-    <span class="k">def</span> <span class="nf">decompress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strings</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decompress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strings</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
         <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">strings</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span>
 
@@ -1036,7 +1036,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">output_hats</span>
 
-    <span class="k">def</span> <span class="nf">_decompress_ar</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_decompress_ar</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ldx</span><span class="p">,</span> <span class="n">y_string</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span>
     <span class="p">):</span>
         <span class="n">gaussian_conditional</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entp</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span><span class="o">.</span><span class="n">entp_modules</span><span class="p">[</span><span class="s2">&quot;gaussian_conditional&quot;</span><span class="p">]</span>
@@ -1085,7 +1085,7 @@ document.write(`
 
         <span class="k">return</span> <span class="n">y_hat</span>
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale_table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale_table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">scale_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">scale_table</span> <span class="o">=</span> <span class="n">get_scale_table</span><span class="p">()</span>
 
@@ -1096,7 +1096,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">entropy_bottleneck</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">force</span><span class="p">)</span>
         <span class="c1"># super().update(force=force)</span>
 
-    <span class="k">def</span> <span class="nf">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
         <span class="c1"># Dynamically update the entropy bottleneck buffers related to the CDFs</span>
 
         <span class="n">update_registered_buffers</span><span class="p">(</span>
@@ -1123,7 +1123,7 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span>
 
 
-<span class="k">def</span> <span class="nf">is_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;strip&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;__getitem__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span>
     <span class="p">)</span>

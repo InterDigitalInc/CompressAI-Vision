@@ -301,24 +301,24 @@ document.write(`
 <span class="c1"># OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span>
 
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.constant</span> <span class="kn">import</span> <span class="n">inv_vf_per_scale</span><span class="p">,</span> <span class="n">vf_per_scale</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.ffmpeg</span> <span class="kn">import</span> <span class="n">FFMpeg</span>
-<span class="kn">from</span> <span class="nn">compressai_vision.pipelines.fo_vcm.tools</span> <span class="kn">import</span> <span class="n">dumpImageArray</span><span class="p">,</span> <span class="n">test_command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">inv_vf_per_scale</span><span class="p">,</span> <span class="n">vf_per_scale</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.ffmpeg</span><span class="w"> </span><span class="kn">import</span> <span class="n">FFMpeg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.pipelines.fo_vcm.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumpImageArray</span><span class="p">,</span> <span class="n">test_command</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">EncoderDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">EncoderDecoder</span>
 
 <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="CompressAIEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder">[docs]</a><span class="k">class</span> <span class="nc">CompressAIEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
+<div class="viewcode-block" id="CompressAIEncoderDecoder"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CompressAIEncoderDecoder</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;EncoderDecoder class for CompressAI</span>
 
 <span class="sd">    :param net: compressai network, for example:</span>
@@ -352,7 +352,7 @@ document.write(`
     <span class="n">toFloat</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
     <span class="n">toByte</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">net</span><span class="p">,</span>
         <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
@@ -385,17 +385,17 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">half</span> <span class="o">=</span> <span class="n">half</span>
 
     <span class="c1"># some parameters can also be set after ctor</span>
-<div class="viewcode-block" id="CompressAIEncoderDecoder.computeMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.computeMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">computeMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<div class="viewcode-block" id="CompressAIEncoderDecoder.computeMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.computeMetrics">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">computeMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span> <span class="o">=</span> <span class="n">state</span></div>
 
-<div class="viewcode-block" id="CompressAIEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CompressAIEncoderDecoder.reset"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset internal image counter&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">imcount</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latest_psnr</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latest_msssim</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Push images(s) through the encoder+decoder, returns nbitslist (list of number of bits) and encoded+decoded images</span>
 
 <span class="sd">        :param x: a FloatTensor with dimensions (batch, channels, y, x)</span>
@@ -434,10 +434,10 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">latest_msssim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_msssim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_hat</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nbitslist</span><span class="p">,</span> <span class="n">x_hat</span>
 
-<div class="viewcode-block" id="CompressAIEncoderDecoder.getMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.getMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">getMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CompressAIEncoderDecoder.getMetrics"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.getMetrics">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">getMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_psnr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_msssim</span></div>
 
-<div class="viewcode-block" id="CompressAIEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span> <span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<div class="viewcode-block" id="CompressAIEncoderDecoder.BGR"><a class="viewcode-back" href="../../../../../compressai_vision/pipelines/fo_vcm/pipeline.html#compressai_vision.pipelines.fo_vcm.pipeline.compressai.CompressAIEncoderDecoder.BGR">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">BGR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bgr_image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return transformed image and nbits for a BGR image</span>
 
 <span class="sd">        :param bgr_image: numpy BGR image (y,x,3)</span>

@@ -386,14 +386,14 @@ are minimal: your model class should have two methods, called
 image tensor and returns bitstream, while <code class="docutils literal notranslate"><span class="pre">decompress</span></code> takes in
 bitstream and returns a recovered image.</p>
 <p>The exact signatures are:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
     <span class="c1"># where x is a torch RGB image tensor (batch, 3, H, W)</span>
     <span class="o">...</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;strings&quot;</span><span class="p">:</span> <span class="n">STRINGS</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">SHAPE</span><span class="p">}</span>
     <span class="c1"># STRINGS: a list where STRINGS[0][0] is a bytes object (the encoded bitstream) and SHAPE is some shape information used by your model</span>
 
 
-<span class="k">def</span> <span class="nf">decompress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">STRINGS</span><span class="p">,</span> <span class="n">SHAPE</span><span class="p">):</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">decompress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">STRINGS</span><span class="p">,</span> <span class="n">SHAPE</span><span class="p">):</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
     <span class="c1"># where STRINGS and SHAPE are the objects returned by compress</span>
     <span class="o">...</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x_hat&quot;</span><span class="p">:</span> <span class="n">x_hat</span><span class="p">}</span>
