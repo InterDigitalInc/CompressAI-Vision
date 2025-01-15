@@ -113,7 +113,7 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
     # back to project root
     cd ${SCRIPT_DIR}/..
 
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/detectron2)" ]; then
             echo
             echo "Downloading model weights"
