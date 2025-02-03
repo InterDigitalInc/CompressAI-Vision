@@ -88,8 +88,9 @@ echo "==========================================================================
 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++pipeline.type=video \
+        ++pipeline.codec.vcm_mode=True \
         ++paths._run_root=${OUTPUT_DIR} \
-	++vision_model.arch=jde_1088x608 \
+        ++vision_model.arch=jde_1088x608 \
         ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
         ++dataset.type=TrackingDataset \
         ++dataset.datacatalog=MPEGTVDTRACKING \

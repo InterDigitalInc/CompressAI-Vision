@@ -141,7 +141,8 @@ class ImageRemoteInference(BasePipeline):
                 self.codec_output_dir,
                 file_prefix,
                 org_img_size,
-                True,
+                remote_inference=True,
+                vcm_mode=self.configs["codec"]["vcm_mode"],
             )
             end = time_measure()
             timing["decode"].append((end - start))

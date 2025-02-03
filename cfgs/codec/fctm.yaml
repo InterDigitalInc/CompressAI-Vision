@@ -27,14 +27,17 @@ enc_configs:
 
 tools:
   feature_reduction: # reserved for restoration part as well
-    type: 'pre-trained' # or 'bypass'
-    qidx: 6 # Learned based feature tensor reduction (m66341)
-    split_ctx: "obj" # or "seg" # or "alt1" or "dn53"
-    temporal_resampling_enabled: False
-    # To properly enable Temporal resampling (m67615),
+    type: 'pre-trained' # by default # or 'bypass'
+    learned_model:
+      name: 'light_fedrnet' # fedrnet (m66341) light_fedrnet (m71247)
+      selective_learning_strategy: False # to (m71203) be True by default for FCTM v6.1.0
+      split_ctx: "obj" # or "seg" # or "alt1" or "dn53"
+
+    range_based_channel_truncation: False # (m71203) to be True by default for FCTM v6.1.0
+    temporal_resampling_enabled: False # (m67615)
+    # To properly enable Temporal resampling ,
     # temporal_resampling_enabled = True and
     # "cfgs/codec/vtm-23.3/encoder_lowdelay_vtm_gop4.cfg" must be used
-    intra_period: ${codec.enc_configs.intra_period} # as reference
 
   refinements:
     on_restored_ftensor:

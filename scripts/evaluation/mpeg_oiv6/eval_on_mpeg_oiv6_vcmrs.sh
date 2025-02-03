@@ -85,6 +85,7 @@ echo "==========================================================================
  
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++pipeline.type=image \
+        ++pipeline.codec.vcm_mode=True \
         ++paths._run_root=${OUTPUT_DIR} \
         ++vision_model.arch=${NETWORK_MODEL} \
         ++dataset.type=Detectron2Dataset \
