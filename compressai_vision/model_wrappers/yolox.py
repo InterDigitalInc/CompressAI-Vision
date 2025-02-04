@@ -54,6 +54,7 @@ class Split_Points(Enum):
         return str(self.value)
 
     Layer13_Single = "l13"
+    Layer37_Single = "l37"
 
 
 @register_vision_model("yolox_darknet53")
@@ -86,6 +87,8 @@ class yolox_darknet53(BaseWrapper):
         self.split_id = str(kwargs["splits"]).lower()
         if self.split_id == str(self.supported_split_points.Layer13_Single):
             self.split_layer_list = ["l13"]
+        elif self.split_id == str(self.supported_split_points.Layer37_Single):
+            self.split_layer_list = ["l37"]
         else:
             raise NotImplementedError
 
@@ -111,6 +114,10 @@ class yolox_darknet53(BaseWrapper):
     def SPLIT_L13(self):
         return str(self.supported_split_points.Layer13_Single)
 
+    @property
+    def SPLIT_L37(self):
+        return str(self.supported_split_points.Layer37_Single)
+
     def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
 
@@ -120,12 +127,14 @@ class yolox_darknet53(BaseWrapper):
 
         if self.split_id == self.SPLIT_L13:
             output = self._input_to_feature_at_l13(img)
-            output["input_size"] = [input_size]
-            return output
+        elif self.split_id == self.SPLIT_L37:
+            output = self._input_to_feature_at_l37(img)
         else:
             self.logger.error(f"Not supported split point {self.split_id}")
+            raise NotImplementedError
 
-        raise NotImplementedError
+        output["input_size"] = [input_size]
+        return output
 
     def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
@@ -134,6 +143,10 @@ class yolox_darknet53(BaseWrapper):
 
         if self.split_id == self.SPLIT_L13:
             return self._feature_at_l13_to_output(
+                x["data"], x["org_input_size"], x["input_size"]
+            )
+        elif self.split_id == self.SPLIT_L37:
+            return self._feature_at_l37_to_output(
                 x["data"], x["org_input_size"], x["input_size"]
             )
         else:
@@ -148,6 +161,17 @@ class yolox_darknet53(BaseWrapper):
         y = self.backbone.stem(x)
         y = self.backbone.dark2(y)
         self.features_at_splits[self.SPLIT_L13] = self.backbone.dark3[0](y)
+
+        return {"data": self.features_at_splits}
+
+    @torch.no_grad()
+    def _input_to_feature_at_l37(self, x):
+        """Computes and return feature at layer 37 with 11th residual layer output all the way from the input"""
+
+        y = self.backbone.stem(x)
+        y = self.backbone.dark2(y)
+        y = self.backbone.dark3(y)
+        self.features_at_splits[self.SPLIT_L37] = y
 
         return {"data": self.features_at_splits}
 
@@ -173,6 +197,45 @@ class yolox_darknet53(BaseWrapper):
             y = proc_module(y)
 
         fp_lvl2 = y
+        fp_lvl1 = self.backbone.dark4(fp_lvl2)
+        fp_lvl0 = self.backbone.dark5(fp_lvl1)
+
+        # yolo branch 1
+        b1_in = self.yolo_fpn.out1_cbl(fp_lvl0)
+        b1_in = self.yolo_fpn.upsample(b1_in)
+        b1_in = torch.cat([b1_in, fp_lvl1], 1)
+        fp_lvl1 = self.yolo_fpn.out1(b1_in)
+
+        # yolo branch 2
+        b2_in = self.yolo_fpn.out2_cbl(fp_lvl1)
+        b2_in = self.yolo_fpn.upsample(b2_in)
+        b2_in = torch.cat([b2_in, fp_lvl2], 1)
+        fp_lvl2 = self.yolo_fpn.out2(b2_in)
+
+        outputs = self.head((fp_lvl2, fp_lvl1, fp_lvl0))
+
+        pred = postprocess(outputs, self.num_classes, self.conf_thres, self.nms_thres)
+
+        return pred
+
+    @torch.no_grad()
+    def _feature_at_l37_to_output(
+        self, x: Dict, org_img_size: Dict, input_img_size: List
+    ):
+        """
+        performs  downstream task using the features from layer 37
+
+        YOLOX source codes are referenced for this function.
+        <https://github.com/Megvii-BaseDetection/YOLOX/yolox/data/data_augment.py>
+
+        Unnecessary parts for split inference are removed or modified properly.
+
+        Please find the license statement in the downloaded original YOLOX source codes or at here:
+        <https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme>
+
+        """
+
+        fp_lvl2 = x[self.SPLIT_L37]
         fp_lvl1 = self.backbone.dark4(fp_lvl2)
         fp_lvl0 = self.backbone.dark5(fp_lvl1)
 

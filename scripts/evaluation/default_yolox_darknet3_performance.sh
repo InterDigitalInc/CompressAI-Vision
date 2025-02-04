@@ -40,6 +40,9 @@ fi
 COCO_2017_VAL_SRC="${TESTDATA_DIR}/coco2017"
 
 # COCO 2017 Val - Detection with YOLOX-Darknet53
+
+# option for split points "l13" or "l37"
+# ++vision_model.yolox_darknet53.splits="l37" \ 
 ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.type=image \
              ++pipeline.conformance.save_conformance_files=False \
