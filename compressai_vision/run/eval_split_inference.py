@@ -247,7 +247,7 @@ def main(conf: DictConfig):
 
             elap_times = updates
 
-    performance, eval_criteria = _summerize_performance(
+    performance, eval_criteria = _summarize_performance(
         evaluator_name, performance, conf.evaluator.eval_criteria
     )
 
@@ -326,7 +326,8 @@ def _calc_bpp(coded_res_df):
     return avg_bpp
 
 
-def _summerize_performance(evaluator_name, performance, eval_criteria):
+def _summarize_performance(evaluator_name, performance, eval_criteria):
+    # Factorization needed TODO (Hyomin)
     if evaluator_name == "OpenImagesChallengeEval":
         def_criteria = "mAP@0.5IOU"
         if not eval_criteria:
