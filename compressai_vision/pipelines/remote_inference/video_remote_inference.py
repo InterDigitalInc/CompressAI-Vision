@@ -157,7 +157,7 @@ class VideoRemoteInference(BasePipeline):
 
         # Feature Deompression
         start = time_measure()
-        dec_seq, dec_time_by_module = self._decompress(
+        dec_seq, dec_time_by_module, dec_complexity = self._decompress(
             codec=codec,
             bitstream=res["bitstream"],
             codec_output_dir=self.codec_output_dir,

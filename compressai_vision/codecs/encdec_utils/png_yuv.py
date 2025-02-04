@@ -29,6 +29,7 @@
 
 import logging
 import math
+import shutil
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -93,6 +94,12 @@ class PngFilesToYuvFileConverter:
                 "-i",
                 filename_pattern,
             ]
+
+            yuv_file = Path(f"{Path(file_names[0]).parent.parent}.yuv")
+            print(f"Checking if YUV is available: {yuv_file}")
+            if not yuv_file.is_file():
+                yuv_file = None
+
         else:
             nb_frames = 1
             input_info = ["-i", file_names[0]]
@@ -107,6 +114,25 @@ class PngFilesToYuvFileConverter:
 
         pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
         chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}p"
+
+        # Use existing YUV (if found):
+        if yuv_file is not None:
+            size = yuv_file.stat().st_size
+            bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
+            bytes_per_sample = (input_bitdepth + 7) >> 3
+            expected_size = int(
+                frame_width
+                * frame_height
+                * bytes_per_luma_sample
+                * bytes_per_sample
+                * nb_frames
+            )
+            assert (
+                size == expected_size
+            ), f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
+            shutil.copy(yuv_file, yuv_in_path)
+            print(f"Using pre-existing YUV file: {yuv_file}")
+            return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
 
         # TODO (fracape)
         # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
@@ -149,6 +175,7 @@ class YuvFileToPngFilesConverter:
         dec_path: str,
         yuv_dec_path: Path,
         org_img_size: Optional[Dict] = None,
+        vcm_mode: bool = False,
     ):
         """Converts a YUV file to a series of PNG images using ffmpeg.
 
@@ -192,15 +219,38 @@ class YuvFileToPngFilesConverter:
             f"{chroma_format}{pix_fmt_suffix}",
             "-s",
             f"{frame_width}x{frame_height}",
-            "-src_range",
-            "1",  # (fracape) assume dec yuv is full range for now
-            "-i",
-            f"{yuv_dec_path}",
-            "-pix_fmt",
-            "rgb24",
-            *cmd_suffix,
-            output_png,
         ]
+
+        if not vcm_mode:
+            convert_cmd.extend(
+                [
+                    "-src_range",
+                    "1",  # (fracape) assume dec yuv is full range for now
+                ]
+            )
+
+        convert_cmd.extend(
+            [
+                "-i",
+                f"{yuv_dec_path}",
+                "-pix_fmt",
+                "rgb24",
+            ]
+        )
+
+        if vcm_mode:
+            convert_cmd.extend(
+                [
+                    "-vsync",
+                    "1",
+                ]
+            )
+        convert_cmd.extend(
+            [
+                *cmd_suffix,
+                output_png,
+            ]
+        )
 
         run_cmdline(convert_cmd)
 

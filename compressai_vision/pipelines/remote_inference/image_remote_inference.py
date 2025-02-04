@@ -135,7 +135,7 @@ class ImageRemoteInference(BasePipeline):
                 continue
 
             start = time_measure()
-            dec_seq = self._decompress(
+            dec_seq, dec_time_by_module, mac_computation = self._decompress(
                 codec,
                 res["bitstream"],
                 self.codec_output_dir,
