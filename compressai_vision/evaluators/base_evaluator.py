@@ -69,7 +69,8 @@ class BaseEvaluator(nn.Module):
         return f"{name}_info_to_eval.h5"
 
     @staticmethod
-    def get_coco_eval_info_name(name):
+    def get_coco_eval_info_name(name=None):
+        # the not used input is intended to interface with the function computing class-wise peformance
         return "coco_instances_results.json"
 
     def reset(self):

@@ -690,6 +690,18 @@ class YOLOXCOCOEval(BaseEvaluator):
             self.data_list, dummy_statistics
         )
 
+        assert self.output_dir is not None
+
+        file_path = Path(f"{self.output_dir}")
+        if not file_path.is_dir():
+            self._logger.info(f"creating output folder: {file_path}")
+            file_path.mkdir(parents=True, exist_ok=True)
+            self._logger.info("Saving results to {}".format(file_path))
+
+        with open(f"{file_path}/{self.get_coco_eval_info_name()}", "w") as f:
+            f.write(json.dumps(self.data_list))
+            f.flush()
+
         if save_path:
             self.write_results(eval_results, save_path)
 
