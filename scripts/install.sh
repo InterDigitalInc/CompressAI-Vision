@@ -28,7 +28,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (detectron2/jde/yolox/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -242,7 +242,7 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/yolox)" ]; then
-        git clone https://github.com/Megvii-BaseDetection/YOLOX.git ${MODELS_SOURCE_DIR}/yolox
+        git clone https://github.com/Megvii-BaseDetection/yolox.git ${MODELS_SOURCE_DIR}/yolox
         
         # checkout specific commit on Nov.19, 2024 for now to avoid compatibility in the future.
         cd ${MODELS_SOURCE_DIR}/yolox
@@ -267,10 +267,61 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
             wget -nc https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth -P ${WEIGHT_DIR}
         else
             echo
-            echo "YOLOX Weights directory not empty, using existing models"
+            echo "YOLOX Weights directory is not empty, using existing models"
             echo
         fi
     fi
+    # back to project root
+    cd ${SCRIPT_DIR}/..
+fi
+
+if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
+    echo
+    echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
+    echo
+
+    pip install -U openmim
+    mim install "mmcv==2.0.1"
+
+    # clone
+    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
+        git clone https://github.com/open-mmlab/mmpose.git ${MODELS_SOURCE_DIR}/mmpose
+        
+        # checkout specific commit version to avoid compatibility in the future.
+        cd ${MODELS_SOURCE_DIR}/mmpose
+        git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
+        cd ${SCRIPT_DIR}/..
+    fi
+
+    cd ${MODELS_SOURCE_DIR}/mmpose
+    # miminum requirments - no onnx, etc.
+    pip install -r requirements.txt
+    pip3 install -v -e .
+
+    mim install mmdet==3.1.0
+    
+    # during the installation isort version might be overwritten.
+    # hence make sure back to the isort=5.13.2
+    pip install isort==5.13.2
+
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
+        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/mmpose)" ]; then
+            echo
+            echo "Downloading RTMO model weights"
+            echo
+
+            # RTMO: Towards High-Performance One-Stage Real-Time Multi-Person Pose Estimation
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/mmpose/rtmo_coco"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth -P ${WEIGHT_DIR}
+        else
+            echo
+            echo "MMPOSE-RTMO Weights directory is not empty, using existing models"
+            echo
+        fi
+    fi
+    # back to project root
+    cd ${SCRIPT_DIR}/..
 fi
 
 echo
