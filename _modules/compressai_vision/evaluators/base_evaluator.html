@@ -343,7 +343,8 @@ document.write(`
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_info_to_eval.h5&quot;</span></div>
 
 <div class="viewcode-block" id="BaseEvaluator.get_coco_eval_info_name"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.BaseEvaluator.get_coco_eval_info_name">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_coco_eval_info_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_coco_eval_info_name</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># the not used input is intended to interface with the function computing class-wise peformance</span>
         <span class="k">return</span> <span class="s2">&quot;coco_instances_results.json&quot;</span></div>
 
 <div class="viewcode-block" id="BaseEvaluator.reset"><a class="viewcode-back" href="../../../compressai_vision/evaluators.html#compressai_vision.evaluators.BaseEvaluator.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -328,6 +328,7 @@ document.write(`
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="n">Layer13_Single</span> <span class="o">=</span> <span class="s2">&quot;l13&quot;</span>
+    <span class="n">Layer37_Single</span> <span class="o">=</span> <span class="s2">&quot;l37&quot;</span>
 
 
 <div class="viewcode-block" id="yolox_darknet53"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.yolox_darknet53">[docs]</a><span class="nd">@register_vision_model</span><span class="p">(</span><span class="s2">&quot;yolox_darknet53&quot;</span><span class="p">)</span>
@@ -360,6 +361,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;splits&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;l13&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;l37&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -385,6 +388,10 @@ document.write(`
     <span class="k">def</span><span class="w"> </span><span class="nf">SPLIT_L13</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">SPLIT_L37</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">)</span>
+
 <div class="viewcode-block" id="yolox_darknet53.input_to_features"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.yolox_darknet53.input_to_features">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes deep features at the intermediate layer(s) all the way from the input&quot;&quot;&quot;</span>
 
@@ -394,12 +401,14 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l13</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_size</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">output</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l37</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported split point </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="n">output</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_size</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="yolox_darknet53.features_to_output"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.yolox_darknet53.features_to_output">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">features_to_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Complete the downstream task from the intermediate deep features&quot;&quot;&quot;</span>
@@ -408,6 +417,10 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_at_l13_to_output</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_at_l37_to_output</span><span class="p">(</span>
                 <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -422,6 +435,17 @@ document.write(`
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark2</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark3</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">}</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_at_l37</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature at layer 37 with 11th residual layer output all the way from the input&quot;&quot;&quot;</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark2</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark3</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">}</span>
 
@@ -447,6 +471,45 @@ document.write(`
             <span class="n">y</span> <span class="o">=</span> <span class="n">proc_module</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
         <span class="n">fp_lvl2</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">fp_lvl1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark4</span><span class="p">(</span><span class="n">fp_lvl2</span><span class="p">)</span>
+        <span class="n">fp_lvl0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark5</span><span class="p">(</span><span class="n">fp_lvl1</span><span class="p">)</span>
+
+        <span class="c1"># yolo branch 1</span>
+        <span class="n">b1_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">out1_cbl</span><span class="p">(</span><span class="n">fp_lvl0</span><span class="p">)</span>
+        <span class="n">b1_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">b1_in</span><span class="p">)</span>
+        <span class="n">b1_in</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">b1_in</span><span class="p">,</span> <span class="n">fp_lvl1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">fp_lvl1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">out1</span><span class="p">(</span><span class="n">b1_in</span><span class="p">)</span>
+
+        <span class="c1"># yolo branch 2</span>
+        <span class="n">b2_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">out2_cbl</span><span class="p">(</span><span class="n">fp_lvl1</span><span class="p">)</span>
+        <span class="n">b2_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">b2_in</span><span class="p">)</span>
+        <span class="n">b2_in</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">b2_in</span><span class="p">,</span> <span class="n">fp_lvl2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">fp_lvl2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">out2</span><span class="p">(</span><span class="n">b2_in</span><span class="p">)</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">((</span><span class="n">fp_lvl2</span><span class="p">,</span> <span class="n">fp_lvl1</span><span class="p">,</span> <span class="n">fp_lvl0</span><span class="p">))</span>
+
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">postprocess</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_thres</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nms_thres</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pred</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_feature_at_l37_to_output</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        performs  downstream task using the features from layer 37</span>
+
+<span class="sd">        YOLOX source codes are referenced for this function.</span>
+<span class="sd">        &lt;https://github.com/Megvii-BaseDetection/YOLOX/yolox/data/data_augment.py&gt;</span>
+
+<span class="sd">        Unnecessary parts for split inference are removed or modified properly.</span>
+
+<span class="sd">        Please find the license statement in the downloaded original YOLOX source codes or at here:</span>
+<span class="sd">        &lt;https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fp_lvl2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">]</span>
         <span class="n">fp_lvl1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark4</span><span class="p">(</span><span class="n">fp_lvl2</span><span class="p">)</span>
         <span class="n">fp_lvl0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark5</span><span class="p">(</span><span class="n">fp_lvl1</span><span class="p">)</span>
 

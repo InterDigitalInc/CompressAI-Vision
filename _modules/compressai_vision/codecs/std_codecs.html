@@ -302,21 +302,18 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">errno</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.codecs.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FpnUtils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.model_wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
@@ -327,14 +324,7 @@ document.write(`
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.encdec_utils.png_yuv</span><span class="w"> </span><span class="kn">import</span> <span class="n">PngFilesToYuvFileConverter</span><span class="p">,</span> <span class="n">YuvFileToPngFilesConverter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MIN_MAX_DATASET</span><span class="p">,</span>
-    <span class="n">compute_frame_resolution</span><span class="p">,</span>
-    <span class="n">min_max_inv_normalization</span><span class="p">,</span>
-    <span class="n">min_max_normalization</span><span class="p">,</span>
-    <span class="n">tensor_to_tiled</span><span class="p">,</span>
-    <span class="n">tiled_to_tensor</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_MAX_DATASET</span><span class="p">,</span> <span class="n">min_max_inv_normalization</span><span class="p">,</span> <span class="n">min_max_normalization</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_filesize</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -679,231 +669,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
-<div class="viewcode-block" id="VTM.convert_input_to_yuv"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_input_to_yuv">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_input_to_yuv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Converts the input image or video to YUV format using ffmpeg, or use existing YUV if available.</span>
-<span class="sd">        Args:</span>
-<span class="sd">            input (Dict): A dictionary containing information about the input. It should have the following keys:</span>
-<span class="sd">                - file_names (List[str]): A list of file names for the input. If it contains more than one file, it is considered a video.</span>
-<span class="sd">                - last_frame (int): The last frame number of the video.</span>
-<span class="sd">                - frame_skip (int): The number of frames to skip in the video.</span>
-<span class="sd">                - org_input_size (Dict[str, int]): A dictionary containing the width and height of the input.</span>
-<span class="sd">            file_prefix (str): The prefix for the output file name.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Tuple[str, int, int, int, str]: A tuple containing the following:</span>
-<span class="sd">                - yuv_in_path (str): The path to the converted YUV input file.</span>
-<span class="sd">                - nb_frames (int): The number of frames in the input.</span>
-<span class="sd">                - frame_width (int): The width of the frames in the input.</span>
-<span class="sd">                - frame_height (int): The height of the frames in the input.</span>
-<span class="sd">                - file_prefix (str): The updated file prefix.</span>
-<span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the number of images in the input folder does not match the expected number of frames.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_names</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;file_names&quot;</span><span class="p">]</span>
-        <span class="n">yuv_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># video</span>
-            <span class="c1"># NOTE: using glob for now, should be more robust and look at skipped</span>
-            <span class="c1"># NOTE: somewhat rigid pattern (lowercase png)</span>
-            <span class="n">filename_pattern</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="si">}</span><span class="s2">/*.png&quot;</span>
-            <span class="n">nb_frames</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;last_frame&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;frame_skip&quot;</span><span class="p">]</span>
-            <span class="n">images_in_folder</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.png&quot;</span><span class="p">)]</span>
-            <span class="p">)</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">images_in_folder</span> <span class="o">==</span> <span class="n">nb_frames</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;input folder contains </span><span class="si">{</span><span class="n">images_in_folder</span><span class="si">}</span><span class="s2"> images, </span><span class="si">{</span><span class="n">nb_frames</span><span class="si">}</span><span class="s2"> were expected&quot;</span>
-
-            <span class="n">input_info</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;-pattern_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;glob&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-                <span class="n">filename_pattern</span><span class="p">,</span>
-            <span class="p">]</span>
-
-            <span class="n">yuv_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">.yuv&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking if YUV is available: </span><span class="si">{</span><span class="n">yuv_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">yuv_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                <span class="n">yuv_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">input_info</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-
-        <span class="n">chroma_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;chroma_format&quot;</span><span class="p">]</span>
-        <span class="n">input_bitdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enc_cfgs</span><span class="p">[</span><span class="s2">&quot;input_bitdepth&quot;</span><span class="p">]</span>
-
-        <span class="n">frame_width</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
-        <span class="n">frame_height</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
-        <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span><span class="si">}</span><span class="s2">fps_</span><span class="si">{</span><span class="n">input_bitdepth</span><span class="si">}</span><span class="s2">bit_p</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">yuv_in_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_input.yuv&quot;</span>
-
-        <span class="n">pix_fmt_suffix</span> <span class="o">=</span> <span class="s2">&quot;10le&quot;</span> <span class="k">if</span> <span class="n">input_bitdepth</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">chroma_format</span> <span class="o">=</span> <span class="s2">&quot;gray&quot;</span> <span class="k">if</span> <span class="n">chroma_format</span> <span class="o">==</span> <span class="s2">&quot;400&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;yuv</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}</span><span class="s2">p&quot;</span>
-
-        <span class="c1"># Use existing YUV (if found):</span>
-        <span class="k">if</span> <span class="n">yuv_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">size</span> <span class="o">=</span> <span class="n">yuv_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
-            <span class="n">bytes_per_luma_sample</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;yuv420p&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}[</span><span class="n">chroma_format</span><span class="p">]</span>
-            <span class="n">bytes_per_sample</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_bitdepth</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span>
-            <span class="n">expected_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
-                <span class="n">frame_width</span>
-                <span class="o">*</span> <span class="n">frame_height</span>
-                <span class="o">*</span> <span class="n">bytes_per_luma_sample</span>
-                <span class="o">*</span> <span class="n">bytes_per_sample</span>
-                <span class="o">*</span> <span class="n">nb_frames</span>
-            <span class="p">)</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">size</span> <span class="o">==</span> <span class="n">expected_size</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;YUV found for input but expected size of </span><span class="si">{</span><span class="n">expected_size</span><span class="si">}</span><span class="s2"> bytes differs from actual size of </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">yuv_file</span><span class="p">,</span> <span class="n">yuv_in_path</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using pre-existing YUV file: </span><span class="si">{</span><span class="n">yuv_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">yuv_in_path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">)</span>
-
-        <span class="c1"># TODO (fracape)</span>
-        <span class="c1"># we don&#39;t enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode</span>
-
-        <span class="n">convert_cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-hide_banner&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_loglevel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="n">convert_cmd</span> <span class="o">+=</span> <span class="n">input_info</span>
-        <span class="n">convert_cmd</span> <span class="o">+=</span> <span class="p">[</span>
-            <span class="s2">&quot;-vf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pad=ceil(iw/2)*2:ceil(ih/2)*2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rawvideo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}{</span><span class="n">pix_fmt_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-dst_range&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1&quot;</span><span class="p">,</span>  <span class="c1">#  (fracape) convert to full range for now</span>
-        <span class="p">]</span>
-
-        <span class="n">convert_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yuv_in_path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">convert_cmd</span><span class="p">)</span>
-
-        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">convert_cmd</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">(</span><span class="n">yuv_in_path</span><span class="p">,</span> <span class="n">nb_frames</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">,</span> <span class="n">file_prefix</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="VTM.convert_yuv_to_pngs"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.convert_yuv_to_pngs">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_yuv_to_pngs</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">output_file_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">dec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">yuv_dec_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-        <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">vcm_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Converts a YUV file to a series of PNG images using ffmpeg.</span>
-<span class="sd">        Args:</span>
-<span class="sd">            output_file_prefix (str): The prefix of the output file name.</span>
-<span class="sd">            dec_path (str): The path to the directory where the PNG images will be saved.</span>
-<span class="sd">            yuv_dec_path (Path): The path to the input YUV file.</span>
-<span class="sd">            org_img_size (Dict, optional): The original image size. Defaults to None.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            None</span>
-<span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the video format is not YUV420.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">video_info</span> <span class="o">=</span> <span class="n">get_raw_video_file_info</span><span class="p">(</span><span class="n">yuv_dec_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;qp&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">frame_width</span> <span class="o">=</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
-        <span class="n">frame_height</span> <span class="o">=</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
-
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="s2">&quot;420&quot;</span> <span class="ow">in</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Only support yuv420, but got </span><span class="si">{</span><span class="n">video_info</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">pix_fmt_suffix</span> <span class="o">=</span> <span class="s2">&quot;10le&quot;</span> <span class="k">if</span> <span class="n">video_info</span><span class="p">[</span><span class="s2">&quot;bitdepth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">chroma_format</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;yuv420p&quot;</span>
-
-        <span class="n">convert_cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-hide_banner&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rawvideo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chroma_format</span><span class="si">}{</span><span class="n">pix_fmt_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vcm_mode</span><span class="p">:</span>
-            <span class="n">convert_cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="s2">&quot;-src_range&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;1&quot;</span><span class="p">,</span>  <span class="c1"># (fracape) assume dec yuv is full range for now</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-        <span class="n">convert_cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yuv_dec_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-pix_fmt&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rgb24&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">vcm_mode</span><span class="p">:</span>
-            <span class="n">convert_cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="s2">&quot;-vsync&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-
-        <span class="c1"># TODO (fracape) hacky, clean this</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">==</span> <span class="s2">&quot;MPEGOIV6&quot;</span><span class="p">:</span>
-            <span class="n">output_png</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">output_file_prefix</span><span class="si">}</span><span class="s2">.png&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="o">==</span> <span class="s2">&quot;SFUHW&quot;</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">output_file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;qp&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">output_png</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">%03d.png&quot;</span>
-            <span class="n">convert_cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-start_number&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MPEGHIEVE&quot;</span><span class="p">]:</span>
-            <span class="n">convert_cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-start_number&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
-            <span class="n">output_png</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/%06d.png&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">datacatalog</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MPEGTVDTRACKING&quot;</span><span class="p">]:</span>
-            <span class="n">convert_cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-start_number&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">]</span>
-            <span class="n">output_png</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/%06d.png&quot;</span>
-        <span class="n">convert_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span>
-
-        <span class="n">run_cmdline</span><span class="p">(</span><span class="n">convert_cmd</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">org_img_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">discrepancy</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="kc">True</span>
-                <span class="k">if</span> <span class="n">frame_height</span> <span class="o">!=</span> <span class="n">org_img_size</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
-                <span class="ow">or</span> <span class="n">frame_width</span> <span class="o">!=</span> <span class="n">org_img_size</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
-                <span class="k">else</span> <span class="kc">False</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">discrepancy</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Different original input size found. It must be </span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, but </span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2"> are parsed from YUV&quot;</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Use </span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, instead of </span><span class="si">{</span><span class="n">frame_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">frame_height</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-
-                <span class="n">final_png</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dec_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_tmp.png&quot;</span>
-
-                <span class="n">convert_cmd</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-hide_banner&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-                    <span class="n">output_png</span><span class="p">,</span>
-                    <span class="s2">&quot;-vf&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;crop=</span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">org_img_size</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">final_png</span><span class="p">,</span>  <span class="c1"># no name change</span>
-                <span class="p">]</span>
-                <span class="n">run_cmdline</span><span class="p">(</span><span class="n">convert_cmd</span><span class="p">)</span>
-
-                <span class="n">Path</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-                <span class="n">Path</span><span class="p">(</span><span class="n">final_png</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">output_png</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="VTM.encode"><a class="viewcode-back" href="../../../compressai_vision/codecs.html#compressai_vision.codecs.VTM.encode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -1123,7 +888,11 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dec_time:</span><span class="si">{</span><span class="n">dec_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">convert_yuv_to_pngs</span><span class="p">(</span>
-                <span class="n">output_file_prefix</span><span class="p">,</span> <span class="n">dec_path</span><span class="p">,</span> <span class="n">yuv_dec_path</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">,</span> <span class="n">vcm_mode</span>
+                <span class="n">output_file_prefix</span><span class="p">,</span>
+                <span class="n">dec_path</span><span class="p">,</span>
+                <span class="n">yuv_dec_path</span><span class="p">,</span>
+                <span class="n">org_img_size</span><span class="o">=</span><span class="n">org_img_size</span><span class="p">,</span>
+                <span class="n">vcm_mode</span><span class="o">=</span><span class="n">vcm_mode</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># output the list of file paths for each frame</span>
