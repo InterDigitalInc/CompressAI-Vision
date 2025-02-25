@@ -207,7 +207,9 @@ class BasePipeline(nn.Module):
         if n_bits == -1:
             data_features = features["data"]
         elif n_bits >= 8:
-            assert n_bits == 8, "currently it only supports dumping features in 8 bits"
+            assert (
+                n_bits == 8 or n_bits == 16
+            ), "currently it only supports dumping features in 8 bits or 16 bits"
             assert datacatalog_name in list(
                 MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
@@ -218,7 +220,21 @@ class BasePipeline(nn.Module):
                     data.min() >= minv and data.max() <= maxv
                 ), f"{data.min()} should be greater than {minv} and {data.max()} should be less than {maxv}"
                 out, _ = min_max_normalization(data, minv, maxv, bitdepth=n_bits)
-                data_features[key] = out.to(torch.uint8)
+
+                if n_bits <= 8:
+                    data_features[key] = out.to(torch.uint8)
+                elif n_bits <= 16:
+                    data_features[key] = {
+                        "lsb": torch.bitwise_and(
+                            out.to(torch.int32), torch.tensor(0xFF)
+                        ).to(torch.uint8),
+                        "msb": torch.bitwise_and(
+                            torch.bitwise_right_shift(out.to(torch.int32), 8),
+                            torch.tensor(0xFF),
+                        ).to(torch.uint8),
+                    }
+                else:
+                    raise NotImplementedError
         else:
             raise NotImplementedError
 
@@ -230,15 +246,30 @@ class BasePipeline(nn.Module):
         if n_bits == -1:
             assert "data" in features
         elif n_bits >= 8:
-            assert n_bits == 8, "currently it only supports dumping features in 8 bits"
+            assert (
+                n_bits == 8 or n_bits == 16
+            ), "currently it only supports dumping features in 8 bits or 16 bits"
             assert datacatalog_name in list(
                 MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
             for key, data in features["data"].items():
-                out = min_max_inv_normalization(data, minv, maxv, bitdepth=n_bits)
-                data_features[key] = out.to(torch.float32)
+
+                if n_bits <= 8:
+                    out = min_max_inv_normalization(data, minv, maxv, bitdepth=n_bits)
+                    data_features[key] = out.to(torch.float32)
+                elif n_bits <= 16:
+                    lsb_part = data["lsb"].to(torch.int32)
+                    msb_part = torch.bitwise_left_shift(data["msb"].to(torch.int32), 8)
+                    recovery = (msb_part + lsb_part).to(torch.float32)
+
+                    out = min_max_inv_normalization(
+                        recovery, minv, maxv, bitdepth=n_bits
+                    )
+                    data_features[key] = out.to(torch.float32)
+                else:
+                    raise NotImplementedError
 
             features["data"] = data_features
         else:
