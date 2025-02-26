@@ -43,11 +43,15 @@ from jde.tracker.multitracker import (
 )
 from jde.utils.kalman_filter import KalmanFilter
 from jde.utils.utils import non_max_suppression, scale_coords
-from torch import Tensor
 
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
+
+# Patch in modified create_modules
+from .jde_lowlevel import create_modules
+
+jde.models.create_modules = create_modules
 
 __all__ = [
     "jde_1088x608",
@@ -84,6 +88,8 @@ class jde_1088x608(BaseWrapper):
             self.model_configs["frame_rate"] / 30.0 * self.model_configs["track_buffer"]
         )
 
+        integer_conv_weight = bool(kwargs["integer_conv_weight"])
+
         assert "splits" in kwargs, "Split layer ids must be provided"
         self.split_layer_list = kwargs["splits"]
         self.features_at_splits = dict(
@@ -96,6 +102,12 @@ class jde_1088x608(BaseWrapper):
             strict=False,
         )
         self.darknet.to(device).eval()
+        for param in self.darknet.parameters():
+            param.requires_grad = False
+
+        # must be called after loading weights to a model
+        if integer_conv_weight:
+            self.darknet = self.quantize_weights(self.darknet)
 
         self.kalman_filter = KalmanFilter()
 
@@ -113,6 +125,17 @@ class jde_1088x608(BaseWrapper):
         self.global_removed_tracks = []
 
         self.frame_id = 0
+
+    @staticmethod
+    def quantize_weights(model):
+
+        for module_def, module in zip(model.module_defs, model.module_list):
+            if module_def["type"] == "convolutional":
+                for m in module:
+                    if type(m).__name__ == "IntConv2dWrapper":
+                        m.quantize_weights()
+
+        return model
 
     def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
