@@ -1,4 +1,3 @@
-# Copyright (c) 2022-2024, InterDigital Communications, Inc
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -46,7 +45,7 @@ from detectron2.structures import ImageList
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-from .intconv2d import IntConv2d
+from .intconv2d import IntConv2d, IntTransposedConv2d
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -189,9 +188,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
     def replace_conv2d_modules(self, module):
         for child_name, child_module in module.named_children():
-            if type(child_module).__name__ == "Conv2d":
-                int_conv2d = Conv2d(**child_module.__dict__)
-                int_conv2d.set_attributes(child_module)
+            if type(child_module).__name__ in ["Conv2d", "TransposedConv2d"]:
+                if type(child_module).__name__ == "Conv2d":
+                    int_module = Conv2d(**child_module.__dict__)
+                    int_module.set_attributes(child_module)
+                else:
+                    int_module = IntTransposedConv2d(**child_module.__dict__)
+                    int_module.set_attributes(child_module)
 
                 # Since regular list is used instead of ModuleList
                 if "fpn_lateral" in child_name or "fpn_output" in child_name:
@@ -201,12 +204,12 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
                     assert idx in [2, 3, 4, 5]
 
                     if "fpn_lateral" in child_name:
-                        module.lateral_convs[3 - (idx - 2)] = int_conv2d
+                        module.lateral_convs[3 - (idx - 2)] = int_module
                     else:
                         assert "fpn_output" in child_name
-                        module.output_convs[3 - (idx - 2)] = int_conv2d
+                        module.output_convs[3 - (idx - 2)] = int_module
 
-                setattr(module, child_name, int_conv2d)
+                setattr(module, child_name, int_module)
             else:
                 self.replace_conv2d_modules(child_module)
 
