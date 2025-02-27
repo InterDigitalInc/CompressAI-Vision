@@ -88,7 +88,7 @@ class jde_1088x608(BaseWrapper):
             self.model_configs["frame_rate"] / 30.0 * self.model_configs["track_buffer"]
         )
 
-        integer_conv_weight = bool(kwargs["integer_conv_weight"])
+        _integer_conv_weight = bool(kwargs["integer_conv_weight"])
 
         assert "splits" in kwargs, "Split layer ids must be provided"
         self.split_layer_list = kwargs["splits"]
@@ -106,7 +106,7 @@ class jde_1088x608(BaseWrapper):
             param.requires_grad = False
 
         # must be called after loading weights to a model
-        if integer_conv_weight:
+        if _integer_conv_weight:
             self.darknet = self.quantize_weights(self.darknet)
 
         self.kalman_filter = KalmanFilter()
@@ -128,10 +128,10 @@ class jde_1088x608(BaseWrapper):
 
     @staticmethod
     def quantize_weights(model):
-
         for module_def, module in zip(model.module_defs, model.module_list):
             if module_def["type"] == "convolutional":
                 for m in module:
+                    # print(type(m).__name__)
                     if type(m).__name__ == "IntConv2dWrapper":
                         m.quantize_weights()
 

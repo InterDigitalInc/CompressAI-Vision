@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List
@@ -45,6 +46,7 @@ from detectron2.structures import ImageList
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
+from .intconv2d import IntConv2d
 
 __all__ = [
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -56,6 +58,51 @@ __all__ = [
 
 thisdir = Path(__file__).parent
 root_path = thisdir.joinpath("../..")
+
+
+# reference Conv2D from detectron2/detercon2/layers/wrappers.py
+class Conv2d(IntConv2d):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Extra keyword arguments supported in addition to those in `torch.nn.Conv2d`:
+
+        Args:
+            norm (nn.Module, optional): a normalization layer
+            activation (callable(Tensor) -> Tensor): a callable activation function
+
+        It assumes that norm layer is used before activation.
+        """
+
+        norm = kwargs.pop("norm", None)
+        activation = kwargs.pop("activation", None)
+        super().__init__(*args, **kwargs)
+
+        self.norm = norm
+        self.activation = activation
+
+    def set_attributes(self, module):
+
+        if hasattr(module, "norm"):
+            self.norm = module.norm
+
+        if hasattr(module, "activation"):
+            self.activation = module.activation
+
+        if hasattr(module, "bias"):
+            self.bias = module.bias
+
+    def forward(self, x: torch.Tensor):
+        if not self.initified_weight_mode:
+            x = self.conv2d(x)
+        else:
+            x = self.integer_conv2d(x)
+
+        if self.norm is not None:
+            x = self.norm(x)
+        if self.activation is not None:
+            x = self.activation(x)
+
+        return x
 
 
 class Split_Points(Enum):
@@ -79,16 +126,28 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             else kwargs["model_path_prefix"]
         )
         self._cfg.merge_from_file(f"{_path_prefix}/{kwargs['cfg']}")
+        _integer_conv_weight = bool(kwargs["integer_conv_weight"])
 
-        self.model = build_model(self._cfg).to(device).eval()
+        self.model = build_model(self._cfg)
+        self.replace_conv2d_modules(self.model)
+        self.model = self.model.to(device).eval()
+
+        DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
+
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        # must be called after loading weights to a model
+        if _integer_conv_weight:
+            self.mode = self.quantize_weights(self.model)
 
         self.backbone = self.model.backbone
         self.top_block = self.model.backbone.top_block
         self.proposal_generator = self.model.proposal_generator
         self.roi_heads = self.model.roi_heads
         self.postprocess = self.model._postprocess
-        DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
 
+        # to be used for printing info logs
         self.model_info = {"cfg": kwargs["cfg"], "weights": kwargs["weights"]}
 
         self.supported_split_points = Split_Points
@@ -127,6 +186,38 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     @property
     def size_divisibility(self):
         return self.backbone.size_divisibility
+
+    def replace_conv2d_modules(self, module):
+        for child_name, child_module in module.named_children():
+            if type(child_module).__name__ == "Conv2d":
+                int_conv2d = Conv2d(**child_module.__dict__)
+                int_conv2d.set_attributes(child_module)
+
+                # Since regular list is used instead of ModuleList
+                if "fpn_lateral" in child_name or "fpn_output" in child_name:
+                    idx = re.findall(r"\d", child_name)
+                    assert len(idx) == 1
+                    idx = int(idx[0])
+                    assert idx in [2, 3, 4, 5]
+
+                    if "fpn_lateral" in child_name:
+                        module.lateral_convs[3 - (idx - 2)] = int_conv2d
+                    else:
+                        assert "fpn_output" in child_name
+                        module.output_convs[3 - (idx - 2)] = int_conv2d
+
+                setattr(module, child_name, int_conv2d)
+            else:
+                self.replace_conv2d_modules(child_module)
+
+    @staticmethod
+    def quantize_weights(model):
+        for _, m in model.named_modules():
+            if type(m).__name__ == "Conv2d":
+                # print(f"Module name: {name} and type {type(m).__name__}")
+                m.quantize_weights()
+
+        return model
 
     def input_resize(self, images: List):
         return ImageList.from_tensors(images, self.size_divisibility)

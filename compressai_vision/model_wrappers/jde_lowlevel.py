@@ -27,10 +27,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import torch
 import torch.nn as nn
 from jde.models import EmptyLayer, Upsample, YOLOLayer
 
-from .intconv_wrapper import IntConv2dWrapper
+from .intconv2d import IntConv2d
 
 try:
     from jde.utils.syncbn import SyncBN
@@ -38,6 +39,17 @@ try:
     batch_norm = SyncBN  # nn.BatchNorm2d
 except ImportError:
     batch_norm = nn.BatchNorm2d
+
+
+class IntConv2dWrapper(IntConv2d):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x: torch.Tensor):
+        if not self.initified_weight_mode:
+            return self.conv2d(x)
+
+        return self.integer_conv2d(x)
 
 
 def create_modules(module_defs, device: str):

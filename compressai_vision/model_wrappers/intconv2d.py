@@ -27,57 +27,27 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import copy
 import logging
 
 import numpy as np
 import torch
-from torch import nn
+from torch.nn import functional as F
 
 
-class IntConv2dWrapper(nn.Conv2d):
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        kernel_size,
-        stride=1,
-        padding=0,
-        dilation=1,
-        groups: int = 1,
-        bias: bool = True,
-        padding_mode: str = "zeros",
-        device=None,
-        dtype=None,
-    ) -> None:
-        super().__init__(
-            in_channels,
-            out_channels,
-            kernel_size,
-            stride,
-            padding,
-            dilation,
-            groups,
-            bias,
-            padding_mode,
-            device,
-            dtype,
-        )
+class IntConv2d(torch.nn.Conv2d):
+    def __init__(self, *args, **kwargs) -> None:
+        _nkwargs = copy.deepcopy(kwargs)
+
+        del _nkwargs["training"]
+        del _nkwargs["transposed"]
+        del _nkwargs["output_padding"]
+        for name in kwargs.keys():
+            if name.startswith("_"):
+                del _nkwargs[name]
+
+        super().__init__(*args, **_nkwargs)
         self.initified_weight_mode = False
-
-    """
-    def _set_mode(mode):
-        global _precision, _high_precision, _mode
-
-        if mode == 'none':
-            _precision = 0
-        elif mode == 'float32':
-            _precision = 2**(23+1)
-        elif mode == 'float64':
-            _precision = 2**(52+1)
-
-        _mode = mode
-        torch.backends.cudnn.enabled = mode=='none'
-    """
 
     def quantize_weights(self):
         self.initified_weight_mode = True
@@ -97,7 +67,7 @@ class IntConv2dWrapper(nn.Conv2d):
             )
             _precision = 2 ** (23 + 1)
 
-        ###### REFERENCE FROM VCMRMS ######
+        ###### REFERENCE FROM VCMRS ######
         # sf const
         sf_const = 48
 
@@ -124,18 +94,14 @@ class IntConv2dWrapper(nn.Conv2d):
             self.bias.requires_grad = False  # Just make sure
             self.bias.zero_()
 
-        ###### END OF REFERENCE FROM VCMRMS ######
+        ###### END OF REFERENCE FROM VCMRS ######
 
-    def forward(self, x: torch.Tensor):
-        if not self.initified_weight_mode:
-            return super().forward(x)
-
+    def integer_conv2d(self, x: torch.Tensor):
         _dtype = x.dtype
         _cudnn_enabled = torch.backends.cudnn.enabled
         torch.backends.cudnn.enabled = False
 
-        ###### REFERENCE FROM VCMRMS ######
-
+        ###### REFERENCE FROM VCMRS ######
         # Calculate factor
         fx = 1
 
@@ -145,17 +111,39 @@ class IntConv2dWrapper(nn.Conv2d):
             fx = (self.factor * self.sf - 0.5) / x_max
 
         # intify x
-        x = torch.round(fx * x)
-        x = super().forward(x)
+        out_x = torch.round(fx * x)
+
+        out_x = F.conv2d(
+            out_x,
+            self.weight,
+            self.bias,
+            self.stride,
+            self.padding,
+            self.dilation,
+            self.groups,
+        )
 
         # x should be all integers
-        x /= fx * self.fw.view(-1, 1, 1)
-        x = x.float()
+        out_x = out_x / (fx * self.fw.view(-1, 1, 1)).float()
 
         # apply bias in float format
-        x = (x.permute(0, 2, 3, 1) + self.float_bias).permute(0, 3, 1, 2).contiguous()
-        ###### REFERENCE FROM VCMRMS ######
-
+        out_x = (
+            (out_x.permute(0, 2, 3, 1) + self.float_bias)
+            .permute(0, 3, 1, 2)
+            .contiguous()
+        )
+        ###### REFERENCE FROM VCMRS ######
         torch.backends.cudnn.enabled = _cudnn_enabled
 
-        return x.to(_dtype)
+        return out_x.to(_dtype)
+
+    def conv2d(self, x: torch.Tensor):
+        return F.conv2d(
+            x,
+            self.weight,
+            self.bias,
+            self.stride,
+            self.padding,
+            self.dilation,
+            self.groups,
+        )
