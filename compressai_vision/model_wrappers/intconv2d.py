@@ -39,9 +39,15 @@ class IntConv2d(torch.nn.Conv2d):
     def __init__(self, *args, **kwargs) -> None:
         _nkwargs = copy.deepcopy(kwargs)
 
-        del _nkwargs["training"]
-        del _nkwargs["transposed"]
-        del _nkwargs["output_padding"]
+        if _nkwargs.get("training") is not None:
+            del _nkwargs["training"]
+
+        if _nkwargs.get("transposed") is not None:
+            del _nkwargs["transposed"]
+
+        if _nkwargs.get("output_padding") is not None:
+            del _nkwargs["output_padding"]
+
         for name in kwargs.keys():
             if name.startswith("_"):
                 del _nkwargs[name]
@@ -67,7 +73,7 @@ class IntConv2d(torch.nn.Conv2d):
             )
             _precision = 2 ** (23 + 1)
 
-        ###### REFERENCE FROM VCMRS ######
+        ###### ADOPT VCMRS IMPLEMENTATION ######
         # sf const
         sf_const = 48
 
@@ -94,14 +100,14 @@ class IntConv2d(torch.nn.Conv2d):
             self.bias.requires_grad = False  # Just make sure
             self.bias.zero_()
 
-        ###### END OF REFERENCE FROM VCMRS ######
+        ###### END OF THE REFERENCE IMPELEMENTATION OF THE INT CONVS IN VCMRS ######
 
     def integer_conv2d(self, x: torch.Tensor):
         _dtype = x.dtype
         _cudnn_enabled = torch.backends.cudnn.enabled
         torch.backends.cudnn.enabled = False
 
-        ###### REFERENCE FROM VCMRS ######
+        ######  ADOPT VCMRS IMPLEMENTATION  ######
         # Calculate factor
         fx = 1
 
@@ -124,15 +130,15 @@ class IntConv2d(torch.nn.Conv2d):
         )
 
         # x should be all integers
-        out_x = out_x / (fx * self.fw.view(-1, 1, 1)).float()
+        out_x = out_x / (fx * self.fw.to(out_x.device).view(-1, 1, 1)).float()
 
         # apply bias in float format
         out_x = (
-            (out_x.permute(0, 2, 3, 1) + self.float_bias)
+            (out_x.permute(0, 2, 3, 1) + self.float_bias.to(out_x.device))
             .permute(0, 3, 1, 2)
             .contiguous()
         )
-        ###### REFERENCE FROM VCMRS ######
+        ###### END OF THE REFERENCE IMPELEMENTATION OF THE INT CONVS IN VCMRS ######
         torch.backends.cudnn.enabled = _cudnn_enabled
 
         return out_x.to(_dtype)
@@ -150,12 +156,15 @@ class IntConv2d(torch.nn.Conv2d):
 
 
 class IntTransposedConv2d(torch.nn.ConvTranspose2d):
-    def __init__(self, *args, **kwarg) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         _nkwargs = copy.deepcopy(kwargs)
 
-        del _nkwargs["training"]
-        del _nkwargs["transposed"]
-        del _nkwargs["output_padding"]
+        if _nkwargs.get("training") is not None:
+            del _nkwargs["training"]
+
+        if _nkwargs.get("transposed") is not None:
+            del _nkwargs["transposed"]
+
         for name in kwargs.keys():
             if name.startswith("_"):
                 del _nkwargs[name]
@@ -164,7 +173,7 @@ class IntTransposedConv2d(torch.nn.ConvTranspose2d):
         self.initified_weight_mode = False
 
     # prepare quantized weights
-    def quantize(self):
+    def quantize_weights(self):
         self.initified_weight_mode = True
 
         if self.bias is None:
@@ -182,22 +191,21 @@ class IntTransposedConv2d(torch.nn.ConvTranspose2d):
             )
             _precision = 2 ** (23 + 1)
 
-        ###### REFERENCE FROM VCMRS ######
-        #sf const
+        ######  ADOPT VCMRS IMPLEMENTATION  ######
+        # sf const
         sf_const = 48
 
-        #N = np.prod(self.weight.shape[1:])
-        N = np.prod(self.weight.shape) / self.weight.shape[1] # (in, out, kH, kW)
+        N = np.prod(self.weight.shape) / self.weight.shape[1]  # (in, out, kH, kW)
         self.N = N
         self.factor = np.sqrt(_precision)
-        #self.sf = 1/6 #precision bits allocation factor
+        # self.sf = 1/6 #precision bits allocation factor
         self.sf = np.sqrt(sf_const / N)
 
         # perform the calculate ion CPU to stabalize the calculation
         self.w_sum = self.weight.cpu().abs().sum(axis=[0, 2, 3]).to(self.weight.device)
-        self.w_sum[self.w_sum == 0] = 1 # prevent divide by 0
+        self.w_sum[self.w_sum == 0] = 1  # prevent divide by 0
 
-        self.fw = (self.factor / self.sf -  np.sqrt(N / 12) * 5) / self.w_sum
+        self.fw = (self.factor / self.sf - np.sqrt(N / 12) * 5) / self.w_sum
 
         # intify weights
         self.weight.requires_grad = False  # Just make sure
@@ -210,14 +218,14 @@ class IntTransposedConv2d(torch.nn.ConvTranspose2d):
             self.bias.requires_grad = False  # Just make sure
             self.bias.zero_()
 
-        ###### END OF REFERENCE FROM VCMRS ######
+        ###### END OF THE REFERENCE IMPELEMENTATION OF THE INT CONVS IN VCMRS ######
 
     def integer_transposeconv2d(self, x: torch.Tensor):
         _dtype = x.dtype
         _cudnn_enabled = torch.backends.cudnn.enabled
         torch.backends.cudnn.enabled = False
 
-        ###### REFERENCE FROM VCMRS ######
+        ######  ADOPT VCMRS IMPLEMENTATION  ######
         # Calculate factor
         fx = 1
 
@@ -227,17 +235,24 @@ class IntTransposedConv2d(torch.nn.ConvTranspose2d):
             fx = (self.factor * self.sf - 0.5) / x_max
 
         # intify x
-        x = torch.round(fx * x)
-        x = super().forward(x)
+        out_x = torch.round(fx * x)
+        out_x = super().forward(out_x)
 
         # x should be all integers
-        x /= fx * self.fw.view(-1, 1, 1)
-        x = x.float()
+        out_x = out_x / (fx * self.fw.to(out_x.device).view(-1, 1, 1))
+        out_x = out_x.float()
 
         # apply bias in float format
-        x = (x.permute(0, 2, 3, 1) + self.float_bias).permute(0, 3, 1, 2).contiguous()
+        out_x = (
+            (out_x.permute(0, 2, 3, 1) + self.float_bias.to(out_x.device))
+            .permute(0, 3, 1, 2)
+            .contiguous()
+        )
 
-        ###### REFERENCE FROM VCMRS ######
+        ###### END OF THE REFERENCE IMPELEMENTATION OF THE INT CONVS IN VCMRS ######
         torch.backends.cudnn.enabled = _cudnn_enabled
 
         return out_x.to(_dtype)
+
+    def transposedconv2d(self, x: torch.Tensor):
+        return super().forward(x)

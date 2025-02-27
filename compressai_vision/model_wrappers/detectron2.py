@@ -104,6 +104,50 @@ class Conv2d(IntConv2d):
         return x
 
 
+class ConvTranspose2d(IntTransposedConv2d):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Extra keyword arguments supported in addition to those in `torch.nn.Conv2d`:
+
+        Args:
+            norm (nn.Module, optional): a normalization layer
+            activation (callable(Tensor) -> Tensor): a callable activation function
+
+        It assumes that norm layer is used before activation.
+        """
+
+        norm = kwargs.pop("norm", None)
+        activation = kwargs.pop("activation", None)
+        super().__init__(*args, **kwargs)
+
+        self.norm = norm
+        self.activation = activation
+
+    def set_attributes(self, module):
+
+        if hasattr(module, "norm"):
+            self.norm = module.norm
+
+        if hasattr(module, "activation"):
+            self.activation = module.activation
+
+        if hasattr(module, "bias"):
+            self.bias = module.bias
+
+    def forward(self, x: torch.Tensor):
+        if not self.initified_weight_mode:
+            x = self.transposedconv2d(x)
+        else:
+            x = self.integer_transposeconv2d(x)
+
+        if self.norm is not None:
+            x = self.norm(x)
+        if self.activation is not None:
+            x = self.activation(x)
+
+        return x
+
+
 class Split_Points(Enum):
     def __str__(self):
         return str(self.value)
@@ -188,15 +232,15 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
     def replace_conv2d_modules(self, module):
         for child_name, child_module in module.named_children():
-            if type(child_module).__name__ in ["Conv2d", "TransposedConv2d"]:
+            if type(child_module).__name__ in ["Conv2d", "ConvTranspose2d"]:
                 if type(child_module).__name__ == "Conv2d":
                     int_module = Conv2d(**child_module.__dict__)
                     int_module.set_attributes(child_module)
                 else:
-                    int_module = IntTransposedConv2d(**child_module.__dict__)
+                    int_module = ConvTranspose2d(**child_module.__dict__)
                     int_module.set_attributes(child_module)
 
-                # Since regular list is used instead of ModuleList
+                # Since regular list is used instead of ModuleList in Backbone
                 if "fpn_lateral" in child_name or "fpn_output" in child_name:
                     idx = re.findall(r"\d", child_name)
                     assert len(idx) == 1
@@ -211,12 +255,16 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
                 setattr(module, child_name, int_module)
             else:
+                # WATCH OUT RECURSIVE FUNCAITON CALLS
+                # The funnction can be rewritten by specifically iterate for each module
+                # including Conv2d and Trasnposed Conv2d.
+                # type(module).__name__ in ["FPN", "BasicStem", "BottleneckBlock", "StandardRPNHead", "MaskRCNNConvUpsampledHead"]
                 self.replace_conv2d_modules(child_module)
 
     @staticmethod
     def quantize_weights(model):
         for _, m in model.named_modules():
-            if type(m).__name__ == "Conv2d":
+            if type(m).__name__ in ["Conv2d", "ConvTranspose2d"]:
                 # print(f"Module name: {name} and type {type(m).__name__}")
                 m.quantize_weights()
 
