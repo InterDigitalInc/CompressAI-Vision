@@ -47,3 +47,4 @@ yolox_darknet53:
   nms_thres: 0.65
   weights: "weights/yolox/darknet53/yolox_darknet.pth"
   splits: "l13" #"l37"
+  squeeze_at_split: False

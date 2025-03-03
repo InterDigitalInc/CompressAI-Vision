@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import configparser
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List
@@ -40,6 +39,7 @@ from yolox.utils import postprocess
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
+from .split_squeezes import squeeze_yolox
 
 __all__ = [
     "yolox_darknet53",
@@ -76,7 +76,7 @@ class yolox_darknet53(BaseWrapper):
         self.conf_thres = kwargs["conf_thres"]
         self.nms_thres = kwargs["nms_thres"]
 
-        self.supported_split_points = Split_Points
+        self.squeeze_at_split_enabled = False
 
         exp = get_exp(exp_file=None, exp_name="yolov3")
 
@@ -85,9 +85,10 @@ class yolox_darknet53(BaseWrapper):
 
         assert "splits" in kwargs, "Split layer ids must be provided"
         self.split_id = str(kwargs["splits"]).lower()
-        if self.split_id == str(self.supported_split_points.Layer13_Single):
+
+        if self.split_id == str(Split_Points.Layer13_Single):
             self.split_layer_list = ["l13"]
-        elif self.split_id == str(self.supported_split_points.Layer37_Single):
+        elif self.split_id == str(Split_Points.Layer37_Single):
             self.split_layer_list = ["l37"]
         else:
             raise NotImplementedError
@@ -100,7 +101,11 @@ class yolox_darknet53(BaseWrapper):
             torch.load(self.model_info["weights"], map_location="cpu")["model"],
             strict=False,
         )
+
         self.model.to(device).eval()
+
+        if bool(kwargs["squeeze_at_split"]):
+            self.enable_squeeze_at_split(self.split_id)
 
         self.yolo_fpn = self.model.backbone
         self.backbone = self.yolo_fpn.backbone
@@ -112,11 +117,38 @@ class yolox_darknet53(BaseWrapper):
 
     @property
     def SPLIT_L13(self):
-        return str(self.supported_split_points.Layer13_Single)
+        return str(Split_Points.Layer13_Single)
 
     @property
     def SPLIT_L37(self):
-        return str(self.supported_split_points.Layer37_Single)
+        return str(Split_Points.Layer37_Single)
+
+    def enable_squeeze_at_split(self, split_id):
+        from torch.hub import load_state_dict_from_url
+
+        LIST_OF_SQUEEZE_SUPPORT_SPLITS = [str(Split_Points.Layer13_Single)]
+
+        if split_id in LIST_OF_SQUEEZE_SUPPORT_SPLITS:
+            self.squeeze_at_split_enabled = True
+            self.squeeze_model = squeeze_yolox.three_convs_at_l13(
+                C0=256, C1=256, C2=128, C3=128
+            )
+
+            state_dict = load_state_dict_from_url(
+                self.squeeze_model.address,
+                progress=True,
+                check_hash=True,
+                map_location=self.device,
+            )
+
+            self.squeeze_model.load_state_dict(state_dict)
+            self.squeeze_model.to(self.device).eval()
+
+        else:
+            self.logger.warning(
+                f"Squeeze is not available at {split_id}. Currently only available at {LIST_OF_SQUEEZE_SUPPORT_SPLITS}"
+            )
+            self.squeeze_at_split_enabled = False
 
     def input_to_features(self, x, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
@@ -126,9 +158,9 @@ class yolox_darknet53(BaseWrapper):
         input_size = tuple(img.shape[2:])
 
         if self.split_id == self.SPLIT_L13:
-            output = self._input_to_feature_at_l13(img)
+            output = self._input_to_feature_at_l13(img, device)
         elif self.split_id == self.SPLIT_L37:
-            output = self._input_to_feature_at_l37(img)
+            output = self._input_to_feature_at_l37(img, device)
         else:
             self.logger.error(f"Not supported split point {self.split_id}")
             raise NotImplementedError
@@ -143,11 +175,11 @@ class yolox_darknet53(BaseWrapper):
 
         if self.split_id == self.SPLIT_L13:
             return self._feature_at_l13_to_output(
-                x["data"], x["org_input_size"], x["input_size"]
+                x["data"], x["org_input_size"], x["input_size"], device
             )
         elif self.split_id == self.SPLIT_L37:
             return self._feature_at_l37_to_output(
-                x["data"], x["org_input_size"], x["input_size"]
+                x["data"], x["org_input_size"], x["input_size"], device
             )
         else:
             self.logger.error(f"Not supported split points {self.split_id}")
@@ -155,17 +187,24 @@ class yolox_darknet53(BaseWrapper):
         raise NotImplementedError
 
     @torch.no_grad()
-    def _input_to_feature_at_l13(self, x):
+    def _input_to_feature_at_l13(self, x, device):
         """Computes and return feature at layer 13 with leaky relu all the way from the input"""
 
         y = self.backbone.stem(x)
         y = self.backbone.dark2(y)
-        self.features_at_splits[self.SPLIT_L13] = self.backbone.dark3[0](y)
+        y = self.backbone.dark3[0](y)
 
+        if not self.squeeze_at_split_enabled:
+            self.features_at_splits[self.SPLIT_L13] = y
+            return {"data": self.features_at_splits}
+
+        # Further squeeze
+        smodel = self.squeeze_model.to(device)
+        self.features_at_splits[self.SPLIT_L13] = smodel.squeeze_(y)
         return {"data": self.features_at_splits}
 
     @torch.no_grad()
-    def _input_to_feature_at_l37(self, x):
+    def _input_to_feature_at_l37(self, x, device):
         """Computes and return feature at layer 37 with 11th residual layer output all the way from the input"""
 
         y = self.backbone.stem(x)
@@ -177,7 +216,7 @@ class yolox_darknet53(BaseWrapper):
 
     @torch.no_grad()
     def _feature_at_l13_to_output(
-        self, x: Dict, org_img_size: Dict, input_img_size: List
+        self, x: Dict, org_img_size: Dict, input_img_size: List, device
     ):
         """
         performs  downstream task using the features from layer 13
@@ -191,8 +230,13 @@ class yolox_darknet53(BaseWrapper):
         <https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme>
 
         """
-
         y = x[self.SPLIT_L13]
+
+        # Recovery session to expand dimension to original
+        if self.squeeze_at_split_enabled:
+            smodel = self.squeeze_model.to(device)
+            y = smodel.expand_(y)
+
         for proc_module in self.backbone.dark3[1:]:
             y = proc_module(y)
 
@@ -220,7 +264,7 @@ class yolox_darknet53(BaseWrapper):
 
     @torch.no_grad()
     def _feature_at_l37_to_output(
-        self, x: Dict, org_img_size: Dict, input_img_size: List
+        self, x: Dict, org_img_size: Dict, input_img_size: List, device
     ):
         """
         performs  downstream task using the features from layer 37
