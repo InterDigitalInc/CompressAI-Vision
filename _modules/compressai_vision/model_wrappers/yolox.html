@@ -302,7 +302,6 @@ document.write(`
 <span class="c1"># ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
@@ -314,6 +313,7 @@ document.write(`
 <span class="kn">from</span><span class="w"> </span><span class="nn">compressai_vision.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_vision_model</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.split_squeezes</span><span class="w"> </span><span class="kn">import</span> <span class="n">squeeze_yolox</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;yolox_darknet53&quot;</span><span class="p">,</span>
@@ -350,7 +350,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">conf_thres</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;conf_thres&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nms_thres</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;nms_thres&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span> <span class="o">=</span> <span class="n">Split_Points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_at_split_enabled</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">exp</span> <span class="o">=</span> <span class="n">get_exp</span><span class="p">(</span><span class="n">exp_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exp_name</span><span class="o">=</span><span class="s2">&quot;yolov3&quot;</span><span class="p">)</span>
 
@@ -359,9 +359,10 @@ document.write(`
 
         <span class="k">assert</span> <span class="s2">&quot;splits&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;Split layer ids must be provided&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;splits&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">Split_Points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;l13&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">Split_Points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_layer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;l37&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -374,7 +375,11 @@ document.write(`
             <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">],</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
             <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;squeeze_at_split&quot;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable_squeeze_at_split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yolo_fpn</span><span class="o">.</span><span class="n">backbone</span>
@@ -386,11 +391,38 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">SPLIT_L13</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Split_Points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">SPLIT_L37</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_split_points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Split_Points</span><span class="o">.</span><span class="n">Layer37_Single</span><span class="p">)</span>
+
+<div class="viewcode-block" id="yolox_darknet53.enable_squeeze_at_split"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.yolox_darknet53.enable_squeeze_at_split">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">enable_squeeze_at_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_id</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">torch.hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_state_dict_from_url</span>
+
+        <span class="n">LIST_OF_SQUEEZE_SUPPORT_SPLITS</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Split_Points</span><span class="o">.</span><span class="n">Layer13_Single</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">split_id</span> <span class="ow">in</span> <span class="n">LIST_OF_SQUEEZE_SUPPORT_SPLITS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_at_split_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span> <span class="o">=</span> <span class="n">squeeze_yolox</span><span class="o">.</span><span class="n">three_convs_at_l13</span><span class="p">(</span>
+                <span class="n">C0</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">C1</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">C2</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">C3</span><span class="o">=</span><span class="mi">128</span>
+            <span class="p">)</span>
+
+            <span class="n">state_dict</span> <span class="o">=</span> <span class="n">load_state_dict_from_url</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+                <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">check_hash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">map_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Squeeze is not available at </span><span class="si">{</span><span class="n">split_id</span><span class="si">}</span><span class="s2">. Currently only available at </span><span class="si">{</span><span class="n">LIST_OF_SQUEEZE_SUPPORT_SPLITS</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_at_split_enabled</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="yolox_darknet53.input_to_features"><a class="viewcode-back" href="../../../compressai_vision/model_wrappers.html#compressai_vision.model_wrappers.yolox_darknet53.input_to_features">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">input_to_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes deep features at the intermediate layer(s) all the way from the input&quot;&quot;&quot;</span>
@@ -400,9 +432,9 @@ document.write(`
         <span class="n">input_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l13</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l13</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l37</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_to_feature_at_l37</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported split point </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -417,11 +449,11 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_at_l13_to_output</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">],</span> <span class="n">device</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L37</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_at_l37_to_output</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;org_input_size&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;input_size&quot;</span><span class="p">],</span> <span class="n">device</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported split points </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">split_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -429,17 +461,24 @@ document.write(`
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_at_l13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_at_l13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature at layer 13 with leaky relu all the way from the input&quot;&quot;&quot;</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark2</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark3</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark3</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">y</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_at_split_enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">}</span>
+
+        <span class="c1"># Further squeeze</span>
+        <span class="n">smodel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">]</span> <span class="o">=</span> <span class="n">smodel</span><span class="o">.</span><span class="n">squeeze_</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_at_splits</span><span class="p">}</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_at_l37</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_input_to_feature_at_l37</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and return feature at layer 37 with 11th residual layer output all the way from the input&quot;&quot;&quot;</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -451,7 +490,7 @@ document.write(`
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_feature_at_l13_to_output</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">device</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        performs  downstream task using the features from layer 13</span>
@@ -465,8 +504,13 @@ document.write(`
 <span class="sd">        &lt;https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme&gt;</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SPLIT_L13</span><span class="p">]</span>
+
+        <span class="c1"># Recovery session to expand dimension to original</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_at_split_enabled</span><span class="p">:</span>
+            <span class="n">smodel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">squeeze_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">smodel</span><span class="o">.</span><span class="n">expand_</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">proc_module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">dark3</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">proc_module</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
@@ -494,7 +538,7 @@ document.write(`
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_feature_at_l37_to_output</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">org_img_size</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">input_img_size</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">device</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        performs  downstream task using the features from layer 37</span>
