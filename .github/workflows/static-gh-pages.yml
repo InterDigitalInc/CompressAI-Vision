@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: 
+      - main
+      - dev
+      
 jobs:
   docs_to_gh-pages:
     runs-on: ubuntu-latest
