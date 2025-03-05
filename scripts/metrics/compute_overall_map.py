@@ -43,11 +43,11 @@ from typing import Any, List
 
 import numpy as np
 import pandas as pd
+import utils
 from detectron2.evaluation import COCOEvaluator
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-import utils
 from compressai_vision.evaluators.evaluators import BaseEvaluator
 
 CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D"]

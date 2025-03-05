@@ -40,6 +40,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import utils
 from compute_overall_map import compute_overall_mAP
 from compute_overall_mot import compute_overall_mota
 from curve_fitting import (
@@ -47,7 +48,6 @@ from curve_fitting import (
     convert_to_monotonic_points_TVD,
 )
 
-import utils
 from compressai_vision.datasets import get_seq_info
 from compressai_vision.evaluators.evaluators import BaseEvaluator
 

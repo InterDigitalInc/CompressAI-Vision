@@ -30,7 +30,7 @@ black:
     - python --version
     - pip install -U pip black
   script:
-    - black --check compressai_vision data/mpeg-fcm utils
+    - black --check compressai_vision data/mpeg-fcm scripts/metrics
   tags:
     - docker
 
@@ -41,7 +41,7 @@ isort:
     - python --version
     - pip install -U pip isort
   script:
-    - isort compressai_vision data/mpeg-fcm utils --check-only
+    - isort compressai_vision data/mpeg-fcm scripts/metrics --check-only
   tags:
     - docker
 

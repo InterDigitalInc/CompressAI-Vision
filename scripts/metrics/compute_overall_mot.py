@@ -41,8 +41,8 @@ from typing import Any, Dict, List
 
 import motmetrics as mm
 import torch
-
 import utils
+
 from compressai_vision.evaluators.evaluators import BaseEvaluator, MOT_JDE_Eval
 
 CLASSES = ["TVD", "HIEVE-1080P", "HIEVE-720P"]
