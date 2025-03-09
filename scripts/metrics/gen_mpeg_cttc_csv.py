@@ -203,11 +203,6 @@ def generate_csv_classwise_video_map(
 
             output_df = df_append(output_df, class_wise_results_df)
 
-    # add empty y_psnr column
-    output_df.insert(
-        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
-    )
-
     return output_df
 
 
@@ -270,11 +265,6 @@ def generate_csv_classwise_video_mota(
 
             output_df = df_append(output_df, class_wise_results_df)
 
-    # add empty y_psnr column
-    output_df.insert(
-        loc=4, column="y_psnr", value=["" for i in range(output_df.shape[0])]
-    )
-
     return output_df
 
 
@@ -286,11 +276,6 @@ def generate_csv(result_path, seq_list, nb_operation_points):
 
     # accuracy in % for MPEG template
     result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
-
-    # add empty y_psnr column
-    result_df.insert(
-        loc=4, column="y_psnr", value=["" for i in range(result_df.shape[0])]
-    )
 
     return result_df
 
