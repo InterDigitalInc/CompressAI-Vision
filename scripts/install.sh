@@ -283,4 +283,3 @@ echo "Installing compressai-vision"
 echo
 
 pip3 install -e "${SCRIPT_DIR}/.."
-pip3 install ptflops
