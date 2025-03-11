@@ -27,7 +27,6 @@ To get started, please go to through the installation steps.
    :hidden:
 
    installation
-   walkthrough
    cli_usage
    docker
 
