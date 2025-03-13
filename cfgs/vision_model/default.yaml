@@ -48,3 +48,9 @@ yolox_darknet53:
   weights: "weights/yolox/darknet53/yolox_darknet.pth"
   splits: "l13" #"l37"
   squeeze_at_split: False
+
+rtmo_multi_person_pose_estimation:
+  model_path_prefix: ${..model_root_path}
+  cfg: "models/mmpose/configs/body_2d_keypoint/rtmo/coco/rtmo-l_16xb16-600e_coco-640x640.py"
+  weights: "weights/mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth"
+  splits: "backbone"

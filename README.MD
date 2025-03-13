@@ -16,11 +16,13 @@ It currently focuses on two types of pipeline:
 
 ## Features
 
-- [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) is used for object detection (Faster-RCNN) and instance segmentation (Mask-RCNN)
+- [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html) for Object Detection (Faster-RCNN) and Instance Segmentation (Mask-RCNN)
 
-- [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT) is used for Object Tracking
+- [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT) for Object Tracking
 
-- [YOLOX-Darknet53](https://github.com/Megvii-BaseDetection/YOLOX) is used for object detection
+- [YOLOX-Darknet53](https://github.com/Megvii-BaseDetection/YOLOX) for Object Detection
+
+- [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo) for Pose Estimation (Bottom Up)
 
 ## Documentation
 
@@ -139,3 +141,4 @@ Fabien Racapé, Hyomin Choi, Eimran Eimon, Sampsa Riikonen, Jacky Yat-Hong Lam
  * [Detectron2](https://detectron2.readthedocs.io/en/latest/index.html)
  * [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT.git)
  * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
+ * [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo)

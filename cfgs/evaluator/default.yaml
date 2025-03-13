@@ -1,4 +1,4 @@
 type: "COCO-EVAL"
-output: "${pipeline.evaluation.evaluation_dir}"
+output_dir: "${pipeline.evaluation.evaluation_dir}"
 overwrite_results: False
 eval_criteria: ""

@@ -31,6 +31,7 @@ import json
 import math
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 import motmetrics as mm
 import numpy as np
@@ -38,6 +39,9 @@ import pandas as pd
 import torch
 from detectron2.evaluation import COCOEvaluator
 from jde.utils.io import unzip_objs
+from mmpose.datasets.datasets import BaseCocoStyleDataset
+from mmpose.datasets.transforms import PackPoseInputs
+from mmpose.evaluation.metrics import CocoMetric
 from pycocotools.coco import COCO
 from pytorch_msssim import ms_ssim
 from tqdm import tqdm
@@ -67,9 +71,12 @@ class COCOEVal(BaseEvaluator):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="AP",
+        eval_criteria="AP",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -111,9 +118,12 @@ class OpenImagesChallengeEval(BaseEvaluator):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="AP50",
+        eval_criteria="AP50",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -362,9 +372,12 @@ class MOT_JDE_Eval(BaseEvaluator):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="MOTA",
+        eval_criteria="MOTA",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -543,9 +556,12 @@ class MOT_TVD_Eval(MOT_JDE_Eval):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="MOTA",
+        eval_criteria="MOTA",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -594,9 +610,12 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="MOTA",
+        eval_criteria="MOTA",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -639,9 +658,12 @@ class YOLOXCOCOEval(BaseEvaluator):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="AP",
+        eval_criteria="AP",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.set_annotation_info(dataset)
 
@@ -714,6 +736,149 @@ class YOLOXCOCOEval(BaseEvaluator):
         return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}
 
 
+@register_evaluator("MMPOSE-COCO-EVAL")
+class MMPOSECOCOEval(BaseEvaluator):
+    def __init__(
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        eval_criteria="AP",
+        **args,
+    ):
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
+
+        self.set_annotation_info(dataset)
+        self.input_size = dataset.input_size
+        self.comput_scale_and_center = (
+            dataset.get_org_mapper_func().compute_scale_and_center
+        )
+
+        if "metainfo" in args:
+            metainfo = args["metainfo"]
+        else:
+            self._logger.warning("No Meta Infomation provided. Set default values")
+            import mmpose
+
+            default_config_path = Path(
+                f"{mmpose.__path__[0]}/../configs/_base_/datasets/coco.py"
+            )
+            default_config_path = default_config_path.resolve()
+            assert default_config_path.exists() and default_config_path.is_file()
+            metainfo = str(default_config_path)
+
+        # currently only support bottomup case
+        loaded_dataset = BaseCocoStyleDataset(
+            ann_file=self.annotation_path,
+            metainfo={"from_file": metainfo},
+            data_mode="bottomup",
+            test_mode=True,
+            serialize_data=False,
+        )
+
+        _metainfo = loaded_dataset.metainfo
+        _mmpose_coco_style_dataset = loaded_dataset.data_list
+        assert len(dataset.dataset) == len(_mmpose_coco_style_dataset)
+        self._loaded_data_sample_size = len(dataset.dataset)
+
+        _meta_keys = (
+            "id",
+            "img_id",
+            "img_path",
+            "ori_shape",
+            "img_shape",
+            "input_size",
+            "input_center",
+            "input_scale",
+        )
+        convert_packposeinput = PackPoseInputs(_meta_keys)
+        self._annotation_per_sample = defaultdict()
+        dummy_img = np.random.rand(1, 1, 3)
+        for data_sample in _mmpose_coco_style_dataset:
+            img_id = data_sample["img_id"]
+            data_sample["img"] = dummy_img
+            out = convert_packposeinput(data_sample)
+            self._annotation_per_sample[img_id] = out["data_samples"]
+            out.clear()
+
+        self._evaluator = CocoMetric(
+            ann_file=self.annotation_path, score_mode="bbox", nms_mode="none"
+        )
+        self._evaluator.dataset_meta = _metainfo
+        self.reset()
+
+    def reset(self):
+        self.pred_data_list_cnt = 0
+
+    def digest(self, gts, preds):
+        assert len(gts) == 1 and len(preds) == 1
+
+        src_img_height = gts[0]["height"]
+        src_img_width = gts[0]["width"]
+        img_id = gts[0]["image_id"]
+        pred = preds[0]
+
+        # mmpose style scaling
+        input_scale, input_center = self.comput_scale_and_center(
+            src_img_width, src_img_height
+        )
+
+        # convert keypoint coordinates from input space to image space
+        pred.keypoints = (
+            (pred.keypoints / self.input_size) * input_scale
+            + input_center
+            - (0.5 * input_scale)
+        )
+        assert "keypoints_visible" in pred
+
+        # convert bbox coordinates from input space to image space
+        if "bboxes" in pred:
+            bboxes = pred.bboxes.reshape(pred.bboxes.shape[0], 2, 2)
+            bboxes = (
+                (bboxes / self.input_size) * input_scale
+                + input_center
+                - (0.5 * input_scale)
+            )
+            pred.bboxes = bboxes.reshape(bboxes.shape[0], 4)
+
+        _data_sample = self._annotation_per_sample[img_id]
+        _data_sample.pred_instances = pred
+        self._evaluator.process({"dummy": None}, [_data_sample.to_dict()])
+        self.pred_data_list_cnt = self.pred_data_list_cnt + 1
+
+    def results(self, save_path: str = None):
+        assert self._loaded_data_sample_size == self.pred_data_list_cnt
+        eval_results = self._evaluator.evaluate(self.pred_data_list_cnt)
+
+        assert self.output_dir is not None
+
+        file_path = Path(f"{self.output_dir}")
+        if not file_path.is_dir():
+            self._logger.info(f"creating output folder: {file_path}")
+            file_path.mkdir(parents=True, exist_ok=True)
+            self._logger.info("Saving results to {}".format(file_path))
+
+        # Nothing to dump for classwise for the case
+        # with open(f"{file_path}/{self.get_coco_eval_info_name()}", "w") as f:
+        #    f.write(json.dumps(self.data_list))
+        #    f.flush()
+
+        if save_path:
+            self.write_results(eval_results, save_path)
+
+        self.write_results(eval_results)
+
+        item_keys = list(eval_results.keys())
+        item_vals = list(eval_results.values())
+
+        # self._logger.info("\n" + summary)
+
+        return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}
+
+
 @register_evaluator("VISUAL-QUALITY-EVAL")
 class VisualQualityEval(BaseEvaluator):
     def __init__(
@@ -722,9 +887,12 @@ class VisualQualityEval(BaseEvaluator):
         dataset_name,
         dataset,
         output_dir="./vision_output/",
-        criteria="psnr",
+        eval_criteria="psnr",
+        **args,
     ):
-        super().__init__(datacatalog_name, dataset_name, dataset, output_dir, criteria)
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
 
         self.reset()
 

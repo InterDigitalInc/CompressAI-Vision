@@ -122,9 +122,7 @@ def create_evaluator(
     if conf.type is None:
         return None
 
-    return EVALUATORS[conf.type](
-        catalog, datasetname, dataset, conf.output, conf.eval_criteria
-    )
+    return EVALUATORS[conf.type](catalog, datasetname, dataset, **dict(conf))
 
 
 def create_pipline(conf: DictConfig, device: DictConfig):

@@ -85,7 +85,7 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     )
 
     if (
-        Path(f"{conf.evaluator['output']}/summary.csv").is_file()
+        Path(f"{conf.evaluator['output_dir']}/summary.csv").is_file()
         and not conf.evaluator["overwrite_results"]
     ):
         print(
@@ -269,6 +269,18 @@ def _summarize_performance(evaluator_name, performance, eval_criteria):
             value = [v for k, v in performance.items() if k == eval_criteria]
         return value, eval_criteria
     elif evaluator_name == "YOLOXCOCOEval":
+        def_criteria = "AP"
+        if not eval_criteria:
+            eval_criteria = def_criteria
+        value = [v for k, v in performance.items() if k == eval_criteria]
+        if not value:
+            print(
+                f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"
+            )
+            eval_criteria = def_criteria
+            value = [v for k, v in performance.items() if k == eval_criteria]
+        return value, eval_criteria
+    elif evaluator_name == "MMPOSECOCOEval":
         def_criteria = "AP"
         if not eval_criteria:
             eval_criteria = def_criteria

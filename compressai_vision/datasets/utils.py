@@ -35,9 +35,10 @@ import cv2
 import numpy as np
 import torch
 from jde.utils.datasets import letterbox
+from mmpose.structures.bbox import get_warp_matrix
 from torchvision import transforms
 
-__all__ = ["YOLOXCustomMapper", "JDECustomMapper", "LinearMapper"]
+__all__ = ["MMPOSECustomMapper", "YOLOXCustomMapper", "JDECustomMapper", "LinearMapper"]
 
 
 def yolox_style_scaling(img, input_size, padding=False):
@@ -56,6 +57,112 @@ def yolox_style_scaling(img, input_size, padding=False):
         return padded_img
 
     return resized_img
+
+
+class MMPOSECustomMapper:
+    """
+    A callable which takes a dataset dict in CompressAI-Vision generic dataset format, but for MMPOSE (particularly, RTMO model) evaluation,
+    and map it into a format used by the model.
+
+    This is the default callable to be used to map your dataset dict into inference data.
+
+    This callable function refers to
+        preproc function at
+        <https://github.com/open-mmlab/mmpose/blob/dev-1.x/mmpose/datasets/transforms/bottomup_transforms.py>
+
+        Full license statement can be found at
+        <https://github.com/open-mmlab/mmpose?tab=Apache-2.0-1-ov-file#readme>
+
+    """
+
+    def __init__(
+        self,
+        img_size=[640, 640],
+        size_factor=32,
+        pad_val=[114, 114, 114],
+        aug_transforms=None,
+    ):
+        """
+        Args:
+            img_size: expected input size (Height, Width)
+        """
+
+        self.input_img_size = img_size
+        self.pad_val = pad_val
+        assert img_size[0] % size_factor == 0 and img_size[1] % size_factor == 0
+
+        if aug_transforms != None:
+            self.aug_transforms = aug_transforms
+        else:
+            self.aug_transforms = transforms.Compose([transforms.ToTensor()])
+
+    def compute_scale_and_center(self, src_img_width, src_img_height):
+        _input_h, _input_w = self.input_img_size
+        _ratio = src_img_width / src_img_height
+        _scaled_input_w = min(_input_w, _input_h * _ratio)
+        _scaled_input_h = min(_input_h, _input_w / _ratio)
+
+        center = np.array([src_img_width / 2, src_img_height / 2], dtype=np.float32)
+        scale = np.array(
+            [
+                src_img_width * _input_w / _scaled_input_w,
+                src_img_height * _input_h / _scaled_input_h,
+            ],
+            dtype=np.float32,
+        )
+
+        return scale, center
+
+    def __call__(self, dataset_dict):
+        """
+        Args:
+            dataset_dict (dict): Metadata of one image.
+
+        Returns:
+            dict: a format that compressai-vision pipelines accept
+        """
+
+        dataset_dict = copy.deepcopy(dataset_dict)
+        # the copied dictionary will be modified by code below
+
+        dataset_dict.pop("annotations", None)
+
+        # tried to replicate the implemetation of the original codes
+        # Read image
+        org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
+
+        assert (
+            len(org_img.shape) == 3
+        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+
+        img_h, img_w, _ = org_img.shape
+
+        dataset_dict["height"] = img_h
+        dataset_dict["width"] = img_w
+
+        _input_h, _input_w = self.input_img_size
+        # mmpose style scaling
+        scale, center = self.compute_scale_and_center(img_w, img_h)
+
+        warp_mat = get_warp_matrix(
+            center=center, scale=scale, rot=0, output_size=(_input_w, _input_h)
+        )
+
+        resized_img = cv2.warpAffine(
+            org_img,
+            warp_mat,
+            (_input_w, _input_h),
+            flags=cv2.INTER_LINEAR,
+            borderValue=self.pad_val,
+        )
+
+        tensor_image = self.aug_transforms(
+            np.ascontiguousarray(resized_img, dtype=np.float32)
+        )
+
+        dataset_dict["image"] = tensor_image
+
+        return dataset_dict
 
 
 class YOLOXCustomMapper:
