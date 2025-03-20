@@ -281,7 +281,8 @@ if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
     echo
 
     pip install -U openmim
-    mim install "mmcv==2.0.1"
+    mim install mmcv-full
+
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
