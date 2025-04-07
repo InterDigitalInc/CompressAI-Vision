@@ -45,13 +45,12 @@ else:
         """Does no encoding/decoding whatsoever. Use for debugging."""
 
         def __init__(self, **kwargs):
-            super().__init__(
-                kwargs["coding_behaviour"],
-                kwargs["tools"],
-                kwargs["device"],
-                kwargs["verbosity"],
-                kwargs["mac_computation"],
-            )
+
+            enc_configs = kwargs.pop("enc_configs")
+            self.qp = enc_configs["qp"]
+            self.eval_encode = kwargs.pop("eval_encode")
+
+            super().__init__(**kwargs)
 
             tools = kwargs["tools"]
             if (
@@ -67,9 +66,6 @@ else:
                 )
 
                 raise SystemExit()
-
-            self.qp = kwargs["enc_configs"]["qp"]
-            self.eval_encode = kwargs["eval_encode"]
 
         @property
         def qp_value(self):
