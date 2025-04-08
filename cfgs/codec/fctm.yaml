@@ -14,8 +14,9 @@ device:
   all: "cpu"
   enc: ${codec.device.all}
   dec: ${codec.device.all}
-
 mac_computation: False # multipy-accumulate computation
+
+fcm_sample_stream_wrapper_enabled: True
 
 enc_configs:
   qp: 27
@@ -30,10 +31,13 @@ tools:
     type: 'pre-trained' # by default # or 'bypass'
     learned_model:
       name: 'light_fedrnet' # fedrnet (m66341) light_fedrnet (m71247)
-      selective_learning_strategy: False # to (m71203) be True by default for FCTM v6.1.0
+      selective_learning_strategy: True # to (m71203) be True by default for FCTM v6.1.0
       split_ctx: "obj" # or "seg" # or "alt1" or "dn53"
 
-    range_based_channel_truncation: False # (m71203) to be True by default for FCTM v6.1.0
+    channel_removal: # (m71203)
+      enabled: True  # to be True by default for FCTM v6.1.0
+      period: ${codec.enc_configs.intra_period}
+
     temporal_resampling_enabled: False # (m67615)
     # To properly enable Temporal resampling ,
     # temporal_resampling_enabled = True and
@@ -54,6 +58,8 @@ tools:
   inner_codec:
     type: 'vtm'
     stash_outputs: True
+    inner_coding_max_chroma_format: 0 # 4:0:0 only
+    inner_coding_max_pred_constraint: 1 # Intra + uni-prediction (I, P slices)
     enc_configs: ${codec.enc_configs}
     codec_paths:
       _root: "/path/to/vtm" # of HM, JM...
