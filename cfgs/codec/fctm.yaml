@@ -27,15 +27,18 @@ enc_configs:
   hash_check: 0 # md5 hash check
 
 tools:
+  feature_transform:
+    enabled: False
+
   feature_reduction: # reserved for restoration part as well
     type: 'pre-trained' # by default # or 'bypass'
     learned_model:
-      name: 'light_fedrnet' # fedrnet (m66341) light_fedrnet (m71247)
-      selective_learning_strategy: True # to (m71203) be True by default for FCTM v6.1.0
+      name: 'light_fedrnet' # (m71247)
+      selective_learning_strategy: False # by default (m71203)
       split_ctx: "obj" # or "seg" # or "alt1" or "dn53"
 
     channel_removal: # (m71203)
-      enabled: True  # to be True by default for FCTM v6.1.0
+      enabled: True  # by default
       period: ${codec.enc_configs.intra_period}
 
     temporal_resampling_enabled: False # (m67615)
@@ -54,6 +57,10 @@ tools:
   conversion:
     type: 'tensor_packing' # or 'bypass'
     n_bit: ${codec.enc_configs.n_bit}
+    resized_channel_packing: # (m71931)
+      enabled: True
+      period: ${codec.enc_configs.intra_period}
+    
 
   inner_codec:
     type: 'vtm'
