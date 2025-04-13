@@ -14,7 +14,13 @@ jobs:
         with:
           python-version: '3.8'
 
+      # - name: switch to gcc-14 on linux
+      #   run: |
+      #     sudo apt install gcc-14 g++-14
+      #     sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 --slave /usr/bin/g++ g++ /usr/bin/g++-14 --slave /usr/bin/gcov gcov /usr/bin/gcov-14
+      #     sudo update-alternatives --set gcc /usr/bin/gcc-14
+
       - name: install dependencies pip
         run: |
           python3 -m pip install -U pip
-          bash scripts/install.sh --cpu
+          bash scripts/install.sh --cpu --no-weights
