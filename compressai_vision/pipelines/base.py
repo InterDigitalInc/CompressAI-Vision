@@ -38,6 +38,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
 
 from compressai_vision.codecs.utils import (
@@ -80,6 +81,15 @@ class BasePipeline(nn.Module):
         self._create_folder(self.output_dir)
         self.bitstream_name = self.configs["codec"]["bitstream_name"]
         self._output_ext = ".h5"
+
+        try:
+            vis_flag = self.configs["visualization"].save_visualization
+        except InterpolationResolutionError:
+            vis_flag = False
+        if vis_flag:
+            self.vis_dir = self.configs["visualization"].visualization_dir
+            self.vis_threshold = self.configs["visualization"].get("threshold", None)
+            self._create_folder(self.vis_dir)
 
         self.codec_output_dir = Path(self.configs["codec"]["codec_output_dir"])
         self.is_mac_calculation = self.configs["codec"]["measure_complexity"]

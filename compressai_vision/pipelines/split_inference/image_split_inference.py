@@ -211,6 +211,12 @@ class ImageSplitInference(BasePipeline):
 
             if evaluator:
                 evaluator.digest(d, pred)
+                if getattr(self, "vis_dir", None) and hasattr(
+                    evaluator, "save_visualization"
+                ):
+                    evaluator.save_visualization(
+                        d, pred, self.vis_dir, self.vis_threshold
+                    )
 
             out_res = d[0].copy()
             del (

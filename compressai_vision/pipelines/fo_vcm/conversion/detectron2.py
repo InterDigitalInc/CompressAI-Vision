@@ -27,8 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""From 51 dataset into Detectron2-compatible dataset
-"""
+"""From 51 dataset into Detectron2-compatible dataset"""
 from math import floor
 
 # import cv2
