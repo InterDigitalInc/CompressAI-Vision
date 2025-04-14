@@ -184,6 +184,11 @@ class VideoRemoteInference(BasePipeline):
             end = time_measure()
             timing["nn_task"].append((end - start))
 
+            if getattr(self, "vis_dir", None) and hasattr(
+                evaluator, "save_visualization"
+            ):
+                evaluator.save_visualization(d, pred, self.vis_dir, self.vis_threshold)
+
             evaluator.digest(d, pred)
 
             out_res = d[0].copy()

@@ -44,3 +44,7 @@ evaluation:
     bypass: False
     dump: True
     evaluation_dir: "${codec.output_dir}/evaluation"
+visualization:
+    save_visualization: "${codec.save_visualization}"
+    visualization_dir: "${codec.output_dir}/visualization"
+    threshold: 0  # only for detectron2, 0 means default setting of detectron2

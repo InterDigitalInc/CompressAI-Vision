@@ -29,6 +29,7 @@
 
 
 import os
+from itertools import repeat
 from typing import Dict, List, Tuple, TypeVar
 
 import torch
@@ -277,7 +278,14 @@ class VideoSplitInference(BasePipeline):
         self.logger.info("Processing NN-Part2...")
         output_list = []
 
-        for e, ftensors in enumerate(tqdm(dec_ftensors_list)):
+        if getattr(self, "vis_dir", None):
+            dec_ftensors_list = zip(dec_ftensors_list, dataloader)
+        else:
+            dec_ftensors_list = zip(dec_ftensors_list, repeat(None))
+
+        for e, (ftensors, d) in enumerate(
+            tqdm(dec_ftensors_list, total=len(dataloader))
+        ):
             data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
@@ -302,7 +310,12 @@ class VideoSplitInference(BasePipeline):
 
             if evaluator:
                 evaluator.digest(gt_inputs[e], pred)
-
+                if getattr(self, "vis_dir", None) and hasattr(
+                    evaluator, "save_visualization"
+                ):
+                    evaluator.save_visualization(
+                        d, pred, self.vis_dir, self.vis_threshold
+                    )
             out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])
 
@@ -343,7 +356,7 @@ class VideoSplitInference(BasePipeline):
 
     @staticmethod
     def _feature_tensor_list_to_dict(
-        data: List[Dict[str, Tensor]]
+        data: List[Dict[str, Tensor]],
     ) -> Dict[str, Tensor]:
         """
         Converts a list of feature tensors into a dictionary format.

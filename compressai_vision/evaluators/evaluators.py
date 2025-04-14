@@ -29,15 +29,19 @@
 
 import json
 import math
+import os
 from collections import defaultdict
 from pathlib import Path
 from typing import Optional
 
+import cv2
 import motmetrics as mm
 import numpy as np
 import pandas as pd
 import torch
+from detectron2.data import MetadataCatalog
 from detectron2.evaluation import COCOEvaluator
+from detectron2.utils.visualizer import Visualizer
 from jde.utils.io import unzip_objs
 from mmpose.datasets.datasets import BaseCocoStyleDataset
 from mmpose.datasets.transforms import PackPoseInputs
@@ -94,6 +98,29 @@ class COCOEVal(BaseEvaluator):
 
     def digest(self, gt, pred):
         return self._evaluator.process(gt, pred)
+
+    def save_visualization(self, gt, pred, output_dir, threshold):
+        gt_image = gt[0]["image"]
+        if torch.is_floating_point(gt_image):
+            gt_image = (gt_image * 255).clamp(0, 255).to(torch.uint8)
+            gt_image = gt_image[[2, 1, 0], ...]
+        gt_image = gt_image.permute(1, 2, 0).cpu().numpy()
+        gt_image = cv2.resize(gt_image, (gt[0]["width"], gt[0]["height"]))
+
+        img_id = gt[0]["image_id"]
+        metadata = MetadataCatalog.get(self.dataset_name)
+        instances = pred[0]["instances"].to("cpu")
+        if threshold:
+            keep = instances.scores >= threshold
+            instances = instances[keep]
+
+        v = Visualizer(gt_image[:, :, ::-1], metadata, scale=1)
+        out = v.draw_instance_predictions(
+            instances
+        )  # selected_instances for specific class
+        output_path = os.path.join(output_dir, f"{img_id}.jpg")
+        cv2.imwrite(output_path, out.get_image()[:, :, ::-1])
+        return
 
     def results(self, save_path: str = None):
         out = self._evaluator.evaluate()
@@ -257,6 +284,30 @@ class OpenImagesChallengeEval(BaseEvaluator):
 
         self._cc += 1
 
+        return
+
+    def save_visualization(self, gt, pred, output_dir, threshold):
+        gt_image = gt[0]["image"]
+        if torch.is_floating_point(gt_image):
+            gt_image = (gt_image * 255).clamp(0, 255).to(torch.uint8)
+            gt_image = gt_image[[2, 1, 0], ...]
+        gt_image = gt_image.permute(1, 2, 0).cpu().numpy()
+        gt_image = cv2.resize(gt_image, (gt[0]["width"], gt[0]["height"]))
+
+        img_id = gt[0]["image_id"]
+        metadata = MetadataCatalog.get(self.dataset_name)
+        instances = pred[0]["instances"].to("cpu")
+
+        if threshold:
+            keep = instances.scores >= threshold
+            instances = instances[keep]
+
+        v = Visualizer(gt_image[:, :, ::-1], metadata, scale=1)
+        out = v.draw_instance_predictions(
+            instances
+        )  # selected_instances for specific class
+        output_path = os.path.join(output_dir, f"{img_id}.jpg")
+        cv2.imwrite(output_path, out.get_image()[:, :, ::-1])
         return
 
     def _process_prediction(self, pred_dict):
@@ -424,6 +475,57 @@ class MOT_JDE_Eval(BaseEvaluator):
             pred_list.append(parsed_pred)
 
         self._predictions[int(gt[0]["image_id"])] = pred_list
+
+    def save_visualization(self, gt, pred, output_dir, threshold):
+        image_id = gt[0]["image_id"]
+        gt_image = gt[0]["image"].permute(1, 2, 0).cpu().numpy()
+        gt_image = (gt_image * 255).astype(np.uint8)
+        gt_image = cv2.resize(
+            cv2.cvtColor(gt_image, cv2.COLOR_RGB2BGR), (gt[0]["width"], gt[0]["height"])
+        )
+        online_im = self.plot_tracking(
+            gt_image, pred["tlwhs"], pred["ids"], frame_id=image_id
+        )
+        output_path = os.path.join(output_dir, f"{image_id}.png")
+        cv2.imwrite(output_path, online_im)
+        return
+
+    def plot_tracking(
+        self, image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0.0, ids2=None
+    ):
+        im = np.ascontiguousarray(np.copy(image))
+        im_h, im_w = im.shape[:2]
+
+        text_scale = max(1, image.shape[1] / 1600.0)
+        text_thickness = 1 if text_scale > 1.1 else 1
+        line_thickness = max(1, int(image.shape[1] / 500.0))
+
+        for i, tlwh in enumerate(tlwhs):
+            x1, y1, w, h = tlwh
+            intbox = tuple(map(int, (x1, y1, x1 + w, y1 + h)))
+            obj_id = int(obj_ids[i])
+            id_text = "{}".format(int(obj_id))
+            if ids2 is not None:
+                id_text = id_text + ", {}".format(int(ids2[i]))
+            color = self.get_color(abs(obj_id))
+            cv2.rectangle(
+                im, intbox[0:2], intbox[2:4], color=color, thickness=line_thickness
+            )
+            cv2.putText(
+                im,
+                id_text,
+                (intbox[0], intbox[1] + 30),
+                cv2.FONT_HERSHEY_PLAIN,
+                text_scale,
+                (0, 0, 255),
+                thickness=text_thickness,
+            )
+        return im
+
+    def get_color(self, idx):
+        idx = idx * 3
+        color = ((37 * idx) % 255, (17 * idx) % 255, (29 * idx) % 255)
+        return color
 
     def results(self, save_path: str = None):
         out = self.mot_eval()
