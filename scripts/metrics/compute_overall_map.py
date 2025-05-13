@@ -86,8 +86,12 @@ TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
 
-def compute_overall_mAP(class_name, items):
+def compute_overall_mAP(class_name, items, no_cactus=False):
     seq_root_names = SEQS_BY_CLASS[class_name]
+
+    if no_cactus and class_name == "CLASS-AB":
+        if "Cactus" in seq_root_names:
+            seq_root_names.remove("Cactus")
 
     classwise_instances_results = []
     classwise_anchor_images = []

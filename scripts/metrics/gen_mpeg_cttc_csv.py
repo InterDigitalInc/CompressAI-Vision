@@ -150,6 +150,7 @@ def generate_csv_classwise_video_map(
     metric="AP",
     gt_folder="annotations",
     nb_operation_points: int = 4,
+    no_cactus: bool = False,
     skip_classwise: bool = False,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
@@ -164,6 +165,10 @@ def generate_csv_classwise_video_map(
     output_df = results_df.copy()
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+    if no_cactus:
+        indices_to_drop = output_df[output_df["Dataset"].str.contains("Cactus")].index
+        output_df.drop(indices_to_drop, inplace=True)
 
     for seqs_by_class in list_of_classwise_seq:
         classwise_name = list(seqs_by_class.keys())[0]
@@ -186,7 +191,7 @@ def generate_csv_classwise_video_map(
             ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
-                summary = compute_overall_mAP(classwise_name, items)
+                summary = compute_overall_mAP(classwise_name, items, no_cactus)
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
@@ -334,6 +339,12 @@ if __name__ == "__main__":
         default=False,
         help="Include optional sequences.",
     )
+    parser.add_argument(
+        "--no-cactus",
+        action="store_true",
+        default=False,
+        help="exclude Cactus sequence for FCM eval",
+    )
 
     args = parser.parse_args()
 
@@ -359,6 +370,11 @@ if __name__ == "__main__":
         if args.mode == "VCM":
             class_ab["CLASS-AB"].remove("Kimono")
             class_ab["CLASS-AB"].remove("Cactus")
+        else:
+            assert args.mode == "FCM"
+            if args.no_cactus is True:
+                class_ab["CLASS-AB"].remove("Cactus")
+
         class_c = {
             "CLASS-C": ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"]
         }
@@ -400,6 +416,9 @@ if __name__ == "__main__":
             seq_list.remove("Kimono_1920x1080_24")
             seq_list.remove("Cactus_1920x1080_50")
 
+        if args.mode == "FCM" and args.no_cactus:
+            seq_list.remove("Cactus_1920x1080_50")
+
         output_df = generate_csv_classwise_video_map(
             norm_result_path,
             args.dataset_path,
@@ -408,6 +427,7 @@ if __name__ == "__main__":
             metric,
             args.gt_folder,
             args.nb_operation_points,
+            args.no_cactus,
             args.mode == "VCM",  # skip classwise evaluation
         )
 
