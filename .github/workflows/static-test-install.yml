@@ -1,0 +1,20 @@
+name: basic install 
+
+on: [push, pull_request]
+jobs:
+  docs_to_gh-pages:
+    runs-on: ubuntu-latest
+    name: basic install of compressai-vision (torch cpu)
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: install dependencies pip
+        run: |
+          python3 -m pip install -U pip
+          bash scripts/install.sh -m detectron2 --no-weights
