@@ -288,9 +288,7 @@ document.write(`
   </button>
 `);
 </script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="fa-solid fa-list"></span>
-</label>
+
 </div></div>
       
     </div>
@@ -306,22 +304,6 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
-            <div>
-                <h2> Contents </h2>
-            </div>
-            <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference.training</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.build_input_lists()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.training</span></code></a></li>
-</ul>
-</li>
-</ul>
-            </nav>
         </div>
     </div>
 </div>
@@ -331,33 +313,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-compressai_vision.pipelines.split_inference">
-<span id="compressai-vision-pipelines-split-inference"></span><h1>compressai_vision.pipelines.split_inference<a class="headerlink" href="#module-compressai_vision.pipelines.split_inference" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.ImageSplitInference">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.split_inference.</span></span><span class="sig-name descname"><span class="pre">ImageSplitInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/image_split_inference.html#ImageSplitInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.ImageSplitInference" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.ImageSplitInference.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compressai_vision.pipelines.split_inference.</span></span><span class="sig-name descname"><span class="pre">VideoSplitInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/video_split_inference.html#VideoSplitInference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists">
-<span class="sig-name descname"><span class="pre">build_input_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataloader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataLoader</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/compressai_vision/pipelines/split_inference/video_split_inference.html#VideoSplitInference.build_input_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="compressai_vision.pipelines.split_inference.VideoSplitInference.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <section id="compressai-vision-pipelines-split-inference">
+<h1>compressai_vision.pipelines.split_inference<a class="headerlink" href="#compressai-vision-pipelines-split-inference" title="Permalink to this heading">#</a></h1>
 </section>
 
 
@@ -395,28 +352,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> Contents
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.ImageSplitInference.training"><code class="docutils literal notranslate"><span class="pre">ImageSplitInference.training</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.build_input_lists"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.build_input_lists()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressai_vision.pipelines.split_inference.VideoSplitInference.training"><code class="docutils literal notranslate"><span class="pre">VideoSplitInference.training</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
           </div>
