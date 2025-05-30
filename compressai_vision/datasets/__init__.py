@@ -33,6 +33,7 @@ from .image import (
     Detectron2Dataset,
     TrackingDataset,
     deccode_compressed_rle,
+    SamDataset,
 )
 from .utils import get_seq_info
 
@@ -43,4 +44,5 @@ __all__ = [
     "DefaultDataset",
     "deccode_compressed_rle",
     "get_seq_info",
+    "SamDataset",
 ]

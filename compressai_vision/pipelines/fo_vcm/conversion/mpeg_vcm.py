@@ -63,12 +63,10 @@ For minimal bbox detection problem, this is sufficient:
 ```
 
 """
-
 import glob
 import os
 import pathlib
 import shutil
-
 from pathlib import Path
 
 

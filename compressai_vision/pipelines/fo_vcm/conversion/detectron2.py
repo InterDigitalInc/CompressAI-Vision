@@ -28,13 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """From 51 dataset into Detectron2-compatible dataset"""
-
 from math import floor
 
 # import cv2
 # import detectron2
 import torch
-
 
 # from detectron2.data import MetadataCatalog
 from detectron2.structures import BoxMode

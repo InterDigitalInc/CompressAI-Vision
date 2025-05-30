@@ -39,7 +39,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-
 from cubic_polynomial import fit_cubic, func_cubic_1
 
 

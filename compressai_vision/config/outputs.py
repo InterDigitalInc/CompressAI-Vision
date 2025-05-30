@@ -29,7 +29,6 @@
 
 
 import os
-
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Mapping
@@ -38,7 +37,6 @@ from typing import Any, Mapping
 from omegaconf import DictConfig, OmegaConf
 
 import compressai_vision
-
 from compressai_vision.utils import git, pip
 
 CONFIG_DIR = "configs"

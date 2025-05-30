@@ -39,6 +39,13 @@ from .jde import jde_1088x608
 from .rtmo import rtmo_multi_person_pose_estimation
 from .yolox import yolox_darknet53
 
+from .sam import (
+    sam_vit_h_4b8939,
+    sam_vit_b_01ec64,
+    sam_vit_l_0b3195,
+)
+
+
 __all__ = [
     "BaseWrapper",
     "faster_rcnn_X_101_32x8d_FPN_3x",
@@ -49,4 +56,8 @@ __all__ = [
     "jde_1088x608",
     "yolox_darknet53",
     "rtmo_multi_person_pose_estimation",
+    "sam_vit_h_4b8939",
+    "sam_vit_b_01ec64",
+    "sam_vit_l_0b3195",
+
 ]

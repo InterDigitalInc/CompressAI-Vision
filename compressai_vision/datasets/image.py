@@ -31,7 +31,6 @@
 import base64
 import logging
 import re
-
 from glob import glob
 from pathlib import Path
 from typing import Dict, List
@@ -50,7 +49,7 @@ from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
 
-from .utils import JDECustomMapper, LinearMapper, MMPOSECustomMapper, YOLOXCustomMapper
+from .utils import JDECustomMapper, LinearMapper, MMPOSECustomMapper, YOLOXCustomMapper, SAMCustomMapper
 
 
 def manual_load_data(path, ext):
@@ -231,12 +230,10 @@ class Detectron2Dataset(BaseDataset):
                     dataset_name, {}, self.annotation_path, self.images_folder
                 )
                 self.logger.info(f'"{dataset_name}" successfully registred.')
-
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
-
         if kwargs["linear_mapper"] is True:
             mapper = LinearMapper()
         else:
@@ -265,6 +262,60 @@ class Detectron2Dataset(BaseDataset):
 
     def __len__(self):
         return len(self.mapDataset)
+
+@register_dataset("SamDataset")
+class SamDataset(BaseDataset):
+    def __init__(self, root, dataset_name, imgs_folder, **kwargs):
+        super().__init__(root, dataset_name, imgs_folder, **kwargs)
+
+        self.dataset = kwargs["dataset"].dataset
+
+        try:
+            DatasetCatalog.get(dataset_name)
+        except KeyError:
+            if self.annotation_path:
+                register_coco_instances(
+                    dataset_name, {}, self.annotation_path, self.images_folder
+                )
+                self.logger.info(f'"{dataset_name}" successfully registred.')
+
+        self.sampler = InferenceSampler(len(kwargs["dataset"]))
+        self.collate_fn = bypass_collator
+
+        _dataset = DatasetFromList(self.dataset, copy=False)
+
+        #if kwargs["linear_mapper"] is True:
+        #    mapper = LinearMapper()
+        #else:
+        #    assert (
+        #        kwargs["cfg"] is not None
+        #    ), "A proper mapper information via cfg must be provided"
+        #mapper = DatasetMapper(kwargs["cfg"], False)
+        mapper = SAMCustomMapper(kwargs["patch_size"])
+
+        self.mapDataset = MapDataset(_dataset, mapper)
+        self._org_mapper_func = PicklableWrapper(SAMCustomMapper(kwargs["patch_size"]))
+
+        metaData = MetadataCatalog.get(dataset_name)
+        try:
+            self.thing_classes = metaData.thing_classes
+            self.thing_dataset_id_to_contiguous_id = (
+                metaData.thing_dataset_id_to_contiguous_id
+            )
+        except AttributeError:
+            self.logger.warning("No attribute: thing_classes")
+
+    def get_org_mapper_func(self):
+        return self._org_mapper_func
+
+    def __getitem__(self, idx):
+        return self.mapDataset[idx]
+
+    def __len__(self):
+        return len(self.mapDataset)
+
+
+    
 
 
 @register_dataset("TrackingDataset")
@@ -569,6 +620,45 @@ class MPEGHIEVE(MPEGTVDTRACKING):
         maxv = 11.823183059692383
         minv = -1.0795124769210815
         return (minv, maxv)
+
+
+@register_datacatalog("MPEGSAM")
+class MPEGSAM(DataCatalog):
+    def __init__(
+        self,
+        root,
+        imgs_folder="images",
+        annotation_file="mpeg-oiv6-segmentation-coco_fortest.json",
+        seqinfo="",
+        dataset_name="mpeg-oiv6-sam",
+        ext="",
+    ):
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
+
+        if self.annotation_path:
+            self._dataset = load_coco_json(
+                self.annotation_path, self.imgs_folder_path, dataset_name=dataset_name
+            )
+        else:
+            self._dataset = manual_load_data(self.imgs_folder_path, "jpg")
+
+        self.task = "sam"
+
+
+    def get_min_max_across_tensors(self):
+        if self.task == "sam":
+            maxv = 28.397489547729492 #TODO these value are used for segmentation
+            minv = -26.426830291748047
+            return (minv, maxv)
+
+
 
 
 @register_datacatalog("MPEGOIV6")

@@ -121,7 +121,6 @@ class ImageSplitInference(BasePipeline):
                     vision_model, d, file_prefix, evaluator.datacatalog_name
                 )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
-
                 # datatype conversion
                 featureT["data"] = {
                     k: v.type(getattr(torch, self.datatype))

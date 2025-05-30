@@ -29,7 +29,6 @@
 
 import enum
 import re
-
 from fractions import Fraction
 from typing import Any, Dict, Sequence, Union
 

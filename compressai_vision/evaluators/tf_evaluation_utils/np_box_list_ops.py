@@ -53,7 +53,6 @@ Example box operations that are supported:
 from __future__ import division, print_function
 
 import numpy as np
-
 from six.moves import range
 
 from ..tf_evaluation_utils import np_box_list, np_box_ops

@@ -31,7 +31,6 @@
 import logging
 import os
 import shutil
-
 from enum import Enum
 from glob import glob
 from pathlib import Path
@@ -40,7 +39,6 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
-
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 

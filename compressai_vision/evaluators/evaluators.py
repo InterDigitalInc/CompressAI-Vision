@@ -30,7 +30,6 @@
 import json
 import math
 import os
-
 from collections import defaultdict
 from pathlib import Path
 from typing import Optional
@@ -40,7 +39,6 @@ import motmetrics as mm
 import numpy as np
 import pandas as pd
 import torch
-
 from detectron2.data import MetadataCatalog
 from detectron2.evaluation import COCOEvaluator
 from detectron2.utils.visualizer import Visualizer
@@ -209,7 +207,6 @@ class OpenImagesChallengeEval(BaseEvaluator):
             for e, item in enumerate(self.thing_classes):
                 if name == self._normalize_labelname(item):
                     return e
-
             self._logger.error(f"Not found Item {name} in 'thing_classes'")
             raise ValueError
 

@@ -33,7 +33,6 @@ from pathlib import Path
 from typing import Dict, List
 
 import torch
-
 from yolox.exp import get_exp
 from yolox.utils import postprocess
 

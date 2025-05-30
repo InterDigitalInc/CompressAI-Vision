@@ -30,12 +30,10 @@
 r"""
 Compute evaluation metrics and generate csv with computed metrics in CTTC format.
 """
-
 from __future__ import annotations
 
 import argparse
 import os
-
 from glob import iglob
 from os.path import join
 from pathlib import Path

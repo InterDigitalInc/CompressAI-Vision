@@ -32,7 +32,6 @@ import copy
 import numpy as np
 import torch
 
-
 # from detectron2.config import configurable
 from detectron2.data import DatasetMapper
 from detectron2.data import detection_utils as utils

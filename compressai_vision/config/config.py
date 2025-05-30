@@ -33,7 +33,6 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, cast
 
 import torch.nn as nn
-
 from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
@@ -42,7 +41,6 @@ import compressai_vision.codecs  # noqa: E731
 import compressai_vision.evaluators  # noqa: E731
 import compressai_vision.model_wrappers  # noqa: E731
 import compressai_vision.pipelines  # noqa: E731
-
 from compressai_vision.datasets import DataCatalog
 from compressai_vision.registry import (
     CODECS,

@@ -40,12 +40,10 @@ To evaluate the compression and accuracy performance in the remote-inference pip
 
 Please check the scripts provided in scripts/evaluation for examples with supported codecs and datasets
 """
-
 from __future__ import annotations
 
 import logging
 import os
-
 from pathlib import Path
 from typing import Any
 

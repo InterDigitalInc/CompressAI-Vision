@@ -33,13 +33,11 @@ Evaluate a system performance of end-to-end pipeline.
 
 
 """
-
 from __future__ import annotations
 
 import configparser
 import logging
 import os
-
 from pathlib import Path
 from typing import Any
 

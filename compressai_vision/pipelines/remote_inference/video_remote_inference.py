@@ -31,7 +31,6 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 import torch
-
 from PIL import Image
 from torch import Tensor
 from torch.utils.data import DataLoader

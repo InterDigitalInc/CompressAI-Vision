@@ -31,7 +31,6 @@
 from typing import Any, Callable, Dict, Type, TypeVar
 
 import torch.nn as nn
-
 from torch.utils.data import Dataset
 from torchvision import transforms
 

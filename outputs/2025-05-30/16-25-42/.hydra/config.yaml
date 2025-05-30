@@ -1,0 +1,164 @@
+paths:
+  _common_root: ./logs
+  _run_root: ${._common_root}/runs
+  configs: ${codec.output_dir}/configs
+  src: ${codec.output_dir}/src
+env:
+  git:
+    compressai:
+      branch: null
+      hash: null
+      main_branch: master
+      main_hash: null
+    compressai_vision:
+      branch: null
+      hash: null
+      main_branch: main
+      main_hash: null
+  slurm:
+    account: null
+    job_id: null
+    job_array_task_id: null
+    job_name: null
+  system:
+    hostname: null
+    username: null
+misc:
+  device:
+    nn_parts: cpu
+    nn_part1: ${misc.device.nn_parts}
+    nn_part2: ${misc.device.nn_parts}
+  seed: 1234
+dataset:
+  type: SamDataset
+  datacatalog: MPEGSAM
+  config:
+    root: /o/projects/proj-river/ctc_sequences/vcm_testdata/samtest
+    dataset_name: mpeg-oiv6-sam
+    imgs_folder: images
+    annotation_file: annotations/mpeg-oiv6-segmentation-coco_fortest.json
+    seqinfo: seqinfo.ini
+    ext: png
+  settings:
+    linear_mapper: false
+    patch_size:
+    - 512
+    - 512
+    ret_name: false
+    use_BGR: false
+  transforms:
+  - Resize:
+      size: ${....settings.patch_size}
+  - ToTensor: {}
+  loader:
+    shuffle: false
+    batch_size: 1
+    num_workers: 2
+evaluator:
+  type: OIC-EVAL
+  output_dir: ${pipeline.evaluation.evaluation_dir}
+  overwrite_results: false
+  eval_criteria: AP
+vision_model:
+  arch: sam_vit_h_4b8939
+  model_root_path: default
+  faster_rcnn_R_50_FPN_3x:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml
+    weights: weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl
+    splits: r2
+  faster_rcnn_X_101_32x8d_FPN_3x:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml
+    weights: weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl
+    splits: fpn
+  mask_rcnn_R_50_FPN_3x:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+    weights: weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+    splits: r2
+  sam_vit_h_4b8939:
+    model_path_prefix: ${..model_root_path}
+    weights: weights/sam/sam_vit_h_4b8939.pth
+    splits: imgenc
+  mask_rcnn_X_101_32x8d_FPN_3x:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml
+    weights: weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl
+    splits: fpn
+  jde_1088x608:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/Towards-Realtime-MOT/cfg/yolov3_1088x608.cfg
+    weights: weights/jde/jde.1088x608.uncertainty.pt
+    iou_thres: 0.5
+    conf_thres: 0.5
+    nms_thres: 0.4
+    min_box_area: 200
+    track_buffer: 30
+    frame_rate: 30
+    splits:
+    - 36
+    - 61
+    - 74
+  yolox_darknet53:
+    model_path_prefix: ${..model_root_path}
+    cfg: Built-in configurations
+    num_classes: 80
+    conf_thres: 0.001
+    nms_thres: 0.65
+    weights: weights/yolox/darknet53/yolox_darknet.pth
+    splits: l13
+    squeeze_at_split: false
+  rtmo_multi_person_pose_estimation:
+    model_path_prefix: ${..model_root_path}
+    cfg: models/mmpose/configs/body_2d_keypoint/rtmo/coco/rtmo-l_16xb16-600e_coco-640x640.py
+    weights: weights/mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth
+    splits: backbone
+pipeline:
+  name: split-inference
+  type: image
+  output_dir_root: ${paths._run_root}/${.name}-${.type}
+  datatype: float32
+  nn_task_part1:
+    load_features: false
+    load_features_n_bits: -1
+    load_features_when_available: false
+    dump_features: false
+    dump_features_n_bits: -1
+    generate_features_only: false
+    feature_dir: ${..output_dir_root}/features/${dataset.datacatalog}/${dataset.config.dataset_name}
+  codec:
+    encode_only: false
+    decode_only: false
+    codec_output_dir: ${codec.output_dir}/codec_output
+    bitstream_name: ${codec.bitstream_name}
+    skip_n_frames: 0
+    n_frames_to_be_encoded: -1
+    measure_complexity: ${codec.mac_computation}
+  nn_task_part2:
+    dump_results: false
+    output_results_dir: ${codec.output_dir}/output_results
+    dump_features: false
+  conformance:
+    save_conformance_files: true
+    subsample_ratio: 9
+    conformance_files_path: ${codec.output_dir}/conformance_files/
+  evaluation:
+    bypass: false
+    dump: true
+    evaluation_dir: ${codec.output_dir}/evaluation
+  visualization:
+    save_visualization: ${codec.save_visualization}
+    visualization_dir: ${codec.output_dir}/visualization
+    threshold: 0
+codec:
+  type: bypass
+  device: cpu
+  mac_computation: false
+  eval_encode: bpp
+  experiment: _default
+  output_dir: ${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/uncmp
+  bitstream_name: default.bin
+  encoder_config:
+    qp: uncmp
+    nbit_quant: -1
