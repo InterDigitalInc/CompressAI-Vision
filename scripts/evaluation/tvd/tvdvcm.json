@@ -1,0 +1,46 @@
+{
+  "sequences": [
+    {
+      "seq_name": "TVD-01-1",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 8
+    },
+    {
+      "seq_name": "TVD-01-2",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 8
+    },
+    {
+      "seq_name": "TVD-01-3",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 8
+    },
+    {
+      "seq_name": "TVD-02-1",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 10
+    },
+    {
+      "seq_name": "TVD-03-1",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 10
+    },
+    {
+      "seq_name": "TVD-03-2",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 10
+    },
+    {
+      "seq_name": "TVD-03-3",
+      "intra_period": 64,
+      "frame_rate": 50,
+      "bit_depth": 10
+    }
+  ]
+}

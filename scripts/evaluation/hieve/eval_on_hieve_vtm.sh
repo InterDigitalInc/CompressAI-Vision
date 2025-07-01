@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 FCM_TESTDATA=""
 INNER_CODEC_PATH=""
 OUTPUT_DIR=""
@@ -57,26 +59,11 @@ if [[ ${PIPELINE} == "remote" ]]; then
 CONF_NAME="eval_remote_inference_example.yaml"
 fi
 
-declare -A intra_period_dict
-declare -A fr_dict
-
-intra_period_dict["2"]=32
-fr_dict["2"]=30
-
-intra_period_dict["17"]=32
-fr_dict["17"]=30
-
-intra_period_dict["18"]=32
-fr_dict["18"]=30
-
-intra_period_dict["13"]=32
-fr_dict["13"]=30
-
-intra_period_dict["16"]=32
-fr_dict["16"]=30
-
-INTRA_PERIOD=${intra_period_dict[${SEQ}]}
-FRAME_RATE=${fr_dict[${SEQ}]}
+DATASET_INFO_PATH="${SCRIPT_DIR}/hieve.json"
+SEQ_INFO=$(jq --compact-output ".sequences[] | select(.seq_name == \"${SEQ}\")" "$DATASET_INFO_PATH")
+[ -n "$SEQ_INFO" ] || exit 1
+INTRA_PERIOD=$(jq --raw-output ".intra_period" <<< "${SEQ_INFO}")
+FRAME_RATE=$(jq --raw-output ".frame_rate" <<< "${SEQ_INFO}")
 
 echo "============================== RUNNING COMPRESSAI-VISION EVAL== =================================="
 echo "Pipeline Type:      " ${PIPELINE} " Video"

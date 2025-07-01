@@ -1,0 +1,29 @@
+{
+  "sequences": [
+    {
+      "seq_name": "13",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "16",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "17",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "18",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "2",
+      "intra_period": 32,
+      "frame_rate": 30
+    }
+  ]
+}

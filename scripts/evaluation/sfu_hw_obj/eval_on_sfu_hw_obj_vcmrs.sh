@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 FCM_TESTDATA=""
 INNER_CODEC_PATH=""
 OUTPUT_DIR=""
@@ -57,57 +59,11 @@ if [[ ${PIPELINE} == "remote" ]]; then
   CONF_NAME="eval_remote_inference_example.yaml"
 fi
 
-
-declare -A intra_period_dict
-declare -A fr_dict
-declare -A roi_descriptor
-declare -A spatial_descriptor
-
-
-intra_period_dict["Traffic_2560x1600_30_val"]=32
-fr_dict["Traffic_2560x1600_30_val"]=30
-
-intra_period_dict["Kimono_1920x1080_24_val"]=32
-fr_dict["Kimono_1920x1080_24_val"]=24
-
-intra_period_dict["ParkScene_1920x1080_24_val"]=32
-fr_dict["ParkScene_1920x1080_24_val"]=24
-
-intra_period_dict["Cactus_1920x1080_50_val"]=64
-fr_dict["Cactus_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrive_1920x1080_50_val"]=64
-fr_dict["BasketballDrive_1920x1080_50_val"]=50
-
-intra_period_dict["BasketballDrill_832x480_50_val"]=64
-fr_dict["BasketballDrill_832x480_50_val"]=50
-
-intra_period_dict["BQTerrace_1920x1080_60_val"]=64
-fr_dict["BQTerrace_1920x1080_60_val"]=60
-
-intra_period_dict["BQSquare_416x240_60_val"]=64
-fr_dict["BQSquare_416x240_60_val"]=60
-
-intra_period_dict["PartyScene_832x480_50_val"]=64
-fr_dict["PartyScene_832x480_50_val"]=50
-
-intra_period_dict["RaceHorses_832x480_30_val"]=32
-fr_dict["RaceHorses_832x480_30_val"]=30
-
-intra_period_dict["RaceHorses_416x240_30_val"]=32
-fr_dict["RaceHorses_416x240_30_val"]=30
-
-intra_period_dict["BlowingBubbles_416x240_50_val"]=64
-fr_dict["BlowingBubbles_416x240_50_val"]=50
-
-intra_period_dict["BasketballPass_416x240_50_val"]=64
-fr_dict["BasketballPass_416x240_50_val"]=50
-
-intra_period_dict["BQMall_832x480_60_val"]=64
-fr_dict["BQMall_832x480_60_val"]=60
-
-INTRA_PERIOD=${intra_period_dict[${SEQ}]}
-FRAME_RATE=${fr_dict[${SEQ}]}
+DATASET_INFO_PATH="${SCRIPT_DIR}/sfu_hw_obj.json"
+SEQ_INFO=$(jq --compact-output ".sequences[] | select(.seq_name == \"${SEQ}\")" "$DATASET_INFO_PATH")
+[ -n "$SEQ_INFO" ] || exit 1
+INTRA_PERIOD=$(jq --raw-output ".intra_period" <<< "${SEQ_INFO}")
+FRAME_RATE=$(jq --raw-output ".frame_rate" <<< "${SEQ_INFO}")
 
 echo "============================== RUNNING COMPRESSAI-VISION EVAL== =================================="
 echo "Pipeline Type:      " ${PIPELINE} " Video"

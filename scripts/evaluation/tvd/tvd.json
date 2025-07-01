@@ -1,0 +1,19 @@
+{
+  "sequences": [
+    {
+      "seq_name": "TVD-01",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "TVD-02",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "TVD-03",
+      "intra_period": 64,
+      "frame_rate": 50
+    }
+  ]
+}

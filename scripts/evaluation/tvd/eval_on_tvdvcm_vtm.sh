@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 FCM_TESTDATA=""
 INNER_CODEC_PATH=""
 OUTPUT_DIR=""
@@ -57,42 +59,12 @@ if [[ ${PIPELINE} == "remote" ]]; then
   CONF_NAME="eval_remote_inference_example.yaml"
 fi
 
-
-declare -A intra_period_dict
-declare -A fr_dict
-declare -A bit_depth
-
-intra_period_dict["TVD-01-1"]=64
-fr_dict["TVD-01-1"]=50
-bit_depth["TVD-01-1"]=8
-
-intra_period_dict["TVD-01-2"]=64
-fr_dict["TVD-01-2"]=50
-bit_depth["TVD-01-2"]=8
-
-intra_period_dict["TVD-01-3"]=64
-fr_dict["TVD-01-3"]=50
-bit_depth["TVD-01-3"]=8
-
-intra_period_dict["TVD-02-1"]=64
-fr_dict["TVD-02-1"]=50
-bit_depth["TVD-02-1"]=10
-
-intra_period_dict["TVD-03-1"]=64
-fr_dict["TVD-03-1"]=50
-bit_depth["TVD-03-1"]=10
-
-intra_period_dict["TVD-03-2"]=64
-fr_dict["TVD-03-2"]=50
-bit_depth["TVD-03-2"]=10
-
-intra_period_dict["TVD-03-3"]=64
-fr_dict["TVD-03-3"]=50
-bit_depth["TVD-03-3"]=10
-
-INTRA_PERIOD=${intra_period_dict[${SEQ}]}
-FRAME_RATE=${fr_dict[${SEQ}]}
-BIT_DEPTH=${bit_depth[${SEQ}]}
+DATASET_INFO_PATH="${SCRIPT_DIR}/tvdvcm.json"
+SEQ_INFO=$(jq --compact-output ".sequences[] | select(.seq_name == \"${SEQ}\")" "$DATASET_INFO_PATH")
+[ -n "$SEQ_INFO" ] || exit 1
+INTRA_PERIOD=$(jq --raw-output ".intra_period" <<< "${SEQ_INFO}")
+FRAME_RATE=$(jq --raw-output ".frame_rate" <<< "${SEQ_INFO}")
+BIT_DEPTH=$(jq --raw-output ".bit_depth" <<< "${SEQ_INFO}")
 
 echo "============================== RUNNING COMPRESSAI-VISION EVAL== =================================="
 echo "Pipeline Type:      " ${PIPELINE} " Video"

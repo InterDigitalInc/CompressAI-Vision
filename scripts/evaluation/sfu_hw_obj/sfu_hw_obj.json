@@ -1,0 +1,74 @@
+{
+  "sequences": [
+    {
+      "seq_name": "BQMall_832x480_60_val",
+      "intra_period": 64,
+      "frame_rate": 60
+    },
+    {
+      "seq_name": "BQSquare_416x240_60_val",
+      "intra_period": 64,
+      "frame_rate": 60
+    },
+    {
+      "seq_name": "BQTerrace_1920x1080_60_val",
+      "intra_period": 64,
+      "frame_rate": 60
+    },
+    {
+      "seq_name": "BasketballDrill_832x480_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "BasketballDrive_1920x1080_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "BasketballPass_416x240_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "BlowingBubbles_416x240_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "Cactus_1920x1080_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "Kimono_1920x1080_24_val",
+      "intra_period": 32,
+      "frame_rate": 24
+    },
+    {
+      "seq_name": "ParkScene_1920x1080_24_val",
+      "intra_period": 32,
+      "frame_rate": 24
+    },
+    {
+      "seq_name": "PartyScene_832x480_50_val",
+      "intra_period": 64,
+      "frame_rate": 50
+    },
+    {
+      "seq_name": "RaceHorses_416x240_30_val",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "RaceHorses_832x480_30_val",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "Traffic_2560x1600_30_val",
+      "intra_period": 32,
+      "frame_rate": 30
+    }
+  ]
+}
