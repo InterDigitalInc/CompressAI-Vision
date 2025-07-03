@@ -1,6 +1,67 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "pybind11>=2.6.0",]
+requires = ["setuptools>=68", "wheel", "pybind11>=2.6.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "compressai-vision"
+version = "1.1.14.dev0"
+description = "Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI"
+authors = [{ name = "CompressAI-Vision team", email = "compressai@interdigital.com" }]
+license = { text = "BSD 3-Clause Clear License" }
+license-files = ["LICEN[CS]E.*"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+
+requires-python = ">=3.8"
+
+dependencies = [
+    "hydra-core",
+    "omegaconf",
+    "yuvio",
+    "pandas",
+    "pillow",
+    "ptflops>=0.7.3",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+dev = ["pytest", "pytest-cov", "black", "isort"]
+doc = [
+    "sphinx",
+    "sphinx-book-theme",
+    "sphinxcontrib-mermaid",
+    "Jinja2<3.1",
+    "fiftyone",
+    "pytorch_msssim",
+    "ipython",
+]
+tutorials = ["jupyter", "ipywidgets"]
+all = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "isort",
+    "sphinx",
+    "sphinx-book-theme",
+    "sphinxcontrib-mermaid",
+    "Jinja2<3.1",
+    "fiftyone",
+    "pytorch_msssim",
+    "ipython",
+    "jupyter",
+    "ipywidgets",
+]
+
+[project.scripts]
+"compressai-vision-eval" = "compressai_vision.run.eval_split_inference:main"
+"compressai-split-inference" = "compressai_vision.run.eval_split_inference:main"
+"compressai-remote-inference" = "compressai_vision.run.eval_remote_inference:main"
+"compressai-multi-task-inference" = "compressai_vision.run.eval_multitask_inference:main"
 
 [tool.black]
 line-length = 88
@@ -9,3 +70,11 @@ line-length = 88
 profile = "black"
 skip_gitignore = true
 known_third_party = "PIL,pytorch_msssim,torchvision,torch"
+
+[tool.uv.workspace]
+members = [
+    "compressai-vision",
+]
+
+[tool.setuptools]
+py-modules = []
