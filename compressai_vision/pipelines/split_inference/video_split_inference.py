@@ -319,11 +319,11 @@ class VideoSplitInference(BasePipeline):
             out_res = dec_features.copy()
             del (out_res["data"], out_res["org_input_size"])
 
-            if self.configs["codec"]["decode_only"]:
-                out_res["bytes"] = bitstream_bytes / len(dataloader)
+            if not isinstance(res["bitstream"], dict):
+                out_res["bytes"] = os.stat(res["bitstream"]).st_size / len(dataloader)
             else:
                 assert len(res["bytes"]) == len(dataloader)
-                out_res["bytes"] = os.stat(res["bitstream"]).st_size / len(dataloader)
+                out_res["bytes"] = res["bytes"][e]
 
             out_res["coded_order"] = e
             out_res["input_size"] = dec_features["input_size"][0]

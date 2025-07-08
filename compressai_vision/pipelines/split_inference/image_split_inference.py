@@ -229,7 +229,11 @@ class ImageSplitInference(BasePipeline):
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
 
-            out_res["bytes"] = os.stat(res["bitstream"]).st_size
+            if not isinstance(res["bitstream"], dict):
+                out_res["bytes"] = os.stat(res["bitstream"]).st_size
+            else:
+                out_res["bytes"] = res["bytes"][0]
+
             out_res["coded_order"] = e
             out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
             out_res["input_size"] = dec_features["input_size"][0]
