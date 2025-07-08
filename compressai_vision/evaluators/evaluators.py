@@ -51,6 +51,7 @@ from pytorch_msssim import ms_ssim
 from tqdm import tqdm
 from yolox.data.datasets.coco import remove_useless_info
 from yolox.evaluators import COCOEvaluator as YOLOX_COCOEvaluator
+from yolox.utils import xyxy2xywh
 
 from compressai_vision.datasets import deccode_compressed_rle
 from compressai_vision.registry import register_evaluator
@@ -924,9 +925,10 @@ class YOLOXCOCOEval(BaseEvaluator):
                 self.batch_size = 1
 
         dataloader = dummy_dataloader()
-        self._evaluator = YOLOX_COCOEvaluator(
-            dataloader, dataset.input_size, -1, -1, -1
-        )
+
+        self._class_ids = class_ids
+        self._img_size = dataset.input_size
+        self._evaluator = YOLOX_COCOEvaluator(dataloader, None, -1, -1, -1)
         self.reset()
 
     def reset(self):
@@ -940,8 +942,8 @@ class YOLOXCOCOEval(BaseEvaluator):
         img_widths = [gt[0]["width"]]
         img_ids = [gt[0]["image_id"]]
 
-        data_list_elem, image_wise_data = self._evaluator.convert_to_coco_format(
-            pred, [img_heights, img_widths], img_ids, return_outputs=True
+        data_list_elem, image_wise_data = self._convert_to_coco_format(
+            pred, [img_heights, img_widths], img_ids
         )
         self.data_list.extend(data_list_elem)
         self.output_data.update(image_wise_data)
@@ -974,6 +976,55 @@ class YOLOXCOCOEval(BaseEvaluator):
         self._logger.info("\n" + summary)
 
         return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}
+
+    def _convert_to_coco_format(self, outputs, info_imgs, ids):
+        # reference : yolox > evaluators > coco_evaluator > convert_to_coco_format
+        data_list = []
+        image_wise_data = defaultdict(dict)
+        for output, img_h, img_w, img_id in zip(
+            outputs, info_imgs[0], info_imgs[1], ids
+        ):
+            if output is None:
+                continue
+            output = output.cpu()
+
+            bboxes = output[:, 0:4]
+
+            # preprocessing: resize
+            scale = min(
+                self._img_size[0] / float(img_h), self._img_size[1] / float(img_w)
+            )
+            bboxes /= scale
+            cls = output[:, 6]
+            scores = output[:, 4] * output[:, 5]
+
+            image_wise_data.update(
+                {
+                    img_id: {
+                        "bboxes": [box.numpy().tolist() for box in bboxes],
+                        "scores": [score.numpy().item() for score in scores],
+                        "categories": [
+                            self._class_ids[int(cls[ind])]
+                            for ind in range(bboxes.shape[0])
+                        ],
+                    }
+                }
+            )
+
+            bboxes = xyxy2xywh(bboxes)
+
+            for ind in range(bboxes.shape[0]):
+                label = self._class_ids[int(cls[ind])]
+                pred_data = {
+                    "image_id": img_id,
+                    "category_id": label,
+                    "bbox": bboxes[ind].numpy().tolist(),
+                    "score": scores[ind].numpy().item(),
+                    "segmentation": [],
+                }  # COCO json format
+                data_list.append(pred_data)
+
+        return data_list, image_wise_data
 
 
 @register_evaluator("MMPOSE-COCO-EVAL")

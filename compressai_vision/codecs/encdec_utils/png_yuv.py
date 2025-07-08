@@ -105,6 +105,7 @@ class PngFilesToYuvFileConverter:
         else:
             nb_frames = 1
             input_info = ["-i", file_names[0]]
+            yuv_file = None
 
         chroma_format = self.chroma_format
         input_bitdepth = self.input_bitdepth
