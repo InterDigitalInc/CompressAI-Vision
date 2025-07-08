@@ -7,8 +7,7 @@ name = "compressai-vision"
 version = "1.1.14.dev0"
 description = "Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI"
 authors = [{ name = "CompressAI-Vision team", email = "compressai@interdigital.com" }]
-license = { text = "BSD 3-Clause Clear License" }
-license-files = ["LICEN[CS]E.*"]
+license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -17,15 +16,18 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 
-requires-python = ">=3.8"
+requires-python = ">=3.8,<3.9"
 
 dependencies = [
+    "compressai",
     "hydra-core",
     "omegaconf",
     "yuvio",
     "pandas",
     "pillow",
     "ptflops>=0.7.3",
+    "pip>=25.0.1",
+    "wheel>=0.45.1",
 ]
 
 [project.optional-dependencies]
@@ -55,6 +57,7 @@ all = [
     "ipython",
     "jupyter",
     "ipywidgets",
+    "ruff==0.8.6",
 ]
 
 [project.scripts]
@@ -71,9 +74,12 @@ profile = "black"
 skip_gitignore = true
 known_third_party = "PIL,pytorch_msssim,torchvision,torch"
 
+[tool.uv.sources]
+compressai = { workspace = true }
+
 [tool.uv.workspace]
 members = [
-    "compressai-vision",
+    "compressai-vision", "compressai"
 ]
 
 [tool.setuptools]
