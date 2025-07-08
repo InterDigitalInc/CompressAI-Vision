@@ -1,59 +1,72 @@
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-cache:
-  paths:
-    - "$CI_PROJECT_DIR/.cache/pip"
+  UV_INSTALL_DIR: "${CI_PROJECT_DIR}/.local/bin"
+  UV_CACHE_DIR: "${CI_PROJECT_DIR}/.uv-cache"
+  UV_LINK_MODE: copy
 
 stages:
+  - setup
   - static-analysis
   - doc
 
+.default-before-script: &default-before-script
+  - git submodule update --init --recursive
+  - export PATH="${UV_INSTALL_DIR}:$PATH"
+  - source "${UV_INSTALL_DIR}/env"
+  - uv run --no-sync python --version
 
-.flake8:
+uv-install:
+  image: python:3.8-buster
+  stage: setup
+  script:
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - *default-before-script
+  artifacts:
+    paths:
+      - ".local/"
+    expire_in: 1 day
+  tags:
+    - docker
+ruff-lint:
   stage: static-analysis
   image: python:3.8-buster
   before_script:
-    - python --version
-    - pip install -U pip flake8
+    - *default-before-script
+    - uv sync --only-group=dev
   script:
-    - flake8 --max-line-length 88 compressai_vision data/mpeg-fcm
+    - uv run --no-sync make check-ruff-lint
   tags:
     - docker
 
-
-
-black:
+ruff-format:
   stage: static-analysis
   image: python:3.8-buster
   before_script:
-    - python --version
-    - pip install -U pip black
+    - *default-before-script
+    - uv sync --only-group=dev
   script:
-    - black --check compressai_vision data/mpeg-fcm scripts/metrics
+    - uv run --no-sync make check-ruff-format
   tags:
     - docker
 
-isort:
+ruff-organize-imports:
   stage: static-analysis
   image: python:3.8-buster
   before_script:
-    - python --version
-    - pip install -U pip isort
+    - *default-before-script
+    - uv sync --only-group=dev
   script:
-    - isort compressai_vision data/mpeg-fcm scripts/metrics --check-only
+    - uv run --no-sync make check-ruff-organize-imports
   tags:
     - docker
 
 doc:
-  cache: []
   stage: doc
   image: python:3.8-buster
   before_script:
-    - python --version
-    - pip install -e .[doc]
+    - *default-before-script
+    - uv sync --group=doc
     - cd docs
   script:
-    - make html
+    - uv run --no-sync make html
   tags:
     - docker
