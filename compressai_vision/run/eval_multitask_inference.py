@@ -36,6 +36,16 @@ Evaluate a system performance of end-to-end pipeline.
 
 from __future__ import annotations
 
+from compressai_vision.config import (
+    configure_conf,
+    create_dataloader,
+    create_evaluator,
+    create_multi_task_codec,
+    create_pipline,
+    create_vision_model,
+    write_outputs,
+)
+
 import configparser
 import logging
 import os
@@ -49,17 +59,6 @@ from tabulate import tabulate
 
 thisdir = Path(__file__).parent
 config_path = str(thisdir.joinpath("../../cfgs").resolve())
-
-
-from compressai_vision.config import (
-    configure_conf,
-    create_dataloader,
-    create_evaluator,
-    create_multi_task_codec,
-    create_pipline,
-    create_vision_model,
-    write_outputs,
-)
 
 
 def setup(conf: DictConfig) -> dict[str, Any]:
@@ -126,7 +125,8 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     }
 
 
-title = lambda a: str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
+def title(a):
+    return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
 
 
 def print_specs(pipeline, **kwargs):

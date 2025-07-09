@@ -107,7 +107,8 @@ def setup(conf: DictConfig) -> dict[str, Any]:
     }
 
 
-title = lambda a: str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
+def title(a):
+    return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
 
 
 def print_specs(pipeline, **kwargs):
