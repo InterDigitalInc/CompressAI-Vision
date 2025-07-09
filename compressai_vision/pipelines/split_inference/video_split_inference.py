@@ -220,7 +220,7 @@ class VideoSplitInference(BasePipeline):
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
                 if (
                     (file_path.suffix in [".bin", ".mp4"])
-                    and not "_tmp" in file_path.name
+                    and "_tmp" not in file_path.name
                 )
             ]
             assert (
@@ -246,7 +246,7 @@ class VideoSplitInference(BasePipeline):
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
-        if not "org_input_size" in dec_features or not "input_size" in dec_features:
+        if "org_input_size" not in dec_features or "input_size" not in dec_features:
             self.logger.warning(
                 "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
             )
