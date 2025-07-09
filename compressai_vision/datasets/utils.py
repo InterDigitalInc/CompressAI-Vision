@@ -34,6 +34,7 @@ import copy
 import cv2
 import numpy as np
 import torch
+
 from jde.utils.datasets import letterbox
 from mmpose.structures.bbox import get_warp_matrix
 from torchvision import transforms
@@ -91,7 +92,7 @@ class MMPOSECustomMapper:
         self.pad_val = pad_val
         assert img_size[0] % size_factor == 0 and img_size[1] % size_factor == 0
 
-        if aug_transforms != None:
+        if aug_transforms is not None:
             self.aug_transforms = aug_transforms
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])
@@ -189,7 +190,7 @@ class YOLOXCustomMapper:
 
         self.input_img_size = img_size
 
-        if aug_transforms != None:
+        if aug_transforms is not None:
             self.aug_transforms = aug_transforms
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])

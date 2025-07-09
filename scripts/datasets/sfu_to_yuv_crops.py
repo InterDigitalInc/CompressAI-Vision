@@ -4,7 +4,8 @@ Extract SFU crops in YUV format from the original sequences
 """
 
 import os
-from sfu_dicts import seq_dict, res_dict, fr_dict
+
+from sfu_dicts import fr_dict, res_dict, seq_dict
 
 # Edit following paths as needed:
 SRC_YUV_DIR = os.path.expandvars("$SEQUENCE_DIR/x1100")

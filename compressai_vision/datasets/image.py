@@ -31,6 +31,7 @@
 import base64
 import logging
 import re
+
 from glob import glob
 from pathlib import Path
 from typing import Dict, List
@@ -88,7 +89,7 @@ def deccode_compressed_rle(data):
         segm = anno.get("segmentation", None)
         if segm:
             # Decode compressed RLEs with base64 to be compatible with pycoco tools
-            if type(segm) != list and type(segm["counts"]) != list:
+            if type(segm) is not list and type(segm["counts"]) is not list:
                 segm["counts"] = base64.b64decode(segm["counts"])
 
 

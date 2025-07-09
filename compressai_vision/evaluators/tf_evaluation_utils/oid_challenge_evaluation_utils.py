@@ -48,9 +48,11 @@ from __future__ import division, print_function
 
 import base64
 import zlib
+
 from typing import Dict
 
 import numpy as np
+
 from pycocotools import mask as coco_mask
 from torch import Tensor
 

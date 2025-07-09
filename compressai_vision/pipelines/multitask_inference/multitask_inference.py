@@ -31,6 +31,7 @@
 import logging
 import os
 import shutil
+
 from enum import Enum
 from glob import glob
 from pathlib import Path
@@ -39,6 +40,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -105,7 +107,7 @@ class MultiTaskInference(BasePipeline):
 
         assert (
             codec.num_tasks == len(evaluators) == len(vision_models)
-        ), f"# of multiple tasks are not matched"
+        ), "# of multiple tasks are not matched"
 
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []

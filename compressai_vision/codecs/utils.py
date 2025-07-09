@@ -29,10 +29,12 @@
 
 import json
 import math
+
 from typing import Dict
 
 import torch
 import torch.nn.functional as F
+
 from torch import Tensor
 
 MIN_MAX_DATASET = {
@@ -207,7 +209,7 @@ class FpnUtils:
         nbframes, C, H, W = x_sorted[0].size()
         _, fixedW = compute_frame_resolution(C, H, W)
 
-        assert packing_all_in_one == True, "packing_all_in_one False is not support yet"
+        assert packing_all_in_one is True, "packing_all_in_one False is not support yet"
 
         # compute packing subframes
         self.subframe_heights = []

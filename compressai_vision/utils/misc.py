@@ -28,9 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import time
+
 from typing import Dict, List, TypeVar
 
 import torch
+
 from torch import Tensor
 
 K = TypeVar("K")

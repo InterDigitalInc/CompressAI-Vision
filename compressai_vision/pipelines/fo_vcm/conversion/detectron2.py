@@ -35,6 +35,7 @@ from math import floor
 # import detectron2
 import torch
 
+
 # from detectron2.data import MetadataCatalog
 from detectron2.structures import BoxMode
 

@@ -36,6 +36,19 @@ Evaluate a system performance of end-to-end pipeline.
 
 from __future__ import annotations
 
+import configparser
+import logging
+import os
+
+from pathlib import Path
+from typing import Any
+
+import hydra
+import pandas as pd
+
+from omegaconf import DictConfig
+from tabulate import tabulate
+
 from compressai_vision.config import (
     configure_conf,
     create_dataloader,
@@ -45,17 +58,6 @@ from compressai_vision.config import (
     create_vision_model,
     write_outputs,
 )
-
-import configparser
-import logging
-import os
-from pathlib import Path
-from typing import Any
-
-import hydra
-import pandas as pd
-from omegaconf import DictConfig
-from tabulate import tabulate
 
 thisdir = Path(__file__).parent
 config_path = str(thisdir.joinpath("../../cfgs").resolve())

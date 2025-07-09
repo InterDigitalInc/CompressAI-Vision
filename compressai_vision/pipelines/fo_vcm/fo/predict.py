@@ -30,6 +30,7 @@
 import traceback
 
 import cv2
+
 from detectron2.data import MetadataCatalog
 from fiftyone import ProgressBar
 from fiftyone.core.dataset import Dataset
