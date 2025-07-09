@@ -79,7 +79,7 @@ line-length = 88
 [tool.isort]
 profile = "black"
 skip_gitignore = true
-known_third_party = "PIL,pytorch_msssim,torchvision,torch"
+known_third_party = "PIL,torchvision,torch"
 
 [tool.uv.sources]
 compressai = { workspace = true }
