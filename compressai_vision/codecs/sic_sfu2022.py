@@ -37,6 +37,8 @@ from typing import Dict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.hub import load_state_dict_from_url
+
 from compressai.ans import BufferedRansEncoder, RansDecoder
 from compressai.entropy_models import GaussianConditional
 from compressai.layers import (
@@ -47,8 +49,6 @@ from compressai.layers import (
 )
 from compressai.models.utils import update_registered_buffers
 from compressai.models.waseda import Cheng2020Anchor
-from torch.hub import load_state_dict_from_url
-
 from compressai_vision.codecs.utils import crop, pad
 from compressai_vision.registry import register_multask_codec
 
