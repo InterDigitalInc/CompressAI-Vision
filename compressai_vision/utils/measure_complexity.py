@@ -1,7 +1,9 @@
 import operator
+
 from functools import reduce
 
 import torch
+
 from ptflops import get_model_complexity_info
 
 

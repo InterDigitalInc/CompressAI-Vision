@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Dict, List
 
 import torch
+
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model

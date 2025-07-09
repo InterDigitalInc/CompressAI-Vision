@@ -31,6 +31,7 @@ import errno
 import json
 import logging
 import os
+
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
@@ -38,6 +39,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+
 from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
 
@@ -202,7 +204,7 @@ class BasePipeline(nn.Module):
                 "codec"
             ][
                 "encode_only"
-            ], f"Encoding part of a sequence is only available when `codec.encode_only' is True"
+            ], "Encoding part of a sequence is only available when `codec.encode_only' is True"
 
         self._codec_end_frame_idx = (
             self._codec_skip_n_frames + self._codec_n_frames_to_be_encoded

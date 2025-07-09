@@ -34,6 +34,7 @@ import math
 import os
 import sys
 import time
+
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
@@ -883,7 +884,7 @@ class JM(VTM):
             List[Any]: commands line to encode the video.
         """
 
-        assert parallel_encoding == False, "JM does not support parallel coding"
+        assert parallel_encoding is False, "JM does not support parallel coding"
         level = 62  # enable large frames
         if output_bitdepth == 0:
             output_bitdepth = input_bitdepth

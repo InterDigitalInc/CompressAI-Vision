@@ -31,6 +31,7 @@ import logging
 import math
 import time
 import warnings
+
 from pathlib import Path
 from typing import Dict
 
@@ -117,7 +118,7 @@ class SIC_SFU2022:
         )
         raise NotImplementedError
 
-        assert self.num_tasks == 3, f"Currently only three tasks model is available"
+        assert self.num_tasks == 3, "Currently only three tasks model is available"
 
         if self.num_tasks == 2:
             lst_activations = [nn.Identity()]
@@ -223,7 +224,7 @@ class SIC_SFU2022:
 
         # logpath = Path(f"{file_prefix}_enc.log")
 
-        if self.trg_vmodel == None:
+        if self.trg_vmodel is None:
             img = x["image"].to(self.device)
             assert img.dim() == 3
             feature_only = False
@@ -375,9 +376,7 @@ SCALES_MAX = 256
 SCALES_LEVELS = 64
 
 
-def get_scale_table(
-    min=SCALES_MIN, max=SCALES_MAX, levels=SCALES_LEVELS
-):  # pylint: disable=W0622
+def get_scale_table(min=SCALES_MIN, max=SCALES_MAX, levels=SCALES_LEVELS):  # pylint: disable=W0622
     return torch.exp(torch.linspace(math.log(min), math.log(max), levels))
 
 
@@ -541,7 +540,7 @@ class SICHumansMachines(Cheng2020Anchor):
 
             y_hats = (
                 per_layer_y_hat
-                if y_hats == None
+                if y_hats is None
                 else torch.cat((y_hats, per_layer_y_hat), dim=1)
             )
             if e < (self.NUM_LAYERS - 1):

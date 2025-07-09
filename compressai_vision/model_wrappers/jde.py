@@ -28,11 +28,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
+
 from pathlib import Path
 from typing import Dict, List
 
 import jde
 import torch
+
 from jde.models import Darknet
 from jde.tracker import matching
 from jde.tracker.basetrack import TrackState
@@ -214,7 +216,7 @@ class jde_1088x608(BaseWrapper):
 
         # x_deeper = self.darknet(None, {tag: x}, is_nn_part1=False, end_idx=(tag + 1))
 
-        return x_deeper
+        # return x_deeper
 
     def _jde_process(self, pred, org_img_size: tuple, input_img_size: tuple):
         r"""Re-implementation of JDE from Z. Wang, L. Zheng, Y. Liu, and S. Wang:
@@ -325,9 +327,7 @@ class jde_1088x608(BaseWrapper):
 
         detections = [detections[i] for i in u_detection]
         # detections is now a list of the unmatched detections
-        r_tracked_stracks = (
-            []
-        )  # This is container for stracks which were tracked till the
+        r_tracked_stracks = []  # This is container for stracks which were tracked till the
         # previous frame but no detection was found for it in the current frame
         for i in u_track:
             if track_candidates_pool[i].state == TrackState.Tracked:

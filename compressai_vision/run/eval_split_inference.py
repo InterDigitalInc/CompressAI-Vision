@@ -43,6 +43,18 @@ Please check the scripts provided in scripts/evaluation for examples with suppor
 
 from __future__ import annotations
 
+import logging
+import os
+
+from pathlib import Path
+from typing import Any
+
+import hydra
+import pandas as pd
+
+from omegaconf import DictConfig
+from tabulate import tabulate
+
 from compressai_vision.config import (
     configure_conf,
     create_codec,
@@ -52,17 +64,6 @@ from compressai_vision.config import (
     create_vision_model,
     write_outputs,
 )
-
-import logging
-import os
-from pathlib import Path
-from typing import Any
-
-import hydra
-import pandas as pd
-from omegaconf import DictConfig
-from tabulate import tabulate
-
 from compressai_vision.datasets import get_seq_info
 from compressai_vision.utils import get_max_num_cpus
 

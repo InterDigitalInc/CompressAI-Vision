@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+
 from pathlib import Path
 
 TVD_MP4_DIR = Path(os.path.expandvars("${VCM_TESTDATA}")) / "tvd_tracking_lossless"
