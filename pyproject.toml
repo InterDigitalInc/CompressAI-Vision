@@ -28,6 +28,12 @@ dependencies = [
     "ptflops>=0.7.3",
     "pip>=25.0.1",
     "wheel>=0.45.1",
+    "numpy>=1.24.4",
+    "motmetrics>=1.4.0",
+    "numba>=0.58.1",
+    "lap>=0.5.12",
+    "opencv-python>=4.12.0.88",
+    "munkres>=1.1.4",
 ]
 
 [project.optional-dependencies]
