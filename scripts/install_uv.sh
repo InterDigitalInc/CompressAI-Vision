@@ -71,6 +71,16 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 ## Make sure we have up-to-date pip and wheel
 uv add --upgrade pip wheel
 
+if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
+    echo "installing on cpu"
+    uv pip install torch torchvision torchaudio --default-index https://download.pytorch.org/whl/cpu
+    wait
+else
+    echo "cuda version: $CUDA_VERSION"
+    uv pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+    wait
+fi
+
 ## Detectron2
 if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
@@ -94,15 +104,6 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
         if [ ${CUDA_VERSION} == "" ]; then
             echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
         fi
-    fi
-    if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
-        echo "installing on cpu"
-        uv pip install torch torchvision torchaudio --default-index https://download.pytorch.org/whl/cpu
-        wait
-    else
-        echo "cuda version: $CUDA_VERSION"
-        uv pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
-        wait
     fi
 
     # '!' egating set -e when patching has been applied already

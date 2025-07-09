@@ -71,6 +71,22 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 ## Make sure we have up-to-date pip and wheel
 pip3 install -U pip wheel
 
+if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
+    CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
+    if [ ${CUDA_VERSION} == "" ]; then
+        echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
+    fi
+fi
+if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
+    echo "installing on cpu"
+    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    wait
+else
+    echo "cuda version: $CUDA_VERSION"
+    pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+    wait
+fi
+    
 ## Detectron2
 if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
@@ -88,22 +104,6 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
     echo "checkout the version used for MPEG FCM"
     echo
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-
-    if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
-        CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [ ${CUDA_VERSION} == "" ]; then
-            echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
-        fi
-    fi
-    if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
-        echo "installing on cpu"
-        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        wait
-    else
-        echo "cuda version: $CUDA_VERSION"
-        pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
-        wait
-    fi
 
     # '!' egating set -e when patching has been applied already
     ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
