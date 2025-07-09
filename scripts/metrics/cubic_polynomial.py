@@ -43,7 +43,6 @@ def func_cubic_1(x, b):
 
 
 def fit_cubic(x, y, m_min=0, m_max=100):
-
     def func_cubic(b, x):
         s = b[0] * np.power(x, 3) + b[1] * np.power(x, 2) + b[2] * np.asarray(x) + b[3]
         return s

@@ -33,6 +33,7 @@ Compute overall MOT over some sequences outputs
 
 
 """
+
 from __future__ import annotations
 
 import argparse
@@ -101,9 +102,9 @@ def compute_overall_mota(class_name, items):
         metrics=mm.metrics.motchallenge_metrics,
         generate_overall=True,
     )
-    rendered_summary = mm.io.render_summary(
-        summary, formatters=mh.formatters, namemap=mm.io.motchallenge_metric_names
-    )
+    # rendered_summary = mm.io.render_summary(
+    #     summary, formatters=mh.formatters, namemap=mm.io.motchallenge_metric_names
+    # )
 
     # print("\n\n")
     # print(rendered_summary)

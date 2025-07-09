@@ -659,27 +659,38 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-all = [
-    { name = "black" },
-    { name = "fiftyone" },
-    { name = "ipython" },
-    { name = "ipywidgets" },
-    { name = "isort" },
-    { name = "jinja2" },
-    { name = "jupyter" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytorch-msssim" },
-    { name = "ruff" },
-    { name = "sphinx" },
-    { name = "sphinx-book-theme" },
-    { name = "sphinxcontrib-mermaid" },
-]
 dev = [
     { name = "black" },
     { name = "isort" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ruff" },
+]
+doc = [
+    { name = "fiftyone" },
+    { name = "ipython" },
+    { name = "jinja2" },
+    { name = "pytorch-msssim" },
+    { name = "sphinx" },
+    { name = "sphinx-book-theme" },
+    { name = "sphinxcontrib-mermaid" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+tutorials = [
+    { name = "ipywidgets" },
+    { name = "jupyter" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 doc = [
     { name = "fiftyone" },
@@ -701,46 +712,59 @@ tutorials = [
 
 [package.metadata]
 requires-dist = [
-    { name = "black", marker = "extra == 'all'" },
     { name = "black", marker = "extra == 'dev'" },
     { name = "compressai", editable = "compressai" },
-    { name = "fiftyone", marker = "extra == 'all'" },
     { name = "fiftyone", marker = "extra == 'doc'" },
     { name = "hydra-core" },
-    { name = "ipython", marker = "extra == 'all'" },
     { name = "ipython", marker = "extra == 'doc'" },
-    { name = "ipywidgets", marker = "extra == 'all'" },
     { name = "ipywidgets", marker = "extra == 'tutorials'" },
-    { name = "isort", marker = "extra == 'all'" },
     { name = "isort", marker = "extra == 'dev'" },
-    { name = "jinja2", marker = "extra == 'all'", specifier = "<3.1" },
     { name = "jinja2", marker = "extra == 'doc'", specifier = "<3.1" },
-    { name = "jupyter", marker = "extra == 'all'" },
     { name = "jupyter", marker = "extra == 'tutorials'" },
     { name = "omegaconf" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "pip", specifier = ">=25.0.1" },
     { name = "ptflops", specifier = ">=0.7.3" },
-    { name = "pytest", marker = "extra == 'all'" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-cov", marker = "extra == 'all'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'test'" },
-    { name = "pytorch-msssim", marker = "extra == 'all'" },
     { name = "pytorch-msssim", marker = "extra == 'doc'" },
-    { name = "ruff", marker = "extra == 'all'", specifier = "==0.8.6" },
-    { name = "sphinx", marker = "extra == 'all'" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.8.6" },
     { name = "sphinx", marker = "extra == 'doc'" },
-    { name = "sphinx-book-theme", marker = "extra == 'all'" },
     { name = "sphinx-book-theme", marker = "extra == 'doc'" },
-    { name = "sphinxcontrib-mermaid", marker = "extra == 'all'" },
     { name = "sphinxcontrib-mermaid", marker = "extra == 'doc'" },
     { name = "wheel", specifier = ">=0.45.1" },
     { name = "yuvio" },
 ]
-provides-extras = ["test", "dev", "doc", "tutorials", "all"]
+provides-extras = ["test", "dev", "doc", "tutorials"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff", specifier = "==0.8.6" },
+]
+doc = [
+    { name = "fiftyone" },
+    { name = "ipython" },
+    { name = "jinja2", specifier = "<3.1" },
+    { name = "pytorch-msssim" },
+    { name = "sphinx" },
+    { name = "sphinx-book-theme" },
+    { name = "sphinxcontrib-mermaid" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+tutorials = [
+    { name = "ipywidgets" },
+    { name = "jupyter" },
+]
 
 [[package]]
 name = "contourpy"

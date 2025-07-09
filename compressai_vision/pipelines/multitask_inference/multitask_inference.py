@@ -190,7 +190,7 @@ class MultiTaskInference(BasePipeline):
             output_list.append(out_res)
 
         if self.configs["codec"]["encode_only"] is True:
-            print(f"bitstreams generated, exiting")
+            print("bitstreams generated, exiting")
             raise SystemExit(0)
 
         eval_performance = self._evaluation(evaluators[tlid])

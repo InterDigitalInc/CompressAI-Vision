@@ -174,7 +174,6 @@ class VideoRemoteInference(BasePipeline):
         output_list = []
         org_map_func = dataloader.dataset.get_org_mapper_func()
         for e, d in enumerate(tqdm(dataloader)):
-
             # some assertion needed to check if d is matched with dec_seq[e]
 
             start = time_measure()

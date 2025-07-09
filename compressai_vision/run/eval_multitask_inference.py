@@ -33,6 +33,7 @@ Evaluate a system performance of end-to-end pipeline.
 
 
 """
+
 from __future__ import annotations
 
 import configparser
@@ -152,7 +153,7 @@ def print_specs(pipeline, **kwargs):
     if "target_task_layer" in pipeline.configs["codec"]:
         log_str += f"\n  -- Target task layer    : {pipeline.configs['codec'].target_task_layer}"
 
-    log_str += f"\n Multiple Tasks"
+    log_str += "\n Multiple Tasks"
     for e, task in enumerate(kwargs["vision_models"]):
         if task is not None:
             log_str += f"\n  -- L{e} Vision Model      : {title(task)}"
@@ -171,7 +172,7 @@ def print_specs(pipeline, **kwargs):
         log_str += f"\n  -- Annotation           : {Path(kwargs['dataloader'].dataset.annotation_path).resolve()}"
     if kwargs["dataloader"].dataset.seqinfo_path is not None:
         log_str += f"\n  -- SEQ-INFO             : {Path(kwargs['dataloader'].dataset.seqinfo_path).resolve()}"
-    log_str += f"\n Evaluators"
+    log_str += "\n Evaluators"
 
     assert "target_task_layer" in pipeline.configs["codec"]
 
@@ -241,7 +242,7 @@ def main(conf: DictConfig):
 
     print(f"\nSummary files saved in : {evaluator_filepath}\n")
     result_df.to_csv(
-        os.path.join(evaluator_filepath, f"summary.csv"),
+        os.path.join(evaluator_filepath, "summary.csv"),
         index=False,
     )
     coded_res_df.to_csv(

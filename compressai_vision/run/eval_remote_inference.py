@@ -40,6 +40,7 @@ To evaluate the compression and accuracy performance in the remote-inference pip
 
 Please check the scripts provided in scripts/evaluation for examples with supported codecs and datasets
 """
+
 from __future__ import annotations
 
 import logging
@@ -206,7 +207,7 @@ def main(conf: DictConfig):
 
     print(f"\nSummary files saved in : {evaluator_filepath}\n")
     result_df.to_csv(
-        os.path.join(evaluator_filepath, f"summary.csv"),
+        os.path.join(evaluator_filepath, "summary.csv"),
         index=False,
     )
     coded_res_df.to_csv(

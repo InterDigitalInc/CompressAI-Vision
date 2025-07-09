@@ -988,9 +988,9 @@ class ObjectDetectionEvaluation(object):
             self.tp_fp_labels_per_class[i].extend(tp_fp_labels_per_class[i])
             self.num_gt_instances_per_class[i] += num_gt_instances_per_class[i]
             self.num_gt_imgs_per_class[i] += num_gt_imgs_per_class[i]
-            self.num_images_correctly_detected_per_class[
-                i
-            ] += num_images_correctly_detected_per_class[i]
+            self.num_images_correctly_detected_per_class[i] += (
+                num_images_correctly_detected_per_class[i]
+            )
 
     def add_single_ground_truth_image_info(
         self,

@@ -33,6 +33,7 @@ Common utils for computing overall MOT/mAP over some sequences outputs
 
 
 """
+
 from __future__ import annotations
 
 import os
@@ -41,8 +42,8 @@ from pathlib import Path
 
 __all__ = [
     "get_seq_number",
-    "get_eval_info_path",
-    "get_seq_info_path",
+    # "get_eval_info_path",
+    # "get_seq_info_path",
 ]
 
 SEQ_NAME_KEY = "seq_name"

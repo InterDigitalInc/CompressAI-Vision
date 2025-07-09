@@ -193,7 +193,7 @@ class FpnUtils:
                 "subframe_heights": self.subframe_heights,
             }
             f.write(json.dumps(output, indent=4).encode())
-        print(f"fpn sizes json dump generated, exiting")
+        print("fpn sizes json dump generated, exiting")
         raise SystemExit(0)
 
     def reshape_feature_pyramid_to_frame(self, x: Dict, packing_all_in_one=False):

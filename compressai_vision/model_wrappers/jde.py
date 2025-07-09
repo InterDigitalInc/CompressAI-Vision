@@ -210,9 +210,9 @@ class jde_1088x608(BaseWrapper):
         raise NotImplementedError
 
         assert x.dim() == 4, "Shape of the input feature tensor must be [N, C, H, W]"
-        assert type(tag) == int
+        # assert type(tag) == int
 
-        x_deeper = self.darknet(None, {tag: x}, is_nn_part1=False, end_idx=(tag + 1))
+        # x_deeper = self.darknet(None, {tag: x}, is_nn_part1=False, end_idx=(tag + 1))
 
         return x_deeper
 
