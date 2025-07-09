@@ -32,7 +32,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
-dev = ["pytest", "pytest-cov", "black", "isort"]
+dev = ["pytest", "pytest-cov", "black", "isort", "ruff==0.8.6"]
 doc = [
     "sphinx",
     "sphinx-book-theme",
@@ -43,28 +43,12 @@ doc = [
     "ipython",
 ]
 tutorials = ["jupyter", "ipywidgets"]
-all = [
-    "pytest",
-    "pytest-cov",
-    "black",
-    "isort",
-    "sphinx",
-    "sphinx-book-theme",
-    "sphinxcontrib-mermaid",
-    "Jinja2<3.1",
-    "fiftyone",
-    "pytorch_msssim",
-    "ipython",
-    "jupyter",
-    "ipywidgets",
-    "ruff==0.8.6",
-]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
 # pip supports installing [dependency-groups].
 [dependency-groups]
 test = ["pytest", "pytest-cov"]
-dev = ["pytest", "pytest-cov", "black", "isort"]
+dev = ["pytest", "pytest-cov", "black", "isort", "ruff==0.8.6"]
 doc = [
     "sphinx",
     "sphinx-book-theme",
@@ -75,25 +59,6 @@ doc = [
     "ipython",
 ]
 tutorials = ["jupyter", "ipywidgets"]
-all = [
-    "pytest",
-    "pytest-cov",
-    "black",
-    "isort",
-    "sphinx",
-    "sphinx-book-theme",
-    "sphinxcontrib-mermaid",
-    "Jinja2<3.1",
-    "fiftyone",
-    "pytorch_msssim",
-    "ipython",
-    "jupyter",
-    "ipywidgets",
-    "ruff==0.8.6",
-]
-
-
-
 
 
 [project.scripts]
