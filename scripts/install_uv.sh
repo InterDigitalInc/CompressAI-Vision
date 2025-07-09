@@ -71,9 +71,15 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 ## Make sure we have up-to-date pip and wheel
 uv add --upgrade pip wheel
 
+if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
+    CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
+    if [ ${CUDA_VERSION} == "" ]; then
+        echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
+    fi
+fi
 if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
     echo "installing on cpu"
-    uv pip install torch torchvision torchaudio --default-index https://download.pytorch.org/whl/cpu
+    uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     wait
 else
     echo "cuda version: $CUDA_VERSION"
@@ -98,13 +104,6 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
     echo "checkout the version used for MPEG FCM"
     echo
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-
-    if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
-        CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [ ${CUDA_VERSION} == "" ]; then
-            echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
-        fi
-    fi
 
     # '!' egating set -e when patching has been applied already
     ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
@@ -169,7 +168,7 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
 
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
-    uv pip install -e .
+    uv pip install --no-build-isolation -e .
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
@@ -254,9 +253,7 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
     # miminum requirments - no onnx, etc.
     cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
-    echo "haha1"
-    uv pip install -e .
-    echo "haha2"
+    uv pip install --no-build-isolation  -e .
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
             echo
@@ -283,7 +280,7 @@ if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
     echo
 
     uv pip install -U openmim
-    uv run mim install "mmcv==2.0.1"
+    uv run --no-sync mim install "mmcv==2.0.1"
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
@@ -297,8 +294,8 @@ if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
 
     cd ${MODELS_SOURCE_DIR}/mmpose
     # miminum requirments - no onnx, etc.
-    uv pip install -r requirements.txt
-    uv pip install -v -e .
+    uv pip install --no-build-isolation -r requirements/build.txt -r requirements/runtime.txt
+    uv pip install --no-build-isolation -e .
 
     uv run mim install mmdet==3.1.0
     
