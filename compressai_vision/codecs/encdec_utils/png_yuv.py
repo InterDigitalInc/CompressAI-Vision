@@ -202,7 +202,7 @@ class YuvFileToPngFilesConverter:
             "420" in video_info["format"].value
         ), f"Only support yuv420, but got {video_info['format']}"
         pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
-        chroma_format = f"yuv420p"
+        chroma_format = "yuv420p"
 
         cmd_suffix, output_png_filename = self._determine_output_filename(
             output_file_prefix
@@ -307,10 +307,10 @@ class YuvFileToPngFilesConverter:
             filename = f"{prefix}%03d.png"
         elif datacatalog in ["MPEGHIEVE", "PANDASET"]:
             cmd_suffix = ["-start_number", "0"]
-            filename = f"%06d.png"
+            filename = "%06d.png"
         elif datacatalog in ["MPEGTVDTRACKING"]:
             cmd_suffix = ["-start_number", "1"]
-            filename = f"%06d.png"
+            filename = "%06d.png"
         else:
             raise ValueError(f"Unknown datacatalog: {datacatalog}")
 

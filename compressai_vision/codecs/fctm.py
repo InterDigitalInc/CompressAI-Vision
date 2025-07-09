@@ -35,7 +35,7 @@ try:
     from fctm import feature_coding_model
 except ModuleNotFoundError as e:
     if e.name == "fctm":
-        logging.warning(f"FCTM is not installed")
+        logging.warning("FCTM is not installed")
     else:
         raise e
 else:
@@ -45,7 +45,6 @@ else:
         """Does no encoding/decoding whatsoever. Use for debugging."""
 
         def __init__(self, **kwargs):
-
             enc_configs = kwargs.pop("enc_configs")
             self.qp = enc_configs["qp"]
             self.eval_encode = kwargs.pop("eval_encode")

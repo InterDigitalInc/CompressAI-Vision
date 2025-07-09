@@ -76,7 +76,7 @@ class rtmo_multi_person_pose_estimation(BaseWrapper):
 
         cfg = Config.fromfile(self.model_info["cfg"])
         model_cfg = cfg["model"]
-        log_processor_cfg = cfg.get("log_processor")
+        # log_processor_cfg = cfg.get("log_processor")
         default_scope = cfg.get("default_scope", "mmengine")
         assert default_scope == "mmpose"
 

@@ -146,7 +146,7 @@ class SIC_SFU2022:
         torch.backends.cudnn.deterministic = True
         torch.set_num_interop_threads(1)  # just to be sure
 
-        root_url = "https://dspub.blob.core.windows.net/compressai/sic_sfu2022"
+        # root_url = "https://dspub.blob.core.windows.net/compressai/sic_sfu2022"
 
         self.target_tlayer = int(kwargs["target_task_layer"])
         assert (
@@ -221,7 +221,7 @@ class SIC_SFU2022:
         else:
             file_prefix = f"{codec_output_dir}/{bitstream_name}-{file_prefix}"
 
-        logpath = Path(f"{file_prefix}_enc.log")
+        # logpath = Path(f"{file_prefix}_enc.log")
 
         if self.trg_vmodel == None:
             img = x["image"].to(self.device)
@@ -307,7 +307,7 @@ class SIC_SFU2022:
 
             with b_path.open("rb") as f:
                 if e == 0:
-                    output_file_prefix = b_path.stem
+                    # output_file_prefix = b_path.stem
 
                     # read original image size
                     org_fh, org_fw = read_uints(f, 2)

@@ -609,7 +609,7 @@ class MOT_JDE_Eval(BaseEvaluator):
         pred_list = []
         for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
             x1, y1, w, h = tlwh
-            x2, y2 = x1 + w, y1 + h
+            # x2, y2 = x1 + w, y1 + h
             parsed_pred = ((x1, y1, w, h), id, 1.0)
             pred_list.append(parsed_pred)
 
@@ -1162,7 +1162,7 @@ class MMPOSECOCOEval(BaseEvaluator):
 
         self.write_results(eval_results)
 
-        item_keys = list(eval_results.keys())
+        # item_keys = list(eval_results.keys())
         item_vals = list(eval_results.values())
 
         # self._logger.info("\n" + summary)

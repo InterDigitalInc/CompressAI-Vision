@@ -57,7 +57,6 @@ def manual_load_data(path, ext):
     datalist = []
 
     for img_addr in img_list:
-
         img_id = Path(img_addr).stem
         img = Image.open(img_addr)
         fW, fH = img.size

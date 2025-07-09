@@ -29,7 +29,8 @@ def calc_complexity_nn_part2_dn53(vision_model, dec_features):
     device = vision_model.device
 
     if isinstance(dec_features["data"][0], list):  # image task
-        x = {k: v[0] for k, v in x.items()}
+        # x = {k: v[0] for k, v in x.items()}
+        pass
     else:  # video task
         x = dec_features["data"]
         x = {
@@ -53,7 +54,6 @@ def calc_complexity_nn_part2_dn53(vision_model, dec_features):
 
 
 def calc_complexity_nn_part1_plyr(vision_model, img):
-
     # input pre-processing
     imgs = vision_model.model.preprocess_image(img)
     _, C, H, W = imgs.tensor.shape
@@ -71,7 +71,6 @@ def calc_complexity_nn_part1_plyr(vision_model, img):
 
 
 def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
-
     if isinstance(data[0], list):  # image task
         data = {k: v[0] for k, v in data.items()}
 
@@ -105,7 +104,6 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     for partial_model, input_res, input_constructure in zip(
         partial_model_lst, input_res_list, input_constructure_lst
     ):
-
         kmacs, _ = measure_mac(
             partial_model=partial_model,
             input_res=input_res,

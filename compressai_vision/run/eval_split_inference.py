@@ -43,23 +43,6 @@ Please check the scripts provided in scripts/evaluation for examples with suppor
 
 from __future__ import annotations
 
-import logging
-import os
-from pathlib import Path
-from typing import Any
-
-import hydra
-import pandas as pd
-from omegaconf import DictConfig, OmegaConf
-from tabulate import tabulate
-
-from compressai_vision.datasets import get_seq_info
-from compressai_vision.utils import get_max_num_cpus
-
-thisdir = Path(__file__).parent
-config_path = str(thisdir.joinpath("../../cfgs").resolve())
-
-
 from compressai_vision.config import (
     configure_conf,
     create_codec,
@@ -69,6 +52,22 @@ from compressai_vision.config import (
     create_vision_model,
     write_outputs,
 )
+
+import logging
+import os
+from pathlib import Path
+from typing import Any
+
+import hydra
+import pandas as pd
+from omegaconf import DictConfig
+from tabulate import tabulate
+
+from compressai_vision.datasets import get_seq_info
+from compressai_vision.utils import get_max_num_cpus
+
+thisdir = Path(__file__).parent
+config_path = str(thisdir.joinpath("../../cfgs").resolve())
 
 
 def setup(conf: DictConfig) -> dict[str, Any]:
@@ -151,7 +150,7 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Output Dir             : {Path(kwargs['evaluator'].output_dir).resolve()} \
                 \n  -- Output file            : {kwargs['evaluator'].output_file_name} \
         "
-    info += f"\n\n"
+    info += "\n\n"
 
     logger.info(info)
 
@@ -296,12 +295,12 @@ def main(conf: DictConfig):
         print(tabulate(calc_mac_df, headers="keys", tablefmt="psql"))
 
         calc_mac_df.to_csv(
-            os.path.join(evaluator_filepath, f"summary_complexity.csv"),
+            os.path.join(evaluator_filepath, "summary_complexity.csv"),
             index=False,
         )
 
     result_df.to_csv(
-        os.path.join(evaluator_filepath, f"summary.csv"),
+        os.path.join(evaluator_filepath, "summary.csv"),
         index=False,
     )
 

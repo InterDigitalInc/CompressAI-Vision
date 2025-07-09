@@ -39,9 +39,9 @@ from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import dict_sum, time_measure
 from compressai_vision.utils.measure_complexity import (
-    calc_complexity_nn_part1_dn53,
+    # calc_complexity_nn_part1_dn53,
     calc_complexity_nn_part1_plyr,
-    calc_complexity_nn_part2_dn53,
+    # calc_complexity_nn_part2_dn53,
     calc_complexity_nn_part2_plyr,
 )
 
@@ -261,7 +261,7 @@ class ImageSplitInference(BasePipeline):
             self.calc_kmac_per_pixels_image_task()
 
         if self.configs["codec"]["encode_only"] is True:
-            print(f"bitstreams generated, exiting")
+            print("bitstreams generated, exiting")
             return self.time_elapsed_by_module, codec.eval_encode_type, None, None, None
 
         eval_performance = self._evaluation(evaluator)

@@ -34,6 +34,7 @@ This file has been modified from "from
 detectron2.evaluation.inference_on_dataset" by Interdigital to include bpp (bits
 per pixel) calculations
 """
+
 import datetime
 import logging
 import time
