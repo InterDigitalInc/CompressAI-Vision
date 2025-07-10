@@ -96,7 +96,7 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/detectron2)" ]; then
-        git clone https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
+        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
     fi
     cd ${MODELS_SOURCE_DIR}/detectron2
 
@@ -108,7 +108,7 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
     # '!' egating set -e when patching has been applied already
     ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
 
-    uv sync
+    uv pip install --no-build-isolation -e .
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -155,8 +155,7 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
 
 
     # install dependent packages
-    uv add numpy motmetrics numba lap opencv-python munkres
-
+    uv pip install numpy motmetrics numba lap opencv-python munkres
     # install cython manually from source code with patch
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
@@ -168,8 +167,10 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
 
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
+    
     uv pip install --no-build-isolation -e .
-
+ 
+    
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
         git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT
@@ -186,14 +187,13 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
 
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
-
+    
     SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
     # COPY JDE files into site-package under virtual environment
     if [ "${SITE_PACKAGES}" == "" ]; then
         echo "error with python site-packages directory, check your system and 'which python'"
         echo "ERROR: Fail to install JDE"
     fi
-
     mkdir -p ${SITE_PACKAGES}/jde
     cp models.py ${SITE_PACKAGES}/jde
     cp -r tracker ${SITE_PACKAGES}/jde/
@@ -274,6 +274,7 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
     cd ${SCRIPT_DIR}/..
 fi
 
+
 if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
@@ -296,12 +297,8 @@ if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
     # miminum requirments - no onnx, etc.
     uv pip install --no-build-isolation -r requirements/build.txt -r requirements/runtime.txt
     uv pip install --no-build-isolation -e .
-
-    uv run mim install mmdet==3.1.0
     
-    # during the installation isort version might be overwritten.
-    # hence make sure back to the isort=5.13.2
-    uv run pip install isort==5.13.2
+    uv run --no-sync mim install mmdet==3.1.0
 
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/mmpose)" ]; then
