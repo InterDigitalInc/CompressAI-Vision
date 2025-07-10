@@ -35,6 +35,7 @@ from glob import glob
 from pathlib import Path
 from typing import Dict, List
 
+import numpy as np
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
@@ -678,6 +679,80 @@ class SFUHW(DataCatalog):
         # from mpeg-fcvcm
         minv = -17.884761810302734
         maxv = 16.694171905517578
+        return (minv, maxv)
+
+
+@register_datacatalog("PANDASET")
+class PANDASET(DataCatalog):
+    """Load an image folder database with Detectron2 Cfg. testing image samples
+    and annotations are respectively stored in separate directories
+    (Currently this class supports none of training related operation ):
+
+    .. code-block:: none
+        - rootdir/
+            - camera
+                - front_camera
+                    - 00.jpg
+                    - 01.jpg
+                    - xx.jpg
+            - annotations
+                - xxxx.json TODO
+    Args:
+        root (string): root directory of the dataset
+
+    """
+
+    def __init__(
+        self,
+        root,
+        imgs_folder="camera/front_camera",
+        annotation_file=None,
+        seqinfo="seqinfo.ini",
+        dataset_name="pandaset",
+        ext="jpg",
+    ):
+        super().__init__(
+            root,
+            imgs_folder=imgs_folder,
+            annotation_file=annotation_file,
+            seqinfo=seqinfo,
+            dataset_name=dataset_name,
+            ext=ext,
+        )
+
+        img_lists = sorted(self.imgs_folder_path.glob(f"*.{ext}"))
+
+        # self.data_type = "mot"
+        # print(annotation_file)
+        # seq_id = os.path.splitext(os.path.split(annotation_file)[1])[0]
+        gt_frame_list = np.load(self.annotation_path, allow_pickle=True)[
+            "gt"
+        ]  # read_results(
+        gt_frame_dict = {k: v for k, v in enumerate(gt_frame_list)}
+        #    str(self.annotation_path), self.data_type, is_gt=True
+        # )
+
+        self._dataset = []
+        self._gt_labels = gt_frame_dict
+        # self._gt_ignore_labels = gt_ignore_frame_dict
+
+        for file_name in img_lists:
+            img_id = file_name.name.split(f".{ext}")[0]
+
+            new_d = {
+                "file_name": str(file_name),
+                "image_id": img_id,
+                "annotations": {
+                    "gt": gt_frame_dict.get(int(img_id), []),
+                    # "gt_ignore": gt_ignore_frame_dict.get(int(img_id), []),
+                },
+            }
+            self._dataset.append(new_d)
+
+    def get_min_max_across_tensors(self):
+        # FIXME
+        minv = -30.0
+        maxv = 30.0
         return (minv, maxv)
 
 

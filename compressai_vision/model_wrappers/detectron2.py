@@ -35,6 +35,11 @@ import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
+from detectron2.modeling.meta_arch.panoptic_fpn import (
+    combine_semantic_and_instance_outputs,
+    detector_postprocess,
+    sem_seg_postprocess,
+)
 from detectron2.structures import ImageList
 
 from compressai_vision.registry import register_vision_model
@@ -46,6 +51,7 @@ __all__ = [
     "mask_rcnn_X_101_32x8d_FPN_3x",
     "faster_rcnn_R_50_FPN_3x",
     "mask_rcnn_R_50_FPN_3x",
+    "panoptic_rcnn_R_101_FPN_3x",
 ]
 
 thisdir = Path(__file__).parent
@@ -387,3 +393,72 @@ class faster_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
 class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
+
+
+@register_vision_model("panoptic_rcnn_R_101_FPN_3x")
+class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
+    def __init__(self, device="cpu", **kwargs):
+        super().__init__(device, **kwargs)
+        self.sem_seg_head = self.model.sem_seg_head
+
+        combine_overlap_thresh = 0.5
+        combine_stuff_area_thresh = 4096
+        combine_instances_score_thresh = 0.5
+
+        self.combine_overlap_thresh = combine_overlap_thresh
+        self.combine_stuff_area_thresh = combine_stuff_area_thresh
+        self.combine_instances_score_thresh = combine_instances_score_thresh
+
+    @torch.no_grad()
+    def _feature_pyramid_to_output(
+        self, x: Dict, org_img_size: Dict, input_img_size: List
+    ):
+        """
+        performs  downstream task using the feature pyramid ['p2', 'p3', 'p4', 'p5']
+
+        Detectron2 source codes are referenced for this function, specifically the class "GeneralizedRCNN"
+        Unnecessary parts for split inference are removed or modified properly.
+
+        Please find the license statement in the downloaded original Detectron2 source codes or at here:
+        https://github.com/facebookresearch/detectron2/blob/main/LICENSE
+
+        """
+
+        class dummy:
+            def __init__(self, img_size: list):
+                self.image_sizes = img_size
+
+        cdummy = dummy(input_img_size)
+
+        # Replacing tag names for interfacing with NN-part2
+        x = dict(zip(self.features_at_splits.keys(), x.values()))
+        x.update({"p6": self.top_block(x["p5"])[0]})
+
+        sem_seg_results, _ = self.sem_seg_head(x, None)
+        proposals, _ = self.proposal_generator(cdummy, x, None)
+        results, _ = self.roi_heads(cdummy, x, proposals, None)
+
+        assert (
+            not torch.jit.is_scripting()
+        ), "Scripting is not supported for postprocess."
+
+        processed_results = []
+        for sem_seg_result, detector_result, input_per_image, image_size in zip(
+            sem_seg_results, results, [org_img_size], input_img_size
+        ):
+            height = input_per_image["height"]
+            width = input_per_image["width"]
+            sem_seg_r = sem_seg_postprocess(sem_seg_result, image_size, height, width)
+            detector_r = detector_postprocess(detector_result, height, width)
+
+            processed_results.append({"sem_seg": sem_seg_r, "instances": detector_r})
+
+            panoptic_r = combine_semantic_and_instance_outputs(
+                detector_r,
+                sem_seg_r.argmax(dim=0),
+                self.combine_overlap_thresh,
+                self.combine_stuff_area_thresh,
+                self.combine_instances_score_thresh,
+            )
+            processed_results[-1]["panoptic_seg"] = panoptic_r
+        return processed_results

@@ -73,6 +73,10 @@ class BaseEvaluator(nn.Module):
         # the not used input is intended to interface with the function computing class-wise peformance
         return "coco_instances_results.json"
 
+    @staticmethod
+    def get_miou_eval_info_name(name):
+        return f"SemanticSegmentationEval_on_PANDASET_{name}.json"
+
     def reset(self):
         raise NotImplementedError
 

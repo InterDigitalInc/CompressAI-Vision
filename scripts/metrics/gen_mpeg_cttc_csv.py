@@ -42,6 +42,7 @@ import numpy as np
 import pandas as pd
 import utils
 from compute_overall_map import compute_overall_mAP
+from compute_overall_miou import compute_overall_mIoU
 from compute_overall_mot import compute_overall_mota
 from curve_fitting import (
     convert_to_monotonic_points_SFU,
@@ -51,12 +52,11 @@ from curve_fitting import (
 from compressai_vision.datasets import get_seq_info
 from compressai_vision.evaluators.evaluators import BaseEvaluator
 
-DATASETS = ["TVD", "SFU", "OIV6", "HIEVE"]
+DATASETS = ["TVD", "SFU", "OIV6", "HIEVE", "PANDASET"]
 
 
 def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv"):
     summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
-
     if nb_operation_points > 0:
         seq_names = [
             file_path.split(path)[1].split("/")[0] for file_path in summary_csvs
@@ -273,6 +273,67 @@ def generate_csv_classwise_video_mota(
     return output_df
 
 
+def generate_csv_classwise_video_miou(
+    result_path,
+    dataset_path,
+    list_of_classwise_seq,
+    seq_list,
+    nb_operation_points: int = 4,
+):
+    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
+
+    # sort
+    sorterIndex = dict(zip(seq_list, range(len(seq_list))))
+    results_df["ds_rank"] = results_df["Dataset"].map(sorterIndex)
+    results_df.sort_values(["ds_rank", "qp"], ascending=[True, True], inplace=True)
+    results_df.drop(columns=["ds_rank"], inplace=True)
+
+    output_df = results_df.copy()
+    ## drop columns
+    output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+
+    for seqs_by_class in list_of_classwise_seq:
+        classwise_name = list(seqs_by_class.keys())[0]
+        classwise_seqs = [
+            seq.replace("PANDA", "") for seq in list(seqs_by_class.values())[0]
+        ]
+
+        class_wise_mious = []
+        # rate_range = [-1] if nb_operation_points == 1 else range(nb_operation_points)
+        for q in range(nb_operation_points):
+            items = utils.search_items(
+                result_path,
+                dataset_path,
+                q,
+                classwise_seqs,
+                BaseEvaluator.get_miou_eval_info_name,
+                by_name=True,
+                pandaset_flag=True,
+            )
+
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
+
+            miou = compute_overall_mIoU(classwise_name, items)
+            class_wise_mious.append(miou)
+
+        matched_seq_names = []
+        for seq_info in items:
+            name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
+            matched_seq_names.append(name)
+
+        class_wise_results_df = generate_classwise_df(
+            results_df, {classwise_name: matched_seq_names}
+        )
+
+        class_wise_results_df["end_accuracy"] = class_wise_mious
+
+        output_df = df_append(output_df, class_wise_results_df)
+
+    return output_df
+
+
 def generate_csv(result_path, seq_list, nb_operation_points):
     result_df = read_df_rec(result_path, seq_list, nb_operation_points)
 
@@ -305,7 +366,7 @@ if __name__ == "__main__":
         "--dataset_name",
         required=True,
         default="SFU",
-        choices=["SFU", "OIV6", "TVD", "HIEVE"],
+        choices=["SFU", "OIV6", "TVD", "HIEVE", "PANDASET"],
         help="CTTC Evaluation Dataset (default: %(default)s)",
     )
     parser.add_argument(
@@ -508,6 +569,102 @@ if __name__ == "__main__":
         output_df["ds_rank"] = output_df["Dataset"].map(sorterIndex)
         output_df.sort_values(["ds_rank", "qp"], ascending=[True, True], inplace=True)
         output_df.drop(columns=["ds_rank"], inplace=True)
+    elif args.dataset_name == "PANDASET":
+        PANDAM1 = {
+            "PANDAM1": [
+                "PANDA057",
+                "PANDA058",
+                "PANDA069",
+                "PANDA070",
+                "PANDA072",
+                "PANDA073",
+                "PANDA077",
+            ]
+        }
+        PANDAM2 = {
+            "PANDAM2": [
+                "PANDA003",
+                "PANDA011",
+                "PANDA016",
+                "PANDA017",
+                "PANDA021",
+                "PANDA023",
+                "PANDA027",
+                "PANDA029",
+                "PANDA030",
+                "PANDA033",
+                "PANDA035",
+                "PANDA037",
+                "PANDA039",
+                "PANDA043",
+                "PANDA053",
+                "PANDA056",
+                "PANDA097",
+            ]
+        }
+        PANDAM3 = {
+            "PANDAM3": [
+                "PANDA088",
+                "PANDA089",
+                "PANDA090",
+                "PANDA095",
+                "PANDA109",
+                "PANDA112",
+                "PANDA113",
+                "PANDA115",
+                "PANDA117",
+                "PANDA119",
+                "PANDA122",
+                "PANDA124",
+            ]
+        }
+        seq_list = [
+            "PANDA057",
+            "PANDA058",
+            "PANDA069",
+            "PANDA070",
+            "PANDA072",
+            "PANDA073",
+            "PANDA077",
+            "PANDA003",
+            "PANDA011",
+            "PANDA016",
+            "PANDA017",
+            "PANDA021",
+            "PANDA023",
+            "PANDA027",
+            "PANDA029",
+            "PANDA030",
+            "PANDA033",
+            "PANDA035",
+            "PANDA037",
+            "PANDA039",
+            "PANDA043",
+            "PANDA053",
+            "PANDA056",
+            "PANDA097",
+            "PANDA088",
+            "PANDA089",
+            "PANDA090",
+            "PANDA095",
+            "PANDA109",
+            "PANDA112",
+            "PANDA113",
+            "PANDA115",
+            "PANDA117",
+            "PANDA119",
+            "PANDA122",
+            "PANDA124",
+        ]
+        seq_list = [s[-3:] + "_1920x1080_30" for s in seq_list]
+
+        output_df = generate_csv_classwise_video_miou(
+            args.result_path,
+            args.dataset_path,
+            [PANDAM1, PANDAM2, PANDAM3],
+            seq_list,
+            args.nb_operation_points,
+        )
     else:
         raise NotImplementedError
 

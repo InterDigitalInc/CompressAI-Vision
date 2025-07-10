@@ -79,11 +79,13 @@ class PngFilesToYuvFileConverter:
         if len(file_names) > 1:  # video
             # NOTE: using glob for now, should be more robust and look at skipped
             # NOTE: somewhat rigid pattern (lowercase png)
-            filename_pattern = f"{str(Path(file_names[0]).parent)}/*.png"
+
+            parent = Path(file_names[0]).parent
+            ext = next((e for e in ["*.png", "*.jpg"] if list(parent.glob(e))), None)
+            filename_pattern = f"{parent}/{ext}"
+            images_in_folder = len(list(parent.glob(ext)))
             nb_frames = input["last_frame"] - input["frame_skip"]
-            images_in_folder = len(
-                [file for file in Path(file_names[0]).parent.glob("*.png")]
-            )
+
             assert (
                 images_in_folder == nb_frames
             ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
@@ -302,7 +304,7 @@ class YuvFileToPngFilesConverter:
             cmd_suffix = ["-start_number", "0"]
             prefix = output_file_prefix.split("qp")[0]
             filename = f"{prefix}%03d.png"
-        elif datacatalog in ["MPEGHIEVE"]:
+        elif datacatalog in ["MPEGHIEVE", "PANDASET"]:
             cmd_suffix = ["-start_number", "0"]
             filename = f"%06d.png"
         elif datacatalog in ["MPEGTVDTRACKING"]:
