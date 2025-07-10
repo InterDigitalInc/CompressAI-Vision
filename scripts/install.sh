@@ -139,6 +139,10 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
             mkdir -p ${WEIGHT_DIR}
             wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
 
+            # Panoptic FPN R-101 3x
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519"
+            mkdir -p ${WEIGHT_DIR}
+            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl -P ${WEIGHT_DIR}
         else
             echo
             echo "Detectron2 Weights directory not empty, using existing models"

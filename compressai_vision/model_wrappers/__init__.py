@@ -33,6 +33,7 @@ from .detectron2 import (
     faster_rcnn_X_101_32x8d_FPN_3x,
     mask_rcnn_R_50_FPN_3x,
     mask_rcnn_X_101_32x8d_FPN_3x,
+    panoptic_rcnn_R_101_FPN_3x,
 )
 from .jde import jde_1088x608
 from .rtmo import rtmo_multi_person_pose_estimation
@@ -44,6 +45,7 @@ __all__ = [
     "mask_rcnn_X_101_32x8d_FPN_3x",
     "faster_rcnn_R_50_FPN_3x",
     "mask_rcnn_R_50_FPN_3x",
+    "panoptic_rcnn_R_101_FPN_3x",
     "jde_1088x608",
     "yolox_darknet53",
     "rtmo_multi_person_pose_estimation",

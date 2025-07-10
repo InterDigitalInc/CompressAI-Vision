@@ -129,6 +129,19 @@ def get_seq_info_path_by_seq_name(seq_name, path, gt_folder):
     return seq_info_path, gt_path
 
 
+def get_seq_info_path_by_seq_name_pandaset(seq_name, path, gt_folder):
+    eval_folder, _dname = get_folder_path_by_seq_name(seq_name, path)
+
+    seq_info_path = f"{eval_folder}/seqinfo.ini"
+    check_file_validity(seq_info_path)
+
+    ext = ".npz" if path.endswith("PandaSet") else ".json"
+    gt_path = f"{eval_folder}/{gt_folder}/{_dname}{ext}"
+    check_file_validity(gt_path)
+
+    return seq_info_path, gt_path
+
+
 def get_folder_path_by_seq_num(seq_num, _path):
     _folder_list = [f for f in Path(_path).iterdir() if f.is_dir()]
     for _name in _folder_list:
@@ -157,6 +170,7 @@ def search_items(
     seq_list: list,
     eval_func: callable,
     by_name=False,
+    pandaset_flag=False,
     gt_folder="annotations",
 ):
     _ret_list = []
@@ -168,9 +182,14 @@ def search_items(
             if result is None:
                 continue
             eval_info_path, dname = result
-            seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
-                seq_name, dataset_path, gt_folder
-            )
+            if pandaset_flag is True:
+                seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name_pandaset(
+                    seq_name, dataset_path, gt_folder
+                )
+            else:
+                seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
+                    seq_name, dataset_path, gt_folder
+                )
         else:  # by number
             seq_num = get_seq_number(seq_name)
 

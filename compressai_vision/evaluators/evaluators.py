@@ -57,6 +57,12 @@ from compressai_vision.registry import register_evaluator
 from compressai_vision.utils import time_measure, to_cpu
 
 from .base_evaluator import BaseEvaluator
+from .config import (
+    coco_stuff_to_pandaset,
+    coco_things_to_pandaset,
+    pandaset_to_vcm_category,
+    vcm_eval_category,
+)
 from .tf_evaluation_utils import (
     DetectionResultFields,
     InputDataFields,
@@ -65,6 +71,45 @@ from .tf_evaluation_utils import (
     decode_masks,
     encode_masks,
 )
+
+
+# Function to calculate mIoU
+def calculate_mIoU(gt, pred):
+    def calculate_iou_for_class(gt, pred, class_id):
+        # Calculate the intersection (true positives)
+        true_positive = ((gt == class_id) & (pred == class_id)).sum()
+
+        # Calculate the false positives and false negatives
+        false_positive = ((gt != class_id) & (pred == class_id)).sum()
+        false_negative = ((gt == class_id) & (pred != class_id)).sum()
+
+        # Calculate the union
+        union = true_positive + false_positive + false_negative
+
+        # Return the IoU for the class
+        return true_positive / union * 100 if union != 0 else 0
+
+    iou_dict = {}
+    total_iou = 0
+    num_classes_in_data = 0
+
+    for class_id in vcm_eval_category:
+        # Check if the class is present in either ground truth or predictions
+        # if np.any(gt == class_id) or np.any(pred == class_id):
+        if np.any(gt == class_id):
+            iou = calculate_iou_for_class(gt, pred, class_id)
+            iou_dict[class_id] = iou
+            total_iou += iou
+            num_classes_in_data += 1
+        else:
+            iou_dict[class_id] = (
+                np.nan
+            )  # class not present in either ground truth or predictions
+
+    # Calculate mean IoU
+    mIoU = total_iou / num_classes_in_data if num_classes_in_data > 0 else 0
+
+    return mIoU, iou_dict
 
 
 @register_evaluator("COCO-EVAL")
@@ -397,6 +442,99 @@ class OpenImagesChallengeEval(BaseEvaluator):
             summary[name] = value
 
         return summary
+
+
+@register_evaluator("SEMANTICSEG-EVAL")
+class SemanticSegmentationEval(BaseEvaluator):
+    """
+    Semantic Segmentation Evaluator
+
+    Based on code from the Nokia Pandaset evaluation scripts
+    """
+
+    def __init__(
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        eval_criteria="mIoU",
+        **args,
+    ):
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
+
+        self._sem_gt = np.load(dataset.annotation_path, allow_pickle=True)["gt"]
+        self.reset()
+
+    def reset(self):
+        # self._predictions = []
+        # otuput sequence categories
+        self._seq_gt_cats = []
+        self._seq_det_cats = []
+        self._frame_ctr = 0
+
+    def digest(self, gt, pred):
+        # Detectron segmentation
+        seg_detectron = pred[0]["panoptic_seg"]
+        panoptic_seg, segments_info = seg_detectron
+
+        # frame ground truth, columns: x, y, cls
+        frame_gt = self._sem_gt[self._frame_ctr]
+        flat_indices = np.ravel_multi_index(
+            (frame_gt[:, 1], frame_gt[:, 0]), (1080, 1920)
+        )
+
+        # get groundtruth categories
+        gt_cats = frame_gt[:, 2]
+
+        # convert detection from coco category to pandaset category
+        det_ids = panoptic_seg.cpu().numpy().ravel()[flat_indices]
+
+        # convert detectron2 id to pandaset categories
+        cvt_table = np.zeros(80, dtype=int)
+        for info in segments_info:
+            if info["isthing"]:
+                cvt_table[info["id"]] = coco_things_to_pandaset[info["category_id"]]
+            else:
+                cvt_table[info["id"]] = coco_stuff_to_pandaset[info["category_id"]]
+        det_cats = cvt_table[det_ids]
+
+        # convert to vcm categories
+        vcm_cvt_table = np.zeros(50, dtype=int)
+        for k, v in pandaset_to_vcm_category.items():
+            vcm_cvt_table[k] = v
+
+        gt_cats = vcm_cvt_table[gt_cats]
+        det_cats = vcm_cvt_table[det_cats]
+
+        # add frame results to sequence
+        self._seq_gt_cats.append(gt_cats)
+        self._seq_det_cats.append(det_cats)
+
+        self._frame_ctr += 1
+
+    def mIoU_eval(self):
+        # Concatenate frame results to sequence results
+        seq_gt = np.concatenate(self._seq_gt_cats)
+        seq_det = np.concatenate(self._seq_det_cats)
+
+        # Calculate mPA
+        # mPA, class_mPA = calculate_mPA(seq_gt, seq_det)
+        mIoU, class_mIoU = calculate_mIoU(seq_gt, seq_det)
+        return mIoU, class_mIoU
+
+    def results(self, save_path: str = None):
+        mIoU, class_mIoU = self.mIoU_eval()
+        class_mIoU["mIoU"] = mIoU
+
+        if save_path:
+            self.write_results(class_mIoU, save_path)
+
+        self.write_results(class_mIoU)
+
+        return class_mIoU
 
 
 @register_evaluator("MOT-JDE-EVAL")
