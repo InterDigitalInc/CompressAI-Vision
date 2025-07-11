@@ -30,8 +30,17 @@ A complete documentation is provided [here](https://interdigitalinc.github.io/Co
 
 ## installation
 
+The CompressAI library providing learned compresion modules is available as a submodule. It can be initilized by running:
+```
+git submodule update --init --recursive
+```
+Note: the installation scripts documented below installs compressai from source expects the submodule to be populated. 
 
-### initialization of the environment
+CompressAI-Vision can be installed using a virtual environment and pip or using uv. 
+
+### 1. Using a virtual environment:
+
+#### Initialization of the environment
 To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
 
 ```
@@ -40,19 +49,13 @@ source ./venv/bin/activate
 pip install -U pip
 ```
 
-The CompressAI library providing learned compresion modules is available as a submodule. It can be initilized by running:
-```
-git submodule update --init --recursive
-```
-Note: the installation script documented below installs compressai from source expects the submodule to be populated. 
-
-### installation of compressai-vision and supported vision models:
+#### Installation of compressai-vision and supported vision models:
 
 First, if you want to manually export CUDA related paths, please source (e.g. for CUDA 11.8):
 ```
 bash scripts/env_cuda.sh 11.8
 ```
-Then, run:, please run:
+Then, please run:
 ```
 bash scripts/install.sh
 ```
@@ -69,6 +72,16 @@ path/to/weights/jde/jde.1088x608.uncertainty.pt
 The file can be downloaded at the following link (in place of the above file path):
 "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
 
+### 2. Using uv:
+Within the root folder of compressai-vision:
+```
+uv run -- bash scripts/install_uv.sh
+```
+
+Note: Make sure you pin the desired installed python version before, e.g., 
+```
+uv python pin 3.8
+```
 
 ## Usage
 
