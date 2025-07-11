@@ -1,6 +1,7 @@
 extend-exclude = [
     "*.ipynb",
     "compressai",
+    "models",
 ]
 
 [lint]
