@@ -68,35 +68,66 @@ MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
 mkdir -p ${MODELS_SOURCE_DIR}
 mkdir -p ${MODELS_WEIGHT_DIR}
 
-## Make sure we have up-to-date pip and wheel
-pip3 install -U pip wheel
 
-if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
-    CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-    if [ ${CUDA_VERSION} == "" ]; then
-        echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
+main () {
+    pip3 install -U pip wheel
+
+    install_torch
+
+    if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
+        install_detectron2
     fi
-fi
-if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
-    echo "installing on cpu"
-    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-    wait
-else
-    echo "cuda version: $CUDA_VERSION"
-    pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
-    wait
-fi
-    
-## Detectron2
-if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
 
+    if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
+        install_jde
+    fi
+
+    if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
+        install_yolox
+    fi
+
+    if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
+        install_mmpose
+    fi
+
+    echo
+    echo "Installing compressai"
+    echo
+    pip3 install -e "${SCRIPT_DIR}/../compressai"
+
+    echo
+    echo "Installing compressai-vision"
+    echo
+    pip3 install -e "${SCRIPT_DIR}/.."
+}
+
+
+install_torch () {
+    if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
+        CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
+        if [ ${CUDA_VERSION} == "" ]; then
+            echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
+        fi
+    fi
+    if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
+        echo "installing on cpu"
+        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        wait
+    else
+        echo "cuda version: $CUDA_VERSION"
+        pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        wait
+    fi
+}
+
+install_detectron2 () {
     echo
     echo "Installing detectron2"
     echo
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/detectron2)" ]; then
-        git clone https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
+        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
     fi
     cd ${MODELS_SOURCE_DIR}/detectron2
 
@@ -149,10 +180,9 @@ if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
             echo
         fi
     fi
-fi
+}
 
-if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
-
+install_jde () {
     echo
     echo "Installing JDE"
     echo
@@ -236,10 +266,9 @@ if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
         echo "and placed in the corresponding directory: ${MODELS_WEIGHT_DIR}/jde/jde.1088x608.uncertainty.pt"
         echo
     fi
+}
 
-fi
-
-if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
+install_yolox () {
     echo
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
@@ -277,9 +306,9 @@ if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
     fi
     # back to project root
     cd ${SCRIPT_DIR}/..
-fi
+}
 
-if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
+install_mmpose () {
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
@@ -326,15 +355,6 @@ if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
     fi
     # back to project root
     cd ${SCRIPT_DIR}/..
-fi
+}
 
-echo
-echo "Installing compressai"
-echo
-pip3 install -e "${SCRIPT_DIR}/../compressai"
-
-echo
-echo "Installing compressai-vision"
-echo
-
-pip3 install -e "${SCRIPT_DIR}/.."
+main "$@"
