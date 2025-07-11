@@ -2,7 +2,7 @@ name: basic install
 
 on: [push, pull_request]
 jobs:
-  docs_to_gh-pages:
+  test-install-uv:
     runs-on: ubuntu-latest
     name: basic install of compressai-vision (torch cpu)
     steps:
@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: install dependencies pip
+      - name: install detectron2 and project with pip for test
         run: |
-          python3 -m pip install -U pip
           bash scripts/install.sh -m detectron2 --no-weights
+

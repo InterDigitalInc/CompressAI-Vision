@@ -1,0 +1,21 @@
+name: basic install 
+
+on: [push, pull_request]
+jobs:
+  test-install:
+    runs-on: ubuntu-latest
+    name: basic install of compressai-vision with uv (torch cpu)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.8'
+
+      - name: install detectron2 and project with uv
+        run: |
+          uv run bash scripts/install_uv.sh -m detectron2 --no-weights
+
