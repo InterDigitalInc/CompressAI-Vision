@@ -154,7 +154,7 @@ class VideoRemoteInference(BasePipeline):
                 len(bin_files) == 1
             ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
-            bitstream_bytes = res["bitstream"].stat().st_size
+            # bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
         start = time_measure()
@@ -198,7 +198,7 @@ class VideoRemoteInference(BasePipeline):
             )  # Assuming one qp will be used
 
             if not isinstance(res["bitstream"], dict):
-                out_res["bytes"] = os.stat(res["bitstream"]).st_size / len(dataloader)
+                out_res["bytes"] = Path(res["bitstream"]).stat().st_size / len(dataloader)
             else:
                 assert len(res["bytes"]) == len(dataloader)
                 out_res["bytes"] = res["bytes"][e]

@@ -232,7 +232,7 @@ class VideoSplitInference(BasePipeline):
                 len(bin_files) == 1
             ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
-            bitstream_bytes = res["bitstream"].stat().st_size
+            # bitstream_bytes = res["bitstream"].stat().st_size
 
         # Feature Deompression
         start = time_measure()
