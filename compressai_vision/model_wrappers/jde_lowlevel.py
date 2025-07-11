@@ -29,6 +29,7 @@
 
 import torch
 import torch.nn as nn
+
 from jde.models import EmptyLayer, Upsample, YOLOLayer
 
 from .intconv2d import IntConv2d

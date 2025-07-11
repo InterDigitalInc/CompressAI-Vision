@@ -27,6 +27,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
+
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List
@@ -81,7 +82,6 @@ class Conv2d(IntConv2d):
         self.activation = activation
 
     def set_attributes(self, module):
-
         if hasattr(module, "norm"):
             self.norm = module.norm
 
@@ -125,7 +125,6 @@ class ConvTranspose2d(IntTransposedConv2d):
         self.activation = activation
 
     def set_attributes(self, module):
-
         if hasattr(module, "norm"):
             self.norm = module.norm
 
