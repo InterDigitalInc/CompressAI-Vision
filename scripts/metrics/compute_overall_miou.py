@@ -33,6 +33,7 @@ Compute overall MOT over some sequences outputs
 
 
 """
+
 from __future__ import annotations
 
 import argparse
@@ -42,6 +43,8 @@ import json
 import utils
 
 from compressai_vision.evaluators.evaluators import BaseEvaluator
+
+from .compute_overall_mota import compute_overall_mota
 
 CLASSES = ["PANDAM1", "PANDAM2", "PANDAM2"]
 
@@ -92,7 +95,6 @@ SEQS_BY_CLASS = {
 
 
 def compute_overall_mIoU(class_name, items):
-
     miou_acc = 0.0
     for item in items:
         with open(item["eval_info"], "r") as f:

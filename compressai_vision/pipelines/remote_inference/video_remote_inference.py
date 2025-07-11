@@ -198,7 +198,9 @@ class VideoRemoteInference(BasePipeline):
             )  # Assuming one qp will be used
 
             if not isinstance(res["bitstream"], dict):
-                out_res["bytes"] = Path(res["bitstream"]).stat().st_size / len(dataloader)
+                out_res["bytes"] = Path(res["bitstream"]).stat().st_size / len(
+                    dataloader
+                )
             else:
                 assert len(res["bytes"]) == len(dataloader)
                 out_res["bytes"] = res["bytes"][e]
