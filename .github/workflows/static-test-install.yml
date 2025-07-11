@@ -6,9 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     name: basic install of compressai-vision (torch cpu)
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
