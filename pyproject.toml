@@ -91,3 +91,4 @@ members = [
 
 [tool.setuptools]
 py-modules = []
+packages = ["compressai_vision"]
