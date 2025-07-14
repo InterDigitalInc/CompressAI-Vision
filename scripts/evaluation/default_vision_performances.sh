@@ -40,6 +40,7 @@ MPEG_OIV6_SRC="${TESTDATA_DIR}/mpeg-oiv6"
 SFU_HW_SRC="${TESTDATA_DIR}/SFU_HW_Obj"
 HIEVE_SRC="${TESTDATA_DIR}/HiEve_pngs"
 TVD_SRC="${TESTDATA_DIR}/tvd_tracking"
+PANDASET_SRC="${TESTDATA_DIR}/PandaSet"
 
 # MPEGOIV6 - Detection with Faster RCNN
 ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
@@ -157,6 +158,64 @@ do
                  ++dataset.config.annotation_file=gt/gt.txt \
                  ++dataset.config.dataset_name=${SEQ} \
                  ++evaluator.type=MOT-HIEVE-EVAL \
+                 ++pipeline.nn_task_part1.load_features=False \
+                 ++pipeline.nn_task_part1.dump_features=False \
+                 ++pipeline.nn_task_part2.dump_features=False \
+                 ++misc.device.nn_parts=${DEVICE}
+done
+
+# PANDASET - Semantic Segmentation with Pandaset
+for SEQ in \
+            '003' \
+            '011' \
+            '016' \
+            '017' \
+            '021' \
+            '023' \
+            '027' \
+            '029' \
+            '030' \
+            '033' \
+            '035' \
+            '037' \
+            '039' \
+            '043' \
+            '053' \
+            '056' \
+            '057' \
+            '058' \
+            '069' \
+            '070' \
+            '072' \
+            '073' \
+            '077' \
+            '088' \
+            '089' \
+            '090' \
+            '095' \
+            '097' \
+            '109' \
+            '112' \
+            '113' \
+            '115' \
+            '117' \
+            '119' \
+            '122' \
+            '124'
+do
+    ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
+                 ++pipeline.type=video \
+                 ++pipeline.conformance.save_conformance_files=True \
+                 ++pipeline.conformance.subsample_ratio=9 \
+                 ++vision_model.arch=panoptic_rcnn_R_101_FPN_3x \
+                 ++dataset.type=Detectron2Dataset \
+                 ++dataset.datacatalog=PANDASET \
+                 ++dataset.config.root=${PANDASET_SRC}/${SEQ} \
+                 ++dataset.config.imgs_folder=camera/front_camera \
+                 ++dataset.config.ext=jpg \
+                 ++dataset.config.annotation_file=annotations/${SEQ}.npz \
+                 ++dataset.config.dataset_name=pandaset-${SEQ} \
+                 ++evaluator.type=SEMANTICSEG-EVAL \
                  ++pipeline.nn_task_part1.load_features=False \
                  ++pipeline.nn_task_part1.dump_features=False \
                  ++pipeline.nn_task_part2.dump_features=False \
