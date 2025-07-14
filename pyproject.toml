@@ -24,7 +24,7 @@ dependencies = [
     "omegaconf",
     "yuvio",
     "pandas",
-    "pillow",
+    "pillow>=9.0,<10.0",
     "ptflops>=0.7.3",
     "pip>=25.0.1",
     "wheel>=0.45.1",
