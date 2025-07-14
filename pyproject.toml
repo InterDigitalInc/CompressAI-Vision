@@ -10,6 +10,8 @@ authors = [
     { name = "CompressAI-Vision team", email = "compressai@interdigital.com" },
 ]
 license = {file = "LICENSE"}
+readme = "README.md"
+urls = { Homepage = "https://github.com/InterDigitalInc/CompressAI-Vision" }
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
