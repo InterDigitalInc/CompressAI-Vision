@@ -34,7 +34,7 @@ panoptic_rcnn_R_101_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x.yaml"
   weights: "weights/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl"
-  integer_conv_weight: False
+  integer_conv_weight: True
   splits : "fpn"
 
 jde_1088x608:
