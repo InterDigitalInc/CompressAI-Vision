@@ -9,7 +9,7 @@ description = "Evaluation pipelines for Video Compression for Machine Vision on 
 authors = [
     { name = "CompressAI-Vision team", email = "compressai@interdigital.com" },
 ]
-license = {file = "LICENSE"}
+license = {text = "BSD 3-Clause Clear License"}
 readme = "README.md"
 urls = { Homepage = "https://github.com/InterDigitalInc/CompressAI-Vision" }
 classifiers = [
