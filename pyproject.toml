@@ -89,6 +89,6 @@ members = [
     "compressai-vision", "compressai"
 ]
 
-[tool.setuptools]
-py-modules = []
-packages = ["compressai_vision"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["compressai_vision*"]
