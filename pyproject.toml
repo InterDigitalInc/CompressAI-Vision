@@ -6,7 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "compressai-vision"
 version = "1.1.14.dev0"
 description = "Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI"
-authors = [{ name = "CompressAI-Vision team", email = "compressai@interdigital.com" }]
+authors = [
+    { name = "CompressAI-Vision team", email = "compressai@interdigital.com" },
+]
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -21,51 +23,74 @@ requires-python = ">=3.8,<3.9"
 dependencies = [
     "compressai",
     "hydra-core",
+    "lap>=0.5.12",
+    "motmetrics>=1.4.0",
+    "munkres>=1.1.4",
+    "numba>=0.58.1",
+    "numpy>=1.24.4",
     "omegaconf",
-    "yuvio",
+    "opencv-python>=4.12.0.88",
     "pandas",
     "pillow>=9.0,<10.0",
-    "ptflops>=0.7.3",
     "pip>=25.0.1",
+    "ptflops>=0.7.3",
     "wheel>=0.45.1",
-    "numpy>=1.24.4",
-    "motmetrics>=1.4.0",
-    "numba>=0.58.1",
-    "lap>=0.5.12",
-    "opencv-python>=4.12.0.88",
-    "munkres>=1.1.4",
+    "yuvio",
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov"]
-dev = ["pytest", "pytest-cov", "black", "isort", "ruff==0.8.6"]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "ruff==0.8.6",
+]
 doc = [
+    "fiftyone",
+    "ipython",
+    "Jinja2<3.1",
+    "pytorch_msssim",
     "sphinx",
     "sphinx-book-theme",
     "sphinxcontrib-mermaid",
-    "Jinja2<3.1",
-    "fiftyone",
-    "pytorch_msssim",
-    "ipython",
 ]
-tutorials = ["jupyter", "ipywidgets"]
+tutorials = [
+    "ipywidgets",
+    "jupyter",
+]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
 # pip supports installing [dependency-groups].
 [dependency-groups]
-test = ["pytest", "pytest-cov"]
-dev = ["pytest", "pytest-cov", "black", "isort", "ruff==0.8.6"]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "ruff==0.8.6",
+]
 doc = [
+    "fiftyone",
+    "ipython",
+    "Jinja2<3.1",
+    "pytorch_msssim",
     "sphinx",
     "sphinx-book-theme",
     "sphinxcontrib-mermaid",
-    "Jinja2<3.1",
-    "fiftyone",
-    "pytorch_msssim",
-    "ipython",
 ]
-tutorials = ["jupyter", "ipywidgets"]
-
+tutorials = [
+    "ipywidgets",
+    "jupyter",
+]
 
 [project.scripts]
 "compressai-vision-eval" = "compressai_vision.run.eval_split_inference:main"
@@ -86,7 +111,8 @@ compressai = { workspace = true }
 
 [tool.uv.workspace]
 members = [
-    "compressai-vision", "compressai"
+    "compressai",
+    "compressai-vision",
 ]
 
 [tool.setuptools.packages.find]
