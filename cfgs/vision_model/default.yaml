@@ -6,41 +6,42 @@ faster_rcnn_R_50_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"
   weights: "weights/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
-  integer_conv_weight: False
+  integer_conv_weight: True
   splits : "r2" #, "c2" or "fpn"
 
 faster_rcnn_X_101_32x8d_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml"
   weights: "weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl"
-  integer_conv_weight: False
+  integer_conv_weight: True
   splits : "fpn" #, "c2" or "r2"
 
 mask_rcnn_R_50_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
   weights: "weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"
-  integer_conv_weight: False
+  integer_conv_weight: True
   splits : "r2" #, "c2" or "fpn"
 
 mask_rcnn_X_101_32x8d_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml"
   weights: "weights/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl"
-  integer_conv_weight: False
+  integer_conv_weight: True
   splits : "fpn" #, "c2" or "r2"
 
 panoptic_rcnn_R_101_FPN_3x:
   model_path_prefix: ${..model_root_path}
   cfg: "models/detectron2/configs/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x.yaml"
   weights: "weights/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl"
+  integer_conv_weight: False
   splits : "fpn"
 
 jde_1088x608:
   model_path_prefix: ${..model_root_path}
   cfg: "models/Towards-Realtime-MOT/cfg/yolov3_1088x608.cfg"
   weights: "weights/jde/jde.1088x608.uncertainty.pt"
-  integer_conv_weight: False
+  integer_conv_weight: True
   iou_thres: 0.5
   conf_thres: 0.5
   nms_thres: 0.4
