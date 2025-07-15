@@ -246,7 +246,7 @@ install_mmpose () {
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
 
-    uv pip install -U openmim
+    uv sync --inexact --group=models-mmpose
     uv run --no-sync mim install "mmcv==2.0.1"
 
     # clone
