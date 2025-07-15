@@ -246,9 +246,6 @@ install_mmpose () {
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
 
-    uv sync --inexact --group=models-mmpose
-    uv run --no-sync mim install "mmcv==2.0.1"
-
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
         git clone https://github.com/open-mmlab/mmpose.git ${MODELS_SOURCE_DIR}/mmpose
@@ -261,8 +258,9 @@ install_mmpose () {
 
     cd ${MODELS_SOURCE_DIR}/mmpose
 
+    uv sync --inexact --group=models-mmpose
     uv pip install --no-build-isolation .
-    
+    uv run --no-sync mim install "mmcv==2.0.1"
     uv run --no-sync mim install mmdet==3.1.0
 
     # back to project root
