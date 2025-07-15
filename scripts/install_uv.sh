@@ -169,9 +169,6 @@ install_jde () {
     echo "Installing JDE"
     echo
 
-
-    # install dependent packages
-    uv pip install numpy motmetrics numba lap opencv-python munkres
     # install cython manually from source code with patch
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
