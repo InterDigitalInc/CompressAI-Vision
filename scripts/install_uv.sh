@@ -70,6 +70,8 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 
 
 main () {
+    uv sync
+
     uv pip install -U pip wheel
 
     install_torch
@@ -212,21 +214,13 @@ install_jde () {
     echo
     git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
 
+    # Convert to installable python package.
+    git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
+
     # Apply patch to interface with compressai-vision
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
     
-    SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
-    # COPY JDE files into site-package under virtual environment
-    if [ "${SITE_PACKAGES}" == "" ]; then
-        echo "error with python site-packages directory, check your system and 'which python'"
-        echo "ERROR: Fail to install JDE"
-    fi
-
-    mkdir -p ${SITE_PACKAGES}/jde
-    cp models.py ${SITE_PACKAGES}/jde
-    cp -r tracker ${SITE_PACKAGES}/jde/
-    cp -r utils ${SITE_PACKAGES}/jde/
-    echo "Complete copying jde files to site-packages @ ${SITE_PACKAGES}/jde"
+    uv pip install --no-build-isolation .
 
     # back to project root
     cd ${SCRIPT_DIR}/..

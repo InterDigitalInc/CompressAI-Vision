@@ -75,7 +75,7 @@ The file can be downloaded at the following link (in place of the above file pat
 ### 2. Using uv:
 Within the root folder of compressai-vision:
 ```
-uv run -- bash scripts/install_uv.sh
+bash scripts/install_uv.sh
 ```
 
 Note: Make sure you pin the desired installed python version before, e.g., 

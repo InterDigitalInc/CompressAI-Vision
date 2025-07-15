@@ -1,0 +1,56 @@
+diff --git a/jde/__init__.py b/jde/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/jde/models.py b/jde/models.py
+new file mode 120000
+index 0000000..513e4d1
+--- /dev/null
++++ b/jde/models.py
+@@ -0,0 +1 @@
++../models.py
+\ No newline at end of file
+diff --git a/jde/tracker b/jde/tracker
+new file mode 120000
+index 0000000..6fba6c4
+--- /dev/null
++++ b/jde/tracker
+@@ -0,0 +1 @@
++../tracker
+\ No newline at end of file
+diff --git a/jde/utils b/jde/utils
+new file mode 120000
+index 0000000..468ba70
+--- /dev/null
++++ b/jde/utils
+@@ -0,0 +1 @@
++../utils
+\ No newline at end of file
+diff --git a/pyproject.toml b/pyproject.toml
+new file mode 100644
+index 0000000..509fa78
+--- /dev/null
++++ b/pyproject.toml
+@@ -0,0 +1,23 @@
++[build-system]
++requires = ["setuptools"]
++build-backend = "setuptools.build_meta"
++
++[project]
++name = "jde"
++version = "0.0.0+compressai-vision1"
++description = "Joint Detection and Embedding for fast multi-object tracking"
++readme = "README.md"
++authors = [
++    { name = "Zhongdao Wang", email = "wcd17@mails.tsinghua.edu.cn" },
++    { name = "Liang Zheng" },
++    { name = "Yixuan Liu" },
++    { name = "Shengjin Wang" },
++]
++
++requires-python = ">=3.8"
++
++dependencies = []
++
++[tool.setuptools.packages.find]
++where = ["."]
++include = ["jde", "jde.*"]
