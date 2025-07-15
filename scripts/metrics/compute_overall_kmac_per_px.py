@@ -75,9 +75,7 @@ def generate_csv_classwise_image_gmac(dataset_name, result_path, list_of_classwi
     return pd.DataFrame(seq_wise_results)
 
 
-def generate_csv_classwise_video_gmac(
-    dataset_name, result_path, list_of_classwise_seq, seq_lst
-):
+def generate_csv_classwise_video_gmac(dataset_name, result_path, list_of_classwise_seq):
 
     seq_base_path = [
         f
@@ -211,8 +209,15 @@ if __name__ == "__main__":
         "--dataset_name",
         required=True,
         default="SFU",
-        choices=["SFU", "OIV6", "TVD", "HIEVE"],
+        choices=["SFU", "OIV6", "TVD", "HIEVE", "PANDASET"],
         help="CTTC Evaluation Dataset (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--no-cactus",
+        action="store_true",
+        default=False,
+        help="exclude Cactus sequence for FCM eval",
     )
 
     args = parser.parse_args()
@@ -241,28 +246,14 @@ if __name__ == "__main__":
                 "RaceHorses_416x240",
             ]
         }
-        seq_list = [
-            "Traffic_2560x1600_30",
-            "Kimono_1920x1080_24",
-            "ParkScene_1920x1080_24",
-            "Cactus_1920x1080_50",
-            "BasketballDrive_1920x1080_50",
-            "BQTerrace_1920x1080_60",
-            "BasketballDrill_832x480_50",
-            "BQMall_832x480_60",
-            "PartyScene_832x480_50",
-            "RaceHorses_832x480_30",
-            "BasketballPass_416x240_50",
-            "BQSquare_416x240_60",
-            "BlowingBubbles_416x240_50",
-            "RaceHorses_416x240_30",
-        ]
+
+        if args.dataset_name == "SFU" and args.no_cactus:
+            class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
         output_df = generate_csv_classwise_video_gmac(
             args.dataset_name,
             args.result_path,
             [class_ab, class_c, class_d],
-            seq_list,
         )
     elif args.dataset_name == "OIV6":
         oiv6 = ["detection", "segmentation"]
@@ -271,23 +262,107 @@ if __name__ == "__main__":
         )
     elif args.dataset_name == "TVD":
         tvd_all = {"TVD": ["TVD-01", "TVD-02", "TVD-03"]}
-        seq_list = ["TVD-01", "TVD-02", "TVD-03"]
 
         output_df = generate_csv_classwise_video_gmac(
-            args.dataset_name, args.result_path, [tvd_all], seq_list
+            args.dataset_name, args.result_path, [tvd_all]
         )
     elif args.dataset_name == "HIEVE":
         hieve_1080p = {"HIEVE-1080P": ["13", "16"]}
         hieve_720p = {"HIEVE-720P": ["17", "18", "2"]}
+
+        output_df = generate_csv_classwise_video_gmac(
+            args.dataset_name, args.result_path, [hieve_1080p, hieve_720p]
+        )
+
+    elif args.dataset_name == "PANDASET":
+        PANDAM1 = {
+            "PANDAM1": [
+                "PANDA057",
+                "PANDA058",
+                "PANDA069",
+                "PANDA070",
+                "PANDA072",
+                "PANDA073",
+                "PANDA077",
+            ]
+        }
+        PANDAM2 = {
+            "PANDAM2": [
+                "PANDA003",
+                "PANDA011",
+                "PANDA016",
+                "PANDA017",
+                "PANDA021",
+                "PANDA023",
+                "PANDA027",
+                "PANDA029",
+                "PANDA030",
+                "PANDA033",
+                "PANDA035",
+                "PANDA037",
+                "PANDA039",
+                "PANDA043",
+                "PANDA053",
+                "PANDA056",
+                "PANDA097",
+            ]
+        }
+        PANDAM3 = {
+            "PANDAM3": [
+                "PANDA088",
+                "PANDA089",
+                "PANDA090",
+                "PANDA095",
+                "PANDA109",
+                "PANDA112",
+                "PANDA113",
+                "PANDA115",
+                "PANDA117",
+                "PANDA119",
+                "PANDA122",
+                "PANDA124",
+            ]
+        }
         seq_list = [
-            "13_1920x1080_30",
-            "16_1920x1080_30",
-            "17_1280x720_30",
-            "18_1280x720_30",
-            "2_1280x720_30",
+            "PANDA057",
+            "PANDA058",
+            "PANDA069",
+            "PANDA070",
+            "PANDA072",
+            "PANDA073",
+            "PANDA077",
+            "PANDA003",
+            "PANDA011",
+            "PANDA016",
+            "PANDA017",
+            "PANDA021",
+            "PANDA023",
+            "PANDA027",
+            "PANDA029",
+            "PANDA030",
+            "PANDA033",
+            "PANDA035",
+            "PANDA037",
+            "PANDA039",
+            "PANDA043",
+            "PANDA053",
+            "PANDA056",
+            "PANDA097",
+            "PANDA088",
+            "PANDA089",
+            "PANDA090",
+            "PANDA095",
+            "PANDA109",
+            "PANDA112",
+            "PANDA113",
+            "PANDA115",
+            "PANDA117",
+            "PANDA119",
+            "PANDA122",
+            "PANDA124",
         ]
         output_df = generate_csv_classwise_video_gmac(
-            args.dataset_name, args.result_path, [hieve_1080p, hieve_720p], seq_list
+            args.dataset_name, args.result_path, [PANDAM1, PANDAM2, PANDAM3]
         )
 
     else:
