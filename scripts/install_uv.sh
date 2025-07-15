@@ -43,10 +43,6 @@ RUN OPTIONS:
 
 EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
 
-NOTE: the downlading of JDE pretrained weights might fail. Check that the size of following file is ~558MB.
-compressai_vision/weights/jde/jde.1088x608.uncertainty.pt
-The file can be downloaded at the following link (in place of the above file path):
-"https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
 _EOF_
             exit;
             ;;
@@ -225,34 +221,42 @@ install_jde () {
     # back to project root
     cd ${SCRIPT_DIR}/..
 
-    # download weights
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-    #   NOTE commmented out for now as downloading via wget is blocked by provider
-    #   if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
+        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
+            echo
+            echo "Downloading weights..."
+            echo
 
-    #     echo
-    #     echo "Downloading weights..."
-    #     echo
+            FILE_ID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
+            OUTFILE='jde.1088x608.uncertainty.pt'
+            SHA256SUM='6b135b0affa38899b607010c86c2f8dbc1c06956bad9ca1edd45b01e626933f1'
 
-    #     WEIGHT_DIR="${MODELS_WEIGHT_DIR}/jde"
-    #     mkdir -p ${WEIGHT_DIR}
+            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/jde"
+            DESTINATION="${WEIGHT_DIR}/${OUTFILE}"
 
-    #     FILEID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
-    #     OUTFILE='jde.1088x608.uncertainty.pt'
-    #     wget -nc --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${WEIGHT_DIR}/${OUTFILE} && rm -rf /tmp/cookies.txt
-    #   else
-    #     echo
-    #     echo "JDE Weights directory not empty, using existing model"
-    #     echo
-    #   fi
-    #
+            mkdir -p "${WEIGHT_DIR}"
 
-        echo
-        echo "NOTE: JDE pretrained weights can't be downloaded automatically"
-        echo "The file can be downloaded from the following link:"
-        echo "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
-        echo "and placed in the corresponding directory: ${MODELS_WEIGHT_DIR}/jde/jde.1088x608.uncertainty.pt"
-        echo
+            wget --no-clobber "https://drive.usercontent.google.com/download?export=download&confirm=t&id=$FILE_ID" -O "$DESTINATION"
+
+            # NOTE: If the above fails in the future, another alternative is:
+            # uv pip install gdown
+            # gdown --id "$FILE_ID" -O "$DESTINATION"
+
+            if ! echo "$SHA256SUM  $DESTINATION" | sha256sum --check --status; then
+                echo
+                echo "NOTE: JDE pretrained weights couldn't be downloaded automatically."
+                echo "Please download from:"
+                echo "https://docs.google.com/uc?export=download&id=${FILE_ID}"
+                echo "and place it at:"
+                echo "$DESTINATION"
+                echo
+                exit 1
+            fi
+        else
+            echo
+            echo "JDE Weights directory not empty, using existing models"
+            echo
+        fi
     fi
 }
 
