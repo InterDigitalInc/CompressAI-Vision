@@ -58,6 +58,19 @@ _EOF_
     esac;
 done;
 
+
+WEIGHTS="
+3c25caca37baabbff3e22cc9eb0923db165a0c18b867871a3bf3570bac9b7ef0  detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl                  https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl
+fe5ad56ff746aa55c5f453b01f8395134e9281d240dbeb473411d4a6b262c9dc  detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl           https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl
+9a737e290372f1f70994ebcbd89d8004dbb3ae30a605fd915a190fa4a782dd66  detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl         https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+12f6e1811baf1b4d329c3f5ac5ec52d8f634d3cedc82a13fff55d0c05d84f442  detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl  https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl
+808c675e647298688589c895c9581f7f3963995c5708bc53f66449200321d147  detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl         https://dl.fbaipublicfiles.com/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl
+6b135b0affa38899b607010c86c2f8dbc1c06956bad9ca1edd45b01e626933f1  jde/jde.1088x608.uncertainty.pt                                                                     https://drive.usercontent.google.com/download?export=download&confirm=t&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA
+516a421f8717548300c3ee6356a3444ac539083d4a9912f8ca1619ee63d0986d  mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth                              https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth
+b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet53/yolox_darknet.pth                                                                   https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth
+"
+
+
 MODELS_SOURCE_DIR=${MODELS_ROOT_DIR}/models
 MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
 
@@ -88,6 +101,10 @@ main () {
     echo
 
     uv pip install -e "${SCRIPT_DIR}/.."
+
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
+        download_weights
+    fi
 }
 
 
@@ -131,39 +148,6 @@ install_detectron2 () {
 
     # back to project root
     cd ${SCRIPT_DIR}/..
-
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/detectron2)" ]; then
-            echo
-            echo "Downloading model weights"
-            echo
-
-            # FASTER R-CNN X-101 32x8d FPN
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl -P ${WEIGHT_DIR}
-
-            # FASTER R-CNN R-50 FPN
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl -P ${WEIGHT_DIR}
-
-            # MASK R-CNN X-101 32x8d FPN
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl -P ${WEIGHT_DIR}
-
-            # MASK R-CNN R-50 FPN
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl -P ${WEIGHT_DIR}
-
-        else
-            echo
-            echo "Detectron2 Weights directory not empty, using existing models"
-            echo
-        fi
-    fi
 }
 
 install_jde () {
@@ -210,44 +194,6 @@ install_jde () {
 
     # back to project root
     cd ${SCRIPT_DIR}/..
-
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/jde)"]; then
-            echo
-            echo "Downloading weights..."
-            echo
-
-            FILE_ID='1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA'
-            OUTFILE='jde.1088x608.uncertainty.pt'
-            SHA256SUM='6b135b0affa38899b607010c86c2f8dbc1c06956bad9ca1edd45b01e626933f1'
-
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/jde"
-            DESTINATION="${WEIGHT_DIR}/${OUTFILE}"
-
-            mkdir -p "${WEIGHT_DIR}"
-
-            wget --no-clobber "https://drive.usercontent.google.com/download?export=download&confirm=t&id=$FILE_ID" -O "$DESTINATION"
-
-            # NOTE: If the above fails in the future, another alternative is:
-            # uv pip install gdown
-            # gdown --id "$FILE_ID" -O "$DESTINATION"
-
-            if ! echo "$SHA256SUM  $DESTINATION" | sha256sum --check --status; then
-                echo
-                echo "NOTE: JDE pretrained weights couldn't be downloaded automatically."
-                echo "Please download from:"
-                echo "https://docs.google.com/uc?export=download&id=${FILE_ID}"
-                echo "and place it at:"
-                echo "$DESTINATION"
-                echo
-                exit 1
-            fi
-        else
-            echo
-            echo "JDE Weights directory not empty, using existing models"
-            echo
-        fi
-    fi
 }
 
 install_yolox () {
@@ -270,22 +216,7 @@ install_yolox () {
     cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
     uv pip install --no-build-isolation .
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
-            echo
-            echo "Downloading model weights"
-            echo
 
-            # YOLOX-Darkent53
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/yolox/darknet53"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth -P ${WEIGHT_DIR}
-        else
-            echo
-            echo "YOLOX Weights directory is not empty, using existing models"
-            echo
-        fi
-    fi
     # back to project root
     cd ${SCRIPT_DIR}/..
 }
@@ -315,24 +246,53 @@ install_mmpose () {
     
     uv run --no-sync mim install mmdet==3.1.0
 
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-        if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/mmpose)" ]; then
-            echo
-            echo "Downloading RTMO model weights"
-            echo
-
-            # RTMO: Towards High-Performance One-Stage Real-Time Multi-Person Pose Estimation
-            WEIGHT_DIR="${MODELS_WEIGHT_DIR}/mmpose/rtmo_coco"
-            mkdir -p ${WEIGHT_DIR}
-            wget -nc https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth -P ${WEIGHT_DIR}
-        else
-            echo
-            echo "MMPOSE-RTMO Weights directory is not empty, using existing models"
-            echo
-        fi
-    fi
     # back to project root
     cd ${SCRIPT_DIR}/..
 }
 
-main "$@"
+download_weights () {
+    cd "${MODELS_WEIGHT_DIR}/"
+
+    for model in detectron2 jde mmpose yolox; do
+        if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," != *",all,"* ]]; then
+            continue
+        fi
+
+        echo
+        echo
+        echo
+        echo "Downloading model weights for ${model}..."
+        echo
+
+        FILTER="^[0-9a-fA-F]*  ${model}/"
+        FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
+
+        echo "${FILTERED_WEIGHTS}" | while read -r entry; do
+            read -r _SHA256SUM OUTPATH URL <<< "$entry"
+            mkdir -p "${OUTPATH%/*}"
+            if [[ -f "${OUTPATH}" ]]; then
+                echo "${OUTPATH} already exists. Skipping download."
+            else
+                wget "${URL}" -O "${OUTPATH}" || {
+                    echo "Failed to download ${OUTPATH} from ${URL}"
+                    echo "Continuing other downloads..."
+                }
+            fi
+        done
+
+        echo
+        echo "Verifying checksums for ${model}..."
+        echo
+
+        if ! echo "${FILTERED_WEIGHTS}" | awk '{print $1 "  " $2}' | sha256sum --check; then
+            echo
+            echo "Checksum verification failed for ${model}."
+            echo "Consider downloading the weights manually inside the directory ${MODELS_WEIGHT_DIR}/:"
+            echo "${FILTERED_WEIGHTS}"
+            exit 1
+        fi
+    done
+
+    cd "${SCRIPT_DIR}/.."
+}
+
