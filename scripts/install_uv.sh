@@ -72,21 +72,11 @@ main () {
 
     install_torch
 
-    if [ "${MODEL,,}" == "detectron2" ] || [ ${MODEL} == "all" ]; then
-        install_detectron2
-    fi
-
-    if [ "${MODEL,,}" == "jde" ] || [ ${MODEL} == "all" ]; then
-        install_jde
-    fi
-
-    if [ "${MODEL,,}" == "yolox" ] || [ ${MODEL} == "all" ]; then
-        install_yolox
-    fi
-
-    if [ "${MODEL,,}" == "mmpose" ] || [ ${MODEL} == "all" ]; then
-        install_mmpose
-    fi
+    for model in detectron2 jde yolox mmpose; do
+        if [[ ",${MODEL,,}," == *",${model},"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
+            "install_${model}"
+        fi
+    done
 
     echo
     echo "Installing compressai"
