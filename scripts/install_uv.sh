@@ -138,7 +138,7 @@ install_detectron2 () {
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
 
     # '!' egating set -e when patching has been applied already
-    ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
+    ! patch -p1 --forward <${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch
 
     uv pip install --no-build-isolation .
 
@@ -197,7 +197,7 @@ install_jde () {
     git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
 
     # '!' negating set -e when patching has been applied already
-    ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
+    ! patch -p1 --forward <${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch
     
     uv pip install --no-build-isolation .
  
@@ -217,7 +217,7 @@ install_jde () {
     # Apply patch to interface with compressai-vision
 
     # '!' negating set -e when patching has been applied already
-    ! patch -p1 --forward <${SCRIPT_DIR}/0001-interface-with-compressai-vision.patch
+    ! patch -p1 --forward <${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch
     
     SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
     # COPY JDE files into site-package under virtual environment
