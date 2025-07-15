@@ -74,6 +74,18 @@ models-mmpose = [
     "scipy",
     "xtcocotools>=1.12",
 ]
+models-yolox = [
+    "loguru",
+    "ninja",
+    # "onnx-simplifier==0.4.10",
+    # "onnx>=1.13.0",
+    "psutil",
+    "pycocotools>=2.0.7",
+    "tabulate",
+    # "tensorboard",
+    "thop",
+    "tqdm",
+]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
 # pip supports installing [dependency-groups].
@@ -110,6 +122,18 @@ models-mmpose = [
     "matplotlib",
     "scipy",
     "xtcocotools>=1.12",
+]
+models-yolox = [
+    "loguru",
+    "ninja",
+    # "onnx-simplifier==0.4.10",
+    # "onnx>=1.13.0",
+    "psutil",
+    "pycocotools>=2.0.7",
+    "tabulate",
+    # "tensorboard",
+    "thop",
+    "tqdm",
 ]
 
 [project.scripts]
