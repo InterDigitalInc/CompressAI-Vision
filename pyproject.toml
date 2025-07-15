@@ -91,4 +91,4 @@ members = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["compressai_vision*"]
+include = ["compressai_vision", "compressai_vision.*"]
