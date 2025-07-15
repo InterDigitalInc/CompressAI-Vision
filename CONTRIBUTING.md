@@ -13,7 +13,7 @@ We try to follow PEP 8 recommendations. Automatic formatting is performed via
 
 ## Documentation
 
-See `docs/Readme.md` for more information.
+See [docs/README.md] for more information.
 
 ## Licence
 

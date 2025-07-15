@@ -119,7 +119,7 @@ Test data related to the MPEG FCM activity can be found in ./data/mpeg-fcm/
 
 ## For developers
 
-After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check scripts/tests/Readme.md for more details
+After your dev, you can run (and adapt) test scripts from the scripts/tests directory. Please check [scripts/tests/README.md] for more details
 
 ### Contributing
 
