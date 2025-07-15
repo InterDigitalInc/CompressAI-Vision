@@ -131,7 +131,7 @@ class VTM(nn.Module):
 
         self.intra_period = self.enc_cfgs["intra_period"]
         self.frame_rate = 1
-        if not self.datacatalog == "MPEGOIV6":
+        if not (self.datacatalog == "MPEGOIV6" or self.datacatalog == "MPEGSAM"):
             config = configparser.ConfigParser()
             config.read(f"{dataset['config']['root']}/{dataset['config']['seqinfo']}")
             self.frame_rate = config["Sequence"]["frameRate"]
@@ -1089,7 +1089,9 @@ class VCMRS(VTM):
             "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
             "load": ["load", "UsingDescriptor", "load", "load"],
             "generate": ["save", "GeneratingDescriptor", "save", "save"],
-        }[descriptor_mode]
+        }[
+            descriptor_mode
+        ]
         items = str(bitstream_path).split("/")
         dataset = {
             "SFUHW": "SFU",

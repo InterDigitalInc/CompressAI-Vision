@@ -180,7 +180,9 @@ class BasePipeline(nn.Module):
         if n_frames_to_be_encoded == -1:
             n_frames_to_be_encoded = total_num_frames
 
-        assert n_frames_to_be_encoded, f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
+        assert (
+            n_frames_to_be_encoded
+        ), f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
 
         if (self._codec_skip_n_frames + n_frames_to_be_encoded) > total_num_frames:
             self.logger.warning(
@@ -198,9 +200,7 @@ class BasePipeline(nn.Module):
             self._codec_skip_n_frames > 0
             or self._codec_n_frames_to_be_encoded != total_num_frames
         ):
-            assert self.configs[
-                "codec"
-            ][
+            assert self.configs["codec"][
                 "encode_only"
             ], "Encoding part of a sequence is only available when `codec.encode_only' is True"
 
@@ -220,8 +220,8 @@ class BasePipeline(nn.Module):
             assert (
                 n_bits == 8 or n_bits == 16
             ), "currently it only supports dumping features in 8 bits or 16 bits"
-            assert (
-                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
@@ -259,8 +259,8 @@ class BasePipeline(nn.Module):
             assert (
                 n_bits == 8 or n_bits == 16
             ), "currently it only supports dumping features in 8 bits or 16 bits"
-            assert (
-                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
@@ -345,7 +345,6 @@ class BasePipeline(nn.Module):
         self, vision_model: BaseWrapper, x: Dict, seq_name: str = None
     ):
         """performs the inference of the 2nd part of the NN model"""
-
         output_results_dir = self.configs["nn_task_part2"].output_results_dir
 
         results_file = f"{output_results_dir}/{seq_name}{self._output_ext}"
@@ -372,6 +371,11 @@ class BasePipeline(nn.Module):
             k: v.to(device=self.device_nn_part2)
             for k, v in zip(vision_model.split_layer_list, x["data"].values())
         }
+
+        if "prompts" in x:
+            x["prompts"] = x["prompts"]
+        if "object_classes" in x:
+            x["object_classes"] = x["object_classes"]
 
         results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
@@ -483,3 +487,9 @@ class BasePipeline(nn.Module):
 
     def _get_model_input_size(self, vision_model: BaseWrapper, x: Dict):
         return vision_model.get_input_size(x)
+
+    def _get_prompts(self, vision_model: BaseWrapper, x: Dict):
+        return vision_model.get_prompts(x)
+
+    def _get_object_classes(self, vision_model: BaseWrapper, x: Dict):
+        return vision_model.get_object_classes(x)

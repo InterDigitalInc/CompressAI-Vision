@@ -1,0 +1,13 @@
+{
+    "fpn": {
+        "imgenc": [
+            1,
+            256,
+            64,
+            64
+        ]
+    },
+    "subframe_heights": {
+        "imgenc": 1024 
+    }
+}

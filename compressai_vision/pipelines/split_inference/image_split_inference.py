@@ -28,11 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-
 from typing import Dict
 
 import torch
-
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -40,10 +38,8 @@ from compressai_vision.evaluators import BaseEvaluator
 from compressai_vision.model_wrappers import BaseWrapper
 from compressai_vision.registry import register_pipeline
 from compressai_vision.utils import dict_sum, time_measure
-from compressai_vision.utils.measure_complexity import (
-    # calc_complexity_nn_part1_dn53,
+from compressai_vision.utils.measure_complexity import (  # calc_complexity_nn_part1_dn53,; calc_complexity_nn_part2_dn53,
     calc_complexity_nn_part1_plyr,
-    # calc_complexity_nn_part2_dn53,
     calc_complexity_nn_part2_plyr,
 )
 
@@ -122,6 +118,7 @@ class ImageSplitInference(BasePipeline):
                 )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
                 # datatype conversion
+
                 featureT["data"] = {
                     k: v.type(getattr(torch, self.datatype))
                     for k, v in featureT["data"].items()
@@ -196,6 +193,14 @@ class ImageSplitInference(BasePipeline):
                 )
                 dec_features["org_input_size"] = org_img_size
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
+
+            # TODO
+            if vision_model.__class__.__name__ == "sam_vit_h_4b8939":
+                print("Sam is in used")
+                dec_features["prompts"] = self._get_prompts(vision_model, d)
+                dec_features["object_classes"] = self._get_object_classes(
+                    vision_model, d
+                )
 
             dec_features["file_name"] = d[0]["file_name"]
             if self.is_mac_calculation:
