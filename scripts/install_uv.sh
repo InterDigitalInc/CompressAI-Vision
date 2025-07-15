@@ -260,8 +260,7 @@ install_mmpose () {
     fi
 
     cd ${MODELS_SOURCE_DIR}/mmpose
-    # miminum requirments - no onnx, etc.
-    uv pip install --no-build-isolation -r requirements/build.txt -r requirements/runtime.txt
+
     uv pip install --no-build-isolation .
     
     uv run --no-sync mim install mmdet==3.1.0

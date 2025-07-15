@@ -67,6 +67,12 @@ tutorials = [
 ]
 models-mmpose = [
     "openmim>=0.3.9",
+    # mmpose/requirements/runtime.txt
+    "chumpy",
+    "json_tricks",
+    "matplotlib",
+    "scipy",
+    "xtcocotools>=1.12",
 ]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
@@ -98,6 +104,12 @@ tutorials = [
 ]
 models-mmpose = [
     "openmim>=0.3.9",
+    # mmpose/requirements/runtime.txt
+    "chumpy",
+    "json_tricks",
+    "matplotlib",
+    "scipy",
+    "xtcocotools>=1.12",
 ]
 
 [project.scripts]
@@ -113,6 +125,11 @@ line-length = 88
 profile = "black"
 skip_gitignore = true
 known_third_party = "PIL,torchvision,torch"
+
+[tool.uv]
+no-build-isolation-package = [
+    "chumpy",
+]
 
 [tool.uv.sources]
 compressai = { workspace = true }
