@@ -221,8 +221,6 @@ install_yolox () {
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
 
-    uv sync --inexact --group=models-yolox
-
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/yolox)" ]; then
         git clone https://github.com/Megvii-BaseDetection/yolox.git ${MODELS_SOURCE_DIR}/yolox
@@ -235,6 +233,7 @@ install_yolox () {
 
     cd ${MODELS_SOURCE_DIR}/yolox
 
+    uv sync --inexact --group=models-yolox
     uv pip install --no-build-isolation .
 
     # back to project root
