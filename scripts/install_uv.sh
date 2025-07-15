@@ -164,9 +164,9 @@ install_detectron2 () {
     cd ${SCRIPT_DIR}/..
 }
 
-install_jde () {
+install_cython_bbox() {
     echo
-    echo "Installing JDE"
+    echo "Installing cython_bbox (required by JDE)"
     echo
 
     # install cython manually from source code with patch
@@ -181,7 +181,16 @@ install_jde () {
     git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
     
     uv pip install --no-build-isolation .
- 
+
+    cd "${SCRIPT_DIR}/.."
+}
+
+install_jde () {
+    echo
+    echo "Installing JDE"
+    echo
+
+    install_cython_bbox
     
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
