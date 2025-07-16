@@ -105,21 +105,31 @@ main () {
 }
 
 
-install_torch () {
-    if [ "${CUDA_VERSION}" == "" ] && [ "${CPU}" == "False" ]; then
-        CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [ ${CUDA_VERSION} == "" ]; then
-            echo "error with cuda, check your system, source env_cuda.sh or specify cuda version as argument."
-        fi
+detect_cuda_version () {
+    if [ -n "${CUDA_VERSION}" ]; then
+        echo "Using specified CUDA version: ${CUDA_VERSION}"
+        return
     fi
-    if [ -z "$CUDA_VERSION" ] || [ "$CPU" == "True" ]; then
+    echo "Detecting CUDA version..."
+    if [ -z "$(command -v nvcc)" ]; then
+        echo "nvcc not found. Please ensure CUDA is installed, specify the CUDA version using --cuda, or source scripts/env_cuda.sh."
+        exit 1
+    fi
+    CUDA_VERSION=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
+    if [ -z "${CUDA_VERSION}" ]; then
+        echo "Could not detect CUDA version. Please specify the CUDA version using --cuda or source scripts/env_cuda.sh."
+        exit 1
+    fi
+    echo "Detected CUDA version: ${CUDA_VERSION}"
+}
+
+install_torch () {
+    if [ "${CPU}" == "True" ]; then
         echo "installing on cpu"
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        wait
     else
-        echo "cuda version: $CUDA_VERSION"
+        detect_cuda_version
         pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
-        wait
     fi
 }
 
