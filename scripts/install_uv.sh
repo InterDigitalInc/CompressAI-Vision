@@ -140,7 +140,7 @@ install_detectron2 () {
     # '!' egating set -e when patching has been applied already
     ! patch -p1 --forward <${SCRIPT_DIR}/0001-detectron2-fpn-bottom-up-separate.patch
 
-    uv pip install --no-build-isolation -e .
+    uv pip install --no-build-isolation .
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -199,7 +199,7 @@ install_jde () {
     # '!' negating set -e when patching has been applied already
     ! patch -p1 --forward <../0001-compatible-with-numpy-1.24.1.patch
     
-    uv pip install --no-build-isolation -e .
+    uv pip install --no-build-isolation .
  
     
     # clone
@@ -285,7 +285,7 @@ install_yolox () {
     # miminum requirments - no onnx, etc.
     cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
-    uv pip install --no-build-isolation  -e .
+    uv pip install --no-build-isolation .
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         if [ -z "$(ls -A ${MODELS_WEIGHT_DIR}/yolox)" ]; then
             echo
@@ -327,7 +327,7 @@ install_mmpose () {
     cd ${MODELS_SOURCE_DIR}/mmpose
     # miminum requirments - no onnx, etc.
     uv pip install --no-build-isolation -r requirements/build.txt -r requirements/runtime.txt
-    uv pip install --no-build-isolation -e .
+    uv pip install --no-build-isolation .
     
     uv run --no-sync mim install mmdet==3.1.0
 
