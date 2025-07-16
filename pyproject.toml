@@ -65,6 +65,14 @@ tutorials = [
     "ipywidgets",
     "jupyter",
 ]
+cpu = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.1",
+]
+cu118 = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.1",
+]
 models-mmpose = [
     "openmim>=0.3.9",
     # mmpose/requirements/runtime.txt
@@ -151,12 +159,36 @@ skip_gitignore = true
 known_third_party = "PIL,torchvision,torch"
 
 [tool.uv]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "cu118" },
+    ],
+]
 no-build-isolation-package = [
     "chumpy",
 ]
 
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
 [tool.uv.sources]
 compressai = { workspace = true }
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+]
 
 [tool.uv.workspace]
 members = [

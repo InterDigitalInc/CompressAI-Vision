@@ -2,9 +2,21 @@ version = 1
 revision = 2
 requires-python = "==3.8.*"
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
-    "python_full_version < '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
+conflicts = [[
+    { package = "compressai-vision", extra = "cpu" },
+    { package = "compressai-vision", extra = "cu118" },
+]]
 
 [manifest]
 members = [
@@ -472,11 +484,37 @@ name = "click"
 version = "8.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7e/d4/7ebdbd03970677812aac39c869717059dbb71a4cfc033ca6e5221787892c/click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2", size = 98188, upload-time = "2024-12-21T18:38:41.666Z" },
+]
+
+[[package]]
+name = "cmake"
+version = "4.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/3f/30c0f44ec5d727f547c35510ae479053abf56bed24b08f3e128f93d09905/cmake-4.0.3.tar.gz", hash = "sha256:215732f09ea8a7088fe1ab46bbd61669437217278d709fd3851bf8211e8c59e3", size = 34504, upload-time = "2025-06-13T15:34:11.68Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/d2/5579b66d4421ab11dd00f32f4184be383a74e28ad0685a6604e0e7a8fd29/cmake-4.0.3-py3-none-macosx_10_10_universal2.whl", hash = "sha256:f2adfb459747025f40f9d3bdd1f3a485d43e866c0c4eb66373d1fcd666b13e4a", size = 48740112, upload-time = "2025-06-13T15:33:08.513Z" },
+    { url = "https://files.pythonhosted.org/packages/67/4d/410c3ebb4a46a236cbc0e3202f5507483ce24c96c1d4a73445675f11b402/cmake-4.0.3-py3-none-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:04c40c92fdcaa96c66a5731b5b3fbbdf87da99cc68fdd30ff30b90c34d222986", size = 27740648, upload-time = "2025-06-13T15:33:12.877Z" },
+    { url = "https://files.pythonhosted.org/packages/77/a7/f845c1e129ad37059612e5d66ffe3dac824fdfd7dec58918a802f38650ff/cmake-4.0.3-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:d41b83d061bcc375a7a5f2942ba523a7563368d296d91260f9d8a53a10f5e5e5", size = 26983727, upload-time = "2025-06-13T15:33:16.394Z" },
+    { url = "https://files.pythonhosted.org/packages/45/ee/750dae28fa12493052c44f744affbfeff0f35a526b4346bd86050e9903e5/cmake-4.0.3-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:434f84fdf1e21578974876b8414dc47afeaea62027d9adc37a943a6bb08eb053", size = 27256957, upload-time = "2025-06-13T15:33:19.658Z" },
+    { url = "https://files.pythonhosted.org/packages/23/1e/05b08c18145cd8e5ad3f506bfa21fe5277c00faf9052b3fb9bf6d279df42/cmake-4.0.3-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:beec48371a4b906fe398758ded5df57fc16e9bb14fd34244d9d66ee35862fb9f", size = 29020848, upload-time = "2025-06-13T15:33:23.161Z" },
+    { url = "https://files.pythonhosted.org/packages/db/b5/578e5b50cb848775aee4e04ceecef3c6595c30fb5fe0642a14eaafa02597/cmake-4.0.3-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:47dc28bee6cfb4de00c7cf7e87d565b5c86eb4088da81b60a49e214fcdd4ffda", size = 30872393, upload-time = "2025-06-13T15:33:26.316Z" },
+    { url = "https://files.pythonhosted.org/packages/42/7d/e4cdb9903b971dbbab1127e96bab86d3d77cedbb637f47a8e44ec02c3672/cmake-4.0.3-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:e10fdc972b3211915b65cc89e8cd24e1a26c9bd684ee71c3f369fb488f2c4388", size = 27028264, upload-time = "2025-06-13T15:33:29.619Z" },
+    { url = "https://files.pythonhosted.org/packages/60/cb/1e4d8baab7c946f809d6c59914428c10acaf39d9f4b52e1dffff834a9f0a/cmake-4.0.3-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d840e780c48c5df1330879d50615176896e8e6eee554507d21ce8e2f1a5f0ff8", size = 27912444, upload-time = "2025-06-13T15:33:33.296Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/3a/ff653130b91d73c172205ac10ad71c62a1474bd85ae110eec085e04aec08/cmake-4.0.3-py3-none-manylinux_2_31_armv7l.whl", hash = "sha256:6ef63bbabcbe3b89c1d80547913b6caceaad57987a27e7afc79ebc88ecd829e4", size = 25156436, upload-time = "2025-06-13T15:33:36.316Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/6f/514ba65cf1e2d0a80a97c3c4a2ae3805bf8cb3286de41b864b03b44ca47a/cmake-4.0.3-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:67103f2bcce8f57b8705ba8e353f18fdc3684a346eee97dc5f94d11575a424c6", size = 28026300, upload-time = "2025-06-13T15:33:39.497Z" },
+    { url = "https://files.pythonhosted.org/packages/83/b9/49f847fa09b48110cc0f38b72720f979912ac69742de784998b2e36fda18/cmake-4.0.3-py3-none-musllinux_1_1_i686.whl", hash = "sha256:880a1e1ae26d440d7e4f604fecbf839728ca7b096c870f2e7359855cc4828532", size = 31557948, upload-time = "2025-06-13T15:33:43.099Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/d8/bbd8eb74bb6c972572293f043a5cd5a56ec9791f8c46ccfbcf53a84aa556/cmake-4.0.3-py3-none-musllinux_1_1_ppc64le.whl", hash = "sha256:c403b660bbff1fd4d7f1c5d9e015ea27566e49ca9461e260c9758f2fd4e5e813", size = 32281822, upload-time = "2025-06-13T15:33:46.544Z" },
+    { url = "https://files.pythonhosted.org/packages/df/a4/aebacccbcab31a1896190d57ac3ad9fdeded18f6ce7634b24958c6de8090/cmake-4.0.3-py3-none-musllinux_1_1_s390x.whl", hash = "sha256:2a66ecdd4c3238484cb0c377d689c086a9b8b533e25329f73d21bd1c38f1ae86", size = 28104040, upload-time = "2025-06-13T15:33:49.687Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/b3/42cd72162e7b466863ca4c033fb30ef51109b4eaef9686aa81b86f5afd8b/cmake-4.0.3-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:004e58b1a1a384c2ca799c9c41ac4ed86ac3b80129462992c43c1121f8729ffd", size = 29638511, upload-time = "2025-06-13T15:33:53.063Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/4d/d81d27a0d86bf2e24e4574f672b17230db676be2dd878d747439f1f4abfa/cmake-4.0.3-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:133dbc33f995cb97a4456d83d67fa0a7a798f53f979454359140588baa928f43", size = 33324625, upload-time = "2025-06-13T15:33:57.463Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/eb/c7736686066bbaacd06b69228a8cd3cbdac279a069658e4a646b3dee4a9c/cmake-4.0.3-py3-none-win32.whl", hash = "sha256:3e07bdd14e69ea67d1e67a4f5225ac2fd91ee9e349c440143cdddd7368be1f46", size = 33683662, upload-time = "2025-06-13T15:34:01.075Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/03/70e3bfff49ee89b3e4a137b5504ad003b0cae8dbc291cb753228f55b4b9f/cmake-4.0.3-py3-none-win_amd64.whl", hash = "sha256:9a349ff2b4a7c63c896061676bc0f4e6994f373d54314d79ba3608ee7fa75442", size = 36911867, upload-time = "2025-06-13T15:34:04.774Z" },
+    { url = "https://files.pythonhosted.org/packages/50/ce/9cfee241950e700a3ac67a0dbbd26da24c7e252bd48c5af129586a4caadd/cmake-4.0.3-py3-none-win_arm64.whl", hash = "sha256:94a52e67b264a51089907c9e74ca5a9e2f3e65c57c457e0f40f02629a0de74d8", size = 35706970, upload-time = "2025-06-13T15:34:08.703Z" },
 ]
 
 [[package]]
@@ -514,9 +552,17 @@ dependencies = [
     { name = "scipy" },
     { name = "setuptools" },
     { name = "tomli" },
-    { name = "torch" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "torch-geometric" },
-    { name = "torchvision" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "tqdm" },
     { name = "typing-extensions" },
     { name = "wheel" },
@@ -525,10 +571,10 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "black" },
-    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
-    { name = "flake8-bugbear", version = "23.3.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "flake8-bugbear", version = "24.12.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8-bugbear", version = "23.3.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8-bugbear", version = "24.12.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "flake8-comprehensions" },
     { name = "isort" },
     { name = "mypy" },
@@ -558,10 +604,10 @@ tutorials = [
 [package.dev-dependencies]
 dev = [
     { name = "black" },
-    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
-    { name = "flake8-bugbear", version = "23.3.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "flake8-bugbear", version = "24.12.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8-bugbear", version = "23.3.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8-bugbear", version = "24.12.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "flake8-comprehensions" },
     { name = "isort" },
     { name = "mypy" },
@@ -675,6 +721,18 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+cpu = [
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+cu118 = [
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
 dev = [
     { name = "black" },
     { name = "isort" },
@@ -802,12 +860,16 @@ requires-dist = [
     { name = "sphinxcontrib-mermaid", marker = "extra == 'doc'" },
     { name = "tabulate", marker = "extra == 'models-yolox'" },
     { name = "thop", marker = "extra == 'models-yolox'" },
+    { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "compressai-vision", extra = "cpu" } },
+    { name = "torch", marker = "extra == 'cu118'", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cu118", conflict = { package = "compressai-vision", extra = "cu118" } },
+    { name = "torchvision", marker = "extra == 'cpu'", specifier = ">=0.15.1", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "compressai-vision", extra = "cpu" } },
+    { name = "torchvision", marker = "extra == 'cu118'", specifier = ">=0.15.1", index = "https://download.pytorch.org/whl/cu118", conflict = { package = "compressai-vision", extra = "cu118" } },
     { name = "tqdm", marker = "extra == 'models-yolox'" },
     { name = "wheel", specifier = ">=0.45.1" },
     { name = "xtcocotools", marker = "extra == 'models-mmpose'", specifier = ">=1.12" },
     { name = "yuvio" },
 ]
-provides-extras = ["test", "dev", "doc", "tutorials", "models-mmpose", "models-yolox"]
+provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "models-mmpose", "models-yolox"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1059,8 +1121,8 @@ dependencies = [
     { name = "deprecated" },
     { name = "fiftyone-brain" },
     { name = "fiftyone-db" },
-    { name = "ftfy", version = "6.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "ftfy", version = "6.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "ftfy", version = "6.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "ftfy", version = "6.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "humanize" },
     { name = "hypercorn" },
     { name = "jinja2" },
@@ -1140,12 +1202,16 @@ name = "flake8"
 version = "5.0.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.8.1'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "mccabe", marker = "python_full_version < '3.8.1'" },
-    { name = "pycodestyle", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "pyflakes", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
+    { name = "mccabe", marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pycodestyle", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pyflakes", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ad/00/9808c62b2d529cefc69ce4e4a1ea42c0f855effa55817b7327ec5b75e60a/flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db", size = 145862, upload-time = "2022-08-03T23:21:27.108Z" }
 wheels = [
@@ -1157,12 +1223,16 @@ name = "flake8"
 version = "7.1.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "mccabe", marker = "python_full_version >= '3.8.1'" },
-    { name = "pycodestyle", version = "2.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
-    { name = "pyflakes", version = "3.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "mccabe", marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pycodestyle", version = "2.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pyflakes", version = "3.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/16/3f2a0bb700ad65ac9663262905a025917c020a3f92f014d2ba8964b4602c/flake8-7.1.2.tar.gz", hash = "sha256:c586ffd0b41540951ae41af572e6790dbd49fc12b3aa2541685d253d9bd504bd", size = 48119, upload-time = "2025-02-16T18:45:44.296Z" }
 wheels = [
@@ -1174,11 +1244,15 @@ name = "flake8-bugbear"
 version = "23.3.12"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.8.1'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "attrs", marker = "python_full_version < '3.8.1'" },
-    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
+    { name = "attrs", marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bb/02/16ef289b4790ff92dd368f3e58f8b9511731c53081521b6486684f87459a/flake8-bugbear-23.3.12.tar.gz", hash = "sha256:e3e7f74c8a49ad3794a7183353026dabd68c74030d5f46571f84c1fb0eb79363", size = 53731, upload-time = "2023-03-12T21:30:23.783Z" }
 wheels = [
@@ -1190,11 +1264,15 @@ name = "flake8-bugbear"
 version = "24.12.12"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "attrs", marker = "python_full_version >= '3.8.1'" },
-    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "attrs", marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c7/25/48ba712ff589b0149f21135234f9bb45c14d6689acc6151b5e2ff8ac2ae9/flake8_bugbear-24.12.12.tar.gz", hash = "sha256:46273cef0a6b6ff48ca2d69e472f41420a42a46e24b2a8972e4f0d6733d12a64", size = 82907, upload-time = "2024-12-12T16:49:26.307Z" }
 wheels = [
@@ -1206,8 +1284,8 @@ name = "flake8-comprehensions"
 version = "3.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1'" },
-    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1'" },
+    { name = "flake8", version = "5.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "flake8", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/60/fa/68481f25fc8ecdbe8a763062ba4f5b17fa4ef7fc0646c081267cef4f67e5/flake8_comprehensions-3.15.0.tar.gz", hash = "sha256:923c22603e0310376a6b55b03efebdc09753c69f2d977755cba8bb73458a5d4d", size = 13079, upload-time = "2024-06-29T22:29:49.972Z" }
 wheels = [
@@ -1278,10 +1356,14 @@ name = "ftfy"
 version = "6.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.8.1'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "wcwidth", marker = "python_full_version < '3.8.1'" },
+    { name = "wcwidth", marker = "python_full_version < '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/cf/b53c42f47090525740b30007a1f53e61088109a5d7eae8e41c8398a7ba7a/ftfy-6.2.0.tar.gz", hash = "sha256:5e42143c7025ef97944ca2619d6b61b0619fc6654f98771d39e862c1424c75c0", size = 63675, upload-time = "2024-03-15T22:38:57.987Z" }
 wheels = [
@@ -1293,10 +1375,14 @@ name = "ftfy"
 version = "6.2.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 dependencies = [
-    { name = "wcwidth", marker = "python_full_version >= '3.8.1'" },
+    { name = "wcwidth", marker = "python_full_version >= '3.8.1' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/da/a9/59f4354257e8350a25be1774021991fb3a99a2fb87d0c1f367592548aed3/ftfy-6.2.3.tar.gz", hash = "sha256:79b505988f29d577a58a9069afe75553a02a46e42de6091c0660cdc67812badc", size = 64165, upload-time = "2024-08-06T01:30:46.302Z" }
 wheels = [
@@ -1530,7 +1616,7 @@ name = "ipykernel"
 version = "6.29.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython" },
@@ -1554,13 +1640,13 @@ name = "ipython"
 version = "8.12.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "backcall" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "decorator" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "sys_platform != 'win32'" },
+    { name = "pexpect", marker = "sys_platform != 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "pickleshare" },
     { name = "prompt-toolkit" },
     { name = "pygments" },
@@ -1792,7 +1878,7 @@ version = "5.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "platformdirs" },
-    { name = "pywin32", marker = "platform_python_implementation != 'PyPy' and sys_platform == 'win32'" },
+    { name = "pywin32", marker = "(platform_python_implementation != 'PyPy' and sys_platform == 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'win32' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "traitlets" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/99/1b/72906d554acfeb588332eaaa6f61577705e9ec752ddb486f302dafa292d9/jupyter_core-5.8.1.tar.gz", hash = "sha256:0a5f9706f70e64786b75acba995988915ebd4601c8a52e534a40b51c95f59941", size = 88923, upload-time = "2025-05-27T07:38:16.655Z" }
@@ -1848,7 +1934,7 @@ dependencies = [
     { name = "overrides" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux') or (os_name == 'nt' and sys_platform == 'darwin' and extra != 'extra-17-compressai-vision-cpu') or (os_name == 'nt' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (os_name != 'nt' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -1866,7 +1952,7 @@ name = "jupyter-server-terminals"
 version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux') or (os_name == 'nt' and sys_platform == 'darwin' and extra != 'extra-17-compressai-vision-cpu') or (os_name == 'nt' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (os_name != 'nt' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fc/d5/562469734f476159e99a55426d697cbf8e7eb5efe89fb0e0b4f83a3d3459/jupyter_server_terminals-0.5.3.tar.gz", hash = "sha256:5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269", size = 31430, upload-time = "2024-03-12T14:37:03.049Z" }
@@ -2013,6 +2099,15 @@ wheels = [
 ]
 
 [[package]]
+name = "lit"
+version = "18.1.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/b4/d7e210971494db7b9a9ac48ff37dfa59a8b14c773f9cf47e6bda58411c0d/lit-18.1.8.tar.gz", hash = "sha256:47c174a186941ae830f04ded76a3444600be67d5e5fb8282c3783fba671c4edb", size = 161127, upload-time = "2024-06-25T14:33:14.489Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/06/b36f150fa7c5bcc96a31a4d19a20fddbd1d965b6f02510b57a3bb8d4b930/lit-18.1.8-py3-none-any.whl", hash = "sha256:a873ff7acd76e746368da32eb7355625e2e55a2baaab884c9cc130f2ee0300f7", size = 96365, upload-time = "2024-06-25T14:33:12.101Z" },
+]
+
+[[package]]
 name = "llvmlite"
 version = "0.41.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2040,8 +2135,8 @@ name = "loguru"
 version = "0.7.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-    { name = "win32-setctime", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3a/05/a1dae3dffd1116099471c643b8924f5aa6524411dc6c63fdae648c4f1aca/loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6", size = 63559, upload-time = "2024-12-06T11:20:56.608Z" }
 wheels = [
@@ -2471,113 +2566,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nvidia-cublas-cu12"
-version = "12.1.3.1"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/37/6d/121efd7382d5b0284239f4ab1fc1590d86d34ed4a4a2fdb13b30ca8e5740/nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl", hash = "sha256:ee53ccca76a6fc08fb9701aa95b6ceb242cdaab118c3bb152af4e579af792728", size = 410594774, upload-time = "2023-04-19T15:50:03.519Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-cupti-cu12"
-version = "12.1.105"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/00/6b218edd739ecfc60524e585ba8e6b00554dd908de2c9c66c1af3e44e18d/nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:e54fde3983165c624cb79254ae9818a456eb6e87a7fd4d56a2352c24ee542d7e", size = 14109015, upload-time = "2023-04-19T15:47:32.502Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-nvrtc-cu12"
-version = "12.1.105"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/9f/c64c03f49d6fbc56196664d05dba14e3a561038a81a638eeb47f4d4cfd48/nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:339b385f50c309763ca65456ec75e17bbefcbbf2893f462cb8b90584cd27a1c2", size = 23671734, upload-time = "2023-04-19T15:48:32.42Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-runtime-cu12"
-version = "12.1.105"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/d5/c68b1d2cdfcc59e72e8a5949a37ddb22ae6cade80cd4a57a84d4c8b55472/nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:6e258468ddf5796e25f1dc591a31029fa317d97a0a94ed93468fc86301d61e40", size = 823596, upload-time = "2023-04-19T15:47:22.471Z" },
-]
-
-[[package]]
-name = "nvidia-cudnn-cu12"
-version = "9.1.0.70"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nvidia-cublas-cu12" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/fd/713452cd72343f682b1c7b9321e23829f00b842ceaedcda96e742ea0b0b3/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f", size = 664752741, upload-time = "2024-04-22T15:24:15.253Z" },
-]
-
-[[package]]
-name = "nvidia-cufft-cu12"
-version = "11.0.2.54"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/86/94/eb540db023ce1d162e7bea9f8f5aa781d57c65aed513c33ee9a5123ead4d/nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl", hash = "sha256:794e3948a1aa71fd817c3775866943936774d1c14e7628c74f6f7417224cdf56", size = 121635161, upload-time = "2023-04-19T15:50:46Z" },
-]
-
-[[package]]
-name = "nvidia-curand-cu12"
-version = "10.3.2.106"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/31/4890b1c9abc496303412947fc7dcea3d14861720642b49e8ceed89636705/nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:9d264c5036dde4e64f1de8c50ae753237c12e0b1348738169cd0f8a536c0e1e0", size = 56467784, upload-time = "2023-04-19T15:51:04.804Z" },
-]
-
-[[package]]
-name = "nvidia-cusolver-cu12"
-version = "11.4.5.107"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nvidia-cublas-cu12" },
-    { name = "nvidia-cusparse-cu12" },
-    { name = "nvidia-nvjitlink-cu12" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bc/1d/8de1e5c67099015c834315e333911273a8c6aaba78923dd1d1e25fc5f217/nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl", hash = "sha256:8a7ec542f0412294b15072fa7dab71d31334014a69f953004ea7a118206fe0dd", size = 124161928, upload-time = "2023-04-19T15:51:25.781Z" },
-]
-
-[[package]]
-name = "nvidia-cusparse-cu12"
-version = "12.1.0.106"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nvidia-nvjitlink-cu12" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/65/5b/cfaeebf25cd9fdec14338ccb16f6b2c4c7fa9163aefcf057d86b9cc248bb/nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:f3b50f42cf363f86ab21f720998517a659a48131e8d538dc02f8768237bd884c", size = 195958278, upload-time = "2023-04-19T15:51:49.939Z" },
-]
-
-[[package]]
-name = "nvidia-nccl-cu12"
-version = "2.20.5"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4b/2a/0a131f572aa09f741c30ccd45a8e56316e8be8dfc7bc19bf0ab7cfef7b19/nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl", hash = "sha256:057f6bf9685f75215d0c53bf3ac4a10b3e6578351de307abad9e18a99182af56", size = 176249402, upload-time = "2024-03-06T04:30:20.663Z" },
-]
-
-[[package]]
-name = "nvidia-nvjitlink-cu12"
-version = "12.9.86"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/0c/c75bbfb967457a0b7670b8ad267bfc4fffdf341c074e0a80db06c24ccfd4/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:e3f1171dbdc83c5932a45f0f4c99180a70de9bd2718c1ab77d14104f6d7147f9", size = 39748338, upload-time = "2025-06-05T20:10:25.613Z" },
-]
-
-[[package]]
-name = "nvidia-nvtx-cu12"
-version = "12.1.105"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/d3/8057f0587683ed2fcd4dbfbdfdfa807b9160b809976099d36b8f60d08f03/nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:dc21cf308ca5691e7c04d962e213f8a4aa9bbfa23d95412f452254c2caeb09e5", size = 99138, upload-time = "2023-04-19T15:48:43.556Z" },
-]
-
-[[package]]
 name = "omegaconf"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2633,7 +2621,7 @@ dependencies = [
     { name = "colorama" },
     { name = "openxlab" },
     { name = "pycryptodome" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "requests" },
     { name = "rich" },
     { name = "tqdm" },
@@ -2945,7 +2933,11 @@ name = "ptflops"
 version = "0.7.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "torch" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/95/3d/d2af80d6b90d74f1b73e688c287434912fc4416517c6f7505bb6d2ca77d1/ptflops-0.7.3.tar.gz", hash = "sha256:59c0af2505255108df019674fb805eb61178f0baad6515720bb30dcb29592071", size = 18482, upload-time = "2024-05-03T19:24:48.201Z" }
 wheels = [
@@ -2975,11 +2967,11 @@ name = "py7zr"
 version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "brotli", marker = "platform_python_implementation == 'CPython'" },
-    { name = "brotlicffi", marker = "platform_python_implementation == 'PyPy'" },
+    { name = "brotli", marker = "platform_python_implementation == 'CPython' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "brotlicffi", marker = "platform_python_implementation == 'PyPy' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "inflate64" },
     { name = "multivolumefile" },
-    { name = "psutil", marker = "sys_platform != 'cygwin'" },
+    { name = "psutil", marker = "sys_platform != 'cygwin' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "pybcj" },
     { name = "pycryptodomex" },
     { name = "pyppmd" },
@@ -3037,7 +3029,11 @@ name = "pycodestyle"
 version = "2.9.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.8.1'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b6/83/5bcaedba1f47200f0665ceb07bcb00e2be123192742ee0edfb66b600e5fd/pycodestyle-2.9.1.tar.gz", hash = "sha256:2c9607871d58c76354b697b42f5d57e1ada7d261c261efac224b664affdc5785", size = 102127, upload-time = "2022-08-03T23:13:29.715Z" }
 wheels = [
@@ -3049,7 +3045,11 @@ name = "pycodestyle"
 version = "2.12.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/aa/210b2c9aedd8c1cbeea31a50e42050ad56187754b34eb214c46709445801/pycodestyle-2.12.1.tar.gz", hash = "sha256:6838eae08bbce4f6accd5d5572075c63626a15ee3e6f842df996bf62f6d73521", size = 39232, upload-time = "2024-08-04T20:26:54.576Z" }
 wheels = [
@@ -3139,7 +3139,11 @@ name = "pyflakes"
 version = "2.5.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.8.1'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version < '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version < '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/07/92/f0cb5381f752e89a598dd2850941e7f570ac3cb8ea4a344854de486db152/pyflakes-2.5.0.tar.gz", hash = "sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3", size = 66388, upload-time = "2022-07-30T17:29:05.816Z" }
 wheels = [
@@ -3151,7 +3155,11 @@ name = "pyflakes"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.8.1'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118'",
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (python_full_version >= '3.8.1' and sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')",
+    "python_full_version >= '3.8.1' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/57/f9/669d8c9c86613c9d568757c7f5824bd3197d7b1c6c27553bc5618a27cce2/pyflakes-3.2.0.tar.gz", hash = "sha256:1c61603ff154621fb2a9172037d84dca3500def8c8b630657d1701f026f8af3f", size = 63788, upload-time = "2024-01-05T00:28:47.703Z" }
 wheels = [
@@ -3240,7 +3248,7 @@ name = "pytest"
 version = "8.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "exceptiongroup" },
     { name = "iniconfig" },
     { name = "packaging" },
@@ -3294,7 +3302,11 @@ name = "pytorch-msssim"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "torch" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/69/43/fd181aef46e96ed025f5056efa1c45e63c93d377fbe7ea784a21ce058d03/pytorch_msssim-1.0.0.tar.gz", hash = "sha256:53273f03ce5c435f706f49feb5110a8afe90b2519484b0fe0df9639670106d0b", size = 10113, upload-time = "2023-05-25T17:15:57.146Z" }
 wheels = [
@@ -3362,7 +3374,7 @@ name = "pyzmq"
 version = "27.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy'" },
+    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f1/06/50a4e9648b3e8b992bef8eb632e457307553a89d294103213cfd47b3da69/pyzmq-27.0.0.tar.gz", hash = "sha256:b1f08eeb9ce1510e6939b6e5dcd46a17765e2333daae78ecf4606808442e52cf", size = 280478, upload-time = "2025-06-13T14:09:07.087Z" }
 wheels = [
@@ -3715,7 +3727,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alabaster" },
     { name = "babel" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "docutils" },
     { name = "imagesize" },
     { name = "jinja2" },
@@ -3917,8 +3929,8 @@ name = "terminado"
 version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux') or (os_name == 'nt' and sys_platform == 'darwin' and extra != 'extra-17-compressai-vision-cpu') or (os_name == 'nt' and sys_platform == 'linux' and extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118') or (os_name != 'nt' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -3940,7 +3952,11 @@ name = "thop"
 version = "0.1.1.post2209072238"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "torch" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/0f/72beeab4ff5221dc47127c80f8834b4bcd0cb36f6ba91c0b1d04a1233403/thop-0.1.1.post2209072238-py3-none-any.whl", hash = "sha256:01473c225231927d2ad718351f78ebf7cffe6af3bed464c4f1ba1ef0f7cdda27", size = 15443, upload-time = "2022-09-07T14:38:37.211Z" },
@@ -3990,33 +4006,109 @@ wheels = [
 
 [[package]]
 name = "torch"
-version = "2.4.1"
-source = { registry = "https://pypi.org/simple" }
+version = "2.0.0"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.8.1' and sys_platform == 'darwin')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.8.1' and sys_platform == 'darwin')",
+]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "jinja2" },
-    { name = "networkx" },
-    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cudnn-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cufft-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "sympy" },
-    { name = "triton", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "typing-extensions" },
+    { name = "filelock", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "jinja2", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "networkx", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "sympy", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "typing-extensions", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/71/45aac46b75742e08d2d6f9fc2b612223b5e36115b8b2ed673b23c21b5387/torch-2.4.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:c99e1db4bf0c5347107845d715b4aa1097e601bdc36343d758963055e9599d93", size = 797075439, upload-time = "2024-09-04T19:12:42.449Z" },
-    { url = "https://files.pythonhosted.org/packages/8e/b4/ed11fb6b5bb0f08e1f9b1f979e22f0e5f1950bda9d5962f8f7da5e0477e3/torch-2.4.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:b57f07e92858db78c5b72857b4f0b33a65b00dc5d68e7948a8494b0314efb880", size = 89690302, upload-time = "2024-09-04T19:12:15.512Z" },
-    { url = "https://files.pythonhosted.org/packages/9d/58/37166e7f71cd35e7f76d462fa058758a0aa6c31c1a7e26290f7898d37360/torch-2.4.1-cp38-cp38-win_amd64.whl", hash = "sha256:f18197f3f7c15cde2115892b64f17c80dbf01ed72b008020e7da339902742cf6", size = 199437547, upload-time = "2024-09-04T19:11:00.411Z" },
-    { url = "https://files.pythonhosted.org/packages/c4/88/4d9f66de5fe732462a2713c9931cab614d3fd6a9b5d9ee1f04768ad64daa/torch-2.4.1-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:5fc1d4d7ed265ef853579caf272686d1ed87cebdcd04f2a498f800ffc53dab71", size = 62137225, upload-time = "2024-09-04T19:12:28.955Z" },
+    { url = "https://download.pytorch.org/whl/torch-2.0.0-1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:8969aa8375bcbc0c2993e7ede0a7f889df9515f18b9b548433f412affed478d9" },
+    { url = "https://download.pytorch.org/whl/torch-2.0.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:11b0384fe3c18c01b8fc5992e70fc519cde65e44c51cc87be1838c1803daf42f" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.0.0-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:cc788cbbbbc6eb4c90e52c550efd067586c2693092cf367c135b34893a64ae78" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.0.0-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:d292640f0fd72b7a31b2a6e3b635eb5065fcbedd4478f9cad1a1e7a9ec861d35" },
+]
+
+[[package]]
+name = "torch"
+version = "2.0.0"
+source = { registry = "https://download.pytorch.org/whl/cu118" }
+resolution-markers = [
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "filelock", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "jinja2", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "networkx", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "sympy", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "typing-extensions", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/torch-2.0.0-1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:8969aa8375bcbc0c2993e7ede0a7f889df9515f18b9b548433f412affed478d9" },
+    { url = "https://download.pytorch.org/whl/torch-2.0.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:11b0384fe3c18c01b8fc5992e70fc519cde65e44c51cc87be1838c1803daf42f" },
+]
+
+[[package]]
+name = "torch"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.8.1'",
+    "python_full_version < '3.8.1'",
+]
+dependencies = [
+    { name = "filelock", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "jinja2", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "networkx", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "sympy", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "typing-extensions", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/b5/449aa2a51b48dc389b50deae7d9260377a5925e63359cd0dd96d7ebc81a9/torch-2.0.0-1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:8969aa8375bcbc0c2993e7ede0a7f889df9515f18b9b548433f412affed478d9", size = 74263470, upload-time = "2023-03-17T22:55:45.515Z" },
+    { url = "https://files.pythonhosted.org/packages/89/5a/0d017d8d45cc309f9de8e5b8edc9b6b204d8c47936a3f2b84cf01650cf98/torch-2.0.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ec5fff2447663e369682838ff0f82187b4d846057ef4d119a8dea7772a0b17dd", size = 619877846, upload-time = "2023-03-15T15:58:23.187Z" },
+    { url = "https://files.pythonhosted.org/packages/47/af/8266ea35c6a4e8a59b5e348288debdfc7d9a91356dd674b838131546aa6e/torch-2.0.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:11b0384fe3c18c01b8fc5992e70fc519cde65e44c51cc87be1838c1803daf42f", size = 63206408, upload-time = "2023-03-15T16:04:08.793Z" },
+    { url = "https://files.pythonhosted.org/packages/49/97/fdb166f3123b4c3017d301e972a9ef10effd050ffc725ba0df6f962176d7/torch-2.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:e54846aa63855298cfb1195487f032e413e7ac9cbfa978fda32354cc39551475", size = 172333281, upload-time = "2023-03-15T16:03:39.105Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/ee/e00f3fab0383fccf8ee1697ba468e0248bd36a9942d00d6c12fb08cb393a/torch-2.0.0-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:cc788cbbbbc6eb4c90e52c550efd067586c2693092cf367c135b34893a64ae78", size = 139531957, upload-time = "2023-03-15T16:03:58.458Z" },
+    { url = "https://files.pythonhosted.org/packages/67/14/f4b5fb08f3fe59c610e07daa798d194dc40158b2011229dea7e7f5ab182b/torch-2.0.0-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:d292640f0fd72b7a31b2a6e3b635eb5065fcbedd4478f9cad1a1e7a9ec861d35", size = 55830206, upload-time = "2023-03-15T16:03:09.513Z" },
+]
+
+[[package]]
+name = "torch"
+version = "2.0.0+cpu"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux')",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux')",
+]
+dependencies = [
+    { name = "filelock", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "jinja2", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "networkx", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "sympy", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "typing-extensions", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.0.0%2Bcpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:354f281351cddb590990089eced60f866726415f7b287db5105514aa3c5f71ca" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.0.0%2Bcpu-cp38-cp38-win_amd64.whl", hash = "sha256:af9b9161572f18e325e38725610511d7bb5608677b8e0c0d89135ae2a9056ac7" },
+]
+
+[[package]]
+name = "torch"
+version = "2.0.0+cu118"
+source = { registry = "https://download.pytorch.org/whl/cu118" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64') or (python_full_version >= '3.8.1' and sys_platform != 'linux')",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64') or (python_full_version < '3.8.1' and sys_platform != 'linux')",
+]
+dependencies = [
+    { name = "filelock", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "jinja2", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "networkx", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "sympy", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'x86_64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "typing-extensions", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu118/torch-2.0.0%2Bcu118-cp38-cp38-linux_x86_64.whl", hash = "sha256:1f8efaebfcbb7ec3962fd8c7c3be02c6666eff53a12043006a749d647656163e" },
+    { url = "https://download.pytorch.org/whl/cu118/torch-2.0.0%2Bcu118-cp38-cp38-win_amd64.whl", hash = "sha256:2588926725750c9ba799c133d4f6ee8fa477f6f0d88d6c2cebfe5bcfe8d7d7c3" },
 ]
 
 [[package]]
@@ -4040,18 +4132,100 @@ wheels = [
 
 [[package]]
 name = "torchvision"
-version = "0.19.1"
-source = { registry = "https://pypi.org/simple" }
+version = "0.15.1"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.8.1' and sys_platform == 'darwin')",
+    "(python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.8.1' and sys_platform == 'darwin')",
+]
 dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "torch" },
+    { name = "numpy", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pillow", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "requests", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/1a/61529a059f89b36543f7749c31630a87f212cdefb8ca9a6dc718dd539efc/torchvision-0.19.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:4c4e4f5b24ea6b087b02ed492ab1e21bba3352c4577e2def14248cfc60732338", size = 1683619, upload-time = "2024-09-04T19:15:08.029Z" },
-    { url = "https://files.pythonhosted.org/packages/ed/15/74800e103ea652bef9fc572661b74a081e2194700f0f5f4f184918218af6/torchvision-0.19.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:9281d63ead929bb19143731154cd1d8bf0b5e9873dff8578a40e90a6bec3c6fa", size = 7039881, upload-time = "2024-09-04T19:14:44.13Z" },
-    { url = "https://files.pythonhosted.org/packages/95/14/b7dadde3ef929936e2139aa3f51f078887b6cc8bee702410979b929224e8/torchvision-0.19.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:4d10bc9083c4d5fadd7edd7b729700a7be48dab4f62278df3bc73fa48e48a155", size = 14072231, upload-time = "2024-09-04T19:14:48.1Z" },
-    { url = "https://files.pythonhosted.org/packages/f6/4e/17d3137e893e878d2c165268b3f80d59e306e1ac1e0d89d8cccb27cc1d76/torchvision-0.19.1-cp38-cp38-win_amd64.whl", hash = "sha256:ccf085ef1824fb9e16f1901285bf89c298c62dfd93267a39e8ee42c71255242f", size = 1288329, upload-time = "2024-09-04T19:15:01.342Z" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:e5861baaeea87d19b6fd7d131e11a4a6bd17be14234c490a259bb360775e9520" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:e714f362b9d8217cf4d68509b679ebc9ddf128cfe80f6c1def8e3f8a18466e75" },
+    { url = "https://download.pytorch.org/whl/torchvision-0.15.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:7fe9b0cd3311b0db9e6d45ffab594ced06418fa4e2aa15eb2e60d55e5c51135c" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.15.1"
+source = { registry = "https://download.pytorch.org/whl/cu118" }
+resolution-markers = [
+    "python_full_version >= '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version < '3.8.1' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pillow", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "requests", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/torchvision-0.15.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:7fe9b0cd3311b0db9e6d45ffab594ced06418fa4e2aa15eb2e60d55e5c51135c" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.15.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.8.1'",
+    "python_full_version < '3.8.1'",
+]
+dependencies = [
+    { name = "numpy", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "pillow", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "requests", marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/2b/f67908b6ad5ce2bd67a6439db83c3749ccfeeef415d8fc16859f49783cae/torchvision-0.15.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:e5861baaeea87d19b6fd7d131e11a4a6bd17be14234c490a259bb360775e9520", size = 1544719, upload-time = "2023-03-15T19:13:46.405Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/17/3a6e67a2230e475290751464ae1e594568eba693540f9ee6279b4d346b84/torchvision-0.15.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:e714f362b9d8217cf4d68509b679ebc9ddf128cfe80f6c1def8e3f8a18466e75", size = 1446206, upload-time = "2023-03-15T19:13:32.837Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/c7/c1fb8058c402e996e2cb4bcfc0fad362077da9e526c7e33e0e41a4a82f9d/torchvision-0.15.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:43624accad1e47f16824be4db37ad678dd89326ad90b69c9c6363eeb22b9467e", size = 33756507, upload-time = "2023-03-15T19:13:13.204Z" },
+    { url = "https://files.pythonhosted.org/packages/73/d3/4e9876401d16d3fb647dfc895fdc60071f2d0bb35e4bbe6453e3fe390753/torchvision-0.15.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:7fe9b0cd3311b0db9e6d45ffab594ced06418fa4e2aa15eb2e60d55e5c51135c", size = 17477632, upload-time = "2023-03-22T21:53:34.972Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/2f/bfd590bf3bfd4cb326cdd6bd81600f77e5eaddad718f1dc87e2ca9312582/torchvision-0.15.1-cp38-cp38-win_amd64.whl", hash = "sha256:b45324ea4911a23a4b00b5a15cdbe36d47f93137206dab9f8c606d81b69dd3a7", size = 1195671, upload-time = "2023-03-15T19:13:23.294Z" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.15.1+cpu"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux')",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.8.1' and sys_platform != 'darwin' and sys_platform != 'linux')",
+]
+dependencies = [
+    { name = "numpy", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pillow", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "requests", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.1%2Bcpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:ae37b4dc500df409891899bce465ab010af3732d8750e81b091a3563aace9f48" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.1%2Bcpu-cp38-cp38-win_amd64.whl", hash = "sha256:eeecdfd5d09aaaaff950c3b9d02f9717dbfe36d10830a95203ba4a73caf05852" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.15.1+cu118"
+source = { registry = "https://download.pytorch.org/whl/cu118" }
+resolution-markers = [
+    "(python_full_version >= '3.8.1' and platform_machine != 'aarch64') or (python_full_version >= '3.8.1' and sys_platform != 'linux')",
+    "(python_full_version < '3.8.1' and platform_machine != 'aarch64') or (python_full_version < '3.8.1' and sys_platform != 'linux')",
+]
+dependencies = [
+    { name = "numpy", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "pillow", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "requests", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu118/torchvision-0.15.1%2Bcu118-cp38-cp38-linux_x86_64.whl", hash = "sha256:9104730d655abf282c2845d4cd472bb08936f3c85083a28aefd76ad9eeaff261" },
+    { url = "https://download.pytorch.org/whl/cu118/torchvision-0.15.1%2Bcu118-cp38-cp38-win_amd64.whl", hash = "sha256:22fe045677a74afecf7cd2f4146dca93dc926f40d0a658aa1bed3275f87dc7de" },
 ]
 
 [[package]]
@@ -4077,7 +4251,7 @@ name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
@@ -4095,13 +4269,17 @@ wheels = [
 
 [[package]]
 name = "triton"
-version = "3.0.0"
+version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock" },
+    { name = "cmake", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "filelock", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "lit", marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/b4/c37e2776a1390bab7e78a6d52bd525441cb3cad7260a6a00b11b0b702e7c/triton-3.0.0-1-cp38-cp38-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:bcbf3b1c48af6a28011a5c40a5b3b9b5330530c3827716b5fbf6d7adcc1e53e9", size = 209352266, upload-time = "2024-07-19T20:57:32.263Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/4b/28142a3c70621cb3398ac626c276268ca87af50a3fa43667a834fa5d13bf/triton-2.0.0-1-cp38-cp38-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:9d4978298b74fcf59a75fe71e535c092b023088933b2f1df933ec32615e4beef", size = 63232347, upload-time = "2023-03-20T17:32:40.846Z" },
+    { url = "https://files.pythonhosted.org/packages/72/90/91059851af9ffbceb40eeabb2e2522cd8b184b005f4b4ba44f6cba081ef0/triton-2.0.0-1-pp38-pypy38_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:1aca3303629cd3136375b82cb9921727f804e47ebee27b2677fef23005c3851a", size = 63158993, upload-time = "2023-03-20T17:32:57.186Z" },
 ]
 
 [[package]]
@@ -4137,7 +4315,7 @@ version = "5.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backports-zoneinfo" },
-    { name = "tzdata", marker = "sys_platform == 'win32'" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/04/d3/c19d65ae67636fe63953b20c2e4a8ced4497ea232c43ff8d01db16de8dc0/tzlocal-5.2.tar.gz", hash = "sha256:8d399205578f1a9342816409cc1e46a93ebd5755e39ea2d85334bea911bf0e6e", size = 30201, upload-time = "2023-10-22T17:41:38.449Z" }
 wheels = [
