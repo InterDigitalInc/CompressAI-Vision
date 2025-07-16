@@ -102,6 +102,11 @@ main () {
 
     uv pip install -e "${SCRIPT_DIR}/.."
 
+    echo
+    echo "uv sync --inexact --dry-run (check for differences from uv.lock)"
+    echo
+    uv sync --inexact --dry-run
+
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         download_weights
     fi
