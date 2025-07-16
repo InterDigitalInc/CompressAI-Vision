@@ -17,5 +17,5 @@ jobs:
 
       - name: install detectron2 and project with pip for test
         run: |
-          bash scripts/install.sh -m detectron2 --no-weights
+          bash scripts/install.sh -m detectron2 --no-weights --cpu
 
