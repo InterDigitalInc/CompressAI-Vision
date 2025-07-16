@@ -20,7 +20,7 @@ jobs:
 
       - name: Install the project
         run:
-          bash scripts/install.sh -m detectron2 --no-weights
+          uv run bash scripts/install_uv.sh -m detectron2 --no-weights --cpu
           uv sync --group=doc
 
 
