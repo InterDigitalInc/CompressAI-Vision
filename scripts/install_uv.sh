@@ -128,8 +128,7 @@ detect_cuda_version () {
 
 install_torch () {
     if [ "${CPU}" == "True" ]; then
-        echo "installing on cpu"
-        uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        uv pip install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url https://download.pytorch.org/whl/cpu
     else
         detect_cuda_version
         uv pip install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
