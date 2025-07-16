@@ -18,14 +18,9 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install the project
-        run:
-          uv run bash scripts/install_uv.sh -m detectron2 --no-weights --cpu
-          uv sync --group=doc
-
-
-      - name: make docs
+      - name: Install doc dependencies and build docs
         run: |
+          uv sync --group=doc
           cd docs
           uv run --no-sync make html
 
