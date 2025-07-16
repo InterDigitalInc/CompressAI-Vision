@@ -188,6 +188,7 @@ install_cython_bbox() {
 
     git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
     
+    uv pip install --no-build-isolation cython
     uv pip install --no-build-isolation .
 
     cd "${SCRIPT_DIR}/.."
