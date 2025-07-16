@@ -77,7 +77,6 @@ def generate_csv_classwise_image_gmac(dataset_name, result_path, list_of_classwi
 
 
 def generate_csv_classwise_video_gmac(dataset_name, result_path, list_of_classwise_seq):
-
     seq_base_path = [
         f
         for f in os.listdir(result_path)
