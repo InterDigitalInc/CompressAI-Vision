@@ -79,11 +79,19 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 
 
 main () {
-    uv sync
+    if [ "${CPU}" == "True" ]; then
+        BUILD_SUFFIX="cpu"
+    else
+        detect_cuda_version
+        BUILD_SUFFIX="cu${CUDA_VERSION//./}"
+    fi
+
+    uv sync --extra="${BUILD_SUFFIX}"
 
     uv pip install -U pip wheel
 
-    install_torch
+    # No longer needed.
+    # install_torch
 
     for model in detectron2 jde yolox mmpose; do
         if [[ ",${MODEL,,}," == *",${model},"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
@@ -103,9 +111,9 @@ main () {
     uv pip install -e "${SCRIPT_DIR}/.."
 
     echo
-    echo "uv sync --inexact --dry-run (check for differences from uv.lock)"
+    echo "uv sync --extra=${BUILD_SUFFIX} --inexact --dry-run (check for differences from uv.lock)"
     echo
-    uv sync --inexact --dry-run
+    uv sync --extra="${BUILD_SUFFIX}" --inexact --dry-run
 
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         download_weights
