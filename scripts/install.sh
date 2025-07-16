@@ -195,7 +195,7 @@ install_jde () {
     # Apply patch to interface with compressai-vision
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
 
-    uv pip install --no-build-isolation -e .
+    pip3 install --no-build-isolation -e .
 
     # back to project root
     cd ${SCRIPT_DIR}/..
