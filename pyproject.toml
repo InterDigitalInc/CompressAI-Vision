@@ -73,6 +73,10 @@ cu118 = [
     "torch>=2.0.0",
     "torchvision>=0.15.1",
 ]
+cu128 = [
+    "torch>=2.7.0 ; python_version >= '3.9'",
+    "torchvision>=0.22.0 ; python_version >= '3.9'",
+]
 models-mmpose = [
     "openmim>=0.3.9",
     # mmpose/requirements/runtime.txt
@@ -163,6 +167,7 @@ conflicts = [
     [
         { extra = "cpu" },
         { extra = "cu118" },
+        { extra = "cu128" },
     ],
 ]
 no-build-isolation-package = [
@@ -179,15 +184,22 @@ name = "pytorch-cu118"
 url = "https://download.pytorch.org/whl/cu118"
 explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
 [tool.uv.sources]
 compressai = { workspace = true }
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu128", extra = "cu128" },
 ]
 torchvision = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu128", extra = "cu128" },
 ]
 
 [tool.uv.workspace]
