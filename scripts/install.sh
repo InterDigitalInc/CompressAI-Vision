@@ -305,3 +305,4 @@ download_weights () {
     cd "${SCRIPT_DIR}/.."
 }
 
+main "$@"
