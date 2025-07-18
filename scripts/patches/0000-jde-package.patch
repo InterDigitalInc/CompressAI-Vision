@@ -27,10 +27,10 @@ index 0000000..468ba70
 \ No newline at end of file
 diff --git a/pyproject.toml b/pyproject.toml
 new file mode 100644
-index 0000000..509fa78
+index 0000000..8bed059
 --- /dev/null
 +++ b/pyproject.toml
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,35 @@
 +[build-system]
 +requires = ["setuptools"]
 +build-backend = "setuptools.build_meta"
@@ -49,7 +49,19 @@ index 0000000..509fa78
 +
 +requires-python = ">=3.8"
 +
-+dependencies = []
++dependencies = [
++    "cython-bbox",
++    "lap",
++    "matplotlib",
++    "motmetrics",
++    "numba",
++    "numpy",
++    "opencv-python",
++    "pandas",
++    "scipy",
++    "torch",
++    "torchvision",
++]
 +
 +[tool.setuptools.packages.find]
 +where = ["."]
