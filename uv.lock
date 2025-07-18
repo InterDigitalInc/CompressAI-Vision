@@ -913,7 +913,7 @@ requires-dist = [
     { name = "xtcocotools", marker = "extra == 'models-mmpose'", specifier = ">=1.12" },
     { name = "yuvio" },
 ]
-provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "cu128", "models-mmpose", "models-yolox"]
+provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "cu128", "models-detectron2", "models-jde", "models-mmpose", "models-yolox"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -932,6 +932,8 @@ doc = [
     { name = "sphinx-book-theme" },
     { name = "sphinxcontrib-mermaid" },
 ]
+models-detectron2 = []
+models-jde = []
 models-mmpose = [
     { name = "chumpy" },
     { name = "json-tricks" },

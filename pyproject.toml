@@ -80,6 +80,10 @@ cu128 = [
     "torch>=2.7.0 ; python_version >= '3.9'",
     "torchvision>=0.22.0 ; python_version >= '3.9'",
 ]
+models-detectron2 = [
+]
+models-jde = [
+]
 models-mmpose = [
     "openmim>=0.3.9",
     # mmpose/requirements/runtime.txt
@@ -128,6 +132,10 @@ doc = [
 tutorials = [
     "ipywidgets",
     "jupyter",
+]
+models-detectron2 = [
+]
+models-jde = [
 ]
 models-mmpose = [
     "openmim>=0.3.9",

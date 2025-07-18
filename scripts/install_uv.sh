@@ -166,6 +166,7 @@ install_detectron2 () {
 
     git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
 
+    uv sync --inexact --group=models-detectron2
     uv pip install --no-build-isolation .
 
     # back to project root
@@ -219,6 +220,7 @@ install_jde () {
     # Apply patch to interface with compressai-vision
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
     
+    uv sync --inexact --group=models-jde
     uv pip install --no-build-isolation .
 
     # back to project root
