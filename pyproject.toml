@@ -36,6 +36,7 @@ dependencies = [
     "pillow>=9.0,<10.0",
     "pip>=25.0.1",
     "ptflops>=0.7.3",
+    "Cython==3.0.8",
     "torch>=2.0.0",
     "torchvision>=0.15.1",
     "wheel>=0.45.1",
@@ -174,6 +175,7 @@ conflicts = [
 ]
 no-build-isolation-package = [
     "chumpy",
+    "xtcocotools",
 ]
 
 [[tool.uv.index]]
