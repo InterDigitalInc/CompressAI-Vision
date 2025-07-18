@@ -20,6 +20,7 @@ jobs:
 
       - name: Install doc dependencies and build docs
         run: |
+          uv pip install -U pip wheel setuptools
           uv sync --group=doc
           cd docs
           uv run --no-sync make html

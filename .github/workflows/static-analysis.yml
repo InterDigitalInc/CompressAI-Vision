@@ -21,7 +21,8 @@ jobs:
 
     - name: Install the project
       run: |
-        uv sync --only-group=dev
+        uv pip install -U pip wheel setuptools
+        uv sync --group=dev
      
     - name: Run static analysis  
       run: make static-analysis

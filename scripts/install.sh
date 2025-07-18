@@ -79,7 +79,7 @@ mkdir -p ${MODELS_WEIGHT_DIR}
 
 
 main () {
-    pip3 install -U pip wheel
+    pip3 install -U pip wheel setuptools
 
     install_torch
 

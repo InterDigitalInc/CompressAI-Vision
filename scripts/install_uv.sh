@@ -86,9 +86,9 @@ main () {
         BUILD_SUFFIX="cu${CUDA_VERSION//./}"
     fi
 
-    uv sync --extra="${BUILD_SUFFIX}"
+    uv pip install -U pip wheel setuptools
 
-    uv pip install -U pip wheel
+    uv sync --extra="${BUILD_SUFFIX}"
 
     # No longer needed.
     # install_torch
