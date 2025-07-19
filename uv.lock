@@ -806,10 +806,18 @@ doc = [
     { name = "sphinx-book-theme" },
     { name = "sphinxcontrib-mermaid" },
 ]
+models-detectron2 = [
+    { name = "detectron2" },
+]
+models-jde = [
+    { name = "cython-bbox" },
+    { name = "jde" },
+]
 models-mmpose = [
     { name = "chumpy" },
     { name = "json-tricks" },
     { name = "matplotlib" },
+    { name = "mmpose" },
     { name = "openmim" },
     { name = "scipy" },
     { name = "xtcocotools" },
@@ -822,6 +830,7 @@ models-yolox = [
     { name = "tabulate" },
     { name = "thop" },
     { name = "tqdm" },
+    { name = "yolox" },
 ]
 test = [
     { name = "pytest" },
@@ -890,17 +899,21 @@ requires-dist = [
     { name = "chumpy", marker = "extra == 'models-mmpose'" },
     { name = "compressai", editable = "compressai" },
     { name = "cython", specifier = "==3.0.8" },
+    { name = "cython-bbox", marker = "extra == 'models-jde'", directory = "scripts/cython_bbox" },
+    { name = "detectron2", marker = "extra == 'models-detectron2'", directory = "models/detectron2" },
     { name = "fiftyone", marker = "extra == 'doc'" },
     { name = "hydra-core" },
     { name = "ipython", marker = "extra == 'doc'" },
     { name = "ipywidgets", marker = "extra == 'tutorials'" },
     { name = "isort", marker = "extra == 'dev'" },
+    { name = "jde", marker = "extra == 'models-jde'", directory = "models/Towards-Realtime-MOT" },
     { name = "jinja2", marker = "extra == 'doc'", specifier = "<3.1" },
     { name = "json-tricks", marker = "extra == 'models-mmpose'" },
     { name = "jupyter", marker = "extra == 'tutorials'" },
     { name = "lap", specifier = ">=0.5.12" },
     { name = "loguru", marker = "extra == 'models-yolox'" },
     { name = "matplotlib", marker = "extra == 'models-mmpose'" },
+    { name = "mmpose", marker = "extra == 'models-mmpose'", directory = "models/mmpose" },
     { name = "motmetrics", specifier = ">=1.4.0" },
     { name = "munkres", specifier = ">=1.1.4" },
     { name = "ninja", marker = "extra == 'models-yolox'" },
@@ -938,6 +951,7 @@ requires-dist = [
     { name = "tqdm", marker = "extra == 'models-yolox'" },
     { name = "wheel", specifier = ">=0.45.1" },
     { name = "xtcocotools", marker = "extra == 'models-mmpose'", specifier = ">=1.12" },
+    { name = "yolox", marker = "extra == 'models-yolox'", directory = "models/yolox" },
     { name = "yuvio" },
 ]
 provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "cu128", "models-detectron2", "models-jde", "models-mmpose", "models-yolox"]
