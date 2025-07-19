@@ -41,7 +41,7 @@ RUN OPTIONS:
                 [--no-weights) prevents the installation script from downloading vision model parameters]
 
 
-EXAMPLE         [bash install_models.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
+EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
 
 _EOF_
             exit;
@@ -77,11 +77,35 @@ MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
 mkdir -p ${MODELS_SOURCE_DIR}
 mkdir -p ${MODELS_WEIGHT_DIR}
 
+PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
+
 
 main () {
-    pip3 install -U pip wheel setuptools
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        PIP=(pip3)
+        MIM=(mim)
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        PIP=(uv pip)
+        MIM=(uv run --no-sync mim)
+    else
+        echo "[ERROR] Unknown package manager: ${PACKAGE_MANAGER}. Please use 'pip3' or 'uv'."
+        exit 1
+    fi
 
-    install_torch
+    if [ "${CPU}" == "True" ]; then
+        BUILD_SUFFIX="cpu"
+    else
+        detect_cuda_version
+        BUILD_SUFFIX="cu${CUDA_VERSION//./}"
+    fi
+
+    "${PIP[@]}" install -U pip wheel setuptools
+
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        install_torch
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        uv sync --extra="${BUILD_SUFFIX}"
+    fi
 
     for model in detectron2 jde yolox mmpose; do
         if [[ ",${MODEL,,}," == *",${model},"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
@@ -92,12 +116,21 @@ main () {
     echo
     echo "Installing compressai"
     echo
-    pip3 install -e "${SCRIPT_DIR}/../compressai"
+    "${PIP[@]}" install -e "${SCRIPT_DIR}/../compressai"
+    "${PIP[@]}" list | grep compressai
 
     echo
     echo "Installing compressai-vision"
     echo
-    pip3 install -e "${SCRIPT_DIR}/.."
+    "${PIP[@]}" install -e "${SCRIPT_DIR}/.."
+    "${PIP[@]}" list | grep compressai-vision
+
+    if [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        echo
+        echo "Detect differences from uv.lock:"
+        echo "uv sync --inexact --extra=${BUILD_SUFFIX} --dry-run"
+        uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
+    fi
 
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         download_weights
@@ -125,10 +158,10 @@ detect_cuda_version () {
 
 install_torch () {
     if [ "${CPU}" == "True" ]; then
-        pip3 install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url https://download.pytorch.org/whl/cpu
+        "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
     else
-        detect_cuda_version
-        pip3 install torch==${TORCH_VERSION}+cu${CUDA_VERSION//./} torchvision==${TORCHVISION_VERSION}+cu${CUDA_VERSION//./} --extra-index-url https://download.pytorch.org/whl/cu${CUDA_VERSION//./}
+        # TODO(refactor): If we use --index-url instead, the "+${BUILD_SUFFIX}" does not need to be explicitly specified.
+        "${PIP[@]}" install "torch==${TORCH_VERSION}+${BUILD_SUFFIX}" "torchvision==${TORCHVISION_VERSION}+${BUILD_SUFFIX}" --extra-index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
     fi
 }
 
@@ -149,8 +182,15 @@ install_detectron2 () {
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
 
     git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
-    
-    pip3 install -e .
+
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${SCRIPT_DIR}/.."
+        uv sync --inexact --group=models-detectron2
+        cd "${MODELS_SOURCE_DIR}/detectron2"
+        "${PIP[@]}" install --no-build-isolation .
+    fi
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -172,18 +212,23 @@ install_cython_bbox() {
 
     git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
 
-    pip3 install cython numpy
-    pip3 install -e .
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install cython numpy
+        "${PIP[@]}" install -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        "${PIP[@]}" install --no-build-isolation cython
+        "${PIP[@]}" install --no-build-isolation .
+    fi
 
     cd "${SCRIPT_DIR}/.."
 }
 
 install_jde () {
+    install_cython_bbox
+
     echo
     echo "Installing JDE"
     echo
-
-    install_cython_bbox
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
@@ -203,8 +248,15 @@ install_jde () {
     # Apply patch to interface with compressai-vision
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
 
-    pip3 install numpy motmetrics numba lap opencv-python munkres
-    pip3 install --no-build-isolation -e .
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install numpy motmetrics numba lap opencv-python munkres
+        "${PIP[@]}" install --no-build-isolation -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${SCRIPT_DIR}/.."
+        uv sync --inexact --group=models-jde
+        cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        "${PIP[@]}" install --no-build-isolation .
+    fi
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -226,10 +278,17 @@ install_yolox () {
     fi
 
     cd ${MODELS_SOURCE_DIR}/yolox
-    # miminum requirments - no onnx, etc.
-    cp ${SCRIPT_DIR}/yolox_requirements.txt requirements.txt
 
-    pip3 install -e .
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        # miminum requirments - no onnx, etc.
+        cp "${SCRIPT_DIR}/yolox_requirements.txt" requirements.txt
+        "${PIP[@]}" install -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${SCRIPT_DIR}/.."
+        uv sync --inexact --group=models-yolox
+        cd "${MODELS_SOURCE_DIR}/yolox"
+        "${PIP[@]}" install --no-build-isolation .
+    fi
 
     # back to project root
     cd ${SCRIPT_DIR}/..
@@ -239,9 +298,6 @@ install_mmpose () {
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
-
-    pip install -U openmim
-    mim install "mmcv==2.0.1"
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
@@ -254,15 +310,26 @@ install_mmpose () {
     fi
 
     cd ${MODELS_SOURCE_DIR}/mmpose
-    # miminum requirments - no onnx, etc.
-    pip install -r requirements.txt
-    pip3 install -v -e .
 
-    mim install mmdet==3.1.0
-    
-    # during the installation isort version might be overwritten.
-    # hence make sure back to the isort=5.13.2
-    pip install isort==5.13.2
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -U openmim
+
+        # miminum requirments - no onnx, etc.
+        "${PIP[@]}" install -r requirements.txt
+        "${PIP[@]}" install -v -e .
+
+        # during the installation isort version might be overwritten.
+        # hence make sure back to the isort=5.13.2
+        "${PIP[@]}" install isort==5.13.2
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${SCRIPT_DIR}/.."
+        uv sync --inexact --group=models-mmpose
+        cd "${MODELS_SOURCE_DIR}/mmpose"
+        "${PIP[@]}" install --no-build-isolation .
+    fi
+
+    "${MIM[@]}" install "mmcv==2.0.1"
+    "${MIM[@]}" install "mmdet==3.1.0"
 
     # back to project root
     cd ${SCRIPT_DIR}/..
