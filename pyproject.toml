@@ -284,6 +284,11 @@ explicit = true
 
 [tool.uv.sources]
 compressai = { workspace = true }
+cython-bbox = { path = "scripts/cython_bbox" }
+detectron2 = { path = "models/detectron2" }
+jde = { path = "models/Towards-Realtime-MOT" }
+mmpose = { path = "models/mmpose" }
+yolox = { path = "models/yolox" }
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
