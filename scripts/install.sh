@@ -165,18 +165,29 @@ install_torch () {
     fi
 }
 
+prepare_detectron2 () {
+    echo
+    echo "Preparing detectron2 for installation"
+    echo
+
+    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
+        return
+    fi
+
+    git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+    cd "${MODELS_SOURCE_DIR}/detectron2"
+    git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
+    git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+    cd "${SCRIPT_DIR}/.."
+}
+
 install_detectron2 () {
+    prepare_detectron2
+
     echo
     echo "Installing detectron2"
     echo
-
-    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
-        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
-        cd "${MODELS_SOURCE_DIR}/detectron2"
-        git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-        git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
-        cd "${SCRIPT_DIR}/.."
-    fi
 
     cd "${MODELS_SOURCE_DIR}/detectron2"
 
@@ -193,19 +204,30 @@ install_detectron2 () {
     cd "${SCRIPT_DIR}/.."
 }
 
+prepare_cython_bbox () {
+    echo
+    echo "Preparing cython_bbox for installation"
+    echo
+
+    if [ -n "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
+        echo "Source directory already exists: ${SCRIPT_DIR}/cython_bbox"
+        return
+    fi
+
+    git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
+    cd "${SCRIPT_DIR}/cython_bbox"
+    # cython-bbox 0.1.3
+    git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
+    git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
+    cd "${SCRIPT_DIR}/.."
+}
+
 install_cython_bbox() {
+    prepare_cython_bbox
+
     echo
     echo "Installing cython_bbox (required by JDE)"
     echo
-
-    if [ -z "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
-        git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
-        cd "${SCRIPT_DIR}/cython_bbox"
-        # cython-bbox 0.1.3
-        git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
-        git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
-        cd "${SCRIPT_DIR}/.."
-    fi
 
     cd "${SCRIPT_DIR}/cython_bbox"
 
@@ -220,21 +242,31 @@ install_cython_bbox() {
     cd "${SCRIPT_DIR}/.."
 }
 
+prepare_jde () {
+    echo
+    echo "Preparing JDE for installation"
+    echo
+
+    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        return
+    fi
+
+    git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+    cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+    git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
+    git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
+    cd "${SCRIPT_DIR}/.."
+}
+
 install_jde () {
     install_cython_bbox
+    prepare_jde
 
     echo
     echo "Installing JDE"
     echo
-
-    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
-        git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-        cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-        git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
-        git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
-        git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
-        cd "${SCRIPT_DIR}/.."
-    fi
 
     cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
 
@@ -252,17 +284,28 @@ install_jde () {
     cd "${SCRIPT_DIR}/.."
 }
 
+prepare_yolox () {
+    echo
+    echo "Preparing YOLOX for installation"
+    echo
+
+    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/yolox"
+        return
+    fi
+
+    git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
+    cd "${MODELS_SOURCE_DIR}/yolox"
+    git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
+    cd "${SCRIPT_DIR}/.."
+}
+
 install_yolox () {
+    prepare_yolox
+
     echo
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
-
-    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
-        git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
-        cd "${MODELS_SOURCE_DIR}/yolox"
-        git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
-        cd "${SCRIPT_DIR}/.."
-    fi
 
     cd "${MODELS_SOURCE_DIR}/yolox"
 
@@ -281,17 +324,28 @@ install_yolox () {
     cd "${SCRIPT_DIR}/.."
 }
 
+prepare_mmpose () {
+    echo
+    echo "Preparing MMPOSE for installation"
+    echo
+
+    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/mmpose"
+        return
+    fi
+
+    git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
+    cd "${MODELS_SOURCE_DIR}/mmpose"
+    git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
+    cd "${SCRIPT_DIR}/.."
+}
+
 install_mmpose () {
+    prepare_mmpose
+
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
-
-    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
-        git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
-        cd "${MODELS_SOURCE_DIR}/mmpose"
-        git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
-        cd "${SCRIPT_DIR}/.."
-    fi
 
     cd "${MODELS_SOURCE_DIR}/mmpose"
 
