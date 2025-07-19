@@ -156,14 +156,10 @@ install_detectron2 () {
     cd ${SCRIPT_DIR}/..
 }
 
-install_jde () {
+install_cython_bbox() {
     echo
-    echo "Installing JDE"
+    echo "Installing cython_bbox (required by JDE)"
     echo
-
-
-    # install dependent packages
-    pip3 install numpy motmetrics numba lap opencv-python munkres
 
     # install cython manually from source code with patch
     if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
@@ -175,7 +171,19 @@ install_jde () {
     git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
 
     git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
+
+    pip3 install cython numpy
     pip3 install -e .
+
+    cd "${SCRIPT_DIR}/.."
+}
+
+install_jde () {
+    echo
+    echo "Installing JDE"
+    echo
+
+    install_cython_bbox
 
     # clone
     if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
@@ -195,6 +203,7 @@ install_jde () {
     # Apply patch to interface with compressai-vision
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
 
+    pip3 install numpy motmetrics numba lap opencv-python munkres
     pip3 install --no-build-isolation -e .
 
     # back to project root
