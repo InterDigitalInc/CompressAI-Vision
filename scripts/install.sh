@@ -79,9 +79,6 @@ b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet5
 MODELS_SOURCE_DIR="${MODELS_PARENT_DIR}/models"
 MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
 
-mkdir -p "${MODELS_SOURCE_DIR}"
-mkdir -p "${MODELS_WEIGHT_DIR}"
-
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
 
 
@@ -123,6 +120,8 @@ main () {
 }
 
 run_prepare() {
+    mkdir -p "${MODELS_SOURCE_DIR}"
+
     # NOTE: We always prepare all packages, even if they are not installed.
     # This helps with dependency resolution.
     for pkg in cython_bbox detectron2 jde mmpose yolox; do
@@ -387,6 +386,7 @@ install_mmpose () {
 }
 
 download_weights () {
+    mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
 
     for model in detectron2 jde mmpose yolox; do
