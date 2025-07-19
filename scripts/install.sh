@@ -200,7 +200,6 @@ install_detectron2 () {
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    # back to project root
     cd "${SCRIPT_DIR}/.."
 }
 
@@ -280,7 +279,6 @@ install_jde () {
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    # back to project root
     cd "${SCRIPT_DIR}/.."
 }
 
@@ -320,7 +318,6 @@ install_yolox () {
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    # back to project root
     cd "${SCRIPT_DIR}/.."
 }
 
@@ -351,11 +348,9 @@ install_mmpose () {
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -U openmim
-
         # miminum requirments - no onnx, etc.
         "${PIP[@]}" install -r requirements.txt
         "${PIP[@]}" install -v -e .
-
         # during the installation isort version might be overwritten.
         # hence make sure back to the isort=5.13.2
         "${PIP[@]}" install isort==5.13.2
@@ -369,7 +364,6 @@ install_mmpose () {
     "${MIM[@]}" install "mmcv==2.0.1"
     "${MIM[@]}" install "mmdet==3.1.0"
 
-    # back to project root
     cd "${SCRIPT_DIR}/.."
 }
 
