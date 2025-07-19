@@ -130,6 +130,7 @@ main () {
         echo "Detect differences from uv.lock:"
         echo "uv sync --inexact --extra=${BUILD_SUFFIX} --dry-run"
         uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
+        uv sync --inexact --extra="${BUILD_SUFFIX}"
     fi
 
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
