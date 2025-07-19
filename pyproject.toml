@@ -90,25 +90,9 @@ models-jde = [
 models-mmpose = [
     "mmpose==1.3.2",
     "openmim>=0.3.9",
-    # mmpose/requirements/runtime.txt
-    "chumpy",
-    "json_tricks",
-    "matplotlib",
-    "scipy",
-    "xtcocotools>=1.12",
 ]
 models-yolox = [
     "yolox",
-    "loguru",
-    "ninja",
-    # "onnx-simplifier==0.4.10",
-    # "onnx>=1.13.0",
-    "psutil",
-    "pycocotools>=2.0.7",
-    "tabulate",
-    # "tensorboard",
-    "thop",
-    "tqdm",
 ]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
@@ -148,25 +132,9 @@ models-jde = [
 models-mmpose = [
     "mmpose==1.3.2",
     "openmim>=0.3.9",
-    # mmpose/requirements/runtime.txt
-    "chumpy",
-    "json_tricks",
-    "matplotlib",
-    "scipy",
-    "xtcocotools>=1.12",
 ]
 models-yolox = [
     "yolox",
-    "loguru",
-    "ninja",
-    # "onnx-simplifier==0.4.10",
-    # "onnx>=1.13.0",
-    "psutil",
-    "pycocotools>=2.0.7",
-    "tabulate",
-    # "tensorboard",
-    "thop",
-    "tqdm",
 ]
 
 [project.scripts]

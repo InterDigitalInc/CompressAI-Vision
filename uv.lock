@@ -814,22 +814,10 @@ models-jde = [
     { name = "jde" },
 ]
 models-mmpose = [
-    { name = "chumpy" },
-    { name = "json-tricks" },
-    { name = "matplotlib" },
     { name = "mmpose" },
     { name = "openmim" },
-    { name = "scipy" },
-    { name = "xtcocotools" },
 ]
 models-yolox = [
-    { name = "loguru" },
-    { name = "ninja" },
-    { name = "psutil" },
-    { name = "pycocotools" },
-    { name = "tabulate" },
-    { name = "thop" },
-    { name = "tqdm" },
     { name = "yolox" },
 ]
 test = [
@@ -866,22 +854,10 @@ models-jde = [
     { name = "jde" },
 ]
 models-mmpose = [
-    { name = "chumpy" },
-    { name = "json-tricks" },
-    { name = "matplotlib" },
     { name = "mmpose" },
     { name = "openmim" },
-    { name = "scipy" },
-    { name = "xtcocotools" },
 ]
 models-yolox = [
-    { name = "loguru" },
-    { name = "ninja" },
-    { name = "psutil" },
-    { name = "pycocotools" },
-    { name = "tabulate" },
-    { name = "thop" },
-    { name = "tqdm" },
     { name = "yolox" },
 ]
 test = [
@@ -896,7 +872,6 @@ tutorials = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'" },
-    { name = "chumpy", marker = "extra == 'models-mmpose'" },
     { name = "compressai", editable = "compressai" },
     { name = "cython", specifier = "==3.0.8" },
     { name = "cython-bbox", marker = "extra == 'models-jde'", directory = "scripts/cython_bbox" },
@@ -908,15 +883,11 @@ requires-dist = [
     { name = "isort", marker = "extra == 'dev'" },
     { name = "jde", marker = "extra == 'models-jde'", directory = "models/Towards-Realtime-MOT" },
     { name = "jinja2", marker = "extra == 'doc'", specifier = "<3.1" },
-    { name = "json-tricks", marker = "extra == 'models-mmpose'" },
     { name = "jupyter", marker = "extra == 'tutorials'" },
     { name = "lap", specifier = ">=0.5.12" },
-    { name = "loguru", marker = "extra == 'models-yolox'" },
-    { name = "matplotlib", marker = "extra == 'models-mmpose'" },
     { name = "mmpose", marker = "extra == 'models-mmpose'", directory = "models/mmpose" },
     { name = "motmetrics", specifier = ">=1.4.0" },
     { name = "munkres", specifier = ">=1.1.4" },
-    { name = "ninja", marker = "extra == 'models-yolox'" },
     { name = "numba", specifier = ">=0.58.1" },
     { name = "numpy", specifier = ">=1.24.4" },
     { name = "omegaconf" },
@@ -925,21 +896,16 @@ requires-dist = [
     { name = "pandas" },
     { name = "pillow", specifier = ">=9.0,<10.0" },
     { name = "pip", specifier = ">=25.0.1" },
-    { name = "psutil", marker = "extra == 'models-yolox'" },
     { name = "ptflops", specifier = ">=0.7.3" },
-    { name = "pycocotools", marker = "extra == 'models-yolox'", specifier = ">=2.0.7" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'test'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'test'" },
     { name = "pytorch-msssim", marker = "extra == 'doc'" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.8.6" },
-    { name = "scipy", marker = "extra == 'models-mmpose'" },
     { name = "sphinx", marker = "extra == 'doc'" },
     { name = "sphinx-book-theme", marker = "extra == 'doc'" },
     { name = "sphinxcontrib-mermaid", marker = "extra == 'doc'" },
-    { name = "tabulate", marker = "extra == 'models-yolox'" },
-    { name = "thop", marker = "extra == 'models-yolox'" },
     { name = "torch", specifier = ">=2.0.0" },
     { name = "torch", marker = "python_full_version >= '3.9' and extra == 'cu128'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cu128", conflict = { package = "compressai-vision", extra = "cu128" } },
     { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "compressai-vision", extra = "cpu" } },
@@ -948,9 +914,7 @@ requires-dist = [
     { name = "torchvision", marker = "python_full_version >= '3.9' and extra == 'cu128'", specifier = ">=0.22.0", index = "https://download.pytorch.org/whl/cu128", conflict = { package = "compressai-vision", extra = "cu128" } },
     { name = "torchvision", marker = "extra == 'cpu'", specifier = ">=0.15.1", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "compressai-vision", extra = "cpu" } },
     { name = "torchvision", marker = "extra == 'cu118'", specifier = ">=0.15.1", index = "https://download.pytorch.org/whl/cu118", conflict = { package = "compressai-vision", extra = "cu118" } },
-    { name = "tqdm", marker = "extra == 'models-yolox'" },
     { name = "wheel", specifier = ">=0.45.1" },
-    { name = "xtcocotools", marker = "extra == 'models-mmpose'", specifier = ">=1.12" },
     { name = "yolox", marker = "extra == 'models-yolox'", directory = "models/yolox" },
     { name = "yuvio" },
 ]
@@ -979,24 +943,10 @@ models-jde = [
     { name = "jde", directory = "models/Towards-Realtime-MOT" },
 ]
 models-mmpose = [
-    { name = "chumpy" },
-    { name = "json-tricks" },
-    { name = "matplotlib" },
     { name = "mmpose", directory = "models/mmpose" },
     { name = "openmim", specifier = ">=0.3.9" },
-    { name = "scipy" },
-    { name = "xtcocotools", specifier = ">=1.12" },
 ]
-models-yolox = [
-    { name = "loguru" },
-    { name = "ninja" },
-    { name = "psutil" },
-    { name = "pycocotools", specifier = ">=2.0.7" },
-    { name = "tabulate" },
-    { name = "thop" },
-    { name = "tqdm" },
-    { name = "yolox", directory = "models/yolox" },
-]
+models-yolox = [{ name = "yolox", directory = "models/yolox" }]
 test = [
     { name = "pytest" },
     { name = "pytest-cov" },
