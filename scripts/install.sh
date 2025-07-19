@@ -9,7 +9,8 @@ CUDA_VERSION=""
 MODEL="all"
 CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-MODELS_ROOT_DIR="${SCRIPT_DIR}/.."
+COMPRESSAI_VISION_ROOT_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
+MODELS_PARENT_DIR="${COMPRESSAI_VISION_ROOT_DIR}"
 DOWNLOAD_WEIGHTS="True"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
@@ -51,7 +52,7 @@ _EOF_
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
         --cpu) CPU="True"; shift; ;;
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
-        --models_dir) shift; MODELS_ROOT_DIR="$1"; shift; ;;
+        --models_dir) shift; MODELS_PARENT_DIR="$1"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
@@ -70,8 +71,8 @@ b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet5
 "
 
 
-MODELS_SOURCE_DIR=${MODELS_ROOT_DIR}/models
-MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
+MODELS_SOURCE_DIR="${MODELS_PARENT_DIR}/models"
+MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
 
 mkdir -p "${MODELS_SOURCE_DIR}"
 mkdir -p "${MODELS_WEIGHT_DIR}"
@@ -115,13 +116,13 @@ main () {
     echo
     echo "Installing compressai"
     echo
-    "${PIP[@]}" install -e "${SCRIPT_DIR}/../compressai"
+    "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
     "${PIP[@]}" list | grep compressai
 
     echo
     echo "Installing compressai-vision"
     echo
-    "${PIP[@]}" install -e "${SCRIPT_DIR}/.."
+    "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}"
     "${PIP[@]}" list | grep compressai-vision
 
     if [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
@@ -179,7 +180,7 @@ prepare_detectron2 () {
     cd "${MODELS_SOURCE_DIR}/detectron2"
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
     git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_detectron2 () {
@@ -194,13 +195,13 @@ install_detectron2 () {
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        cd "${SCRIPT_DIR}/.."
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-detectron2
         cd "${MODELS_SOURCE_DIR}/detectron2"
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 prepare_cython_bbox () {
@@ -218,7 +219,7 @@ prepare_cython_bbox () {
     # cython-bbox 0.1.3
     git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
     git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_cython_bbox() {
@@ -238,7 +239,7 @@ install_cython_bbox() {
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 prepare_jde () {
@@ -256,7 +257,7 @@ prepare_jde () {
     git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
     git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
     git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_jde () {
@@ -273,13 +274,13 @@ install_jde () {
         "${PIP[@]}" install numpy motmetrics numba lap opencv-python munkres
         "${PIP[@]}" install --no-build-isolation -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        cd "${SCRIPT_DIR}/.."
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-jde
         cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 prepare_yolox () {
@@ -295,7 +296,7 @@ prepare_yolox () {
     git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
     cd "${MODELS_SOURCE_DIR}/yolox"
     git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_yolox () {
@@ -312,13 +313,13 @@ install_yolox () {
         cp "${SCRIPT_DIR}/yolox_requirements.txt" requirements.txt
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        cd "${SCRIPT_DIR}/.."
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-yolox
         cd "${MODELS_SOURCE_DIR}/yolox"
         "${PIP[@]}" install --no-build-isolation .
     fi
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 prepare_mmpose () {
@@ -334,7 +335,7 @@ prepare_mmpose () {
     git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
     cd "${MODELS_SOURCE_DIR}/mmpose"
     git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_mmpose () {
@@ -355,7 +356,7 @@ install_mmpose () {
         # hence make sure back to the isort=5.13.2
         "${PIP[@]}" install isort==5.13.2
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        cd "${SCRIPT_DIR}/.."
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-mmpose
         cd "${MODELS_SOURCE_DIR}/mmpose"
         "${PIP[@]}" install --no-build-isolation .
@@ -364,7 +365,7 @@ install_mmpose () {
     "${MIM[@]}" install "mmcv==2.0.1"
     "${MIM[@]}" install "mmdet==3.1.0"
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 download_weights () {
@@ -410,7 +411,7 @@ download_weights () {
         fi
     done
 
-    cd "${SCRIPT_DIR}/.."
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 main "$@"
