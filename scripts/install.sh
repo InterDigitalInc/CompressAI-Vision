@@ -11,6 +11,8 @@ CPU="False"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 COMPRESSAI_VISION_ROOT_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
 MODELS_PARENT_DIR="${COMPRESSAI_VISION_ROOT_DIR}"
+NO_PREPARE="False"
+NO_INSTALL="False"
 DOWNLOAD_WEIGHTS="True"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
@@ -39,6 +41,7 @@ RUN OPTIONS:
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--models_dir directory to install vision models to, default: compressai_vision_root]
+                [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching 
                 [--no-weights) prevents the installation script from downloading vision model parameters]
 
 
@@ -53,6 +56,8 @@ _EOF_
         --cpu) CPU="True"; shift; ;;
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
         --models_dir) shift; MODELS_PARENT_DIR="$1"; shift; ;;
+        --no-prepare) NO_PREPARE="True"; shift; ;;
+        --no-install) NO_INSTALL="True"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
@@ -99,12 +104,33 @@ main () {
         BUILD_SUFFIX="cu${CUDA_VERSION//./}"
     fi
 
+    if [[ "${NO_PREPARE}" == "False" ]]; then
+        run_prepare
+    else
+        echo "Skipping preparation due to --no-prepare flag."
+    fi
+
+    if [[ "${NO_INSTALL}" == "False" ]]; then
+        run_install
+    else
+        echo "Skipping installation due to --no-install flag."
+        return
+    fi
+
+    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
+        download_weights
+    fi
+}
+
+run_prepare() {
     # NOTE: We always prepare all packages, even if they are not installed.
     # This helps with dependency resolution.
     for pkg in cython_bbox detectron2 jde mmpose yolox; do
         "prepare_${pkg}"
     done
+}
 
+run_install () {
     "${PIP[@]}" install -U pip wheel setuptools
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
@@ -138,12 +164,7 @@ main () {
         uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
         uv sync --inexact --extra="${BUILD_SUFFIX}"
     fi
-
-    if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
-        download_weights
-    fi
 }
-
 
 detect_cuda_version () {
     if [ -n "${CUDA_VERSION}" ]; then
