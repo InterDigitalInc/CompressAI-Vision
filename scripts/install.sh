@@ -99,6 +99,12 @@ main () {
         BUILD_SUFFIX="cu${CUDA_VERSION//./}"
     fi
 
+    # NOTE: We always prepare all packages, even if they are not installed.
+    # This helps with dependency resolution.
+    for pkg in cython_bbox detectron2 jde mmpose yolox; do
+        "prepare_${pkg}"
+    done
+
     "${PIP[@]}" install -U pip wheel setuptools
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
@@ -184,8 +190,6 @@ prepare_detectron2 () {
 }
 
 install_detectron2 () {
-    prepare_detectron2
-
     echo
     echo "Installing detectron2"
     echo
@@ -223,8 +227,6 @@ prepare_cython_bbox () {
 }
 
 install_cython_bbox() {
-    prepare_cython_bbox
-
     echo
     echo "Installing cython_bbox (required by JDE)"
     echo
@@ -262,7 +264,6 @@ prepare_jde () {
 
 install_jde () {
     install_cython_bbox
-    prepare_jde
 
     echo
     echo "Installing JDE"
@@ -300,8 +301,6 @@ prepare_yolox () {
 }
 
 install_yolox () {
-    prepare_yolox
-
     echo
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
@@ -339,8 +338,6 @@ prepare_mmpose () {
 }
 
 install_mmpose () {
-    prepare_mmpose
-
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
