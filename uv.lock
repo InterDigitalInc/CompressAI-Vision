@@ -53,6 +53,15 @@ version = "0.3.0"
 requires-dist = ["numpy", "torch>=1.7", "opencv-python", "loguru", "tqdm", "torchvision", "thop", "ninja", "tabulate", "psutil", "tensorboard", "pycocotools>=2.0.2"]
 
 [[package]]
+name = "absl-py"
+version = "2.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/2a/c93173ffa1b39c1d0395b7e842bbdc62e556ca9d8d3b5572926f3e4ca752/absl_py-2.3.1.tar.gz", hash = "sha256:a97820526f7fbfd2ec1bce83f3f25e3a14840dac0d8e02a0b71cd75db3f77fc9", size = 116588, upload-time = "2025-07-03T09:31:44.05Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/aa/ba0014cc4659328dc818a28827be78e6d97312ab0cb98105a770924dc11e/absl_py-2.3.1-py3-none-any.whl", hash = "sha256:eeecf07f0c2a93ace0772c92e596ace6d3d3996c042b2128459aaae2a76de11d", size = 135811, upload-time = "2025-07-03T09:31:42.253Z" },
+]
+
+[[package]]
 name = "accessible-pygments"
 version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -520,6 +529,15 @@ wheels = [
 ]
 
 [[package]]
+name = "cloudpickle"
+version = "3.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/39/069100b84d7418bc358d81669d5748efb14b9cceacd2f9c75f550424132f/cloudpickle-3.1.1.tar.gz", hash = "sha256:b216fa8ae4019d5482a8ac3c95d8f6346115d8835911fd4aefd1a445e4242c64", size = 22113, upload-time = "2025-01-14T17:02:05.085Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7e/e8/64c37fadfc2816a7701fa8a6ed8d87327c7d54eacfbfb6edab14a2f2be75/cloudpickle-3.1.1-py3-none-any.whl", hash = "sha256:c8c5a44295039331ee9dad40ba100a9c7297b6f988e50e87ccdf3765a668350e", size = 20992, upload-time = "2025-01-14T17:02:02.417Z" },
+]
+
+[[package]]
 name = "cmake"
 version = "4.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -831,10 +849,18 @@ doc = [
     { name = "sphinx-book-theme" },
     { name = "sphinxcontrib-mermaid" },
 ]
+models-detectron2 = [
+    { name = "detectron2" },
+]
+models-jde = [
+    { name = "cython-bbox" },
+    { name = "jde" },
+]
 models-mmpose = [
     { name = "chumpy" },
     { name = "json-tricks" },
     { name = "matplotlib" },
+    { name = "mmpose" },
     { name = "openmim" },
     { name = "scipy" },
     { name = "xtcocotools" },
@@ -847,6 +873,7 @@ models-yolox = [
     { name = "tabulate" },
     { name = "thop" },
     { name = "tqdm" },
+    { name = "yolox" },
 ]
 test = [
     { name = "pytest" },
@@ -932,12 +959,16 @@ doc = [
     { name = "sphinx-book-theme" },
     { name = "sphinxcontrib-mermaid" },
 ]
-models-detectron2 = []
-models-jde = []
+models-detectron2 = [{ name = "detectron2", directory = "models/detectron2" }]
+models-jde = [
+    { name = "cython-bbox", directory = "scripts/cython_bbox" },
+    { name = "jde", directory = "models/Towards-Realtime-MOT" },
+]
 models-mmpose = [
     { name = "chumpy" },
     { name = "json-tricks" },
     { name = "matplotlib" },
+    { name = "mmpose", directory = "models/mmpose" },
     { name = "openmim", specifier = ">=0.3.9" },
     { name = "scipy" },
     { name = "xtcocotools", specifier = ">=1.12" },
@@ -950,6 +981,7 @@ models-yolox = [
     { name = "tabulate" },
     { name = "thop" },
     { name = "tqdm" },
+    { name = "yolox", directory = "models/yolox" },
 ]
 test = [
     { name = "pytest" },
@@ -1034,6 +1066,21 @@ wheels = [
 ]
 
 [[package]]
+name = "cython-bbox"
+version = "0.1.3"
+source = { directory = "scripts/cython_bbox" }
+dependencies = [
+    { name = "cython" },
+    { name = "numpy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cython" },
+    { name = "numpy" },
+]
+
+[[package]]
 name = "dacite"
 version = "1.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1083,6 +1130,48 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/98/97/06afe62762c9a8a86af0cfb7bfdab22a43ad17138b07af5b1a58442690a2/deprecated-1.2.18.tar.gz", hash = "sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d", size = 2928744, upload-time = "2025-01-27T10:46:25.7Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6e/c6/ac0b6c1e2d138f1002bcf799d330bd6d85084fece321e662a14223794041/Deprecated-1.2.18-py2.py3-none-any.whl", hash = "sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec", size = 9998, upload-time = "2025-01-27T10:46:09.186Z" },
+]
+
+[[package]]
+name = "detectron2"
+version = "0.6"
+source = { directory = "models/detectron2" }
+dependencies = [
+    { name = "cloudpickle" },
+    { name = "future" },
+    { name = "fvcore" },
+    { name = "hydra-core" },
+    { name = "iopath" },
+    { name = "matplotlib" },
+    { name = "omegaconf" },
+    { name = "pillow" },
+    { name = "pycocotools" },
+    { name = "pydot" },
+    { name = "tabulate" },
+    { name = "tensorboard" },
+    { name = "termcolor" },
+    { name = "tqdm" },
+    { name = "yacs" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cloudpickle" },
+    { name = "dataclasses", marker = "python_full_version < '3.7'" },
+    { name = "future" },
+    { name = "fvcore", specifier = ">=0.1.5,<0.1.6" },
+    { name = "hydra-core", specifier = ">=1.1" },
+    { name = "iopath", specifier = ">=0.1.7,<0.1.10" },
+    { name = "matplotlib" },
+    { name = "omegaconf", specifier = ">=2.1" },
+    { name = "pillow", specifier = ">=7.1" },
+    { name = "pycocotools", specifier = ">=2.0.2" },
+    { name = "pydot" },
+    { name = "tabulate" },
+    { name = "tensorboard" },
+    { name = "termcolor", specifier = ">=1.1" },
+    { name = "tqdm", specifier = ">4.29.0" },
+    { name = "yacs", specifier = ">=0.1.8" },
 ]
 
 [[package]]
@@ -1449,10 +1538,53 @@ wheels = [
 ]
 
 [[package]]
+name = "fvcore"
+version = "0.1.5.post20221221"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "iopath" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "pyyaml" },
+    { name = "tabulate" },
+    { name = "termcolor" },
+    { name = "tqdm" },
+    { name = "yacs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/93/d056a9c4efc6c79ba7b5159cc66bb436db93d2cc46dca18ed65c59cc8e4e/fvcore-0.1.5.post20221221.tar.gz", hash = "sha256:f2fb0bb90572ae651c11c78e20493ed19b2240550a7e4bbb2d6de87bdd037860", size = 50217, upload-time = "2022-12-21T08:10:53.563Z" }
+
+[[package]]
 name = "glob2"
 version = "0.7"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/a5/bbbc3b74a94fbdbd7915e7ad030f16539bfdc1362f7e9003b594f0537950/glob2-0.7.tar.gz", hash = "sha256:85c3dbd07c8aa26d63d7aacee34fa86e9a91a3873bc30bf62ec46e531f92ab8c", size = 10697, upload-time = "2019-06-10T23:33:48.308Z" }
+
+[[package]]
+name = "google-auth"
+version = "2.40.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cachetools" },
+    { name = "pyasn1-modules" },
+    { name = "rsa" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/9b/e92ef23b84fa10a64ce4831390b7a4c2e53c0132568d99d4ae61d04c8855/google_auth-2.40.3.tar.gz", hash = "sha256:500c3a29adedeb36ea9cf24b8d10858e152f2412e3ca37829b3fa18e33d63b77", size = 281029, upload-time = "2025-06-04T18:04:57.577Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/17/63/b19553b658a1692443c62bd07e5868adaa0ad746a0751ba62c59568cd45b/google_auth-2.40.3-py2.py3-none-any.whl", hash = "sha256:1370d4593e86213563547f97a92752fc658456fe4514c809544f330fed45a7ca", size = 216137, upload-time = "2025-06-04T18:04:55.573Z" },
+]
+
+[[package]]
+name = "google-auth-oauthlib"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "google-auth" },
+    { name = "requests-oauthlib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e3/b4/ef2170c5f6aa5bc2461bab959a84e56d2819ce26662b50038d2d0602223e/google-auth-oauthlib-1.0.0.tar.gz", hash = "sha256:e375064964820b47221a7e1b7ee1fd77051b6323c3f9e3e19785f78ab67ecfc5", size = 20530, upload-time = "2023-02-07T20:53:20.679Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/07/8d9a8186e6768b55dfffeb57c719bc03770cf8a970a074616ae6f9e26a57/google_auth_oauthlib-1.0.0-py2.py3-none-any.whl", hash = "sha256:95880ca704928c300f48194d1770cf5b1462835b6e49db61445a520f793fd5fb", size = 18926, upload-time = "2023-02-07T20:53:18.837Z" },
+]
 
 [[package]]
 name = "graphql-core"
@@ -1464,6 +1596,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c4/16/7574029da84834349b60ed71614d66ca3afe46e9bf9c7b9562102acb7d4f/graphql_core-3.2.6.tar.gz", hash = "sha256:c08eec22f9e40f0bd61d805907e3b3b1b9a320bc606e23dc145eebca07c8fbab", size = 505353, upload-time = "2025-01-26T16:36:27.374Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ae/4f/7297663840621022bc73c22d7d9d80dbc78b4db6297f764b545cd5dd462d/graphql_core-3.2.6-py3-none-any.whl", hash = "sha256:78b016718c161a6fb20a7d97bbf107f331cd1afe53e45566c59f776ed7f0b45f", size = 203416, upload-time = "2025-01-26T16:36:24.868Z" },
+]
+
+[[package]]
+name = "grpcio"
+version = "1.70.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/e1/4b21b5017c33f3600dcc32b802bb48fe44a4d36d6c066f52650c7c2690fa/grpcio-1.70.0.tar.gz", hash = "sha256:8d1584a68d5922330025881e63a6c1b54cc8117291d382e4fa69339b6d914c56", size = 12788932, upload-time = "2025-01-23T18:00:17.288Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/5f/d7fe323c18a2ec98a2a9b38fb985f5e843f76990298d7c4ce095f44b46a7/grpcio-1.70.0-cp38-cp38-linux_armv7l.whl", hash = "sha256:8058667a755f97407fca257c844018b80004ae8035565ebc2812cc550110718d", size = 5232027, upload-time = "2025-01-23T17:55:07.597Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/4b/3d3b5548575b635f51883212a482cd237e8525535d4591b9dc7e5b2c2ddc/grpcio-1.70.0-cp38-cp38-macosx_10_14_universal2.whl", hash = "sha256:879a61bf52ff8ccacbedf534665bb5478ec8e86ad483e76fe4f729aaef867cab", size = 11448811, upload-time = "2025-01-23T17:55:11.773Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/d7/9a0922fc12d339271c7e4e6691470172b7c13715fed7bd934274803f1527/grpcio-1.70.0-cp38-cp38-manylinux_2_17_aarch64.whl", hash = "sha256:0ba0a173f4feacf90ee618fbc1a27956bfd21260cd31ced9bc707ef551ff7dc7", size = 5711890, upload-time = "2025-01-23T17:55:17.167Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/ae/d4dbf8bff0f1d270f118d08558bc8dc0489e026d6620a4e3ee2d79d79041/grpcio-1.70.0-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:558c386ecb0148f4f99b1a65160f9d4b790ed3163e8610d11db47838d452512d", size = 6331933, upload-time = "2025-01-23T17:55:19.771Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/64/66a74c02b00e00b919c245ca9da8e5c44e8692bf3fe7f27efbc97572566c/grpcio-1.70.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:412faabcc787bbc826f51be261ae5fa996b21263de5368a55dc2cf824dc5090e", size = 5950685, upload-time = "2025-01-23T17:55:22.253Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/64/e992ac693118c37164e085676216d258804d7a5bbf3581d3f989c843a9a5/grpcio-1.70.0-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:3b0f01f6ed9994d7a0b27eeddea43ceac1b7e6f3f9d86aeec0f0064b8cf50fdb", size = 6640974, upload-time = "2025-01-23T17:55:24.757Z" },
+    { url = "https://files.pythonhosted.org/packages/57/17/34d0a6af4477fd48b8b41d13782fb1e35b8841b17d6ac7a3eb24d2f3b17e/grpcio-1.70.0-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:7385b1cb064734005204bc8994eed7dcb801ed6c2eda283f613ad8c6c75cf873", size = 6204792, upload-time = "2025-01-23T17:55:27Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/e5/e45d8eb81929c0becd5bda413b60262f79d862e19cff632d496909aa3bd0/grpcio-1.70.0-cp38-cp38-win32.whl", hash = "sha256:07269ff4940f6fb6710951116a04cd70284da86d0a4368fd5a3b552744511f5a", size = 3620015, upload-time = "2025-01-23T17:55:29.386Z" },
+    { url = "https://files.pythonhosted.org/packages/87/7d/36009c38093e62969c708f20b86ab6761c2ba974b12ff10def6f397f24fa/grpcio-1.70.0-cp38-cp38-win_amd64.whl", hash = "sha256:aba19419aef9b254e15011b230a180e26e0f6864c90406fdbc255f01d83bc83c", size = 4307043, upload-time = "2025-01-23T17:55:31.823Z" },
 ]
 
 [[package]]
@@ -1662,6 +1811,18 @@ wheels = [
 ]
 
 [[package]]
+name = "iopath"
+version = "0.1.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "portalocker" },
+    { name = "tqdm" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/20/65dd9bd25a1eb7fa35b5ae38d289126af065f8a0c1f6a90564f4bff0f89d/iopath-0.1.9-py3-none-any.whl", hash = "sha256:9058ac24f0328decdf8dbe209b33074b8702a3c4d9ba2f7801d46cb61a880b6e", size = 27367, upload-time = "2021-06-25T07:10:15.198Z" },
+]
+
+[[package]]
 name = "ipykernel"
 version = "6.29.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1744,6 +1905,47 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/87/f9/c1eb8635a24e87ade2efce21e3ce8cd6b8630bb685ddc9cdaca1349b2eb5/isort-5.13.2.tar.gz", hash = "sha256:48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109", size = 175303, upload-time = "2023-12-13T20:37:26.124Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/b3/8def84f539e7d2289a02f0524b944b15d7c75dab7628bedf1c4f0992029c/isort-5.13.2-py3-none-any.whl", hash = "sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6", size = 92310, upload-time = "2023-12-13T20:37:23.244Z" },
+]
+
+[[package]]
+name = "jde"
+version = "0.0.0+compressai.vision1"
+source = { directory = "models/Towards-Realtime-MOT" }
+dependencies = [
+    { name = "cython-bbox" },
+    { name = "lap" },
+    { name = "matplotlib" },
+    { name = "motmetrics" },
+    { name = "numba" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pandas" },
+    { name = "scipy" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-17-compressai-vision-cu128' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-17-compressai-vision-cu128' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cython-bbox" },
+    { name = "lap" },
+    { name = "matplotlib" },
+    { name = "motmetrics" },
+    { name = "numba" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pandas" },
+    { name = "scipy" },
+    { name = "torch" },
+    { name = "torchvision" },
 ]
 
 [[package]]
@@ -2310,6 +2512,27 @@ wheels = [
 ]
 
 [[package]]
+name = "mmpose"
+version = "1.3.2"
+source = { directory = "models/mmpose" }
+dependencies = [
+    { name = "chumpy" },
+    { name = "json-tricks" },
+    { name = "matplotlib" },
+    { name = "scipy" },
+    { name = "xtcocotools" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "chumpy" },
+    { name = "json-tricks" },
+    { name = "matplotlib" },
+    { name = "scipy" },
+    { name = "xtcocotools", specifier = ">=1.12" },
+]
+
+[[package]]
 name = "model-index"
 version = "0.1.11"
 source = { registry = "https://pypi.org/simple" }
@@ -2616,6 +2839,15 @@ wheels = [
 ]
 
 [[package]]
+name = "oauthlib"
+version = "3.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/5f/19930f824ffeb0ad4372da4812c50edbd1434f678c90c2733e1188edfc63/oauthlib-3.3.1.tar.gz", hash = "sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9", size = 185918, upload-time = "2025-06-19T22:48:08.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl", hash = "sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1", size = 160065, upload-time = "2025-06-19T22:48:06.508Z" },
+]
+
+[[package]]
 name = "omegaconf"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2900,6 +3132,18 @@ wheels = [
 ]
 
 [[package]]
+name = "portalocker"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/57/b969aed128768558255822e75b402a19530bd63321f637d42f4724abc1ed/portalocker-3.0.0.tar.gz", hash = "sha256:21f535de2e7a82c94c130c054adb5c7421d480d5619d61073996e2f89bcb879b", size = 41961, upload-time = "2024-11-18T12:12:33.873Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/4c/4cb6bb4061910ac74c444be76e7d17dba97d9057030cca2f96947c3f7a0f/portalocker-3.0.0-py3-none-any.whl", hash = "sha256:211916b539a0dc3c128a3d9e86893ecfefec5379c4ff684e798f0a00f99db406", size = 19575, upload-time = "2024-11-18T12:12:31.906Z" },
+]
+
+[[package]]
 name = "pprintpp"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2961,6 +3205,22 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ff/3e/6103906a66d6713f32880cf6a5ba84a1406b4d66e1b9389bb9b8e1789f9e/propcache-0.2.0-cp38-cp38-win32.whl", hash = "sha256:d9b6ddac6408194e934002a69bcaadbc88c10b5f38fb9307779d1c629181815d", size = 41015, upload-time = "2024-10-07T12:56:01.953Z" },
     { url = "https://files.pythonhosted.org/packages/37/23/a30214b4c1f2bea24cc1197ef48d67824fbc41d5cf5472b17c37fef6002c/propcache-0.2.0-cp38-cp38-win_amd64.whl", hash = "sha256:676135dcf3262c9c5081cc8f19ad55c8a64e3f7282a21266d05544450bffc3a5", size = 45749, upload-time = "2024-10-07T12:56:03.095Z" },
     { url = "https://files.pythonhosted.org/packages/3d/b6/e6d98278f2d49b22b4d033c9f792eda783b9ab2094b041f013fc69bcde87/propcache-0.2.0-py3-none-any.whl", hash = "sha256:2ccc28197af5313706511fab3a8b66dcd6da067a1331372c82ea1cb74285e036", size = 11603, upload-time = "2024-10-07T12:56:35.137Z" },
+]
+
+[[package]]
+name = "protobuf"
+version = "5.29.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/29/d09e70352e4e88c9c7a198d5645d7277811448d76c23b00345670f7c8a38/protobuf-5.29.5.tar.gz", hash = "sha256:bc1463bafd4b0929216c35f437a8e28731a2b7fe3d98bb77a600efced5a15c84", size = 425226, upload-time = "2025-05-28T23:51:59.82Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/11/6e40e9fc5bba02988a214c07cf324595789ca7820160bfd1f8be96e48539/protobuf-5.29.5-cp310-abi3-win32.whl", hash = "sha256:3f1c6468a2cfd102ff4703976138844f78ebd1fb45f49011afc5139e9e283079", size = 422963, upload-time = "2025-05-28T23:51:41.204Z" },
+    { url = "https://files.pythonhosted.org/packages/81/7f/73cefb093e1a2a7c3ffd839e6f9fcafb7a427d300c7f8aef9c64405d8ac6/protobuf-5.29.5-cp310-abi3-win_amd64.whl", hash = "sha256:3f76e3a3675b4a4d867b52e4a5f5b78a2ef9565549d4037e06cf7b0942b1d3fc", size = 434818, upload-time = "2025-05-28T23:51:44.297Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/73/10e1661c21f139f2c6ad9b23040ff36fee624310dc28fba20d33fdae124c/protobuf-5.29.5-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:e38c5add5a311f2a6eb0340716ef9b039c1dfa428b28f25a7838ac329204a671", size = 418091, upload-time = "2025-05-28T23:51:45.907Z" },
+    { url = "https://files.pythonhosted.org/packages/6c/04/98f6f8cf5b07ab1294c13f34b4e69b3722bb609c5b701d6c169828f9f8aa/protobuf-5.29.5-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:fa18533a299d7ab6c55a238bf8629311439995f2e7eca5caaff08663606e9015", size = 319824, upload-time = "2025-05-28T23:51:47.545Z" },
+    { url = "https://files.pythonhosted.org/packages/85/e4/07c80521879c2d15f321465ac24c70efe2381378c00bf5e56a0f4fbac8cd/protobuf-5.29.5-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:63848923da3325e1bf7e9003d680ce6e14b07e55d0473253a690c3a8b8fd6e61", size = 319942, upload-time = "2025-05-28T23:51:49.11Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/24/dc0e489944b3cba0403f26223c0cc552a222af91a42257cbd25ef968b0c0/protobuf-5.29.5-cp38-cp38-win32.whl", hash = "sha256:ef91363ad4faba7b25d844ef1ada59ff1604184c0bcd8b39b8a6bef15e1af238", size = 422886, upload-time = "2025-05-28T23:51:50.688Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/bb/9a6e6ec4a99bccd35e326e8e5eab30ca42f3df987c13ca6522b8b4fbd5ff/protobuf-5.29.5-cp38-cp38-win_amd64.whl", hash = "sha256:7318608d56b6402d2ea7704ff1e1e4597bee46d760e7e4dd42a3d45e24b87f2e", size = 434837, upload-time = "2025-05-28T23:51:52.298Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/cc/7e77861000a0691aeea8f4566e5d3aa716f2b1dece4a24439437e41d3d25/protobuf-5.29.5-py3-none-any.whl", hash = "sha256:6cf42630262c59b2d8de33954443d94b746c952b01434fc58a417fdbd2e84bd5", size = 172823, upload-time = "2025-05-28T23:51:58.157Z" },
 ]
 
 [[package]]
@@ -3031,6 +3291,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/26/c3/0e05c711c16af0b9c47f3f77323303b338b9a871ba020d95d2b8dd6605ae/py7zr-0.22.0.tar.gz", hash = "sha256:c6c7aea5913535184003b73938490f9a4d8418598e533f9ca991d3b8e45a139e", size = 4992926, upload-time = "2024-08-08T13:10:01.514Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/59/dd1750002c0f46099281116f8165247bc62dc85edad41cdd26e7b26de19d/py7zr-0.22.0-py3-none-any.whl", hash = "sha256:993b951b313500697d71113da2681386589b7b74f12e48ba13cc12beca79d078", size = 67906, upload-time = "2024-08-08T13:09:58.092Z" },
+]
+
+[[package]]
+name = "pyasn1"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/e9/01f1a64245b89f039897cb0130016d79f77d52669aae6ee7b159a6c4c018/pyasn1-0.6.1.tar.gz", hash = "sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034", size = 145322, upload-time = "2024-09-10T22:41:42.55Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/f1/d6a797abb14f6283c0ddff96bbdd46937f64122b8c925cab503dd37f8214/pyasn1-0.6.1-py3-none-any.whl", hash = "sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629", size = 83135, upload-time = "2024-09-11T16:00:36.122Z" },
+]
+
+[[package]]
+name = "pyasn1-modules"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e9/e6/78ebbb10a8c8e4b61a59249394a4a594c1a7af95593dc933a349c8d00964/pyasn1_modules-0.4.2.tar.gz", hash = "sha256:677091de870a80aae844b1ca6134f54652fa2c8c5a52aa396440ac3106e941e6", size = 307892, upload-time = "2025-03-28T02:41:22.17Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/8d/d529b5d697919ba8c11ad626e835d4039be708a35b0d22de83a269a6682c/pyasn1_modules-0.4.2-py3-none-any.whl", hash = "sha256:29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a", size = 181259, upload-time = "2025-03-28T02:41:19.028Z" },
 ]
 
 [[package]]
@@ -3184,6 +3465,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b1/ed/d6e38e05aed6baca375b29d2943f60b5a8e7b528cac711c2535d3521d913/pydata_sphinx_theme-0.13.3.tar.gz", hash = "sha256:827f16b065c4fd97e847c11c108bf632b7f2ff53a3bca3272f63f3f3ff782ecc", size = 3374962, upload-time = "2023-03-30T14:58:16.113Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/61/1802ddf553af5850c2c3b6c183c6a3bdfc1145cec9873b56cac107291036/pydata_sphinx_theme-0.13.3-py3-none-any.whl", hash = "sha256:bf41ca6c1c6216e929e28834e404bfc90e080b51915bbe7563b5e6fda70354f0", size = 1979378, upload-time = "2023-03-30T14:58:14.256Z" },
+]
+
+[[package]]
+name = "pydot"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/50/35/b17cb89ff865484c6a20ef46bf9d95a5f07328292578de0b295f4a6beec2/pydot-4.0.1.tar.gz", hash = "sha256:c2148f681c4a33e08bf0e26a9e5f8e4099a82e0e2a068098f32ce86577364ad5", size = 162594, upload-time = "2025-06-17T20:09:56.454Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7e/32/a7125fb28c4261a627f999d5fb4afff25b523800faed2c30979949d6facd/pydot-4.0.1-py3-none-any.whl", hash = "sha256:869c0efadd2708c0be1f916eb669f3d664ca684bc57ffb7ecc08e70d5e93fee6", size = 37087, upload-time = "2025-06-17T20:09:55.25Z" },
 ]
 
 [[package]]
@@ -3529,6 +3822,19 @@ wheels = [
 ]
 
 [[package]]
+name = "requests-oauthlib"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "oauthlib" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/f2/05f29bc3913aea15eb670be136045bf5c5bbf4b99ecb839da9b422bb2c85/requests-oauthlib-2.0.0.tar.gz", hash = "sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9", size = 55650, upload-time = "2024-03-22T20:32:29.939Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl", hash = "sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36", size = 24179, upload-time = "2024-03-22T20:32:28.055Z" },
+]
+
+[[package]]
 name = "retrying"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3591,6 +3897,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/57/ac/a716b4729ff23ec034b7d2ff76a86e6f0753c4098401bdfdf55b2efe90e6/rpds_py-0.20.1-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:518d2ca43c358929bf08f9079b617f1c2ca6e8848f83c1225c88caeac46e6cbc", size = 528492, upload-time = "2024-10-31T14:28:37.516Z" },
     { url = "https://files.pythonhosted.org/packages/e0/ed/a0b58a9ecef79918169eacdabd14eb4c5c86ce71184ed56b80c6eb425828/rpds_py-0.20.1-cp38-none-win32.whl", hash = "sha256:3aea7eed3e55119635a74bbeb80b35e776bafccb70d97e8ff838816c124539f1", size = 200512, upload-time = "2024-10-31T14:28:39.484Z" },
     { url = "https://files.pythonhosted.org/packages/5f/c3/222e25124283afc76c473fcd2c547e82ec57683fa31cb4d6c6eb44e5d57a/rpds_py-0.20.1-cp38-none-win_amd64.whl", hash = "sha256:7dca7081e9a0c3b6490a145593f6fe3173a94197f2cb9891183ef75e9d64c425", size = 218627, upload-time = "2024-10-31T14:28:41.479Z" },
+]
+
+[[package]]
+name = "rsa"
+version = "4.9.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/da/8a/22b7beea3ee0d44b1916c0c1cb0ee3af23b700b6da9f04991899d0c555d4/rsa-4.9.1.tar.gz", hash = "sha256:e7bdbfdb5497da4c07dfd35530e1a902659db6ff241e39d9953cad06ebd0ae75", size = 29034, upload-time = "2025-04-16T09:51:18.218Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/64/8d/0133e4eb4beed9e425d9a98ed6e081a55d195481b7632472be1af08d2f6b/rsa-4.9.1-py3-none-any.whl", hash = "sha256:68635866661c6836b8d39430f97a996acbd61bfa49406748ea243539fe239762", size = 34696, upload-time = "2025-04-16T09:51:17.142Z" },
 ]
 
 [[package]]
@@ -3976,6 +4294,47 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f0/8d/e218e0160cc1b692e6e0e5ba34e8865dbb171efeb5fc9a704544b3020605/taskgroup-0.2.2.tar.gz", hash = "sha256:078483ac3e78f2e3f973e2edbf6941374fbea81b9c5d0a96f51d297717f4752d", size = 11504, upload-time = "2025-01-03T09:24:13.761Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/b1/74babcc824a57904e919f3af16d86c08b524c0691504baf038ef2d7f655c/taskgroup-0.2.2-py2.py3-none-any.whl", hash = "sha256:e2c53121609f4ae97303e9ea1524304b4de6faf9eb2c9280c7f87976479a52fb", size = 14237, upload-time = "2025-01-03T09:24:11.41Z" },
+]
+
+[[package]]
+name = "tensorboard"
+version = "2.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "absl-py" },
+    { name = "google-auth" },
+    { name = "google-auth-oauthlib" },
+    { name = "grpcio" },
+    { name = "markdown" },
+    { name = "numpy" },
+    { name = "protobuf" },
+    { name = "requests" },
+    { name = "setuptools" },
+    { name = "tensorboard-data-server" },
+    { name = "werkzeug" },
+    { name = "wheel" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/a2/ff5f4c299eb37c95299a76015da3f30211468e29d8d6f1d011683279baee/tensorboard-2.14.0-py3-none-any.whl", hash = "sha256:3667f9745d99280836ad673022362c840f60ed8fefd5a3e30bf071f5a8fd0017", size = 5508926, upload-time = "2023-08-08T22:35:21.153Z" },
+]
+
+[[package]]
+name = "tensorboard-data-server"
+version = "0.7.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/13/e503968fefabd4c6b2650af21e110aa8466fe21432cd7c43a84577a89438/tensorboard_data_server-0.7.2-py3-none-any.whl", hash = "sha256:7e0610d205889588983836ec05dc098e80f97b7e7bbff7e994ebb78f578d0ddb", size = 2356, upload-time = "2023-10-23T21:23:32.16Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/85/dabeaf902892922777492e1d253bb7e1264cadce3cea932f7ff599e53fea/tensorboard_data_server-0.7.2-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:9fe5d24221b29625dbc7328b0436ca7fc1c23de4acf4d272f1180856e32f9f60", size = 4823598, upload-time = "2023-10-23T21:23:33.714Z" },
+    { url = "https://files.pythonhosted.org/packages/73/c6/825dab04195756cf8ff2e12698f22513b3db2f64925bdd41671bfb33aaa5/tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:ef687163c24185ae9754ed5650eb5bc4d84ff257aabdc33f0cc6f74d8ba54530", size = 6590363, upload-time = "2023-10-23T21:23:35.583Z" },
+]
+
+[[package]]
+name = "termcolor"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/56/d7d66a84f96d804155f6ff2873d065368b25a07222a6fd51c4f24ef6d764/termcolor-2.4.0.tar.gz", hash = "sha256:aab9e56047c8ac41ed798fa36d892a37aca6b3e9159f3e0c24bc64a9b3ac7b7a", size = 12664, upload-time = "2023-12-01T11:04:51.66Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/5f/8c716e47b3a50cbd7c146f45881e11d9414def768b7cd9c5e6650ec2a80a/termcolor-2.4.0-py3-none-any.whl", hash = "sha256:9297c0df9c99445c2412e832e882a7884038a25617c60cea2ad69488d4040d63", size = 7719, upload-time = "2023-12-01T11:04:50.019Z" },
 ]
 
 [[package]]
@@ -4475,6 +4834,18 @@ wheels = [
 ]
 
 [[package]]
+name = "werkzeug"
+version = "3.0.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markupsafe" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d4/f9/0ba83eaa0df9b9e9d1efeb2ea351d0677c37d41ee5d0f91e98423c7281c9/werkzeug-3.0.6.tar.gz", hash = "sha256:a8dd59d4de28ca70471a34cba79bed5f7ef2e036a76b3ab0835474246eb41f8d", size = 805170, upload-time = "2024-10-25T18:52:31.688Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6c/69/05837f91dfe42109203ffa3e488214ff86a6d68b2ed6c167da6cdc42349b/werkzeug-3.0.6-py3-none-any.whl", hash = "sha256:1bc0c2310d2fbb07b1dd1105eba2f7af72f322e1e455f2f93c993bee8c8a5f17", size = 227979, upload-time = "2024-10-25T18:52:30.129Z" },
+]
+
+[[package]]
 name = "wheel"
 version = "0.45.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4560,6 +4931,18 @@ wheels = [
 ]
 
 [[package]]
+name = "yacs"
+version = "0.1.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/44/3e/4a45cb0738da6565f134c01d82ba291c746551b5bc82e781ec876eb20909/yacs-0.1.8.tar.gz", hash = "sha256:efc4c732942b3103bea904ee89af98bcd27d01f0ac12d8d4d369f1e7a2914384", size = 11100, upload-time = "2020-08-10T16:37:47.755Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/4f/fe9a4d472aa867878ce3bb7efb16654c5d63672b86dc0e6e953a67018433/yacs-0.1.8-py3-none-any.whl", hash = "sha256:99f893e30497a4b66842821bac316386f7bd5c4f47ad35c9073ef089aa33af32", size = 14747, upload-time = "2020-08-10T16:37:46.4Z" },
+]
+
+[[package]]
 name = "yarl"
 version = "1.15.2"
 source = { registry = "https://pypi.org/simple" }
@@ -4587,6 +4970,49 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/53/490830773f907ef8a311cc5d82e5830f75f7692c1adacbdb731d3f1246fd/yarl-1.15.2-cp38-cp38-win32.whl", hash = "sha256:63eab904f8630aed5a68f2d0aeab565dcfc595dc1bf0b91b71d9ddd43dea3aea", size = 78705, upload-time = "2024-10-13T18:47:20.876Z" },
     { url = "https://files.pythonhosted.org/packages/9c/9d/d944e897abf37f50f4fa2d8d6f5fd0ed9413bc8327d3b4cc25ba9694e1ba/yarl-1.15.2-cp38-cp38-win_amd64.whl", hash = "sha256:2cf441c4b6e538ba0d2591574f95d3fdd33f1efafa864faa077d9636ecc0c4e9", size = 84998, upload-time = "2024-10-13T18:47:23.301Z" },
     { url = "https://files.pythonhosted.org/packages/46/cf/a28c494decc9c8776b0d7b729c68d26fdafefcedd8d2eab5d9cd767376b2/yarl-1.15.2-py3-none-any.whl", hash = "sha256:0d3105efab7c5c091609abacad33afff33bdff0035bece164c98bcf5a85ef90a", size = 38891, upload-time = "2024-10-13T18:48:00.883Z" },
+]
+
+[[package]]
+name = "yolox"
+version = "0.3.0"
+source = { directory = "models/yolox" }
+dependencies = [
+    { name = "loguru" },
+    { name = "ninja" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "psutil" },
+    { name = "pycocotools" },
+    { name = "tabulate" },
+    { name = "tensorboard" },
+    { name = "thop" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-17-compressai-vision-cu128' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torch", version = "2.0.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torch", version = "2.0.0+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cu118') or (platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-17-compressai-vision-cu128' or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra != 'extra-17-compressai-vision-cpu' and extra != 'extra-17-compressai-vision-cu118')" },
+    { name = "torchvision", version = "0.15.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cpu') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'darwin' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform == 'linux' and extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra != 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "torchvision", version = "0.15.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-17-compressai-vision-cu118') or (sys_platform != 'linux' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu118') or (extra == 'extra-17-compressai-vision-cpu' and extra == 'extra-17-compressai-vision-cu128') or (extra == 'extra-17-compressai-vision-cu118' and extra == 'extra-17-compressai-vision-cu128')" },
+    { name = "tqdm" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loguru" },
+    { name = "ninja" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "psutil" },
+    { name = "pycocotools", specifier = ">=2.0.2" },
+    { name = "tabulate" },
+    { name = "tensorboard" },
+    { name = "thop" },
+    { name = "torch", specifier = ">=1.7" },
+    { name = "torchvision" },
+    { name = "tqdm" },
 ]
 
 [[package]]
