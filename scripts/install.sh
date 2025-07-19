@@ -117,13 +117,13 @@ main () {
     echo "Installing compressai"
     echo
     "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
-    "${PIP[@]}" list | grep compressai
+    "${PIP[@]}" list | grep "^compressai "
 
     echo
     echo "Installing compressai-vision"
     echo
     "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}"
-    "${PIP[@]}" list | grep compressai-vision
+    "${PIP[@]}" list | grep "^compressai-vision "
 
     if [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo
