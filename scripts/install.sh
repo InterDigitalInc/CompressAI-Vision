@@ -160,13 +160,21 @@ run_install () {
     echo
     echo "Installing compressai"
     echo
-    "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        echo "Already installed by initial uv sync."
+    fi
     "${PIP[@]}" list | grep "^compressai "
 
     echo
     echo "Installing compressai-vision"
     echo
-    "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}"
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}"
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        echo "Already installed by initial uv sync."
+    fi
     "${PIP[@]}" list | grep "^compressai-vision "
 
     if [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
