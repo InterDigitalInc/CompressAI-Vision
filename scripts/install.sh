@@ -243,7 +243,7 @@ install_detectron2 () {
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-detectron2
         cd "${MODELS_SOURCE_DIR}/detectron2"
-        "${PIP[@]}" install --no-build-isolation .
+        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -278,8 +278,9 @@ install_cython_bbox() {
         "${PIP[@]}" install cython numpy
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        "${PIP[@]}" install --no-build-isolation cython
-        "${PIP[@]}" install --no-build-isolation .
+        echo "cython-bbox is installed later during JDE installation."
+        # "${PIP[@]}" install --no-build-isolation cython
+        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -319,7 +320,7 @@ install_jde () {
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-jde
         cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-        "${PIP[@]}" install --no-build-isolation .
+        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -356,7 +357,7 @@ install_yolox () {
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-yolox
         cd "${MODELS_SOURCE_DIR}/yolox"
-        "${PIP[@]}" install --no-build-isolation .
+        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -397,7 +398,7 @@ install_mmpose () {
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-mmpose
         cd "${MODELS_SOURCE_DIR}/mmpose"
-        "${PIP[@]}" install --no-build-isolation .
+        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     "${MIM[@]}" install "mmcv==2.0.1"
