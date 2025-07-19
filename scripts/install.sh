@@ -3,12 +3,14 @@
 # This clones and build model architectures and gets pretrained weights
 set -eu
 
+SCRIPT_PATH="${BASH_SOURCE[0]:-${0}}"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${SCRIPT_PATH}")" &> /dev/null && pwd)
+
 TORCH_VERSION="2.0.0"
 TORCHVISION_VERSION="0.15.1"
 CUDA_VERSION=""
 MODEL="all"
 CPU="False"
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 COMPRESSAI_VISION_ROOT_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
 MODELS_PARENT_DIR="${COMPRESSAI_VISION_ROOT_DIR}"
 NO_PREPARE="False"
@@ -444,4 +446,7 @@ download_weights () {
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
-main "$@"
+
+if [[ "${__SOURCE_ONLY__:-0}" -eq 0 ]]; then
+    main "$@"
+fi
