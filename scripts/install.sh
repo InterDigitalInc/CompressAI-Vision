@@ -170,18 +170,15 @@ install_detectron2 () {
     echo "Installing detectron2"
     echo
 
-    # clone
     if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
         git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+        cd "${MODELS_SOURCE_DIR}/detectron2"
+        git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
+        git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+        cd "${SCRIPT_DIR}/.."
     fi
+
     cd "${MODELS_SOURCE_DIR}/detectron2"
-
-    echo
-    echo "checkout the version used for MPEG FCM"
-    echo
-    git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-
-    git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -e .
@@ -201,16 +198,16 @@ install_cython_bbox() {
     echo "Installing cython_bbox (required by JDE)"
     echo
 
-    # install cython manually from source code with patch
     if [ -z "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
         git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
+        cd "${SCRIPT_DIR}/cython_bbox"
+        # cython-bbox 0.1.3
+        git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
+        git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
+        cd "${SCRIPT_DIR}/.."
     fi
 
     cd "${SCRIPT_DIR}/cython_bbox"
-    # cython-bbox 0.1.3
-    git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
-
-    git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install cython numpy
@@ -230,23 +227,16 @@ install_jde () {
     echo "Installing JDE"
     echo
 
-    # clone
     if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
         git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
+        git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
+        git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
+        cd "${SCRIPT_DIR}/.."
     fi
+
     cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-
-    # git checkout
-    echo
-    echo "checkout branch compatible with MPEG FCM"
-    echo
-    git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
-
-    # Convert to installable python package.
-    git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
-
-    # Apply patch to interface with compressai-vision
-    git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install numpy motmetrics numba lap opencv-python munkres
@@ -267,11 +257,8 @@ install_yolox () {
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
     echo
 
-    # clone
     if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
         git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
-        
-        # checkout specific commit on Nov.19, 2024 for now to avoid compatibility in the future.
         cd "${MODELS_SOURCE_DIR}/yolox"
         git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
         cd "${SCRIPT_DIR}/.."
@@ -299,11 +286,8 @@ install_mmpose () {
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
 
-    # clone
     if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
         git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
-        
-        # checkout specific commit version to avoid compatibility in the future.
         cd "${MODELS_SOURCE_DIR}/mmpose"
         git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
         cd "${SCRIPT_DIR}/.."
