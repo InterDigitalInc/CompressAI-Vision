@@ -51,7 +51,6 @@ _EOF_
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
         --cpu) CPU="True"; shift; ;;
         --cuda) shift; CUDA_VERSION="$1"; shift; ;;
-        --detectron2_url) shift; DETECTRON2="$1"; shift; ;;
         --models_dir) shift; MODELS_ROOT_DIR="$1"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
@@ -74,8 +73,8 @@ b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet5
 MODELS_SOURCE_DIR=${MODELS_ROOT_DIR}/models
 MODELS_WEIGHT_DIR=${MODELS_ROOT_DIR}/weights
 
-mkdir -p ${MODELS_SOURCE_DIR}
-mkdir -p ${MODELS_WEIGHT_DIR}
+mkdir -p "${MODELS_SOURCE_DIR}"
+mkdir -p "${MODELS_WEIGHT_DIR}"
 
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
 
@@ -172,10 +171,10 @@ install_detectron2 () {
     echo
 
     # clone
-    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/detectron2)" ]; then
-        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git ${MODELS_SOURCE_DIR}/detectron2
+    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
+        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
     fi
-    cd ${MODELS_SOURCE_DIR}/detectron2
+    cd "${MODELS_SOURCE_DIR}/detectron2"
 
     echo
     echo "checkout the version used for MPEG FCM"
@@ -194,7 +193,7 @@ install_detectron2 () {
     fi
 
     # back to project root
-    cd ${SCRIPT_DIR}/..
+    cd "${SCRIPT_DIR}/.."
 }
 
 install_cython_bbox() {
@@ -203,11 +202,11 @@ install_cython_bbox() {
     echo
 
     # install cython manually from source code with patch
-    if [ -z "$(ls -A ${SCRIPT_DIR}/cython_bbox)" ]; then
-        git clone https://github.com/samson-wang/cython_bbox.git ${SCRIPT_DIR}/cython_bbox
+    if [ -z "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
+        git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
     fi
 
-    cd ${SCRIPT_DIR}/cython_bbox
+    cd "${SCRIPT_DIR}/cython_bbox"
     # cython-bbox 0.1.3
     git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
 
@@ -232,10 +231,10 @@ install_jde () {
     echo
 
     # clone
-    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT)" ]; then
-        git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT
+    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
+        git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
     fi
-    cd ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT
+    cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
 
     # git checkout
     echo
@@ -260,7 +259,7 @@ install_jde () {
     fi
 
     # back to project root
-    cd ${SCRIPT_DIR}/..
+    cd "${SCRIPT_DIR}/.."
 }
 
 install_yolox () {
@@ -269,16 +268,16 @@ install_yolox () {
     echo
 
     # clone
-    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/yolox)" ]; then
-        git clone https://github.com/Megvii-BaseDetection/yolox.git ${MODELS_SOURCE_DIR}/yolox
+    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
+        git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
         
         # checkout specific commit on Nov.19, 2024 for now to avoid compatibility in the future.
-        cd ${MODELS_SOURCE_DIR}/yolox
+        cd "${MODELS_SOURCE_DIR}/yolox"
         git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
-        cd ${SCRIPT_DIR}/..
+        cd "${SCRIPT_DIR}/.."
     fi
 
-    cd ${MODELS_SOURCE_DIR}/yolox
+    cd "${MODELS_SOURCE_DIR}/yolox"
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         # miminum requirments - no onnx, etc.
@@ -292,7 +291,7 @@ install_yolox () {
     fi
 
     # back to project root
-    cd ${SCRIPT_DIR}/..
+    cd "${SCRIPT_DIR}/.."
 }
 
 install_mmpose () {
@@ -301,16 +300,16 @@ install_mmpose () {
     echo
 
     # clone
-    if [ -z "$(ls -A ${MODELS_SOURCE_DIR}/mmpose)" ]; then
-        git clone https://github.com/open-mmlab/mmpose.git ${MODELS_SOURCE_DIR}/mmpose
+    if [ -z "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
+        git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
         
         # checkout specific commit version to avoid compatibility in the future.
-        cd ${MODELS_SOURCE_DIR}/mmpose
+        cd "${MODELS_SOURCE_DIR}/mmpose"
         git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
-        cd ${SCRIPT_DIR}/..
+        cd "${SCRIPT_DIR}/.."
     fi
 
-    cd ${MODELS_SOURCE_DIR}/mmpose
+    cd "${MODELS_SOURCE_DIR}/mmpose"
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -U openmim
@@ -333,7 +332,7 @@ install_mmpose () {
     "${MIM[@]}" install "mmdet==3.1.0"
 
     # back to project root
-    cd ${SCRIPT_DIR}/..
+    cd "${SCRIPT_DIR}/.."
 }
 
 download_weights () {
