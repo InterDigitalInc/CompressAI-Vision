@@ -81,8 +81,11 @@ MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
 
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
 
+detect_env() {
+    if [[ -n "${ENV_DETECTED:-}" ]]; then
+        return
+    fi
 
-main () {
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         PIP=(pip3)
         MIM=(mim)
@@ -100,6 +103,12 @@ main () {
         detect_cuda_version
         BUILD_SUFFIX="cu${CUDA_VERSION//./}"
     fi
+
+    ENV_DETECTED="True"
+}
+
+main () {
+    detect_env
 
     if [[ "${NO_PREPARE}" == "False" ]]; then
         run_prepare
@@ -120,6 +129,7 @@ main () {
 }
 
 run_prepare() {
+    detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
 
     # NOTE: We always prepare all packages, even if they are not installed.
@@ -130,6 +140,7 @@ run_prepare() {
 }
 
 run_install () {
+    detect_env
     "${PIP[@]}" install -U pip wheel setuptools
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
@@ -386,6 +397,7 @@ install_mmpose () {
 }
 
 download_weights () {
+    detect_env
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
 
