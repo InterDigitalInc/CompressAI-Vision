@@ -20,6 +20,7 @@ jobs:
 
       - name: Install doc dependencies and build docs
         run: |
+          bash scripts/install_uv.sh --no-install --no-weights --cpu
           uv pip install -U pip wheel setuptools
           uv sync --group=doc
           cd docs
