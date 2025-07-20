@@ -13,6 +13,7 @@ stages:
   - export PATH="${UV_INSTALL_DIR}:$PATH"
   - source "${UV_INSTALL_DIR}/env"
   - uv run --no-sync python --version
+  - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
 uv-install:
   image: python:3.8-buster
