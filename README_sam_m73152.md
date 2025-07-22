@@ -18,7 +18,7 @@ Prompt files are in text format. Each prompt file shares its name as its corresp
 
 Pretrained weights for Sam can be found at: 
     https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-
+Place the weights file in the CompressAI-Vision weights folder, such as ./weights/sam/.
 
 Run the test
 To run the test, use a command line in the format below: 
