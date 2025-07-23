@@ -662,7 +662,7 @@ if __name__ == "__main__":
         seq_list = [s[-3:] + "_1920x1080_30" for s in seq_list]
 
         output_df = generate_csv_classwise_video_miou(
-            args.result_path,
+            norm_result_path,
             args.dataset_path,
             [PANDAM1, PANDAM2, PANDAM3],
             seq_list,
