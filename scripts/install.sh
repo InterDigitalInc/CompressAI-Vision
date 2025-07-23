@@ -37,7 +37,7 @@ RUN OPTIONS:
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
-                [--cuda) provide cuda version e.g. "11.8", default: check nvcc output)]
+                [--cuda_version) provide cuda version e.g. "11.8", default: check nvcc output)]
                 [--detectron2_url use this if you want to specify a pre-built detectron2 (find at
                     "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
                     not required for regular versions derived from cuda and torch versions above.
@@ -47,7 +47,7 @@ RUN OPTIONS:
                 [--no-weights) prevents the installation script from downloading vision model parameters]
 
 
-EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda "11.8" --compressai /path/to/compressai]
+EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 
 _EOF_
             exit;
@@ -56,7 +56,7 @@ _EOF_
         -t|--torch) shift; TORCH_VERSION="$1"; shift; ;;
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
         --cpu) CPU="True"; shift; ;;
-        --cuda) shift; CUDA_VERSION="$1"; shift; ;;
+        --cuda_version) shift; CUDA_VERSION="$1"; shift; ;;
         --models_dir) shift; MODELS_PARENT_DIR="$1"; shift; ;;
         --no-prepare) NO_PREPARE="True"; shift; ;;
         --no-install) NO_INSTALL="True"; shift; ;;
@@ -81,6 +81,7 @@ b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet5
 MODELS_SOURCE_DIR="${MODELS_PARENT_DIR}/models"
 MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
 
+# pip3 is the default package manager, run install_uv.sh for uv
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
 
 detect_env() {
@@ -122,7 +123,6 @@ main () {
         run_install
     else
         echo "Skipping installation due to --no-install flag."
-        return
     fi
 
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
