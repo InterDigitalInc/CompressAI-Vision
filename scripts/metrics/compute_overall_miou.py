@@ -40,11 +40,10 @@ import argparse
 import csv
 import json
 
+import compute_overall_mot
 import utils
 
 from compressai_vision.evaluators.evaluators import BaseEvaluator
-
-from .compute_overall_mota import compute_overall_mota
 
 CLASSES = ["PANDAM1", "PANDAM2", "PANDAM2"]
 
@@ -166,7 +165,9 @@ if __name__ == "__main__":
                 len(items) > 0
             ), "Nothing relevant information found from given directories..."
 
-            summary, names = compute_overall_mota(args.class_to_compute, items)
+            summary, names = compute_overall_mot.compute_overall_mota(
+                args.class_to_compute, items
+            )
 
             motas = [100.0 * sv[13] for sv in summary.values]
 
