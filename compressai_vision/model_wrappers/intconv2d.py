@@ -108,6 +108,20 @@ class IntConv2d(torch.nn.Conv2d):
         _cudnn_enabled = torch.backends.cudnn.enabled
         torch.backends.cudnn.enabled = False
 
+        if x.numel() == 0:
+            N, _, H, W = x.shape
+            kernel_h, kernel_w = self.kernel_size
+            stride_h, stride_w = self.stride
+            pad_h, pad_w = self.padding
+            dil_h, dil_w = self.dilation
+
+            H_out = (H + 2 * pad_h - dil_h * (kernel_h - 1) - 1) // stride_h + 1
+            W_out = (W + 2 * pad_w - dil_w * (kernel_w - 1) - 1) // stride_w + 1
+
+            out_shape = (N, self.out_channels, H_out, W_out)
+            torch.backends.cudnn.enabled = _cudnn_enabled
+            return x.new_empty(out_shape).to(_dtype)
+
         ######  ADOPT VCMRS IMPLEMENTATION  ######
         # Calculate factor
         fx = 1
@@ -225,6 +239,25 @@ class IntTransposedConv2d(torch.nn.ConvTranspose2d):
         _dtype = x.dtype
         _cudnn_enabled = torch.backends.cudnn.enabled
         torch.backends.cudnn.enabled = False
+
+        if x.numel() == 0:
+            N, _, H, W = x.shape
+            kernel_h, kernel_w = self.kernel_size
+            stride_h, stride_w = self.stride
+            pad_h, pad_w = self.padding
+            dil_h, dil_w = self.dilation
+            out_pad_h, out_pad_w = self.output_padding
+
+            H_out = (
+                (H - 1) * stride_h - 2 * pad_h + dil_h * (kernel_h - 1) + out_pad_h + 1
+            )
+            W_out = (
+                (W - 1) * stride_w - 2 * pad_w + dil_w * (kernel_w - 1) + out_pad_w + 1
+            )
+
+            out_shape = (N, self.out_channels, H_out, W_out)
+            torch.backends.cudnn.enabled = _cudnn_enabled
+            return x.new_empty(out_shape).to(_dtype)
 
         ######  ADOPT VCMRS IMPLEMENTATION  ######
         # Calculate factor
