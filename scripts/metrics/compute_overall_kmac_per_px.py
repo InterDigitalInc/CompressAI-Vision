@@ -248,7 +248,8 @@ if __name__ == "__main__":
         }
 
         if args.dataset_name == "SFU" and args.no_cactus:
-            class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
+            if "Cactus_1920x1080_50" in class_ab["CLASS-AB"]:
+                class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
         output_df = generate_csv_classwise_video_gmac(
             args.dataset_name,
