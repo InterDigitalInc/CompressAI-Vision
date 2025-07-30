@@ -88,7 +88,7 @@ def generate_csv_classwise_video_gmac(dataset_name, result_path, list_of_classwi
         for cls_name, seqs in cls_seqs.items():
             complexity_lst_class_wise = []
             if dataset_name == "PANDASET":
-                seqs = [ seq.replace("PANDA", "") for seq in seqs ]
+                seqs = [seq.replace("PANDA", "") for seq in seqs]
 
             seq_path = [
                 next(name for name in seq_base_path if s in name)
