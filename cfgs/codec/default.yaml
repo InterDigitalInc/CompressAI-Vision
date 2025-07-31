@@ -5,6 +5,9 @@ eval_encode: "bitrate" # or "bitrate"
 experiment: "_default" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/uncmp"
 bitstream_name: "default.bin"
+vcm_mode: False
+output10b: ${.vcm_mode}
 encoder_config:
   qp: 'uncmp'
   nbit_quant: -1
+  use_yuv: False

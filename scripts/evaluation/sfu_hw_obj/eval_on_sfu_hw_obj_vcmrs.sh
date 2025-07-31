@@ -81,6 +81,7 @@ echo "==========================================================================
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++pipeline.type=video \
 	++pipeline.codec.vcm_mode=True \
+	++pipeline.codec.output10b=True \
         ++paths._run_root=${OUTPUT_DIR} \
 	++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
         ++dataset.type=Detectron2Dataset \

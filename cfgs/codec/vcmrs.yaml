@@ -7,6 +7,9 @@ codec_paths:
   cfg_file: "/local/path/vcmrs/Scripts/LD_inner.ini"
   tmp_dir: "/temp/path"
 mac_computation: False
+single_chunk: True
+vcm_mode: True # For VCM-RS output bit depth and options for conversion to PNG for evaluation
+output10b: ${.vcm_mode} # Expect VCM-RS to output 10b
 
 verbosity: 1
 
@@ -27,3 +30,7 @@ encoder_config:
   input_bitdepth: 10
   output_bitdepth: 10
   seq_roi_cfg_network: yolov3_1088x608
+  descriptor_mode: vcm_ctc # Or [load|generate]
+  descriptor_overwrite: False
+  vcmrs_ver: v1.0
+  use_yuv: ${..vcm_mode}

@@ -52,6 +52,7 @@ from compressai_vision.utils.external_exec import run_cmdline, run_cmdlines_para
 from .encdec_utils import *
 from .encdec_utils.png_yuv import PngFilesToYuvFileConverter, YuvFileToPngFilesConverter
 from .utils import MIN_MAX_DATASET, min_max_inv_normalization, min_max_normalization
+from .vcmrs_descriptors import get_descriptor_files
 
 
 def get_filesize(filepath: Union[Path, str]) -> int:
@@ -78,40 +79,6 @@ def load_bitstream(path):
         buf = BytesIO(fd.read())
 
     return buf.getvalue()
-
-
-# From VCM-RS Scripts/utils.py
-def update_cfg_from_ini(ini_file, cfg, section=None):
-    current_section = ""
-    with open(ini_file, "r") as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.replace("\r", "").replace("\n", "").strip()
-            if line.startswith("#"):
-                continue
-            if line.startswith("["):
-                current_section = line.lstrip("[").rstrip("]")
-                continue
-            if section is None or section == current_section:
-                pos = line.find("=")
-                key = line[0:pos].strip()
-                value = line[pos + 1 :].strip()
-                cfg[key] = value
-
-
-# From VCM-RS Scripts/utils.py
-def get_descriptor_files(data_dir, scenario, cfg, dataset, video_id):
-    main_dir = data_dir  # os.path.dirname(os.path.dirname(data_dir))
-    descriptor_variant = "TemporalResampleRatio4"
-    if scenario == "AI_e2e" or scenario == "LD_e2e":
-        descriptor_variant = "TemporalResampleOFF"
-    descriptor_dir = os.path.join(main_dir, "Descriptors", descriptor_variant, dataset)
-    roi_descriptor = os.path.join(descriptor_dir, "ROI", f"{video_id}.txt")
-    spatial_descriptor = os.path.join(
-        descriptor_dir, "SpatialResample", f"{video_id}.csv"
-    )
-
-    return roi_descriptor, spatial_descriptor
 
 
 @register_codec("vtm")
@@ -184,7 +151,8 @@ class VTM(nn.Module):
 
         self.convert_input_to_yuv = PngFilesToYuvFileConverter(
             chroma_format=self.enc_cfgs["chroma_format"],
-            input_bitdepth=self.enc_cfgs["input_bitdepth"],
+            input_bitdepth=int(self.enc_cfgs["input_bitdepth"]),
+            use_yuv=self.enc_cfgs["use_yuv"],
             frame_rate=self.frame_rate,
             ffmpeg_loglevel=self.ffmpeg_loglevel,
             logger=self.logger,
@@ -568,6 +536,7 @@ class VTM(nn.Module):
         org_img_size: Dict = None,
         remote_inference=False,
         vcm_mode=False,
+        output10b=False,
     ) -> Dict:
         """
         Decodes the bitstream and returns the output features .
@@ -588,6 +557,8 @@ class VTM(nn.Module):
         assert bitstream_path.is_file()
 
         output_file_prefix = bitstream_path.stem
+        if output10b: # VCM-RS under CTC outputs 10b YUV
+            output_file_prefix = output_file_prefix.replace("8bit", "10bit")
 
         dec_path = codec_output_dir / "dec"
         dec_path.mkdir(parents=True, exist_ok=True)
@@ -598,8 +569,6 @@ class VTM(nn.Module):
 
         if remote_inference:  # remote inference pipeline
             yuv_dec_path = f"{dec_path}/{output_file_prefix}_dec.yuv"
-            if vcm_mode:
-                yuv_dec_path = yuv_dec_path.replace("8bit", "10bit")
             bitdepth = get_raw_video_file_info(yuv_dec_path.split("qp")[-1])["bitdepth"]
 
             cmd = self.get_decode_cmd(
@@ -1017,8 +986,8 @@ class VCMRS(VTM):
         **kwargs,
     ):
         super().__init__(vision_model, dataset, **kwargs)
-        self.use_descriptors = True
         self.tmp_dir = Path(self.codec_paths["tmp_dir"])
+        self.single_chunk = kwargs["single_chunk"]
 
     def get_check_list_of_paths(self):
         self.cfg_file = Path(self.codec_paths["cfg_file"])
@@ -1050,14 +1019,83 @@ class VCMRS(VTM):
         Returns:
             List[Any]: A list of strings representing the encoding command.
         """
+        # BEGIN - From VCM-RS Scripts/utils.py
+        def update_cfg_from_ini(ini_file, cfg, section=None):
+            current_section = ""
+            with open(ini_file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    line = line.replace("\r", "").replace("\n", "").strip()
+                    if line.startswith("#"):
+                        continue
+                    if line.startswith("["):
+                        current_section = line.lstrip("[").rstrip("]")
+                        continue
+                    if section is None or section == current_section:
+                        pos = line.find("=")
+                        key = line[0:pos].strip()
+                        value = line[pos + 1 :].strip()
+                        cfg[key] = value
+        # END - From VCM-RS Scripts/utils.py
+
+        # Set modes for the descriptors
+        def add_descriptor_modes(descriptors, descriptor_mode):
+            # RoIDescriptorMode, SpatialDescriptorMode, ColorizeDescriptorMode, TemporalDescriptorMode
+            modes = {
+                "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
+                "load": ["load", "UsingDescriptor", "load", "load"],
+                "generate": ["save", "GeneratingDescriptor", "save", "save"],
+            }[descriptor_mode]
+
+            for descriptor_file, mode_key, mode in zip(
+                [
+                    "RoIDescriptor", "SpatialDescriptor", "ColorizeDescriptorFile", "TemporalDescriptor"
+                ],
+                [
+                    "RoIDescriptorMode", "SpatialDescriptorMode", "ColorizeDescriptorMode", "TemporalDescriptorMode"
+                ],
+                modes
+            ):
+                if descriptor_file in descriptors:
+                    descriptors.update(
+                        {
+                            mode_key :  mode
+                        }
+                    )
+            return descriptors
+
         config = self.enc_cfgs["config"]
         nn_intra_qp_offset = -5  # self.enc_cfgs["nn_intra_qp_offset"]
         seq_roi_cfg_network = self.enc_cfgs["seq_roi_cfg_network"]
         output_dir = os.path.dirname(str(bitstream_path))
         recon_fname = str(bitstream_path).replace(".bin", ".yuv")
         num_workers = 1
+        descriptor_mode = self.enc_cfgs["descriptor_mode"]
+        vcmrs_ver = self.enc_cfgs["vcmrs_ver"]
 
         assert chroma_format == "420"
+
+        roi_descriptor_mode, spatial_descriptor_mode, colorize_descriptor_mode, temporal_descriptor_mode = {
+            "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
+            "load": ["load", "UsingDescriptor", "load", "load"],
+            "generate": ["save", "GeneratingDescriptor", "save", "save"],
+        }[descriptor_mode]
+        items = str(bitstream_path).split("/")
+        dataset = {
+            "SFUHW": "SFU",
+            "MPEGTVDTRACKING": "TVD",
+            "MPEGHIEVE": "HIEVE",
+        }[items[-5]]
+        sequence = items[-4]
+        for remove in ["sfu-hw-", "_val", "mpeg-"]:
+            sequence = sequence.replace(remove, "")
+        if dataset == "TVD":
+            # For VCM CTC using TVD clips: Replace second '-' (if present) with '_'
+            # E.g.: TVD-02-1 -> TVD-02_1
+            dash_cnt = len([c for c in sequence if c == '-'])
+            if dash_cnt == 2:
+                last = sequence.rfind('-')
+                sequence = sequence[:last] + '_' + sequence[last + 1:]
 
         cfg = {
             "SourceWidth": width,
@@ -1079,39 +1117,49 @@ class VCMRS(VTM):
             # FramesToBeEncoded" : nb_frames,
             # "Configuration" : config,
             # "input_files",
+            "NnlfSwitch": "Bypass",
         }
-
-        descriptor_dir = Path(self.cfg_file).parent.parent
         update_cfg_from_ini(self.cfg_file, cfg)
-        items = str(bitstream_path).split("/")
-        dataset = {
-            "SFUHW": "SFU",
-            "MPEGTVDTRACKING": "TVD",
-        }[items[-5]]
-        sequence = items[-4]
-        for remove in ["sfu-hw-", "_val", "mpeg-"]:
-            sequence = sequence.replace(remove, "")
-        if dataset == "TVD":
-            sequence = sequence[:-2] + "_" + sequence[-1]
-        roi_descriptor, spatial_descriptor = get_descriptor_files(
-            descriptor_dir, config, None, dataset, sequence
+
+        tram = cfg["TemporalResamplingAdaptiveMethod"] if "TemporalResamplingAdaptiveMethod" in cfg else None
+        descriptor_dir = Path(self.cfg_file).parent.parent
+        descriptors = get_descriptor_files(
+            descriptor_mode, vcmrs_ver, descriptor_dir, config, dataset, sequence, tram
         )
 
-        cfg.update(
-            {
-                "RoIDescriptor": roi_descriptor,
-                "SpatialDescriptor": spatial_descriptor,
-            }
+        gen_found = False
+        for descriptor in descriptors.values():
+            # When generate, check already exists
+            if descriptor_mode == "generate":
+                if os.path.isfile(descriptor):
+                    print(f"descriptor_mode is 'generate' but file {descriptor} already exists!")
+                    if self.enc_cfgs["descriptor_overwrite"]:
+                        Path(descriptor).unlink()
+                    else:
+                        gen_found = True
+                dirname = os.path.dirname(descriptor)
+                os.makedirs(dirname, exist_ok=True)
+        if gen_found:
+            sys.exit(1)
+
+        descriptors = add_descriptor_modes(
+            descriptors, descriptor_mode
         )
+        cfg.update(descriptors)
 
         cmd = [
             sys.executable,
             "-m",
             "vcmrs.encoder",
-            "--single_chunk",
             "--directory_as_video",
             "--debug_source_checksum",
         ]
+        if self.single_chunk:
+            cmd.extend(
+                [
+                    "--single_chunk",
+                ]
+            )
 
         for c in cfg.keys():
             cmd.append("--" + c)
