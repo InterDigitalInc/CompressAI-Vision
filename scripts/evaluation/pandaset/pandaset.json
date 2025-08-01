@@ -1,0 +1,184 @@
+{
+  "sequences": [
+    {
+      "seq_name": "057",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "058",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "069",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "070",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "072",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "073",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "077",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "003",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "011",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "016",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "017",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "021",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "023",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "027",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "029",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "030",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "033",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "035",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "037",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "039",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "043",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "053",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "056",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "097",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "088",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "089",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "090",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "095",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "109",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "112",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "113",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "115",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "117",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "119",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "122",
+      "intra_period": 32,
+      "frame_rate": 30
+    },
+    {
+      "seq_name": "124",
+      "intra_period": 32,
+      "frame_rate": 30
+    }
+  ]
+}
