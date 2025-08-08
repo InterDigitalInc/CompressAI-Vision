@@ -565,11 +565,13 @@ class MOT_JDE_Eval(BaseEvaluator):
         dataset,
         output_dir="./vision_output/",
         eval_criteria="MOTA",
+        vcm_eval_mode=False,
         **args,
     ):
         super().__init__(
             datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
         )
+        self.vcm_eval_mode = vcm_eval_mode
 
         self.set_annotation_info(dataset)
 
@@ -611,6 +613,9 @@ class MOT_JDE_Eval(BaseEvaluator):
         pred_list = []
         for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
             x1, y1, w, h = tlwh
+            if self.vcm_eval_mode: # Replicate offset applied in load_motchallenge() in motmetrics library, used in VCM eval framework to load predictions from disk
+                x1 -= 1
+                y1 -= 1
             # x2, y2 = x1 + w, y1 + h
             parsed_pred = ((x1, y1, w, h), id, 1.0)
             pred_list.append(parsed_pred)
@@ -803,7 +808,7 @@ class MOT_TVD_Eval(MOT_JDE_Eval):
         **args,
     ):
         super().__init__(
-            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria, **args
         )
 
         self.set_annotation_info(dataset)
@@ -857,7 +862,7 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
         **args,
     ):
         super().__init__(
-            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria, **args
         )
 
         self.set_annotation_info(dataset)
