@@ -1033,6 +1033,8 @@ class VCMRS(VTM):
                         continue
                     if section is None or section == current_section:
                         pos = line.find("=")
+                        if pos == -1: # Addition: Make parsing robust to empty lines
+                            continue
                         key = line[0:pos].strip()
                         value = line[pos + 1 :].strip()
                         cfg[key] = value
