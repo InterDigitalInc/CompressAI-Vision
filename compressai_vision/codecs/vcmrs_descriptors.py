@@ -35,44 +35,86 @@ import os
 # v0.11 -> wg4n0592
 # v0.10 -> wg4n0543
 
+
 # === BEGIN === From VCMRSv1.0
-def set_descriptor_files(data_dir, scenario, cfg, dataset, video_id,TemporalResamplingAdaptiveMethod=None):
-    main_dir = data_dir # os.path.dirname(os.path.dirname(data_dir)) # MODIFIED
-    #print('set_descriptor_files data_dir', data_dir, 'main_dir', main_dir)
+def set_descriptor_files(
+    data_dir, scenario, cfg, dataset, video_id, TemporalResamplingAdaptiveMethod=None
+):
+    main_dir = data_dir  # os.path.dirname(os.path.dirname(data_dir)) # MODIFIED
+    # print('set_descriptor_files data_dir', data_dir, 'main_dir', main_dir)
 
     descriptor_variant_roi = "Unified"
-    descriptor_dir_roi = os.path.join( main_dir, "Descriptors", descriptor_variant_roi, dataset, 'ROI' )
-    #os.makedirs( descriptor_dir_roi, exist_ok=True)
-    cfg["RoIDescriptor"] = os.path.join( descriptor_dir_roi, f'{video_id}.txt')
+    descriptor_dir_roi = os.path.join(
+        main_dir, "Descriptors", descriptor_variant_roi, dataset, "ROI"
+    )
+    # os.makedirs( descriptor_dir_roi, exist_ok=True)
+    cfg["RoIDescriptor"] = os.path.join(descriptor_dir_roi, f"{video_id}.txt")
 
-    if TemporalResamplingAdaptiveMethod is not None and TemporalResamplingAdaptiveMethod == "resample_based_detection":
+    if (
+        TemporalResamplingAdaptiveMethod is not None
+        and TemporalResamplingAdaptiveMethod == "resample_based_detection"
+    ):
         descriptor_variant_Temporal = "resample_based_detection"
-        descriptor_dir_Temporal = os.path.join(main_dir, "Descriptors", descriptor_variant_Temporal, dataset, 'Temporal')
-        os.makedirs( descriptor_dir_Temporal, exist_ok=True)
-        cfg["TemporalDescriptor"] = os.path.join(descriptor_dir_Temporal, f'{video_id}.txt')
-    elif TemporalResamplingAdaptiveMethod is not None and TemporalResamplingAdaptiveMethod == "resample_based_tracking":
+        descriptor_dir_Temporal = os.path.join(
+            main_dir, "Descriptors", descriptor_variant_Temporal, dataset, "Temporal"
+        )
+        os.makedirs(descriptor_dir_Temporal, exist_ok=True)
+        cfg["TemporalDescriptor"] = os.path.join(
+            descriptor_dir_Temporal, f"{video_id}.txt"
+        )
+    elif (
+        TemporalResamplingAdaptiveMethod is not None
+        and TemporalResamplingAdaptiveMethod == "resample_based_tracking"
+    ):
         descriptor_variant_Temporal = "resample_based_tracking"
-        descriptor_dir_Temporal = os.path.join(main_dir, "Descriptors", descriptor_variant_Temporal, dataset, 'Temporal')
-        os.makedirs( descriptor_dir_Temporal, exist_ok=True)
-        cfg["TemporalDescriptor"] = os.path.join(descriptor_dir_Temporal, f'{video_id}.csv')
+        descriptor_dir_Temporal = os.path.join(
+            main_dir, "Descriptors", descriptor_variant_Temporal, dataset, "Temporal"
+        )
+        os.makedirs(descriptor_dir_Temporal, exist_ok=True)
+        cfg["TemporalDescriptor"] = os.path.join(
+            descriptor_dir_Temporal, f"{video_id}.csv"
+        )
 
     descriptor_variant_spatial = "Unified"
-    descriptor_dir_spatial = os.path.join( main_dir, "Descriptors", descriptor_variant_spatial, dataset, 'SpatialResample' )
-    #os.makedirs( descriptor_dir_spatial, exist_ok=True)
-    cfg["SpatialDescriptor"] = os.path.join( descriptor_dir_spatial, f'{video_id}.csv')
+    descriptor_dir_spatial = os.path.join(
+        main_dir, "Descriptors", descriptor_variant_spatial, dataset, "SpatialResample"
+    )
+    # os.makedirs( descriptor_dir_spatial, exist_ok=True)
+    cfg["SpatialDescriptor"] = os.path.join(descriptor_dir_spatial, f"{video_id}.csv")
 
     descriptor_variant_colorization = "Unified"
-    descriptor_dir_colorization = os.path.join( main_dir, "Descriptors", descriptor_variant_colorization, dataset, 'Colorization' )
-    #os.makedirs( descriptor_dir_colorization, exist_ok=True)
-    cfg["ColorizeDescriptorFile"] = os.path.join( descriptor_dir_colorization, f'{video_id}.txt')
+    descriptor_dir_colorization = os.path.join(
+        main_dir,
+        "Descriptors",
+        descriptor_variant_colorization,
+        dataset,
+        "Colorization",
+    )
+    # os.makedirs( descriptor_dir_colorization, exist_ok=True)
+    cfg["ColorizeDescriptorFile"] = os.path.join(
+        descriptor_dir_colorization, f"{video_id}.txt"
+    )
+
+
 # === END ===
 
+
 # Modified from VCM-RS Scripts/utils.py
-def get_descriptor_files_vcm_ctc(vcmrs_ver, data_dir, scenario, cfg, dataset, video_id, TemporalResamplingAdaptiveMethod=None):
+def get_descriptor_files_vcm_ctc(
+    vcmrs_ver,
+    data_dir,
+    scenario,
+    cfg,
+    dataset,
+    video_id,
+    TemporalResamplingAdaptiveMethod=None,
+):
     main_dir = data_dir  # os.path.dirname(os.path.dirname(data_dir))
     if vcmrs_ver == "v1.0":
         cfg = {}
-        set_descriptor_files(data_dir, scenario, cfg, dataset, video_id, TemporalResamplingAdaptiveMethod)
+        set_descriptor_files(
+            data_dir, scenario, cfg, dataset, video_id, TemporalResamplingAdaptiveMethod
+        )
         return cfg
     elif vcmrs_ver == "v0.12":
         descriptor_variant = "Unified"
@@ -91,33 +133,51 @@ def get_descriptor_files_vcm_ctc(vcmrs_ver, data_dir, scenario, cfg, dataset, vi
     )
 
     descriptors = {
-        "RoIDescriptor"     : roi_descriptor,
-        "SpatialDescriptor" : spatial_descriptor,
+        "RoIDescriptor": roi_descriptor,
+        "SpatialDescriptor": spatial_descriptor,
     }
     if vcmrs_ver >= "v0.12":
-        colorize_descriptor = os.path.join(descriptor_dir, "Colorization", f"{video_id}.txt")
+        colorize_descriptor = os.path.join(
+            descriptor_dir, "Colorization", f"{video_id}.txt"
+        )
         descriptors["ColorizeDescriptorFile"] = colorize_descriptor
 
     return descriptors
 
+
 # For user-generated/loaded descriptors
-def get_descriptor_files_generic(vcmrs_ver, data_dir, scenario, cfg, dataset, video_id, TemporalResamplingAdaptiveMethod=None):
+def get_descriptor_files_generic(
+    vcmrs_ver,
+    data_dir,
+    scenario,
+    cfg,
+    dataset,
+    video_id,
+    TemporalResamplingAdaptiveMethod=None,
+):
     descriptor_dir = os.path.join(data_dir, "Descriptors", scenario, dataset)
     roi_descriptor = os.path.join(descriptor_dir, "ROI", f"{video_id}.txt")
-    spatial_descriptor = os.path.join(descriptor_dir, "SpatialResample", f"{video_id}.csv")
+    spatial_descriptor = os.path.join(
+        descriptor_dir, "SpatialResample", f"{video_id}.csv"
+    )
 
     descriptors = {
-        "RoIDescriptor"     : roi_descriptor,
-        "SpatialDescriptor" : spatial_descriptor,
+        "RoIDescriptor": roi_descriptor,
+        "SpatialDescriptor": spatial_descriptor,
     }
     if vcmrs_ver >= "v0.12":
-        colorize_descriptor = os.path.join(descriptor_dir, "Colorization", f"{video_id}.txt")
+        colorize_descriptor = os.path.join(
+            descriptor_dir, "Colorization", f"{video_id}.txt"
+        )
         descriptors["ColorizeDescriptorFile"] = colorize_descriptor
     if vcmrs_ver >= "v0.10":
-        temporal_descriptor = os.path.join(descriptor_dir, "Temporal", f"{video_id}.txt")
+        temporal_descriptor = os.path.join(
+            descriptor_dir, "Temporal", f"{video_id}.txt"
+        )
         descriptors["TemporalDescriptor"] = temporal_descriptor
 
     return descriptors
+
 
 def get_descriptor_files(
     descriptor_mode,
@@ -129,6 +189,22 @@ def get_descriptor_files(
     TemporalResamplingAdaptiveMethod=None,
 ):
     if descriptor_mode == "vcm_ctc":
-        return get_descriptor_files_vcm_ctc(vcmrs_ver, data_dir, scenario, {}, dataset, video_id, TemporalResamplingAdaptiveMethod)
+        return get_descriptor_files_vcm_ctc(
+            vcmrs_ver,
+            data_dir,
+            scenario,
+            {},
+            dataset,
+            video_id,
+            TemporalResamplingAdaptiveMethod,
+        )
     else:
-        return get_descriptor_files_generic(vcmrs_ver, data_dir, scenario, {}, dataset, video_id, TemporalResamplingAdaptiveMethod)
+        return get_descriptor_files_generic(
+            vcmrs_ver,
+            data_dir,
+            scenario,
+            {},
+            dataset,
+            video_id,
+            TemporalResamplingAdaptiveMethod,
+        )

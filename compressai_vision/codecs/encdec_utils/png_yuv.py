@@ -122,7 +122,9 @@ class PngFilesToYuvFileConverter:
 
         # Use existing YUV (if found and indicated for use):
         if self.use_yuv:
-            assert yuv_file is not None, "Parameter 'use_yuv' set True but YUV file not found."
+            assert (
+                yuv_file is not None
+            ), "Parameter 'use_yuv' set True but YUV file not found."
             size = yuv_file.stat().st_size
             bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
             bytes_per_sample = (input_bitdepth + 7) >> 3

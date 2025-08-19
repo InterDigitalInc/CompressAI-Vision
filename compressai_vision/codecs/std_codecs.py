@@ -557,7 +557,7 @@ class VTM(nn.Module):
         assert bitstream_path.is_file()
 
         output_file_prefix = bitstream_path.stem
-        if output10b: # VCM-RS under CTC outputs 10b YUV
+        if output10b:  # VCM-RS under CTC outputs 10b YUV
             output_file_prefix = output_file_prefix.replace("8bit", "10bit")
 
         dec_path = codec_output_dir / "dec"
@@ -1019,6 +1019,7 @@ class VCMRS(VTM):
         Returns:
             List[Any]: A list of strings representing the encoding command.
         """
+
         # BEGIN - From VCM-RS Scripts/utils.py
         def update_cfg_from_ini(ini_file, cfg, section=None):
             current_section = ""
@@ -1033,11 +1034,12 @@ class VCMRS(VTM):
                         continue
                     if section is None or section == current_section:
                         pos = line.find("=")
-                        if pos == -1: # Addition: Make parsing robust to empty lines
+                        if pos == -1:  # Addition: Make parsing robust to empty lines
                             continue
                         key = line[0:pos].strip()
                         value = line[pos + 1 :].strip()
                         cfg[key] = value
+
         # END - From VCM-RS Scripts/utils.py
 
         # Set modes for the descriptors
@@ -1051,19 +1053,21 @@ class VCMRS(VTM):
 
             for descriptor_file, mode_key, mode in zip(
                 [
-                    "RoIDescriptor", "SpatialDescriptor", "ColorizeDescriptorFile", "TemporalDescriptor"
+                    "RoIDescriptor",
+                    "SpatialDescriptor",
+                    "ColorizeDescriptorFile",
+                    "TemporalDescriptor",
                 ],
                 [
-                    "RoIDescriptorMode", "SpatialDescriptorMode", "ColorizeDescriptorMode", "TemporalDescriptorMode"
+                    "RoIDescriptorMode",
+                    "SpatialDescriptorMode",
+                    "ColorizeDescriptorMode",
+                    "TemporalDescriptorMode",
                 ],
-                modes
+                modes,
             ):
                 if descriptor_file in descriptors:
-                    descriptors.update(
-                        {
-                            mode_key :  mode
-                        }
-                    )
+                    descriptors.update({mode_key: mode})
             return descriptors
 
         config = self.enc_cfgs["config"]
@@ -1077,7 +1081,12 @@ class VCMRS(VTM):
 
         assert chroma_format == "420"
 
-        roi_descriptor_mode, spatial_descriptor_mode, colorize_descriptor_mode, temporal_descriptor_mode = {
+        (
+            roi_descriptor_mode,
+            spatial_descriptor_mode,
+            colorize_descriptor_mode,
+            temporal_descriptor_mode,
+        ) = {
             "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
             "load": ["load", "UsingDescriptor", "load", "load"],
             "generate": ["save", "GeneratingDescriptor", "save", "save"],
@@ -1094,10 +1103,10 @@ class VCMRS(VTM):
         if dataset == "TVD":
             # For VCM CTC using TVD clips: Replace second '-' (if present) with '_'
             # E.g.: TVD-02-1 -> TVD-02_1
-            dash_cnt = len([c for c in sequence if c == '-'])
+            dash_cnt = len([c for c in sequence if c == "-"])
             if dash_cnt == 2:
-                last = sequence.rfind('-')
-                sequence = sequence[:last] + '_' + sequence[last + 1:]
+                last = sequence.rfind("-")
+                sequence = sequence[:last] + "_" + sequence[last + 1 :]
 
         cfg = {
             "SourceWidth": width,
@@ -1123,7 +1132,11 @@ class VCMRS(VTM):
         }
         update_cfg_from_ini(self.cfg_file, cfg)
 
-        tram = cfg["TemporalResamplingAdaptiveMethod"] if "TemporalResamplingAdaptiveMethod" in cfg else None
+        tram = (
+            cfg["TemporalResamplingAdaptiveMethod"]
+            if "TemporalResamplingAdaptiveMethod" in cfg
+            else None
+        )
         descriptor_dir = Path(self.cfg_file).parent.parent
         descriptors = get_descriptor_files(
             descriptor_mode, vcmrs_ver, descriptor_dir, config, dataset, sequence, tram
@@ -1134,7 +1147,9 @@ class VCMRS(VTM):
             # When generate, check already exists
             if descriptor_mode == "generate":
                 if os.path.isfile(descriptor):
-                    print(f"descriptor_mode is 'generate' but file {descriptor} already exists!")
+                    print(
+                        f"descriptor_mode is 'generate' but file {descriptor} already exists!"
+                    )
                     if self.enc_cfgs["descriptor_overwrite"]:
                         Path(descriptor).unlink()
                     else:
@@ -1144,9 +1159,7 @@ class VCMRS(VTM):
         if gen_found:
             sys.exit(1)
 
-        descriptors = add_descriptor_modes(
-            descriptors, descriptor_mode
-        )
+        descriptors = add_descriptor_modes(descriptors, descriptor_mode)
         cfg.update(descriptors)
 
         cmd = [
