@@ -83,6 +83,7 @@ echo "==========================================================================
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++pipeline.type=video \
         ++pipeline.codec.vcm_mode=True \
+        ++pipeline.codec.output10b=True \
         ++paths._run_root=${OUTPUT_DIR} \
 	++vision_model.arch=jde_1088x608 \
         ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
@@ -94,6 +95,7 @@ compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
        	++dataset.config.annotation_file=gt/gt.txt \
         ++dataset.config.dataset_name=mpeg-${SEQ} \
         ++evaluator.type=MOT-TVD-EVAL \
+        ++evaluator.apply_pred_offset=True \
         ++codec.experiment=${EXPERIMENT} \
 	codec=vcmrs.yaml \
         ++codec.encoder_config.intra_period=${INTRA_PERIOD} \

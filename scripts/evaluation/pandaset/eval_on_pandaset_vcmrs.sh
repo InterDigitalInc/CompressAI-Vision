@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 FCM_TESTDATA=""
 INNER_CODEC_PATH=""
 OUTPUT_DIR=""
@@ -60,8 +62,11 @@ fi
 declare -A roi_descriptor
 declare -A spatial_descriptor
 
-INTRA_PERIOD=32
-FRAME_RATE=30
+DATASET_INFO_PATH="${SCRIPT_DIR}/pandaset.json"
+SEQ_INFO=$(jq --compact-output ".sequences[] | select(.seq_name == \"${SEQ}\")" "$DATASET_INFO_PATH")
+[ -n "$SEQ_INFO" ] || exit 1
+INTRA_PERIOD=$(jq --raw-output ".intra_period" <<< "${SEQ_INFO}")
+FRAME_RATE=$(jq --raw-output ".frame_rate" <<< "${SEQ_INFO}")
 
 echo "============================== RUNNING COMPRESSAI-VISION EVAL== =================================="
 echo "Pipeline Type:      " ${PIPELINE} " Video"

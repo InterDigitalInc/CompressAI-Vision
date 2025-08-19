@@ -442,6 +442,7 @@ class BasePipeline(nn.Module):
         org_img_size: Dict = None,
         remote_inference=False,
         vcm_mode=False,
+        output10b=False,
     ):
         if self._get_title(codec).lower() == "fctm":
             return codec.decode(
@@ -457,6 +458,7 @@ class BasePipeline(nn.Module):
             org_img_size=org_img_size,
             remote_inference=remote_inference,
             vcm_mode=vcm_mode,
+            output10b=output10b,
         )
 
     def _evaluation(self, evaluator: Callable) -> Dict:

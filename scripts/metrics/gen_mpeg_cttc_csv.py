@@ -528,7 +528,9 @@ if __name__ == "__main__":
                 ]
             }
 
-            results_df = read_df_rec(norm_result_path)
+            results_df = read_df_rec(
+                norm_result_path, tvd_all, args.nb_operation_points
+            )
             results_df = results_df.sort_values(
                 by=["Dataset", "qp"], ascending=[True, True]
             )

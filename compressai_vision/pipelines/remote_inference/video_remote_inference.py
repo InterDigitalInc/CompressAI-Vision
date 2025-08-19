@@ -158,6 +158,11 @@ class VideoRemoteInference(BasePipeline):
 
         # Feature Deompression
         start = time_measure()
+        output10b = (
+            self.configs["codec"]["output10b"]
+            if "output10b" in self.configs["codec"]
+            else False
+        )
         dec_seq, dec_time_by_module, dec_complexity = self._decompress(
             codec=codec,
             bitstream=res["bitstream"],
@@ -166,6 +171,7 @@ class VideoRemoteInference(BasePipeline):
             org_img_size=None,
             remote_inference=True,
             vcm_mode=self.configs["codec"]["vcm_mode"],
+            output10b=output10b,
         )
         end = time_measure()
         timing["decode"].append((end - start))

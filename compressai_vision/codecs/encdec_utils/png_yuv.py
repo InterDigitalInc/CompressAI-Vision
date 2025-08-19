@@ -44,12 +44,14 @@ class PngFilesToYuvFileConverter:
         self,
         chroma_format: str,
         input_bitdepth: int,
+        use_yuv: bool,
         frame_rate,
         ffmpeg_loglevel: str,
         logger: logging.Logger,
     ):
         self.chroma_format = chroma_format
         self.input_bitdepth = input_bitdepth
+        self.use_yuv = use_yuv
         self.frame_rate = frame_rate
         self.ffmpeg_loglevel = ffmpeg_loglevel
         self.logger = logger
@@ -116,11 +118,13 @@ class PngFilesToYuvFileConverter:
         file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
         yuv_in_path = f"{file_prefix}_input.yuv"
 
-        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
         chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}p"
 
-        # Use existing YUV (if found):
-        if yuv_file is not None:
+        # Use existing YUV (if found and indicated for use):
+        if self.use_yuv:
+            assert (
+                yuv_file is not None
+            ), "Parameter 'use_yuv' set True but YUV file not found."
             size = yuv_file.stat().st_size
             bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
             bytes_per_sample = (input_bitdepth + 7) >> 3
@@ -140,6 +144,7 @@ class PngFilesToYuvFileConverter:
 
         # TODO (fracape)
         # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
+        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
 
         convert_cmd = [
             "ffmpeg",
