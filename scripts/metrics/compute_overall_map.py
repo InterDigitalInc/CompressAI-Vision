@@ -33,12 +33,14 @@ Compute overall mAP over some sequences outputs
 
 
 """
+
 from __future__ import annotations
 
 import argparse
 import csv
 import json
 import os
+
 from typing import Any, List
 
 import numpy as np

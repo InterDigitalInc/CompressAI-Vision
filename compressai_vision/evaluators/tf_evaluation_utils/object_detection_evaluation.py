@@ -62,10 +62,12 @@ from __future__ import division, print_function
 import collections
 import logging
 import unicodedata
+
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import six
+
 from six.moves import range
 
 from ..tf_evaluation_utils import per_image_evaluation

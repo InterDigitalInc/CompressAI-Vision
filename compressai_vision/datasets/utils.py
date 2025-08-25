@@ -34,12 +34,19 @@ import copy
 import cv2
 import numpy as np
 import torch
+
 from jde.utils.datasets import letterbox
 from mmpose.structures.bbox import get_warp_matrix
 from torchvision import transforms
 from torch.nn import functional as F
 
-__all__ = ["MMPOSECustomMapper", "YOLOXCustomMapper", "JDECustomMapper", "LinearMapper", "SAMCustomMapper"]
+__all__ = [
+    "MMPOSECustomMapper",
+    "YOLOXCustomMapper",
+    "JDECustomMapper",
+    "LinearMapper",
+    "SAMCustomMapper",
+]
 
 
 def yolox_style_scaling(img, input_size, padding=False):
@@ -267,6 +274,7 @@ class JDECustomMapper:
         """
 
         self.height, self.width = img_size
+
     def __call__(self, dataset_dict):
         """
         Args:
@@ -297,7 +305,8 @@ class JDECustomMapper:
 
         return dataset_dict
 
-class SAMCustomMapper: 
+
+class SAMCustomMapper:
     def __init__(self, img_size=[1024, 1024]):
         """
         Args:
@@ -306,7 +315,7 @@ class SAMCustomMapper:
         self.height = 1024
         self.width = 1024
         self.pixel_mean = [123.675, 116.28, 103.53]
-        self.pixel_std  = [58.395, 57.12, 57.375]
+        self.pixel_std = [58.395, 57.12, 57.375]
 
     def __call__(self, dataset_dict):
         """
@@ -325,17 +334,17 @@ class SAMCustomMapper:
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
         dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
-        
-        h = dataset_dict["height"]
-        w =  dataset_dict["width"]
-        org_img = (org_img -  self.pixel_mean) /  self.pixel_std
 
-        padh = self.height - h #self.image_encoder.img_size - h
+        h = dataset_dict["height"]
+        w = dataset_dict["width"]
+        org_img = (org_img - self.pixel_mean) / self.pixel_std
+
+        padh = self.height - h  # self.image_encoder.img_size - h
         padw = self.width - w
         image = torch.tensor(org_img)
         image = image.unsqueeze(-1)
-        image = image.permute(3, 2, 0, 1)  
-        image = F.pad(image, (0, padw, 0, padh)) 
+        image = image.permute(3, 2, 0, 1)
+        image = F.pad(image, (0, padw, 0, padh))
         image = image.to(torch.float32)
         # to tensor
         dataset_dict["image"] = image

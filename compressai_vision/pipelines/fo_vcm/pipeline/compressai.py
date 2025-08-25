@@ -32,6 +32,7 @@ import os
 
 import numpy as np
 import torch
+
 from torchvision import transforms
 
 from compressai_vision.pipelines.fo_vcm.constant import inv_vf_per_scale, vf_per_scale

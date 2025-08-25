@@ -28,9 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+
 from typing import Dict
 
 import torch
+
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -117,6 +119,7 @@ class ImageSplitInference(BasePipeline):
                     vision_model, d, file_prefix, evaluator.datacatalog_name
                 )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
+
                 # datatype conversion
 
                 featureT["data"] = {

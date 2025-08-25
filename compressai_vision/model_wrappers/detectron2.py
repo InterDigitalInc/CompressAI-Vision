@@ -160,6 +160,7 @@ class Split_Points(Enum):
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         super().__init__(device)
+
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
         _path_prefix = (
@@ -316,6 +317,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         imgs = self.model.preprocess_image(x)
         feature_pyramid = self.backbone(imgs.tensor)
         del feature_pyramid["p6"]
+
         return {"data": feature_pyramid, "input_size": imgs.image_sizes}
 
     @torch.no_grad()
@@ -371,6 +373,7 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         https://github.com/facebookresearch/detectron2/blob/main/LICENSE
 
         """
+
         class dummy:
             def __init__(self, img_size: list):
                 self.image_sizes = img_size

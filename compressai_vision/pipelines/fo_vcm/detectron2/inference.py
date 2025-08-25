@@ -34,14 +34,17 @@ This file has been modified from "from
 detectron2.evaluation.inference_on_dataset" by Interdigital to include bpp (bits
 per pixel) calculations
 """
+
 import datetime
 import logging
 import time
+
 
 # from collections import OrderedDict, abc
 from contextlib import ExitStack, contextmanager
 
 import torch
+
 from detectron2.evaluation import DatasetEvaluator  # , DatasetEvaluators
 from detectron2.utils.comm import get_world_size  # , is_main_process
 from detectron2.utils.logger import log_every_n_seconds

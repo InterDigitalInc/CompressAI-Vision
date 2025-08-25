@@ -31,6 +31,7 @@ import errno
 import json
 import logging
 import os
+
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict
@@ -38,6 +39,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+
 from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
 

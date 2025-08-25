@@ -33,10 +33,12 @@ Compute overall MOT over some sequences outputs
 
 
 """
+
 from __future__ import annotations
 
 import argparse
 import csv
+
 from typing import Any, Dict, List
 
 import motmetrics as mm

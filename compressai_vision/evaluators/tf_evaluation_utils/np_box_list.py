@@ -47,6 +47,7 @@
 from __future__ import division, print_function
 
 import numpy as np
+
 from six.moves import range
 
 __all__ = ["BoxList"]

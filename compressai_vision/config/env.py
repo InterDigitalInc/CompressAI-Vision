@@ -31,6 +31,7 @@
 from __future__ import annotations
 
 import os
+
 from datetime import datetime, timezone
 from typing import Any
 
@@ -38,6 +39,7 @@ from typing import Any
 from omegaconf import DictConfig
 
 import compressai_vision
+
 from compressai_vision.utils import git, system
 
 

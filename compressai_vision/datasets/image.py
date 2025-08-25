@@ -31,6 +31,7 @@
 import base64
 import logging
 import re
+
 from glob import glob
 from pathlib import Path
 from typing import Dict, List
@@ -49,7 +50,13 @@ from torch.utils.data import Dataset
 
 from compressai_vision.registry import register_datacatalog, register_dataset
 
-from .utils import JDECustomMapper, LinearMapper, MMPOSECustomMapper, YOLOXCustomMapper, SAMCustomMapper
+from .utils import (
+    JDECustomMapper,
+    LinearMapper,
+    MMPOSECustomMapper,
+    YOLOXCustomMapper,
+    SAMCustomMapper,
+)
 
 
 def manual_load_data(path, ext):
@@ -230,10 +237,12 @@ class Detectron2Dataset(BaseDataset):
                     dataset_name, {}, self.annotation_path, self.images_folder
                 )
                 self.logger.info(f'"{dataset_name}" successfully registred.')
+
         self.sampler = InferenceSampler(len(kwargs["dataset"]))
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
+
         if kwargs["linear_mapper"] is True:
             mapper = LinearMapper()
         else:
@@ -263,6 +272,7 @@ class Detectron2Dataset(BaseDataset):
     def __len__(self):
         return len(self.mapDataset)
 
+
 @register_dataset("SamDataset")
 class SamDataset(BaseDataset):
     def __init__(self, root, dataset_name, imgs_folder, **kwargs):
@@ -284,13 +294,13 @@ class SamDataset(BaseDataset):
 
         _dataset = DatasetFromList(self.dataset, copy=False)
 
-        #if kwargs["linear_mapper"] is True:
+        # if kwargs["linear_mapper"] is True:
         #    mapper = LinearMapper()
-        #else:
+        # else:
         #    assert (
         #        kwargs["cfg"] is not None
         #    ), "A proper mapper information via cfg must be provided"
-        #mapper = DatasetMapper(kwargs["cfg"], False)
+        # mapper = DatasetMapper(kwargs["cfg"], False)
         mapper = SAMCustomMapper(kwargs["patch_size"])
 
         self.mapDataset = MapDataset(_dataset, mapper)
@@ -313,9 +323,6 @@ class SamDataset(BaseDataset):
 
     def __len__(self):
         return len(self.mapDataset)
-
-
-    
 
 
 @register_dataset("TrackingDataset")
@@ -651,14 +658,11 @@ class MPEGSAM(DataCatalog):
 
         self.task = "sam"
 
-
     def get_min_max_across_tensors(self):
         if self.task == "sam":
-            maxv = 28.397489547729492 #TODO these value are used for segmentation
+            maxv = 28.397489547729492  # TODO these value are used for segmentation
             minv = -26.426830291748047
             return (minv, maxv)
-
-
 
 
 @register_datacatalog("MPEGOIV6")
