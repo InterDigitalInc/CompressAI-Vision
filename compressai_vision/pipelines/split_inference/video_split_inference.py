@@ -132,7 +132,7 @@ class VideoSplitInference(BasePipeline):
         if not self.configs["codec"]["decode_only"]:
             ## NN-part-1
             for e, d in enumerate(tqdm(dataloader)):
-                output_file_prefix = f'img_id_{d[0]["image_id"]}'
+                output_file_prefix = f"img_id_{d[0]['image_id']}"
 
                 if e < self._codec_skip_n_frames:
                     continue
@@ -225,12 +225,12 @@ class VideoSplitInference(BasePipeline):
                     and "_tmp" not in file_path.name
                 )
             ]
-            assert (
-                len(bin_files) > 0
-            ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
-            assert (
-                len(bin_files) == 1
-            ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+            assert len(bin_files) > 0, (
+                f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
+            )
+            assert len(bin_files) == 1, (
+                f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+            )
             res["bitstream"] = bin_files[0]
             # bitstream_bytes = res["bitstream"].stat().st_size
 
@@ -330,7 +330,7 @@ class VideoSplitInference(BasePipeline):
             out_res["coded_order"] = e
             out_res["input_size"] = dec_features["input_size"][0]
             out_res["org_input_size"] = (
-                f'{dec_features["org_input_size"]["height"]}x{dec_features["org_input_size"]["width"]}'
+                f"{dec_features['org_input_size']['height']}x{dec_features['org_input_size']['width']}"
             )
 
             output_list.append(out_res)

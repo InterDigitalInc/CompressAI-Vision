@@ -31,9 +31,9 @@ from .image import (
     DataCatalog,
     DefaultDataset,
     Detectron2Dataset,
+    SamDataset,
     TrackingDataset,
     deccode_compressed_rle,
-    SamDataset,
 )
 from .utils import get_seq_info
 

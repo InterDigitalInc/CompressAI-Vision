@@ -55,9 +55,9 @@ GT_INFO_KEY = "gt_info"
 
 def get_seq_number(a):
     num = re.findall(r"\d+", a)
-    assert (
-        len(num) == 1
-    ), f"exepcted only single number in the file name, but many in {a}"
+    assert len(num) == 1, (
+        f"exepcted only single number in the file name, but many in {a}"
+    )
     return num
 
 

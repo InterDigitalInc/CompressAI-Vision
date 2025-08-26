@@ -37,8 +37,8 @@ import torch
 
 from jde.utils.datasets import letterbox
 from mmpose.structures.bbox import get_warp_matrix
-from torchvision import transforms
 from torch.nn import functional as F
+from torchvision import transforms
 
 __all__ = [
     "MMPOSECustomMapper",
@@ -139,9 +139,9 @@ class MMPOSECustomMapper:
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
 
-        assert (
-            len(org_img.shape) == 3
-        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+        assert len(org_img.shape) == 3, (
+            f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+        )
 
         img_h, img_w, _ = org_img.shape
 
@@ -220,9 +220,9 @@ class YOLOXCustomMapper:
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
 
-        assert (
-            len(org_img.shape) == 3
-        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+        assert len(org_img.shape) == 3, (
+            f"detect an input image with 2 chs, {dataset_dict['file_name']}"
+        )
 
         dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
 
@@ -412,5 +412,5 @@ def get_seq_info(seq_info_path):
     config.read(seq_info_path)
     fps = config["Sequence"]["frameRate"]
     total_frame = config["Sequence"]["seqLength"]
-    name = f'{config["Sequence"]["name"]}_{config["Sequence"]["imWidth"]}x{config["Sequence"]["imHeight"]}_{fps}'
+    name = f"{config['Sequence']['name']}_{config['Sequence']['imWidth']}x{config['Sequence']['imHeight']}_{fps}"
     return name, int(fps), int(total_frame)

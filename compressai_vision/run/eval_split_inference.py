@@ -125,7 +125,7 @@ def print_specs(pipeline, **kwargs):
         seqinfo_path = Path(kwargs["dataloader"].dataset.seqinfo_path).resolve()
 
     info = f"\
-                \n {'='*60}\
+                \n {'=' * 60}\
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
                 \n  -- Split Point            : {kwargs['vision_model'].split_layer_list}\
@@ -307,7 +307,7 @@ def main(conf: DictConfig):
     )
 
     coded_res_df.to_csv(
-        os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
+        os.path.join(evaluator_filepath, f"encode_details_{coded_res_df['qp'][0]}.csv"),
         index=False,
     )
 

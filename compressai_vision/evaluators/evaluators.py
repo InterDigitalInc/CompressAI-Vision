@@ -725,9 +725,9 @@ class MOT_JDE_Eval(BaseEvaluator):
         return ret
 
     def mot_eval(self):
-        assert len(self.dataset) == len(
-            self._predictions
-        ), "Total number of frames are mismatch"
+        assert len(self.dataset) == len(self._predictions), (
+            "Total number of frames are mismatch"
+        )
 
         # skip the very first frame
         for gt_frame in self.dataset[1:]:
@@ -818,9 +818,9 @@ class MOT_TVD_Eval(MOT_JDE_Eval):
         assert self.seqinfo_path is not None, "Sequence Information must be provided"
 
     def mot_eval(self):
-        assert len(self.dataset) == len(
-            self._predictions
-        ), "Total number of frames are mismatch"
+        assert len(self.dataset) == len(self._predictions), (
+            "Total number of frames are mismatch"
+        )
 
         self._save_all_eval_info(self._predictions)
         _pd_pd = self._format_pd_in_motchallenge(self._predictions)
@@ -874,9 +874,9 @@ class MOT_HiEve_Eval(MOT_JDE_Eval):
         )
 
     def mot_eval(self):
-        assert len(self.dataset) == len(
-            self._predictions
-        ), "Total number of frames are mismatch"
+        assert len(self.dataset) == len(self._predictions), (
+            "Total number of frames are mismatch"
+        )
 
         self._save_all_eval_info(self._predictions)
         _pd_pd = self._format_pd_in_motchallenge(self._predictions)

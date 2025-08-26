@@ -1,6 +1,7 @@
 import base64
 import csv
 import os
+
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
@@ -9,6 +10,7 @@ import cv2
 import numpy as np
 import pandas
 import torch
+
 from detectron2.structures import ImageList, Instances
 from segment_anything import (  # , Instances
     SamAutomaticMaskGenerator,

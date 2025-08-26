@@ -436,7 +436,7 @@ class VTM(nn.Module):
             nb_frames, frame_height, frame_width = frames.size()
             input_bitdepth = self.enc_cfgs["input_bitdepth"]
             chroma_format = self.enc_cfgs["chroma_format"]
-            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate }fps_{input_bitdepth}bit_p{chroma_format}"
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
             yuv_in_path = f"{file_prefix}_input.yuv"
 
             self.yuvio.setWriter(
@@ -480,9 +480,9 @@ class VTM(nn.Module):
                 for partial in list_of_bitstreams:
                     Path(partial).unlink()
 
-        assert Path(
-            bitstream_path
-        ).is_file(), f"bitstream {bitstream_path} was not created"
+        assert Path(bitstream_path).is_file(), (
+            f"bitstream {bitstream_path} was not created"
+        )
 
         if not remote_inference:
             inner_codec_bitstream = load_bitstream(bitstream_path)
@@ -601,12 +601,12 @@ class VTM(nn.Module):
                 for file_path in sorted(Path(dec_path).glob(f"*{file_prefix}*.png")):
                     rec_frames.append(str(file_path))
 
-                assert (
-                    file_prefix in rec_frames[0]
-                ), f"Can't find a correct filename with {file_prefix} in {dec_path}"
-                assert (
-                    len(rec_frames) == 1
-                ), f"Number of retrieved file must be 1, but got {len(rec_frames)}"
+                assert file_prefix in rec_frames[0], (
+                    f"Can't find a correct filename with {file_prefix} in {dec_path}"
+                )
+                assert len(rec_frames) == 1, (
+                    f"Number of retrieved file must be 1, but got {len(rec_frames)}"
+                )
 
             conversion_time = 0
             output = {"file_names": rec_frames}
@@ -1090,9 +1090,7 @@ class VCMRS(VTM):
             "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
             "load": ["load", "UsingDescriptor", "load", "load"],
             "generate": ["save", "GeneratingDescriptor", "save", "save"],
-        }[
-            descriptor_mode
-        ]
+        }[descriptor_mode]
         items = str(bitstream_path).split("/")
         dataset = {
             "SFUHW": "SFU",

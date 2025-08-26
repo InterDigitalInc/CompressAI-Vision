@@ -105,16 +105,16 @@ class MultiTaskInference(BasePipeline):
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
 
-        assert (
-            codec.num_tasks == len(evaluators) == len(vision_models)
-        ), "# of multiple tasks are not matched"
+        assert codec.num_tasks == len(evaluators) == len(vision_models), (
+            "# of multiple tasks are not matched"
+        )
 
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []
 
         tlid = self.target_task_layer_id
         for e, d in enumerate(tqdm(dataloader)):
-            file_prefix = f'img_id_{d[0]["image_id"]}'
+            file_prefix = f"img_id_{d[0]['image_id']}"
 
             if not self.configs["codec"]["decode_only"]:
                 if e < self._codec_skip_n_frames:
@@ -187,7 +187,7 @@ class MultiTaskInference(BasePipeline):
             else:
                 out_res["bytes"] = res["bytes"][0]
             out_res["coded_order"] = e
-            out_res["org_input_size"] = f'{d[0]["height"]}x{d[0]["width"]}'
+            out_res["org_input_size"] = f"{d[0]['height']}x{d[0]['width']}"
             out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
 

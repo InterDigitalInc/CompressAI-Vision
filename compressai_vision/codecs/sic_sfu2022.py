@@ -151,13 +151,13 @@ class SIC_SFU2022:
         # root_url = "https://dspub.blob.core.windows.net/compressai/sic_sfu2022"
 
         self.target_tlayer = int(kwargs["target_task_layer"])
-        assert (
-            self.num_tasks == 2 or self.num_tasks == 3
-        ), f"SIC_SFU2023 supports only 2 or 3 task layers, but got {self.num_tasks}"
-        assert (
-            self.target_tlayer < self.num_tasks
-        ), f"target task layer must be lower than the number of tasks, \
+        assert self.num_tasks == 2 or self.num_tasks == 3, (
+            f"SIC_SFU2023 supports only 2 or 3 task layers, but got {self.num_tasks}"
+        )
+        assert self.target_tlayer < self.num_tasks, (
+            f"target task layer must be lower than the number of tasks, \
             but got {self.target_tlayer} < {self.num_tasks}"
+        )
 
         self.trg_vmodel = self.vmodels[self.target_tlayer]
 
@@ -572,9 +572,9 @@ class SICHumansMachines(Cheng2020Anchor):
                 "models (the entropy coder is run sequentially on CPU)."
             )
 
-        assert (
-            target_layer < self.NUM_LAYERS
-        ), f"Got the target layer {target_layer}, but should be less than {self.NUM_LAYERS}"
+        assert target_layer < self.NUM_LAYERS, (
+            f"Got the target layer {target_layer}, but should be less than {self.NUM_LAYERS}"
+        )
 
         y = self.g_a(x)
         z = self.h_a(y)

@@ -117,7 +117,7 @@ def print_specs(pipeline, **kwargs):
 
     logger.info(
         f"\
-                \n {'='*60}\
+                \n {'=' * 60}\
                 \n Pipeline                   : {title(pipeline):<30s}\
                 \n Vision Model               : {title(kwargs['vision_model']):<30s}\
                 \n  -- Cfg                    : {Path(kwargs['vision_model'].model_cfg_path).resolve()}\
@@ -212,7 +212,7 @@ def main(conf: DictConfig):
         index=False,
     )
     coded_res_df.to_csv(
-        os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
+        os.path.join(evaluator_filepath, f"encode_details_{coded_res_df['qp'][0]}.csv"),
         index=False,
     )
 

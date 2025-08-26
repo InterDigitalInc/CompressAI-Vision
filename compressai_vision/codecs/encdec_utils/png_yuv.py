@@ -89,9 +89,9 @@ class PngFilesToYuvFileConverter:
             images_in_folder = len(list(parent.glob(ext)))
             nb_frames = input["last_frame"] - input["frame_skip"]
 
-            assert (
-                images_in_folder == nb_frames
-            ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+            assert images_in_folder == nb_frames, (
+                f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+            )
 
             input_info = [
                 "-pattern_type",
@@ -122,9 +122,9 @@ class PngFilesToYuvFileConverter:
 
         # Use existing YUV (if found and indicated for use):
         if self.use_yuv:
-            assert (
-                yuv_file is not None
-            ), "Parameter 'use_yuv' set True but YUV file not found."
+            assert yuv_file is not None, (
+                "Parameter 'use_yuv' set True but YUV file not found."
+            )
             size = yuv_file.stat().st_size
             bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
             bytes_per_sample = (input_bitdepth + 7) >> 3
@@ -135,9 +135,9 @@ class PngFilesToYuvFileConverter:
                 * bytes_per_sample
                 * nb_frames
             )
-            assert (
-                size == expected_size
-            ), f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
+            assert size == expected_size, (
+                f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
+            )
             shutil.copy(yuv_file, yuv_in_path)
             print(f"Using pre-existing YUV file: {yuv_file}")
             return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
@@ -204,9 +204,9 @@ class YuvFileToPngFilesConverter:
         frame_width = video_info["width"]
         frame_height = video_info["height"]
 
-        assert (
-            "420" in video_info["format"].value
-        ), f"Only support yuv420, but got {video_info['format']}"
+        assert "420" in video_info["format"].value, (
+            f"Only support yuv420, but got {video_info['format']}"
+        )
         pix_fmt_suffix = "10le" if video_info["bitdepth"] == 10 else ""
         chroma_format = "yuv420p"
 

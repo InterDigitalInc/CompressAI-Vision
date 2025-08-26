@@ -94,7 +94,7 @@ def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
     input_constructure_lst.append(prepare_proposal_input_fpn)
 
     # for roi head
-    feature_pyramid = {f"p{k+2}": v.to(device) for k, v in data.items()}
+    feature_pyramid = {f"p{k + 2}": v.to(device) for k, v in data.items()}
     feature_pyramid.update({"p6": vision_model.top_block(feature_pyramid["p5"])[0]})
     feature_pyramid = {k: v.unsqueeze(0) for k, v in feature_pyramid.items()}
     proposals, _ = vision_model.proposal_generator(cdummy, feature_pyramid, None)
@@ -158,7 +158,7 @@ def prepare_proposal_input_fpn(resolutions):
         feature_shape.append((b, c, *get_downsampled_shape(h, w, 2)))
         feature_lst.append(torch.FloatTensor(*feature_shape[-1]).to(device))
 
-    feature_dict = {f"p{e+2}": feature for e, feature in enumerate(feature_lst)}
+    feature_dict = {f"p{e + 2}": feature for e, feature in enumerate(feature_lst)}
 
     return dict(images=resized_img, features=feature_dict, gt_instances=None)
 
@@ -175,7 +175,7 @@ def prepare_roi_head_input_fpn(resolutions):
         feature_shape.append((b, c, *get_downsampled_shape(h, w, 2)))
         feature_lst.append(torch.FloatTensor(*feature_shape[-1]).to(device))
 
-    feature_dict = {f"p{e+2}": feature for e, feature in enumerate(feature_lst)}
+    feature_dict = {f"p{e + 2}": feature for e, feature in enumerate(feature_lst)}
     return dict(
         images=resized_img, features=feature_dict, proposals=proposals, targets=None
     )

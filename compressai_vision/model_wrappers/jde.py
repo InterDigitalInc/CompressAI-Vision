@@ -243,9 +243,9 @@ class jde_1088x608(BaseWrapper):
         # removed tracks from the current frame
         current_removed_tracks = []
 
-        assert (
-            pred.size(1) == 54264
-        ), f"Default number of proposals by JDE must be 54264, but got {pred.size(1)}"
+        assert pred.size(1) == 54264, (
+            f"Default number of proposals by JDE must be 54264, but got {pred.size(1)}"
+        )
 
         selected_pred = pred[:, pred[0, :, 4] > self.model_configs["conf_thres"]]
         # only check the objects detected with confidence greater than .5

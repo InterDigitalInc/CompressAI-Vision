@@ -220,9 +220,9 @@ class readwriteYUV:
         if self.writer is None:
             raise RuntimeError("Please first setup the writer")
 
-        assert (
-            frame.dim() >= 2 and frame.dim() <= 4
-        ), "Dimension of the input frame tensor shall be greater than 1 and less than 5"
+        assert frame.dim() >= 2 and frame.dim() <= 4, (
+            "Dimension of the input frame tensor shall be greater than 1 and less than 5"
+        )
 
         if frame.dim() == 4 and frame.size(0) > 1:
             self._logger.warning(

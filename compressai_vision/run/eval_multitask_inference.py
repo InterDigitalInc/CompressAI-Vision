@@ -134,7 +134,7 @@ def title(a):
 def print_specs(pipeline, **kwargs):
     logger = logging.getLogger(__name__)
 
-    log_str = f"\n {'='*60}"
+    log_str = f"\n {'=' * 60}"
     log_str += f"\n Pipeline                 : {title(pipeline):<30s}"
     log_str += f"\n Codec                    : {title(kwargs['codec']):<30s}"
     log_str += f"\n  -- Enc. Only            : {pipeline.configs['codec'].encode_only}"
@@ -248,7 +248,7 @@ def main(conf: DictConfig):
         index=False,
     )
     coded_res_df.to_csv(
-        os.path.join(evaluator_filepath, f'encode_details_{coded_res_df["qp"][0]}.csv'),
+        os.path.join(evaluator_filepath, f"encode_details_{coded_res_df['qp'][0]}.csv"),
         index=False,
     )
 
@@ -258,7 +258,7 @@ def _get_seq_info(seq_info_path):
     config.read(seq_info_path)
     fps = config["Sequence"]["frameRate"]
     total_frame = config["Sequence"]["seqLength"]
-    name = f'{config["Sequence"]["name"]}_{config["Sequence"]["imWidth"]}x{config["Sequence"]["imHeight"]}_{fps}'
+    name = f"{config['Sequence']['name']}_{config['Sequence']['imWidth']}x{config['Sequence']['imHeight']}_{fps}"
     return name, int(fps), int(total_frame)
 
 

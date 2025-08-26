@@ -387,9 +387,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
 
-        assert (
-            not torch.jit.is_scripting()
-        ), "Scripting is not supported for postprocess."
+        assert not torch.jit.is_scripting(), (
+            "Scripting is not supported for postprocess."
+        )
         return self.model._postprocess(
             results,
             [
@@ -423,9 +423,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
 
-        assert (
-            not torch.jit.is_scripting()
-        ), "Scripting is not supported for postprocess."
+        assert not torch.jit.is_scripting(), (
+            "Scripting is not supported for postprocess."
+        )
         return self.model._postprocess(
             results,
             [
@@ -461,9 +461,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         proposals, _ = self.proposal_generator(cdummy, fptensors, None)
         results, _ = self.roi_heads(cdummy, fptensors, proposals, None)
 
-        assert (
-            not torch.jit.is_scripting()
-        ), "Scripting is not supported for postprocess."
+        assert not torch.jit.is_scripting(), (
+            "Scripting is not supported for postprocess."
+        )
 
         return self.model._postprocess(
             results,
@@ -483,9 +483,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         d = {}
         for e, ft in enumerate(x["data"].values()):
             nft = ft.contiguous().to(self.device)
-            assert (
-                nft.dim() == 3 or nft.dim() == 4
-            ), f"Input feature tensor dimension is supposed to be 3 or 4, but got {nft.dim()}"
+            assert nft.dim() == 3 or nft.dim() == 4, (
+                f"Input feature tensor dimension is supposed to be 3 or 4, but got {nft.dim()}"
+            )
             d[e] = nft.unsqueeze(0) if nft.dim() == 3 else nft
 
         class dummy:
@@ -580,9 +580,9 @@ class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
 
-        assert (
-            not torch.jit.is_scripting()
-        ), "Scripting is not supported for postprocess."
+        assert not torch.jit.is_scripting(), (
+            "Scripting is not supported for postprocess."
+        )
 
         processed_results = []
         for sem_seg_result, detector_result, input_per_image, image_size in zip(

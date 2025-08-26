@@ -161,9 +161,9 @@ if __name__ == "__main__":
                 BaseEvaluator.get_jde_eval_info_name,
             )
 
-            assert (
-                len(items) > 0
-            ), "Nothing relevant information found from given directories..."
+            assert len(items) > 0, (
+                "Nothing relevant information found from given directories..."
+            )
 
             summary, names = compute_overall_mot.compute_overall_mota(
                 args.class_to_compute, items
@@ -171,8 +171,8 @@ if __name__ == "__main__":
 
             motas = [100.0 * sv[13] for sv in summary.values]
 
-            print(f"{'='*10} FINAL OVERALL MOTA SUMMARY {'='*10}")
-            print(f"{'-'*35} : MOTA")
+            print(f"{'=' * 10} FINAL OVERALL MOTA SUMMARY {'=' * 10}")
+            print(f"{'-' * 35} : MOTA")
 
             for key, val in zip(names, motas):
                 print(f"{str(key):35} : {val:.4f}%")
