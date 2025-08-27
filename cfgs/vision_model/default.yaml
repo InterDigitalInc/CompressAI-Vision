@@ -25,7 +25,8 @@ mask_rcnn_R_50_FPN_3x:
 
 sam_vit_h_4b8939:
   model_path_prefix: ${..model_root_path}
-  weights: "weights/sam/sam_vit_h_4b8939.pth"
+  cfg: "Built-in configurations"
+  weights: "weights/segment_anything/sam_vit_h_4b8939.pth"
   splits: "imgenc" 
 
 mask_rcnn_X_101_32x8d_FPN_3x:

@@ -287,6 +287,7 @@ class x264(nn.Module):
         org_img_size: Dict = None,
         remote_inference=False,
         vcm_mode=False,
+        output10b=False,
     ) -> bool:
         """
         Decodes a bitstream into video frames and extract features from the decoded frames.

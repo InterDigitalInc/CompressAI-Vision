@@ -33,7 +33,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment-anything/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -75,6 +75,7 @@ fe5ad56ff746aa55c5f453b01f8395134e9281d240dbeb473411d4a6b262c9dc  detectron2/COC
 6b135b0affa38899b607010c86c2f8dbc1c06956bad9ca1edd45b01e626933f1  jde/jde.1088x608.uncertainty.pt                                                                     https://drive.usercontent.google.com/download?export=download&confirm=t&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA
 516a421f8717548300c3ee6356a3444ac539083d4a9912f8ca1619ee63d0986d  mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth                              https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth
 b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet53/yolox_darknet.pth                                                                   https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth
+a7bf3b02f3ebf1267aba913ff637d9a2d5c33d3173bb679e46d9f338c26f262e  segment_anything/sam_vit_h_4b8939.pth                                                               https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 "
 
 
@@ -136,7 +137,7 @@ run_prepare() {
 
     # NOTE: We always prepare all packages, even if they are not installed.
     # This helps with dependency resolution.
-    for pkg in cython_bbox detectron2 jde mmpose yolox; do
+    for pkg in cython_bbox detectron2 jde mmpose yolox segment_anything; do
         "prepare_${pkg}"
     done
 }
@@ -151,7 +152,7 @@ run_install () {
         uv sync --extra="${BUILD_SUFFIX}"
     fi
 
-    for model in detectron2 jde yolox mmpose; do
+    for model in detectron2 jde yolox mmpose segment_anything; do
         if [[ ",${MODEL,,}," == *",${model},"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
             "install_${model}"
         fi
@@ -399,12 +400,46 @@ install_mmpose () {
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
+prepare_segment_anything () {
+    echo
+    echo "Preparing Segment Anything for installation"
+    echo
+
+    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/segment_anything")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/segment_anything"
+        return
+    fi
+
+    git clone git@github.com:facebookresearch/segment-anything.git "${MODELS_SOURCE_DIR}/segment_anything"
+    cd "${MODELS_SOURCE_DIR}/segment_anything"
+    git reset --hard dca509fe793f601edb92606367a655c15ac00fdf
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+install_segment_anything () {
+    echo
+    echo "Installing Segment Anything (reference: https://github.com/facebookresearch/segment-anything/commits/main/)"
+    echo
+
+    cd "${MODELS_SOURCE_DIR}/segment_anything"
+
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
+        uv sync --inexact --group=models-segment-anything
+    fi
+
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+
 download_weights () {
     detect_env
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
 
-    for model in detectron2 jde mmpose yolox; do
+    for model in detectron2 jde mmpose yolox segment_anything; do
         if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," != *",all,"* ]]; then
             continue
         fi

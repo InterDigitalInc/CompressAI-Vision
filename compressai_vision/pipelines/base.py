@@ -374,11 +374,6 @@ class BasePipeline(nn.Module):
             for k, v in zip(vision_model.split_layer_list, x["data"].values())
         }
 
-        if "prompts" in x:
-            x["prompts"] = x["prompts"]
-        if "object_classes" in x:
-            x["object_classes"] = x["object_classes"]
-
         results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
             self._create_folder(output_results_dir)

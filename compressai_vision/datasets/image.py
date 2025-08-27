@@ -293,18 +293,10 @@ class SamDataset(BaseDataset):
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
-
-        # if kwargs["linear_mapper"] is True:
-        #    mapper = LinearMapper()
-        # else:
-        #    assert (
-        #        kwargs["cfg"] is not None
-        #    ), "A proper mapper information via cfg must be provided"
-        # mapper = DatasetMapper(kwargs["cfg"], False)
-        mapper = SAMCustomMapper(kwargs["patch_size"])
+        mapper = SAMCustomMapper()
 
         self.mapDataset = MapDataset(_dataset, mapper)
-        self._org_mapper_func = PicklableWrapper(SAMCustomMapper(kwargs["patch_size"]))
+        self._org_mapper_func = PicklableWrapper(SAMCustomMapper())
 
         metaData = MetadataCatalog.get(dataset_name)
         try:

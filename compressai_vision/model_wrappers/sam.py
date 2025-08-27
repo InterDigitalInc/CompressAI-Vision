@@ -13,8 +13,8 @@ import torch
 
 from detectron2.structures import ImageList, Instances
 from segment_anything import (  # , Instances
-    SamAutomaticMaskGenerator,
-    SamPredictor,
+    # SamAutomaticMaskGenerator,
+    # SamPredictor,
     sam_model_registry,
 )
 from torch.nn import functional as F
@@ -50,6 +50,7 @@ class Boxes:
 
 
 def mask_to_bbx(mask):
+    mask = mask.cpu()
     mask = np.array(mask)
     mask = np.squeeze(mask)
     h, w = mask.shape[-2:]
@@ -81,17 +82,26 @@ class SAM(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         super().__init__(device)
 
-        self.model = (
-            sam_model_registry["vit_h"](checkpoint=kwargs["weights"]).to(device).eval()
+        _path_prefix = (
+            f"{root_path}"
+            if kwargs["model_path_prefix"] == "default"
+            else kwargs["model_path_prefix"]
         )
-        self.model.load_state_dict(torch.load(kwargs["weights"]))
+        self.model_info = {
+            "cfg": f"{_path_prefix}/{kwargs['cfg']}",
+            "weights": f"{_path_prefix}/{kwargs['weights']}",
+        }
 
-        self.backbone = self.model.image_encoder
+        self.model = (
+            sam_model_registry["vit_h"](checkpoint=self.model_info["weights"])
+            .to(device)
+            .eval()
+        )
+
+        self.image_encoder = self.model.image_encoder
         self.prompt_encoder = self.model.prompt_encoder
         self.head = self.model.mask_decoder
 
-        # SamPredictor(self.model)
-        # print(SamPredictor)
         self.supported_split_points = Split_Points
 
         assert "splits" in kwargs, "Split layer ids must be provided"
@@ -106,18 +116,31 @@ class SAM(BaseWrapper):
             zip(self.split_layer_list, [None] * len(self.split_layer_list))
         )
 
-        self.annotation_file = "/o/projects/proj-river/ctc_sequences/vcm_testdata/samtest/annotations/mpeg-oiv6-segmentation-coco_fortest.json"
-
     @property
     def SPLIT_IMGENC(self):
         return str(self.supported_split_points.ImageEncoder)
 
-    def input_to_features(self, x, device: str) -> Dict:
+    @staticmethod
+    def prompt_inputs(file_name):
+        # [TODO] should be improved...
+        prompt_link = file_name.replace("/images/", "/prompts/").replace(".jpg", ".txt")
+
+        with open(prompt_link, "r") as f:
+            line = f.readline()
+            # first_two = list(map(int, line.strip().split()[:2]))
+            parts = line.strip().split()
+            prompts = list(map(int, parts[:2]))
+            object_classes = [int(line.strip().split()[-1])]
+
+        return prompts, object_classes
+
+    def input_to_features(self, x: list, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
         self.model = self.model.to(device).eval()
+        assert isinstance(x, list) and len(x) == 1
 
         if self.split_id == self.SPLIT_IMGENC:
-            return self._input_to_image_encoder(x)
+            return self._input_to_image_encoder(x, device)
         else:
             self.logger.error(f"Not supported split point {self.split_id}")
 
@@ -129,12 +152,17 @@ class SAM(BaseWrapper):
         self.model = self.model.to(device).eval()
 
         if self.split_id == self.SPLIT_IMGENC:
+            assert "file_name" in x
+
+            prompts, object_classes = self.prompt_inputs(x["file_name"])
+
             return self._image_encoder_to_output(
                 x["data"],
                 x["org_input_size"],
                 x["input_size"],
-                x["prompts"],
-                x["object_classes"],
+                prompts,
+                object_classes,
+                device,
             )
         else:
             self.logger.error(f"Not supported split points {self.split_id}")
@@ -142,35 +170,19 @@ class SAM(BaseWrapper):
         raise NotImplementedError
 
     @torch.no_grad()
-    def _input_to_image_encoder(self, x):
+    def _input_to_image_encoder(self, x, device):
         """Computes and return encoded image all the way from the input"""
-        # TODO pre_processing
-        # print("AAAAA _input_to_image_encoder", x ,'\n')
-        # imgs = ImageList(x)
-        imgs = x[0]["image"]
+        assert len(x) == 1
+
+        img = x[0]["image"].to(device)
+        input_size = list(img.size()[2:])
         feature = {}
-        feature["backbone"] = self.backbone(imgs)
-
-        prompt_link = (
-            x[0]["file_name"].replace("/images/", "/prompts/").replace(".jpg", ".txt")
-        )
-        # print("AAAAA prompt_link", prompt_link)
-
-        with open(prompt_link, "r") as f:
-            line = f.readline()
-            # first_two = list(map(int, line.strip().split()[:2]))
-            parts = line.strip().split()
-            prompts = list(map(int, parts[:2]))
-            object_classes = [int(line.strip().split()[-1])]
-
-        image_sizes = [x[0]["height"], x[0]["width"]]
-        # print("AAAAA image_sizes", image_sizes, int(image_sizes[0]) * int(image_sizes[1])),
+        input_img = self.model.preprocess(img)
+        feature["backbone"] = self.image_encoder(input_img)
 
         return {
             "data": feature,
-            "input_size": image_sizes,
-            "prompts": prompts,
-            "object_classes": object_classes,
+            "input_size": input_size,
         }
 
     @torch.no_grad()
@@ -182,45 +194,6 @@ class SAM(BaseWrapper):
         return image_sizes  # [1024, 1024]
 
     @torch.no_grad()
-    def get_prompts(self, x):
-        """Computes prompts"""
-        prompt_link = (
-            x[0]["file_name"].replace("/images/", "/prompts/").replace(".jpg", ".txt")
-        )
-        # print("AAAAA prompt_link", prompt_link)
-
-        with open(prompt_link, "r") as f:
-            line = f.readline()
-            # first_two = list(map(int, line.strip().split()[:2]))
-            parts = line.strip().split()
-            prompts = list(map(int, parts[:2]))
-            object_classes = [int(line.strip().split()[-1])]
-
-        image_sizes = [x[0]["height"], x[0]["width"]]
-        # print("AAAAA image_sizes", image_sizes, int(image_sizes[0]) * int(image_sizes[1])),
-
-        return prompts
-
-    @torch.no_grad()
-    def get_object_classes(self, x):
-        """Computes input image size to the network"""
-        prompt_link = (
-            x[0]["file_name"].replace("/images/", "/prompts/").replace(".jpg", ".txt")
-        )
-        # print("AAAAA prompt_link", prompt_link)
-
-        with open(prompt_link, "r") as f:
-            line = f.readline()
-            # first_two = list(map(int, line.strip().split()[:2]))
-            parts = line.strip().split()
-            prompts = list(map(int, parts[:2]))
-            object_classes = [int(line.strip().split()[-1])]
-
-        image_sizes = [x[0]["height"], x[0]["width"]]
-        # print("AAAAA image_sizes", image_sizes, int(image_sizes[0]) * int(image_sizes[1])),
-        return object_classes
-
-    @torch.no_grad()
     def _image_encoder_to_output(
         self,
         x: Dict,
@@ -228,6 +201,7 @@ class SAM(BaseWrapper):
         input_img_size: List,
         prompts: List,
         object_classes: List,
+        device,
     ):
         """
         performs  downstream task using the encoded image feature
@@ -237,7 +211,7 @@ class SAM(BaseWrapper):
 
         input_points = [prompts]  # [[469, 295]] #prompts["points"]
         input_points = np.array(input_points)
-        input_points_ = torch.tensor(input_points)
+        input_points_ = torch.tensor(input_points, device=device)
         input_points_ = input_points_.unsqueeze(-1)
         input_points_ = input_points_.permute(2, 0, 1)
 
@@ -246,7 +220,7 @@ class SAM(BaseWrapper):
         input_labels_ = input_labels_.unsqueeze(-1)
         input_labels_ = input_labels_.permute(1, 0)
 
-        points = (torch.tensor(input_points_), torch.tensor(input_labels_))
+        points = (input_points_, torch.tensor(input_labels_, device=device))
         prompt_feature = self.prompt_encoder(points=points, boxes=None, masks=None)
         image_pe = self.prompt_encoder.get_dense_pe()
 
@@ -261,7 +235,7 @@ class SAM(BaseWrapper):
         # post process mask
         masks = F.interpolate(
             low_res_masks,
-            (1024, 1024),
+            (self.image_encoder.img_size, self.image_encoder.img_size),
             mode="bilinear",
             align_corners=False,
         )
@@ -270,7 +244,7 @@ class SAM(BaseWrapper):
         ]  # [..., : 793, : 1024]
         masks = F.interpolate(
             masks,
-            (input_img_size[0], input_img_size[1]),
+            (org_img_size["height"], org_img_size["width"]),
             mode="bilinear",
             align_corners=False,
         )
@@ -314,14 +288,26 @@ class SAM(BaseWrapper):
     def forward(self, x):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         # test
-        enc = self._input_to_image_encoder(self, x)
-        dec = self._image_encoder_to_output(enc)
+        enc_res = self._input_to_image_encoder([x], self.device)
 
-        return dec
+        # suppose that the order of keys and values is matched
+        enc_res["data"] = {
+            k: v.to(device=self.device)
+            for k, v in zip(self.split_layer_list, enc_res["data"].values())
+        }
 
-    # @property
-    # def cfg(self):
-    #    return self._cfg
+        prompts, object_classes = self.prompt_inputs(x["file_name"])
+
+        dec_res = self._image_encoder_to_output(
+            enc_res["data"],
+            {"height": x["height"], "width": x["width"]},
+            enc_res["input_size"],
+            prompts,
+            object_classes,
+            device=self.device,
+        )
+
+        return dec_res
 
 
 @register_vision_model("sam_vit_h_4b8939")

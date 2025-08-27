@@ -197,14 +197,6 @@ class ImageSplitInference(BasePipeline):
                 dec_features["org_input_size"] = org_img_size
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
 
-            # TODO
-            if vision_model.__class__.__name__ == "sam_vit_h_4b8939":
-                print("Sam is in used")
-                dec_features["prompts"] = self._get_prompts(vision_model, d)
-                dec_features["object_classes"] = self._get_object_classes(
-                    vision_model, d
-                )
-
             dec_features["file_name"] = d[0]["file_name"]
             if self.is_mac_calculation:
                 macs, pixels = calc_complexity_nn_part2_plyr(

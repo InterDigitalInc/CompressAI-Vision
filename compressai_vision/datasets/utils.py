@@ -37,6 +37,7 @@ import torch
 
 from jde.utils.datasets import letterbox
 from mmpose.structures.bbox import get_warp_matrix
+from segment_anything.utils.transforms import ResizeLongestSide
 from torch.nn import functional as F
 from torchvision import transforms
 
@@ -307,15 +308,13 @@ class JDECustomMapper:
 
 
 class SAMCustomMapper:
-    def __init__(self, img_size=[1024, 1024]):
+    def __init__(self, img_size=1024):
         """
         Args:
-            img_size: expected input size (Height, Width)
+            img_size: single value - target size to SAM as input
         """
-        self.height = 1024
-        self.width = 1024
-        self.pixel_mean = [123.675, 116.28, 103.53]
-        self.pixel_std = [58.395, 57.12, 57.375]
+        self.target_size = img_size
+        self.transform = ResizeLongestSide(img_size)
 
     def __call__(self, dataset_dict):
         """
@@ -337,17 +336,14 @@ class SAMCustomMapper:
 
         h = dataset_dict["height"]
         w = dataset_dict["width"]
-        org_img = (org_img - self.pixel_mean) / self.pixel_std
 
-        padh = self.height - h  # self.image_encoder.img_size - h
-        padw = self.width - w
-        image = torch.tensor(org_img)
-        image = image.unsqueeze(-1)
-        image = image.permute(3, 2, 0, 1)
-        image = F.pad(image, (0, padw, 0, padh))
-        image = image.to(torch.float32)
-        # to tensor
-        dataset_dict["image"] = image
+        # BGR --> RGB (SAM requires RGB input)
+        org_img = org_img[..., ::-1]
+        input_image = self.transform.apply_image(org_img)
+        input_image = torch.tensor(input_image)
+        input_image = input_image.permute(2, 0, 1).contiguous()[None, :, :, :]
+
+        dataset_dict["image"] = input_image
 
         return dataset_dict
 
