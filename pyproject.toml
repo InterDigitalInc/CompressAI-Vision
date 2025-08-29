@@ -94,6 +94,9 @@ models-mmpose = [
 models-yolox = [
     "yolox",
 ]
+models-segment_anything = [
+    "segment_anything",
+]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
 # pip supports installing [dependency-groups].
@@ -136,6 +139,9 @@ models-mmpose = [
 models-yolox = [
     "yolox",
 ]
+models-segment_anything = [
+    "segment_anything",
+]
 
 [project.scripts]
 "compressai-vision-eval" = "compressai_vision.run.eval_split_inference:main"
@@ -165,6 +171,7 @@ no-build-isolation-package = [
     "mmpose",  # build-system.requires: numpy, torch
     "xtcocotools",  # build-system.requires: Cython, numpy
     "yolox",  # build-system.requires: pycocotools, torch, yolox, ...
+    "segment_anything",  # build-system.requires: Cython, numpy, setuptools ...
 ]
 
 # Manually specify dependencies for packages without declarative dependency metadata.
@@ -245,6 +252,18 @@ requires-dist = [
     # "onnx-simplifier==0.4.10",
 ]
 
+[[tool.uv.dependency-metadata]]
+name = "segment_anything"
+version = "1.0"
+requires-dist = [
+    # From https://github.com/facebookresearch/segment-anything/blob/main/setup.py
+    "matplotlib", 
+    "pycocotools", 
+    "opencv-python", 
+    # "onnx", 
+    # "onnxruntime"
+]
+
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
@@ -267,6 +286,7 @@ detectron2 = { path = "models/detectron2" }
 jde = { path = "models/Towards-Realtime-MOT" }
 mmpose = { path = "models/mmpose" }
 yolox = { path = "models/yolox" }
+segment_anything = { path = "models/segment_anything" }
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
