@@ -43,6 +43,11 @@ version = "1.3.2"
 requires-dist = ["chumpy", "json-tricks", "matplotlib", "scipy", "xtcocotools>=1.12"]
 
 [[manifest.dependency-metadata]]
+name = "segment-anything"
+version = "1.0"
+requires-dist = ["matplotlib", "pycocotools", "opencv-python"]
+
+[[manifest.dependency-metadata]]
 name = "xtcocotools"
 version = "1.14.3"
 requires-dist = ["setuptools>=18.0", "cython>=0.27.3", "matplotlib>=2.1.0", "numpy>=1.19.5 ; python_full_version == '3.6.*'", "numpy>=1.20.0 ; python_full_version >= '3.7'"]
@@ -817,6 +822,9 @@ models-mmpose = [
     { name = "mmpose" },
     { name = "openmim" },
 ]
+models-segment-anything = [
+    { name = "segment-anything" },
+]
 models-yolox = [
     { name = "yolox" },
 ]
@@ -856,6 +864,9 @@ models-jde = [
 models-mmpose = [
     { name = "mmpose" },
     { name = "openmim" },
+]
+models-segment-anything = [
+    { name = "segment-anything" },
 ]
 models-yolox = [
     { name = "yolox" },
@@ -903,6 +914,7 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'test'" },
     { name = "pytorch-msssim", marker = "extra == 'doc'" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.8.6" },
+    { name = "segment-anything", marker = "extra == 'models-segment-anything'", directory = "models/segment_anything" },
     { name = "sphinx", marker = "extra == 'doc'" },
     { name = "sphinx-book-theme", marker = "extra == 'doc'" },
     { name = "sphinxcontrib-mermaid", marker = "extra == 'doc'" },
@@ -918,7 +930,7 @@ requires-dist = [
     { name = "yolox", marker = "extra == 'models-yolox'", directory = "models/yolox" },
     { name = "yuvio" },
 ]
-provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "cu128", "models-detectron2", "models-jde", "models-mmpose", "models-yolox"]
+provides-extras = ["test", "dev", "doc", "tutorials", "cpu", "cu118", "cu128", "models-detectron2", "models-jde", "models-mmpose", "models-yolox", "models-segment-anything"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -946,6 +958,7 @@ models-mmpose = [
     { name = "mmpose", directory = "models/mmpose" },
     { name = "openmim", specifier = ">=0.3.9" },
 ]
+models-segment-anything = [{ name = "segment-anything", directory = "models/segment_anything" }]
 models-yolox = [{ name = "yolox", directory = "models/yolox" }]
 test = [
     { name = "pytest" },
@@ -3969,6 +3982,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/b5/ff61b79ad0ebd15d87ade10e0f4e80114dd89fac34a5efade39e99048c91/scipy-1.10.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bce5869c8d68cf383ce240e44c1d9ae7c06078a9396df68ce88a1230f93a30c1", size = 31024657, upload-time = "2023-02-19T20:51:49.175Z" },
     { url = "https://files.pythonhosted.org/packages/69/f0/fb07a9548e48b687b8bf2fa81d71aba9cfc548d365046ca1c791e24db99d/scipy-1.10.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:07c3457ce0b3ad5124f98a86533106b643dd811dd61b548e78cf4c8786652f6f", size = 34540352, upload-time = "2023-02-19T20:53:30.821Z" },
     { url = "https://files.pythonhosted.org/packages/32/8e/7f403535ddf826348c9b8417791e28712019962f7e90ff845896d6325d09/scipy-1.10.1-cp38-cp38-win_amd64.whl", hash = "sha256:049a8bbf0ad95277ffba9b3b7d23e5369cc39e66406d60422c8cfef40ccc8415", size = 42215036, upload-time = "2023-02-19T20:55:09.639Z" },
+]
+
+[[package]]
+name = "segment-anything"
+version = "1.0"
+source = { directory = "models/segment_anything" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "opencv-python" },
+    { name = "pycocotools" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "matplotlib" },
+    { name = "opencv-python" },
+    { name = "pycocotools" },
 ]
 
 [[package]]
