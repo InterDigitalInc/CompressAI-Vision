@@ -304,7 +304,7 @@ class YuvFileToPngFilesConverter:
         datacatalog = self.datacatalog
 
         # TODO (fracape) hacky, clean this
-        if datacatalog == "MPEGOIV6":
+        if datacatalog in ["MPEGOIV6", "MPEGSAM"]:
             cmd_suffix = []
             filename = f"{output_file_prefix}.png"
         elif datacatalog == "SFUHW":

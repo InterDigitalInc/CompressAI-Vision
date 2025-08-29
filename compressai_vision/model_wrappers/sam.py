@@ -296,7 +296,7 @@ class SAM(BaseWrapper):
             for k, v in zip(self.split_layer_list, enc_res["data"].values())
         }
 
-        prompts, object_classes = self.prompt_inputs(x["file_name"])
+        prompts, object_classes = self.prompt_inputs(x["file_origin"])
 
         dec_res = self._image_encoder_to_output(
             enc_res["data"],

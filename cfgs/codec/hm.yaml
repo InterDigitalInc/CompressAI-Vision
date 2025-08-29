@@ -29,3 +29,4 @@ encoder_config:
   chroma_format: "400" # "420" for remote inference
   input_bitdepth: 10
   output_bitdepth: 10
+  use_yuv: False

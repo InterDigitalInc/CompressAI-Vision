@@ -26,3 +26,4 @@ encoder_config:
   stash_outputs: True
   chroma_format: "420"
   input_bitdepth: 8
+  use_yuv: False

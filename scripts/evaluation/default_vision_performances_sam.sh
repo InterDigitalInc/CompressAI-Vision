@@ -36,15 +36,13 @@ if [ ! -d "${TESTDATA_DIR}" ]; then
     exit
 fi
 
-MPEG_SAM="${TESTDATA_DIR}/samtest"
+MPEG_SAM="${TESTDATA_DIR}/sam_test"
 
 
 
 # MPEGOIV6 - Small test
 ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.type=image \
-             ++pipeline.conformance.save_conformance_files=True \
-             ++pipeline.conformance.subsample_ratio=9 \
              ++vision_model.arch=sam_vit_h_4b8939 \
              ++dataset.type=SamDataset \
              ++dataset.datacatalog=MPEGSAM \
@@ -52,11 +50,15 @@ ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco_2images.json \
              ++dataset.config.dataset_name=mpeg-oiv6-sam \
              ++evaluator.type=OIC-EVAL \
+             ++evaluator.overwrite_results=True \
              ++codec.encoder_config.parallel_encoding=False \
              ++pipeline.nn_task_part1.load_features=False \
              ++pipeline.nn_task_part1.dump_features=False \
              ++pipeline.nn_task_part2.dump_features=False \
-             ++misc.device.nn_parts=${DEVICE}
+             ++misc.device.nn_parts=${DEVICE} \
+             ++codec.eval_encode='bpp' \
 
+             # ++pipeline.conformance.save_conformance_files=True \
+             # ++pipeline.conformance.subsample_ratio=9 \
 
 

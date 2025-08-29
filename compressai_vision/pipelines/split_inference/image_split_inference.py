@@ -198,6 +198,7 @@ class ImageSplitInference(BasePipeline):
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
 
             dec_features["file_name"] = d[0]["file_name"]
+            dec_features["file_origin"] = d[0]["file_name"]
             if self.is_mac_calculation:
                 macs, pixels = calc_complexity_nn_part2_plyr(
                     vision_model, dec_features["data"], dec_features

@@ -291,6 +291,7 @@ class VideoSplitInference(BasePipeline):
             data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
+            dec_features["file_origin"] = file_names[e]
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
