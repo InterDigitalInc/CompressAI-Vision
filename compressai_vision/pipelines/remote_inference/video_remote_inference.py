@@ -147,12 +147,12 @@ class VideoRemoteInference(BasePipeline):
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
                 if file_path.suffix in [".bin", ".mp4"]
             ]
-            assert len(bin_files) > 0, (
-                f"no bitstream file matching {self.bitstream_name}*"
-            )
-            assert len(bin_files) == 1, (
-                f"Error, multiple bitstream files matching {self.bitstream_name}*"
-            )
+            assert (
+                len(bin_files) > 0
+            ), f"no bitstream file matching {self.bitstream_name}*"
+            assert (
+                len(bin_files) == 1
+            ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
             res["bitstream"] = bin_files[0]
             # bitstream_bytes = res["bitstream"].stat().st_size
 

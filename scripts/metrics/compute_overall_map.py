@@ -246,9 +246,9 @@ if __name__ == "__main__":
                 BaseEvaluator.get_coco_eval_info_name,
             )
 
-            assert len(items) > 0, (
-                "Nothing relevant information found from given directories..."
-            )
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
 
             summary = compute_overall_mAP(args.class_to_compute, items)
 

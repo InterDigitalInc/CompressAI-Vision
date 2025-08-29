@@ -140,9 +140,9 @@ class MMPOSECustomMapper:
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
 
-        assert len(org_img.shape) == 3, (
-            f"detect an input image with 2 chs, {dataset_dict['file_name']}"
-        )
+        assert (
+            len(org_img.shape) == 3
+        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
 
         img_h, img_w, _ = org_img.shape
 
@@ -221,9 +221,9 @@ class YOLOXCustomMapper:
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
 
-        assert len(org_img.shape) == 3, (
-            f"detect an input image with 2 chs, {dataset_dict['file_name']}"
-        )
+        assert (
+            len(org_img.shape) == 3
+        ), f"detect an input image with 2 chs, {dataset_dict['file_name']}"
 
         dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
 

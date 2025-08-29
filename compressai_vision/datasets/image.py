@@ -246,9 +246,9 @@ class Detectron2Dataset(BaseDataset):
         if kwargs["linear_mapper"] is True:
             mapper = LinearMapper()
         else:
-            assert kwargs["cfg"] is not None, (
-                "A proper mapper information via cfg must be provided"
-            )
+            assert (
+                kwargs["cfg"] is not None
+            ), "A proper mapper information via cfg must be provided"
             mapper = DatasetMapper(kwargs["cfg"], False)
 
         self.mapDataset = MapDataset(_dataset, mapper)

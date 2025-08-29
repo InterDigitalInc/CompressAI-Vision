@@ -257,9 +257,9 @@ class FpnUtils:
         """reshape a frame of channels into the feature pyramid"""
 
         assert isinstance(x, (Tensor, Dict))
-        assert packing_all_in_one is True, (
-            "packing_all_in_one = False is not supported yet"
-        )
+        assert (
+            packing_all_in_one is True
+        ), "packing_all_in_one = False is not supported yet"
 
         top_y = 0
         tiled_frames = {}

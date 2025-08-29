@@ -160,12 +160,12 @@ class ImageSplitInference(BasePipeline):
                         and "_tmp" not in file_path.name
                     )
                 ]
-                assert len(bin_files) > 0, (
-                    f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}-{file_prefix}*"
-                )
-                assert len(bin_files) == 1, (
-                    f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
-                )
+                assert (
+                    len(bin_files) > 0
+                ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                assert (
+                    len(bin_files) == 1
+                ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
 
                 res["bitstream"] = bin_files[0]
                 print(f"reading bitstream... {res['bitstream']}")

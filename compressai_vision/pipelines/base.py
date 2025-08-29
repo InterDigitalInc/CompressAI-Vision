@@ -175,16 +175,14 @@ class BasePipeline(nn.Module):
         self._codec_skip_n_frames = self.configs["codec"]["skip_n_frames"]
         n_frames_to_be_encoded = self.configs["codec"]["n_frames_to_be_encoded"]
 
-        assert self._codec_skip_n_frames < total_num_frames, (
-            f"Number of skip frames {self._codec_skip_n_frames} must be less than total number of frames {total_num_frames}"
-        )
+        assert (
+            self._codec_skip_n_frames < total_num_frames
+        ), f"Number of skip frames {self._codec_skip_n_frames} must be less than total number of frames {total_num_frames}"
 
         if n_frames_to_be_encoded == -1:
             n_frames_to_be_encoded = total_num_frames
 
-        assert n_frames_to_be_encoded, (
-            f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
-        )
+        assert n_frames_to_be_encoded, f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
 
         if (self._codec_skip_n_frames + n_frames_to_be_encoded) > total_num_frames:
             self.logger.warning(
@@ -202,9 +200,11 @@ class BasePipeline(nn.Module):
             self._codec_skip_n_frames > 0
             or self._codec_n_frames_to_be_encoded != total_num_frames
         ):
-            assert self.configs["codec"]["encode_only"], (
-                "Encoding part of a sequence is only available when `codec.encode_only' is True"
-            )
+            assert self.configs[
+                "codec"
+            ][
+                "encode_only"
+            ], "Encoding part of a sequence is only available when `codec.encode_only' is True"
 
         self._codec_end_frame_idx = (
             self._codec_skip_n_frames + self._codec_n_frames_to_be_encoded
@@ -219,18 +219,18 @@ class BasePipeline(nn.Module):
         if n_bits == -1:
             data_features = features["data"]
         elif n_bits >= 8:
-            assert n_bits == 8 or n_bits == 16, (
-                "currently it only supports dumping features in 8 bits or 16 bits"
-            )
-            assert datacatalog_name in list(MIN_MAX_DATASET.keys()), (
-                f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
-            )
+            assert (
+                n_bits == 8 or n_bits == 16
+            ), "currently it only supports dumping features in 8 bits or 16 bits"
+            assert (
+                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
             for key, data in features["data"].items():
-                assert data.min() >= minv and data.max() <= maxv, (
-                    f"{data.min()} should be greater than {minv} and {data.max()} should be less than {maxv}"
-                )
+                assert (
+                    data.min() >= minv and data.max() <= maxv
+                ), f"{data.min()} should be greater than {minv} and {data.max()} should be less than {maxv}"
                 out, _ = min_max_normalization(data, minv, maxv, bitdepth=n_bits)
 
                 if n_bits <= 8:
@@ -258,12 +258,12 @@ class BasePipeline(nn.Module):
         if n_bits == -1:
             assert "data" in features
         elif n_bits >= 8:
-            assert n_bits == 8 or n_bits == 16, (
-                "currently it only supports dumping features in 8 bits or 16 bits"
-            )
-            assert datacatalog_name in list(MIN_MAX_DATASET.keys()), (
-                f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
-            )
+            assert (
+                n_bits == 8 or n_bits == 16
+            ), "currently it only supports dumping features in 8 bits or 16 bits"
+            assert (
+                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
             for key, data in features["data"].items():

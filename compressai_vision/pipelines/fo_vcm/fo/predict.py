@@ -74,9 +74,9 @@ def annexPredictions(  # noqa: C901
     assert predictors is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
     if encoder_decoder is not None:
-        assert issubclass(encoder_decoder.__class__, EncoderDecoder), (
-            "encoder_decoder instances needs to be a subclass of EncoderDecoder"
-        )
+        assert issubclass(
+            encoder_decoder.__class__, EncoderDecoder
+        ), "encoder_decoder instances needs to be a subclass of EncoderDecoder"
 
     model_meta = None
     for predictor in predictors:
@@ -279,9 +279,9 @@ def annexVideoPredictions(  # noqa: C901
     assert predictors is not None, "provide Detectron2 predictor"
     assert fo_dataset is not None, "provide fiftyone dataset"
     if encoder_decoder is not None:
-        assert issubclass(encoder_decoder.__class__, EncoderDecoder), (
-            "encoder_decoder instances needs to be a subclass of EncoderDecoder"
-        )
+        assert issubclass(
+            encoder_decoder.__class__, EncoderDecoder
+        ), "encoder_decoder instances needs to be a subclass of EncoderDecoder"
 
     model_meta = None
     for predictor in predictors:

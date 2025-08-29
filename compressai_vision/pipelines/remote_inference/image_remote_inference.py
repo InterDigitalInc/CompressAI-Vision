@@ -122,12 +122,12 @@ class ImageRemoteInference(BasePipeline):
                     )
                     if file_path.suffix in [".bin", ".mp4"]
                 ]
-                assert len(bin_files) > 0, (
-                    f"no bitstream file matching {self.bitstream_name}-{file_prefix}*"
-                )
-                assert len(bin_files) == 1, (
-                    f"Error, multiple bitstream files matching {self.bitstream_name}*"
-                )
+                assert (
+                    len(bin_files) > 0
+                ), f"no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                assert (
+                    len(bin_files) == 1
+                ), f"Error, multiple bitstream files matching {self.bitstream_name}*"
 
                 res["bitstream"] = bin_files[0]
                 print(f"reading bitstream... {res['bitstream']}", file=sys.stdout)

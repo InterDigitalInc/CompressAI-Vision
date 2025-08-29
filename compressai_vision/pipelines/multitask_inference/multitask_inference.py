@@ -105,9 +105,9 @@ class MultiTaskInference(BasePipeline):
         Returns (nbitslist, x_hat), where nbitslist is a list of number of bits and x_hat is the image that has gone throught the encoder/decoder process
         """
 
-        assert codec.num_tasks == len(evaluators) == len(vision_models), (
-            "# of multiple tasks are not matched"
-        )
+        assert (
+            codec.num_tasks == len(evaluators) == len(vision_models)
+        ), "# of multiple tasks are not matched"
 
         self._update_codec_configs_at_pipeline_level(len(dataloader))
         output_list = []

@@ -117,9 +117,9 @@ class FO2DetectronDataset(torch.utils.data.Dataset):
         # TODO (sampsa) "Do not use mutable data structures for argument defaults"
     ):
         assert fo_dataset is not None, "please provide fo_dataset (fiftyone dataset)"
-        assert len(model_catids) > 0, (
-            "please provide MODEL's ORIGINAL category label list.  Get his from detectron2 model's metadata."
-        )
+        assert (
+            len(model_catids) > 0
+        ), "please provide MODEL's ORIGINAL category label list.  Get his from detectron2 model's metadata."
         self.fo_dataset = fo_dataset
         self.detection_field = detection_field
         self.model_catids = model_catids
@@ -276,9 +276,9 @@ def detectron251(
 
     Returns FiftyOne ``Detections`` instance that can be attached to a FiftyOne ``Sample`` instance.
     """
-    assert len(model_catids) > 0, (
-        "please provide MODEL's ORIGINAL category label list.  Get it from detectron2 model's metadata."
-    )
+    assert (
+        len(model_catids) > 0
+    ), "please provide MODEL's ORIGINAL category label list.  Get it from detectron2 model's metadata."
     """
 
     Which you would do with:

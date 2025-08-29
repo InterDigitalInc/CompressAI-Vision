@@ -209,9 +209,9 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         0001eeaf4aed83f9,source,tag,1,0.022673031,0.9642005,0.07103825,0.80054647,0,0,0,0,0
         ...
     """
-    assert validation_csv_file is not None, (
-        "you _must_ provide at least MPEG/VCM-formatted image-level labels csv file, aka 'detection_validation_labels_5k.csv'"
-    )
+    assert (
+        validation_csv_file is not None
+    ), "you _must_ provide at least MPEG/VCM-formatted image-level labels csv file, aka 'detection_validation_labels_5k.csv'"
     # assert(bbox_csv_file is not None), "please provide MPEG/VCM-formatted bbox csv file, aka 'detection_validation_5k_bbox.csv'" # OPT
 
     assert output_directory is not None, "please provide output root directory"
@@ -229,9 +229,9 @@ def MPEGVCMToOpenImageV6(  # noqa: C901
         assert os.path.exists(segmentation_csv_file), (
             "file " + segmentation_csv_file + " does not exist"
         )
-        assert mask_dir is not None, (
-            "please provide mask_dir where the mask images are located (typically at labels/masks of your main OpenImageV6 dir)"
-        )
+        assert (
+            mask_dir is not None
+        ), "please provide mask_dir where the mask images are located (typically at labels/masks of your main OpenImageV6 dir)"
         assert os.path.exists(mask_dir), "directory " + mask_dir + " does not exist"
 
     assert os.path.exists(data_dir), "directory " + data_dir + " does not exist"

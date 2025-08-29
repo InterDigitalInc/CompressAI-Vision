@@ -189,9 +189,9 @@ def generate_csv_classwise_video_map(
                 gt_folder=gt_folder,
             )
 
-            assert len(items) > 0, (
-                "No evaluation information found in provided result directories..."
-            )
+            assert (
+                len(items) > 0
+            ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
                 summary = compute_overall_mAP(classwise_name, items, no_cactus)
@@ -250,9 +250,9 @@ def generate_csv_classwise_video_mota(
                 BaseEvaluator.get_jde_eval_info_name,
             )
 
-            assert len(items) > 0, (
-                "Nothing relevant information found from given directories..."
-            )
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
 
             summary, _ = compute_overall_mota(classwise_name, items)
 
@@ -314,9 +314,9 @@ def generate_csv_classwise_video_miou(
                 pandaset_flag=True,
             )
 
-            assert len(items) > 0, (
-                "Nothing relevant information found from given directories..."
-            )
+            assert (
+                len(items) > 0
+            ), "Nothing relevant information found from given directories..."
 
             miou = compute_overall_mIoU(classwise_name, items)
             class_wise_mious.append(miou)
