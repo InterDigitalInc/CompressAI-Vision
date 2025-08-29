@@ -24,6 +24,8 @@ It currently focuses on two types of pipeline:
 
 - [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo) for Pose Estimation (Bottom Up)
 
+- [Segment Anything](https://github.com/facebookresearch/segment-anything/tree/main)
+
 ## Documentation
 
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
@@ -155,3 +157,4 @@ Fabien Racapé, Hyomin Choi, Eimran Eimon, Sampsa Riikonen, Jacky Yat-Hong Lam
  * [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT.git)
  * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
  * [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo)
+ * [Segment Anything](https://github.com/facebookresearch/segment-anything/tree/main)
