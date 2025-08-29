@@ -57,8 +57,8 @@ def mask_to_bbx(mask):
     rows, cols = np.where(mask)
 
     # Calculate the bounding box
-    min_row, max_row = rows.min(), rows.max()
-    min_col, max_col = cols.min(), cols.max()
+    # min_row, max_row = rows.min(), rows.max()
+    # min_col, max_col = cols.min(), cols.max()
 
     # Bounding box as (top-left corner, bottom-right corner)
     bounding_box = [

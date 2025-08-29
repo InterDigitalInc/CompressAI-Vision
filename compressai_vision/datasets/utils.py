@@ -334,8 +334,8 @@ class SAMCustomMapper:
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
         dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
 
-        h = dataset_dict["height"]
-        w = dataset_dict["width"]
+        # h = dataset_dict["height"]
+        # w = dataset_dict["width"]
 
         # BGR --> RGB (SAM requires RGB input)
         org_img = org_img[..., ::-1]
