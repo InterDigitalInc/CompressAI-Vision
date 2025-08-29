@@ -410,7 +410,7 @@ prepare_segment_anything () {
         return
     fi
 
-    git clone git@github.com:facebookresearch/segment-anything.git "${MODELS_SOURCE_DIR}/segment_anything"
+    git clone https://github.com/facebookresearch/segment-anything.git "${MODELS_SOURCE_DIR}/segment_anything"
     cd "${MODELS_SOURCE_DIR}/segment_anything"
     git reset --hard dca509fe793f601edb92606367a655c15ac00fdf
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
