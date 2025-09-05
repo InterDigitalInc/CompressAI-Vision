@@ -34,15 +34,6 @@ from typing import Dict, List, Optional
 
 import torch
 
-from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.config import get_cfg
-from detectron2.modeling import build_model
-from detectron2.modeling.meta_arch.panoptic_fpn import (
-    combine_semantic_and_instance_outputs,
-    detector_postprocess,
-    sem_seg_postprocess,
-)
-from detectron2.structures import ImageList
 
 from compressai_vision.registry import register_vision_model
 
@@ -159,10 +150,16 @@ class Split_Points(Enum):
 
 class Rcnn_R_50_X_101_FPN(BaseWrapper):
     def __init__(self, device: str, **kwargs):
+        from detectron2.checkpoint import DetectionCheckpointer
+        from detectron2.config import get_cfg
+        from detectron2.modeling import build_model
+
         super().__init__(device)
 
         self._cfg = get_cfg()
         self._cfg.MODEL.DEVICE = device
+        self.DetectionCheckpointer = DetectionCheckpointer
+        self.build_model = build_model
         _path_prefix = (
             f"{root_path}"
             if kwargs["model_path_prefix"] == "default"
@@ -171,11 +168,11 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self._cfg.merge_from_file(f"{_path_prefix}/{kwargs['cfg']}")
         _integer_conv_weight = bool(kwargs["integer_conv_weight"])
 
-        self.model = build_model(self._cfg)
+        self.model = self.build_model(self._cfg)
         self.replace_conv2d_modules(self.model)
         self.model = self.model.to(device).eval()
 
-        DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
+        self.DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
 
         for param in self.model.parameters():
             param.requires_grad = False
@@ -280,6 +277,8 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         return model
 
     def input_resize(self, images: List):
+        from detectron2.structures import ImageList
+
         return ImageList.from_tensors(images, self.size_divisibility)
 
     def input_to_features(self, x, device: str) -> Dict:
@@ -587,7 +586,18 @@ class mask_rcnn_R_50_FPN_3x(Rcnn_R_50_X_101_FPN):
 @register_vision_model("panoptic_rcnn_R_101_FPN_3x")
 class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
     def __init__(self, device="cpu", **kwargs):
+        from detectron2.modeling.meta_arch.panoptic_fpn import (
+            combine_semantic_and_instance_outputs,
+            detector_postprocess,
+            sem_seg_postprocess,
+        )
+
         super().__init__(device, **kwargs)
+        self.sem_seg_postprocess = sem_seg_postprocess
+        self.detector_postprocess = detector_postprocess
+        self.combine_semantic_and_instance_outputs = (
+            combine_semantic_and_instance_outputs
+        )
         self.sem_seg_head = self.model.sem_seg_head
 
         combine_overlap_thresh = 0.5
@@ -637,12 +647,12 @@ class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
         ):
             height = input_per_image["height"]
             width = input_per_image["width"]
-            sem_seg_r = sem_seg_postprocess(sem_seg_result, image_size, height, width)
-            detector_r = detector_postprocess(detector_result, height, width)
+            sem_seg_r = self.sem_seg_postprocess(sem_seg_result, image_size, height, width)
+            detector_r = self.detector_postprocess(detector_result, height, width)
 
             processed_results.append({"sem_seg": sem_seg_r, "instances": detector_r})
 
-            panoptic_r = combine_semantic_and_instance_outputs(
+            panoptic_r = self.combine_semantic_and_instance_outputs(
                 detector_r,
                 sem_seg_r.argmax(dim=0),
                 self.combine_overlap_thresh,

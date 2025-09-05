@@ -10,13 +10,6 @@ import cv2
 import numpy as np
 import pandas
 import torch
-
-from detectron2.structures import ImageList, Instances
-from segment_anything import (  # , Instances
-    # SamAutomaticMaskGenerator,
-    # SamPredictor,
-    sam_model_registry,
-)
 from torch.nn import functional as F
 
 from compressai_vision.registry import register_vision_model
@@ -80,7 +73,10 @@ class Split_Points(Enum):
 
 class SAM(BaseWrapper):
     def __init__(self, device: str, **kwargs):
+        from segment_anything import sam_model_registry
+
         super().__init__(device)
+        self.sam_model_registry = sam_model_registry
 
         _path_prefix = (
             f"{root_path}"
@@ -93,7 +89,7 @@ class SAM(BaseWrapper):
         }
 
         self.model = (
-            sam_model_registry["vit_h"](checkpoint=self.model_info["weights"])
+            self.sam_model_registry["vit_h"](checkpoint=self.model_info["weights"])
             .to(device)
             .eval()
         )
@@ -268,6 +264,8 @@ class SAM(BaseWrapper):
         scores = torch.tensor([iou_pred])
         classes = torch.tensor(object_classes)  # 48 for sandwich,
         # masks = torch.rand(1, 683, 1024)  # Example binary mask
+
+        from detectron2.structures import Instances
 
         # Create an instance
         instances = Instances(image_size=(input_img_size[0], input_img_size[1]))

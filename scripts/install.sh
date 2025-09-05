@@ -151,13 +151,13 @@ run_install () {
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         uv sync --extra="${BUILD_SUFFIX}"
     fi
-
+    
     for model in detectron2 jde yolox mmpose segment_anything; do
-        if [[ ",${MODEL,,}," == *",${model},"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
+        if [[ "${MODEL,,}" == *"${model}"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
             "install_${model}"
         fi
     done
-
+    
     echo
     echo "Installing compressai"
     echo

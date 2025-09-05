@@ -35,9 +35,6 @@ import cv2
 import numpy as np
 import torch
 
-from jde.utils.datasets import letterbox
-from mmpose.structures.bbox import get_warp_matrix
-from segment_anything.utils.transforms import ResizeLongestSide
 from torch.nn import functional as F
 from torchvision import transforms
 
@@ -130,6 +127,7 @@ class MMPOSECustomMapper:
         Returns:
             dict: a format that compressai-vision pipelines accept
         """
+        from mmpose.structures.bbox import get_warp_matrix
 
         dataset_dict = copy.deepcopy(dataset_dict)
         # the copied dictionary will be modified by code below
@@ -284,6 +282,7 @@ class JDECustomMapper:
         Returns:
             dict: a format that compressai-vision pipelines accept
         """
+        from jde.utils.datasets import letterbox
 
         dataset_dict = copy.deepcopy(dataset_dict)
         # the copied dictionary will be modified by code below
@@ -313,6 +312,8 @@ class SAMCustomMapper:
         Args:
             img_size: single value - target size to SAM as input
         """
+        from segment_anything.utils.transforms import ResizeLongestSide
+
         self.target_size = img_size
         self.transform = ResizeLongestSide(img_size)
 

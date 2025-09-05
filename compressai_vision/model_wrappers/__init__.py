@@ -27,34 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .detectron2 import (
-    BaseWrapper,
-    faster_rcnn_R_50_FPN_3x,
-    faster_rcnn_X_101_32x8d_FPN_3x,
-    mask_rcnn_R_50_FPN_3x,
-    mask_rcnn_X_101_32x8d_FPN_3x,
-    panoptic_rcnn_R_101_FPN_3x,
-)
-from .jde import jde_1088x608
-from .rtmo import rtmo_multi_person_pose_estimation
-from .sam import (
-    sam_vit_b_01ec64,
-    sam_vit_h_4b8939,
-    sam_vit_l_0b3195,
-)
-from .yolox import yolox_darknet53
+from .base_wrapper import BaseWrapper
+from . import detectron2, jde, rtmo, sam, yolox
 
-__all__ = [
-    "BaseWrapper",
-    "faster_rcnn_X_101_32x8d_FPN_3x",
-    "mask_rcnn_X_101_32x8d_FPN_3x",
-    "faster_rcnn_R_50_FPN_3x",
-    "mask_rcnn_R_50_FPN_3x",
-    "panoptic_rcnn_R_101_FPN_3x",
-    "jde_1088x608",
-    "yolox_darknet53",
-    "rtmo_multi_person_pose_estimation",
-    "sam_vit_h_4b8939",
-    "sam_vit_b_01ec64",
-    "sam_vit_l_0b3195",
-]
+__all__ = ["BaseWrapper"]

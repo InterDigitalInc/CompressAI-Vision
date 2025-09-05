@@ -32,29 +32,11 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import jde
 import torch
-
-from jde.models import Darknet
-from jde.tracker import matching
-from jde.tracker.basetrack import TrackState
-from jde.tracker.multitracker import (
-    STrack,
-    joint_stracks,
-    remove_duplicate_stracks,
-    sub_stracks,
-)
-from jde.utils.kalman_filter import KalmanFilter
-from jde.utils.utils import non_max_suppression, scale_coords
 
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-
-# Patch in modified create_modules
-from .jde_lowlevel import create_modules
-
-jde.models.create_modules = create_modules
 
 __all__ = [
     "jde_1088x608",
@@ -67,7 +49,18 @@ root_path = thisdir.joinpath("../..")
 @register_vision_model("jde_1088x608")
 class jde_1088x608(BaseWrapper):
     def __init__(self, device: str, **kwargs):
+        import jde
+        from jde.models import Darknet
+        from jde.utils.kalman_filter import KalmanFilter
+
+        from .jde_lowlevel import create_modules
+
+        jde.models.create_modules = create_modules
+
         super().__init__(device)
+
+        self.Darknet = Darknet
+        self.KalmanFilter = KalmanFilter
 
         _path_prefix = (
             f"{root_path}"
@@ -99,7 +92,7 @@ class jde_1088x608(BaseWrapper):
             zip(self.split_layer_list, [None] * len(self.split_layer_list))
         )
 
-        self.darknet = Darknet(self.model_info["cfg"], device, nID=14455)
+        self.darknet = self.Darknet(self.model_info["cfg"], device, nID=14455)
         self.darknet.load_state_dict(
             torch.load(self.model_info["weights"], map_location="cpu")["model"],
             strict=False,
@@ -112,7 +105,7 @@ class jde_1088x608(BaseWrapper):
         if _integer_conv_weight:
             self.darknet = self.quantize_weights(self.darknet)
 
-        self.kalman_filter = KalmanFilter()
+        self.kalman_filter = self.KalmanFilter()
 
         if "logging_level" in kwargs:
             self.logger.level = kwargs["logging_level"]
@@ -239,6 +232,15 @@ class jde_1088x608(BaseWrapper):
         # return x_deeper
 
     def _jde_process(self, pred, org_img_size: tuple, input_img_size: tuple):
+        from jde.tracker import matching
+        from jde.tracker.basetrack import TrackState
+        from jde.tracker.multitracker import (
+            STrack,
+            joint_stracks,
+            remove_duplicate_stracks,
+            sub_stracks,
+        )
+        from jde.utils.utils import non_max_suppression, scale_coords
         r"""Re-implementation of JDE from Z. Wang, L. Zheng, Y. Liu, and S. Wang:
         : `"Towards Real-Time Multi-Object Tracking"`_,
         The European Conference on Computer Vision (ECCV), 2020

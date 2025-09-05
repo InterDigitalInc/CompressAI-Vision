@@ -41,19 +41,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-from detectron2.data import MetadataCatalog
-from detectron2.evaluation import COCOEvaluator
-from detectron2.utils.visualizer import Visualizer
-from jde.utils.io import unzip_objs
-from mmpose.datasets.datasets import BaseCocoStyleDataset
-from mmpose.datasets.transforms import PackPoseInputs
-from mmpose.evaluation.metrics import CocoMetric
-from pycocotools.coco import COCO
 from pytorch_msssim import ms_ssim
 from tqdm import tqdm
-from yolox.data.datasets.coco import remove_useless_info
-from yolox.evaluators import COCOEvaluator as YOLOX_COCOEvaluator
-from yolox.utils import xyxy2xywh
 
 from compressai_vision.datasets import deccode_compressed_rle
 from compressai_vision.registry import register_evaluator
@@ -132,6 +121,8 @@ class COCOEVal(BaseEvaluator):
 
         self.set_annotation_info(dataset)
 
+        from detectron2.evaluation import COCOEvaluator
+
         self._evaluator = COCOEvaluator(
             dataset_name, False, output_dir=output_dir, use_fast_impl=False
         )
@@ -160,6 +151,9 @@ class COCOEVal(BaseEvaluator):
         gt_image = cv2.resize(gt_image, (gt[0]["width"], gt[0]["height"]))
 
         img_id = gt[0]["image_id"]
+        from detectron2.data import MetadataCatalog
+        from detectron2.utils.visualizer import Visualizer
+
         metadata = MetadataCatalog.get(self.dataset_name)
         instances = pred[0]["instances"].to("cpu")
         if threshold:
@@ -381,6 +375,9 @@ class OpenImagesChallengeEval(BaseEvaluator):
         gt_image = cv2.resize(gt_image, (gt[0]["width"], gt[0]["height"]))
 
         img_id = gt[0]["image_id"]
+        from detectron2.data import MetadataCatalog
+        from detectron2.utils.visualizer import Visualizer
+
         metadata = MetadataCatalog.get(self.dataset_name)
         instances = pred[0]["instances"].to("cpu")
 
@@ -677,6 +674,10 @@ class MOT_JDE_Eval(BaseEvaluator):
 
         self.set_annotation_info(dataset)
 
+        from jde.utils.io import unzip_objs
+
+        self.unzip_objs = unzip_objs
+
         mm.lap.default_solver = "lap"
         self.dataset = dataset.dataset
         self.eval_info_file_name = self.get_jde_eval_info_name(self.dataset_name)
@@ -869,13 +870,13 @@ class MOT_JDE_Eval(BaseEvaluator):
             frm_id = int(gt_frame["image_id"])
 
             pred_objs = self._predictions[frm_id].copy()
-            pred_tlwhs, pred_ids, _ = unzip_objs(pred_objs)
+            pred_tlwhs, pred_ids, _ = self.unzip_objs(pred_objs)
 
             gt_objs = gt_frame["annotations"]["gt"].copy()
-            gt_tlwhs, gt_ids, _ = unzip_objs(gt_objs)
+            gt_tlwhs, gt_ids, _ = self.unzip_objs(gt_objs)
 
             gt_ignore = gt_frame["annotations"]["gt_ignore"].copy()
-            gt_ignore_tlwhs, _, _ = unzip_objs(gt_ignore)
+            gt_ignore_tlwhs, _, _ = self.unzip_objs(gt_ignore)
 
             # remove ignored results
             keep = np.ones(len(pred_tlwhs), dtype=bool)
@@ -1047,6 +1048,10 @@ class YOLOXCOCOEval(BaseEvaluator):
         super().__init__(
             datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
         )
+
+        from pycocotools.coco import COCO
+        from yolox.data.datasets.coco import remove_useless_info
+        from yolox.evaluators import COCOEvaluator as YOLOX_COCOEvaluator
 
         self.set_annotation_info(dataset)
 
@@ -1223,6 +1228,16 @@ class MMPOSECOCOEval(BaseEvaluator):
         self.comput_scale_and_center = (
             dataset.get_org_mapper_func().compute_scale_and_center
         )
+
+        try:
+            from mmpose.datasets.datasets import BaseCocoStyleDataset
+            from mmpose.datasets.transforms import PackPoseInputs
+            from mmpose.evaluation.metrics import CocoMetric
+        except ImportError:
+            self._logger.error(
+                "Failed to import mmpose. Please install it, e.g. with 'pip install mmpose'."
+            )
+            raise
 
         if "metainfo" in args:
             metainfo = args["metainfo"]

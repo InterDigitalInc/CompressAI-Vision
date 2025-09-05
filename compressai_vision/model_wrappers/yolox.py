@@ -34,9 +34,6 @@ from typing import Dict, List
 
 import torch
 
-from yolox.exp import get_exp
-from yolox.utils import postprocess
-
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
@@ -76,6 +73,8 @@ class yolox_darknet53(BaseWrapper):
         self.num_classes = kwargs["num_classes"]
         self.conf_thres = kwargs["conf_thres"]
         self.nms_thres = kwargs["nms_thres"]
+
+        from yolox.exp import get_exp
 
         self.squeeze_at_split_enabled = False
 
@@ -308,6 +307,8 @@ class yolox_darknet53(BaseWrapper):
 
         self.model = self.model.to(self.device).eval()
         img = x["image"].unsqueeze(0).to(self.device)
+
+        from yolox.utils import postprocess
 
         fpn_out = self.yolo_fpn(img)
         outputs = self.head(fpn_out)

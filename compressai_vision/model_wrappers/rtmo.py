@@ -36,9 +36,6 @@ from typing import Dict, List
 
 import torch
 
-from mmengine.config import Config
-from mmengine.registry import MODELS, DefaultScope
-
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
@@ -64,7 +61,14 @@ class Split_Points(Enum):
 @register_vision_model("rtmo_multi_person_pose_estimation")
 class rtmo_multi_person_pose_estimation(BaseWrapper):
     def __init__(self, device: str, **kwargs):
+        from mmengine.config import Config
+        from mmengine.registry import MODELS, DefaultScope
+
         super().__init__(device)
+
+        self.Config = Config
+        self.MODELS = MODELS
+        self.DefaultScope = DefaultScope
 
         _path_prefix = (
             f"{root_path}"
@@ -76,14 +80,14 @@ class rtmo_multi_person_pose_estimation(BaseWrapper):
             "weights": f"{_path_prefix}/{kwargs['weights']}",
         }
 
-        cfg = Config.fromfile(self.model_info["cfg"])
+        cfg = self.Config.fromfile(self.model_info["cfg"])
         model_cfg = cfg["model"]
         # log_processor_cfg = cfg.get("log_processor")
         default_scope = cfg.get("default_scope", "mmengine")
         assert default_scope == "mmpose"
 
-        default_scope = DefaultScope.get_instance("mmpose", scope_name=default_scope)
-        self.model = MODELS.build(model_cfg)
+        default_scope = self.DefaultScope.get_instance("mmpose", scope_name=default_scope)
+        self.model = self.MODELS.build(model_cfg)
         self.test_cfg = model_cfg["test_cfg"]
 
         class dummy_data:
