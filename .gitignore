@@ -1,8 +1,8 @@
 *.out
 *.bin
 *.inc
-*.sh
 *.tar.gz
+*.sh
 .DS_Store
 builds
 compressai_vision/version.py

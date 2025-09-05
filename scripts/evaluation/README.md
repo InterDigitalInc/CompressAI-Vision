@@ -39,7 +39,7 @@ with
 ## Test your environment
 In addition, the following script is provided to test your environment
 ```
-bash default_vision_performances.sh compressai-split-inference /path/to/testdata
+bash default_vision_performances.sh --command [entry_cmd] --testdata [/path/to/dataset] --device [device]"
 ```
 it runs the evaluation of the performance of the vision models without compression of input video or intermediate data. In both pipeline types, the input content is passed to the decoder without compression. 
 
