@@ -6,6 +6,11 @@ set -eu
 SCRIPT_PATH="${BASH_SOURCE[0]:-${0}}"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${SCRIPT_PATH}")" &> /dev/null && pwd)
 
+# --- Configuration ---
+# Central array for all vision models
+VISION_MODELS=(detectron2 jde yolox mmpose segment_anything)
+
+# Default versions
 TORCH_VERSION="2.0.0"
 TORCHVISION_VERSION="0.15.1"
 CUDA_VERSION=""
@@ -16,6 +21,7 @@ MODELS_PARENT_DIR="${COMPRESSAI_VISION_ROOT_DIR}"
 NO_PREPARE="False"
 NO_INSTALL="False"
 DOWNLOAD_WEIGHTS="True"
+FCM_CTTC="False" # Install all models in conformance with MPEG FCM Common Test and Training Conditions
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
 export DNNL_MAX_CPU_ISA=AVX2
@@ -43,16 +49,19 @@ RUN OPTIONS:
                     not required for regular versions derived from cuda and torch versions above.
                     default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--models_dir directory to install vision models to, default: compressai_vision_root]
-                [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching 
+                [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching
                 [--no-weights) prevents the installation script from downloading vision model parameters]
+                [--fcm-cttc) Install all models in conformance with MPEG FCM Common Test and Training Conditions:
+                             Torch 2.0.0, Torchvision 0.15.1, CUDA 11.8]
 
 
 EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
+FCM EXAMPLE     [bash install.sh --fcm-cttc]
 
 _EOF_
             exit;
             ;;
-        -m|--model) shift; MODEL="$1"; shift; ;;
+        -m|--model) shift; MODEL="${1//,/ }"; shift; ;;
         -t|--torch) shift; TORCH_VERSION="$1"; shift; ;;
         --torchvision) shift; TORCHVISION_VERSION="$1"; shift; ;;
         --cpu) CPU="True"; shift; ;;
@@ -61,6 +70,7 @@ _EOF_
         --no-prepare) NO_PREPARE="True"; shift; ;;
         --no-install) NO_INSTALL="True"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
+        --fcm-cttc) FCM_CTTC="True"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
@@ -112,6 +122,27 @@ detect_env() {
 }
 
 main () {
+    # --- FCM CTTC Installation ---
+    if [[ "${FCM_CTTC}" == "True" ]]; then
+        echo "🚀 FCM CTTC Mode Enabled: Enforcing strict versions for all models."
+        TORCH_VERSION="2.0.0"
+        # Correct torchvision version for torch 2.0.0
+        TORCHVISION_VERSION="0.15.1"
+        CUDA_VERSION="11.8"
+        MODEL="detectron2 jde yolox"
+        CPU="False"
+
+        # Verify CUDA version
+        DETECTED_CUDA=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
+        if [[ "${DETECTED_CUDA}" != "${CUDA_VERSION}" ]]; then
+            echo "[ERROR] FCM CTTC Mode requires CUDA v${CUDA_VERSION}, but detected v${DETECTED_CUDA}."
+            echo "Please ensure that your environment has CUDA v${CUDA_VERSION} installed."
+            exit 1
+        fi
+        echo "CUDA version check passed for FCM CTTC Mode."
+    fi
+    # --- End FCM CTTC Mode Logic ---
+
     detect_env
 
     if [[ "${NO_PREPARE}" == "False" ]]; then
@@ -134,26 +165,34 @@ main () {
 run_prepare() {
     detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
+    
+    echo "Selected Models to be prepared: ${MODEL}"
 
-    # NOTE: We always prepare all packages, even if they are not installed.
-    # This helps with dependency resolution.
-    for pkg in cython_bbox detectron2 jde mmpose yolox segment_anything; do
-        "prepare_${pkg}"
+    for model in "${VISION_MODELS[@]}"; do
+        if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
+            # JDE has a dependency on cython_bbox, so prepare it first.
+            if [[ "${model}" == "jde" ]]; then
+                prepare_cython_bbox
+            fi
+            "prepare_${model}"
+        fi
     done
 }
 
 run_install () {
     detect_env
     "${PIP[@]}" install -U pip wheel setuptools
+    
+    echo "Selected Models to be installed: ${MODEL}"
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         install_torch
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         uv sync --extra="${BUILD_SUFFIX}"
     fi
-    
-    for model in detectron2 jde yolox mmpose segment_anything; do
-        if [[ "${MODEL,,}" == *"${model}"* ]] || [[ " ${MODEL,,} " == *" all "* ]]; then
+
+    for model in "${VISION_MODELS[@]}"; do
+        if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
             "install_${model}"
         fi
     done
@@ -211,12 +250,8 @@ detect_cuda_version () {
 }
 
 install_torch () {
-    if [ "${CPU}" == "True" ]; then
-        "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
-    else
-        # TODO(refactor): If we use --index-url instead, the "+${BUILD_SUFFIX}" does not need to be explicitly specified.
-        "${PIP[@]}" install "torch==${TORCH_VERSION}+${BUILD_SUFFIX}" "torchvision==${TORCHVISION_VERSION}+${BUILD_SUFFIX}" --extra-index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
-    fi
+    "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
+
 }
 
 prepare_detectron2 () {
@@ -232,9 +267,10 @@ prepare_detectron2 () {
     
     git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-    git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch 0001 could not be applied. Possibly already applied."
-    git apply "${SCRIPT_DIR}/patches/0002-detectron2-setup-defer-torch-import.patch" || echo "Patch 0002 could not be applied. Possibly already applied."
+    if [[ "${FCM_CTTC}" == "True" ]]; then
+        git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
+    fi
+    git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -244,12 +280,14 @@ install_detectron2 () {
     echo
 
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    rm -rf build/ **/*.so
+    cp ${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml ./pyproject.toml
 
-    # Install build dependencies first for detectron2
-    "${PIP[@]}" install setuptools wheel
-    "${PIP[@]}" install -e . --no-build-isolation
-
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install --no-build-isolation -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
+        uv sync --inexact --group=models-detectron2
+    fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
@@ -259,7 +297,7 @@ prepare_cython_bbox () {
     echo "Preparing cython_bbox for installation"
     echo
 
-    if [ -n "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
+    if [ -d "${SCRIPT_DIR}/cython_bbox" ] && [ -n "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
         echo "Source directory already exists: ${SCRIPT_DIR}/cython_bbox"
         return
     fi
@@ -268,7 +306,7 @@ prepare_cython_bbox () {
     cd "${SCRIPT_DIR}/cython_bbox"
     # cython-bbox 0.1.3
     git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
-    git apply "${SCRIPT_DIR}/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/install_utils/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -284,8 +322,6 @@ install_cython_bbox() {
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo "cython-bbox is installed later during JDE installation."
-        # "${PIP[@]}" install --no-build-isolation cython
-        # "${PIP[@]}" install --no-build-isolation .
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -296,7 +332,7 @@ prepare_jde () {
     echo "Preparing JDE for installation"
     echo
 
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
+    if [ -d "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
         return
     fi
@@ -304,8 +340,8 @@ prepare_jde () {
     git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
     cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
     git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
-    git apply "${SCRIPT_DIR}/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
-    git apply "${SCRIPT_DIR}/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/install_utils/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/install_utils/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -334,7 +370,7 @@ prepare_yolox () {
     echo "Preparing YOLOX for installation"
     echo
 
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
+    if [ -d "${MODELS_SOURCE_DIR}/yolox" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/yolox"
         return
     fi
@@ -354,8 +390,9 @@ install_yolox () {
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         # miminum requirments - no onnx, etc.
-        cp "${SCRIPT_DIR}/yolox_requirements.txt" requirements.txt
-        "${PIP[@]}" install -e .
+        cp "${SCRIPT_DIR}/install_utils/yolox_requirements.txt" requirements.txt
+        cp ${SCRIPT_DIR}/install_utils/yolox_pyproject.toml ./pyproject.toml
+        "${PIP[@]}" install --no-build-isolation -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
         uv sync --inexact --group=models-yolox
@@ -369,7 +406,7 @@ prepare_mmpose () {
     echo "Preparing MMPOSE for installation"
     echo
 
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
+    if [ -d "${MODELS_SOURCE_DIR}/mmpose" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/mmpose"
         return
     fi
@@ -411,7 +448,7 @@ prepare_segment_anything () {
     echo "Preparing Segment Anything for installation"
     echo
 
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/segment_anything")" ]; then
+    if [ -d "${MODELS_SOURCE_DIR}/segment_anything" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/segment_anything")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/segment_anything"
         return
     fi
@@ -444,7 +481,7 @@ download_weights () {
     detect_env
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
-
+    
     for model in detectron2 jde mmpose yolox segment_anything; do
         if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," != *",all,"* ]]; then
             continue
@@ -456,7 +493,7 @@ download_weights () {
         echo "Downloading model weights for ${model}..."
         echo
 
-        FILTER="^[0-9a-fA-F]*  ${model}/"
+        FILTER="^[0-9a-fA-F]* ${model}/"
         FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
 
         echo "${FILTERED_WEIGHTS}" | while read -r entry; do

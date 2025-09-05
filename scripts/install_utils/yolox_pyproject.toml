@@ -1,0 +1,14 @@
+# pyproject.toml
+[build-system]
+requires = [
+    "numpy",
+    "torch>=1.7",
+    "opencv_python",
+    "loguru",
+    "tqdm",
+    "thop",
+    "ninja",
+    "tabulate",
+    "psutil",
+    "pycocotools>=2.0.2",
+]

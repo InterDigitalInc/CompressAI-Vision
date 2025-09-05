@@ -59,8 +59,14 @@ bash scripts/env_cuda.sh 11.8
 ```
 Then, please run:
 ```
-bash scripts/install.sh
+bash scripts/install.sh 
 ```
+
+To install the dependencies in conformance with MPEG FCM Test Conditions, run:
+```
+bash scripts/install.sh --fcm-cttc 
+```
+
 
 For more otions, check:
 ```
