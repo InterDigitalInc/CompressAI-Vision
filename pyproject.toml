@@ -74,19 +74,7 @@ cpu = [
     "torch>=2.0.0",
     "torchvision>=0.15.1",
 ]
-cu118 = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.1",
-]
-cu128 = [
-    "torch>=2.7.0 ; python_version >= '3.9'",
-    "torchvision>=0.22.0 ; python_version >= '3.9'",
-]
-models-detectron2 = [
-    "detectron2==0.6",
-]
 models-jde = [
-    "cython-bbox",  # Encourages local cython-bbox source.
     "jde",
 ]
 models-mmpose = [
@@ -129,11 +117,7 @@ tutorials = [
     "ipywidgets",
     "jupyter",
 ]
-models-detectron2 = [
-    "detectron2==0.6",
-]
 models-jde = [
-    "cython-bbox",  # Encourages local cython-bbox source.
     "jde",
 ]
 models-mmpose = [
@@ -162,16 +146,8 @@ skip_gitignore = true
 known_third_party = "PIL,torchvision,torch"
 
 [tool.uv]
-conflicts = [
-    [
-        { extra = "cpu" },
-        { extra = "cu118" },
-        { extra = "cu128" },
-    ],
-]
 no-build-isolation-package = [
     "chumpy",  # build-system.requires: pip
-    "detectron2",  # build-system.requires: Cython, numpy, setuptools
     "mmpose",  # build-system.requires: numpy, torch
     "xtcocotools",  # build-system.requires: Cython, numpy
     "yolox",  # build-system.requires: pycocotools, torch, yolox, ...
@@ -187,29 +163,6 @@ requires-dist = [
     "six",
 ]
 
-[[tool.uv.dependency-metadata]]
-name = "detectron2"
-version = "0.6"
-requires-dist = [
-    # From https://github.com/facebookresearch/detectron2/blob/main/setup.py
-    "Pillow>=7.1",
-    "matplotlib",
-    "pycocotools>=2.0.2",
-    "termcolor>=1.1",
-    "yacs>=0.1.8",
-    "tabulate",
-    "cloudpickle",
-    "tqdm>4.29.0",
-    "tensorboard",
-    "fvcore>=0.1.5,<0.1.6",
-    "iopath>=0.1.7,<0.1.10",
-    "future",
-    "pydot",
-    "dataclasses; python_version<'3.7'",
-    "omegaconf>=2.1",
-    "hydra-core>=1.1",
-    # "black==21.4b2",
-]
 
 [[tool.uv.dependency-metadata]]
 name = "mmpose"
@@ -273,34 +226,17 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-[[tool.uv.index]]
-name = "pytorch-cu118"
-url = "https://download.pytorch.org/whl/cu118"
-explicit = true
+[tool.uv.overrides]
+jde = { path = "models/Towards-Realtime-MOT" }
+yolox = { path = "models/yolox" }
+segment_anything = { path = "models/segment_anything" }
 
-[[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
-explicit = true
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
 
 [tool.uv.sources]
 compressai = { workspace = true }
-cython-bbox = { path = "scripts/cython_bbox" }
-detectron2 = { path = "models/detectron2" }
-jde = { path = "models/Towards-Realtime-MOT" }
-mmpose = { path = "models/mmpose" }
-yolox = { path = "models/yolox" }
-segment_anything = { path = "models/segment_anything" }
-torch = [
-    { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-cu118", extra = "cu118" },
-    { index = "pytorch-cu128", extra = "cu128" },
-]
-torchvision = [
-    { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-cu118", extra = "cu118" },
-    { index = "pytorch-cu128", extra = "cu128" },
-]
+
 
 [tool.uv.workspace]
 members = [

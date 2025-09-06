@@ -36,28 +36,36 @@ from unittest.mock import MagicMock, patch
 
 from compressai_vision.evaluators import COCOEVal
 
+
 def mock_coco_api(annotation_file):
     # Create a mock COCO API object
     coco_api = MagicMock()
-    coco_api.anns = {1: {'image_id': 1, 'category_id': 1, 'bbox': [10, 10, 50, 50]}}
+    coco_api.anns = {1: {"image_id": 1, "category_id": 1, "bbox": [10, 10, 50, 50]}}
     return coco_api
+
 
 @pytest.fixture
 def mock_dataset():
     dataset = MagicMock()
     dataset.dataset_name = "mock_coco_dataset"
     dataset.annotation_path = "mock_annotations.json"
-    with open(dataset.annotation_path, 'w') as f:
-        json.dump({
-            'images': [{'id': 1, 'width': 640, 'height': 480}],
-            'annotations': [{'id': 1, 'image_id': 1, 'category_id': 1, 'bbox': [10, 10, 50, 50]}],
-            'categories': [{'id': 1, 'name': 'person'}]
-        }, f)
+    with open(dataset.annotation_path, "w") as f:
+        json.dump(
+            {
+                "images": [{"id": 1, "width": 640, "height": 480}],
+                "annotations": [
+                    {"id": 1, "image_id": 1, "category_id": 1, "bbox": [10, 10, 50, 50]}
+                ],
+                "categories": [{"id": 1, "name": "person"}],
+            },
+            f,
+        )
     yield dataset
     os.remove(dataset.annotation_path)
 
-@patch('detectron2.evaluation.COCOEvaluator', autospec=True)
-@patch('compressai_vision.evaluators.evaluators.deccode_compressed_rle')
+
+@patch("detectron2.evaluation.COCOEvaluator", autospec=True)
+@patch("compressai_vision.evaluators.evaluators.deccode_compressed_rle")
 def test_coco_eval(mock_deccode, mock_evaluator, mock_dataset):
     # Configure the mock to have the expected attributes
     mock_coco_api_obj = MagicMock()
@@ -70,11 +78,13 @@ def test_coco_eval(mock_deccode, mock_evaluator, mock_dataset):
         datacatalog_name="MPEGOIV6",
         dataset_name="mock_coco_dataset",
         dataset=mock_dataset,
-        output_dir="./test_output"
+        output_dir="./test_output",
     )
 
-    gt = [{'image_id': 1, 'width': 640, 'height': 480, 'image': torch.zeros(3, 480, 640)}]
-    pred = [{'instances': MagicMock()}]
+    gt = [
+        {"image_id": 1, "width": 640, "height": 480, "image": torch.zeros(3, 480, 640)}
+    ]
+    pred = [{"instances": MagicMock()}]
 
     evaluator.digest(gt, pred)
     mock_evaluator.return_value.process.assert_called_once_with(gt, pred)
