@@ -6,6 +6,7 @@ variables:
 stages:
   - setup
   - static-analysis
+  - test
   - doc
 
 .default-before-script: &default-before-script
@@ -36,6 +37,18 @@ ruff-lint:
     - uv sync --group=dev
   script:
     - uv run --no-sync make check-ruff-lint
+  tags:
+    - docker
+
+pytest:
+  stage: test
+  image: python:3.8-buster
+  before_script:
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - uv sync --group=dev
+  script:
+    - uv run --no-sync pytest
   tags:
     - docker
 

@@ -47,12 +47,14 @@ dependencies = [
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-mock",
 ]
 dev = [
     "black",
     "isort",
     "pytest",
     "pytest-cov",
+    "pytest-mock",
     "ruff==0.8.6",
 ]
 doc = [
@@ -104,12 +106,14 @@ models-segment_anything = [
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-mock",
 ]
 dev = [
     "black",
     "isort",
     "pytest",
     "pytest-cov",
+    "pytest-mock",
     "ruff==0.8.6",
 ]
 doc = [
@@ -307,3 +311,8 @@ members = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["compressai_vision", "compressai_vision.*"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
