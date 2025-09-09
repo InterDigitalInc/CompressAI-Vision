@@ -9,7 +9,6 @@ description = "Evaluation pipelines for Video Compression for Machine Vision on 
 authors = [
     { name = "CompressAI-Vision team", email = "compressai@interdigital.com" },
 ]
-license = {text = "BSD 3-Clause Clear License"}
 readme = "README.md"
 urls = { Homepage = "https://github.com/InterDigitalInc/CompressAI-Vision" }
 classifiers = [
@@ -19,26 +18,21 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-
-requires-python = ">=3.8,<3.9"
-
+requires-python = ">=3.8,<3.11"
 dependencies = [
-    "compressai",
     "hydra-core",
     "lap>=0.5.12",
     "motmetrics>=1.4.0",
     "munkres>=1.1.4",
     "numba>=0.58.1",
-    "numpy>=1.24.4",
+    "numpy>=1.24.4,<2.0; python_version >= '3.8'",
     "omegaconf",
-    "opencv-python>=4.12.0.88",
+    "opencv-python>=4.8.1.78,<4.12.0",
     "pandas",
     "pillow>=9.0,<10.0",
     "pip>=25.0.1",
     "ptflops>=0.7.3",
     "Cython==3.0.8",
-    "torch>=2.0.0",
-    "torchvision>=0.15.1",
     "wheel>=0.45.1",
     "yuvio",
 ]
@@ -74,7 +68,20 @@ cpu = [
     "torch>=2.0.0",
     "torchvision>=0.15.1",
 ]
+cu118 = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.1",
+]
+cu128 = [
+    "torch>=2.7.0 ; python_version >= '3.9'",
+    "torchvision>=0.22.0 ; python_version >= '3.9'",
+]
+
+models-detectron2 = [
+    "detectron2==0.6",
+]
 models-jde = [
+    "cython-bbox",  # Encourages local cython-bbox source.
     "jde",
 ]
 models-mmpose = [
@@ -117,7 +124,23 @@ tutorials = [
     "ipywidgets",
     "jupyter",
 ]
+cpu = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.1",
+]
+cu118 = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.1",
+]
+cu128 = [
+    "torch>=2.7.0 ; python_version >= '3.9'",
+    "torchvision>=0.22.0 ; python_version >= '3.9'",
+]
+models-detectron2 = [
+    "detectron2==0.6",
+]
 models-jde = [
+    "cython-bbox",  # Encourages local cython-bbox source.
     "jde",
 ]
 models-mmpose = [
@@ -146,8 +169,16 @@ skip_gitignore = true
 known_third_party = "PIL,torchvision,torch"
 
 [tool.uv]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "cu118" },
+        { extra = "cu128" },
+    ],
+]
 no-build-isolation-package = [
     "chumpy",  # build-system.requires: pip
+    "detectron2",  # build-system.requires: Cython, numpy, setuptools
     "mmpose",  # build-system.requires: numpy, torch
     "xtcocotools",  # build-system.requires: Cython, numpy
     "yolox",  # build-system.requires: pycocotools, torch, yolox, ...
@@ -161,6 +192,30 @@ version = "0.71"
 requires-dist = [
     "scipy",
     "six",
+]
+
+[[tool.uv.dependency-metadata]]
+name = "detectron2"
+version = "0.6"
+requires-dist = [
+    # From https://github.com/facebookresearch/detectron2/blob/main/setup.py
+    "Pillow>=7.1",
+    "matplotlib",
+    "pycocotools>=2.0.2",
+    "termcolor>=1.1",
+    "yacs>=0.1.8",
+    "tabulate",
+    "cloudpickle",
+    "tqdm>4.29.0",
+    "tensorboard",
+    "fvcore>=0.1.5,<0.1.6",
+    "iopath>=0.1.7,<0.1.10",
+    "future",
+    "pydot",
+    "dataclasses; python_version<'3.7'",
+    "omegaconf>=2.1",
+    "hydra-core>=1.1",
+    # "black==21.4b2",
 ]
 
 
@@ -226,16 +281,34 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-[tool.uv.overrides]
-jde = { path = "models/Towards-Realtime-MOT" }
-yolox = { path = "models/yolox" }
-segment_anything = { path = "models/segment_anything" }
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
 
-torch = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
 [tool.uv.sources]
 compressai = { workspace = true }
+cython-bbox = { path = "scripts/cython_bbox" }
+detectron2 = { path = "models/detectron2" }
+jde = { path = "models/Towards-Realtime-MOT" }
+mmpose = { path = "models/mmpose" }
+yolox = { path = "models/yolox" }
+segment_anything = { path = "models/segment_anything" }
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu128", extra = "cu128" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu128", extra = "cu128" },
+]
 
 
 [tool.uv.workspace]

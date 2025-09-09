@@ -17,7 +17,7 @@ stages:
   - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
 uv-install:
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   stage: setup
   script:
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -30,7 +30,7 @@ uv-install:
     - docker
 ruff-lint:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -42,15 +42,13 @@ ruff-lint:
 
 pytest:
   stage: test
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   before_script:
     - apt-get update -y
     - apt-get install -y libgl1-mesa-glx build-essential
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - uv pip install torch==1.8.0+cpu torchvision==0.9.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
-    - bash scripts/install_uv.sh --no-weights --cpu
-    - uv pip install pycocotools "fvcore<0.1.6" "iopath<0.1.10" omegaconf "hydra-core" yacs PyYAML termcolor tabulate cloudpickle future pydot protobuf==3.20.0
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
     - uv sync --group=dev
   script:
     - uv run --no-sync pytest
@@ -59,7 +57,7 @@ pytest:
 
 ruff-format:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -71,7 +69,7 @@ ruff-format:
 
 ruff-organize-imports:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -83,7 +81,7 @@ ruff-organize-imports:
 
 doc:
   stage: doc
-  image: python:3.8-bullseye
+  image: python:3.10-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools

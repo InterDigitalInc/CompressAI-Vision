@@ -33,16 +33,21 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (jde/yolox/mmpose/segment-anything/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment-anything/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
                 [--cuda_version) provide cuda version e.g. "11.8", default: check nvcc output)]
+                [--detectron2_url use this if you want to specify a pre-built detectron2 (find at
+                    "https://detectron2.readthedocs.io/en/latest/tutorials/install.html#install-pre-built-detectron2-linux-only"),
+                    not required for regular versions derived from cuda and torch versions above.
+                    default:"https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/index.html"]
                 [--models_dir directory to install vision models to, default: compressai_vision_root]
                 [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching 
                 [--no-weights) prevents the installation script from downloading vision model parameters]
 
 
+EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 
 _EOF_
             exit;
@@ -62,6 +67,11 @@ done;
 
 
 WEIGHTS="
+3c25caca37baabbff3e22cc9eb0923db165a0c18b867871a3bf3570bac9b7ef0  detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl                  https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl
+fe5ad56ff746aa55c5f453b01f8395134e9281d240dbeb473411d4a6b262c9dc  detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl           https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl
+9a737e290372f1f70994ebcbd89d8004dbb3ae30a605fd915a190fa4a782dd66  detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl         https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+12f6e1811baf1b4d329c3f5ac5ec52d8f634d3cedc82a13fff55d0c05d84f442  detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl  https://dl.fbaipublicfiles.com/detectron2/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x/139653917/model_final_2d9806.pkl
+808c675e647298688589c895c9581f7f3963995c5708bc53f66449200321d147  detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl         https://dl.fbaipublicfiles.com/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl
 6b135b0affa38899b607010c86c2f8dbc1c06956bad9ca1edd45b01e626933f1  jde/jde.1088x608.uncertainty.pt                                                                     https://drive.usercontent.google.com/download?export=download&confirm=t&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA
 516a421f8717548300c3ee6356a3444ac539083d4a9912f8ca1619ee63d0986d  mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth                              https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth
 b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet53/yolox_darknet.pth                                                                   https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth
@@ -143,7 +153,7 @@ run_install () {
     fi
     
     for model in detectron2 jde yolox mmpose segment_anything; do
-        if [[ "${MODEL,,}" == *"${model}"* ]] || [[ ",${MODEL,,}," == *",all,"* ]]; then
+        if [[ "${MODEL,,}" == *"${model}"* ]] || [[ " ${MODEL,,} " == *" all "* ]]; then
             "install_${model}"
         fi
     done
@@ -154,7 +164,14 @@ run_install () {
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        echo "Already installed by initial uv sync."
+        echo "Building compressai C++ extensions from source..."
+        # Install build dependencies first
+        "${PIP[@]}" install "pybind11>=2.6.0" "setuptools>=68" wheel
+        cd "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
+        # Clean any previous build artifacts
+        rm -rf build/ **/*.so
+        "${PIP[@]}" install -e . --no-build-isolation
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
     fi
     "${PIP[@]}" list | grep "^compressai "
 
@@ -171,7 +188,8 @@ run_install () {
     if [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo
         echo "Detect differences from uv.lock:"
-        echo "uv sync --inexact --extra=${BUILD_SUFFIX}"
+        echo "uv sync --inexact --extra=${BUILD_SUFFIX} --dry-run"
+        uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
         uv sync --inexact --extra="${BUILD_SUFFIX}"
     fi
 }
@@ -194,6 +212,15 @@ detect_cuda_version () {
     echo "Detected CUDA version: ${CUDA_VERSION}"
 }
 
+install_torch () {
+    if [ "${CPU}" == "True" ]; then
+        "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
+    else
+        # TODO(refactor): If we use --index-url instead, the "+${BUILD_SUFFIX}" does not need to be explicitly specified.
+        "${PIP[@]}" install "torch==${TORCH_VERSION}+${BUILD_SUFFIX}" "torchvision==${TORCHVISION_VERSION}+${BUILD_SUFFIX}" --extra-index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
+    fi
+}
+
 prepare_detectron2 () {
     echo
     echo "Preparing detectron2 for installation"
@@ -206,36 +233,27 @@ prepare_detectron2 () {
 
     git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    git -c advice.detachedHead=false checkout c554533136231a94971a995185501539f5c808f9
+    git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
     git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
 install_detectron2 () {
     echo
-    echo "Installing detectron2 (reference: https://github.com/facebookresearch/detectron2)"
+    echo "Installing detectron2"
     echo
 
     cd "${MODELS_SOURCE_DIR}/detectron2"
+    rm -rf build/ **/*.so
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        "${PIP[@]}" install -e .
+        uv sync --inexact --group=models-detectron2
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
-
-install_torch () {
-    if [ "${CPU}" == "True" ]; then
-        "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
-    else
-        # TODO(refactor): If we use --index-url instead, the "+${BUILD_SUFFIX}" does not need to be explicitly specified.
-        "${PIP[@]}" install "torch==${TORCH_VERSION}+${BUILD_SUFFIX}" "torchvision==${TORCHVISION_VERSION}+${BUILD_SUFFIX}" --extra-index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
-    fi
-}
-
 
 prepare_cython_bbox () {
     echo
@@ -328,15 +346,6 @@ prepare_yolox () {
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
-install_mmcv () {
-    echo
-    echo "Installing mmcv"
-    echo
-    local torch_version_url_part="torch${TORCH_VERSION%.*}"
-    local find_links_url="https://download.openmmlab.com/mmcv/dist/${BUILD_SUFFIX}/${torch_version_url_part}/index.html"
-    "${PIP[@]}" install "mmcv==2.0.1" --find-links "${find_links_url}"
-}
-
 install_yolox () {
     echo
     echo "Installing YOLOX (reference: https://github.com/Megvii-BaseDetection/YOLOX)"
@@ -373,7 +382,6 @@ prepare_mmpose () {
 }
 
 install_mmpose () {
-
     echo
     echo "Installing MMPOSE (reference: https://github.com/open-mmlab/mmpose/tree/main)"
     echo
@@ -393,8 +401,7 @@ install_mmpose () {
         uv sync --inexact --group=models-mmpose
     fi
 
-    install_mmcv
-
+    "${MIM[@]}" install "mmcv==2.0.1"
     "${MIM[@]}" install "mmdet==3.1.0"
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -439,7 +446,7 @@ download_weights () {
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
 
-    for model in jde mmpose yolox segment_anything; do
+    for model in detectron2 jde mmpose yolox segment_anything; do
         if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," != *",all,"* ]]; then
             continue
         fi
