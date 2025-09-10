@@ -34,7 +34,6 @@ from typing import Dict, List, Optional
 
 import torch
 
-
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
@@ -172,7 +171,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         self.replace_conv2d_modules(self.model)
         self.model = self.model.to(device).eval()
 
-        self.DetectionCheckpointer(self.model).load(f"{_path_prefix}/{kwargs['weights']}")
+        self.DetectionCheckpointer(self.model).load(
+            f"{_path_prefix}/{kwargs['weights']}"
+        )
 
         for param in self.model.parameters():
             param.requires_grad = False
@@ -647,7 +648,9 @@ class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
         ):
             height = input_per_image["height"]
             width = input_per_image["width"]
-            sem_seg_r = self.sem_seg_postprocess(sem_seg_result, image_size, height, width)
+            sem_seg_r = self.sem_seg_postprocess(
+                sem_seg_result, image_size, height, width
+            )
             detector_r = self.detector_postprocess(detector_result, height, width)
 
             processed_results.append({"sem_seg": sem_seg_r, "instances": detector_r})

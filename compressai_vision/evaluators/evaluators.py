@@ -1052,6 +1052,9 @@ class YOLOXCOCOEval(BaseEvaluator):
         from pycocotools.coco import COCO
         from yolox.data.datasets.coco import remove_useless_info
         from yolox.evaluators import COCOEvaluator as YOLOX_COCOEvaluator
+        from yolox.utils import xyxy2xywh
+
+        self.xyxy2xywh = xyxy2xywh
 
         self.set_annotation_info(dataset)
 
@@ -1160,6 +1163,8 @@ class YOLOXCOCOEval(BaseEvaluator):
 
     def _convert_to_coco_format(self, outputs, info_imgs, ids):
         # reference : yolox > evaluators > coco_evaluator > convert_to_coco_format
+        from yolox.utils import xyxy2xywh
+
         data_list = []
         image_wise_data = defaultdict(dict)
         for output, img_h, img_w, img_id in zip(
@@ -1192,7 +1197,7 @@ class YOLOXCOCOEval(BaseEvaluator):
                 }
             )
 
-            bboxes = xyxy2xywh(bboxes)
+            bboxes = self.xyxy2xywh(bboxes)
 
             for ind in range(bboxes.shape[0]):
                 label = self._class_ids[int(cls[ind])]

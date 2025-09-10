@@ -50,6 +50,7 @@ root_path = thisdir.joinpath("../..")
 class jde_1088x608(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         import jde
+
         from jde.models import Darknet
         from jde.utils.kalman_filter import KalmanFilter
 
@@ -241,6 +242,7 @@ class jde_1088x608(BaseWrapper):
             sub_stracks,
         )
         from jde.utils.utils import non_max_suppression, scale_coords
+
         r"""Re-implementation of JDE from Z. Wang, L. Zheng, Y. Liu, and S. Wang:
         : `"Towards Real-Time Multi-Object Tracking"`_,
         The European Conference on Computer Vision (ECCV), 2020

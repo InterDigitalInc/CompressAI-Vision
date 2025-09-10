@@ -86,7 +86,9 @@ class rtmo_multi_person_pose_estimation(BaseWrapper):
         default_scope = cfg.get("default_scope", "mmengine")
         assert default_scope == "mmpose"
 
-        default_scope = self.DefaultScope.get_instance("mmpose", scope_name=default_scope)
+        default_scope = self.DefaultScope.get_instance(
+            "mmpose", scope_name=default_scope
+        )
         self.model = self.MODELS.build(model_cfg)
         self.test_cfg = model_cfg["test_cfg"]
 

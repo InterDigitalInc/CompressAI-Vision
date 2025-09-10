@@ -47,7 +47,7 @@ static-analysis: check-ruff-format check-ruff-organize-imports check-ruff-lint #
 
 style: ## Apply style formating
 	@echo "--> Running ruff format"
-	@ruff format $(src_dirs)
+	@ruff format $(src_dirs) 
 	@echo "--> Running ruff check --ignore ALL --select I"
-	@ruff check --ignore ALL --select I $(src_dirs)
+	@ruff check --ignore ALL --select I $(src_dirs) --fix
 

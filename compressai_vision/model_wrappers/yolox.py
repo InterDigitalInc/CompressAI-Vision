@@ -60,6 +60,11 @@ class yolox_darknet53(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         super().__init__(device)
 
+        from yolox.exp import get_exp
+        from yolox.utils import postprocess
+
+        self.postprocess = postprocess
+
         _path_prefix = (
             f"{root_path}"
             if kwargs["model_path_prefix"] == "default"
@@ -73,8 +78,6 @@ class yolox_darknet53(BaseWrapper):
         self.num_classes = kwargs["num_classes"]
         self.conf_thres = kwargs["conf_thres"]
         self.nms_thres = kwargs["nms_thres"]
-
-        from yolox.exp import get_exp
 
         self.squeeze_at_split_enabled = False
 
@@ -230,6 +233,8 @@ class yolox_darknet53(BaseWrapper):
         <https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme>
 
         """
+        from yolox.utils import postprocess
+
         y = x[self.SPLIT_L13]
 
         # Recovery session to expand dimension to original
@@ -258,7 +263,9 @@ class yolox_darknet53(BaseWrapper):
 
         outputs = self.head((fp_lvl2, fp_lvl1, fp_lvl0))
 
-        pred = postprocess(outputs, self.num_classes, self.conf_thres, self.nms_thres)
+        pred = self.postprocess(
+            outputs, self.num_classes, self.conf_thres, self.nms_thres
+        )
 
         return pred
 
@@ -278,6 +285,7 @@ class yolox_darknet53(BaseWrapper):
         <https://github.com/Megvii-BaseDetection/YOLOX?tab=Apache-2.0-1-ov-file#readme>
 
         """
+        from yolox.utils import postprocess
 
         fp_lvl2 = x[self.SPLIT_L37]
         fp_lvl1 = self.backbone.dark4(fp_lvl2)
@@ -297,7 +305,9 @@ class yolox_darknet53(BaseWrapper):
 
         outputs = self.head((fp_lvl2, fp_lvl1, fp_lvl0))
 
-        pred = postprocess(outputs, self.num_classes, self.conf_thres, self.nms_thres)
+        pred = self.postprocess(
+            outputs, self.num_classes, self.conf_thres, self.nms_thres
+        )
 
         return pred
 
@@ -308,11 +318,11 @@ class yolox_darknet53(BaseWrapper):
         self.model = self.model.to(self.device).eval()
         img = x["image"].unsqueeze(0).to(self.device)
 
-        from yolox.utils import postprocess
-
         fpn_out = self.yolo_fpn(img)
         outputs = self.head(fpn_out)
 
-        pred = postprocess(outputs, self.num_classes, self.conf_thres, self.nms_thres)
+        pred = self.postprocess(
+            outputs, self.num_classes, self.conf_thres, self.nms_thres
+        )
 
         return pred
