@@ -1,0 +1,40 @@
+--- a/setup.py
++++ b/setup.py
+@@ -7,13 +7,9 @@
+ from os import path
+ from setuptools import find_packages, setup
+ from typing import List
+-import torch
+-from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
++# torch.utils.cpp_extension imports moved to get_extensions() to avoid ModuleNotFoundError
+ 
+-torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+-assert torch_ver >= [1, 8], "Requires PyTorch >= 1.8"
+ 
+-
+ def get_version():
+     init_py_path = path.join(path.abspath(path.dirname(__file__)), "detectron2", "__init__.py")
+     init_py = open(init_py_path, "r").readlines()
+@@ -38,6 +34,15 @@
+ 
+ 
+ def get_extensions():
++    try:
++        import torch
++        from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
++        torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
++        assert torch_ver >= [1, 8], "Requires PyTorch >= 1.8"
++    except ImportError:
++        # Return empty extensions list if torch is not available during build requirements detection
++        return []
++
+     this_dir = path.dirname(path.abspath(__file__))
+     extensions_dir = path.join(this_dir, "detectron2", "layers", "csrc")
+ 
+@@ -204,5 +209,5 @@
+         ],
+     },
+     ext_modules=get_extensions(),
+-    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
++    cmdclass={"build_ext": lambda dist: __import__('torch.utils.cpp_extension', fromlist=['BuildExtension']).BuildExtension(dist)},
+ )

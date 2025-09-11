@@ -16,7 +16,20 @@ stages:
   - uv run --no-sync python --version
   - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
-uv-install:
+uv-install-py38:
+  image: python:3.8-bullseye
+  stage: setup
+  script:
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - *default-before-script
+  artifacts:
+    paths:
+      - ".local/"
+    expire_in: 1 day
+  tags:
+    - docker
+
+uv-install-py310:
   image: python:3.10-bullseye
   stage: setup
   script:
@@ -30,7 +43,7 @@ uv-install:
     - docker
 ruff-lint:
   stage: static-analysis
-  image: python:3.10-bullseye
+  image: python:3.8-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -40,24 +53,61 @@ ruff-lint:
   tags:
     - docker
 
-pytest:
+pytest-py38:
   stage: test
-  image: python:3.10-bullseye
+  image: python:3.8-bullseye
+  dependencies:
+    - uv-install-py38
   before_script:
     - apt-get update -y
     - apt-get install -y libgl1-mesa-glx build-essential
     - *default-before-script
     - uv pip install -U pip wheel setuptools
     - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
-    - uv sync --group=dev
+    - uv sync --inexact --extra=dev
   script:
     - uv run --no-sync pytest
   tags:
     - docker
 
+pytest-py310:
+  stage: test
+  image: python:3.10-bullseye
+  dependencies:
+    - uv-install-py310
+  before_script:
+    - apt-get update -y
+    - apt-get install -y libgl1-mesa-glx build-essential
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - uv sync --inexact --extra=dev
+  script:
+    - uv run --no-sync pytest
+  tags:
+    - docker
+
+pytest-pip-py38:
+  stage: test
+  image: python:3.8-bullseye
+  before_script:
+    - apt-get update -y
+    - apt-get install -y libgl1-mesa-glx build-essential
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip wheel setuptools
+    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - pip install -e .[dev,cpu]
+  script:
+    - pytest
+  tags:
+    - docker
+
+
 ruff-format:
   stage: static-analysis
-  image: python:3.10-bullseye
+  image: python:3.8-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -69,7 +119,7 @@ ruff-format:
 
 ruff-organize-imports:
   stage: static-analysis
-  image: python:3.10-bullseye
+  image: python:3.8-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -81,7 +131,7 @@ ruff-organize-imports:
 
 doc:
   stage: doc
-  image: python:3.10-bullseye
+  image: python:3.8-bullseye
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools

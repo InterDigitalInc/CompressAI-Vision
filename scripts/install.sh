@@ -165,10 +165,8 @@ run_install () {
         "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo "Building compressai C++ extensions from source..."
-        # Install build dependencies first
-        "${PIP[@]}" install "pybind11>=2.6.0" "setuptools>=68" wheel
+        "${PIP[@]}" install "pybind11>=2.6.0" "setuptools>=68" wheel setuptools
         cd "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
-        # Clean any previous build artifacts
         rm -rf build/ **/*.so
         "${PIP[@]}" install -e . --no-build-isolation
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -179,7 +177,7 @@ run_install () {
     echo "Installing compressai-vision"
     echo
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
-        "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}"
+        "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}" --no-build-isolation
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo "Already installed by initial uv sync."
     fi
@@ -226,15 +224,17 @@ prepare_detectron2 () {
     echo "Preparing detectron2 for installation"
     echo
 
+
     if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
         return
     fi
-
+    
     git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
     cd "${MODELS_SOURCE_DIR}/detectron2"
     git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-    git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch 0001 could not be applied. Possibly already applied."
+    git apply "${SCRIPT_DIR}/patches/0002-detectron2-setup-defer-torch-import.patch" || echo "Patch 0002 could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -246,11 +246,10 @@ install_detectron2 () {
     cd "${MODELS_SOURCE_DIR}/detectron2"
     rm -rf build/ **/*.so
 
-    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
-        "${PIP[@]}" install -e .
-    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
-        uv sync --inexact --group=models-detectron2
-    fi
+    # Install build dependencies first for detectron2
+    "${PIP[@]}" install setuptools wheel
+    "${PIP[@]}" install -e . --no-build-isolation
+
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
