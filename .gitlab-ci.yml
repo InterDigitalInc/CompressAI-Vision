@@ -104,6 +104,22 @@ pytest-pip-py38:
   tags:
     - docker
 
+pytest-pip-py310:
+  stage: test
+  image: python:3.10-bullseye
+  before_script:
+    - apt-get update -y
+    - apt-get install -y libgl1-mesa-glx build-essential
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip wheel setuptools
+    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - pip install -e .[dev,cpu]
+  script:
+    - pytest
+  tags:
+    - docker
 
 ruff-format:
   stage: static-analysis
