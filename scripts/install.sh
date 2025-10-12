@@ -122,28 +122,12 @@ detect_env() {
 }
 
 main () {
-    # --- FCM CTTC Installation ---
-    if [[ "${FCM_CTTC}" == "True" ]]; then
-        echo "🚀 FCM CTTC Mode Enabled: Enforcing strict versions for all models."
-        TORCH_VERSION="2.0.0"
-        # Correct torchvision version for torch 2.0.0
-        TORCHVISION_VERSION="0.15.1"
-        CUDA_VERSION="11.8"
-        MODEL="detectron2 jde yolox"
-        CPU="False"
-
-        # Verify CUDA version
-        DETECTED_CUDA=$(nvcc --version | sed -n 's/^.*release \([0-9]\+\.[0-9]\+\).*$/\1/p')
-        if [[ "${DETECTED_CUDA}" != "${CUDA_VERSION}" ]]; then
-            echo "[ERROR] FCM CTTC Mode requires CUDA v${CUDA_VERSION}, but detected v${DETECTED_CUDA}."
-            echo "Please ensure that your environment has CUDA v${CUDA_VERSION} installed."
-            exit 1
-        fi
-        echo "CUDA version check passed for FCM CTTC Mode."
-    fi
-    # --- End FCM CTTC Mode Logic ---
 
     detect_env
+
+    if [[ "${FCM_CTTC}" == "True" ]]; then
+        run_install_fcm_cttc
+    fi
 
     if [[ "${NO_PREPARE}" == "False" ]]; then
         run_prepare
@@ -160,6 +144,24 @@ main () {
     if [ "${DOWNLOAD_WEIGHTS}" == "True" ]; then
         download_weights
     fi
+}
+
+run_install_fcm_cttc() {
+    echo "🚀 FCM CTTC Mode Enabled: Enforcing strict versions for all models."
+    TORCH_VERSION="2.0.0"
+    # Correct torchvision version for torch 2.0.0
+    TORCHVISION_VERSION="0.15.1"
+    CTTC_CUDA_VERSION="11.8"
+    MODEL="detectron2 jde yolox"
+    CPU="False"
+
+    # Verify CUDA version
+    if [[ "${CUDA_VERSION}" != "${CTTC_CUDA_VERSION}" ]]; then
+        echo "[ERROR] FCM CTTC Mode requires CUDA ${CTTC_CUDA_VERSION}, but detected ${CUDA_VERSION}."
+        echo "Please ensure that your environment has CUDA ${CTTC_CUDA_VERSION} installed."
+        exit 1
+    fi
+    exit 1
 }
 
 run_prepare() {
@@ -493,7 +495,7 @@ download_weights () {
         echo "Downloading model weights for ${model}..."
         echo
 
-        FILTER="^[0-9a-fA-F]* ${model}/"
+        FILTER="[0-9a-fA-F]* ${model}/"
         FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
 
         echo "${FILTERED_WEIGHTS}" | while read -r entry; do
