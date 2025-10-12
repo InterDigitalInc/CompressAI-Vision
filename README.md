@@ -64,7 +64,7 @@ bash scripts/install.sh
 
 To install the dependencies in conformance with MPEG FCM Test Conditions, run:
 ```
-bash scripts/install.sh --fcm-cttc 
+bash scripts/install.sh --fcm-cttc (--cpu)
 ```
 
 

@@ -52,11 +52,11 @@ RUN OPTIONS:
                 [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching
                 [--no-weights) prevents the installation script from downloading vision model parameters]
                 [--fcm-cttc) Install all models in conformance with MPEG FCM Common Test and Training Conditions:
-                             Torch 2.0.0, Torchvision 0.15.1, CUDA 11.8]
+                             Torch 2.0.0, Torchvision 0.15.1, (CUDA 11.8 or CPU)]
 
 
 EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
-FCM EXAMPLE     [bash install.sh --fcm-cttc]
+FCM EXAMPLE     [bash install.sh --fcm-cttc (--cpu)]
 
 _EOF_
             exit;
@@ -151,17 +151,18 @@ run_install_fcm_cttc() {
     TORCH_VERSION="2.0.0"
     # Correct torchvision version for torch 2.0.0
     TORCHVISION_VERSION="0.15.1"
-    CTTC_CUDA_VERSION="11.8"
     MODEL="detectron2 jde yolox"
-    CPU="False"
+    
+    if [ ${CPU} == "False" ]; then
+        CTTC_CUDA_VERSION="11.8"
 
-    # Verify CUDA version
-    if [[ "${CUDA_VERSION}" != "${CTTC_CUDA_VERSION}" ]]; then
-        echo "[ERROR] FCM CTTC Mode requires CUDA ${CTTC_CUDA_VERSION}, but detected ${CUDA_VERSION}."
-        echo "Please ensure that your environment has CUDA ${CTTC_CUDA_VERSION} installed."
-        exit 1
+        # Verify CUDA version
+        if [[ "${CUDA_VERSION}" != "${CTTC_CUDA_VERSION}" ]]; then
+            echo "[ERROR] FCM CTTC Mode requires CUDA ${CTTC_CUDA_VERSION}, but detected ${CUDA_VERSION}."
+            echo "Please ensure that your environment has CUDA ${CTTC_CUDA_VERSION} installed."
+            exit 1
+        fi
     fi
-    exit 1
 }
 
 run_prepare() {
