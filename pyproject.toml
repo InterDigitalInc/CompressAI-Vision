@@ -36,6 +36,7 @@ dependencies = [
     "ptflops>=0.7.3",
     "Cython==3.0.8",
     "wheel>=0.45.1",
+    "setuptools>=68",
     "yuvio",
 ]
 
