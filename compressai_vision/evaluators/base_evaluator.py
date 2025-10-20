@@ -81,7 +81,7 @@ class BaseEvaluator(nn.Module):
     def reset(self):
         raise NotImplementedError
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         raise NotImplementedError
 
     def results(self, save_path: str = None):

@@ -1,4 +1,5 @@
 type: "COCO-EVAL"
 output_dir: "${pipeline.evaluation.evaluation_dir}"
 overwrite_results: False
+calculate_feature_mse: False
 eval_criteria: ""

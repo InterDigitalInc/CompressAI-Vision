@@ -28,11 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-
 from typing import Dict
 
 import torch
-
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -212,7 +210,20 @@ class ImageSplitInference(BasePipeline):
             self.update_time_elapsed("nn_part_2", (time_measure() - start))
 
             if evaluator:
-                evaluator.digest(d, pred)
+                mse_results = None
+                if (
+                    evaluator.calculate_feature_mse
+                    and not self.configs["codec"]["decode_only"]
+                ):
+                    mse_results = self.calc_feature_mse(
+                        featureT["data"], dec_features["data"]
+                    )
+
+                if mse_results:
+                    evaluator.digest(d, pred, mse_results)
+                else:
+                    evaluator.digest(d, pred)
+
                 if getattr(self, "vis_dir", None) and hasattr(
                     evaluator, "save_visualization"
                 ):

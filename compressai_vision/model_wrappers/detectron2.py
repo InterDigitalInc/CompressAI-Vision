@@ -27,13 +27,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
-
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import torch
-
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
@@ -296,20 +294,29 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         if self.split_id == self.SPLIT_FPN:
             return self._feature_pyramid_to_output(
-                x["data"], x["org_input_size"], x["input_size"]
+                x["data"], x["org_input_size"], x["input_size"], x.get("hyper_params")
             )
         elif self.split_id == self.SPLIT_C2:
             return self._feature_c2_to_output(
-                x["data"], x["org_input_size"], x["input_size"]
+                x["data"], x["org_input_size"], x["input_size"], x.get("hyper_params")
             )
         elif self.split_id == self.SPLIT_R2:
             return self._feature_r2_to_output(
-                x["data"], x["org_input_size"], x["input_size"]
+                x["data"], x["org_input_size"], x["input_size"], x.get("hyper_params")
             )
         else:
             self.logger.error(f"Not supported split points {self.split_id}")
 
         raise NotImplementedError
+
+    def _apply_infer_overrides(self, overrides: Dict):
+        """Overrides hyperparameters in roi_heads"""
+
+        box_pred = getattr(self.roi_heads, "box_predictor", None)
+        if "conf_threshold" in overrides and hasattr(box_pred, "test_score_thresh"):
+            box_pred.test_score_thresh = float(overrides["conf_threshold"])
+        if "max_dets" in overrides and hasattr(box_pred, "test_topk_per_image"):
+            box_pred.test_topk_per_image = int(overrides["max_dets"])
 
     @torch.no_grad()
     def _input_to_feature_pyramid(self, x):
@@ -361,7 +368,11 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
     @torch.no_grad()
     def _feature_pyramid_to_output(
-        self, x: Dict, org_img_size: Dict, input_img_size: List
+        self,
+        x: Dict,
+        org_img_size: Dict,
+        input_img_size: List,
+        hyper_params: Optional[Dict] = None,
     ):
         """
         performs  downstream task using the feature pyramid ['p2', 'p3', 'p4', 'p5']
@@ -384,6 +395,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         x = dict(zip(self.features_at_splits.keys(), x.values()))
         x.update({"p6": self.top_block(x["p5"])[0]})
 
+        if hyper_params:
+            self._apply_infer_overrides(hyper_params)
+
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
 
@@ -399,7 +413,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         )
 
     @torch.no_grad()
-    def _feature_c2_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+    def _feature_c2_to_output(
+        self,
+        x: Dict,
+        org_img_size: Dict,
+        input_img_size: List,
+        hyper_params: Optional[Dict] = None,
+    ):
         """
         performs  downstream task using the c2 ['c2', 'c3', 'c4', 'c5']
 
@@ -420,6 +440,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
 
         cdummy = dummy(input_img_size)
 
+        if hyper_params:
+            self._apply_infer_overrides(hyper_params)
+
         proposals, _ = self.proposal_generator(cdummy, x, None)
         results, _ = self.roi_heads(cdummy, x, proposals, None)
 
@@ -435,7 +458,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         )
 
     @torch.no_grad()
-    def _feature_r2_to_output(self, x: Dict, org_img_size: Dict, input_img_size: List):
+    def _feature_r2_to_output(
+        self,
+        x: Dict,
+        org_img_size: Dict,
+        input_img_size: List,
+        hyper_params: Optional[Dict] = None,
+    ):
         assert "r2" in x
 
         r2_out = x["r2"]
@@ -457,6 +486,9 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
                 self.image_sizes = img_size
 
         cdummy = dummy(input_img_size)
+
+        if hyper_params:
+            self._apply_infer_overrides(hyper_params)
 
         proposals, _ = self.proposal_generator(cdummy, fptensors, None)
         results, _ = self.roi_heads(cdummy, fptensors, proposals, None)

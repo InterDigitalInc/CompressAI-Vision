@@ -31,15 +31,13 @@ import errno
 import json
 import logging
 import os
-
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple
 from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
-
 from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
 
@@ -182,7 +180,9 @@ class BasePipeline(nn.Module):
         if n_frames_to_be_encoded == -1:
             n_frames_to_be_encoded = total_num_frames
 
-        assert n_frames_to_be_encoded, f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
+        assert (
+            n_frames_to_be_encoded
+        ), f"Number of frames to be encoded must be greater than 0, but got {n_frames_to_be_encoded}"
 
         if (self._codec_skip_n_frames + n_frames_to_be_encoded) > total_num_frames:
             self.logger.warning(
@@ -200,9 +200,7 @@ class BasePipeline(nn.Module):
             self._codec_skip_n_frames > 0
             or self._codec_n_frames_to_be_encoded != total_num_frames
         ):
-            assert self.configs[
-                "codec"
-            ][
+            assert self.configs["codec"][
                 "encode_only"
             ], "Encoding part of a sequence is only available when `codec.encode_only' is True"
 
@@ -222,8 +220,8 @@ class BasePipeline(nn.Module):
             assert (
                 n_bits == 8 or n_bits == 16
             ), "currently it only supports dumping features in 8 bits or 16 bits"
-            assert (
-                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
@@ -261,8 +259,8 @@ class BasePipeline(nn.Module):
             assert (
                 n_bits == 8 or n_bits == 16
             ), "currently it only supports dumping features in 8 bits or 16 bits"
-            assert (
-                datacatalog_name in list(MIN_MAX_DATASET.keys())
+            assert datacatalog_name in list(
+                MIN_MAX_DATASET.keys()
             ), f"{datacatalog_name} does not exist in the pre-computed minimum and maximum tables"
             minv, maxv = MIN_MAX_DATASET[datacatalog_name]
             data_features = {}
@@ -484,6 +482,30 @@ class BasePipeline(nn.Module):
 
     def _get_model_input_size(self, vision_model: BaseWrapper, x: Dict):
         return vision_model.get_input_size(x)
+
+    def calc_feature_mse(
+        self,
+        input_feats: Dict[str, torch.Tensor],
+        recon_feats: Dict[str, torch.Tensor],
+    ) -> Dict[str, float]:
+
+        mse_results: Dict[str, float] = {}
+
+        keys_recon = list(recon_feats.keys())
+
+        for i, key in enumerate(input_feats.keys()):
+
+            x = input_feats[key].cpu()
+            y = recon_feats[keys_recon[i]].cpu()
+
+            assert (
+                x.shape == y.shape
+            ), f"Shape mismatch at {key}: {x.shape} vs {y.shape}"
+
+            mse = torch.mean((x - y) ** 2).item()
+            mse_results[key] = mse
+
+        return mse_results
 
     def _get_prompts(self, vision_model: BaseWrapper, x: Dict):
         return vision_model.get_prompts(x)

@@ -28,13 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
-
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import jde
 import torch
-
 from jde.models import Darknet
 from jde.tracker import matching
 from jde.tracker.basetrack import TrackState
@@ -159,7 +157,7 @@ class jde_1088x608(BaseWrapper):
                 module[0].device = device
 
         return self._feature_pyramid_to_output(
-            x["data"], x["org_input_size"], x["input_size"]
+            x["data"], x["org_input_size"], x["input_size"], x.get("hyper_params")
         )
 
     @torch.no_grad()
@@ -180,12 +178,19 @@ class jde_1088x608(BaseWrapper):
 
     @torch.no_grad()
     def _feature_pyramid_to_output(
-        self, x: Dict, org_img_size: Dict, input_img_size: List
+        self,
+        x: Dict,
+        org_img_size: Dict,
+        input_img_size: List,
+        hyper_params: Optional[Dict] = None,
     ):
         """
         performs downstream task using the feature pyramid
         """
         pred = self.darknet(None, x, is_nn_part1=False)
+
+        if hyper_params:
+            self._apply_infer_overrides(hyper_params)
 
         online_targets = self._jde_process(
             pred, (org_img_size["height"], org_img_size["width"]), input_img_size[0]
@@ -203,6 +208,11 @@ class jde_1088x608(BaseWrapper):
                 online_ids.append(tid)
 
         return {"tlwhs": online_tlwhs, "ids": online_ids}
+
+    def _apply_infer_overrides(self, overrides: Dict):
+
+        if "conf_threshold" in overrides:
+            self.model_configs["conf_thres"] = float(overrides["conf_threshold"])
 
     @torch.no_grad()
     def deeper_features_for_accuracy_proxy(self, x: Dict):
@@ -327,7 +337,9 @@ class jde_1088x608(BaseWrapper):
 
         detections = [detections[i] for i in u_detection]
         # detections is now a list of the unmatched detections
-        r_tracked_stracks = []  # This is container for stracks which were tracked till the
+        r_tracked_stracks = (
+            []
+        )  # This is container for stracks which were tracked till the
         # previous frame but no detection was found for it in the current frame
         for i in u_track:
             if track_candidates_pool[i].state == TrackState.Tracked:

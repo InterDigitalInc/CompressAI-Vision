@@ -29,12 +29,10 @@
 
 
 import os
-
 from itertools import repeat
 from typing import Dict, List, Tuple, TypeVar
 
 import torch
-
 from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -187,7 +185,9 @@ class VideoSplitInference(BasePipeline):
             features["data"] = self._feature_tensor_list_to_dict(
                 self._input_ftensor_buffer
             )
-            self._input_ftensor_buffer = []
+
+            if not evaluator.calculate_feature_mse:
+                self._input_ftensor_buffer = []
 
             # datatype conversion
             features["data"] = {
@@ -312,7 +312,18 @@ class VideoSplitInference(BasePipeline):
             self.update_time_elapsed("nn_part_2", (time_measure() - start))
 
             if evaluator:
-                evaluator.digest(gt_inputs[e], pred)
+                mse_enabled = (
+                    evaluator.calculate_feature_mse
+                    and not self.configs["codec"]["decode_only"]
+                )
+                mse_results = (
+                    self.calc_feature_mse(self._input_ftensor_buffer[e], data)
+                    if mse_enabled
+                    else None
+                )
+
+                evaluator.digest(gt_inputs[e], pred, mse_results)  # digest handles None
+
                 if getattr(self, "vis_dir", None) and hasattr(
                     evaluator, "save_visualization"
                 ):

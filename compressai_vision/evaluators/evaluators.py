@@ -139,12 +139,16 @@ class COCOEVal(BaseEvaluator):
         if datacatalog_name == "MPEGOIV6":
             deccode_compressed_rle(self._evaluator._coco_api.anns)
 
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
         self.reset()
 
     def reset(self):
         self._evaluator.reset()
+        self._mse_results = []
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
+        if mse_results:
+            self._mse_results.append({"image_id": gt[0]["image_id"], **mse_results})
         return self._evaluator.process(gt, pred)
 
     def save_visualization(self, gt, pred, output_dir, threshold):
@@ -178,11 +182,40 @@ class COCOEVal(BaseEvaluator):
 
         self.write_results(out)
 
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
         # summary = {}
         # for key, item_dict in out.items():
         #     summary[f"{key}"] = item_dict["AP"]
 
-        return out
+        return out, overall_mse
 
 
 @register_evaluator("OIC-EVAL")
@@ -276,17 +309,19 @@ class OpenImagesChallengeEval(BaseEvaluator):
             f"All groundtruth annotations for {len(gt_annotations)} images are successfully registred to the evaluator."
         )
 
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
         self.reset()
 
     def reset(self):
         self._predictions = []
+        self._mse_results = []
         self._cc = 0
 
     @staticmethod
     def _normalize_labelname(name: str):
         return name.lower().replace(" ", "_")
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         assert len(gt) == len(pred) == 1, "Batch size must be 1 for the evaluation"
 
         if self._oic_evaluator is None:
@@ -329,6 +364,9 @@ class OpenImagesChallengeEval(BaseEvaluator):
                 pred_dict["masks"] = encode_masks(masks[valid_indexes])
 
             self._predictions.append(pred_dict)
+
+        if mse_results:
+            self._mse_results.append({"image_id": img_id, **mse_results})
 
         self._cc += 1
 
@@ -439,12 +477,41 @@ class OpenImagesChallengeEval(BaseEvaluator):
 
         self.write_results(out)
 
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
         summary = {}
         for key, value in out.items():
             name = "-".join(key.split("/")[1:])
             summary[name] = value
 
-        return summary
+        return summary, overall_mse
 
 
 @register_evaluator("SEMANTICSEG-EVAL")
@@ -469,6 +536,8 @@ class SemanticSegmentationEval(BaseEvaluator):
         )
 
         self._sem_gt = np.load(dataset.annotation_path, allow_pickle=True)["gt"]
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
+
         self.reset()
 
     def reset(self):
@@ -477,8 +546,9 @@ class SemanticSegmentationEval(BaseEvaluator):
         self._seq_gt_cats = []
         self._seq_det_cats = []
         self._frame_ctr = 0
+        self._mse_results = []
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         # Detectron segmentation
         seg_detectron = pred[0]["panoptic_seg"]
         panoptic_seg, segments_info = seg_detectron
@@ -518,6 +588,9 @@ class SemanticSegmentationEval(BaseEvaluator):
 
         self._frame_ctr += 1
 
+        if mse_results:
+            self._mse_results.append({"image_id": gt[0]["image_id"], **mse_results})
+
     def mIoU_eval(self):
         # Concatenate frame results to sequence results
         seq_gt = np.concatenate(self._seq_gt_cats)
@@ -537,7 +610,36 @@ class SemanticSegmentationEval(BaseEvaluator):
 
         self.write_results(class_mIoU)
 
-        return class_mIoU
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
+        return class_mIoU, overall_mse
 
 
 @register_evaluator("MOT-JDE-EVAL")
@@ -579,11 +681,13 @@ class MOT_JDE_Eval(BaseEvaluator):
         self.dataset = dataset.dataset
         self.eval_info_file_name = self.get_jde_eval_info_name(self.dataset_name)
 
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
         self.reset()
 
     def reset(self):
         self.acc = mm.MOTAccumulator(auto_id=True)
         self._predictions = {}
+        self._mse_results = []
 
     @staticmethod
     def _load_gt_in_motchallenge(filepath, fmt="mot15-2D", min_confidence=-1):
@@ -609,11 +713,13 @@ class MOT_JDE_Eval(BaseEvaluator):
         idx = pd.MultiIndex.from_tuples(all_indexes, names=["FrameId", "Id"])
         return pd.DataFrame(all_columns, idx, columns)
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         pred_list = []
         for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
             x1, y1, w, h = tlwh
-            if self.apply_pred_offset:  # Replicate offset applied in load_motchallenge() in motmetrics library, used in VCM eval framework to load predictions from disk
+            if (
+                self.apply_pred_offset
+            ):  # Replicate offset applied in load_motchallenge() in motmetrics library, used in VCM eval framework to load predictions from disk
                 x1 -= 1
                 y1 -= 1
             # x2, y2 = x1 + w, y1 + h
@@ -621,6 +727,8 @@ class MOT_JDE_Eval(BaseEvaluator):
             pred_list.append(parsed_pred)
 
         self._predictions[int(gt[0]["image_id"])] = pred_list
+        if mse_results:
+            self._mse_results.append({"image_id": gt[0]["image_id"], **mse_results})
 
     def save_visualization(self, gt, pred, output_dir, threshold):
         image_id = gt[0]["image_id"]
@@ -681,7 +789,36 @@ class MOT_JDE_Eval(BaseEvaluator):
 
         self.write_results(out)
 
-        return out
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
+        return out, overall_mse
 
     @staticmethod
     def digest_summary(summary):
@@ -936,13 +1073,15 @@ class YOLOXCOCOEval(BaseEvaluator):
         self._class_ids = class_ids
         self._img_size = dataset.input_size
         self._evaluator = YOLOX_COCOEvaluator(dataloader, None, -1, -1, -1)
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
         self.reset()
 
     def reset(self):
         self.data_list = []
         self.output_data = defaultdict()
+        self._mse_results = []
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         assert len(gt) == 1
 
         img_heights = [gt[0]["height"]]
@@ -954,6 +1093,9 @@ class YOLOXCOCOEval(BaseEvaluator):
         )
         self.data_list.extend(data_list_elem)
         self.output_data.update(image_wise_data)
+
+        if mse_results:
+            self._mse_results.append({"image_id": gt[0]["image_id"], **mse_results})
 
     def results(self, save_path: str = None):
         dummy_statistics = torch.FloatTensor([0, 0, len(self.output_data)])
@@ -978,11 +1120,40 @@ class YOLOXCOCOEval(BaseEvaluator):
 
         self.write_results(eval_results)
 
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
         *listed_items, summary = eval_results
 
         self._logger.info("\n" + summary)
 
-        return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}
+        return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}, overall_mse
 
     def _convert_to_coco_format(self, outputs, info_imgs, ids):
         # reference : yolox > evaluators > coco_evaluator > convert_to_coco_format
@@ -1106,12 +1277,14 @@ class MMPOSECOCOEval(BaseEvaluator):
             ann_file=self.annotation_path, score_mode="bbox", nms_mode="none"
         )
         self._evaluator.dataset_meta = _metainfo
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
         self.reset()
 
     def reset(self):
+        self._mse_results = []
         self.pred_data_list_cnt = 0
 
-    def digest(self, gts, preds):
+    def digest(self, gts, preds, mse_results=None):
         assert len(gts) == 1 and len(preds) == 1
 
         src_img_height = gts[0]["height"]
@@ -1147,6 +1320,9 @@ class MMPOSECOCOEval(BaseEvaluator):
         self._evaluator.process({"dummy": None}, [_data_sample.to_dict()])
         self.pred_data_list_cnt = self.pred_data_list_cnt + 1
 
+        if mse_results:
+            self._mse_results.append({"image_id": img_id, **mse_results})
+
     def results(self, save_path: str = None):
         assert self._loaded_data_sample_size == self.pred_data_list_cnt
         eval_results = self._evaluator.evaluate(self.pred_data_list_cnt)
@@ -1169,12 +1345,41 @@ class MMPOSECOCOEval(BaseEvaluator):
 
         self.write_results(eval_results)
 
+        overall_mse = None
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            overall_mse = 0.0
+
+            if len(self._mse_results) > 0:
+                avg_mse = defaultdict(float)
+
+                for frame_mse in self._mse_results:
+                    for key, value in frame_mse.items():
+                        if key == "image_id":
+                            continue
+                        avg_mse[key] += value
+
+                for key in avg_mse:
+                    avg_mse[key] /= len(self._mse_results)
+                    overall_mse += avg_mse[key]
+
+                mse_results_dict["layer_average_mse"] = dict(avg_mse)
+                overall_mse = overall_mse / len(avg_mse)
+                mse_results_dict["overall_average_mse"] = overall_mse
+
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+
         # item_keys = list(eval_results.keys())
         item_vals = list(eval_results.values())
 
         # self._logger.info("\n" + summary)
 
-        return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}
+        return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}, overall_mse
 
 
 @register_evaluator("VISUAL-QUALITY-EVAL")
