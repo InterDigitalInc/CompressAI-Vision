@@ -28,11 +28,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import jde
 import torch
+
 from jde.models import Darknet
 from jde.tracker import matching
 from jde.tracker.basetrack import TrackState
@@ -78,12 +80,12 @@ class jde_1088x608(BaseWrapper):
         }
 
         self.model_configs = {
-            "iou_thres": float(kwargs["iou_thres"]),
-            "conf_thres": float(kwargs["conf_thres"]),
-            "nms_thres": float(kwargs["nms_thres"]),
-            "min_box_area": int(kwargs["min_box_area"]),
-            "track_buffer": int(kwargs["track_buffer"]),
-            "frame_rate": float(kwargs["frame_rate"]),
+            "iou_thres": float(kwargs.get("iou_thres", 0.5)),
+            "conf_thres": float(kwargs.get("conf_thres", 0.5)),
+            "nms_thres": float(kwargs.get("nms_thres", 0.4)),
+            "min_box_area": int(kwargs.get("min_box_area", 200)),
+            "track_buffer": int(kwargs.get("track_buffer", 30)),
+            "frame_rate": float(kwargs.get("frame_rate", 30)),
         }
         self.max_time_on_hold = int(
             self.model_configs["frame_rate"] / 30.0 * self.model_configs["track_buffer"]
@@ -115,6 +117,15 @@ class jde_1088x608(BaseWrapper):
         if "logging_level" in kwargs:
             self.logger.level = kwargs["logging_level"]
             # logging.DEBUG
+
+        if kwargs.get("hyper_params", {}).get("update", False):
+            hyper_params = {
+                "conf_threshold": kwargs.get("hyper_params", {}).get(
+                    "conf_threshold", None
+                ),
+                "max_dets": kwargs.get("hyper_params", {}).get("max_dets", None),
+            }
+            self._apply_infer_overrides(hyper_params)
 
         # reset member variables to use over a sequence of frame
         self.reset()
@@ -210,8 +221,7 @@ class jde_1088x608(BaseWrapper):
         return {"tlwhs": online_tlwhs, "ids": online_ids}
 
     def _apply_infer_overrides(self, overrides: Dict):
-
-        if "conf_threshold" in overrides:
+        if overrides.get("conf_threshold") is not None:
             self.model_configs["conf_thres"] = float(overrides["conf_threshold"])
 
     @torch.no_grad()
@@ -337,9 +347,7 @@ class jde_1088x608(BaseWrapper):
 
         detections = [detections[i] for i in u_detection]
         # detections is now a list of the unmatched detections
-        r_tracked_stracks = (
-            []
-        )  # This is container for stracks which were tracked till the
+        r_tracked_stracks = []  # This is container for stracks which were tracked till the
         # previous frame but no detection was found for it in the current frame
         for i in u_track:
             if track_candidates_pool[i].state == TrackState.Tracked:

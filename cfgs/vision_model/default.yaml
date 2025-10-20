@@ -15,6 +15,10 @@ faster_rcnn_X_101_32x8d_FPN_3x:
   weights: "weights/detectron2/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl"
   integer_conv_weight: False
   splits : "fpn" #, "c2" or "r2"
+  hyper_params:
+    update: False 
+    conf_threshold: 0.05
+    max_dets: 100
 
 mask_rcnn_R_50_FPN_3x:
   model_path_prefix: ${..model_root_path}
@@ -48,12 +52,9 @@ jde_1088x608:
   cfg: "models/Towards-Realtime-MOT/cfg/yolov3_1088x608.cfg"
   weights: "weights/jde/jde.1088x608.uncertainty.pt"
   integer_conv_weight: False
-  iou_thres: 0.5
-  conf_thres: 0.5
-  nms_thres: 0.4
-  min_box_area: 200
-  track_buffer: 30
-  frame_rate: 30 # It is odd to consider this at here but following original code.
+  hyper_params:
+    update: False
+    conf_threshold: 0.5
   splits : [36, 61, 74] # MPEG FCM TEST with JDE on TVD
   #splits : [105, 90, 75] # MPEG FCM TEST with JDE on HiEve
 

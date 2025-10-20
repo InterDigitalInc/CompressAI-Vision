@@ -27,11 +27,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
+
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import torch
+
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
@@ -209,6 +211,15 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
             zip(self.split_layer_list, [None] * len(self.split_layer_list))
         )
 
+        if kwargs.get("hyper_params", {}).get("update", False):
+            hyper_params = {
+                "conf_threshold": kwargs.get("hyper_params", {}).get(
+                    "conf_threshold", None
+                ),
+                "max_dets": kwargs.get("hyper_params", {}).get("max_dets", None),
+            }
+            self._apply_infer_overrides(hyper_params)
+
         assert self.top_block is not None
         assert self.proposal_generator is not None
 
@@ -313,9 +324,13 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
         """Overrides hyperparameters in roi_heads"""
 
         box_pred = getattr(self.roi_heads, "box_predictor", None)
-        if "conf_threshold" in overrides and hasattr(box_pred, "test_score_thresh"):
+        if overrides.get("conf_threshold") is not None and hasattr(
+            box_pred, "test_score_thresh"
+        ):
             box_pred.test_score_thresh = float(overrides["conf_threshold"])
-        if "max_dets" in overrides and hasattr(box_pred, "test_topk_per_image"):
+        if overrides.get("max_dets") is not None and hasattr(
+            box_pred, "test_topk_per_image"
+        ):
             box_pred.test_topk_per_image = int(overrides["max_dets"])
 
     @torch.no_grad()
