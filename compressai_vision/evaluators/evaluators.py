@@ -717,9 +717,7 @@ class MOT_JDE_Eval(BaseEvaluator):
         pred_list = []
         for tlwh, id in zip(pred["tlwhs"], pred["ids"]):
             x1, y1, w, h = tlwh
-            if (
-                self.apply_pred_offset
-            ):  # Replicate offset applied in load_motchallenge() in motmetrics library, used in VCM eval framework to load predictions from disk
+            if self.apply_pred_offset:  # Replicate offset applied in load_motchallenge() in motmetrics library, used in VCM eval framework to load predictions from disk
                 x1 -= 1
                 y1 -= 1
             # x2, y2 = x1 + w, y1 + h
