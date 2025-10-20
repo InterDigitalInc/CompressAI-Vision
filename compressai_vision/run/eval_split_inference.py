@@ -45,13 +45,11 @@ from __future__ import annotations
 
 import logging
 import os
-
 from pathlib import Path
 from typing import Any
 
 import hydra
 import pandas as pd
-
 from omegaconf import DictConfig
 from tabulate import tabulate
 
@@ -166,6 +164,10 @@ def main(conf: DictConfig):
         **modules
     )
 
+    performance, mse = (
+        performance if isinstance(performance, tuple) else (performance, None)
+    )
+
     if coded_res is not None:  # Encode Only
         # pretty output
         coded_res_df = pd.DataFrame(coded_res)
@@ -263,6 +265,7 @@ def main(conf: DictConfig):
                 "avg_bpp": avg_bpp,
                 "end_accuracy": performance,
                 **elap_times,
+                "inv_mse": None if mse is None else 1.0 / mse,
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
@@ -278,6 +281,7 @@ def main(conf: DictConfig):
                 "bitrate (kbps)": bitrate,
                 "end_accuracy": performance,
                 **elap_times,
+                "inv_mse": None if mse is None else 1.0 / mse,
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
