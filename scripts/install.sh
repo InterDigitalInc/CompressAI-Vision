@@ -272,8 +272,8 @@ prepare_detectron2 () {
     cd "${MODELS_SOURCE_DIR}/detectron2"
     if [[ "${FCM_CTTC}" == "True" ]]; then
         git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
+        git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
     fi
-    git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
