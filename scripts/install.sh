@@ -126,7 +126,7 @@ main () {
     detect_env
 
     if [[ "${FCM_CTTC}" == "True" ]]; then
-        run_install_fcm_cttc
+        configure_fcm_cttc
     fi
 
     if [[ "${NO_PREPARE}" == "False" ]]; then
@@ -146,8 +146,8 @@ main () {
     fi
 }
 
-run_install_fcm_cttc() {
-    echo "🚀 FCM CTTC Mode Enabled: Enforcing strict versions for all models."
+configure_fcm_cttc() {
+    echo "FCM CTTC Mode Enabled: Enforcing strict versions for all models."
     TORCH_VERSION="2.0.0"
     # Correct torchvision version for torch 2.0.0
     TORCHVISION_VERSION="0.15.1"

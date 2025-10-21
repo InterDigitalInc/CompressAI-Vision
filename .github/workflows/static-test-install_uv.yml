@@ -17,5 +17,6 @@ jobs:
 
       - name: install detectron2 and project with uv
         run: |
-          bash scripts/install_uv.sh -m detectron2 --no-weights --cpu
+          uv pip install -U pip wheel setuptools
+          bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
 
