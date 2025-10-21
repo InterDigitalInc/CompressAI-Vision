@@ -169,16 +169,17 @@ run_prepare() {
     detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
     
-    echo "Selected Models to be prepared: ${MODEL}"
+    # for now, prepare all models to avoid issues with uv sync
+    # echo "Selected Models to be prepared: ${MODEL}"
 
     for model in "${VISION_MODELS[@]}"; do
-        if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
+        # if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
             # JDE has a dependency on cython_bbox, so prepare it first.
             if [[ "${model}" == "jde" ]]; then
                 prepare_cython_bbox
             fi
             "prepare_${model}"
-        fi
+        # fi
     done
 }
 
