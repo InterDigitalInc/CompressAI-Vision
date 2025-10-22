@@ -156,6 +156,17 @@ CompressAI-Vision is licensed under the BSD 3-Clause Clear License
 
 Fabien Racapé, Hyomin Choi, Eimran Eimon, Sampsa Riikonen, Jacky Yat-Hong Lam
 
+## Citation
+
+If you use this project, please cite:
+
+@article{compressai_vision,
+  title={CompressAI-Vision: Open-source software to evaluate compression methods for computer vision tasks},
+  author={Choi, Hyomin and Han, Heeji and Rosewarne, Chris and Racap{\'e}, Fabien},
+  journal={arXiv preprint arXiv:2509.20777},
+  year={2025}
+}
+
 ## Related links
  * [HEVC HM reference software](https://hevc.hhi.fraunhofer.de)
  * [VVC VTM reference software](https://vcgit.hhi.fraunhofer.de/jvet/VVCSoftware_VTM)
