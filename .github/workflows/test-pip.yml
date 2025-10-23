@@ -1,10 +1,6 @@
 name: Test (pip)
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   test-pip:
@@ -40,4 +36,4 @@ jobs:
       - name: Run pytest
         run: |
           source venv/bin/activate
-          pytest
+          pytest -s tests/
