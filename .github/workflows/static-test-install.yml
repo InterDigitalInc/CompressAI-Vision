@@ -5,6 +5,13 @@ jobs:
   test-install-uv:
     runs-on: ubuntu-latest
     name: basic install of compressai-vision (torch cpu)
+    strategy:
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -13,9 +20,9 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: ${{ matrix.python-version }}
 
       - name: install detectron2 and project with pip for test
         run: |
-          bash scripts/install.sh -m detectron2 --no-weights --cpu
+          bash scripts/install.sh -m "detectron2,yolox,segment_anything,jde" --no-weights --cpu
 
