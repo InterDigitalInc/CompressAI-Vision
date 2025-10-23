@@ -1453,7 +1453,7 @@ class VisualQualityEval(BaseEvaluator):
         with open(f"{path}/{self.output_file_name}.json", "w", encoding="utf-8") as f:
             json.dump(self._evaluations, f, ensure_ascii=False, indent=4)
 
-    def digest(self, gt, pred):
+    def digest(self, gt, pred, mse_results=None):
         ref = gt[0]["image"].unsqueeze(0).cpu()
         tst = pred.unsqueeze(0).cpu()
 
