@@ -31,11 +31,13 @@
 import base64
 import logging
 import re
+
 from glob import glob
 from pathlib import Path
 from typing import Dict, List
 
 import numpy as np
+
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper

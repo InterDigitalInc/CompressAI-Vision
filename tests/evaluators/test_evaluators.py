@@ -29,10 +29,11 @@
 
 import json
 import os
-import pytest
-import torch
 
 from unittest.mock import MagicMock, patch
+
+import pytest
+import torch
 
 from compressai_vision.evaluators import COCOEVal
 
