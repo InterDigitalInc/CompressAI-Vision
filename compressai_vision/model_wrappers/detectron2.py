@@ -611,7 +611,11 @@ class panoptic_rcnn_R_101_FPN_3x(Rcnn_R_50_X_101_FPN):
 
     @torch.no_grad()
     def _feature_pyramid_to_output(
-        self, x: Dict, org_img_size: Dict, input_img_size: List
+        self,
+        x: Dict,
+        org_img_size: Dict,
+        input_img_size: List,
+        hyper_params: Optional[Dict] = None,
     ):
         """
         performs  downstream task using the feature pyramid ['p2', 'p3', 'p4', 'p5']
