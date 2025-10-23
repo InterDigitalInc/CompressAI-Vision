@@ -31,18 +31,17 @@
 import base64
 import logging
 import re
-
 from glob import glob
 from pathlib import Path
 from typing import Dict, List
 
 import numpy as np
-
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.common import DatasetFromList, MapDataset
 from detectron2.data.dataset_mapper import DatasetMapper
 from detectron2.data.datasets import load_coco_json, register_coco_instances
 from detectron2.data.samplers import InferenceSampler
+from detectron2.data.transforms import AugmentationList
 from detectron2.utils.serialize import PicklableWrapper
 from jde.utils.io import read_results
 from PIL import Image
@@ -117,6 +116,14 @@ class BaseDataset(Dataset):
         if "seqinfo" in kwargs:
             if kwargs["seqinfo"].lower() != "none":
                 self.seqinfo_path = kwargs["dataset"].seqinfo_path
+
+        self.input_agumentation_bypass = False
+        if "input_augmentation_bypass" in kwargs:
+            self.input_agumentation_bypass = kwargs["input_augmentation_bypass"]
+            if self.input_agumentation_bypass:
+                self.logger.warning(
+                    "The vision model may or may not support the feature of input agumentation bypass\n"
+                )
 
         self.images_folder = Path(root) / imgs_folder
         assert self.images_folder == kwargs["dataset"].imgs_folder_path
@@ -251,8 +258,14 @@ class Detectron2Dataset(BaseDataset):
             ), "A proper mapper information via cfg must be provided"
             mapper = DatasetMapper(kwargs["cfg"], False)
 
-        self.mapDataset = MapDataset(_dataset, mapper)
         self._org_mapper_func = PicklableWrapper(DatasetMapper(kwargs["cfg"], False))
+
+        if self.input_agumentation_bypass:
+            emptyAugList = AugmentationList([])
+            self._org_mapper_func.augmentations = emptyAugList
+            mapper.augmentations = emptyAugList
+
+        self.mapDataset = MapDataset(_dataset, mapper)
 
         metaData = MetadataCatalog.get(dataset_name)
         try:
