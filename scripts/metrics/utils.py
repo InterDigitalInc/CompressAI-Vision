@@ -40,6 +40,7 @@ import os
 import re
 
 from pathlib import Path
+from typing import Optional, Dict
 
 __all__ = [
     "get_seq_number",
@@ -174,6 +175,7 @@ def search_items(
     by_name=False,
     pandaset_flag=False,
     gt_folder="annotations",
+    gt_name_overrides: Optional[Dict[str, str]] = None,
 ):
     _ret_list = []
     for seq_name in seq_list:
@@ -189,8 +191,13 @@ def search_items(
                     seq_name, dataset_path, gt_folder
                 )
             else:
+                _gt_lookup_name = (
+                    gt_name_overrides.get(seq_name, seq_name)
+                    if gt_name_overrides
+                    else seq_name
+                )
                 seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
-                    seq_name, dataset_path, gt_folder
+                    _gt_lookup_name, dataset_path, gt_folder
                 )
         else:  # by number
             seq_num = get_seq_number(seq_name)
