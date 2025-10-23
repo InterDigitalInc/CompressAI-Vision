@@ -186,7 +186,7 @@ class VideoRemoteInference(BasePipeline):
             start = time_measure()
             dec_d = {
                 "file_name": dec_seq["file_names"][e],
-                "file_origin": d[e]["file_name"],
+                "file_origin": d[0]["file_name"],
             }
             # dec_d = {"file_name": dec_seq[0]["file_names"][e]}
             pred = vision_model.forward(org_map_func(dec_d))

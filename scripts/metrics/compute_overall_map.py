@@ -67,7 +67,7 @@ SEQS_BY_CLASS = {
     ],
     CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"],
     CLASSES[2]: ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"],
-    CLASSES[3]: ["Traffic", "BQTerrace"]
+    CLASSES[3]: ["Traffic", "BQTerrace"],
 }
 
 SEQUENCE_TO_OFFSET = {

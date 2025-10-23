@@ -58,7 +58,13 @@ from compressai_vision.evaluators.evaluators import BaseEvaluator
 DATASETS = ["TVD", "SFU", "OIV6", "HIEVE", "PANDASET"]
 
 
-def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv", prefix: str | None = None,):
+def read_df_rec(
+    path,
+    seq_list,
+    nb_operation_points,
+    fn_regex=r"summary.csv",
+    prefix: str | None = None,
+):
     summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
     if nb_operation_points > 0:
         seq_names = [
@@ -163,10 +169,13 @@ def generate_csv_classwise_video_map(
     nb_operation_points: int = 4,
     no_cactus: bool = False,
     skip_classwise: bool = False,
-    prefix: str | None = None,
+    seq_prefix: str = None,
+    dataset_prefix: str = None,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = read_df_rec(result_path, seq_list, nb_operation_points, prefix=prefix)
+    results_df = read_df_rec(
+        result_path, seq_list, nb_operation_points, prefix=seq_prefix
+    )
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -186,6 +195,13 @@ def generate_csv_classwise_video_map(
         classwise_name = list(seqs_by_class.keys())[0]
         classwise_seqs = list(seqs_by_class.values())[0]
 
+        cur_seq_prefix = (
+            seq_prefix
+            if seq_prefix
+            and any(name.startswith(seq_prefix) for name in classwise_seqs)
+            else None
+        )
+
         class_wise_maps = []
         for q in range(nb_operation_points):
             items = utils.search_items(
@@ -196,6 +212,8 @@ def generate_csv_classwise_video_map(
                 BaseEvaluator.get_coco_eval_info_name,
                 by_name=True,
                 gt_folder=gt_folder,
+                seq_prefix=cur_seq_prefix,
+                dataset_prefix=dataset_prefix,
             )
 
             assert (
@@ -211,7 +229,11 @@ def generate_csv_classwise_video_map(
             matched_seq_names = []
             for seq_info in items:
                 name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-                matched_seq_names.append(name)
+                matched_seq_names.append(
+                    f"{seq_prefix}{name}"
+                    if seq_prefix and seq_prefix in seq_info[utils.SEQ_NAME_KEY]
+                    else name
+                )
 
             class_wise_results_df = generate_classwise_df(
                 results_df, {classwise_name: matched_seq_names}
@@ -220,7 +242,7 @@ def generate_csv_classwise_video_map(
 
             output_df = df_append(output_df, class_wise_results_df)
 
-    return output_df, results_df
+    return output_df
 
 
 def generate_csv_classwise_video_mota(
@@ -436,6 +458,7 @@ if __name__ == "__main__":
 
     if args.dataset_name == "SFU":
         metric = args.metric
+        dataset_prefix = "sfu-hw-"
         class_ab = {
             "CLASS-AB": [
                 "Traffic",
@@ -496,6 +519,13 @@ if __name__ == "__main__":
             ns_seq_list = ["ns_Traffic_2560x1600_30", "ns_BQTerrace_1920x1080_60"]
             seq_list.extend(ns_seq_list)
             seq_prefix = "ns_"
+            class_ab_star = {
+                "CLASS-AB*": [
+                    "ns_Traffic",
+                    "ns_BQTerrace",
+                ]
+            }
+            classes.append(class_ab_star)
 
         if args.mode == "VCM" and not args.include_optional:
             seq_list.remove("Kimono_1920x1080_24")
@@ -504,7 +534,7 @@ if __name__ == "__main__":
         if args.mode == "FCM" and args.no_cactus:
             seq_list.remove("Cactus_1920x1080_50")
 
-        output_df, results_df = generate_csv_classwise_video_map(
+        output_df = generate_csv_classwise_video_map(
             norm_result_path,
             args.dataset_path,
             classes,
@@ -514,7 +544,10 @@ if __name__ == "__main__":
             args.nb_operation_points,
             args.no_cactus,
             args.mode == "VCM",  # skip classwise evaluation
-            prefix=seq_prefix if "seq_prefix" in locals() else None, # adding prefix to non-scale sequence
+            seq_prefix=seq_prefix
+            if "seq_prefix" in locals()
+            else None,  # adding prefix to non-scale sequence
+            dataset_prefix=dataset_prefix if "dataset_prefix" in locals() else None,
         )
 
         if args.mode == "VCM":
@@ -524,50 +557,6 @@ if __name__ == "__main__":
                 perf_name="end_accuracy",
                 rate_name="bitrate (kbps)",
             )
-        else:
-            # add CLASS-AB* using ns_* results for Traffic and BQTerrace
-            if args.add_non_scale:
-                class_ab_star = {
-                    "CLASS-AB*": [
-                        "ns_Traffic",
-                        "ns_BQTerrace",
-                    ]
-                }
-                # Compute classwise mAP for AB* using ns_* eval results but original GT
-                class_wise_maps = []
-                for q in range(args.nb_operation_points):
-                    items = utils.search_items(
-                        norm_result_path,
-                        args.dataset_path,
-                        q,
-                        list(class_ab_star.values())[0],
-                        BaseEvaluator.get_coco_eval_info_name,
-                        by_name=True,
-                        gt_folder=args.gt_folder,
-                        gt_name_overrides={
-                            "ns_Traffic": "Traffic",
-                            "ns_BQTerrace": "BQTerrace",
-                        },
-                    )
-
-                    assert (
-                        len(items) > 0
-                    ), "No evaluation information found for CLASS-AB* in provided result directories..."
-
-                    summary = compute_overall_mAP("CLASS-AB*", items)
-                    maps = summary.values[0][{"AP": 0, "AP50": 1}[metric]]
-                    class_wise_maps.append(maps)
-
-                matched_seq_names = []
-                for seq_info in items:
-                    name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-                    matched_seq_names.append(name)
-
-                class_wise_results_df = generate_classwise_df(
-                    results_df, {"CLASS-AB*": matched_seq_names}
-                )
-                class_wise_results_df["end_accuracy"] = class_wise_maps
-                output_df = df_append(output_df, class_wise_results_df)
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(
             norm_result_path, ["MPEGOIV6"], args.nb_operation_points
