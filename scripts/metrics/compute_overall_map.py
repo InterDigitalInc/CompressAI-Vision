@@ -54,7 +54,7 @@ from pycocotools.cocoeval import COCOeval
 
 from compressai_vision.evaluators.evaluators import BaseEvaluator
 
-CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D"]
+CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D", "CLASS-AB*"]
 
 SEQS_BY_CLASS = {
     CLASSES[0]: [
@@ -67,6 +67,7 @@ SEQS_BY_CLASS = {
     ],
     CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"],
     CLASSES[2]: ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"],
+    CLASSES[3]: ["Traffic", "BQTerrace"]
 }
 
 SEQUENCE_TO_OFFSET = {

@@ -58,7 +58,7 @@ from compressai_vision.evaluators.evaluators import BaseEvaluator
 DATASETS = ["TVD", "SFU", "OIV6", "HIEVE", "PANDASET"]
 
 
-def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv"):
+def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv", prefix: str | None = None,):
     summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
     if nb_operation_points > 0:
         seq_names = [
@@ -70,10 +70,18 @@ def read_df_rec(path, seq_list, nb_operation_points, fn_regex=r"summary.csv"):
                 len([f for f in summary_csvs if sequence in f]) == nb_operation_points
             ), f"Did not find {nb_operation_points} results for {sequence}"
 
-    return pd.concat(
-        (pd.read_csv(f) for f in summary_csvs),
-        ignore_index=True,
-    )
+    dfs = []
+    for f in summary_csvs:
+        df = pd.read_csv(f)
+
+        seq_dir = Path(os.path.relpath(f, path)).parts[0]
+        if prefix and prefix in seq_dir:
+            df["Dataset"] = df["Dataset"].apply(
+                lambda x: f"{prefix}{x}" if not x.startswith(f"{prefix}") else x
+            )
+
+        dfs.append(df)
+    return pd.concat(dfs, ignore_index=True)
 
 
 def df_append(df1, df2):
@@ -155,9 +163,10 @@ def generate_csv_classwise_video_map(
     nb_operation_points: int = 4,
     no_cactus: bool = False,
     skip_classwise: bool = False,
+    prefix: str | None = None,
 ):
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
+    results_df = read_df_rec(result_path, seq_list, nb_operation_points, prefix=prefix)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -211,7 +220,7 @@ def generate_csv_classwise_video_map(
 
             output_df = df_append(output_df, class_wise_results_df)
 
-    return output_df
+    return output_df, results_df
 
 
 def generate_csv_classwise_video_mota(
@@ -409,6 +418,12 @@ if __name__ == "__main__":
         default=False,
         help="exclude Cactus sequence for FCM eval",
     )
+    parser.add_argument(
+        "--add-non-scale",
+        action="store_true",
+        default=False,
+        help="Add non-scale option using ns_Traffic/ns_BQTerrace with original GT",
+    )
 
     args = parser.parse_args()
 
@@ -476,6 +491,12 @@ if __name__ == "__main__":
             "BlowingBubbles_416x240_50",
             "RaceHorses_416x240_30",
         ]
+
+        if args.mode == "FCM" and args.add_non_scale:
+            ns_seq_list = ["ns_Traffic_2560x1600_30", "ns_BQTerrace_1920x1080_60"]
+            seq_list.extend(ns_seq_list)
+            seq_prefix = "ns_"
+
         if args.mode == "VCM" and not args.include_optional:
             seq_list.remove("Kimono_1920x1080_24")
             seq_list.remove("Cactus_1920x1080_50")
@@ -483,7 +504,7 @@ if __name__ == "__main__":
         if args.mode == "FCM" and args.no_cactus:
             seq_list.remove("Cactus_1920x1080_50")
 
-        output_df = generate_csv_classwise_video_map(
+        output_df, results_df = generate_csv_classwise_video_map(
             norm_result_path,
             args.dataset_path,
             classes,
@@ -493,6 +514,7 @@ if __name__ == "__main__":
             args.nb_operation_points,
             args.no_cactus,
             args.mode == "VCM",  # skip classwise evaluation
+            prefix=seq_prefix if "seq_prefix" in locals() else None, # adding prefix to non-scale sequence
         )
 
         if args.mode == "VCM":
@@ -502,6 +524,50 @@ if __name__ == "__main__":
                 perf_name="end_accuracy",
                 rate_name="bitrate (kbps)",
             )
+        else:
+            # add CLASS-AB* using ns_* results for Traffic and BQTerrace
+            if args.add_non_scale:
+                class_ab_star = {
+                    "CLASS-AB*": [
+                        "ns_Traffic",
+                        "ns_BQTerrace",
+                    ]
+                }
+                # Compute classwise mAP for AB* using ns_* eval results but original GT
+                class_wise_maps = []
+                for q in range(args.nb_operation_points):
+                    items = utils.search_items(
+                        norm_result_path,
+                        args.dataset_path,
+                        q,
+                        list(class_ab_star.values())[0],
+                        BaseEvaluator.get_coco_eval_info_name,
+                        by_name=True,
+                        gt_folder=args.gt_folder,
+                        gt_name_overrides={
+                            "ns_Traffic": "Traffic",
+                            "ns_BQTerrace": "BQTerrace",
+                        },
+                    )
+
+                    assert (
+                        len(items) > 0
+                    ), "No evaluation information found for CLASS-AB* in provided result directories..."
+
+                    summary = compute_overall_mAP("CLASS-AB*", items)
+                    maps = summary.values[0][{"AP": 0, "AP50": 1}[metric]]
+                    class_wise_maps.append(maps)
+
+                matched_seq_names = []
+                for seq_info in items:
+                    name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
+                    matched_seq_names.append(name)
+
+                class_wise_results_df = generate_classwise_df(
+                    results_df, {"CLASS-AB*": matched_seq_names}
+                )
+                class_wise_results_df["end_accuracy"] = class_wise_maps
+                output_df = df_append(output_df, class_wise_results_df)
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(
             norm_result_path, ["MPEGOIV6"], args.nb_operation_points
