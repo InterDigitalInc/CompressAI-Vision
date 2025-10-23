@@ -40,7 +40,7 @@ import os
 import re
 
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 __all__ = [
     "get_seq_number",
@@ -86,8 +86,10 @@ def get_eval_info_path_by_seq_num(seq_num, _path, qidx: int, name_func: callable
     return eval_info_path, dname
 
 
-def get_eval_info_path_by_seq_name(seq_name, _path, _qidx: int, name_func: callable):
-    result = get_folder_path_by_seq_name(seq_name, _path)
+def get_eval_info_path_by_seq_name(
+    seq_name, _path, _qidx: int, name_func: callable, dataset_prefix=None
+):
+    result = get_folder_path_by_seq_name(seq_name, _path, dataset_prefix)
     if result is None:
         return
     eval_folder, _dname = result
@@ -156,8 +158,11 @@ def get_folder_path_by_seq_num(seq_num, _path):
     return None
 
 
-def get_folder_path_by_seq_name(seq_name, _path):
+def get_folder_path_by_seq_name(seq_name, _path, dataset_prefix=None):
     _folder_list = [f for f in Path(_path).iterdir() if f.is_dir()]
+
+    if dataset_prefix is not None:
+        seq_name = f"{dataset_prefix}{seq_name}"
 
     for _name in _folder_list:
         if seq_name in _name.stem:
@@ -175,13 +180,14 @@ def search_items(
     by_name=False,
     pandaset_flag=False,
     gt_folder="annotations",
-    gt_name_overrides: Optional[Dict[str, str]] = None,
+    seq_prefix=None,
+    dataset_prefix=None,
 ):
     _ret_list = []
     for seq_name in seq_list:
         if by_name is True:
             result = get_eval_info_path_by_seq_name(
-                seq_name, result_path, rate_point, eval_func
+                seq_name, result_path, rate_point, eval_func, dataset_prefix
             )
             if result is None:
                 continue
@@ -192,9 +198,7 @@ def search_items(
                 )
             else:
                 _gt_lookup_name = (
-                    gt_name_overrides.get(seq_name, seq_name)
-                    if gt_name_overrides
-                    else seq_name
+                    seq_name.split(seq_prefix)[-1] if seq_prefix else seq_name
                 )
                 seq_info_path, seq_gt_path = get_seq_info_path_by_seq_name(
                     _gt_lookup_name, dataset_path, gt_folder
