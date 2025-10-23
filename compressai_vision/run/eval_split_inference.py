@@ -267,7 +267,9 @@ def main(conf: DictConfig):
                 "avg_bpp": avg_bpp,
                 "end_accuracy": performance,
                 **elap_times,
-                "inv_mse": None if mse is None else 1.0 / mse,
+                **(
+                    {"inv_mse": 0 if mse == 0 else 1.0 / mse} if mse is not None else {}
+                ),
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))
@@ -283,7 +285,9 @@ def main(conf: DictConfig):
                 "bitrate (kbps)": bitrate,
                 "end_accuracy": performance,
                 **elap_times,
-                "inv_mse": None if mse is None else 1.0 / mse,
+                **(
+                    {"inv_mse": 0 if mse == 0 else 1.0 / mse} if mse is not None else {}
+                ),
             }
         )
         print(tabulate(result_df, headers="keys", tablefmt="psql"))

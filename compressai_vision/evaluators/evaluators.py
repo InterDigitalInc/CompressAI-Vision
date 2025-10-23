@@ -176,7 +176,10 @@ class COCOEVal(BaseEvaluator):
 
         self.write_results(out)
 
-        overall_mse = None
+        # summary = {}
+        # for key, item_dict in out.items():
+        #     summary[f"{key}"] = item_dict["AP"]
+
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -205,11 +208,9 @@ class COCOEVal(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        # summary = {}
-        # for key, item_dict in out.items():
-        #     summary[f"{key}"] = item_dict["AP"]
-
-        return out, overall_mse
+            return out, overall_mse
+        else:
+            return out
 
 
 @register_evaluator("OIC-EVAL")
@@ -474,7 +475,11 @@ class OpenImagesChallengeEval(BaseEvaluator):
 
         self.write_results(out)
 
-        overall_mse = None
+        summary = {}
+        for key, value in out.items():
+            name = "-".join(key.split("/")[1:])
+            summary[name] = value
+
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -503,12 +508,9 @@ class OpenImagesChallengeEval(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        summary = {}
-        for key, value in out.items():
-            name = "-".join(key.split("/")[1:])
-            summary[name] = value
-
-        return summary, overall_mse
+            return summary, overall_mse
+        else:
+            return summary
 
 
 @register_evaluator("SEMANTICSEG-EVAL")
@@ -607,7 +609,6 @@ class SemanticSegmentationEval(BaseEvaluator):
 
         self.write_results(class_mIoU)
 
-        overall_mse = None
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -636,7 +637,9 @@ class SemanticSegmentationEval(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        return class_mIoU, overall_mse
+            return class_mIoU, overall_mse
+        else:
+            return class_mIoU
 
 
 @register_evaluator("MOT-JDE-EVAL")
@@ -788,7 +791,6 @@ class MOT_JDE_Eval(BaseEvaluator):
 
         self.write_results(out)
 
-        overall_mse = None
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -817,7 +819,9 @@ class MOT_JDE_Eval(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        return out, overall_mse
+            return out, overall_mse
+        else:
+            return out
 
     @staticmethod
     def digest_summary(summary):
@@ -1126,7 +1130,10 @@ class YOLOXCOCOEval(BaseEvaluator):
 
         self.write_results(eval_results)
 
-        overall_mse = None
+        *listed_items, summary = eval_results
+
+        self._logger.info("\n" + summary)
+
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -1155,11 +1162,12 @@ class YOLOXCOCOEval(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        *listed_items, summary = eval_results
-
-        self._logger.info("\n" + summary)
-
-        return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}, overall_mse
+            return {
+                "AP": listed_items[0] * 100,
+                "AP50": listed_items[1] * 100,
+            }, overall_mse
+        else:
+            return {"AP": listed_items[0] * 100, "AP50": listed_items[1] * 100}
 
     def _convert_to_coco_format(self, outputs, info_imgs, ids):
         # reference : yolox > evaluators > coco_evaluator > convert_to_coco_format
@@ -1363,7 +1371,11 @@ class MMPOSECOCOEval(BaseEvaluator):
 
         self.write_results(eval_results)
 
-        overall_mse = None
+        # item_keys = list(eval_results.keys())
+        item_vals = list(eval_results.values())
+
+        # self._logger.info("\n" + summary)
+
         if self._mse_results:
             mse_results_dict = {"per_frame_mse": self._mse_results}
             overall_mse = 0.0
@@ -1392,12 +1404,9 @@ class MMPOSECOCOEval(BaseEvaluator):
             ) as f:
                 json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
 
-        # item_keys = list(eval_results.keys())
-        item_vals = list(eval_results.values())
-
-        # self._logger.info("\n" + summary)
-
-        return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}, overall_mse
+            return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}, overall_mse
+        else:
+            return {"AP": item_vals[0] * 100, "AP50": item_vals[1] * 100}
 
 
 @register_evaluator("VISUAL-QUALITY-EVAL")
