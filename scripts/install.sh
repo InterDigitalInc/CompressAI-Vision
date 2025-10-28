@@ -8,7 +8,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${SCRIPT_PATH}")" &> /dev/null && pwd)
 
 # --- Configuration ---
 # Central array for all vision models
-VISION_MODELS=(detectron2 jde yolox mmpose segment_anything)
+VISION_MODELS=(detectron2 jde yolox mmpose segment_anything sam2)
 
 # Default versions
 TORCH_VERSION="2.0.0"
@@ -86,6 +86,10 @@ fe5ad56ff746aa55c5f453b01f8395134e9281d240dbeb473411d4a6b262c9dc  detectron2/COC
 516a421f8717548300c3ee6356a3444ac539083d4a9912f8ca1619ee63d0986d  mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth                              https://download.openmmlab.com/mmpose/v1/projects/rtmo/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth
 b5905e9faf500a2608c93991f91a41a6150bcd2dd30986865a73becd94542fa1  yolox/darknet53/yolox_darknet.pth                                                                   https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_darknet.pth
 a7bf3b02f3ebf1267aba913ff637d9a2d5c33d3173bb679e46d9f338c26f262e  segment_anything/sam_vit_h_4b8939.pth                                                               https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5  sam2/sam2.1_hiera_base_plus.pt                                                                      https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt
+2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318  sam2/sam2.1_hiera_large.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt
+6d1aa6f30de5c92224f8172114de081d104bbd23dd9dc5c58996f0cad5dc4d38  sam2/sam2.1_hiera_small.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt
+7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69  sam2/sam2.1_hiera_tiny.pt                                                                           https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt
 "
 
 
@@ -480,14 +484,48 @@ install_segment_anything () {
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
+prepare_sam2 () {
+    echo
+    echo "Preparing Segment Anything 2 for installation"
+    echo
+
+    if [ -d "${MODELS_SOURCE_DIR}/sam2" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/sam2")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/sam2"
+        return
+    fi
+
+    git clone https://github.com/facebookresearch/sam2.git "${MODELS_SOURCE_DIR}/sam2"
+    cd "${MODELS_SOURCE_DIR}/sam2"
+    #  Dec 16, 2024
+    git reset --hard 2b90b9f5ceec907a1c18123530e92e794ad901a4
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+install_sam2 () {
+    echo
+    echo "Installing Segment Anything 2 (reference: https://github.com/facebookresearch/sam2)"
+    echo "Requirements: python>=3.10, as well as torch>=2.5.1 and torchvision>=0.20.1."
+    echo
+
+    cd "${MODELS_SOURCE_DIR}/sam2"
+
+    if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        "${PIP[@]}" install -e .
+    elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
+        cd "${COMPRESSAI_VISION_ROOT_DIR}"
+        uv sync --inexact --group=models-sam2
+    fi
+
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
 
 download_weights () {
     detect_env
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
-    
-    for model in detectron2 jde mmpose yolox segment_anything; do
-        if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," != *",all,"* ]]; then
+
+    for model in detectron2 jde mmpose yolox segment_anything sam2; do
+        if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," == *",all,"* ]]; then
             continue
         fi
 

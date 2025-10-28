@@ -26,6 +26,8 @@ It currently focuses on two types of pipeline:
 
 - [Segment Anything](https://github.com/facebookresearch/segment-anything/tree/main)
 
+- [Segment Anything 2 (SAM2)](https://github.com/facebookresearch/sam2?tab=readme-ov-file)
+
 ## Documentation
 
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
@@ -79,6 +81,9 @@ NOTE 2: the downlading of JDE pretrained weights might fail. Check that the size
 path/to/weights/jde/jde.1088x608.uncertainty.pt
 The file can be downloaded at the following link (in place of the above file path):
 "https://docs.google.com/uc?export=download&id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA"
+
+NOTE 3: SAM2 requires python>=3.10, torch>=2.5.1 and torchvision>=0.20.1., which are higher versions of the packages needed for the previous models installation.
+For instance, the installation of models with the ‘-—fcm-cttc’ configuration may be incompatible with SAM2 installation, and vice versa.
 
 ### 2. Using uv:
 Within the root folder of compressai-vision:
@@ -177,3 +182,4 @@ If you use this project, please cite:
  * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
  * [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo)
  * [Segment Anything](https://github.com/facebookresearch/segment-anything/tree/main)
+ * [SAM2](https://github.com/facebookresearch/sam2?tab=readme-ov-file)
