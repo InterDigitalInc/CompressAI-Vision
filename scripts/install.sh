@@ -524,43 +524,41 @@ download_weights () {
     mkdir -p "${MODELS_WEIGHT_DIR}"
     cd "${MODELS_WEIGHT_DIR}/"
 
-    for model in detectron2 jde mmpose yolox segment_anything sam2; do
-        if ! [[ ",${MODEL,,}," == *",${model},"* ]] && [[ ",${MODEL,,}," == *",all,"* ]]; then
-            continue
-        fi
-
-        echo
-        echo
-        echo
-        echo "Downloading model weights for ${model}..."
-        echo
-
-        FILTER="[0-9a-fA-F]* ${model}/"
-        FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
-
-        echo "${FILTERED_WEIGHTS}" | while read -r entry; do
-            read -r _SHA256SUM OUTPATH URL <<< "$entry"
-            mkdir -p "${OUTPATH%/*}"
-            if [[ -f "${OUTPATH}" ]]; then
-                echo "${OUTPATH} already exists. Skipping download."
-            else
-                wget "${URL}" -O "${OUTPATH}" || {
-                    echo "Failed to download ${OUTPATH} from ${URL}"
-                    echo "Continuing other downloads..."
-                }
-            fi
-        done
-
-        echo
-        echo "Verifying checksums for ${model}..."
-        echo
-
-        if ! echo "${FILTERED_WEIGHTS}" | awk '{print $1 "  " $2}' | sha256sum --check; then
+    for model in "${VISION_MODELS[@]}"; do
+        if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
             echo
-            echo "Checksum verification failed for ${model}."
-            echo "Consider downloading the weights manually inside the directory ${MODELS_WEIGHT_DIR}/:"
-            echo "${FILTERED_WEIGHTS}"
-            exit 1
+            echo
+            echo
+            echo "Downloading model weights for ${model}..."
+            echo
+
+            FILTER="[0-9a-fA-F]* ${model}/"
+            FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
+
+            echo "${FILTERED_WEIGHTS}" | while read -r entry; do
+                read -r _SHA256SUM OUTPATH URL <<< "$entry"
+                mkdir -p "${OUTPATH%/*}"
+                if [[ -f "${OUTPATH}" ]]; then
+                    echo "${OUTPATH} already exists. Skipping download."
+                else
+                    wget "${URL}" -O "${OUTPATH}" || {
+                        echo "Failed to download ${OUTPATH} from ${URL}"
+                        echo "Continuing other downloads..."
+                    }
+                fi
+            done
+
+            echo
+            echo "Verifying checksums for ${model}..."
+            echo
+
+            if ! echo "${FILTERED_WEIGHTS}" | awk '{print $1 "  " $2}' | sha256sum --check; then
+                echo
+                echo "Checksum verification failed for ${model}."
+                echo "Consider downloading the weights manually inside the directory ${MODELS_WEIGHT_DIR}/:"
+                echo "${FILTERED_WEIGHTS}"
+                exit 1
+            fi
         fi
     done
 
