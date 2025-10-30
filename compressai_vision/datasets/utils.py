@@ -307,13 +307,14 @@ class JDECustomMapper:
 
 
 class SAMCustomMapper:
-    def __init__(self, img_size=1024):
+    def __init__(self, augmentation_bypass=False, img_size=1024):
         """
         Args:
             img_size: single value - target size to SAM as input
         """
         from segment_anything.utils.transforms import ResizeLongestSide
 
+        self.augmentation_bypass = augmentation_bypass
         self.target_size = img_size
         self.transform = ResizeLongestSide(img_size)
 
@@ -335,16 +336,17 @@ class SAMCustomMapper:
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
         dataset_dict["height"], dataset_dict["width"], _ = org_img.shape
 
-        # h = dataset_dict["height"]
-        # w = dataset_dict["width"]
-
         # BGR --> RGB (SAM requires RGB input)
         org_img = org_img[..., ::-1]
-        input_image = self.transform.apply_image(org_img)
-        input_image = torch.tensor(input_image)
-        input_image = input_image.permute(2, 0, 1).contiguous()[None, :, :, :]
 
-        dataset_dict["image"] = input_image
+        if self.augmentation_bypass:
+            dataset_dict["image"] = org_img.copy()
+        else:
+            input_image = self.transform.apply_image(org_img)
+            input_image = torch.tensor(input_image)
+            input_image = input_image.permute(2, 0, 1).contiguous()[None, :, :, :]
+
+            dataset_dict["image"] = input_image
 
         return dataset_dict
 

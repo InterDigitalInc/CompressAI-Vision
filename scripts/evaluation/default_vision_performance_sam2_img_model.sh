@@ -68,7 +68,10 @@ MPEG_SAM="${TESTDATA_DIR}/sam_test"
 ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.type=image \
              ++vision_model.arch=sam_vit_h_4b8939 \
+             ++vision_model.arch=sam2_hiera_image_model \
+             ++vision_model.sam2_hiera.weights=weights/sam2/sam2.1_hiera_base_plus.pt \
              ++dataset.type=SamDataset \
+             ++dataset.settings.input_augmentation_bypass=True \
              ++dataset.datacatalog=MPEGSAM \
              ++dataset.config.root=${MPEG_SAM} \
              ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco_2images.json \
@@ -81,3 +84,5 @@ ${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
              ++pipeline.nn_task_part2.dump_features=False \
              ++misc.device.nn_parts=${DEVICE} \
              ++codec.eval_encode='bpp' \
+
+

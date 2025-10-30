@@ -45,7 +45,6 @@ from detectron2.data.datasets import load_coco_json, register_coco_instances
 from detectron2.data.samplers import InferenceSampler
 from detectron2.data.transforms import AugmentationList
 from detectron2.utils.serialize import PicklableWrapper
-from jde.utils.io import read_results
 from PIL import Image
 from torch.utils.data import Dataset
 
@@ -308,10 +307,12 @@ class SamDataset(BaseDataset):
         self.collate_fn = bypass_collator
 
         _dataset = DatasetFromList(self.dataset, copy=False)
-        mapper = SAMCustomMapper()
+        mapper = SAMCustomMapper(
+            augmentation_bypass=kwargs["input_augmentation_bypass"]
+        )
 
         self.mapDataset = MapDataset(_dataset, mapper)
-        self._org_mapper_func = PicklableWrapper(SAMCustomMapper())
+        self._org_mapper_func = PicklableWrapper(mapper)
 
         metaData = MetadataCatalog.get(dataset_name)
         try:
@@ -551,6 +552,7 @@ class MPEGTVDTRACKING(DataCatalog):
             dataset_name=dataset_name,
             ext=ext,
         )
+        from jde.utils.io import read_results
 
         self.data_type = "mot"
         gt_frame_dict = read_results(

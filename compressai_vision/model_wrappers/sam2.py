@@ -45,6 +45,7 @@ from torch.nn import functional as F
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
+from .sam import Boxes, mask_to_bbx
 
 # sam = sam_model_registry["vit_h"](checkpoint="/t/vic/hevc_simulations/rosen/build/compressai13_sam/weights/sam/sam_vit_h_4b8939.pth")
 # predictor = SamPredictor(sam)
@@ -52,63 +53,24 @@ from .base_wrapper import BaseWrapper
 
 
 __all__ = [
-    "sam_vit_h_4b8939",
-    "sam_vit_b_01ec64",
-    "sam_vit_l_0b3195",
+    "sam2_hiera_image_model",
+    "sam2_hiera_video_model",
 ]
 
 thisdir = Path(__file__).parent
 root_path = thisdir.joinpath("../..")
 
 
-class Boxes:
-    def __init__(self, tensor):
-        self.tensor = tensor
-
-    def __len__(self):
-        return self.tensor.shape[0]
-
-    def __repr__(self):
-        return f"Boxes(tensor({self.tensor}))"
-
-
-def mask_to_bbx(mask):
-    if not isinstance(mask, np.ndarray):
-        mask = mask.cpu()
-        mask = np.array(mask)
-
-    mask = np.squeeze(mask)
-    h, w = mask.shape[-2:]
-    rows, cols = np.where(mask)
-
-    # Calculate the bounding box
-    # min_row, max_row = rows.min(), rows.max()
-    # min_col, max_col = cols.min(), cols.max()
-
-    # Bounding box as (top-left corner, bottom-right corner)
-    bounding_box = [
-        cols.min(),
-        rows.min(),
-        cols.max(),
-        rows.max(),
-    ]  # XMin,YMin,XMax,YMax  top-left corner, bottom-right corner
-    # bounding_box = cols.min()/w, cols.max()/w, rows.min()/h, rows.max()/h  # XMin,XMax,YMin,YMax
-    return bounding_box
-
-
 class Split_Points(Enum):
     def __str__(self):
         return str(self.value)
 
-    ImageEncoder = "imgenc"  # features output from neck.3.bias
+    ImageEncoder = "backbone"  # features output from neck.3.bias
 
 
-class SAM(BaseWrapper):
+class SAM2(BaseWrapper):
     def __init__(self, device: str, **kwargs):
-        from segment_anything import sam_model_registry
-
         super().__init__(device)
-        self.sam_model_registry = sam_model_registry
 
         _path_prefix = (
             f"{root_path}"
@@ -119,30 +81,6 @@ class SAM(BaseWrapper):
             "cfg": f"{_path_prefix}/{kwargs['cfg']}",
             "weights": f"{_path_prefix}/{kwargs['weights']}",
         }
-
-        self.model = (
-            self.sam_model_registry["vit_h"](checkpoint=self.model_info["weights"])
-            .to(device)
-            .eval()
-        )
-
-        self.image_encoder = self.model.image_encoder
-        self.prompt_encoder = self.model.prompt_encoder
-        self.head = self.model.mask_decoder
-
-        self.supported_split_points = Split_Points
-
-        assert "splits" in kwargs, "Split layer ids must be provided"
-        self.split_id = str(kwargs["splits"]).lower()
-
-        # if self.split_id == str(self.supported_split_points.ImageEncoder):
-        self.split_layer_list = ["imgenc"]
-        # else:
-        #    raise NotImplementedError
-
-        self.features_at_splits = dict(
-            zip(self.split_layer_list, [None] * len(self.split_layer_list))
-        )
 
     @property
     def SPLIT_IMGENC(self):
@@ -164,7 +102,7 @@ class SAM(BaseWrapper):
 
     def input_to_features(self, x: list, device: str) -> Dict:
         """Computes deep features at the intermediate layer(s) all the way from the input"""
-        self.model = self.model.to(device).eval()
+        self.model.model = self.model.model.to(device).eval()
         assert isinstance(x, list) and len(x) == 1
 
         if self.split_id == self.SPLIT_IMGENC:
@@ -177,7 +115,7 @@ class SAM(BaseWrapper):
     def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
 
-        self.model = self.model.to(device).eval()
+        self.model.model = self.model.model.to(device).eval()
 
         if self.split_id == self.SPLIT_IMGENC:
             assert "file_name" in x
@@ -202,11 +140,18 @@ class SAM(BaseWrapper):
         """Computes and return encoded image all the way from the input"""
         assert len(x) == 1
 
-        img = x[0]["image"].to(device)
-        input_size = list(img.size()[2:])
-        feature = {}
-        input_img = self.model.preprocess(img)
-        feature["backbone"] = self.image_encoder(input_img)
+        img = x[0]["image"]
+        assert isinstance(img, np.ndarray)
+        assert len(img.shape) == 3
+        input_size = list(img.shape[:2])
+
+        self.image_encoder(img)
+
+        feature = {
+            "img_embed": self.model._features["image_embed"],
+            "high_res_feats1": self.model._features["high_res_feats"][0],
+            "high_res_feats2": self.model._features["high_res_feats"][1],
+        }
 
         return {
             "data": feature,
@@ -239,62 +184,33 @@ class SAM(BaseWrapper):
 
         input_points = [prompts]  # [[469, 295]] #prompts["points"]
         input_points = np.array(input_points)
-        input_points_ = torch.tensor(input_points, device=device)
-        input_points_ = input_points_.unsqueeze(-1)
-        input_points_ = input_points_.permute(2, 0, 1)
-
         input_labels = np.array([1])
-        input_labels_ = torch.tensor(input_labels)
-        input_labels_ = input_labels_.unsqueeze(-1)
-        input_labels_ = input_labels_.permute(1, 0)
-
-        points = (input_points_, torch.tensor(input_labels_, device=device))
-        prompt_feature = self.prompt_encoder(points=points, boxes=None, masks=None)
-        image_pe = self.prompt_encoder.get_dense_pe()
-
-        low_res_masks, iou_pred = self.model.mask_decoder(
-            image_embeddings=x["imgenc"],
-            image_pe=image_pe,
-            sparse_prompt_embeddings=prompt_feature[0],
-            dense_prompt_embeddings=prompt_feature[1],
-            multimask_output=False,
+        masks, iou_pred, low_res_masks = self.model.predict(
+            point_coords=input_points, point_labels=input_labels, multimask_output=False
         )
 
-        # post process mask
-        masks = F.interpolate(
-            low_res_masks,
-            (self.image_encoder.img_size, self.image_encoder.img_size),
-            mode="bilinear",
-            align_corners=False,
-        )
-        masks = masks[..., : input_img_size[0], : input_img_size[1]]
-        masks = F.interpolate(
-            masks,
-            (org_img_size["height"], org_img_size["width"]),
-            mode="bilinear",
-            align_corners=False,
-        )
+        # mask_threshold = 0.0
 
-        mask_threshold = 0.0
-        masks = masks > mask_threshold
+        assert len(masks) == len(iou_pred)
+
+        from detectron2.structures import Instances
 
         # post process result
         processed_results = []
         boxes = mask_to_bbx(masks[0])
         boxes = Boxes(torch.tensor(np.array([boxes])))
-        scores = torch.tensor([iou_pred])
+        scores = torch.tensor([iou_pred[0]])
         classes = torch.tensor(object_classes)
-
-        from detectron2.structures import Instances
 
         # Create an instance
         instances = Instances(image_size=(input_img_size[0], input_img_size[1]))
         instances.set("pred_boxes", boxes)
         instances.set("scores", scores)
         instances.set("pred_classes", classes)
-        instances.set("pred_masks", masks[0])
+        instances.set("pred_masks", masks)
 
         processed_results.append({"instances": instances})
+
         return processed_results
 
     @torch.no_grad()
@@ -323,19 +239,47 @@ class SAM(BaseWrapper):
         return dec_res
 
 
-@register_vision_model("sam_vit_h_4b8939")
-class sam_vit_h_4b8939(SAM):
+@register_vision_model("sam2_hiera_image_model")
+class sam2_hiera_image_model(SAM2):
     def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
+        from hydra.utils import instantiate
+        from omegaconf import OmegaConf
+        from sam2.build_sam import _load_checkpoint, build_sam2
+        from sam2.sam2_image_predictor import SAM2ImagePredictor
 
-@register_vision_model("sam_vit_b_01ec64")
-class sam_vit_b_01ec64(SAM):
+        sam2_cfg_extra = [
+            "model.sam_mask_decoder_extra_args.dynamic_multimask_via_stability=true",
+            "model.sam_mask_decoder_extra_args.dynamic_multimask_stability_delta=0.05",
+            "model.sam_mask_decoder_extra_args.dynamic_multimask_stability_thresh=0.98",
+        ]
+        sam2_base_cfg = OmegaConf.load(self.model_info["cfg"])
+        overrides_cfg = OmegaConf.from_dotlist(sam2_cfg_extra)
+        sam2_final_cfg = OmegaConf.merge(sam2_base_cfg, overrides_cfg)
+        OmegaConf.resolve(sam2_final_cfg)
+        model = instantiate(sam2_final_cfg.model, _recursive_=True)
+        _load_checkpoint(model, self.model_info["weights"])
+
+        model = model.to(device).eval()
+        self.model = SAM2ImagePredictor(model)
+        self.image_encoder = self.model.set_image
+
+        self.supported_split_points = Split_Points
+
+        assert "splits" in kwargs, "Split layer ids must be provided"
+        self.split_id = str(kwargs["splits"]).lower()
+
+        self.split_layer_list = ["img_embed", "high_res_feats1", "high_res_feats2"]
+
+        self.features_at_splits = dict(
+            zip(self.split_layer_list, [None] * len(self.split_layer_list))
+        )
+
+
+@register_vision_model("sam2_hiera_video_model")
+class sam2_hiera_video_model(SAM2):
     def __init__(self, device: str, **kwargs):
         super().__init__(device, **kwargs)
 
-
-@register_vision_model("sam_vit_l_0b3195")
-class sam_vit_l_0b3195(SAM):
-    def __init__(self, device: str, **kwargs):
-        super().__init__(device, **kwargs)
+        raise NotImplementedError

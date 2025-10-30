@@ -47,6 +47,24 @@ sam_vit_h_4b8939:
   weights: "weights/segment_anything/sam_vit_h_4b8939.pth"
   splits: "imgenc"
 
+sam2_hiera_image_model:
+  model_path_prefix: ${..model_root_path}
+  cfg: "models/sam2/sam2/configs/sam2.1/sam2.1_hiera_b+.yaml"
+  weights: "weights/sam2/sam2.1_hiera_base_plus.pt"
+  # weights: "weights/sam2/sam2.1_hiera_large.pt"
+  # weights: "weights/sam2/sam2.1_hiera_small.pt"
+  # weights: "weights/sam2/sam2.1_hiera_tiny.pt"
+  splits: "backbone"
+
+sam2_hiera_video_model:
+  model_path_prefix: ${..model_root_path}
+  cfg: "models/sam2/sam2/configs/sam2.1/sam2.1_hiera_b+.yaml"
+  weights: "weights/sam2/sam2.1_hiera_base_plus.pt"
+  # weights: "weights/sam2/sam2.1_hiera_large.pt"
+  # weights: "weights/sam2/sam2.1_hiera_small.pt"
+  # weights: "weights/sam2/sam2.1_hiera_tiny.pt"
+  splits: "backbone"
+
 jde_1088x608:
   model_path_prefix: ${..model_root_path}
   cfg: "models/Towards-Realtime-MOT/cfg/yolov3_1088x608.cfg"
