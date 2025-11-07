@@ -36,6 +36,10 @@ codec:
 nn_task_part2:
     dump_results: False
     output_results_dir: "${codec.output_dir}/output_results"
+    dump_features: False
+    feature_dir: "${..output_dir_root}/features_pre_nn_part2/${dataset.datacatalog}/${dataset.config.dataset_name}"
+    dump_features_hash: False
+    hash_format: md5
 conformance:
     save_conformance_files: False
     subsample_ratio: 9

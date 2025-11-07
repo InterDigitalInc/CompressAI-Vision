@@ -27,23 +27,46 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from . import dataio, git, pip, system
-from .external_exec import get_max_num_cpus
-from .hash import FileLikeHasher, freeze_zip_timestamps
-from .misc import dict_sum, dl_to_ld, ld_to_dl, metric_tracking, time_measure, to_cpu
 
-__all__ = [
-    "dataio",
-    "git",
-    "pip",
-    "system",
-    "to_cpu",
-    "time_measure",
-    "get_max_num_cpus",
-    "metric_tracking",
-    "dict_sum",
-    "dl_to_ld",
-    "ld_to_dl",
-    "FileLikeHasher",
-    "freeze_zip_timestamps",
-]
+import hashlib
+import zipfile
+
+from contextlib import contextmanager
+from typing import Tuple
+
+
+class FileLikeHasher:
+    def __init__(self, fn, algo: str = "md5"):
+        self._h = hashlib.new(algo)
+        self._fn = fn
+        self._nbytes = 0
+
+    def write(self, byts):
+        self._h.update(byts)
+        self._nbytes += len(byts)
+        return len(byts)
+
+    def flush(self):
+        pass
+
+    def close(self):
+        with open(self._fn, "w") as f:
+            f.write(self._h.hexdigest())
+            f.write("\n")
+
+
+@contextmanager
+def freeze_zip_timestamps(
+    fixed: Tuple[int, int, int, int, int, int] = (1980, 1, 1, 0, 0, 0),
+):
+    _orig_init = zipfile.ZipInfo.__init__
+
+    def _patched(self, *args, **kwargs):
+        _orig_init(self, *args, **kwargs)
+        self.date_time = fixed  # ZIP fixed time
+
+    zipfile.ZipInfo.__init__ = _patched
+    try:
+        yield
+    finally:
+        zipfile.ZipInfo.__init__ = _orig_init
