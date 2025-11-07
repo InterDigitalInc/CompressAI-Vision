@@ -32,7 +32,6 @@ import json
 import logging
 import os
 
-from collections import OrderedDict
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict, Tuple
@@ -50,7 +49,11 @@ from compressai_vision.codecs.utils import (
     min_max_normalization,
 )
 from compressai_vision.model_wrappers import BaseWrapper
-from compressai_vision.utils import FileLikeHasher, freeze_zip_timestamps
+from compressai_vision.utils import (
+    FileLikeHasher,
+    contiguous_features,
+    freeze_zip_timestamps,
+)
 
 
 class Parts(Enum):
@@ -404,11 +407,7 @@ class BasePipeline(nn.Module):
             self.logger.debug(f"dumping features prior to nn part2 in: {feature_dir}")
 
             # [TODO] align with nn_task_part1 dump features
-            features_to_dump = {
-                k: v
-                for k, v in sorted(x.items(), key=lambda kv: str(kv[0]))
-                if not k.startswith("file")
-            }
+            features_to_dump = contiguous_features(x)
 
             with freeze_zip_timestamps():
                 if dump_feature_hash:

@@ -29,7 +29,7 @@
 
 from . import dataio, git, pip, system
 from .external_exec import get_max_num_cpus
-from .hash import FileLikeHasher, freeze_zip_timestamps
+from .hash import FileLikeHasher, contiguous_features, freeze_zip_timestamps
 from .misc import dict_sum, dl_to_ld, ld_to_dl, metric_tracking, time_measure, to_cpu
 
 __all__ = [
@@ -46,4 +46,5 @@ __all__ = [
     "ld_to_dl",
     "FileLikeHasher",
     "freeze_zip_timestamps",
+    "contiguous_features",
 ]

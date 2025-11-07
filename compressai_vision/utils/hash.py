@@ -31,8 +31,12 @@
 import hashlib
 import zipfile
 
+from collections import OrderedDict
+from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
 from typing import Tuple
+
+import torch
 
 
 class FileLikeHasher:
@@ -70,3 +74,23 @@ def freeze_zip_timestamps(
         yield
     finally:
         zipfile.ZipInfo.__init__ = _orig_init
+
+
+def contiguous_features(obj):
+    if isinstance(obj, torch.Tensor):
+        return obj.to("cpu").contiguous().clone()
+
+    if isinstance(obj, Mapping):
+        return OrderedDict(
+            (k, contiguous_features(v))
+            for k, v in sorted(obj.items(), key=lambda item: str(item[0]))
+            if not str(k).startswith("file")
+        )
+
+    if isinstance(obj, set):
+        return tuple(sorted(obj, key=str))
+
+    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes)):
+        return type(obj)(contiguous_features(v) for v in obj)
+
+    return obj
