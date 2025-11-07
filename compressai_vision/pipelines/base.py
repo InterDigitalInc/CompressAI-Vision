@@ -32,6 +32,7 @@ import json
 import logging
 import os
 
+from collections import OrderedDict
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict, Tuple
@@ -49,6 +50,7 @@ from compressai_vision.codecs.utils import (
     min_max_normalization,
 )
 from compressai_vision.model_wrappers import BaseWrapper
+from compressai_vision.utils import FileLikeHasher, freeze_zip_timestamps
 
 
 class Parts(Enum):
@@ -349,6 +351,12 @@ class BasePipeline(nn.Module):
         """performs the inference of the 2nd part of the NN model"""
         output_results_dir = self.configs["nn_task_part2"].output_results_dir
 
+        seq_name = (
+            seq_name
+            if seq_name is not None
+            else os.path.splitext(os.path.basename(x.get("file_name", "")))[0]
+        )
+
         results_file = f"{output_results_dir}/{seq_name}{self._output_ext}"
 
         assert "data" in x
@@ -373,6 +381,44 @@ class BasePipeline(nn.Module):
             k: v.to(device=self.device_nn_part2)
             for k, v in zip(vision_model.split_layer_list, x["data"].values())
         }
+
+        if (
+            self.configs["nn_task_part2"].dump_features
+            or self.configs["nn_task_part2"].dump_features_hash
+        ):
+            feature_dir = self.configs["nn_task_part2"].feature_dir
+            self._create_folder(feature_dir)
+
+            dump_feature_hash = self.configs["nn_task_part2"].dump_features_hash
+            hash_format = self.configs["nn_task_part2"].hash_format
+
+            feature_output_ext = (
+                f".{hash_format}" if dump_feature_hash else self._output_ext
+            )
+            path = f"{feature_dir}/{seq_name}{feature_output_ext}"
+
+            features_file = (
+                FileLikeHasher(path, hash_format) if dump_feature_hash else path
+            )
+
+            self.logger.debug(f"dumping features prior to nn part2 in: {feature_dir}")
+
+            # [TODO] align with nn_task_part1 dump features
+            features_to_dump = {
+                k: v
+                for k, v in sorted(x.items(), key=lambda kv: str(kv[0]))
+                if not k.startswith("file")
+            }
+
+            with freeze_zip_timestamps():
+                if dump_feature_hash:
+                    torch.save(features_to_dump, features_file, pickle_protocol=4)
+                else:
+                    with open(features_file, "wb") as f:
+                        torch.save(features_to_dump, f, pickle_protocol=4)
+
+            if hasattr(features_file, "close"):
+                features_file.close()
 
         results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
