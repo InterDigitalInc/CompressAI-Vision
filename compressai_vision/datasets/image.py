@@ -263,8 +263,12 @@ class Detectron2Dataset(BaseDataset):
 
         if self.input_agumentation_bypass:
             emptyAugList = AugmentationList([])
-            self._org_mapper_func.augmentations = emptyAugList
             mapper.augmentations = emptyAugList
+
+            if hasattr(self._org_mapper_func, "_obj"):
+                self._org_mapper_func._obj.augmentations = emptyAugList
+            else:
+                self._org_mapper_func.augmentations = emptyAugList
 
         self.mapDataset = MapDataset(_dataset, mapper)
 
