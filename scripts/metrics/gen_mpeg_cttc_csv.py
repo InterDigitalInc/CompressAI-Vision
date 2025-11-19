@@ -60,32 +60,38 @@ DATASETS = ["TVD", "SFU", "OIV6", "HIEVE", "PANDASET"]
 
 def read_df_rec(
     path,
+    dataset_prefix,
     seq_list,
     nb_operation_points,
     fn_regex=r"summary.csv",
-    prefix: str | None = None,
 ):
-    summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
+    all_summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
     if nb_operation_points > 0:
         seq_names = [
-            file_path.split(path)[1].split("/")[0] for file_path in summary_csvs
+            file_path.split(path)[1].split("/")[0] for file_path in all_summary_csvs
         ]
         unique_seq_names = list(np.unique(seq_names))
         for sequence in unique_seq_names:
             assert (
-                len([f for f in summary_csvs if sequence in f]) == nb_operation_points
+                len([f for f in all_summary_csvs if sequence in f]) == nb_operation_points
             ), f"Did not find {nb_operation_points} results for {sequence}"
 
+    # Only include specified sequences
+    matched_summary_csvs = []
+    for seq in seq_list:
+        matched = [f"{dataset_prefix}{seq}" in summary_csv for summary_csv in all_summary_csvs]
+        found_at_least_one = False
+        for idx, match in enumerate(matched):
+            if match:
+                matched_summary_csvs.append([seq, all_summary_csvs[idx]])
+                found_at_least_one = True
+        assert found_at_least_one, f"Found no summary.csv files for {seq}"
+
     dfs = []
-    for f in summary_csvs:
+    for seq, f in matched_summary_csvs:
         df = pd.read_csv(f)
-
-        seq_dir = Path(os.path.relpath(f, path)).parts[0]
-        if prefix and prefix in seq_dir:
-            df["Dataset"] = df["Dataset"].apply(
-                lambda x: f"{prefix}{x}" if not x.startswith(f"{prefix}") else x
-            )
-
+        # Overwrite in dataframe to handle inconsistent name RaceHorsesC_832x480_30 found in summary.csv
+        df["Dataset"] = seq
         dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
 
@@ -162,19 +168,20 @@ def compute_class_wise_results(result_df, name, sequences):
 def generate_csv_classwise_video_map(
     result_path,
     dataset_path,
-    list_of_classwise_seq,
-    seq_list,
+    dict_of_classwise_seq,
     metric="AP",
     gt_folder="annotations",
     nb_operation_points: int = 4,
-    no_cactus: bool = False,
     skip_classwise: bool = False,
     seq_prefix: str = None,
     dataset_prefix: str = None,
 ):
+    seq_list = []
+    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
+
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(
-        result_path, seq_list, nb_operation_points, prefix=seq_prefix
+        result_path, dataset_prefix, seq_list, nb_operation_points
     )
 
     # sort
@@ -187,20 +194,7 @@ def generate_csv_classwise_video_map(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    if no_cactus:
-        indices_to_drop = output_df[output_df["Dataset"].str.contains("Cactus")].index
-        output_df.drop(indices_to_drop, inplace=True)
-
-    for seqs_by_class in list_of_classwise_seq:
-        classwise_name = list(seqs_by_class.keys())[0]
-        classwise_seqs = list(seqs_by_class.values())[0]
-
-        cur_seq_prefix = (
-            seq_prefix
-            if seq_prefix
-            and any(name.startswith(seq_prefix) for name in classwise_seqs)
-            else None
-        )
+    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
 
         class_wise_maps = []
         for q in range(nb_operation_points):
@@ -212,7 +206,7 @@ def generate_csv_classwise_video_map(
                 BaseEvaluator.get_coco_eval_info_name,
                 by_name=True,
                 gt_folder=gt_folder,
-                seq_prefix=cur_seq_prefix,
+                seq_prefix=seq_prefix,
                 dataset_prefix=dataset_prefix,
             )
 
@@ -221,22 +215,13 @@ def generate_csv_classwise_video_map(
             ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
-                summary = compute_overall_mAP(classwise_name, items, no_cactus)
+                summary = compute_overall_mAP(dict_of_classwise_seq[classwise_name], items)
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
         if not skip_classwise and nb_operation_points > 0:
-            matched_seq_names = []
-            for seq_info in items:
-                name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-                matched_seq_names.append(
-                    f"{seq_prefix}{name}"
-                    if seq_prefix and seq_prefix in seq_info[utils.SEQ_NAME_KEY]
-                    else name
-                )
-
             class_wise_results_df = generate_classwise_df(
-                results_df, {classwise_name: matched_seq_names}
+                results_df, {classwise_name: classwise_seqs}
             )
             class_wise_results_df["end_accuracy"] = class_wise_maps
 
@@ -248,16 +233,16 @@ def generate_csv_classwise_video_map(
 def generate_csv_classwise_video_mota(
     result_path,
     dataset_path,
-    list_of_classwise_seq,
+    dict_of_classwise_seq,
     nb_operation_points: int = 4,
+    dataset_prefix: str = None,
 ):
-    seq_lists = [
-        list(class_seq_dict.values())[0] for class_seq_dict in list_of_classwise_seq
-    ]
     seq_list = []
-    [seq_list.extend(sequences) for sequences in seq_lists]
+    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
 
-    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
+    results_df = read_df_rec(
+        result_path, dataset_prefix, seq_list, nb_operation_points
+    )
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
@@ -267,9 +252,7 @@ def generate_csv_classwise_video_mota(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    for seqs_by_class in list_of_classwise_seq:
-        classwise_name = list(seqs_by_class.keys())[0]
-        classwise_seqs = list(seqs_by_class.values())[0]
+    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
 
         class_wise_motas = []
         for q in range(nb_operation_points):
@@ -291,13 +274,8 @@ def generate_csv_classwise_video_mota(
             class_wise_motas.append(mota)
 
         if nb_operation_points > 0:
-            matched_seq_names = []
-            for seq_info in items:
-                name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
-                matched_seq_names.append(name)
-
             class_wise_results_df = generate_classwise_df(
-                results_df, {classwise_name: matched_seq_names}
+                results_df, {classwise_name: classwise_seqs}
             )
 
             class_wise_results_df["end_accuracy"] = class_wise_motas
@@ -310,11 +288,16 @@ def generate_csv_classwise_video_mota(
 def generate_csv_classwise_video_miou(
     result_path,
     dataset_path,
-    list_of_classwise_seq,
-    seq_list,
+    dict_of_classwise_seq,
     nb_operation_points: int = 4,
+    dataset_prefix : str = None,
 ):
-    results_df = read_df_rec(result_path, seq_list, nb_operation_points)
+    seq_list = []
+    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
+
+    results_df = read_df_rec(
+        result_path, "", seq_list, nb_operation_points
+    )
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -326,11 +309,7 @@ def generate_csv_classwise_video_miou(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    for seqs_by_class in list_of_classwise_seq:
-        classwise_name = list(seqs_by_class.keys())[0]
-        classwise_seqs = [
-            seq.replace("PANDA", "") for seq in list(seqs_by_class.values())[0]
-        ]
+    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
 
         class_wise_mious = []
         # rate_range = [-1] if nb_operation_points == 1 else range(nb_operation_points)
@@ -358,7 +337,7 @@ def generate_csv_classwise_video_miou(
             matched_seq_names.append(name)
 
         class_wise_results_df = generate_classwise_df(
-            results_df, {classwise_name: matched_seq_names}
+            results_df, {classwise_name: classwise_seqs}
         )
 
         class_wise_results_df["end_accuracy"] = class_wise_mious
@@ -369,7 +348,7 @@ def generate_csv_classwise_video_miou(
 
 
 def generate_csv(result_path, seq_list, nb_operation_points):
-    result_df = read_df_rec(result_path, seq_list, nb_operation_points)
+    result_df = read_df_rec(result_path, "", seq_list, nb_operation_points)
 
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -461,93 +440,62 @@ if __name__ == "__main__":
         dataset_prefix = "sfu-hw-"
         class_ab = {
             "CLASS-AB": [
-                "Traffic",
-                "Kimono",
-                "ParkScene",
-                "Cactus",
-                "BasketballDrive",
-                "BQTerrace",
+                "Traffic_2560x1600_30",
+                "Kimono_1920x1080_24",
+                "ParkScene_1920x1080_24",
+                "Cactus_1920x1080_50",
+                "BasketballDrive_1920x1080_50",
+                "BQTerrace_1920x1080_60",
             ]
         }
         if args.mode == "VCM":
-            class_ab["CLASS-AB"].remove("Kimono")
-            class_ab["CLASS-AB"].remove("Cactus")
+            class_ab["CLASS-AB"].remove("Kimono_1920x1080_24")
+            class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
         else:
             assert args.mode == "FCM"
             if args.no_cactus is True:
-                class_ab["CLASS-AB"].remove("Cactus")
+                class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
         class_c = {
-            "CLASS-C": ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"]
+            "CLASS-C": ["BasketballDrill_832x480_50", "BQMall_832x480_60", "PartyScene_832x480_50", "RaceHorses_832x480_30"]
         }
         class_d = {
             "CLASS-D": [
-                "BasketballPass",
-                "BQSquare",
-                "BlowingBubbles",
-                "RaceHorses_416x240",
+                "BasketballPass_416x240_50",
+                "BQSquare_416x240_60",
+                "BlowingBubbles_416x240_50",
+                "RaceHorses_416x240_30",
             ]
         }
-        classes = [class_ab, class_c, class_d]
+        classes = {**class_ab, **class_c, **class_d}
         if args.mode == "VCM" and args.include_optional:
             class_o = {
                 "CLASS-O": [
-                    "Kimono",
-                    "Cactus",
+                    "Kimono_1920x1080_24",
+                    "Cactus_1920x1080_50",
                 ]
             }
-            classes.append(class_o)
-
-        seq_list = [
-            "Traffic_2560x1600_30",
-            "Kimono_1920x1080_24",
-            "ParkScene_1920x1080_24",
-            "Cactus_1920x1080_50",
-            "BasketballDrive_1920x1080_50",
-            "BQTerrace_1920x1080_60",
-            "BasketballDrill_832x480_50",
-            "BQMall_832x480_60",
-            "PartyScene_832x480_50",
-            "RaceHorsesC_832x480_30",
-            "BasketballPass_416x240_50",
-            "BQSquare_416x240_60",
-            "BlowingBubbles_416x240_50",
-            "RaceHorses_416x240_30",
-        ]
+            classes.update(class_o)
 
         if args.mode == "FCM" and args.add_non_scale:
-            ns_seq_list = ["ns_Traffic_2560x1600_30", "ns_BQTerrace_1920x1080_60"]
-            seq_list.extend(ns_seq_list)
-            seq_prefix = "ns_"
             class_ab_star = {
                 "CLASS-AB*": [
-                    "ns_Traffic",
-                    "ns_BQTerrace",
+                    "ns_Traffic_2560x1600_30",
+                    "ns_BQTerrace_1920x1080_60",
                 ]
             }
-            classes.append(class_ab_star)
-
-        if args.mode == "VCM" and not args.include_optional:
-            seq_list.remove("Kimono_1920x1080_24")
-            seq_list.remove("Cactus_1920x1080_50")
-
-        if args.mode == "FCM" and args.no_cactus:
-            seq_list.remove("Cactus_1920x1080_50")
+            classes.update(class_ab_star)
 
         output_df = generate_csv_classwise_video_map(
             norm_result_path,
             args.dataset_path,
             classes,
-            seq_list,
             metric,
             args.gt_folder,
             args.nb_operation_points,
-            args.no_cactus,
             args.mode == "VCM",  # skip classwise evaluation
-            seq_prefix=seq_prefix
-            if "seq_prefix" in locals()
-            else None,  # adding prefix to non-scale sequence
-            dataset_prefix=dataset_prefix if "dataset_prefix" in locals() else None,
+            seq_prefix="ns_",
+            dataset_prefix="sfu-hw-",
         )
 
         if args.mode == "VCM":
@@ -567,8 +515,9 @@ if __name__ == "__main__":
             output_df = generate_csv_classwise_video_mota(
                 norm_result_path,
                 args.dataset_path,
-                [tvd_all],
+                tvd_all,
                 args.nb_operation_points,
+                dataset_prefix="mpeg-",
             )
         else:
             tvd_all = {
@@ -607,123 +556,69 @@ if __name__ == "__main__":
             )
 
     elif args.dataset_name == "HIEVE":
-        hieve_1080p = {"HIEVE-1080P": ["mpeg-hieve-13", "mpeg-hieve-16"]}
-        hieve_720p = {"HIEVE-720P": ["mpeg-hieve-2", "mpeg-hieve-17", "mpeg-hieve-18"]}
+        hieve = {
+            "HIEVE-1080P": ["hieve-13", "hieve-16"],
+            "HIEVE-720P": ["hieve-17", "hieve-18", "hieve-2"]
+        }
         output_df = generate_csv_classwise_video_mota(
             norm_result_path,
             args.dataset_path,
-            [hieve_1080p, hieve_720p],
+            hieve,
             args.nb_operation_points,
+            dataset_prefix="mpeg-",
         )
-        # sort for FCM template - comply with the template provided in wg04n00459
-        seq_list = [
-            "13_1920x1080_30",
-            "16_1920x1080_30",
-            "17_1280x720_30",
-            "18_1280x720_30",
-            "2_1280x720_30",
-            "HIEVE-1080P",
-            "HIEVE-720",
-        ]
-        sorterIndex = dict(zip(seq_list, range(len(seq_list))))
-        output_df["ds_rank"] = output_df["Dataset"].map(sorterIndex)
-        output_df.sort_values(["ds_rank", "qp"], ascending=[True, True], inplace=True)
-        output_df.drop(columns=["ds_rank"], inplace=True)
     elif args.dataset_name == "PANDASET":
-        PANDAM1 = {
+        pandaset = {
             "PANDAM1": [
-                "PANDA057",
-                "PANDA058",
-                "PANDA069",
-                "PANDA070",
-                "PANDA072",
-                "PANDA073",
-                "PANDA077",
-            ]
-        }
-        PANDAM2 = {
+                "057",
+                "058",
+                "069",
+                "070",
+                "072",
+                "073",
+                "077",
+            ],
             "PANDAM2": [
-                "PANDA003",
-                "PANDA011",
-                "PANDA016",
-                "PANDA017",
-                "PANDA021",
-                "PANDA023",
-                "PANDA027",
-                "PANDA029",
-                "PANDA030",
-                "PANDA033",
-                "PANDA035",
-                "PANDA037",
-                "PANDA039",
-                "PANDA043",
-                "PANDA053",
-                "PANDA056",
-                "PANDA097",
-            ]
-        }
-        PANDAM3 = {
+                "003",
+                "011",
+                "016",
+                "017",
+                "021",
+                "023",
+                "027",
+                "029",
+                "030",
+                "033",
+                "035",
+                "037",
+                "039",
+                "043",
+                "053",
+                "056",
+                "097",
+            ],
             "PANDAM3": [
-                "PANDA088",
-                "PANDA089",
-                "PANDA090",
-                "PANDA095",
-                "PANDA109",
-                "PANDA112",
-                "PANDA113",
-                "PANDA115",
-                "PANDA117",
-                "PANDA119",
-                "PANDA122",
-                "PANDA124",
+                "088",
+                "089",
+                "090",
+                "095",
+                "109",
+                "112",
+                "113",
+                "115",
+                "117",
+                "119",
+                "122",
+                "124",
             ]
         }
-        seq_list = [
-            "PANDA057",
-            "PANDA058",
-            "PANDA069",
-            "PANDA070",
-            "PANDA072",
-            "PANDA073",
-            "PANDA077",
-            "PANDA003",
-            "PANDA011",
-            "PANDA016",
-            "PANDA017",
-            "PANDA021",
-            "PANDA023",
-            "PANDA027",
-            "PANDA029",
-            "PANDA030",
-            "PANDA033",
-            "PANDA035",
-            "PANDA037",
-            "PANDA039",
-            "PANDA043",
-            "PANDA053",
-            "PANDA056",
-            "PANDA097",
-            "PANDA088",
-            "PANDA089",
-            "PANDA090",
-            "PANDA095",
-            "PANDA109",
-            "PANDA112",
-            "PANDA113",
-            "PANDA115",
-            "PANDA117",
-            "PANDA119",
-            "PANDA122",
-            "PANDA124",
-        ]
-        seq_list = [s[-3:] + "_1920x1080_30" for s in seq_list]
 
         output_df = generate_csv_classwise_video_miou(
             norm_result_path,
             args.dataset_path,
-            [PANDAM1, PANDAM2, PANDAM3],
-            seq_list,
+            pandaset,
             args.nb_operation_points,
+            dataset_prefix="pandaset-",
         )
     else:
         raise NotImplementedError

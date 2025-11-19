@@ -58,45 +58,41 @@ CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D", "CLASS-AB*"]
 
 SEQS_BY_CLASS = {
     CLASSES[0]: [
-        "Traffic",
-        "Kimono",
-        "ParkScene",
-        "Cactus",
-        "BasketballDrive",
-        "BQTerrace",
+        "Traffic_2560x1600_30",
+        "Kimono_1920x1080_24",
+        "ParkScene_1920x1080_24",
+        "Cactus_1920x1080_50",
+        "BasketballDrive_1920x1080_50",
+        "BQTerrace_1920x1080_60",
     ],
-    CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"],
-    CLASSES[2]: ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"],
-    CLASSES[3]: ["Traffic", "BQTerrace"],
+    CLASSES[1]: ["BasketballDrill_832x480_50", "BQMall_832x480_60", "PartyScene_832x480_50", "RaceHorses_832x480_832x480_30"],
+    CLASSES[2]: ["BasketballPass_416x240_50", "BQSquare_416x240_60", "BlowingBubbles_416x240_50", "RaceHorses_416x240_30"],
+    CLASSES[3]: ["ns_Traffic_2560x1600_30", "ns_BQTerrace_1920x1080_60"],
 }
 
 SEQUENCE_TO_OFFSET = {
-    "Traffic": 10000,
-    "Kimono": 20000,
-    "ParkScene": 30000,
-    "Cactus": 40000,
-    "BasketballDrive": 50000,
-    "BQTerrace": 60000,
-    "BasketballDrill": 70000,
-    "BQMall": 80000,
-    "PartyScene": 90000,
-    "RaceHorses_832x480": 100000,
-    "BasketballPass": 110000,
-    "BQSquare": 120000,
-    "BlowingBubbles": 130000,
-    "RaceHorses": 140000,
+    "Traffic_2560x1600_30": 10000,
+    "Kimono_1920x1080_24": 20000,
+    "ParkScene_1920x1080_24": 30000,
+    "Cactus_1920x1080_50": 40000,
+    "BasketballDrive_1920x1080_50": 50000,
+    "BQTerrace_1920x1080_60": 60000,
+    "BasketballDrill_832x480_50": 70000,
+    "BQMall_832x480_60": 80000,
+    "PartyScene_832x480_50": 90000,
+    "RaceHorses_832x480_30": 100000,
+    "BasketballPass_416x240_50": 110000,
+    "BQSquare_416x240_60": 120000,
+    "BlowingBubbles_416x240_50": 130000,
+    "RaceHorses_416x240_30": 140000,
 }
 
 TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
+NS_SEQ_PREFIX = "ns_" # Prefix of non-scaled sequences
 
-def compute_overall_mAP(class_name, items, no_cactus=False):
-    seq_root_names = SEQS_BY_CLASS[class_name]
-
-    if no_cactus and class_name == "CLASS-AB":
-        if "Cactus" in seq_root_names:
-            seq_root_names.remove("Cactus")
+def compute_overall_mAP(seq_root_names, items):
 
     classwise_instances_results = []
     classwise_anchor_images = []
@@ -104,7 +100,9 @@ def compute_overall_mAP(class_name, items, no_cactus=False):
     categories = None
     annotation_id = 0
     for e, (item, root_name) in enumerate(zip(items, seq_root_names)):
-        assert root_name in item[utils.SEQ_NAME_KEY]
+        assert root_name in item[utils.SEQ_NAME_KEY], f"Not found {root_name} in {item[utils.SEQ_NAME_KEY]} {utils.SEQ_NAME_KEY}"
+
+        root_name = root_name.replace(NS_SEQ_PREFIX, "")
 
         seq_img_id_offset = SEQUENCE_TO_OFFSET[root_name]
 
@@ -251,7 +249,7 @@ if __name__ == "__main__":
                 len(items) > 0
             ), "Nothing relevant information found from given directories..."
 
-            summary = compute_overall_mAP(args.class_to_compute, items)
+            summary = compute_overall_mAP(SEQS_BY_CLASS[args.class_to_compute], items)
 
             writer.writerow([f"{q}", f"{summary['AP'][0]:.4f}"])
             print(f"{'=' * 10} FINAL OVERALL mAP SUMMARY {'=' * 10}")
