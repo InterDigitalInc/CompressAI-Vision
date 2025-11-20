@@ -73,13 +73,16 @@ def read_df_rec(
         unique_seq_names = list(np.unique(seq_names))
         for sequence in unique_seq_names:
             assert (
-                len([f for f in all_summary_csvs if sequence in f]) == nb_operation_points
+                len([f for f in all_summary_csvs if sequence in f])
+                == nb_operation_points
             ), f"Did not find {nb_operation_points} results for {sequence}"
 
     # Only include specified sequences
     matched_summary_csvs = []
     for seq in seq_list:
-        matched = [f"{dataset_prefix}{seq}" in summary_csv for summary_csv in all_summary_csvs]
+        matched = [
+            f"{dataset_prefix}{seq}" in summary_csv for summary_csv in all_summary_csvs
+        ]
         found_at_least_one = False
         for idx, match in enumerate(matched):
             if match:
@@ -180,9 +183,7 @@ def generate_csv_classwise_video_map(
     [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
 
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = read_df_rec(
-        result_path, dataset_prefix, seq_list, nb_operation_points
-    )
+    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -195,7 +196,6 @@ def generate_csv_classwise_video_map(
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
     for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
-
         class_wise_maps = []
         for q in range(nb_operation_points):
             items = utils.search_items(
@@ -215,7 +215,9 @@ def generate_csv_classwise_video_map(
             ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
-                summary = compute_overall_mAP(dict_of_classwise_seq[classwise_name], items)
+                summary = compute_overall_mAP(
+                    dict_of_classwise_seq[classwise_name], items
+                )
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
@@ -240,9 +242,7 @@ def generate_csv_classwise_video_mota(
     seq_list = []
     [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
 
-    results_df = read_df_rec(
-        result_path, dataset_prefix, seq_list, nb_operation_points
-    )
+    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
@@ -253,7 +253,6 @@ def generate_csv_classwise_video_mota(
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
     for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
-
         class_wise_motas = []
         for q in range(nb_operation_points):
             items = utils.search_items(
@@ -290,14 +289,12 @@ def generate_csv_classwise_video_miou(
     dataset_path,
     dict_of_classwise_seq,
     nb_operation_points: int = 4,
-    dataset_prefix : str = None,
+    dataset_prefix: str = None,
 ):
     seq_list = []
     [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
 
-    results_df = read_df_rec(
-        result_path, "", seq_list, nb_operation_points
-    )
+    results_df = read_df_rec(result_path, "", seq_list, nb_operation_points)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -310,7 +307,6 @@ def generate_csv_classwise_video_miou(
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
     for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
-
         class_wise_mious = []
         # rate_range = [-1] if nb_operation_points == 1 else range(nb_operation_points)
         for q in range(nb_operation_points):
@@ -457,7 +453,12 @@ if __name__ == "__main__":
                 class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
         class_c = {
-            "CLASS-C": ["BasketballDrill_832x480_50", "BQMall_832x480_60", "PartyScene_832x480_50", "RaceHorses_832x480_30"]
+            "CLASS-C": [
+                "BasketballDrill_832x480_50",
+                "BQMall_832x480_60",
+                "PartyScene_832x480_50",
+                "RaceHorses_832x480_30",
+            ]
         }
         class_d = {
             "CLASS-D": [
@@ -558,7 +559,7 @@ if __name__ == "__main__":
     elif args.dataset_name == "HIEVE":
         hieve = {
             "HIEVE-1080P": ["hieve-13", "hieve-16"],
-            "HIEVE-720P": ["hieve-17", "hieve-18", "hieve-2"]
+            "HIEVE-720P": ["hieve-17", "hieve-18", "hieve-2"],
         }
         output_df = generate_csv_classwise_video_mota(
             norm_result_path,
@@ -610,7 +611,7 @@ if __name__ == "__main__":
                 "119",
                 "122",
                 "124",
-            ]
+            ],
         }
 
         output_df = generate_csv_classwise_video_miou(

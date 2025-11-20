@@ -65,8 +65,18 @@ SEQS_BY_CLASS = {
         "BasketballDrive_1920x1080_50",
         "BQTerrace_1920x1080_60",
     ],
-    CLASSES[1]: ["BasketballDrill_832x480_50", "BQMall_832x480_60", "PartyScene_832x480_50", "RaceHorses_832x480_832x480_30"],
-    CLASSES[2]: ["BasketballPass_416x240_50", "BQSquare_416x240_60", "BlowingBubbles_416x240_50", "RaceHorses_416x240_30"],
+    CLASSES[1]: [
+        "BasketballDrill_832x480_50",
+        "BQMall_832x480_60",
+        "PartyScene_832x480_50",
+        "RaceHorses_832x480_832x480_30",
+    ],
+    CLASSES[2]: [
+        "BasketballPass_416x240_50",
+        "BQSquare_416x240_60",
+        "BlowingBubbles_416x240_50",
+        "RaceHorses_416x240_30",
+    ],
     CLASSES[3]: ["ns_Traffic_2560x1600_30", "ns_BQTerrace_1920x1080_60"],
 }
 
@@ -90,17 +100,19 @@ SEQUENCE_TO_OFFSET = {
 TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
-NS_SEQ_PREFIX = "ns_" # Prefix of non-scaled sequences
+NS_SEQ_PREFIX = "ns_"  # Prefix of non-scaled sequences
+
 
 def compute_overall_mAP(seq_root_names, items):
-
     classwise_instances_results = []
     classwise_anchor_images = []
     classwise_annotation = []
     categories = None
     annotation_id = 0
     for e, (item, root_name) in enumerate(zip(items, seq_root_names)):
-        assert root_name in item[utils.SEQ_NAME_KEY], f"Not found {root_name} in {item[utils.SEQ_NAME_KEY]} {utils.SEQ_NAME_KEY}"
+        assert (
+            root_name in item[utils.SEQ_NAME_KEY]
+        ), f"Not found {root_name} in {item[utils.SEQ_NAME_KEY]} {utils.SEQ_NAME_KEY}"
 
         root_name = root_name.replace(NS_SEQ_PREFIX, "")
 
