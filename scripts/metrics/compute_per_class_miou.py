@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import json
 
+
 def compute_per_class_mIoU(items):
     miou_acc = 0.0
     for item in items:

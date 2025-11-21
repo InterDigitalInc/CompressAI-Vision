@@ -43,12 +43,10 @@ import numpy as np
 import pandas as pd
 import utils
 
+
 # from detectron2.evaluation import COCOEvaluator
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
-
-CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D", "CLASS-AB*"]
-
 
 SEQUENCE_TO_OFFSET = {
     "Traffic_2560x1600_30": 10000,
@@ -146,7 +144,6 @@ def coco_evaluation(ann_file, detections):
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()
-
 
     headers = ["AP", "AP50", "AP75", "APS", "APM", "APL"]
     npstat = np.array(coco_eval.stats[:6])

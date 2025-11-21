@@ -44,8 +44,8 @@ import numpy as np
 import pandas as pd
 import utils
 
-from compute_per_class_mAP import compute_per_class_mAP
-from compute_per_class_mIoU import compute_per_class_mIoU
+from compute_per_class_map import compute_per_class_mAP
+from compute_per_class_miou import compute_per_class_mIoU
 from compute_per_class_mota import compute_per_class_mota
 from curve_fitting import convert_to_monotonic_points_SFU
 
@@ -103,43 +103,36 @@ def df_append(df1, df2):
 
 
 def generate_class_df(result_df, classes: dict):
-    class_data = pd.DataFrame(columns=result_df.columns)
-    class_data.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+    assert (
+        len(classes) == 1
+    ), "generate_class_df is expected to be called with a single class entry"
 
-    for tag, item in classes.items():
-        output = compute_per_class_results(result_df, tag, item)
-        classwise_df = df_append(class_data, output)
-
-    return classwise_df
+    ((tag, sequences),) = classes.items()
+    return compute_per_class_results(result_df, tag, sequences)
 
 
 def compute_per_class_results(result_df, name, sequences):
-    samples = None
-    num_points = prev_num_points = -1
-    output = pd.DataFrame(columns=result_df.columns)
-    output.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+    per_sequence_frames = []
+    num_points = None
 
     for seq in sequences:
-        d = result_df.loc[(result_df["Dataset"] == seq)]
+        seq_frames = result_df.loc[result_df["Dataset"] == seq]
 
-        if samples is None:
-            samples = d
+        if num_points is None:
+            num_points = seq_frames.shape[0]
         else:
-            samples = df_append(samples, d)
+            assert num_points == seq_frames.shape[0]
 
-        if prev_num_points == -1:
-            num_points = prev_num_points = d.shape[0]
-        else:
-            assert prev_num_points == d.shape[0]
+        per_sequence_frames.append(seq_frames)
 
+    samples = pd.concat(per_sequence_frames, ignore_index=True)
     samples["length"] = samples["num_of_coded_frame"] / samples["fps"]
 
+    output = result_df.drop(columns=["fps", "num_of_coded_frame"]).head(0).copy()
+
     for i in range(num_points):
-        # print(f"Set - {i}")
         points = samples.iloc[range(i, samples.shape[0], num_points)]
         total_length = points["length"].sum()
-
-        # print(points)
 
         new_row = {
             output.columns[0]: [
@@ -176,8 +169,7 @@ def generate_csv_classwise_video_map(
     seq_prefix: str = None,
     dataset_prefix: str = None,
 ):
-    seq_list = []
-    [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
+    seq_list = [seq for sequences in dict_of_class_seq.values() for seq in sequences]
 
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
@@ -212,9 +204,7 @@ def generate_csv_classwise_video_map(
             ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
-                summary = compute_per_class_mAP(
-                    dict_of_class_seq[class_name], items
-                )
+                summary = compute_per_class_mAP(dict_of_class_seq[class_name], items)
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
@@ -327,9 +317,7 @@ def generate_csv_classwise_video_miou(
             name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
             matched_seq_names.append(name)
 
-        class_wise_results_df = generate_class_df(
-            results_df, {class_name: class_seqs}
-        )
+        class_wise_results_df = generate_class_df(results_df, {class_name: class_seqs})
 
         class_wise_results_df["end_accuracy"] = class_wise_mious
 
