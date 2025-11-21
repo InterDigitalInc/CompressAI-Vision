@@ -44,9 +44,9 @@ import numpy as np
 import pandas as pd
 import utils
 
-from compute_overall_map import compute_overall_mAP
-from compute_overall_miou import compute_overall_mIoU
-from compute_overall_mot import compute_overall_mota
+from compute_per_class_mAP import compute_per_class_mAP
+from compute_per_class_mIoU import compute_per_class_mIoU
+from compute_per_class_mota import compute_per_class_mota
 from curve_fitting import convert_to_monotonic_points_SFU
 
 from compressai_vision.datasets import get_seq_info
@@ -102,18 +102,18 @@ def df_append(df1, df2):
     return out
 
 
-def generate_classwise_df(result_df, classes: dict):
-    classwise = pd.DataFrame(columns=result_df.columns)
-    classwise.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
+def generate_class_df(result_df, classes: dict):
+    class_data = pd.DataFrame(columns=result_df.columns)
+    class_data.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
     for tag, item in classes.items():
-        output = compute_class_wise_results(result_df, tag, item)
-        classwise_df = df_append(classwise, output)
+        output = compute_per_class_results(result_df, tag, item)
+        classwise_df = df_append(class_data, output)
 
     return classwise_df
 
 
-def compute_class_wise_results(result_df, name, sequences):
+def compute_per_class_results(result_df, name, sequences):
     samples = None
     num_points = prev_num_points = -1
     output = pd.DataFrame(columns=result_df.columns)
@@ -168,7 +168,7 @@ def compute_class_wise_results(result_df, name, sequences):
 def generate_csv_classwise_video_map(
     result_path,
     dataset_path,
-    dict_of_classwise_seq,
+    dict_of_class_seq,
     metric="AP",
     gt_folder="annotations",
     nb_operation_points: int = 4,
@@ -177,7 +177,7 @@ def generate_csv_classwise_video_map(
     dataset_prefix: str = None,
 ):
     seq_list = []
-    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
+    [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
     results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
@@ -192,14 +192,14 @@ def generate_csv_classwise_video_map(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
+    for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_maps = []
         for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
                 q,
-                classwise_seqs,
+                class_seqs,
                 BaseEvaluator.get_coco_eval_info_name,
                 by_name=True,
                 gt_folder=gt_folder,
@@ -212,15 +212,15 @@ def generate_csv_classwise_video_map(
             ), "No evaluation information found in provided result directories..."
 
             if not skip_classwise:
-                summary = compute_overall_mAP(
-                    dict_of_classwise_seq[classwise_name], items
+                summary = compute_per_class_mAP(
+                    dict_of_class_seq[class_name], items
                 )
                 maps = summary.values[0][opts_metrics[metric]]
                 class_wise_maps.append(maps)
 
         if not skip_classwise and nb_operation_points > 0:
-            class_wise_results_df = generate_classwise_df(
-                results_df, {classwise_name: classwise_seqs}
+            class_wise_results_df = generate_class_df(
+                results_df, {class_name: class_seqs}
             )
             class_wise_results_df["end_accuracy"] = class_wise_maps
 
@@ -232,12 +232,12 @@ def generate_csv_classwise_video_map(
 def generate_csv_classwise_video_mota(
     result_path,
     dataset_path,
-    dict_of_classwise_seq,
+    dict_of_class_seq,
     nb_operation_points: int = 4,
     dataset_prefix: str = None,
 ):
     seq_list = []
-    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
+    [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
     results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -249,14 +249,14 @@ def generate_csv_classwise_video_mota(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
+    for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_motas = []
         for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
                 q,
-                classwise_seqs,
+                class_seqs,
                 BaseEvaluator.get_jde_eval_info_name,
             )
 
@@ -264,14 +264,14 @@ def generate_csv_classwise_video_mota(
                 len(items) > 0
             ), "Nothing relevant information found from given directories..."
 
-            summary, _ = compute_overall_mota(classwise_name, items)
+            summary, _ = compute_per_class_mota(class_name, items)
 
             mota = summary.values[-1][13] * 100.0
             class_wise_motas.append(mota)
 
         if nb_operation_points > 0:
-            class_wise_results_df = generate_classwise_df(
-                results_df, {classwise_name: classwise_seqs}
+            class_wise_results_df = generate_class_df(
+                results_df, {class_name: class_seqs}
             )
 
             class_wise_results_df["end_accuracy"] = class_wise_motas
@@ -284,12 +284,11 @@ def generate_csv_classwise_video_mota(
 def generate_csv_classwise_video_miou(
     result_path,
     dataset_path,
-    dict_of_classwise_seq,
+    dict_of_class_seq,
     nb_operation_points: int = 4,
-    dataset_prefix: str = None,
 ):
     seq_list = []
-    [seq_list.extend(sequences) for sequences in dict_of_classwise_seq.values()]
+    [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
     results_df = read_df_rec(result_path, "", seq_list, nb_operation_points)
 
@@ -303,14 +302,14 @@ def generate_csv_classwise_video_miou(
     ## drop columns
     output_df.drop(columns=["fps", "num_of_coded_frame"], inplace=True)
 
-    for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
+    for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_mious = []
         for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
                 dataset_path,
                 q,
-                classwise_seqs,
+                class_seqs,
                 BaseEvaluator.get_miou_eval_info_name,
                 by_name=True,
                 pandaset_flag=True,
@@ -320,7 +319,7 @@ def generate_csv_classwise_video_miou(
                 len(items) > 0
             ), "Nothing relevant information found from given directories..."
 
-            miou = compute_overall_mIoU(classwise_name, items)
+            miou = compute_per_class_mIoU(class_name, items)
             class_wise_mious.append(miou)
 
         matched_seq_names = []
@@ -328,8 +327,8 @@ def generate_csv_classwise_video_miou(
             name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
             matched_seq_names.append(name)
 
-        class_wise_results_df = generate_classwise_df(
-            results_df, {classwise_name: classwise_seqs}
+        class_wise_results_df = generate_class_df(
+            results_df, {class_name: class_seqs}
         )
 
         class_wise_results_df["end_accuracy"] = class_wise_mious

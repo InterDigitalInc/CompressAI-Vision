@@ -44,6 +44,14 @@ import utils
 
 from compressai_vision.evaluators.evaluators import MOT_JDE_Eval
 
+CLASSES = ["TVD", "HIEVE-1080P", "HIEVE-720P"]
+
+SEQS_BY_CLASS = {
+    CLASSES[0]: ["TVD-01", "TVD-02", "TVD-03"],
+    CLASSES[1]: ["HIEVE-13", "HIEVE-16"],
+    CLASSES[2]: ["HIEVE-2", "HIEVE-17", "HIEVE-18"],
+}
+
 
 def get_accumulator_res_for_tvd(item: Dict):
     _gt_pd = MOT_JDE_Eval._load_gt_in_motchallenge(item[utils.GT_INFO_KEY])
@@ -67,7 +75,7 @@ def get_accumulator_res_for_hieve(item: Dict):
     return acc, None, item[utils.SEQ_NAME_KEY]
 
 
-def compute_overall_mota(class_name, items):
+def compute_per_class_mota(class_name, items):
     get_accumulator_res = {
         CLASSES[0]: get_accumulator_res_for_tvd,
         CLASSES[1]: get_accumulator_res_for_hieve,
