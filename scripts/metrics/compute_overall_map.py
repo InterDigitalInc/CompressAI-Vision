@@ -41,8 +41,6 @@ import csv
 import json
 import os
 
-from typing import Any, List
-
 import numpy as np
 import pandas as pd
 import utils
@@ -182,15 +180,6 @@ def coco_evaluation(ann_file, detections):
     coco_eval.summarize()
 
     import logging
-
-    class dummyclass:
-        def __init__(self):
-            self._logger = logging.getLogger(__name__)
-
-    # things = [i["name"] for i in coco_eval.cocoGt.cats.values()]
-    # out_all = COCOEvaluator._derive_coco_results(
-    #     dummyclass(), coco_eval, iou_type="bbox", class_names=things
-    # )
 
     headers = ["AP", "AP50", "AP75", "APS", "APM", "APL"]
     npstat = np.array(coco_eval.stats[:6])

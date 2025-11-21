@@ -47,10 +47,7 @@ import utils
 from compute_overall_map import compute_overall_mAP
 from compute_overall_miou import compute_overall_mIoU
 from compute_overall_mot import compute_overall_mota
-from curve_fitting import (
-    convert_to_monotonic_points_SFU,
-    convert_to_monotonic_points_TVD,
-)
+from curve_fitting import convert_to_monotonic_points_SFU
 
 from compressai_vision.datasets import get_seq_info
 from compressai_vision.evaluators.evaluators import BaseEvaluator
@@ -308,7 +305,6 @@ def generate_csv_classwise_video_miou(
 
     for classwise_name, classwise_seqs in dict_of_classwise_seq.items():
         class_wise_mious = []
-        # rate_range = [-1] if nb_operation_points == 1 else range(nb_operation_points)
         for q in range(nb_operation_points):
             items = utils.search_items(
                 result_path,
