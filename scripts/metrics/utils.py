@@ -40,12 +40,9 @@ import os
 import re
 
 from pathlib import Path
-from typing import Dict, Optional
 
 __all__ = [
     "get_seq_number",
-    # "get_eval_info_path",
-    # "get_seq_info_path",
 ]
 
 SEQ_NAME_KEY = "seq_name"

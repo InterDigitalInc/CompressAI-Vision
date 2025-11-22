@@ -36,16 +36,13 @@ Compute overall MOT over some sequences outputs
 
 from __future__ import annotations
 
-import argparse
-import csv
-
-from typing import Any, Dict, List
+from typing import Dict
 
 import motmetrics as mm
 import torch
 import utils
 
-from compressai_vision.evaluators.evaluators import BaseEvaluator, MOT_JDE_Eval
+from compressai_vision.evaluators.evaluators import MOT_JDE_Eval
 
 CLASSES = ["TVD", "HIEVE-1080P", "HIEVE-720P"]
 
@@ -78,7 +75,7 @@ def get_accumulator_res_for_hieve(item: Dict):
     return acc, None, item[utils.SEQ_NAME_KEY]
 
 
-def compute_overall_mota(class_name, items):
+def compute_per_class_mota(class_name, items):
     get_accumulator_res = {
         CLASSES[0]: get_accumulator_res_for_tvd,
         CLASSES[1]: get_accumulator_res_for_hieve,
@@ -103,87 +100,4 @@ def compute_overall_mota(class_name, items):
         metrics=mm.metrics.motchallenge_metrics,
         generate_overall=True,
     )
-    # rendered_summary = mm.io.render_summary(
-    #     summary, formatters=mh.formatters, namemap=mm.io.motchallenge_metric_names
-    # )
-
-    # print("\n\n")
-    # print(rendered_summary)
-    # print("\n")
-
-    # names.append("Overall")
     return summary, names
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "-r",
-        "--result_path",
-        required=True,
-        help="For example, '.../logs/runs/[pipeline]/[codec]/[datacatalog]/' ",
-    )
-    parser.add_argument(
-        "-q",
-        "--quality_index",
-        required=False,
-        default=-1,
-        type=int,
-        help="Provide index of quality folders under the `result_path'. quality_index is only meant to point the orderd folders by qp names because there might be different range of qps are used for different sequences",
-    )
-    parser.add_argument(
-        "-a",
-        "--all_qualities",
-        action="store_true",
-        help="run all 6 rate points in MPEG CTCs",
-    )
-    parser.add_argument(
-        "-d",
-        "--dataset_path",
-        required=True,
-        help="For example, '.../vcm_testdata/[dataset]' ",
-    )
-    parser.add_argument(
-        "-c",
-        "--class_to_compute",
-        type=str,
-        choices=CLASSES,
-        required=True,
-    )
-
-    args = parser.parse_args()
-    if args.all_qualities:
-        qualities = range(0, 6)
-    else:
-        qualities = [args.quality_index]
-
-    with open(
-        f"{args.result_path}/{args.class_to_compute}.csv", "w", newline=""
-    ) as file:
-        writer = csv.writer(file)
-        for q in qualities:
-            items = utils.search_items(
-                args.result_path,
-                args.dataset_path,
-                q,
-                SEQS_BY_CLASS[args.class_to_compute],
-                BaseEvaluator.get_jde_eval_info_name,
-            )
-
-            assert (
-                len(items) > 0
-            ), "Nothing relevant information found from given directories..."
-
-            summary, names = compute_overall_mota(args.class_to_compute, items)
-
-            motas = [100.0 * sv[13] for sv in summary.values]
-
-            print(f"{'=' * 10} FINAL OVERALL MOTA SUMMARY {'=' * 10}")
-            print(f"{'-' * 35} : MOTA")
-
-            for key, val in zip(names, motas):
-                print(f"{str(key):35} : {val:.4f}%")
-                if key == "Overall":
-                    writer.writerow([str(q), f"{val:.4f}"])
-            print("\n")

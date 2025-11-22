@@ -36,12 +36,8 @@ Compute overall mAP over some sequences outputs
 
 from __future__ import annotations
 
-import argparse
-import csv
 import json
 import os
-
-from typing import Any, List
 
 import numpy as np
 import pandas as pd
@@ -52,59 +48,41 @@ import utils
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-from compressai_vision.evaluators.evaluators import BaseEvaluator
-
-CLASSES = ["CLASS-AB", "CLASS-C", "CLASS-D", "CLASS-AB*"]
-
-SEQS_BY_CLASS = {
-    CLASSES[0]: [
-        "Traffic",
-        "Kimono",
-        "ParkScene",
-        "Cactus",
-        "BasketballDrive",
-        "BQTerrace",
-    ],
-    CLASSES[1]: ["BasketballDrill", "BQMall", "PartyScene", "RaceHorses_832x480"],
-    CLASSES[2]: ["BasketballPass", "BQSquare", "BlowingBubbles", "RaceHorses"],
-    CLASSES[3]: ["Traffic", "BQTerrace"],
-}
-
 SEQUENCE_TO_OFFSET = {
-    "Traffic": 10000,
-    "Kimono": 20000,
-    "ParkScene": 30000,
-    "Cactus": 40000,
-    "BasketballDrive": 50000,
-    "BQTerrace": 60000,
-    "BasketballDrill": 70000,
-    "BQMall": 80000,
-    "PartyScene": 90000,
-    "RaceHorses_832x480": 100000,
-    "BasketballPass": 110000,
-    "BQSquare": 120000,
-    "BlowingBubbles": 130000,
-    "RaceHorses": 140000,
+    "Traffic_2560x1600_30": 10000,
+    "Kimono_1920x1080_24": 20000,
+    "ParkScene_1920x1080_24": 30000,
+    "Cactus_1920x1080_50": 40000,
+    "BasketballDrive_1920x1080_50": 50000,
+    "BQTerrace_1920x1080_60": 60000,
+    "BasketballDrill_832x480_50": 70000,
+    "BQMall_832x480_60": 80000,
+    "PartyScene_832x480_50": 90000,
+    "RaceHorses_832x480_30": 100000,
+    "BasketballPass_416x240_50": 110000,
+    "BQSquare_416x240_60": 120000,
+    "BlowingBubbles_416x240_50": 130000,
+    "RaceHorses_416x240_30": 140000,
 }
 
 TMP_EVAL_FILE = "tmp_eval.json"
 TMP_ANCH_FILE = "tmp_anch.json"
 
+NS_SEQ_PREFIX = "ns_"  # Prefix of non-scaled sequences
 
-def compute_overall_mAP(class_name, items, no_cactus=False):
-    seq_root_names = SEQS_BY_CLASS[class_name]
 
-    if no_cactus and class_name == "CLASS-AB":
-        if "Cactus" in seq_root_names:
-            seq_root_names.remove("Cactus")
-
+def compute_per_class_mAP(seq_root_names, items):
     classwise_instances_results = []
     classwise_anchor_images = []
     classwise_annotation = []
     categories = None
     annotation_id = 0
     for e, (item, root_name) in enumerate(zip(items, seq_root_names)):
-        assert root_name in item[utils.SEQ_NAME_KEY]
+        assert (
+            root_name in item[utils.SEQ_NAME_KEY]
+        ), f"Not found {root_name} in {item[utils.SEQ_NAME_KEY]} {utils.SEQ_NAME_KEY}"
+
+        root_name = root_name.replace(NS_SEQ_PREFIX, "")
 
         seq_img_id_offset = SEQUENCE_TO_OFFSET[root_name]
 
@@ -150,10 +128,6 @@ def compute_overall_mAP(class_name, items, no_cactus=False):
     os.remove(TMP_EVAL_FILE)
     os.remove(TMP_ANCH_FILE)
 
-    # print("\n")
-    # print(summary)
-    # print("\n")
-
     return summary
 
 
@@ -171,89 +145,9 @@ def coco_evaluation(ann_file, detections):
     coco_eval.accumulate()
     coco_eval.summarize()
 
-    import logging
-
-    class dummyclass:
-        def __init__(self):
-            self._logger = logging.getLogger(__name__)
-
-    # things = [i["name"] for i in coco_eval.cocoGt.cats.values()]
-    # out_all = COCOEvaluator._derive_coco_results(
-    #     dummyclass(), coco_eval, iou_type="bbox", class_names=things
-    # )
-
     headers = ["AP", "AP50", "AP75", "APS", "APM", "APL"]
     npstat = np.array(coco_eval.stats[:6])
     npstat = npstat * 100  # Percent
-    # npstat = np.around(npstat, 2)
     data_frame = pd.DataFrame([npstat], columns=headers)
 
     return data_frame
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "-r",
-        "--result_path",
-        required=True,
-        help="For example, '.../logs/runs/[pipeline]/[codec]/[datacatalog]/' ",
-    )
-    parser.add_argument(
-        "-q",
-        "--quality_index",
-        required=False,
-        default=-1,
-        type=int,
-        help="Provide index of quality folders under the `result_path'. quality_index is only meant to point the orderd folders by qp names because there might be different range of qps are used for different sequences",
-    )
-    parser.add_argument(
-        "-a",
-        "--all_qualities",
-        action="store_true",
-        help="run all 6 rate points in MPEG CTCs",
-    )
-    parser.add_argument(
-        "-d",
-        "--dataset_path",
-        required=True,
-        help="For example, '.../vcm_testdata/[dataset]' ",
-    )
-    parser.add_argument(
-        "-c",
-        "--class_to_compute",
-        type=str,
-        choices=CLASSES,
-        required=True,
-    )
-
-    args = parser.parse_args()
-    if args.all_qualities:
-        qualities = range(0, 6)
-    else:
-        qualities = [args.quality_index]
-
-    with open(
-        f"{args.result_path}/{args.class_to_compute}.csv", "w", newline=""
-    ) as file:
-        writer = csv.writer(file)
-        for q in qualities:
-            items = utils.search_items(
-                args.result_path,
-                args.dataset_path,
-                q,
-                SEQS_BY_CLASS[args.class_to_compute],
-                BaseEvaluator.get_coco_eval_info_name,
-            )
-
-            assert (
-                len(items) > 0
-            ), "Nothing relevant information found from given directories..."
-
-            summary = compute_overall_mAP(args.class_to_compute, items)
-
-            writer.writerow([f"{q}", f"{summary['AP'][0]:.4f}"])
-            print(f"{'=' * 10} FINAL OVERALL mAP SUMMARY {'=' * 10}")
-            print(f"{'-' * 32} AP : {summary['AP'][0]:.4f}")
-            print("\n\n")
