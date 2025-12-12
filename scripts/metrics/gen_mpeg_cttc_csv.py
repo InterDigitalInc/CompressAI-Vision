@@ -276,11 +276,12 @@ def generate_csv_classwise_video_miou(
     dataset_path,
     dict_of_class_seq,
     nb_operation_points: int = 4,
+    dataset_prefix: str = None,
 ):
     seq_list = []
     [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
-    results_df = read_df_rec(result_path, "", seq_list, nb_operation_points)
+    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -309,7 +310,7 @@ def generate_csv_classwise_video_miou(
                 len(items) > 0
             ), "Nothing relevant information found from given directories..."
 
-            miou = compute_per_class_mIoU(class_name, items)
+            miou = compute_per_class_mIoU(items)
             class_wise_mious.append(miou)
 
         matched_seq_names = []
