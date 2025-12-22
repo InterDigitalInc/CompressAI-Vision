@@ -492,7 +492,12 @@ if __name__ == "__main__":
             )
     elif args.dataset_name == "OIV6":
         output_df = generate_csv(
-            norm_result_path, ["MPEGOIV6"], args.nb_operation_points
+            norm_result_path,
+            [
+                "mpeg-oiv6-segmentation",
+                "mpeg-oiv6-detection",
+            ],
+            args.nb_operation_points,
         )
     elif args.dataset_name == "TVD":
         if args.mode == "FCM":
