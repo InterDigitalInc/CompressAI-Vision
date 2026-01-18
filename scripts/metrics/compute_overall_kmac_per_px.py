@@ -222,6 +222,13 @@ if __name__ == "__main__":
         help="exclude Cactus sequence for FCM eval",
     )
 
+    parser.add_argument(
+        "--add-non-scale",
+        action="store_true",
+        default=False,
+        help="Add non-scale option using ns_Traffic/ns_BQTerrace with original GT",
+    )
+
     args = parser.parse_args()
 
     assert args.dataset_name.lower() in Path(args.result_path).name.lower()
@@ -253,10 +260,21 @@ if __name__ == "__main__":
             if "Cactus_1920x1080_50" in class_ab["CLASS-AB"]:
                 class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
+        sfu_classes = [class_ab, class_c, class_d]
+        
+        if args.dataset_name == "SFU" and args.add_non_scale:
+            class_ab_star = {
+                "CLASS-AB*": [
+                    "ns_Traffic",
+                    "ns_BQTerrace",
+                ]
+            }
+            sfu_classes.append(class_ab_star)
+
         output_df = generate_csv_classwise_video_gmac(
             args.dataset_name,
             args.result_path,
-            [class_ab, class_c, class_d],
+            sfu_classes,
         )
     elif args.dataset_name == "OIV6":
         oiv6 = ["detection", "segmentation"]
