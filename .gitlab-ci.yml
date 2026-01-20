@@ -47,7 +47,7 @@ ruff-lint:
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev
+    - uv sync --group=dev --extra=cpu
   script:
     - uv run --no-sync make check-ruff-lint
   tags:
@@ -64,7 +64,7 @@ pytest-py38:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
     - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
-    - uv sync --inexact --extra=dev
+    - uv sync --inexact --extra=dev --extra=cpu
   script:
     - uv run --no-sync pytest
   tags:
@@ -81,7 +81,7 @@ pytest-py310:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
     - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
-    - uv sync --inexact --extra=dev
+    - uv sync --inexact --extra=dev --extra=cpu
   script:
     - uv run --no-sync pytest
   tags:
@@ -96,7 +96,7 @@ pytest-pip-py38:
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu
+    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
     - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
     - pip install -e .[dev,cpu]
   script:
@@ -126,7 +126,7 @@ ruff-format:
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev
+    - uv sync --group=dev --extra=cpu
   script:
     - uv run --no-sync make check-ruff-format
   tags:
@@ -138,7 +138,7 @@ ruff-organize-imports:
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev
+    - uv sync --group=dev --extra=cpu
   script:
     - uv run --no-sync make check-ruff-organize-imports
   tags:
@@ -150,7 +150,7 @@ doc:
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - uv sync --group=doc
+    - uv sync --group=doc --extra=cpu
     - cd docs
   script:
     - uv run --no-sync make html
