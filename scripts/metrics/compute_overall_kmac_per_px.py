@@ -261,7 +261,7 @@ if __name__ == "__main__":
                 class_ab["CLASS-AB"].remove("Cactus_1920x1080_50")
 
         sfu_classes = [class_ab, class_c, class_d]
-        
+
         if args.dataset_name == "SFU" and args.add_non_scale:
             class_ab_star = {
                 "CLASS-AB*": [
