@@ -258,7 +258,9 @@ detect_cuda_version () {
 }
 
 install_torch () {
-    "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}"
+    "${PIP[@]}" install "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" \
+        --index-url "https://download.pytorch.org/whl/${BUILD_SUFFIX}" \
+        --extra-index-url "https://pypi.org/simple"
 
 }
 
@@ -294,7 +296,7 @@ install_detectron2 () {
         "${PIP[@]}" install --no-build-isolation -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-detectron2
+        uv sync --inexact --group=models-detectron2 --extra="${BUILD_SUFFIX}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -367,7 +369,7 @@ install_jde () {
         "${PIP[@]}" install --no-build-isolation -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-jde
+        uv sync --inexact --group=models-jde --extra="${BUILD_SUFFIX}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -403,7 +405,7 @@ install_yolox () {
         "${PIP[@]}" install --no-build-isolation -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-yolox
+        uv sync --inexact --group=models-yolox --extra="${BUILD_SUFFIX}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -442,7 +444,7 @@ install_mmpose () {
         "${PIP[@]}" install isort==5.13.2
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-mmpose
+        uv sync --inexact --group=models-mmpose --extra="${BUILD_SUFFIX}"
     fi
 
     "${MIM[@]}" install "mmcv==2.0.1"
@@ -478,7 +480,7 @@ install_segment_anything () {
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-segment-anything
+        uv sync --inexact --group=models-segment-anything --extra="${BUILD_SUFFIX}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -513,7 +515,7 @@ install_sam2 () {
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-sam2
+        uv sync --inexact --group=models-sam2 --extra="${BUILD_SUFFIX}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
