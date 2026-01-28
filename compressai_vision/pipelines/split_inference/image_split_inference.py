@@ -111,7 +111,7 @@ class ImageSplitInference(BasePipeline):
                     break
 
                 if self.is_mac_calculation:
-                    macs, pixels = calc_complexity_nn_part1_plyr(vision_model, d)
+                    macs, pixels = vision_model.calc_complexity("nn_part_1", d)
                     self.acc_kmac_and_pixels_info("nn_part_1", macs, pixels)
 
                 start = time_measure()
@@ -200,8 +200,8 @@ class ImageSplitInference(BasePipeline):
             dec_features["file_name"] = d[0]["file_name"]
             dec_features["file_origin"] = d[0]["file_name"]
             if self.is_mac_calculation:
-                macs, pixels = calc_complexity_nn_part2_plyr(
-                    vision_model, dec_features["data"], dec_features
+                macs, pixels = vision_model.calc_complexity(
+                    "nn_part_2", dec_features, dec_features["data"]
                 )
                 self.acc_kmac_and_pixels_info("nn_part_2", macs, pixels)
 

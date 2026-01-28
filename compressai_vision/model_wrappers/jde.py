@@ -36,6 +36,10 @@ import torch
 
 from compressai_vision.registry import register_vision_model
 
+from ..utils.measure_complexity import (
+    calc_complexity_nn_part1_dn53,
+    calc_complexity_nn_part2_dn53,
+)
 from .base_wrapper import BaseWrapper
 
 __all__ = [
@@ -489,3 +493,14 @@ class jde_1088x608(BaseWrapper):
                 online_ids.append(tid)
 
         return {"tlwhs": online_tlwhs, "ids": online_ids}
+
+    def calc_complexity(self, mode, input, data=None):
+        """Computes the MACs Complexity of the model"""
+        if mode == "nn_part_1":
+            return calc_complexity_nn_part1_dn53(self, input)
+        elif mode == "nn_part_2":
+            return calc_complexity_nn_part2_dn53(self, input)
+        else:
+            raise NotImplementedError(
+                f"Complexity calculation for {mode} not implemented for JDE"
+            )

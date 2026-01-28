@@ -36,6 +36,10 @@ import torch
 
 from compressai_vision.registry import register_vision_model
 
+from ..utils.measure_complexity import (
+    calc_complexity_nn_part1_yolox,
+    calc_complexity_nn_part2_yolox,
+)
 from .base_wrapper import BaseWrapper
 from .split_squeezes import squeeze_yolox
 
@@ -326,3 +330,14 @@ class yolox_darknet53(BaseWrapper):
         )
 
         return pred
+
+    def calc_complexity(self, mode, input, data=None):
+        """Computes the MACs Complexity of the model"""
+        if mode == "nn_part_1":
+            return calc_complexity_nn_part1_yolox(self, input)
+        elif mode == "nn_part_2":
+            return calc_complexity_nn_part2_yolox(self, input)
+        else:
+            raise NotImplementedError(
+                f"Complexity calculation for {mode} not implemented for YOLOX-Darknet53"
+            )

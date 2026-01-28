@@ -36,6 +36,10 @@ import torch
 
 from compressai_vision.registry import register_vision_model
 
+from ..utils.measure_complexity import (
+    calc_complexity_nn_part1_plyr,
+    calc_complexity_nn_part2_plyr,
+)
 from .base_wrapper import BaseWrapper
 from .intconv2d import IntConv2d, IntTransposedConv2d
 
@@ -558,6 +562,17 @@ class Rcnn_R_50_X_101_FPN(BaseWrapper):
     @property
     def cfg(self):
         return self._cfg
+
+    def calc_complexity(self, mode, input, data=None):
+        """Computes the MACs Complexity of the model"""
+        if mode == "nn_part_1":
+            return calc_complexity_nn_part1_plyr(self, input)
+        elif mode == "nn_part_2":
+            return calc_complexity_nn_part2_plyr(self, input, data)
+        else:
+            raise NotImplementedError(
+                f"Complexity calculation for {mode} not implemented for Detectron2"
+            )
 
 
 @register_vision_model("faster_rcnn_X_101_32x8d_FPN_3x")

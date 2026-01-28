@@ -140,10 +140,7 @@ class VideoSplitInference(BasePipeline):
                     break
 
                 if self.is_mac_calculation and e == self._codec_skip_n_frames:
-                    if hasattr(vision_model, "darknet"):  # for jde
-                        kmacs, pixels = calc_complexity_nn_part1_dn53(vision_model, d)
-                    else:  # for detectron2
-                        kmacs, pixels = calc_complexity_nn_part1_plyr(vision_model, d)
+                    kmacs, pixels = vision_model.calc_complexity("nn_part_1", d)
                     self.add_kmac_and_pixels_info("nn_part_1", kmacs, pixels)
 
                 start = time_measure()
@@ -299,14 +296,9 @@ class VideoSplitInference(BasePipeline):
             )  # Assuming one qp will be used
 
             if self.is_mac_calculation and e == 0:
-                if hasattr(vision_model, "darknet"):  # for jde
-                    kmacs, pixels = calc_complexity_nn_part2_dn53(
-                        vision_model, dec_features
-                    )
-                else:  # for detectron2
-                    kmacs, pixels = calc_complexity_nn_part2_plyr(
-                        vision_model, data, dec_features
-                    )
+                kmacs, pixels = vision_model.calc_complexity(
+                    "nn_part_2", dec_features, data
+                )
                 self.add_kmac_and_pixels_info("nn_part_2", kmacs, pixels)
 
             start = time_measure()
