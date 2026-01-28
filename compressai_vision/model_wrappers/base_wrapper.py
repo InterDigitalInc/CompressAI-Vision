@@ -65,6 +65,10 @@ class BaseWrapper(nn.Module):
         """Complete the downstream task with end-to-end manner all the way from the input"""
         raise NotImplementedError
 
+    def calc_complexity(self, mode, input, data):
+        """Computes the MACs Complexity of the model"""
+        raise NotImplementedError
+
     @property
     def cfg(self):
         return None

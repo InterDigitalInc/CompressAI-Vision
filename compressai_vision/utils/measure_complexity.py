@@ -3,6 +3,7 @@ import operator
 from functools import reduce
 
 import torch
+import torch.nn as nn
 
 from ptflops import get_model_complexity_info
 
@@ -72,7 +73,7 @@ def calc_complexity_nn_part1_plyr(vision_model, img):
     return kmacs, pixels
 
 
-def calc_complexity_nn_part2_plyr(vision_model, data, dec_features):
+def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
     if isinstance(data[0], list):  # image task
         data = {k: v[0] for k, v in data.items()}
 
@@ -145,6 +146,120 @@ def get_downsampled_shape(h, w, ratio):
     for _ in range(n):
         h, w = (h + 1) // 2, (w + 1) // 2
     return h, w
+
+
+class YoloxPart1(nn.Module):
+    def __init__(self, vision_model, split_id):
+        super().__init__()
+        self.backbone = vision_model.backbone
+        self.split_id = split_id
+        self.squeeze_at_split_enabled = vision_model.squeeze_at_split_enabled
+        if self.squeeze_at_split_enabled:
+            self.squeeze_model = vision_model.squeeze_model
+
+    def forward(self, x):
+        if self.split_id == "l13":
+            y = self.backbone.stem(x)
+            y = self.backbone.dark2(y)
+            y = self.backbone.dark3[0](y)
+            if self.squeeze_at_split_enabled:
+                y = self.squeeze_model.squeeze_(y)
+        elif self.split_id == "l37":
+            y = self.backbone.stem(x)
+            y = self.backbone.dark2(y)
+            y = self.backbone.dark3(y)
+        return y
+
+
+class YoloxPart2(nn.Module):
+    def __init__(self, vision_model, split_id):
+        super().__init__()
+        self.backbone = vision_model.backbone
+        self.out1_cbl = vision_model.yolo_fpn.out1_cbl
+        self.out1 = vision_model.yolo_fpn.out1
+        self.out2_cbl = vision_model.yolo_fpn.out2_cbl
+        self.out2 = vision_model.yolo_fpn.out2
+        self.upsample = vision_model.yolo_fpn.upsample
+        self.head = vision_model.head
+        self.split_id = split_id
+        self.squeeze_at_split_enabled = vision_model.squeeze_at_split_enabled
+        if self.squeeze_at_split_enabled:
+            self.squeeze_model = vision_model.squeeze_model
+        # self.postprocess = vision_model.postprocess # Not needed for MAC calc
+
+    def forward(self, x):
+        y = x
+        if self.split_id == "l13":
+            if self.squeeze_at_split_enabled:
+                y = self.squeeze_model.expand_(y)
+            for proc_module in self.backbone.dark3[1:]:
+                y = proc_module(y)
+
+        fp_lvl2 = y
+        fp_lvl1 = self.backbone.dark4(fp_lvl2)
+        fp_lvl0 = self.backbone.dark5(fp_lvl1)
+
+        # yolo branch 1
+        b1_in = self.out1_cbl(fp_lvl0)
+        b1_in = self.upsample(b1_in)
+        b1_in = torch.cat([b1_in, fp_lvl1], 1)
+        fp_lvl1 = self.out1(b1_in)
+
+        # yolo branch 2
+        b2_in = self.out2_cbl(fp_lvl1)
+        b2_in = self.upsample(b2_in)
+        b2_in = torch.cat([b2_in, fp_lvl2], 1)
+        fp_lvl2 = self.out2(b2_in)
+
+        outputs = self.head((fp_lvl2, fp_lvl1, fp_lvl0))
+        return outputs
+
+
+def calc_complexity_nn_part1_yolox(vision_model, img):
+    device = torch.device(vision_model.device)
+    img = img[0]["image"].unsqueeze(0).to(device)
+
+    partial_model = YoloxPart1(vision_model, vision_model.split_id)
+
+    C, H, W = img.shape[1:]
+
+    kmacs, _ = measure_mac(
+        partial_model=partial_model,
+        input_res=(C, H, W),
+        input_constructor=None,
+    )
+
+    pixels = reduce(operator.mul, [p_size for p_size in img.shape])
+    return kmacs, pixels
+
+
+def calc_complexity_nn_part2_yolox(vision_model, dec_features):
+    assert "data" in dec_features
+
+    x_data = dec_features["data"]
+
+    x_data = {
+        k: (v[0] if isinstance(x_data[0], list) else v).to(vision_model.device)
+        for k, v in zip(vision_model.split_layer_list, x_data.values())
+    }
+
+    input_tensor = x_data[vision_model.split_id]
+
+    if input_tensor.dim() == 3:
+        input_tensor = input_tensor.unsqueeze(0)
+
+    C, H, W = input_tensor.shape[1:]
+    partial_model = YoloxPart2(vision_model, vision_model.split_id)
+
+    kmacs, _ = measure_mac(
+        partial_model=partial_model,
+        input_res=(C, H, W),
+        input_constructor=None,
+    )
+
+    pixels = reduce(operator.mul, input_tensor.shape)
+
+    return kmacs, pixels
 
 
 def prepare_proposal_input_fpn(resolutions):
