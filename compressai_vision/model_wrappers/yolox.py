@@ -161,7 +161,13 @@ class yolox_darknet53(BaseWrapper):
         """Computes deep features at the intermediate layer(s) all the way from the input"""
 
         self.model = self.model.to(device).eval()
-        img = x[0]["image"].unsqueeze(0).to(device)
+
+        # temp. solution
+        if not isinstance(x, torch.Tensor):
+            img = x[0]["image"].unsqueeze(0).to(device)
+        else:
+            img = x
+
         input_size = tuple(img.shape[2:])
 
         if self.split_id == self.SPLIT_L13:
