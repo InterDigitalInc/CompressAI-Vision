@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 
 import numpy as np
 import pandas as pd
@@ -64,9 +65,6 @@ SEQUENCE_TO_OFFSET = {
     "BlowingBubbles_416x240_50": 130000,
     "RaceHorses_416x240_30": 140000,
 }
-
-TMP_EVAL_FILE = "tmp_eval.json"
-TMP_ANCH_FILE = "tmp_anch.json"
 
 NS_SEQ_PREFIX = "ns_"  # Prefix of non-scaled sequences
 
@@ -117,16 +115,24 @@ def compute_per_class_mAP(seq_root_names, items):
         "annotations": classwise_annotation,
     }
 
-    with open(TMP_EVAL_FILE, "w") as f:
-        json.dump(classwise_instances_results, f, indent=4)
+    eval_fd, eval_path = tempfile.mkstemp(prefix="tmp_eval_", suffix=".json")
+    anch_fd, anch_path = tempfile.mkstemp(prefix="tmp_anch_", suffix=".json")
+    os.close(eval_fd)
+    os.close(anch_fd)
 
-    with open(TMP_ANCH_FILE, "w") as f:
-        json.dump(classwise_gt_data, f, indent=4)
+    try:
+        with open(eval_path, "w") as f:
+            json.dump(classwise_instances_results, f, indent=4)
 
-    summary = coco_evaluation(TMP_ANCH_FILE, TMP_EVAL_FILE)
+        with open(anch_path, "w") as f:
+            json.dump(classwise_gt_data, f, indent=4)
 
-    os.remove(TMP_EVAL_FILE)
-    os.remove(TMP_ANCH_FILE)
+        summary = coco_evaluation(anch_path, eval_path)
+    finally:
+        if os.path.exists(eval_path):
+            os.remove(eval_path)
+        if os.path.exists(anch_path):
+            os.remove(anch_path)
 
     return summary
 
