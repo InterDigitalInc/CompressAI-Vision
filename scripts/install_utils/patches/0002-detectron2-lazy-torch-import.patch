@@ -1,0 +1,67 @@
+--- a/setup.py
++++ b/setup.py
+@@ -5,13 +5,17 @@
+ import os
+ import shutil
+ from os import path
++import sys
+ from setuptools import find_packages, setup
+ from typing import List
+-import torch
+-from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+ 
+-torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
+-assert torch_ver >= [1, 8], "Requires PyTorch >= 1.8"
++
++def get_torch():
++    import torch
++
++    torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]
++    assert torch_ver >= [1, 8], "Requires PyTorch >= 1.8"
++    return torch, torch_ver
+ 
+ 
+ def get_version():
+@@ -44,6 +48,8 @@
+     main_source = path.join(extensions_dir, "vision.cpp")
+     sources = glob.glob(path.join(extensions_dir, "**", "*.cpp"))
+ 
++    torch, torch_ver = get_torch()
++    from torch.utils.cpp_extension import CUDA_HOME, CppExtension, CUDAExtension
+     from torch.utils.cpp_extension import ROCM_HOME
+ 
+     is_rocm_pytorch = (
+@@ -144,6 +150,24 @@
+     "detectron2.projects.panoptic_deeplab": "projects/Panoptic-DeepLab/panoptic_deeplab",
+ }
+ 
++BUILD_COMMANDS = {
++    "build",
++    "build_ext",
++    "bdist_wheel",
++    "editable_wheel",
++    "develop",
++    "install",
++}
++SHOULD_BUILD_EXTENSIONS = any(cmd in BUILD_COMMANDS for cmd in sys.argv[1:])
++
++if SHOULD_BUILD_EXTENSIONS:
++    torch, _ = get_torch()
++    ext_modules = get_extensions()
++    cmdclass = {"build_ext": torch.utils.cpp_extension.BuildExtension}
++else:
++    ext_modules = []
++    cmdclass = {}
++
+ setup(
+     name="detectron2",
+     version=get_version(),
+@@ -203,6 +227,6 @@
+             "flake8-comprehensions",
+         ],
+     },
+-    ext_modules=get_extensions(),
+-    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
++    ext_modules=ext_modules,
++    cmdclass=cmdclass,
+ )

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "pybind11>=2.6.0"]
+requires = ["setuptools>=68,<81", "wheel", "pybind11>=2.6.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -36,7 +36,7 @@ dependencies = [
     "ptflops>=0.7.3",
     "Cython==3.0.8",
     "wheel>=0.45.1",
-    "setuptools>=68",
+    "setuptools>=68,<81",
     "yuvio",
 ]
 

@@ -189,7 +189,7 @@ run_prepare() {
 
 run_install () {
     detect_env
-    "${PIP[@]}" install -U pip wheel setuptools
+    "${PIP[@]}" install -U pip wheel "setuptools>=68,<81"
     
     echo "Selected Models to be installed: ${MODEL}"
 
@@ -212,7 +212,7 @@ run_install () {
         "${PIP[@]}" install -e "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         echo "Building compressai C++ extensions from source..."
-        "${PIP[@]}" install "pybind11>=2.6.0" "setuptools>=68" wheel setuptools
+        "${PIP[@]}" install "pybind11>=2.6.0" "setuptools>=68,<81" wheel
         cd "${COMPRESSAI_VISION_ROOT_DIR}/compressai"
         rm -rf build/ **/*.so
         "${PIP[@]}" install -e . --no-build-isolation
@@ -291,6 +291,7 @@ install_detectron2 () {
 
     cd "${MODELS_SOURCE_DIR}/detectron2"
     cp ${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml ./pyproject.toml
+    git apply "${SCRIPT_DIR}/install_utils/patches/0002-detectron2-lazy-torch-import.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install --no-build-isolation -e .
