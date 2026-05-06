@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
-
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -54,7 +53,6 @@ root_path = thisdir.joinpath("../..")
 class jde_1088x608(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         import jde
-
         from jde.models import Darknet
         from jde.utils.kalman_filter import KalmanFilter
 
@@ -152,7 +150,13 @@ class jde_1088x608(BaseWrapper):
         self.darknet = self.darknet.to(device).eval()
         self.darknet.device = device  # Please refer to Darknet
 
-        return self._input_to_feature_pyramid(x)
+        # temp. solution
+        if not isinstance(x, torch.Tensor):
+            imgs = x[0]["image"].unsqueeze(0).to(device)
+        else:
+            imgs = x
+
+        return self._input_to_feature_pyramid(imgs)
 
     def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
@@ -172,10 +176,8 @@ class jde_1088x608(BaseWrapper):
     @torch.no_grad()
     def _input_to_feature_pyramid(self, x):
         """Computes and return feture pyramid all the way from the input"""
-        img = x[0]["image"].unsqueeze(0).to(self.darknet.device)
-        input_size = tuple(img.shape[2:])
-
-        _ = self.darknet(img, self.features_at_splits, is_nn_part1=True)
+        input_size = tuple(x.shape[2:])
+        _ = self.darknet(x, self.features_at_splits, is_nn_part1=True)
 
         return {"data": self.features_at_splits, "input_size": [input_size]}
 
@@ -355,7 +357,9 @@ class jde_1088x608(BaseWrapper):
 
         detections = [detections[i] for i in u_detection]
         # detections is now a list of the unmatched detections
-        r_tracked_stracks = []  # This is container for stracks which were tracked till the
+        r_tracked_stracks = (
+            []
+        )  # This is container for stracks which were tracked till the
         # previous frame but no detection was found for it in the current frame
         for i in u_track:
             if track_candidates_pool[i].state == TrackState.Tracked:
