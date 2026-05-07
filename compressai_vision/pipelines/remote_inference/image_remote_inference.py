@@ -29,6 +29,7 @@
 
 import os
 import sys
+
 from typing import Dict
 
 from torch.utils.data import DataLoader
@@ -164,7 +165,13 @@ class ImageRemoteInference(BasePipeline):
             }
             # dec_d = {"file_name": dec_seq[0]["file_names"][0]}
 
-            pred = vision_model.forward(org_map_func(dec_d))
+            resized_input = org_map_func(dec_d)
+
+            if self._compress_after_resizing:
+                resized_input["width"] = d[0]["width"]
+                resized_input["height"] = d[0]["height"]
+
+            pred = vision_model.forward(resized_input)
             end = time_measure()
             timing["nn_task"].append((end - start))
 

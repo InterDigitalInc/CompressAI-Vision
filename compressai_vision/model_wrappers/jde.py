@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -53,6 +54,7 @@ root_path = thisdir.joinpath("../..")
 class jde_1088x608(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         import jde
+
         from jde.models import Darknet
         from jde.utils.kalman_filter import KalmanFilter
 
@@ -357,9 +359,7 @@ class jde_1088x608(BaseWrapper):
 
         detections = [detections[i] for i in u_detection]
         # detections is now a list of the unmatched detections
-        r_tracked_stracks = (
-            []
-        )  # This is container for stracks which were tracked till the
+        r_tracked_stracks = []  # This is container for stracks which were tracked till the
         # previous frame but no detection was found for it in the current frame
         for i in u_track:
             if track_candidates_pool[i].state == TrackState.Tracked:
