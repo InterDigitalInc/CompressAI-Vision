@@ -31,10 +31,12 @@ import logging
 import math
 import shutil
 import tempfile
+
 from pathlib import Path
 from typing import Dict, Optional
 
 import numpy as np
+
 from PIL import Image
 
 from compressai_vision.utils.external_exec import run_cmdline
@@ -98,9 +100,12 @@ class PngFilesToYuvFileConverter:
                         resized_img = resized_img.detach().cpu().numpy()
 
                     if resized_img.ndim != 3:
-                        raise ValueError(
-                            f"Expected CHW image from resize_mapper, got shape={resized_img.shape}"
-                        )
+                        if resized_img.ndim == 4 and resized_img.shape[0] == 1:
+                            resized_img = resized_img.squeeze(0)
+                        else:
+                            raise ValueError(
+                                f"Expected CHW image from resize_mapper, got shape={resized_img.shape}"
+                            )
 
                     resized_img = np.transpose(resized_img, (1, 2, 0))  # CHW -> HWC
 

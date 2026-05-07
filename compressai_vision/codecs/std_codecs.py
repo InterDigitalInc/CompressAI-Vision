@@ -34,6 +34,7 @@ import math
 import os
 import sys
 import time
+
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
@@ -1092,9 +1093,7 @@ class VCMRS(VTM):
             "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
             "load": ["load", "UsingDescriptor", "load", "load"],
             "generate": ["save", "GeneratingDescriptor", "save", "save"],
-        }[
-            descriptor_mode
-        ]
+        }[descriptor_mode]
         items = str(bitstream_path).split("/")
         dataset = {
             "SFUHW": "SFU",
