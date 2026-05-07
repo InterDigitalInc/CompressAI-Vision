@@ -30,9 +30,12 @@
 import logging
 import math
 import shutil
-
+import tempfile
 from pathlib import Path
 from typing import Dict, Optional
+
+import numpy as np
+from PIL import Image
 
 from compressai_vision.utils.external_exec import run_cmdline
 
@@ -56,7 +59,7 @@ class PngFilesToYuvFileConverter:
         self.ffmpeg_loglevel = ffmpeg_loglevel
         self.logger = logger
 
-    def __call__(self, input: Dict, file_prefix: str):
+    def __call__(self, input: Dict, file_prefix: str, resize_mapper=None):
         """Converts the input image or video to YUV format using ffmpeg.
 
         Args:
@@ -79,98 +82,155 @@ class PngFilesToYuvFileConverter:
             AssertionError: If the number of images in the input folder does not match the expected number of frames.
         """
         file_names = input["file_names"]
-        if len(file_names) > 1:  # video
-            # NOTE: using glob for now, should be more robust and look at skipped
-            # NOTE: somewhat rigid pattern (lowercase png)
+        temp_dir_obj = None
+        resized_info = None
+        try:
+            if resize_mapper is not None:
+                temp_dir_obj = tempfile.TemporaryDirectory(prefix="png2yuv_resized_")
+                temp_dir = Path(temp_dir_obj.name)
+                resized_file_names = []
 
-            parent = Path(file_names[0]).parent
-            ext = next((e for e in ["*.png", "*.jpg"] if list(parent.glob(e))), None)
-            filename_pattern = f"{parent}/{ext}"
-            images_in_folder = len(list(parent.glob(ext)))
-            nb_frames = input["last_frame"] - input["frame_skip"]
+                for i, img_file in enumerate(file_names):
+                    mapped = resize_mapper({"file_name": img_file})
+                    resized_img = mapped["image"]  # expected CHW
 
-            assert (
-                images_in_folder == nb_frames
-            ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+                    if hasattr(resized_img, "detach"):
+                        resized_img = resized_img.detach().cpu().numpy()
 
-            input_info = [
-                "-pattern_type",
-                "glob",
-                "-i",
-                filename_pattern,
-            ]
+                    if resized_img.ndim != 3:
+                        raise ValueError(
+                            f"Expected CHW image from resize_mapper, got shape={resized_img.shape}"
+                        )
 
-            yuv_file = Path(f"{Path(file_names[0]).parent.parent}.yuv")
-            print(f"Checking if YUV is available: {yuv_file}")
-            if not yuv_file.is_file():
+                    resized_img = np.transpose(resized_img, (1, 2, 0))  # CHW -> HWC
+
+                    if resized_img.dtype != np.uint8:
+                        if np.issubdtype(resized_img.dtype, np.floating):
+                            vmin = float(np.nanmin(resized_img))
+                            vmax = float(np.nanmax(resized_img))
+                            if 0.0 <= vmin and vmax <= 1.0:
+                                resized_img = resized_img * 255.0
+                        resized_img = np.clip(resized_img, 0, 255).astype(np.uint8)
+
+                    src_ext = Path(img_file).suffix.lower()
+                    out_ext = (
+                        ".png" if src_ext not in [".png", ".jpg", ".jpeg"] else src_ext
+                    )
+                    out_file = temp_dir / f"{i:06d}{out_ext}"
+                    Image.fromarray(resized_img).save(out_file)
+                    resized_file_names.append(str(out_file))
+
+                    if resized_info is None:
+                        h, w = resized_img.shape[:2]
+                        resized_info = {"width": w, "height": h}
+
+                file_names = resized_file_names
+
+            if len(file_names) > 1:  # video
+                # NOTE: using glob for now, should be more robust and look at skipped
+                # NOTE: somewhat rigid pattern (lowercase png/jpg)
+
+                parent = Path(file_names[0]).parent
+                ext = next(
+                    (e for e in ["*.png", "*.jpg", "*.jpeg"] if list(parent.glob(e))),
+                    None,
+                )
+                filename_pattern = f"{parent}/{ext}"
+                images_in_folder = len(list(parent.glob(ext)))
+                nb_frames = input["last_frame"] - input["frame_skip"]
+
+                assert (
+                    images_in_folder == nb_frames
+                ), f"input folder contains {images_in_folder} images, {nb_frames} were expected"
+
+                input_info = [
+                    "-pattern_type",
+                    "glob",
+                    "-i",
+                    filename_pattern,
+                ]
+
+                yuv_file = Path(f"{Path(file_names[0]).parent.parent}.yuv")
+                print(f"Checking if YUV is available: {yuv_file}")
+                if not yuv_file.is_file():
+                    yuv_file = None
+
+            else:
+                nb_frames = 1
+                input_info = ["-i", file_names[0]]
                 yuv_file = None
 
-        else:
-            nb_frames = 1
-            input_info = ["-i", file_names[0]]
-            yuv_file = None
+            chroma_format = self.chroma_format
+            input_bitdepth = self.input_bitdepth
 
-        chroma_format = self.chroma_format
-        input_bitdepth = self.input_bitdepth
+            if resized_info is not None:
+                src_width = resized_info["width"]
+                src_height = resized_info["height"]
+            else:
+                src_width = input["org_input_size"]["width"]
+                src_height = input["org_input_size"]["height"]
 
-        frame_width = math.ceil(input["org_input_size"]["width"] / 2) * 2
-        frame_height = math.ceil(input["org_input_size"]["height"] / 2) * 2
-        file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
-        yuv_in_path = f"{file_prefix}_input.yuv"
+            frame_width = math.ceil(src_width / 2) * 2
+            frame_height = math.ceil(src_height / 2) * 2
+            file_prefix = f"{file_prefix}_{frame_width}x{frame_height}_{self.frame_rate}fps_{input_bitdepth}bit_p{chroma_format}"
+            yuv_in_path = f"{file_prefix}_input.yuv"
 
-        chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}p"
+            chroma_format = "gray" if chroma_format == "400" else f"yuv{chroma_format}p"
 
-        # Use existing YUV (if found and indicated for use):
-        if self.use_yuv:
-            assert (
-                yuv_file is not None
-            ), "Parameter 'use_yuv' set True but YUV file not found."
-            size = yuv_file.stat().st_size
-            bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
-            bytes_per_sample = (input_bitdepth + 7) >> 3
-            expected_size = int(
-                frame_width
-                * frame_height
-                * bytes_per_luma_sample
-                * bytes_per_sample
-                * nb_frames
-            )
-            assert (
-                size == expected_size
-            ), f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
-            shutil.copy(yuv_file, yuv_in_path)
-            print(f"Using pre-existing YUV file: {yuv_file}")
-            return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
+            # Use existing YUV (if found and indicated for use):
+            if self.use_yuv:
+                assert (
+                    yuv_file is not None
+                ), "Parameter 'use_yuv' set True but YUV file not found."
+                size = yuv_file.stat().st_size
+                bytes_per_luma_sample = {"yuv420p": 1.5}[chroma_format]
+                bytes_per_sample = (input_bitdepth + 7) >> 3
+                expected_size = int(
+                    frame_width
+                    * frame_height
+                    * bytes_per_luma_sample
+                    * bytes_per_sample
+                    * nb_frames
+                )
+                assert (
+                    size == expected_size
+                ), f"YUV found for input but expected size of {expected_size} bytes differs from actual size of {size} bytes"
+                shutil.copy(yuv_file, yuv_in_path)
+                print(f"Using pre-existing YUV file: {yuv_file}")
+                return (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix)
 
-        # TODO (fracape)
-        # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
-        pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
+            # TODO (fracape)
+            # we don't enable skipping frames (codec.skip_n_frames) nor use n_frames_to_be_encoded in video mode
+            pix_fmt_suffix = "10le" if input_bitdepth == 10 else ""
 
-        convert_cmd = [
-            "ffmpeg",
-            "-y",
-            "-hide_banner",
-            "-loglevel",
-            f"{self.ffmpeg_loglevel}",
-        ]
-        convert_cmd += input_info
-        convert_cmd += [
-            "-vf",
-            "pad=ceil(iw/2)*2:ceil(ih/2)*2",
-            "-f",
-            "rawvideo",
-            "-pix_fmt",
-            f"{chroma_format}{pix_fmt_suffix}",
-            "-dst_range",
-            "1",  #  (fracape) convert to full range for now
-        ]
+            convert_cmd = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                f"{self.ffmpeg_loglevel}",
+            ]
+            convert_cmd += input_info
+            convert_cmd += [
+                "-vf",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                "-f",
+                "rawvideo",
+                "-pix_fmt",
+                f"{chroma_format}{pix_fmt_suffix}",
+                "-dst_range",
+                "1",  #  (fracape) convert to full range for now
+            ]
 
-        convert_cmd.append(yuv_in_path)
-        self.logger.debug(convert_cmd)
+            convert_cmd.append(yuv_in_path)
+            self.logger.debug(convert_cmd)
 
-        run_cmdline(convert_cmd)
+            run_cmdline(convert_cmd)
 
-        return yuv_in_path, nb_frames, frame_width, frame_height, file_prefix
+            return yuv_in_path, nb_frames, frame_width, frame_height, file_prefix
+        finally:
+            if temp_dir_obj is not None:
+                temp_dir_obj.cleanup()
 
 
 class YuvFileToPngFilesConverter:

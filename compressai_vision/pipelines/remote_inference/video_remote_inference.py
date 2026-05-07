@@ -31,7 +31,6 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 import torch
-
 from PIL import Image
 from torch import Tensor
 from torch.utils.data import DataLoader
@@ -75,6 +74,7 @@ class VideoRemoteInference(BasePipeline):
         super().__init__(configs, device)
 
         self._input_ftensor_buffer = []
+        self._compress_after_resizing = configs["codec"]["compress_after_resizing"]
         self._video_yuv = configs["yuv"] if "yuv" in configs else None
 
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
@@ -103,6 +103,7 @@ class VideoRemoteInference(BasePipeline):
         self._update_codec_configs_at_pipeline_level(len(dataloader))
 
         gt_inputs, file_names = self.build_input_lists(dataloader)
+        org_map_func = dataloader.dataset.get_org_mapper_func()
 
         timing = {
             "encode": metric_tracking(),
@@ -125,12 +126,16 @@ class VideoRemoteInference(BasePipeline):
             }
 
             start = time_measure()
+
+            resize_mapper = org_map_func if self._compress_after_resizing else None
+
             res, enc_time_by_module, enc_complexity = self._compress(
                 codec,
                 frames,
                 self.codec_output_dir,
                 self.bitstream_name,
                 "",
+                resize_mapper=resize_mapper,
                 remote_inference=True,
             )
             end = time_measure()
@@ -179,17 +184,23 @@ class VideoRemoteInference(BasePipeline):
         self.logger.info("Processing remote NN")
 
         output_list = []
-        org_map_func = dataloader.dataset.get_org_mapper_func()
         for e, d in enumerate(tqdm(dataloader)):
             # some assertion needed to check if d is matched with dec_seq[e]
 
             start = time_measure()
             dec_d = {
-                "file_name": dec_seq["file_names"][e],
+                "file_name": dec_seq["file_names"][e],  # will be loaded
                 "file_origin": d[0]["file_name"],
             }
             # dec_d = {"file_name": dec_seq[0]["file_names"][e]}
-            pred = vision_model.forward(org_map_func(dec_d))
+
+            resized_input = org_map_func(dec_d)
+
+            if self._compress_after_resizing:
+                resized_input["width"] = d[0]["width"]
+                resized_input["height"] = d[0]["height"]
+
+            pred = vision_model.forward(resized_input)
             end = time_measure()
             timing["nn_task"].append((end - start))
 
