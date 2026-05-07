@@ -29,7 +29,6 @@
 
 import os
 import sys
-
 from typing import Dict
 
 from torch.utils.data import DataLoader
@@ -66,6 +65,7 @@ class ImageRemoteInference(BasePipeline):
         device: str,
     ):
         super().__init__(configs, device)
+        self._compress_after_resizing = configs["codec"]["compress_after_resizing"]
 
     def __call__(
         self,
@@ -103,12 +103,15 @@ class ImageRemoteInference(BasePipeline):
                     "org_input_size": org_img_size,
                 }
 
+                resize_mapper = org_map_func if self._compress_after_resizing else None
+
                 res, enc_time_details, _ = self._compress(
                     codec,
                     frame,
                     self.codec_output_dir,
                     self.bitstream_name,
                     file_prefix,
+                    resize_mapper=resize_mapper,
                     remote_inference=True,
                 )
                 end = time_measure()

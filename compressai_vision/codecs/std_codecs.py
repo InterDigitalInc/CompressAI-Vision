@@ -34,7 +34,6 @@ import math
 import os
 import sys
 import time
-
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
@@ -370,6 +369,7 @@ class VTM(nn.Module):
         codec_output_dir,
         bitstream_name,
         file_prefix: str = "",
+        resize_mapper=None,
         remote_inference=False,
     ) -> Dict:
         """
@@ -399,7 +399,9 @@ class VTM(nn.Module):
         if remote_inference:
             start = time.time()
             (yuv_in_path, nb_frames, frame_width, frame_height, file_prefix) = (
-                self.convert_input_to_yuv(input=x, file_prefix=file_prefix)
+                self.convert_input_to_yuv(
+                    input=x, file_prefix=file_prefix, resize_mapper=resize_mapper
+                )
             )
             conversion_time = time.time() - start
             self.logger.debug(f"conversion time:{conversion_time}")
@@ -1090,7 +1092,9 @@ class VCMRS(VTM):
             "vcm_ctc": ["load", "UsingDescriptor", "load", "load"],
             "load": ["load", "UsingDescriptor", "load", "load"],
             "generate": ["save", "GeneratingDescriptor", "save", "save"],
-        }[descriptor_mode]
+        }[
+            descriptor_mode
+        ]
         items = str(bitstream_path).split("/")
         dataset = {
             "SFUHW": "SFU",

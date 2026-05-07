@@ -29,7 +29,6 @@
 
 import logging
 import math
-
 from typing import Dict, Tuple
 
 import torch.nn as nn
@@ -66,6 +65,7 @@ class Bypass(nn.Module):
         codec_output_dir: str = "",
         bitstream_name: str = "",
         file_prefix: str = "",
+        resize_mapper=None,
         remote_inference=False,
     ) -> Dict:
         """
