@@ -50,6 +50,7 @@ def calc_complexity_nn_part2_dn53(vision_model, dec_features):
     # fvcore input must be Tensor (wrapper overwrites internal 'x' from stored features)
     x_dummy = next(iter(x.values()))
     # fvcore input must be a Tensor; pick a deterministic dummy tensor
+
     kmacs = measure_kmacs(partial_model, x_dummy)
 
     pixels = sum(
@@ -467,7 +468,6 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
         features = self.features.copy()
 
         layer_outputs = []
-        output = []  # not used (we skip yolo), kept for structural similarity
         had_yolo = False
 
         max_id = max(features.keys())
@@ -549,11 +549,7 @@ def max_pool2d_flop_jit(inputs, outputs):
     - We count comparisons as 1 FLOP each (approx).
     """
     # aten::max_pool2d signature (typical):
-    # inputs = [x, kernel_size, stride, padding, dilation, ceil_mode]
-    x = inputs[0]
-    y = outputs[0]
-
-    out_numel = _value_numel(y)
+    out_numel = _value_numel(outputs[0])
     if out_numel == 0:
         return 0
 
@@ -694,11 +690,7 @@ def calc_complexity_nn_part1_yolox(vision_model, img):
 
     C, H, W = img.shape[1:]
 
-    kmacs, _ = measure_mac(
-        partial_model=partial_model,
-        input_res=(C, H, W),
-        input_constructor=None,
-    )
+    kmacs, _ = measure_kmacs(partial_model, img)
 
     pixels = reduce(operator.mul, [p_size for p_size in img.shape])
     return kmacs, pixels
@@ -722,11 +714,7 @@ def calc_complexity_nn_part2_yolox(vision_model, dec_features):
     C, H, W = input_tensor.shape[1:]
     partial_model = YoloxPart2(vision_model, vision_model.split_id)
 
-    kmacs, _ = measure_mac(
-        partial_model=partial_model,
-        input_res=(C, H, W),
-        input_constructor=None,
-    )
+    kmacs, _ = measure_kmacs(partial_model, input_tensor)
 
     pixels = reduce(operator.mul, input_tensor.shape)
 
