@@ -6,8 +6,7 @@ import torch
 import torch.nn as nn
 
 from fvcore.nn import FlopCountAnalysis
-from fvcore.nn.jit_handles import conv_flop_jit
-from fvcore.nn.jit_handles import get_shape, prod
+from fvcore.nn.jit_handles import conv_flop_jit, get_shape, prod
 
 
 def calc_complexity_nn_part1_dn53(vision_model, img):
@@ -18,10 +17,10 @@ def calc_complexity_nn_part1_dn53(vision_model, img):
 
     # backbone
     partial_model = DarknetBackboneOnlyFvcoreWrapper(
-                        vision_model.darknet,
-                        vision_model.features_at_splits,
-                        is_nn_part1=True,
-                    ).eval()
+        vision_model.darknet,
+        vision_model.features_at_splits,
+        is_nn_part1=True,
+    ).eval()
     kmacs = measure_kmacs(partial_model, img)
 
     pixels = reduce(operator.mul, [p_size for p_size in img.shape])
@@ -31,19 +30,23 @@ def calc_complexity_nn_part1_dn53(vision_model, img):
 
 def calc_complexity_nn_part2_dn53(vision_model, dec_features):
     assert "data" in dec_features
-    
+
     if isinstance(dec_features["data"][0], list):  # image task
         # x = {k: v[0] for k, v in x.items()}
         # If image-task path exists, keep the same behavior as your original code.
         # You can implement the mapping here if needed.
-        raise NotImplementedError("Image-task path is not implemented yet for DN53 complexity.")
+        raise NotImplementedError(
+            "Image-task path is not implemented yet for DN53 complexity."
+        )
 
     else:  # video task
         x = dec_features["data"]
 
     # NN-part2 (Darknet backbone only): store features in wrapper, pass tensor-only dummy input to fvcore
-    partial_model = DarknetNNPart2BackboneOnlyFvcoreWrapper(vision_model.darknet, vision_model.features_at_splits).eval()
-    
+    partial_model = DarknetNNPart2BackboneOnlyFvcoreWrapper(
+        vision_model.darknet, vision_model.features_at_splits
+    ).eval()
+
     # fvcore input must be Tensor (wrapper overwrites internal 'x' from stored features)
     x_dummy = next(iter(x.values()))
     # fvcore input must be a Tensor; pick a deterministic dummy tensor
@@ -79,7 +82,9 @@ def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
 
     # 1) Build feature pyramid using actual decoded features
     # Convert each feature from (C, H, W) to (1, C, H, W)
-    feature_pyramid = {f'p{k+2}': v.to(device).unsqueeze(0) for k, v in data.items()}  # p2–p5
+    feature_pyramid = {
+        f"p{k + 2}": v.to(device).unsqueeze(0) for k, v in data.items()
+    }  # p2–p5
 
     # Generate p6 from p5 using top_block
     top_block_out = vision_model.top_block(feature_pyramid["p5"])
@@ -103,14 +108,16 @@ def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
         ),
     )
 
-    #4) Measure sem_seg_head if available
+    # 4) Measure sem_seg_head if available
     # Panoptic/Semantic models use sem_seg_head(x, None)
-    is_semseg = hasattr(vision_model, "sem_seg_head") and vision_model.sem_seg_head is not None
+    is_semseg = (
+        hasattr(vision_model, "sem_seg_head") and vision_model.sem_seg_head is not None
+    )
     if is_semseg:
         semseg_model = SemSegHeadFvcoreWrapper(vision_model.sem_seg_head).eval()
         # IMPORTANT: pass dict as a single positional arg
         kmacs_sum += measure_kmacs(semseg_model, (feature_pyramid,))
-    
+
     #  5) ROIHeads
     # Run the proposal generator once to obtain actual proposals.
     # Only the image size is required for Detectron2, so a minimal dummy object is used.
@@ -143,7 +150,9 @@ def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
         boxes = [p.proposal_boxes for p in proposals]
 
         with torch.no_grad():
-            pooled = roi_heads.box_pooler(feat_list, boxes)  # (num_boxes, C, pool_h, pool_w)
+            pooled = roi_heads.box_pooler(
+                feat_list, boxes
+            )  # (num_boxes, C, pool_h, pool_w)
 
         box_head_model = BoxHeadPredictorFvcoreWrapper(roi_heads).eval()
         kmacs_sum += measure_kmacs(box_head_model, pooled)
@@ -156,14 +165,14 @@ def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
         ):
             # Only run when mask task is actually enabled
             if sum(len(p) for p in proposals) > 0:
-
                 # Run ROIHeads once to obtain pred_instances
                 with torch.no_grad():
-                    pred_instances, _ = roi_heads(images, feature_pyramid, proposals, None)
+                    pred_instances, _ = roi_heads(
+                        images, feature_pyramid, proposals, None
+                    )
 
                 # Skip if no detected objects
                 if sum(len(p) for p in pred_instances) > 0:
-
                     # Mask pooling requires pred_boxes
                     mask_boxes = [p.pred_boxes for p in pred_instances]
 
@@ -171,13 +180,12 @@ def calc_complexity_nn_part2_plyr(vision_model, dec_features, data):
                         mask_pooled = roi_heads.mask_pooler(feat_list, mask_boxes)
 
                     pred_classes = torch.cat([p.pred_classes for p in pred_instances])
-                    mask_head_model = MaskHeadFvcoreWrapper(roi_heads, pred_classes).eval()
+                    mask_head_model = MaskHeadFvcoreWrapper(
+                        roi_heads, pred_classes
+                    ).eval()
                     kmacs_sum += measure_kmacs(mask_head_model, mask_pooled)
-            
 
-    pixels = sum(
-        [reduce(operator.mul, list(d.shape)) for d in data.values()]
-    )
+    pixels = sum([reduce(operator.mul, list(d.shape)) for d in data.values()])
 
     return kmacs_sum, pixels
 
@@ -212,7 +220,7 @@ def measure_kmacs(module: nn.Module, inputs, tag: str = None) -> float:
     Returns:
         KMACs value as a float.
     """
-    
+
     module = module.eval()
 
     try:
@@ -234,42 +242,45 @@ def measure_kmacs(module: nn.Module, inputs, tag: str = None) -> float:
             return x
 
     inputs = _cast(inputs)
-    
+
     if torch.is_tensor(inputs):
-        inputs = (inputs,)               # single input -> tuple
+        inputs = (inputs,)  # single input -> tuple
     elif not isinstance(inputs, tuple):
-        inputs = (inputs,)               # safe fallback
+        inputs = (inputs,)  # safe fallback
 
     with torch.no_grad():
         flops = FlopCountAnalysis(module, inputs)
-        flops.set_op_handle(**{
-            # conv ops by conv_flop_jit
-            "aten::conv2d": conv_flop_jit,
-            "aten::_convolution": conv_flop_jit,
-            "aten::cudnn_convolution": conv_flop_jit,
-            # element-wise ops (out-of-place)
-            "aten::add": elemwise_flop_jit,
-            "aten::add_": elemwise_flop_jit,
-            "aten::mul": elemwise_flop_jit,
-            "aten::mul_": elemwise_flop_jit,
-            "aten::exp": elemwise_flop_jit,
-            "aten::clamp_min": elemwise_flop_jit,
-            "aten::div": elemwise_flop_jit,
-            "aten::abs": elemwise_flop_jit,
-            "aten::reciprocal": elemwise_flop_jit,
-            "aten::round": elemwise_flop_jit,
-            "aten::leaky_relu": elemwise_flop_jit,            
-            # pooling
-            "aten::max_pool2d": max_pool2d_flop_jit,
-        })
+        flops.set_op_handle(
+            **{
+                # conv ops by conv_flop_jit
+                "aten::conv2d": conv_flop_jit,
+                "aten::_convolution": conv_flop_jit,
+                "aten::cudnn_convolution": conv_flop_jit,
+                # element-wise ops (out-of-place)
+                "aten::add": elemwise_flop_jit,
+                "aten::add_": elemwise_flop_jit,
+                "aten::mul": elemwise_flop_jit,
+                "aten::mul_": elemwise_flop_jit,
+                "aten::exp": elemwise_flop_jit,
+                "aten::clamp_min": elemwise_flop_jit,
+                "aten::div": elemwise_flop_jit,
+                "aten::abs": elemwise_flop_jit,
+                "aten::reciprocal": elemwise_flop_jit,
+                "aten::round": elemwise_flop_jit,
+                "aten::leaky_relu": elemwise_flop_jit,
+                # pooling
+                "aten::max_pool2d": max_pool2d_flop_jit,
+            }
+        )
         total_flops = flops.total()
-        
+
         del flops
 
     kmacs = _flops_to_kmacs(total_flops)
     name = tag or module.__class__.__name__
-    #print(f"[INFO] {name}: KMACs = {kmacs}")
+    # print(f"[INFO] {name}: KMACs = {kmacs}")
     return kmacs
+
 
 class SemSegHeadFvcoreWrapper(nn.Module):
     def __init__(self, sem_seg_head: nn.Module):
@@ -281,6 +292,7 @@ class SemSegHeadFvcoreWrapper(nn.Module):
         out = self.sem_seg_head(x, None)
         return out[0] if isinstance(out, (tuple, list)) else out
 
+
 class RPNHeadOnlyFvcoreWrapper(nn.Module):
     """
     Wrapper for Detectron2 RPN to measure FLOPs only for the neural network part.
@@ -291,6 +303,7 @@ class RPNHeadOnlyFvcoreWrapper(nn.Module):
     Only the RPN head (convolution + classification + regression)
     is executed for FLOPs measurement.
     """
+
     def __init__(self, proposal_generator):
         super().__init__()
         self.pg = proposal_generator  # Detectron2 RPN module
@@ -310,6 +323,7 @@ class BoxHeadPredictorFvcoreWrapper(nn.Module):
     Input shape:
         (num_boxes, C, pool_h, pool_w)
     """
+
     def __init__(self, roi_heads):
         super().__init__()
         self.box_head = roi_heads.box_head
@@ -331,6 +345,7 @@ class MaskHeadFvcoreWrapper(nn.Module):
         # simulate detectron2 mask inference
         return self.mask_head.layers(mask_features)
 
+
 class DarknetBackboneOnlyFvcoreWrapper(nn.Module):
     """
     fvcore-friendly wrapper for Darknet that always returns a Tensor.
@@ -340,6 +355,7 @@ class DarknetBackboneOnlyFvcoreWrapper(nn.Module):
     - Returns the last feature tensor `x` instead of detection output
       (prevents returning None when no yolo layers are executed)
     """
+
     def __init__(self, darknet: nn.Module, splits: dict, is_nn_part1: bool):
         super().__init__()
         self.darknet = darknet
@@ -376,7 +392,9 @@ class DarknetBackboneOnlyFvcoreWrapper(nn.Module):
             eidx = len(module_list)
             splits = features  # reuse name for convenience
 
-        for i, (module_def, module) in enumerate(zip(module_defs[sidx:eidx], module_list[sidx:eidx])):
+        for i, (module_def, module) in enumerate(
+            zip(module_defs[sidx:eidx], module_list[sidx:eidx])
+        ):
             nn_idx = i + sidx
 
             if not self.is_nn_part1:
@@ -418,7 +436,8 @@ class DarknetBackboneOnlyFvcoreWrapper(nn.Module):
 
         # Always return a tensor to make tracing stable
         return x
-    
+
+
 class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
     """
     fvcore-friendly wrapper for Darknet assuming is_nn_part1 == False only.
@@ -436,7 +455,7 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
         super().__init__()
         self.darknet = darknet
         self.features = features  # dict[int, Tensor]
-        
+
         self.is_nn_part1 = False  # fixed for this wrapper
 
     def forward(self, x_dummy: torch.Tensor) -> torch.Tensor:
@@ -476,7 +495,7 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
             zip(module_defs[sidx:eidx], module_list[sidx:eidx])
         ):
             nn_idx = i + sidx
-                        
+
             # --- Feature injection (same as original) ---
             if nn_idx in features.keys():
                 x = features[nn_idx]
@@ -484,7 +503,9 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
                 features.pop(nn_idx)
                 had_yolo = False
                 continue
-            elif had_yolo is True and len(features) > 0 and nn_idx < min(features.keys()):
+            elif (
+                had_yolo is True and len(features) > 0 and nn_idx < min(features.keys())
+            ):
                 continue
 
             mtype = module_def["type"]
@@ -503,7 +524,7 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
                 x = layer_outputs[-1] + layer_outputs[layer_i]
 
             elif mtype == "yolo":
-                x = module[0](x, self.darknet.img_size) 
+                x = module[0](x, self.darknet.img_size)
                 had_yolo = True
                 # Keep x unchanged
 
@@ -511,11 +532,13 @@ class DarknetNNPart2BackboneOnlyFvcoreWrapper(nn.Module):
 
         # Always return a Tensor so fvcore can produce FLOPs stats
         return x
-    
+
+
 def elemwise_flop_jit(inputs, outputs):
     # outputs can be Tensor or tuple/list of Tensors
     out = outputs[0] if isinstance(outputs, (tuple, list)) else outputs
     return prod(get_shape(out))  # 1 flop per output element (approx.)
+
 
 def max_pool2d_flop_jit(inputs, outputs):
     """
@@ -546,6 +569,7 @@ def max_pool2d_flop_jit(inputs, outputs):
     # comparisons per output = kH*kW - 1
     return int(out_numel) * max(int(kH) * int(kW) - 1, 0)
 
+
 def _value_sizes(v):
     """
     Get static tensor sizes from torch._C.Value (JIT IR value).
@@ -559,6 +583,7 @@ def _value_sizes(v):
         pass
     return None
 
+
 def _value_numel(v):
     sizes = _value_sizes(v)
     if not sizes or any(s is None for s in sizes):
@@ -567,6 +592,7 @@ def _value_numel(v):
     for s in sizes:
         n *= int(s)
     return n
+
 
 def _to_ivalue(v, default=None):
     """
