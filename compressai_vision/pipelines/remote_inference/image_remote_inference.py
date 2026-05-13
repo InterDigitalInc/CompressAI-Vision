@@ -68,6 +68,17 @@ class ImageRemoteInference(BasePipeline):
         super().__init__(configs, device)
         self._compress_after_resizing = configs["codec"]["compress_after_resizing"]
 
+    def _get_coded_img_size(
+        self, sample: Dict, org_map_func, org_img_size: Dict
+    ) -> Dict:
+        if not self._compress_after_resizing:
+            return org_img_size
+
+        mapped = org_map_func({"file_name": sample["file_name"]})
+        img = mapped["image"]
+        h, w = img.shape[-2], img.shape[-1]
+        return {"height": int(h), "width": int(w)}
+
     def __call__(
         self,
         vision_model: BaseWrapper,
@@ -145,12 +156,15 @@ class ImageRemoteInference(BasePipeline):
                 if "output10b" in self.configs["codec"]
                 else False
             )
+
+            coded_img_size = self._get_coded_img_size(d[0], org_map_func, org_img_size)
+
             dec_seq, dec_time_by_module, mac_computation = self._decompress(
                 codec,
                 res["bitstream"],
                 self.codec_output_dir,
                 file_prefix,
-                org_img_size,
+                coded_img_size,
                 remote_inference=True,
                 vcm_mode=self.configs["codec"]["vcm_mode"],
                 output10b=output10b,
