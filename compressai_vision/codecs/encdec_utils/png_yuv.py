@@ -122,6 +122,14 @@ class PngFilesToYuvFileConverter:
                         ".png" if src_ext not in [".png", ".jpg", ".jpeg"] else src_ext
                     )
                     out_file = temp_dir / f"{i:06d}{out_ext}"
+
+                    image_format = "RGB"
+                    if hasattr(resize_mapper, "image_format"):
+                        image_format = resize_mapper.image_format
+
+                    if image_format == "BGR":
+                        resized_img = resized_img[:, :, ::-1]
+
                     Image.fromarray(resized_img).save(out_file)
                     resized_file_names.append(str(out_file))
 

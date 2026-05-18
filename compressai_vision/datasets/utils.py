@@ -102,6 +102,11 @@ class MMPOSECustomMapper:
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])
 
+    @property
+    def image_format(self):
+        # A model using this mapper requires the image to be returned in BGR format.
+        return "BGR"
+
     def compute_scale_and_center(self, src_img_width, src_img_height):
         _input_h, _input_w = self.input_img_size
         _ratio = src_img_width / src_img_height
@@ -201,6 +206,11 @@ class YOLOXCustomMapper:
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])
 
+    @property
+    def image_format(self):
+        # A model using this mapper requires the image to be returned in BGR format.
+        return "BGR"
+
     def __call__(self, dataset_dict):
         """
         Args:
@@ -274,6 +284,11 @@ class JDECustomMapper:
 
         self.height, self.width = img_size
 
+    @property
+    def image_format(self):
+        # A model using this mapper requires the image to be returned in BGR format.
+        return "RGB"
+
     def __call__(self, dataset_dict):
         """
         Args:
@@ -317,6 +332,11 @@ class SAMCustomMapper:
         self.augmentation_bypass = augmentation_bypass
         self.target_size = img_size
         self.transform = ResizeLongestSide(img_size)
+
+    @property
+    def image_format(self):
+        # A model using this mapper requires the image to be returned in BGR format.
+        return "RGB"
 
     def __call__(self, dataset_dict):
         """
@@ -374,6 +394,11 @@ class LinearMapper:
         """
 
         self.bgr_output = bgr
+
+    @property
+    def image_format(self):
+        # A model using this mapper requires the image to be returned in BGR format.
+        return "BGR" if self.bgr_output else "RGB"
 
     def __call__(self, dataset_dict):
         """
