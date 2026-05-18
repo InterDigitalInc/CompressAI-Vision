@@ -115,7 +115,11 @@ class ImageRemoteInference(BasePipeline):
                     "org_input_size": org_img_size,
                 }
 
-                resize_mapper = org_map_func if self._compress_after_resizing else None
+                resize_mapper = (
+                    dataloader.dataset.get_org_mapper_func(use_rgb=True)
+                    if self._compress_after_resizing
+                    else None
+                )
 
                 res, enc_time_details, _ = self._compress(
                     codec,

@@ -87,6 +87,7 @@ class MMPOSECustomMapper:
         size_factor=32,
         pad_val=[114, 114, 114],
         aug_transforms=None,
+        use_rgb=False,
     ):
         """
         Args:
@@ -101,6 +102,8 @@ class MMPOSECustomMapper:
             self.aug_transforms = aug_transforms
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])
+
+        self.use_rgb = use_rgb
 
     def compute_scale_and_center(self, src_img_width, src_img_height):
         _input_h, _input_w = self.input_img_size
@@ -137,6 +140,8 @@ class MMPOSECustomMapper:
         # tried to replicate the implemetation of the original codes
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
+        if self.use_rgb:
+            org_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2RGB)
 
         assert (
             len(org_img.shape) == 3
@@ -188,7 +193,7 @@ class YOLOXCustomMapper:
 
     """
 
-    def __init__(self, img_size=[640, 640], aug_transforms=None):
+    def __init__(self, img_size=[640, 640], aug_transforms=None, use_rgb=False):
         """
         Args:
             img_size: expected input size (Height, Width)
@@ -200,6 +205,8 @@ class YOLOXCustomMapper:
             self.aug_transforms = aug_transforms
         else:
             self.aug_transforms = transforms.Compose([transforms.ToTensor()])
+
+        self.use_rgb = use_rgb
 
     def __call__(self, dataset_dict):
         """
@@ -218,6 +225,9 @@ class YOLOXCustomMapper:
         # replicate the implemetation of the original codes
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
+
+        if self.use_rgb:
+            org_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2RGB)
 
         assert (
             len(org_img.shape) == 3

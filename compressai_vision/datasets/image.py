@@ -259,16 +259,12 @@ class Detectron2Dataset(BaseDataset):
             ), "A proper mapper information via cfg must be provided"
             mapper = DatasetMapper(kwargs["cfg"], False)
 
-        self._org_mapper_func = PicklableWrapper(DatasetMapper(kwargs["cfg"], False))
+        self._cfg = kwargs["cfg"]
+        self._org_mapper_func = self._build_mapper_func(self._cfg)
 
         if self.input_agumentation_bypass:
             emptyAugList = AugmentationList([])
             mapper.augmentations = emptyAugList
-
-            if hasattr(self._org_mapper_func, "_obj"):
-                self._org_mapper_func._obj.augmentations = emptyAugList
-            else:
-                self._org_mapper_func.augmentations = emptyAugList
 
         self.mapDataset = MapDataset(_dataset, mapper)
 
@@ -281,7 +277,22 @@ class Detectron2Dataset(BaseDataset):
         except AttributeError:
             self.logger.warning("No attribute: thing_classes")
 
-    def get_org_mapper_func(self):
+    def _build_mapper_func(self, cfg):
+        mapper = DatasetMapper(cfg, False)
+        if self.input_agumentation_bypass:
+            mapper.augmentations = AugmentationList([])
+        return PicklableWrapper(mapper)
+
+    def _get_rgb_cfg(self):
+        cfg = self._cfg.clone()
+        cfg.defrost()
+        cfg.INPUT.FORMAT = "RGB"
+        cfg.freeze()
+        return cfg
+
+    def get_org_mapper_func(self, use_rgb=False):
+        if use_rgb:
+            return self._build_mapper_func(self._get_rgb_cfg())
         return self._org_mapper_func
 
     def __getitem__(self, idx):
@@ -327,7 +338,7 @@ class SamDataset(BaseDataset):
         except AttributeError:
             self.logger.warning("No attribute: thing_classes")
 
-    def get_org_mapper_func(self):
+    def get_org_mapper_func(self, use_rgb=False):
         return self._org_mapper_func
 
     def __getitem__(self, idx):
@@ -357,7 +368,7 @@ class TrackingDataset(BaseDataset):
         self.mapDataset = MapDataset(_dataset, mapper)
         self._org_mapper_func = PicklableWrapper(JDECustomMapper(kwargs["patch_size"]))
 
-    def get_org_mapper_func(self):
+    def get_org_mapper_func(self, use_rgb=False):
         return self._org_mapper_func
 
     def __getitem__(self, idx):
@@ -389,7 +400,6 @@ class YOLOXDataset(BaseDataset):
         self._org_mapper_func = PicklableWrapper(
             YOLOXCustomMapper(kwargs["patch_size"])
         )
-
         metaData = MetadataCatalog.get(dataset_name)
         try:
             self.thing_classes = metaData.thing_classes
@@ -399,7 +409,9 @@ class YOLOXDataset(BaseDataset):
         except AttributeError:
             self.logger.warning("No attribute: thing_classes")
 
-    def get_org_mapper_func(self):
+    def get_org_mapper_func(self, use_rgb=False):
+        if use_rgb:
+            return PicklableWrapper(YOLOXCustomMapper(self.input_size, use_rgb=True))
         return self._org_mapper_func
 
     def __getitem__(self, idx):
@@ -441,7 +453,9 @@ class MMPOSEDataset(BaseDataset):
         except AttributeError:
             self.logger.warning("No attribute: thing_classes")
 
-    def get_org_mapper_func(self):
+    def get_org_mapper_func(self, use_rgb=False):
+        if use_rgb:
+            return PicklableWrapper(MMPOSECustomMapper(self.input_size, use_rgb=True))
         return self._org_mapper_func
 
     def __getitem__(self, idx):
