@@ -334,7 +334,7 @@ def generate_csv(result_path, seq_list, nb_operation_points):
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
-    result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
+    # result_df["end_accuracy"] = result_df["end_accuracy"].apply(lambda x: x * 100)
 
     return result_df
 
@@ -359,7 +359,7 @@ if __name__ == "__main__":
         "--dataset_name",
         required=True,
         default="SFU",
-        choices=["SFU", "OIV6", "TVD", "HIEVE", "PANDASET"],
+        choices=["SFU", "OIV6", "TVD", "HIEVE", "PANDASET", "OIV6-DET", "OIV6-SEG"],
         help="CTTC Evaluation Dataset (default: %(default)s)",
     )
     parser.add_argument(
@@ -408,9 +408,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    dataset_name_test = args.dataset_name.lower().split("-")[0]
     assert (
-        args.dataset_name.lower() in Path(args.dataset_path).name.lower()
-        and args.dataset_name.lower() in Path(args.result_path).name.lower()
+        dataset_name_test in Path(args.dataset_path).name.lower()
+        and dataset_name_test in Path(args.result_path).name.lower()
     ), "Please check correspondance between input dataset name and result directory"
 
     norm_result_path = os.path.normpath(args.result_path) + "/"
@@ -490,13 +491,17 @@ if __name__ == "__main__":
                 perf_name="end_accuracy",
                 rate_name="bitrate (kbps)",
             )
-    elif args.dataset_name == "OIV6":
+    elif args.dataset_name in ["OIV6", "OIV6-DET", "OIV6-SEG"]:
+        if args.dataset_name == "OIV6-DET":
+            test_list = ["mpeg-oiv6-detection"]
+        elif args.dataset_name == "OIV6-SEG":
+            test_list = ["mpeg-oiv6-segmentation"]
+        else:
+            test_list = ["mpeg-oiv6-detection", "mpeg-oiv6-segmentation"]
+
         output_df = generate_csv(
             norm_result_path,
-            [
-                "mpeg-oiv6-segmentation",
-                "mpeg-oiv6-detection",
-            ],
+            test_list,
             args.nb_operation_points,
         )
     elif args.dataset_name == "TVD":
