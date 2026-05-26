@@ -88,7 +88,27 @@ class VideoSplitInference(BasePipeline):
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
         gt_inputs = []
         file_names = []
-        for _, d in enumerate(dataloader):
+
+        raw_dataset = getattr(dataloader.dataset, "dataset", None)
+        if raw_dataset is not None:
+            try:
+                for sample in raw_dataset:
+                    gt_inputs.append(
+                        [
+                            {
+                                "image_id": sample["image_id"],
+                                "height": sample["height"],
+                                "width": sample["width"],
+                            },
+                        ]
+                    )
+                    file_names.append(sample["file_name"])
+                return gt_inputs, file_names
+            except KeyError:
+                gt_inputs = []
+                file_names = []
+
+        for _, d in enumerate(tqdm(dataloader, desc="Building video input list")):
             gt_inputs.append(
                 [
                     {
