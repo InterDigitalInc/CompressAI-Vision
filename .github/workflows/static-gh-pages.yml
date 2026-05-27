@@ -4,19 +4,24 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
+
 jobs:
   docs_to_gh-pages:
     runs-on: ubuntu-latest
     name: publish documentation
     steps:
-      - uses: actions/checkout@v4
-        with: 
+      - uses: actions/checkout@v6
+        with:
           submodules: recursive
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           python-version: '3.8'
+          activate-environment: true
 
       - name: Install doc dependencies and build docs
         run: |
@@ -26,19 +31,11 @@ jobs:
           cd docs
           uv run --no-sync make html
 
-      - name: Init repo for generated files
-        run: |
-          cd docs/_build/html
-          git init
-          touch .nojekyll
-          git add --all
-          git config --local user.email "compressai@interdigital.com"
-          git config --local user.name "CompressAI"
-          git commit -m "deploy"
-
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4.1.0
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
+          user_name: CompressAI
+          user_email: compressai@interdigital.com

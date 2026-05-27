@@ -10,14 +10,15 @@ jobs:
         python-version:
           - "3.8"
     steps:
-    - uses: actions/checkout@v4
-      with: 
+    - uses: actions/checkout@v6
+      with:
         submodules: recursive
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ matrix.python-version }}
+        activate-environment: true
 
     - name: Install the project
       run: |
