@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "compressai-vision"
-version = "1.1.15"
+version = "1.1.15.dev0"
 description = "Evaluation pipelines for Video Compression for Machine Vision on top of CompressAI"
 authors = [
     { name = "CompressAI-Vision team", email = "compressai@interdigital.com" },
