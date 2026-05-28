@@ -61,23 +61,9 @@ thisdir = Path(__file__).parent
 root_path = thisdir.joinpath("../..")
 
 
-class Boxes:
-    def __init__(self, tensor):
-        self.tensor = tensor
-
-    def __len__(self):
-        return self.tensor.shape[0]
-
-    def __repr__(self):
-        return f"Boxes(tensor({self.tensor}))"
-
-
 def mask_to_bbx(mask):
-    if not isinstance(mask, np.ndarray):
-        mask = mask.cpu()
-        mask = np.array(mask)
-
-    mask = np.squeeze(mask)
+    mask = mask.cpu()
+    mask = np.squeeze(np.array(mask))
     h, w = mask.shape[-2:]
     rows, cols = np.where(mask)
 
@@ -106,6 +92,7 @@ class Split_Points(Enum):
 class SAM(BaseWrapper):
     def __init__(self, device: str, **kwargs):
         from segment_anything import sam_model_registry
+        from segment_anything.utils.transforms import ResizeLongestSide
 
         super().__init__(device)
         self.sam_model_registry = sam_model_registry
@@ -144,6 +131,8 @@ class SAM(BaseWrapper):
             zip(self.split_layer_list, [None] * len(self.split_layer_list))
         )
 
+        self.sam_resize = ResizeLongestSide(self.image_encoder.img_size)
+
     @property
     def SPLIT_IMGENC(self):
         return str(self.supported_split_points.ImageEncoder)
@@ -153,12 +142,14 @@ class SAM(BaseWrapper):
         # [TODO] should be improved...
         prompt_link = file_name.replace("/images/", "/prompts/").replace(".jpg", ".txt")
 
+        prompts = []
+        object_classes = []
+
         with open(prompt_link, "r") as f:
-            line = f.readline()
-            # first_two = list(map(int, line.strip().split()[:2]))
-            parts = line.strip().split()
-            prompts = list(map(int, parts[:2]))
-            object_classes = [int(line.strip().split()[-1])]
+            for line in f:
+                parts = line.strip().split()
+                prompts.append(list(map(int, parts[:2])))
+                object_classes.append(int(parts[-1]))
 
         return prompts, object_classes
 
@@ -235,67 +226,71 @@ class SAM(BaseWrapper):
         performs  downstream task using the encoded image feature
 
         """
-        # print("prompts object_classes", prompts,  object_classes)
 
-        input_points = [prompts]  # [[469, 295]] #prompts["points"]
-        input_points = np.array(input_points)
-        input_points_ = torch.tensor(input_points, device=device)
-        input_points_ = input_points_.unsqueeze(-1)
-        input_points_ = input_points_.permute(2, 0, 1)
+        instances_list = []
+        for i in range(len(prompts)):
+            input_points = np.array([prompts[i]], dtype=np.float32)
+            input_points = self.sam_resize.apply_coords(
+                input_points,
+                (org_img_size["height"], org_img_size["width"]),
+            )
+            input_points_ = torch.tensor(input_points, device=device)
+            input_points_ = input_points_.unsqueeze(0)  # (1, 1, 2)
 
-        input_labels = np.array([1])
-        input_labels_ = torch.tensor(input_labels)
-        input_labels_ = input_labels_.unsqueeze(-1)
-        input_labels_ = input_labels_.permute(1, 0)
+            input_labels = np.array([1])
+            input_labels_ = torch.tensor(input_labels)
+            input_labels_ = input_labels_.unsqueeze(0)
 
-        points = (input_points_, torch.tensor(input_labels_, device=device))
-        prompt_feature = self.prompt_encoder(points=points, boxes=None, masks=None)
-        image_pe = self.prompt_encoder.get_dense_pe()
+            points = (input_points_, torch.tensor(input_labels_, device=device))
+            prompt_feature = self.prompt_encoder(points=points, boxes=None, masks=None)
+            image_pe = self.prompt_encoder.get_dense_pe()
 
-        low_res_masks, iou_pred = self.model.mask_decoder(
-            image_embeddings=x["imgenc"],
-            image_pe=image_pe,
-            sparse_prompt_embeddings=prompt_feature[0],
-            dense_prompt_embeddings=prompt_feature[1],
-            multimask_output=False,
-        )
+            low_res_masks, iou_pred = self.model.mask_decoder(
+                image_embeddings=x["imgenc"],
+                image_pe=image_pe,
+                sparse_prompt_embeddings=prompt_feature[0],
+                dense_prompt_embeddings=prompt_feature[1],
+                multimask_output=False,
+            )
 
-        # post process mask
-        masks = F.interpolate(
-            low_res_masks,
-            (self.image_encoder.img_size, self.image_encoder.img_size),
-            mode="bilinear",
-            align_corners=False,
-        )
-        masks = masks[..., : input_img_size[0], : input_img_size[1]]
-        masks = F.interpolate(
-            masks,
-            (org_img_size["height"], org_img_size["width"]),
-            mode="bilinear",
-            align_corners=False,
-        )
+            # post process mask
+            masks = F.interpolate(
+                low_res_masks,
+                (self.image_encoder.img_size, self.image_encoder.img_size),
+                mode="bilinear",
+                align_corners=False,
+            )
+            masks = masks[..., : input_img_size[0], : input_img_size[1]]
+            masks = F.interpolate(
+                masks,
+                (org_img_size["height"], org_img_size["width"]),
+                mode="bilinear",
+                align_corners=False,
+            )
 
-        mask_threshold = 0.0
-        masks = masks > mask_threshold
+            mask_threshold = 0.0
+            masks = masks > mask_threshold
 
-        # post process result
-        processed_results = []
-        boxes = mask_to_bbx(masks[0])
-        boxes = Boxes(torch.tensor(np.array([boxes])))
-        scores = torch.tensor([iou_pred])
-        classes = torch.tensor(object_classes)
+            from detectron2.structures import Boxes, Instances
 
-        from detectron2.structures import Instances
+            # post process result
+            boxes = mask_to_bbx(masks[0])
+            boxes = Boxes(torch.tensor(np.array([boxes])))
+            scores = torch.tensor([iou_pred])
+            classes = torch.tensor([object_classes[i]], dtype=torch.int64)
 
-        # Create an instance
-        instances = Instances(image_size=(input_img_size[0], input_img_size[1]))
-        instances.set("pred_boxes", boxes)
-        instances.set("scores", scores)
-        instances.set("pred_classes", classes)
-        instances.set("pred_masks", masks[0])
+            # Create an instance
+            instances = Instances(
+                image_size=(org_img_size["height"], org_img_size["width"])
+            )
+            instances.set("pred_boxes", boxes)
+            instances.set("scores", scores)
+            instances.set("pred_classes", classes)
+            instances.set("pred_masks", masks[0])
+            instances_list.append(instances)
 
-        processed_results.append({"instances": instances})
-        return processed_results
+        all_instances = Instances.cat(instances_list)
+        return [{"instances": all_instances}]
 
     @torch.no_grad()
     def forward(self, x):

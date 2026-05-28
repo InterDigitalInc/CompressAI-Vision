@@ -7,7 +7,6 @@ OUTPUT_DIR=""
 EXPERIMENT="test"
 DEVICE="cpu"
 QP=42
-SEQ=""
 PIPELINE_PARAMS=""
 PIPELINE="split"
 
@@ -28,7 +27,6 @@ RUN OPTIONS:
                 [-e|--exp_name) name of the experiments to locate/label outputs, default="test"]
                 [-d|--device) cuda or cpu, default="cpu"]
                 [-q|--qp) quality level, depends on the inner codec, default=42]
-                [-s|--seq_name) sequence name as used in testdata root folder. E.g., "Traffic_2560x1600_30_val" in sfu_hw_obj, default="42"]
                 [-x|--extra_params) additional parameters to override default configs (pipeline/codec/evaluation...), default=""]
 EXAMPLE         [bash eval_on_mpeg_oiv6_hm.sh -t /path/to/testdata -p split -i /path/to/VTM_repo -d cpu -q 32 -s Traffic_2560x1600_30_val]
 _EOF_
@@ -41,7 +39,6 @@ _EOF_
         -e|--exp_name) shift; EXPERIMENT="$1"; shift; ;;
         -d|--device) shift; DEVICE="$1"; shift; ;;
         -q|--qp) shift; QP="$1"; shift; ;;
-        -s|--seq_name) shift; SEQ="$1"; shift; ;;
         -x|--extra_params) shift; declare -a PIPELINE_PARAMS="($1)"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
@@ -58,18 +55,6 @@ if [[ ${PIPELINE} == "remote" ]]; then
 fi
 
 
-declare -A network_model
-declare -A task_type
-
-network_model["mpeg-oiv6-detection"]="faster_rcnn_X_101_32x8d_FPN_3x"
-task_type["mpeg-oiv6-detection"]="obj"
-
-network_model["mpeg-oiv6-segmentation"]="mask_rcnn_X_101_32x8d_FPN_3x"
-task_type["mpeg-oiv6-segmentation"]="seg"
-
-
-NETWORK_MODEL=${network_model[${SEQ}]}
-TASK_TYPE=${task_type[${SEQ}]}
 INTRA_PERIOD=1
 FRAME_RATE=1
 
@@ -79,13 +64,12 @@ echo "Datatset location:  " ${FCM_TESTDATA}
 echo "Output directory:   " ${OUTPUT_DIR}
 echo "Experiment folder:  " "hm"${EXPERIMENT}
 echo "Running Device:     " ${DEVICE}
-echo "Input sequence:     " ${SEQ}
 echo "Seq. Framerate:     " ${FRAME_RATE}
 echo "QP for Inner Codec: " ${QP}
 echo "Intra Period for Inner Codec: "${INTRA_PERIOD}
 echo "Other Parameters:   " ${PIPELINE_PARAMS[@]}
 echo "=================================================================================================="
- 
+
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
         ++pipeline.type=image \
         ++paths._run_root=${OUTPUT_DIR} \

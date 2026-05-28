@@ -45,7 +45,7 @@ from torch.nn import functional as F
 from compressai_vision.registry import register_vision_model
 
 from .base_wrapper import BaseWrapper
-from .sam import Boxes, mask_to_bbx
+from .sam import mask_to_bbx
 
 # sam = sam_model_registry["vit_h"](checkpoint="/t/vic/hevc_simulations/rosen/build/compressai13_sam/weights/sam/sam_vit_h_4b8939.pth")
 # predictor = SamPredictor(sam)
@@ -193,7 +193,7 @@ class SAM2(BaseWrapper):
 
         assert len(masks) == len(iou_pred)
 
-        from detectron2.structures import Instances
+        from detectron2.structures import Boxes, Instances
 
         # post process result
         processed_results = []
