@@ -35,7 +35,6 @@ from __future__ import annotations
 
 import argparse
 import os
-
 from glob import iglob
 from os.path import join
 from pathlib import Path
@@ -43,7 +42,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import utils
-
 from compute_per_class_map import compute_per_class_mAP
 from compute_per_class_miou import compute_per_class_mIoU
 from compute_per_class_mota import compute_per_class_mota
@@ -61,9 +59,10 @@ def read_df_rec(
     seq_list,
     nb_operation_points,
     fn_regex=r"summary.csv",
+    allow_incomplete_operation_points=False,
 ):
     all_summary_csvs = [f for f in iglob(join(path, "**", fn_regex), recursive=True)]
-    if nb_operation_points > 0:
+    if nb_operation_points > 0 and not allow_incomplete_operation_points:
         seq_names = [
             file_path.split(path)[1].split("/")[0] for file_path in all_summary_csvs
         ]
@@ -85,7 +84,12 @@ def read_df_rec(
             if match:
                 matched_summary_csvs.append([seq, all_summary_csvs[idx]])
                 found_at_least_one = True
-        assert found_at_least_one, f"Found no summary.csv files for {seq}"
+        if not allow_incomplete_operation_points:
+            assert found_at_least_one, f"Found no summary.csv files for {seq}"
+        elif not found_at_least_one:
+            print(f"WARNING: Found no summary.csv files for {seq}; skipping sequence")
+
+    assert matched_summary_csvs, "Found no matching summary.csv files"
 
     dfs = []
     for seq, f in matched_summary_csvs:
@@ -94,6 +98,71 @@ def read_df_rec(
         df["Dataset"] = seq
         dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
+
+
+def _available_qps(result_df, sequences):
+    qps = result_df.loc[result_df["Dataset"].isin(sequences), "qp"].unique()
+    return sorted(int(qp) for qp in qps)
+
+
+def _eval_items_for_qp(
+    result_path,
+    dataset_path,
+    qp,
+    seq_list,
+    eval_func,
+    by_name=False,
+    pandaset_flag=False,
+    gt_folder="annotations",
+    seq_prefix=None,
+    dataset_prefix=None,
+):
+    items = []
+    for seq_name in seq_list:
+        if by_name:
+            result = utils.get_folder_path_by_seq_name(
+                seq_name, result_path, dataset_prefix
+            )
+            if result is None:
+                continue
+            eval_folder, dname = result
+            if pandaset_flag:
+                seq_info_path, seq_gt_path = (
+                    utils.get_seq_info_path_by_seq_name_pandaset(
+                        seq_name, dataset_path, gt_folder
+                    )
+                )
+            else:
+                gt_lookup_name = (
+                    seq_name.split(seq_prefix)[-1] if seq_prefix else seq_name
+                )
+                seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_name(
+                    gt_lookup_name, dataset_path, gt_folder
+                )
+        else:
+            seq_num = utils.get_seq_number(seq_name)
+            result = utils.get_folder_path_by_seq_num(seq_num, result_path)
+            if result is None:
+                continue
+            eval_folder, dname = result
+            seq_info_path, seq_gt_path = utils.get_seq_info_path_by_seq_num(
+                seq_num, dataset_path
+            )
+
+        eval_info_path = Path(eval_folder) / f"qp{qp}" / "evaluation" / eval_func(dname)
+        if not eval_info_path.is_file():
+            continue
+
+        items.append(
+            {
+                utils.SEQ_NAME_KEY: dname,
+                utils.SEQ_INFO_KEY: seq_info_path,
+                utils.EVAL_INFO_KEY: str(eval_info_path),
+                utils.GT_INFO_KEY: seq_gt_path,
+            }
+        )
+
+    return items
 
 
 def df_append(df1, df2):
@@ -158,6 +227,35 @@ def compute_per_class_results(result_df, name, sequences):
     return output
 
 
+def compute_available_per_class_results(result_df, name, sequences, qps):
+    output = result_df.drop(columns=["fps", "num_of_coded_frame"]).head(0).copy()
+
+    for qp in qps:
+        points = result_df.loc[
+            (result_df["Dataset"].isin(sequences)) & (result_df["qp"] == qp)
+        ].copy()
+        if points.empty:
+            continue
+
+        points["length"] = points["num_of_coded_frame"] / points["fps"]
+        total_length = points["length"].sum()
+        new_row = {
+            output.columns[0]: [name],
+            output.columns[1]: [qp],
+        }
+        for column in output.columns[2:]:
+            if column == "end_accuracy":
+                new_row[column] = -1
+                continue
+
+            weighted = points[column] * points["length"]
+            new_row[column] = [(1 / total_length) * weighted.sum()]
+
+        output = df_append(output, pd.DataFrame(new_row))
+
+    return output
+
+
 def generate_csv_classwise_video_map(
     result_path,
     dataset_path,
@@ -168,11 +266,18 @@ def generate_csv_classwise_video_map(
     skip_classwise: bool = False,
     seq_prefix: str = None,
     dataset_prefix: str = None,
+    allow_incomplete_operation_points: bool = False,
 ):
     seq_list = [seq for sequences in dict_of_class_seq.values() for seq in sequences]
 
     opts_metrics = {"AP": 0, "AP50": 1, "AP75": 2, "APS": 3, "APM": 4, "APL": 5}
-    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
+    results_df = read_df_rec(
+        result_path,
+        dataset_prefix,
+        seq_list,
+        nb_operation_points,
+        allow_incomplete_operation_points=allow_incomplete_operation_points,
+    )
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -186,18 +291,36 @@ def generate_csv_classwise_video_map(
 
     for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_maps = []
-        for q in range(nb_operation_points):
-            items = utils.search_items(
-                result_path,
-                dataset_path,
-                q,
-                class_seqs,
-                BaseEvaluator.get_coco_eval_info_name,
-                by_name=True,
-                gt_folder=gt_folder,
-                seq_prefix=seq_prefix,
-                dataset_prefix=dataset_prefix,
-            )
+        rate_points = (
+            _available_qps(results_df, class_seqs)
+            if allow_incomplete_operation_points
+            else range(nb_operation_points)
+        )
+        for q in rate_points:
+            if allow_incomplete_operation_points:
+                items = _eval_items_for_qp(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_coco_eval_info_name,
+                    by_name=True,
+                    gt_folder=gt_folder,
+                    seq_prefix=seq_prefix,
+                    dataset_prefix=dataset_prefix,
+                )
+            else:
+                items = utils.search_items(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_coco_eval_info_name,
+                    by_name=True,
+                    gt_folder=gt_folder,
+                    seq_prefix=seq_prefix,
+                    dataset_prefix=dataset_prefix,
+                )
 
             assert (
                 len(items) > 0
@@ -209,9 +332,14 @@ def generate_csv_classwise_video_map(
                 class_wise_maps.append(maps)
 
         if not skip_classwise and nb_operation_points > 0:
-            class_wise_results_df = generate_class_df(
-                results_df, {class_name: class_seqs}
-            )
+            if allow_incomplete_operation_points:
+                class_wise_results_df = compute_available_per_class_results(
+                    results_df, class_name, class_seqs, rate_points
+                )
+            else:
+                class_wise_results_df = generate_class_df(
+                    results_df, {class_name: class_seqs}
+                )
             class_wise_results_df["end_accuracy"] = class_wise_maps
 
             output_df = df_append(output_df, class_wise_results_df)
@@ -225,11 +353,18 @@ def generate_csv_classwise_video_mota(
     dict_of_class_seq,
     nb_operation_points: int = 4,
     dataset_prefix: str = None,
+    allow_incomplete_operation_points: bool = False,
 ):
     seq_list = []
     [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
-    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
+    results_df = read_df_rec(
+        result_path,
+        dataset_prefix,
+        seq_list,
+        nb_operation_points,
+        allow_incomplete_operation_points=allow_incomplete_operation_points,
+    )
     results_df = results_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
 
     # accuracy in % for MPEG template
@@ -241,14 +376,28 @@ def generate_csv_classwise_video_mota(
 
     for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_motas = []
-        for q in range(nb_operation_points):
-            items = utils.search_items(
-                result_path,
-                dataset_path,
-                q,
-                class_seqs,
-                BaseEvaluator.get_jde_eval_info_name,
-            )
+        rate_points = (
+            _available_qps(results_df, class_seqs)
+            if allow_incomplete_operation_points
+            else range(nb_operation_points)
+        )
+        for q in rate_points:
+            if allow_incomplete_operation_points:
+                items = _eval_items_for_qp(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_jde_eval_info_name,
+                )
+            else:
+                items = utils.search_items(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_jde_eval_info_name,
+                )
 
             assert (
                 len(items) > 0
@@ -260,9 +409,14 @@ def generate_csv_classwise_video_mota(
             class_wise_motas.append(mota)
 
         if nb_operation_points > 0:
-            class_wise_results_df = generate_class_df(
-                results_df, {class_name: class_seqs}
-            )
+            if allow_incomplete_operation_points:
+                class_wise_results_df = compute_available_per_class_results(
+                    results_df, class_name, class_seqs, rate_points
+                )
+            else:
+                class_wise_results_df = generate_class_df(
+                    results_df, {class_name: class_seqs}
+                )
 
             class_wise_results_df["end_accuracy"] = class_wise_motas
 
@@ -277,11 +431,18 @@ def generate_csv_classwise_video_miou(
     dict_of_class_seq,
     nb_operation_points: int = 4,
     dataset_prefix: str = None,
+    allow_incomplete_operation_points: bool = False,
 ):
     seq_list = []
     [seq_list.extend(sequences) for sequences in dict_of_class_seq.values()]
 
-    results_df = read_df_rec(result_path, dataset_prefix, seq_list, nb_operation_points)
+    results_df = read_df_rec(
+        result_path,
+        dataset_prefix,
+        seq_list,
+        nb_operation_points,
+        allow_incomplete_operation_points=allow_incomplete_operation_points,
+    )
 
     # sort
     sorterIndex = dict(zip(seq_list, range(len(seq_list))))
@@ -295,16 +456,32 @@ def generate_csv_classwise_video_miou(
 
     for class_name, class_seqs in dict_of_class_seq.items():
         class_wise_mious = []
-        for q in range(nb_operation_points):
-            items = utils.search_items(
-                result_path,
-                dataset_path,
-                q,
-                class_seqs,
-                BaseEvaluator.get_miou_eval_info_name,
-                by_name=True,
-                pandaset_flag=True,
-            )
+        rate_points = (
+            _available_qps(results_df, class_seqs)
+            if allow_incomplete_operation_points
+            else range(nb_operation_points)
+        )
+        for q in rate_points:
+            if allow_incomplete_operation_points:
+                items = _eval_items_for_qp(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_miou_eval_info_name,
+                    by_name=True,
+                    pandaset_flag=True,
+                )
+            else:
+                items = utils.search_items(
+                    result_path,
+                    dataset_path,
+                    q,
+                    class_seqs,
+                    BaseEvaluator.get_miou_eval_info_name,
+                    by_name=True,
+                    pandaset_flag=True,
+                )
 
             assert (
                 len(items) > 0
@@ -318,7 +495,14 @@ def generate_csv_classwise_video_miou(
             name, _, _ = get_seq_info(seq_info[utils.SEQ_INFO_KEY])
             matched_seq_names.append(name)
 
-        class_wise_results_df = generate_class_df(results_df, {class_name: class_seqs})
+        if allow_incomplete_operation_points:
+            class_wise_results_df = compute_available_per_class_results(
+                results_df, class_name, class_seqs, rate_points
+            )
+        else:
+            class_wise_results_df = generate_class_df(
+                results_df, {class_name: class_seqs}
+            )
 
         class_wise_results_df["end_accuracy"] = class_wise_mious
 
@@ -327,8 +511,16 @@ def generate_csv_classwise_video_miou(
     return output_df
 
 
-def generate_csv(result_path, seq_list, nb_operation_points):
-    result_df = read_df_rec(result_path, "", seq_list, nb_operation_points)
+def generate_csv(
+    result_path, seq_list, nb_operation_points, allow_incomplete_operation_points=False
+):
+    result_df = read_df_rec(
+        result_path,
+        "",
+        seq_list,
+        nb_operation_points,
+        allow_incomplete_operation_points=allow_incomplete_operation_points,
+    )
 
     # sort
     result_df = result_df.sort_values(by=["Dataset", "qp"], ascending=[True, True])
@@ -374,6 +566,13 @@ if __name__ == "__main__":
         type=int,
         default=4,
         help="number of rate points (qps) per sequence / class",
+    )
+    parser.add_argument(
+        "--allow_incomplete_operation_points",
+        "--allow-incomplete-operation-points",
+        action="store_true",
+        default=False,
+        help="Generate CSVs from available summary.csv files without requiring every sequence to have --nb_operation_points results.",
     )
     parser.add_argument(
         "--gt_folder",
@@ -482,6 +681,7 @@ if __name__ == "__main__":
             args.mode == "VCM",  # skip classwise evaluation
             seq_prefix="ns_",
             dataset_prefix="sfu-hw-",
+            allow_incomplete_operation_points=args.allow_incomplete_operation_points,
         )
 
         if args.mode == "VCM":
@@ -503,6 +703,7 @@ if __name__ == "__main__":
             norm_result_path,
             test_list,
             args.nb_operation_points,
+            args.allow_incomplete_operation_points,
         )
     elif args.dataset_name == "TVD":
         if args.mode == "FCM":
@@ -513,6 +714,7 @@ if __name__ == "__main__":
                 tvd_all,
                 args.nb_operation_points,
                 dataset_prefix="mpeg-",
+                allow_incomplete_operation_points=args.allow_incomplete_operation_points,
             )
         else:
             tvd_all = {
@@ -528,7 +730,11 @@ if __name__ == "__main__":
             }
 
             results_df = read_df_rec(
-                norm_result_path, tvd_all, args.nb_operation_points
+                norm_result_path,
+                "mpeg-",
+                tvd_all["TVD"],
+                args.nb_operation_points,
+                allow_incomplete_operation_points=args.allow_incomplete_operation_points,
             )
             results_df = results_df.sort_values(
                 by=["Dataset", "qp"], ascending=[True, True]
@@ -561,6 +767,7 @@ if __name__ == "__main__":
             hieve,
             args.nb_operation_points,
             dataset_prefix="mpeg-",
+            allow_incomplete_operation_points=args.allow_incomplete_operation_points,
         )
     elif args.dataset_name == "PANDASET":
         pandaset = {
@@ -614,6 +821,7 @@ if __name__ == "__main__":
             pandaset,
             args.nb_operation_points,
             dataset_prefix="pandaset-",
+            allow_incomplete_operation_points=args.allow_incomplete_operation_points,
         )
     else:
         raise NotImplementedError
