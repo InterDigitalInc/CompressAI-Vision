@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import configparser
 import os
 
 from itertools import repeat
@@ -85,20 +86,44 @@ class VideoSplitInference(BasePipeline):
         self._input_ftensor_buffer = []
         self.datatype = configs["datatype"]
 
+    @staticmethod
+    def _get_sequence_dimensions(dataset) -> Tuple:
+        seqinfo_path = getattr(dataset, "seqinfo_path", None)
+        if seqinfo_path is None:
+            return None, None
+
+        parser = configparser.ConfigParser()
+        parser.read(seqinfo_path)
+        if "Sequence" not in parser:
+            return None, None
+
+        return (
+            parser.getint("Sequence", "imHeight", fallback=None),
+            parser.getint("Sequence", "imWidth", fallback=None),
+        )
+
     def build_input_lists(self, dataloader: DataLoader) -> Tuple[List]:
         gt_inputs = []
         file_names = []
 
         raw_dataset = getattr(dataloader.dataset, "dataset", None)
         if raw_dataset is not None:
+            default_height, default_width = self._get_sequence_dimensions(
+                dataloader.dataset
+            )
             try:
                 for sample in raw_dataset:
+                    height = sample.get("height", default_height)
+                    width = sample.get("width", default_width)
+                    if height is None or width is None:
+                        raise KeyError
+
                     gt_inputs.append(
                         [
                             {
                                 "image_id": sample["image_id"],
-                                "height": sample["height"],
-                                "width": sample["width"],
+                                "height": height,
+                                "width": width,
                             },
                         ]
                     )
