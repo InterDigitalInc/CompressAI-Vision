@@ -261,20 +261,29 @@ class VideoSplitInference(BasePipeline):
 
         else:  # decode only
             res = {}
+            bitstream_suffix = os.path.splitext(self.bitstream_name)[1]
+            expected_bitstream_paths = (
+                [self.codec_output_dir / self.bitstream_name]
+                if bitstream_suffix in [".bin", ".mp4"]
+                else [
+                    self.codec_output_dir / f"{self.bitstream_name}{suffix}"
+                    for suffix in [".bin", ".mp4"]
+                ]
+            )
             bin_files = [
                 file_path
-                for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
-                if (
-                    (file_path.suffix in [".bin", ".mp4"])
-                    and "_tmp" not in file_path.name
-                )
+                for file_path in expected_bitstream_paths
+                if file_path.is_file()
             ]
+            expected_bitstreams = " or ".join(
+                file_path.name for file_path in expected_bitstream_paths
+            )
             assert (
                 len(bin_files) > 0
-            ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
+            ), f"Error: decode_only mode, no bitstream file matching {expected_bitstreams}"
             assert (
                 len(bin_files) == 1
-            ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+            ), f"Error, decode_only mode, multiple bitstream files matching {expected_bitstreams}"
             res["bitstream"] = bin_files[0]
             # bitstream_bytes = res["bitstream"].stat().st_size
 

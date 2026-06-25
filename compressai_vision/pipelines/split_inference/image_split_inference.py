@@ -150,22 +150,30 @@ class ImageSplitInference(BasePipeline):
                     )
             else:
                 res = {}
+                bitstream_prefix = f"{self.bitstream_name}-{file_prefix}"
+                bitstream_suffix = os.path.splitext(bitstream_prefix)[1]
+                expected_bitstream_paths = (
+                    [self.codec_output_dir / bitstream_prefix]
+                    if bitstream_suffix in [".bin", ".mp4"]
+                    else [
+                        self.codec_output_dir / f"{bitstream_prefix}{suffix}"
+                        for suffix in [".bin", ".mp4"]
+                    ]
+                )
                 bin_files = [
                     file_path
-                    for file_path in self.codec_output_dir.glob(
-                        f"{self.bitstream_name}-{file_prefix}*"
-                    )
-                    if (
-                        (file_path.suffix in [".bin", ".mp4"])
-                        and "_tmp" not in file_path.name
-                    )
+                    for file_path in expected_bitstream_paths
+                    if file_path.is_file()
                 ]
+                expected_bitstreams = " or ".join(
+                    file_path.name for file_path in expected_bitstream_paths
+                )
                 assert (
                     len(bin_files) > 0
-                ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                ), f"Error: decode_only mode, no bitstream file matching {expected_bitstreams}"
                 assert (
                     len(bin_files) == 1
-                ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+                ), f"Error, decode_only mode, multiple bitstream files matching {expected_bitstreams}"
 
                 res["bitstream"] = bin_files[0]
                 print(f"reading bitstream... {res['bitstream']}")
