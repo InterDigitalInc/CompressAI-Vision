@@ -225,19 +225,22 @@ class VideoSplitInference(BasePipeline):
                 )
                 raise SystemExit(0)
 
-            # concatenate a list of tensors at each keyword item
-            features["data"] = self._feature_tensor_list_to_dict(
-                self._input_ftensor_buffer
-            )
+            if self.configs["nn_task_part1"].layer_wise_feature_stack:
+                # concatenate a list of tensors at each keyword item
+                features["data"] = self._feature_tensor_list_to_dict(
+                    self._input_ftensor_buffer
+                )
+
+                # datatype conversion
+                features["data"] = {
+                    k: v.type(getattr(torch, self.datatype))
+                    for k, v in features["data"].items()
+                }
+            else:
+                features["data"] = self._input_ftensor_buffer
 
             if not evaluator.calculate_feature_mse:
                 self._input_ftensor_buffer = []
-
-            # datatype conversion
-            features["data"] = {
-                k: v.type(getattr(torch, self.datatype))
-                for k, v in features["data"].items()
-            }
 
             # Feature Compression
             start = time_measure()
