@@ -101,6 +101,8 @@ class ImageSplitInference(BasePipeline):
         accum_dec_by_module = None
 
         for e, d in enumerate(tqdm(dataloader)):
+            features = {"org_input_size": [], "input_size": []}
+
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
             file_prefix = f"img_id_{d[0]['image_id']}"
 
@@ -115,23 +117,27 @@ class ImageSplitInference(BasePipeline):
                     self.acc_kmac_and_pixels_info("nn_part_1", macs, pixels)
 
                 start = time_measure()
-                featureT = self._from_input_to_features(
+                res = self._from_input_to_features(
                     vision_model, d, file_prefix, evaluator.datacatalog_name
                 )
                 self.update_time_elapsed("nn_part_1", (time_measure() - start))
 
                 # datatype conversion
-
-                featureT["data"] = {
+                features["data"] = {
                     k: v.type(getattr(torch, self.datatype))
-                    for k, v in featureT["data"].items()
+                    for k, v in res["data"].items()
                 }
-                featureT["org_input_size"] = org_img_size
+                features["org_input_size"].append(
+                    {"height": d[0]["height"], "width": d[0]["width"]}
+                )
+                features["input_size"].append(res["input_size"])
+
+                del res["data"]
 
                 start = time_measure()
                 res, enc_time_by_module, enc_complexity = self._compress(
                     codec,
-                    featureT,
+                    features,
                     self.codec_output_dir,
                     self.bitstream_name,
                     file_prefix,
@@ -190,12 +196,23 @@ class ImageSplitInference(BasePipeline):
 
             # dec_features should contain "org_input_size" and "input_size"
             # When using anchor codecs, that's not the case, we read input images to derive them
-            if "org_input_size" not in dec_features or "input_size" not in dec_features:
+            if "vision_model_info" not in dec_features:
                 self.logger.warning(
                     "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
                 )
                 dec_features["org_input_size"] = org_img_size
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
+            else:
+                dec_features["org_input_size"] = {
+                    "height": dec_features["vision_model_info"][0].input_source_height,
+                    "width": dec_features["vision_model_info"][0].input_source_width,
+                }
+                dec_features["input_size"] = [
+                    (
+                        dec_features["vision_model_info"][0].scaled_input_source_height,
+                        dec_features["vision_model_info"][0].scaled_input_source_width,
+                    )
+                ]
 
             dec_features["file_name"] = d[0]["file_name"]
             dec_features["file_origin"] = d[0]["file_name"]
@@ -217,7 +234,7 @@ class ImageSplitInference(BasePipeline):
                     and not self.configs["codec"]["decode_only"]
                 )
                 mse_results = (
-                    self.calc_feature_mse(featureT["data"], dec_features["data"])
+                    self.calc_feature_mse(features["data"], dec_features["data"])
                     if mse_enabled
                     else None
                 )
@@ -251,6 +268,8 @@ class ImageSplitInference(BasePipeline):
             out_res["org_input_size"] = f"{d[0]['height']}x{d[0]['width']}"
             out_res["input_size"] = dec_features["input_size"][0]
             output_list.append(out_res)
+
+            del features
 
         if not self.configs["codec"]["decode_only"]:
             accum_enc_by_module = {

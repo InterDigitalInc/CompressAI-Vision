@@ -168,7 +168,7 @@ class VideoSplitInference(BasePipeline):
 
         self._update_codec_configs_at_pipeline_level(len(dataloader))
 
-        features = {}
+        features = {"org_input_size": [], "input_size": []}
         gt_inputs, file_names = self.build_input_lists(dataloader)
 
         self.init_time_measure()
@@ -200,20 +200,20 @@ class VideoSplitInference(BasePipeline):
 
                 del res["data"]
 
-                if (e - self._codec_skip_n_frames) == 0:
-                    org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
-                    features["org_input_size"] = org_img_size
-                    features["input_size"] = res["input_size"]
+                features["org_input_size"].append(
+                    {"height": d[0]["height"], "width": d[0]["width"]}
+                )
+                features["input_size"].append(res["input_size"])
 
-                    out_res = d[0].copy()
-                    del (
-                        out_res["image"],
-                        out_res["width"],
-                        out_res["height"],
-                        out_res["image_id"],
-                    )
-                    out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
-                    out_res["input_size"] = features["input_size"][0]
+                out_res = d[0].copy()
+                del (
+                    out_res["image"],
+                    out_res["width"],
+                    out_res["height"],
+                    out_res["image_id"],
+                )
+                # out_res["org_input_size"] = (d[0]["height"], d[0]["width"])
+                # out_res["input_size"] = features["input_size"][0]
 
                 del d[0]["image"]
 
@@ -295,7 +295,8 @@ class VideoSplitInference(BasePipeline):
 
         # dec_features should contain "org_input_size" and "input_size"
         # When using anchor codecs, that's not the case, we read input images to derive them
-        if "org_input_size" not in dec_features or "input_size" not in dec_features:
+        vision_model_info = None
+        if "vision_model_info" not in dec_features:
             self.logger.warning(
                 "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
             )
@@ -308,6 +309,8 @@ class VideoSplitInference(BasePipeline):
             dec_features["input_size"] = self._get_model_input_size(
                 vision_model, first_frame
             )
+        else:
+            vision_model_info = dec_features["vision_model_info"]
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
@@ -336,6 +339,32 @@ class VideoSplitInference(BasePipeline):
             tqdm(dec_ftensors_list, total=len(dataloader))
         ):
             data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
+
+            if vision_model_info:
+                if (len(vision_model_info) - 1) < e:
+                    vision_model_info_idx = -1
+                else:
+                    vision_model_info_idx = e
+
+                dec_features["org_input_size"] = {
+                    "height": dec_features["vision_model_info"][
+                        vision_model_info_idx
+                    ].input_source_height,
+                    "width": dec_features["vision_model_info"][
+                        vision_model_info_idx
+                    ].input_source_width,
+                }
+                dec_features["input_size"] = [
+                    (
+                        dec_features["vision_model_info"][
+                            vision_model_info_idx
+                        ].scaled_input_source_height,
+                        dec_features["vision_model_info"][
+                            vision_model_info_idx
+                        ].scaled_input_source_width,
+                    )
+                ]
+
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["file_origin"] = file_names[e]
