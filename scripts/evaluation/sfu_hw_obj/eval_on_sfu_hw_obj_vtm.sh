@@ -79,27 +79,27 @@ echo "Other Parameters:   " ${PIPELINE_PARAMS[@]}
 echo "=================================================================================================="
 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
-        ++pipeline.type=video \
-        ++paths._run_root=${OUTPUT_DIR} \
-	++vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
-        ++dataset.type=Detectron2Dataset \
-        ++dataset.datacatalog=SFUHW \
-        ++dataset.config.root=${DATASET_SRC}/${SEQ} \
-        ++dataset.config.annotation_file=annotations/${SEQ}.json \
-        ++dataset.config.dataset_name=sfu-hw-${SEQ} \
-        ++evaluator.type=COCO-EVAL \
-        ++codec.experiment=${EXPERIMENT} \
-	codec=vtm.yaml \
-        ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
-        ++codec.encoder_config.parallel_encoding=True \
-        ++codec.encoder_config.qp=${QP} \
-        ++codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
-        ++codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/DecoderAppStatic' \
-        ++codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
-        ++codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_lowdelay_vtm.cfg' \
-        ++codec.eval_encode='bitrate' \
-        ++codec.verbosity=0 \
-	++codec.device=${DEVICE} \
-        ++misc.device.nn_parts=${DEVICE} \
+        pipeline.type=video \
+        paths._run_root=${OUTPUT_DIR} \
+	vision_model.arch=faster_rcnn_X_101_32x8d_FPN_3x \
+        dataset.type=Detectron2Dataset \
+        dataset.datacatalog=SFUHW \
+        dataset.config.root=${DATASET_SRC}/${SEQ} \
+        dataset.config.annotation_file=annotations/${SEQ}.json \
+        dataset.config.dataset_name=sfu-hw-${SEQ} \
+        evaluator.type=COCO-EVAL \
+        codec=vtm.yaml \
+        codec.experiment=${EXPERIMENT} \
+	codec.encoder_config.intra_period=${INTRA_PERIOD} \
+        codec.encoder_config.parallel_encoding=True \
+        codec.encoder_config.qp=${QP} \
+        codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
+        codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/DecoderAppStatic' \
+        codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
+        codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_lowdelay_vtm.cfg' \
+        codec.eval_encode='bitrate' \
+        codec.verbosity=0 \
+	codec.device=${DEVICE} \
+        misc.device.nn_parts=${DEVICE} \
         "${PIPELINE_PARAMS[@]}" \
 

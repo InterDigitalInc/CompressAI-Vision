@@ -71,28 +71,28 @@ echo "Other Parameters:   " ${PIPELINE_PARAMS[@]}
 echo "=================================================================================================="
 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
-        ++pipeline.type=image \
-        ++paths._run_root=${OUTPUT_DIR} \
-        ++vision_model.arch=sam_vit_h_4b8939 \
-        ++vision_model.sam_vit_h_4b8939.integer_conv_weight=False \
-        ++dataset.type=SamDataset \
-        ++dataset.datacatalog=MPEGSAM \
-        ++dataset.config.root=${DATASET_SRC} \
-        ++dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
-        ++dataset.config.dataset_name=mpeg-oiv6-segmentation \
-        ++evaluator.type=OIC-EVAL \
-        ++codec.experiment=${EXPERIMENT} \
+        pipeline.type=image \
+        paths._run_root=${OUTPUT_DIR} \
+        vision_model.arch=sam_vit_h_4b8939 \
+        vision_model.sam_vit_h_4b8939.integer_conv_weight=False \
+        dataset.type=SamDataset \
+        dataset.datacatalog=MPEGSAM \
+        dataset.config.root=${DATASET_SRC} \
+        dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco.json \
+        dataset.config.dataset_name=mpeg-oiv6-segmentation \
+        evaluator.type=OIC-EVAL \
         codec=hm.yaml \
-        ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
-        ++codec.encoder_config.parallel_encoding=False \
-        ++codec.encoder_config.qp=${QP} \
-	    ++codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/TAppEncoderStatic'  \
-        ++codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/TAppDecoderStatic' \
-        ++codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
-	    ++codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_intra_main10.cfg' \
-        ++codec.eval_encode='bpp' \
-        ++codec.verbosity=0 \
-	    ++codec.device=${DEVICE} \
-        ++misc.device.nn_parts=${DEVICE} \
+        codec.experiment=${EXPERIMENT} \
+        codec.encoder_config.intra_period=${INTRA_PERIOD} \
+        codec.encoder_config.parallel_encoding=False \
+        codec.encoder_config.qp=${QP} \
+	    codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/TAppEncoderStatic'  \
+        codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/TAppDecoderStatic' \
+        codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
+	    codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_intra_main10.cfg' \
+        codec.eval_encode='bpp' \
+        codec.verbosity=0 \
+	    codec.device=${DEVICE} \
+        misc.device.nn_parts=${DEVICE} \
         "${PIPELINE_PARAMS[@]}" \
 

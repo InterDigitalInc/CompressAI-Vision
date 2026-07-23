@@ -84,27 +84,27 @@ echo "Other Parameters:   " ${PIPELINE_PARAMS[@]}
 echo "=================================================================================================="
  
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
-        ++pipeline.type=image \
-        ++paths._run_root=${OUTPUT_DIR} \
-        ++vision_model.arch=${NETWORK_MODEL} \
-        ++dataset.type=Detectron2Dataset \
-        ++dataset.datacatalog=MPEGOIV6 \
-        ++dataset.config.root=${DATASET_SRC} \
-        ++dataset.config.annotation_file=annotations/${SEQ}-coco.json \
-        ++dataset.config.dataset_name=${SEQ} \
-        ++evaluator.type=OIC-EVAL \
-        ++codec.experiment=${EXPERIMENT} \
+        pipeline.type=image \
+        paths._run_root=${OUTPUT_DIR} \
+        vision_model.arch=${NETWORK_MODEL} \
+        dataset.type=Detectron2Dataset \
+        dataset.datacatalog=MPEGOIV6 \
+        dataset.config.root=${DATASET_SRC} \
+        dataset.config.annotation_file=annotations/${SEQ}-coco.json \
+        dataset.config.dataset_name=${SEQ} \
+        evaluator.type=OIC-EVAL \
         codec=vtm.yaml \
-        ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
-        ++codec.encoder_config.parallel_encoding=False \
-        ++codec.encoder_config.qp=${QP} \
-	++codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
-        ++codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/DecoderAppStatic' \
-        ++codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
-	++codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_intra_vtm.cfg' \
-        ++codec.eval_encode='bpp' \
-        ++codec.verbosity=0 \
-	++codec.device=${DEVICE} \
-        ++misc.device.nn_parts=${DEVICE} \
+        codec.experiment=${EXPERIMENT} \
+        codec.encoder_config.intra_period=${INTRA_PERIOD} \
+        codec.encoder_config.parallel_encoding=False \
+        codec.encoder_config.qp=${QP} \
+	codec.codec_paths.encoder_exe=${INNER_CODEC_PATH}'/bin/EncoderAppStatic'  \
+        codec.codec_paths.decoder_exe=${INNER_CODEC_PATH}'/bin/DecoderAppStatic' \
+        codec.codec_paths.parcat_exe=${INNER_CODEC_PATH}'/bin/parcatStatic' \
+	codec.codec_paths.cfg_file=${INNER_CODEC_PATH}'/cfg/encoder_intra_vtm.cfg' \
+        codec.eval_encode='bpp' \
+        codec.verbosity=0 \
+	codec.device=${DEVICE} \
+        misc.device.nn_parts=${DEVICE} \
         "${PIPELINE_PARAMS[@]}" \
 

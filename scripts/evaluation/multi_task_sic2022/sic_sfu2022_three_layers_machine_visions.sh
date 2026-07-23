@@ -64,20 +64,20 @@ CONF_NAME="eval_multitask_inference_example"
 CMD="compressai-multi-task-inference"
 
 ${CMD} --config-name=${CONF_NAME}.yaml \
-        ++paths._run_root=${OUTPUT_DIR} \
-        ++pipeline.codec.num_tasks=3 \
-        ++pipeline.codec.target_task_layer=${TLID} \
-        ++codec.bitstream_name=sic_sfu2023_${QID}_tl_${TLID} \
-        ++codec.encoder_config.qidx=${QID} \
-        ++codec.experiment=${EXPERIMENT} \
-        ++dataset.type=Detectron2Dataset \
-        ++dataset.datacatalog=COCO \
-        ++dataset.config.root=${DATASET_DIR} \
-        ++dataset.config.dataset_name=coco2017val \
-        ++dataset.config.imgs_folder=val2017 \
-        ++dataset.config.annotation_file=annotations/instances_val2017.json \
-        ++dataset.config.seqinfo=None \
-        ++misc.device=${DEVICE} \
+        paths._run_root=${OUTPUT_DIR} \
+        pipeline.codec.num_tasks=3 \
+        pipeline.codec.target_task_layer=${TLID} \
+        codec.bitstream_name=sic_sfu2023_${QID}_tl_${TLID} \
+        codec.encoder_config.qidx=${QID} \
+        codec.experiment=${EXPERIMENT} \
+        dataset.type=Detectron2Dataset \
+        dataset.datacatalog=COCO \
+        dataset.config.root=${DATASET_DIR} \
+        dataset.config.dataset_name=coco2017val \
+        dataset.config.imgs_folder=val2017 \
+        dataset.config.annotation_file=annotations/instances_val2017.json \
+        dataset.config.seqinfo=None \
+        misc.device=${DEVICE} \
         ${PIPELINE_PARAMS} \
 
 

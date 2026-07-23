@@ -81,29 +81,29 @@ echo "Other Parameters:   " ${PIPELINE_PARAMS}
 echo "=================================================================================================="
 
 compressai-${PIPELINE}-inference --config-name=${CONF_NAME} \
-        ++pipeline.type=video \
-        ++pipeline.codec.vcm_mode=True \
-        ++pipeline.codec.output10b=True \
-        ++paths._run_root=${OUTPUT_DIR} \
-        ++vision_model.arch=jde_1088x608 \
-        ++vision_model.jde_1088x608.splits="[36, 61, 74]" \
-        ++dataset.type=TrackingDataset \
-        ++dataset.datacatalog=MPEGTVDTRACKING \
-        ++dataset.settings.patch_size="[608, 1088]" \
-        ++dataset.config.root=${DATASET_SRC}/${SEQ} \
-        ++dataset.config.imgs_folder=img1 \
-       	++dataset.config.annotation_file=gt/gt.txt \
-        ++dataset.config.dataset_name=mpeg-${SEQ} \
-        ++evaluator.type=MOT-TVD-EVAL \
-        ++codec.experiment=${EXPERIMENT} \
+        pipeline.type=video \
+        pipeline.codec.vcm_mode=True \
+        pipeline.codec.output10b=True \
+        paths._run_root=${OUTPUT_DIR} \
+        vision_model.arch=jde_1088x608 \
+        vision_model.jde_1088x608.splits="[36, 61, 74]" \
+        dataset.type=TrackingDataset \
+        dataset.datacatalog=MPEGTVDTRACKING \
+        dataset.settings.patch_size="[608, 1088]" \
+        dataset.config.root=${DATASET_SRC}/${SEQ} \
+        dataset.config.imgs_folder=img1 \
+       	dataset.config.annotation_file=gt/gt.txt \
+        dataset.config.dataset_name=mpeg-${SEQ} \
+        evaluator.type=MOT-TVD-EVAL \
         codec=vcmrs.yaml \
-        ++codec.encoder_config.intra_period=${INTRA_PERIOD} \
-        ++codec.encoder_config.parallel_encoding=True \
-        ++codec.encoder_config.qp=${QP} \
-        ++codec.encoder_config.input_bitdepth=${YUV_BIT_DEPTH} \
-        ++codec.eval_encode='bitrate' \
-        ++codec.verbosity=0 \
-        ++codec.device=${DEVICE} \
-        ++misc.device.nn_parts=${DEVICE} \
+        codec.experiment=${EXPERIMENT} \
+        codec.encoder_config.intra_period=${INTRA_PERIOD} \
+        codec.encoder_config.parallel_encoding=True \
+        codec.encoder_config.qp=${QP} \
+        codec.encoder_config.input_bitdepth=${YUV_BIT_DEPTH} \
+        codec.eval_encode='bitrate' \
+        codec.verbosity=0 \
+        codec.device=${DEVICE} \
+        misc.device.nn_parts=${DEVICE} \
         ${PIPELINE_PARAMS} \
         
