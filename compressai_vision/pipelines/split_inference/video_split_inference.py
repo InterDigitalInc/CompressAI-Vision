@@ -247,7 +247,10 @@ class VideoSplitInference(BasePipeline):
             res, enc_time_by_module, enc_complexity = self._compress(
                 codec, features, self.codec_output_dir, self.bitstream_name, ""
             )
-            self.update_time_elapsed("encode", (time_measure() - start))
+            elapsed_enc_time = time_measure() - start
+            total_enc_runtime = sum(enc_time_by_module.values())
+            total_enc_time = total_enc_runtime if total_enc_runtime is not 0 else elapsed_enc_time
+            self.update_time_elapsed("encode", (total_enc_time))
             self.add_time_details("encode", enc_time_by_module)
             if self.is_mac_calculation:
                 self.add_kmac_and_pixels_info(
@@ -286,7 +289,10 @@ class VideoSplitInference(BasePipeline):
         dec_features, dec_time_by_module, dec_complexity = self._decompress(
             codec, res["bitstream"], self.codec_output_dir, ""
         )
-        self.update_time_elapsed("decode", (time_measure() - start))
+        elapsed_dec_time = time_measure() - start
+        total_dec_runtime = sum(dec_time_by_module.values())
+        total_dec_time = total_dec_runtime if total_dec_runtime is not 0 else elapsed_dec_time
+        self.update_time_elapsed("decode", (total_dec_time))
         self.add_time_details("decode", dec_time_by_module)
         if self.is_mac_calculation:
             self.add_kmac_and_pixels_info(
