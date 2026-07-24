@@ -203,6 +203,24 @@ def _flops_to_kmacs(total_flops: float) -> float:
     return float(total_flops) / 1e3
 
 
+# (mem-fix) KMACs are deterministic w.r.t. (module, input shapes), so trace each
+# shape only once. Per-image FlopCountAnalysis (torch.jit tracing) retains feature-map
+# tensors and steadily grows CPU RAM (OOM); caching avoids that and speeds up
+# repeated measurement.
+_KMACS_CACHE: dict = {}
+
+
+def _shape_key(x):
+    """Build a hashable shape key from inputs (possibly nested)."""
+    if torch.is_tensor(x):
+        return ("t", tuple(x.shape))
+    if isinstance(x, (list, tuple)):
+        return ("s", tuple(_shape_key(v) for v in x))
+    if isinstance(x, dict):
+        return ("d", tuple((k, _shape_key(v)) for k, v in x.items()))
+    return ("o", repr(x))
+
+
 def measure_kmacs(module: nn.Module, inputs, tag: str = None) -> float:
     """
     Measure KMACs for a given module using fvcore.
@@ -249,6 +267,15 @@ def measure_kmacs(module: nn.Module, inputs, tag: str = None) -> float:
     elif not isinstance(inputs, tuple):
         inputs = (inputs,)  # safe fallback
 
+    # (mem-fix) Shape-based cache lookup: skip re-tracing for the same (module, input shapes).
+    cache_key = None
+    try:
+        cache_key = (module.__class__.__qualname__, id(p), _shape_key(inputs))
+    except Exception:
+        cache_key = None
+    if cache_key is not None and cache_key in _KMACS_CACHE:
+        return _KMACS_CACHE[cache_key]
+
     with torch.no_grad():
         flops = FlopCountAnalysis(module, inputs)
         flops.set_op_handle(
@@ -280,6 +307,8 @@ def measure_kmacs(module: nn.Module, inputs, tag: str = None) -> float:
     kmacs = _flops_to_kmacs(total_flops)
     name = tag or module.__class__.__name__
     # print(f"[INFO] {name}: KMACs = {kmacs}")
+    if cache_key is not None:
+        _KMACS_CACHE[cache_key] = kmacs
     return kmacs
 
 
