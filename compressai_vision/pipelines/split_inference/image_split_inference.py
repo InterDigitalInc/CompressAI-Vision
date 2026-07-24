@@ -142,7 +142,10 @@ class ImageSplitInference(BasePipeline):
                     self.bitstream_name,
                     file_prefix,
                 )
-                self.update_time_elapsed("encode", (time_measure() - start))
+                elapsed_enc_time = time_measure() - start
+                total_enc_runtime = sum(enc_time_by_module.values())
+                total_enc_time = total_enc_runtime if total_enc_runtime is not 0 else elapsed_enc_time
+                self.update_time_elapsed("encode", (total_enc_time))
                 if self.is_mac_calculation:
                     self.acc_kmac_and_pixels_info(
                         "feature_reduction", enc_complexity[0], enc_complexity[1]
@@ -183,7 +186,10 @@ class ImageSplitInference(BasePipeline):
             dec_features, dec_time_by_module, dec_complexity = self._decompress(
                 codec, res["bitstream"], self.codec_output_dir, file_prefix
             )
-            self.update_time_elapsed("decode", (time_measure() - start))
+            elapsed_dec_time = time_measure() - start
+            total_dec_runtime = sum(dec_time_by_module.values())
+            total_dec_time = total_dec_runtime if total_dec_runtime is not 0 else elapsed_dec_time
+            self.update_time_elapsed("decode", (total_dec_time))
             if self.is_mac_calculation:
                 self.acc_kmac_and_pixels_info(
                     "feature_restoration", dec_complexity[0], dec_complexity[1]
