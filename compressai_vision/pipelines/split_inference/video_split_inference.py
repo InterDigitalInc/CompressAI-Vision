@@ -249,7 +249,9 @@ class VideoSplitInference(BasePipeline):
             )
             elapsed_enc_time = time_measure() - start
             total_enc_runtime = sum(enc_time_by_module.values())
-            total_enc_time = total_enc_runtime if total_enc_runtime is not 0 else elapsed_enc_time
+            total_enc_time = (
+                total_enc_runtime if total_enc_runtime != 0 else elapsed_enc_time
+            )
             self.update_time_elapsed("encode", (total_enc_time))
             self.add_time_details("encode", enc_time_by_module)
             if self.is_mac_calculation:
@@ -291,7 +293,9 @@ class VideoSplitInference(BasePipeline):
         )
         elapsed_dec_time = time_measure() - start
         total_dec_runtime = sum(dec_time_by_module.values())
-        total_dec_time = total_dec_runtime if total_dec_runtime is not 0 else elapsed_dec_time
+        total_dec_time = (
+            total_dec_runtime if total_dec_runtime != 0 else elapsed_dec_time
+        )
         self.update_time_elapsed("decode", (total_dec_time))
         self.add_time_details("decode", dec_time_by_module)
         if self.is_mac_calculation:
