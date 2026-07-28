@@ -14,6 +14,7 @@
 name: "split-inference"
 type: "video" # If type is video, all feature tensors for the input video are first computed before proceeding encoding process
 output_dir_root: ${paths._run_root}/${.name}-${.type}
+hash_dir_root: ${paths._hash_root}/${.name}-${.type}
 datatype: float32 # or float16 or bfloat16
 
 nn_task_part1:
@@ -34,12 +35,15 @@ codec:
     skip_n_frames: 0 # This is encoder only option
     n_frames_to_be_encoded: -1  #(-1 = encode all input), This is encoder only option
     measure_complexity: "${codec.mac_computation}"
+    load_hashes: False
+    hash_dir_enc: "${codec.hash_dir}/features_pre_nn_part2"
+    hash_dir_dec: "${codec.output_dir}/hashes_dec"
 nn_task_part2:
     dump_results: False
     output_results_dir: "${codec.output_dir}/output_results"
     dump_features: False
     feature_dir: "${codec.output_dir}/features_pre_nn_part2"
-    dump_features_hash: False
+    dump_features_hash: True
     hash_format: md5
 conformance:
     save_conformance_files: False

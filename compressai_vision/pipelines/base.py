@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import errno
+import filecmp
 import json
 import logging
 import os
@@ -293,6 +294,37 @@ class BasePipeline(nn.Module):
 
         return features
 
+    def _load_hashes(self):
+        hash_dir_enc = Path(self.configs["codec"].hash_dir_enc)
+        assert hash_dir_enc.is_dir(), f"Feature tensor hash SEI message input hash directory not found: {hash_dir_enc}"
+
+        hash_dir_enc_contents = sorted([
+            f for f in hash_dir_enc.iterdir()
+            if f.is_file() and
+            f.suffix == ".md5"
+        ])
+        print(f"Found {len(hash_dir_enc_contents)} hash files in {hash_dir_enc}")
+
+        hashes_per_frame = []
+        for hash_file in hash_dir_enc_contents:
+            hashes = []
+            with open(hash_file, "r") as f:
+                hash_strs = f.readlines()
+            for hash_str in hash_strs:
+                hashes.append(bytearray.fromhex(hash_str.rstrip("\n")))
+            hashes_per_frame.append(hashes)
+
+        return hashes_per_frame
+
+    def _save_hashes(self, dec_hashes):
+        hash_dir_dec = Path(self.configs["codec"].hash_dir_dec)
+        hash_dir_dec.mkdir(parents=True, exist_ok=True)
+
+        for frame_idx, dec_hashs in dec_hashes.items():
+            with open(hash_dir_dec / Path(f"img_id{frame_idx:06d}.md5"), "w") as f:
+                for dec_hash in dec_hashs:
+                    f.write(dec_hash.hex() + "\n")
+
     def _from_input_to_features(
         self,
         vision_model: BaseWrapper,
@@ -400,24 +432,20 @@ class BasePipeline(nn.Module):
             )
             path = f"{feature_dir}/{seq_name}{feature_output_ext}"
 
-            features_file = (
-                FileLikeHasher(path, hash_format) if dump_feature_hash else path
-            )
-
             self.logger.debug(f"dumping features prior to nn part2 in: {feature_dir}")
 
             # [TODO] align with nn_task_part1 dump features
-            features_to_dump = contiguous_features(x)
+            features_to_dump = contiguous_features(x["data"]).values()
 
             with freeze_zip_timestamps():
                 if dump_feature_hash:
-                    torch.save(features_to_dump, features_file, pickle_protocol=4)
+                    for tensor_idx, tensor in enumerate(features_to_dump):
+                        mode = "a" if tensor_idx else "w"
+                        with FileLikeHasher(path, mode, hash_format) as features_file:
+                            torch.save(tensor, features_file, pickle_protocol=4)
                 else:
-                    with open(features_file, "wb") as f:
+                    with open(path, "wb") as f:
                         torch.save(features_to_dump, f, pickle_protocol=4)
-
-            if hasattr(features_file, "close"):
-                features_file.close()
 
         results = vision_model.features_to_output(x, self.device_nn_part2)
         if self.configs["nn_task_part2"].dump_results:
@@ -425,6 +453,28 @@ class BasePipeline(nn.Module):
             torch.save(results, results_file)
 
         return results
+
+    def _check_decoded_hashes(self, x: Dict, seq_name: str = None):
+        feature_dir = self.configs["nn_task_part2"].feature_dir
+
+        seq_name = (
+            seq_name
+            if seq_name is not None
+            else os.path.splitext(os.path.basename(x.get("file_name", "")))[0]
+        )
+        feature_output_hashes = Path(f"{feature_dir}")
+        hash_dir_dec = Path(self.configs["codec"].hash_dir_dec)
+
+        check_ok = True
+        for file1, file2 in zip(feature_output_hashes.iterdir(), hash_dir_dec.iterdir()):
+            if file1 is None or file2 is None:
+                check_ok = False
+                self.logger.warning(f"CONFORMANCE: Unequal number of hash files in {feature_output_hashes} and {hash_dir_dec}")
+                break;
+            if not filecmp.cmp(file1, file2, shallow=False):
+                check_ok = False
+                self.logger.warning(f"CONFORMANCE: Different hash found in {file1} and {file2}")
+        return check_ok
 
     def _save_conformance_data(self, feature_data: Dict):
         conformance_files_path = self.configs["conformance"].conformance_files_path

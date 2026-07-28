@@ -40,10 +40,17 @@ import torch
 
 
 class FileLikeHasher:
-    def __init__(self, fn, algo: str = "md5"):
+    def __init__(self, fn, mode: str = "w", algo: str = "md5"):
         self._h = hashlib.new(algo)
+        self._mode = mode
         self._fn = fn
         self._nbytes = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def write(self, byts):
         self._h.update(byts)
@@ -54,7 +61,7 @@ class FileLikeHasher:
         pass
 
     def close(self):
-        with open(self._fn, "w") as f:
+        with open(self._fn, self._mode) as f:
             f.write(self._h.hexdigest())
             f.write("\n")
 
