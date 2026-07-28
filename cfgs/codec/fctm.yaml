@@ -2,6 +2,7 @@ type: "fctm"
 eval_encode: "bitrate" # or "bpp"
 experiment: "" # e.g. "_preset_medium" name experiment preceded by "_"
 output_dir: "${pipeline.output_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.tools.inner_codec.enc_configs.qp}"
+hash_dir: "${pipeline.hash_dir_root}/${.type}${.experiment}/${dataset.datacatalog}/${dataset.config.dataset_name}/qp${codec.tools.inner_codec.enc_configs.qp}"
 bitstream_name: "${dataset.config.dataset_name}_qp${codec.tools.inner_codec.enc_configs.qp}"
 
 # configuration parameters can be retrieved / copied from the config file at cfgs/codec/compressai_vision_fctm.cfg within the FCTM directory

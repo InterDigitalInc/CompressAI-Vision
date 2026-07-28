@@ -1,4 +1,5 @@
 _common_root:   "./logs"
-_run_root:     "${._common_root}/runs"
+_run_root:      "${._common_root}/runs"
+_hash_root:     "${._run_root}_hash"
 configs:        "${codec.output_dir}/configs"
 src:            "${codec.output_dir}/src"
