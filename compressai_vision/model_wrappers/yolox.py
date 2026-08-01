@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+from contextlib import nullcontext
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List
@@ -184,19 +185,26 @@ class yolox_darknet53(BaseWrapper):
     def features_to_output(self, x: Dict, device: str):
         """Complete the downstream task from the intermediate deep features"""
 
-        self.model = self.model.to(device).eval()
+        target_device = torch.device(device)
+        device_context = (
+            torch.cuda.device(target_device)
+            if target_device.type == "cuda"
+            else nullcontext()
+        )
 
-        if self.split_id == self.SPLIT_L13:
-            return self._feature_at_l13_to_output(
-                x["data"], x["org_input_size"], x["input_size"], device
-            )
-        elif self.split_id == self.SPLIT_L37:
-            return self._feature_at_l37_to_output(
-                x["data"], x["org_input_size"], x["input_size"], device
-            )
-        else:
-            self.logger.error(f"Not supported split points {self.split_id}")
+        with device_context:
+            self.model = self.model.to(target_device).eval()
 
+            if self.split_id == self.SPLIT_L13:
+                return self._feature_at_l13_to_output(
+                    x["data"], x["org_input_size"], x["input_size"], target_device
+                )
+            if self.split_id == self.SPLIT_L37:
+                return self._feature_at_l37_to_output(
+                    x["data"], x["org_input_size"], x["input_size"], target_device
+                )
+
+        self.logger.error(f"Not supported split points {self.split_id}")
         raise NotImplementedError
 
     @torch.no_grad()
