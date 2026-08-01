@@ -719,7 +719,11 @@ def calc_complexity_nn_part1_yolox(vision_model, img):
 
     C, H, W = img.shape[1:]
 
-    kmacs = measure_kmacs(partial_model, img)
+    if img.is_cuda:
+        with torch.cuda.device(img.device):
+            kmacs = measure_kmacs(partial_model, img)
+    else:
+        kmacs = measure_kmacs(partial_model, img)
 
     pixels = reduce(operator.mul, [p_size for p_size in img.shape])
     return kmacs, pixels
@@ -743,7 +747,11 @@ def calc_complexity_nn_part2_yolox(vision_model, dec_features):
     C, H, W = input_tensor.shape[1:]
     partial_model = YoloxPart2(vision_model, vision_model.split_id)
 
-    kmacs = measure_kmacs(partial_model, input_tensor)
+    if input_tensor.is_cuda:
+        with torch.cuda.device(input_tensor.device):
+            kmacs = measure_kmacs(partial_model, input_tensor)
+    else:
+        kmacs = measure_kmacs(partial_model, input_tensor)
 
     pixels = reduce(operator.mul, input_tensor.shape)
 
