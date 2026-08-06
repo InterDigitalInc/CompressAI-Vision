@@ -36,8 +36,8 @@ codec:
     n_frames_to_be_encoded: -1  #(-1 = encode all input), This is encoder only option
     measure_complexity: "${codec.mac_computation}"
     load_hashes: False
-    hash_dir_enc: "${codec.hash_dir}/features_pre_nn_part2"
-    hash_dir_dec: "${codec.output_dir}/hashes_dec"
+    hash_dir_enc: "${codec.output_dir}/features_pre_nn_part2"
+    hash_dir_dec: "${codec.hash_dir}/hashes_dec"
 nn_task_part2:
     dump_results: False
     output_results_dir: "${codec.output_dir}/output_results"

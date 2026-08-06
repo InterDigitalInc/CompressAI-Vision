@@ -298,11 +298,9 @@ class BasePipeline(nn.Module):
         hash_dir_enc = Path(self.configs["codec"].hash_dir_enc)
         assert hash_dir_enc.is_dir(), f"Feature tensor hash SEI message input hash directory not found: {hash_dir_enc}"
 
-        hash_dir_enc_contents = sorted([
-            f for f in hash_dir_enc.iterdir()
-            if f.is_file() and
-            f.suffix == ".md5"
-        ])
+        hash_dir_enc_contents = sorted(
+            [f for f in hash_dir_enc.iterdir() if f.is_file() and f.suffix == ".md5"]
+        )
         print(f"Found {len(hash_dir_enc_contents)} hash files in {hash_dir_enc}")
 
         hashes_per_frame = []
@@ -466,14 +464,20 @@ class BasePipeline(nn.Module):
         hash_dir_dec = Path(self.configs["codec"].hash_dir_dec)
 
         check_ok = True
-        for file1, file2 in zip(feature_output_hashes.iterdir(), hash_dir_dec.iterdir()):
+        for file1, file2 in zip(
+            feature_output_hashes.iterdir(), hash_dir_dec.iterdir()
+        ):
             if file1 is None or file2 is None:
                 check_ok = False
-                self.logger.warning(f"CONFORMANCE: Unequal number of hash files in {feature_output_hashes} and {hash_dir_dec}")
-                break;
+                self.logger.warning(
+                    f"CONFORMANCE: Unequal number of hash files in {feature_output_hashes} and {hash_dir_dec}"
+                )
+                break
             if not filecmp.cmp(file1, file2, shallow=False):
                 check_ok = False
-                self.logger.warning(f"CONFORMANCE: Different hash found in {file1} and {file2}")
+                self.logger.warning(
+                    f"CONFORMANCE: Different hash found in {file1} and {file2}"
+                )
         return check_ok
 
     def _save_conformance_data(self, feature_data: Dict):
