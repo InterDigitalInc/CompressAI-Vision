@@ -325,7 +325,10 @@ class VideoSplitInference(BasePipeline):
         else:
             vision_model_info = dec_features["vision_model_info"]
 
-        if "decoded_feature_tensor_hash" in dec_features and dec_features["decoded_feature_tensor_hash"] is not None:
+        if (
+            "decoded_feature_tensor_hash" in dec_features
+            and dec_features["decoded_feature_tensor_hash"] is not None
+        ):
             self._save_hashes(dec_features["decoded_feature_tensor_hash"])
 
         # separate a tensor of each keyword item into a list of tensors
@@ -431,12 +434,23 @@ class VideoSplitInference(BasePipeline):
             out_res["org_input_size"] = (
                 f"{dec_features['org_input_size']['height']}x{dec_features['org_input_size']['width']}"
             )
-            if "decoded_feature_tensor_hash" in dec_features and dec_features["decoded_feature_tensor_hash"] is not None:
-                out_res["decoded_feature_tensor_hash"] = dec_features["decoded_feature_tensor_hash"][e] if e in dec_features["decoded_feature_tensor_hash"] else None
+            if (
+                "decoded_feature_tensor_hash" in dec_features
+                and dec_features["decoded_feature_tensor_hash"] is not None
+            ):
+                out_res["decoded_feature_tensor_hash"] = (
+                    dec_features["decoded_feature_tensor_hash"][e]
+                    if e in dec_features["decoded_feature_tensor_hash"]
+                    else None
+                )
 
             output_list.append(out_res)
 
-        if "decoded_feature_tensor_hash" in dec_features and dec_features["decoded_feature_tensor_hash"] is not None and self.configs["nn_task_part2"].dump_features_hash:
+        if (
+            "decoded_feature_tensor_hash" in dec_features
+            and dec_features["decoded_feature_tensor_hash"] is not None
+            and self.configs["nn_task_part2"].dump_features_hash
+        ):
             if self._check_decoded_hashes(res["bitstream"], self.codec_output_dir):
                 self.logger.info("CONFORMANCE: all hashes match")
 

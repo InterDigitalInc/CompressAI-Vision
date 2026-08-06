@@ -207,7 +207,10 @@ class ImageSplitInference(BasePipeline):
             else:
                 accum_dec_by_module = dict_sum(accum_dec_by_module, dec_time_by_module)
 
-            if "decoded_feature_tensor_hash" in dec_features and dec_features["decoded_feature_tensor_hash"] is not None:
+            if (
+                "decoded_feature_tensor_hash" in dec_features
+                and dec_features["decoded_feature_tensor_hash"] is not None
+            ):
                 self._save_hashes(dec_features["decoded_feature_tensor_hash"])
 
             # dec_features should contain "org_input_size" and "input_size"
@@ -284,12 +287,20 @@ class ImageSplitInference(BasePipeline):
             out_res["org_input_size"] = f"{d[0]['height']}x{d[0]['width']}"
             out_res["input_size"] = dec_features["input_size"][0]
             if "decoded_feature_tensor_hash" in dec_features:
-                out_res["decoded_feature_tensor_hash"] = dec_features["decoded_feature_tensor_hash"][e] if e in dec_features["decoded_feature_tensor_hash"] else None
+                out_res["decoded_feature_tensor_hash"] = (
+                    dec_features["decoded_feature_tensor_hash"][e]
+                    if e in dec_features["decoded_feature_tensor_hash"]
+                    else None
+                )
             output_list.append(out_res)
 
             del features
 
-        if "decoded_feature_tensor_hash" in dec_features and dec_features["decoded_feature_tensor_hash"] is not None and self.configs["nn_task_part2"].dump_features_hash:
+        if (
+            "decoded_feature_tensor_hash" in dec_features
+            and dec_features["decoded_feature_tensor_hash"] is not None
+            and self.configs["nn_task_part2"].dump_features_hash
+        ):
             if self._check_decoded_hashes(res["bitstream"], self.codec_output_dir):
                 self.logger.info("CONFORMANCE: all hashes match")
 
