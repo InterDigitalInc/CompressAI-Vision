@@ -99,6 +99,7 @@ class ImageSplitInference(BasePipeline):
         self.init_complexity_measure()
         accum_enc_by_module = None
         accum_dec_by_module = None
+        dec_features = None
 
         for e, d in enumerate(tqdm(dataloader)):
             features = {"org_input_size": [], "input_size": []}
@@ -300,7 +301,8 @@ class ImageSplitInference(BasePipeline):
             del features
 
         if (
-            "decoded_feature_tensor_hash" in dec_features
+            dec_features is not None
+            and "decoded_feature_tensor_hash" in dec_features
             and dec_features["decoded_feature_tensor_hash"] is not None
             and self.configs["nn_task_part2"].dump_features_hash
         ):
