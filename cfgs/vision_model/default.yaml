@@ -91,3 +91,87 @@ rtmo_multi_person_pose_estimation:
   cfg: "models/mmpose/configs/body_2d_keypoint/rtmo/coco/rtmo-l_16xb16-600e_coco-640x640.py"
   weights: "weights/mmpose/rtmo_coco/rtmo-l_16xb16-600e_coco-640x640-516a421f_20231211.pth"
   splits: "backbone"
+
+fasterrcnn_mobilenet_v3_large_320_fpn:
+  model_path_prefix: ${..model_root_path}
+  cfg: "torchvision built-in configuration"
+  weights: "DEFAULT"
+  weights_url: "https://download.pytorch.org/models/fasterrcnn_mobilenet_v3_large_320_fpn-907ea3f9.pth"
+  weights_backbone: null
+  progress: True
+  splits: "fpn"
+  backbone_feature_keys: ["0", "1", "pool"]
+  split_layer_names: ["fpn0", "fpn1", "fpn_pool"]
+  min_size: 320
+  max_size: 640
+  rpn_pre_nms_top_n_test: 150
+  rpn_post_nms_top_n_test: 150
+  rpn_score_thresh: 0.05
+  box_score_thresh: null
+  box_nms_thresh: null
+  box_detections_per_img: null
+
+lraspp_mobilenet_v3_large:
+  model_path_prefix: ${..model_root_path}
+  cfg: "torchvision built-in configuration"
+  weights: "DEFAULT"
+  weights_url: "https://download.pytorch.org/models/lraspp_mobilenet_v3_large-d234d4ea.pth"
+  weights_backbone: null
+  progress: True
+  use_weights_transforms: True
+  splits: "backbone" # alternative candidate: "logits"
+
+efficientvit_sam_l0:
+  model_path_prefix: ${..model_root_path}
+  cfg: "efficientvit built-in configuration"
+  weights: "weights/efficientvit/sam/l0.pt"
+  pretrained: True
+  splits: "imgenc"
+  prompt_type: "point_file" # official COCO benchmark: "box_from_detector"
+  source_json_file: null
+  prompt_score_threshold: null
+  max_prompts_per_image: null
+
+efficientvit_sam_l1:
+  model_path_prefix: ${..model_root_path}
+  cfg: "efficientvit built-in configuration"
+  weights: "weights/efficientvit/sam/l1.pt"
+  pretrained: True
+  splits: "imgenc"
+  prompt_type: "point_file"
+  source_json_file: null
+  prompt_score_threshold: null
+  max_prompts_per_image: null
+
+efficientvit_sam_l2:
+  model_path_prefix: ${..model_root_path}
+  cfg: "efficientvit built-in configuration"
+  weights: "weights/efficientvit/sam/l2.pt"
+  pretrained: True
+  splits: "imgenc"
+  prompt_type: "point_file"
+  source_json_file: null
+  prompt_score_threshold: null
+  max_prompts_per_image: null
+
+efficientvit_sam_xl0:
+  model_path_prefix: ${..model_root_path}
+  cfg: "efficientvit built-in configuration"
+  weights: "weights/efficientvit/sam/xl0.pt"
+  pretrained: True
+  splits: "imgenc"
+  prompt_type: "point_file"
+  source_json_file: null
+  prompt_score_threshold: null
+  max_prompts_per_image: null
+
+efficientvit_sam_xl1:
+  model_path_prefix: ${..model_root_path}
+  cfg: "efficientvit built-in configuration"
+  weights: "weights/efficientvit/sam/xl1.pt"
+  pretrained: True
+  splits: "imgenc"
+  prompt_type: "point_file"
+  source_json_file: null
+  prompt_score_threshold: null
+  max_prompts_per_image: null

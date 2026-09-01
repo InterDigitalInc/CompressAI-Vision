@@ -355,7 +355,11 @@ def _summarize_performance(evaluator_name, performance, eval_criteria):
         def_criteria = "AP"
         if not eval_criteria:
             eval_criteria = def_criteria
-        value = [v for k, v in performance["bbox"].items() if k == eval_criteria]
+        iou_type = "bbox"
+        metric = eval_criteria
+        if "." in eval_criteria:
+            iou_type, metric = eval_criteria.split(".", 1)
+        value = [v for k, v in performance[iou_type].items() if k == metric]
         if not value:
             print(
                 f"\n{eval_criteria} is not supported for {evaluator_name}, using default evaluation criteria {def_criteria}"

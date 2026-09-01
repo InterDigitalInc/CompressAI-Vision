@@ -387,6 +387,7 @@ class VideoSplitInference(BasePipeline):
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["file_origin"] = file_names[e]
+            dec_features["image_id"] = gt_inputs[e][0]["image_id"]
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used
