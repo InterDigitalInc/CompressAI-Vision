@@ -8,7 +8,21 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${SCRIPT_PATH}")" &> /dev/null && pwd)
 
 # --- Configuration ---
 # Central array for all vision models
-VISION_MODELS=(detectron2 jde yolox mmpose segment_anything sam2)
+VISION_MODELS=(
+    detectron2
+    jde
+    yolox
+    mmpose
+    segment_anything
+    sam2
+    fasterrcnn_mobilenet_v3_large_320_fpn
+    lraspp_mobilenet_v3_large
+    efficientvit_sam_l0
+    efficientvit_sam_l1
+    efficientvit_sam_l2
+    efficientvit_sam_xl0
+    efficientvit_sam_xl1
+)
 
 # Default versions
 TORCH_VERSION="2.0.0"
@@ -39,7 +53,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment-anything/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment_anything/sam2/fasterrcnn_mobilenet_v3_large_320_fpn/lraspp_mobilenet_v3_large/efficientvit_sam_l0/efficientvit_sam_l1/efficientvit_sam_l2/efficientvit_sam_xl0/efficientvit_sam_xl1/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -75,6 +89,10 @@ _EOF_
     esac;
 done;
 
+MODEL="${MODEL//segment-anything/segment_anything}"
+MODEL="${MODEL//faster-rcnn-mobilenet-v3-large-320-fpn/fasterrcnn_mobilenet_v3_large_320_fpn}"
+MODEL="${MODEL//lr-aspp-mobilenet-v3-large/lraspp_mobilenet_v3_large}"
+MODEL="${MODEL//efficientvit-sam-/efficientvit_sam_}"
 
 WEIGHTS="
 3c25caca37baabbff3e22cc9eb0923db165a0c18b867871a3bf3570bac9b7ef0  detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl                  https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl
@@ -90,6 +108,12 @@ a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5  sam2/sam2.1_hi
 2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318  sam2/sam2.1_hiera_large.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt
 6d1aa6f30de5c92224f8172114de081d104bbd23dd9dc5c58996f0cad5dc4d38  sam2/sam2.1_hiera_small.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt
 7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69  sam2/sam2.1_hiera_tiny.pt                                                                           https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt
+ba17f9fb28832baf5573e8a4212cad7740d606dd95b9c6d13c5465f603627813  efficientvit/source_json_file/coco_vitdet.json                                                     https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/source_json_file/coco_vitdet.json?download=true
+c4f994b01a16d48bcf2fbbb089448cfbf58fae5811edfa8113c953b8b8cc64b8  efficientvit/sam/l0.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l0.pt?download=true
+fa151df2b9b96896accd505470755cdd293a4c50cdabac95478f3fbd86d9152b  efficientvit/sam/l1.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l1.pt?download=true
+d4bfd842224cbb99de09acc3325e81ac5b7e8725c8fbdab152305e5d934bfe4a  efficientvit/sam/l2.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l2.pt?download=true
+9bc2f87bd23d6e6d1f7b5beff910f98835c7c333fac73e695bac0bec685968f8  efficientvit/sam/xl0.pt                                                                             https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_xl0.pt?download=true
+10f42277679427c1183dcff19758e536aa86bcc4304e4b387ff48865784be05c  efficientvit/sam/xl1.pt                                                                             https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_xl1.pt?download=true
 "
 
 
@@ -173,17 +197,17 @@ run_prepare() {
     detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
     
-    # for now, prepare all models to avoid issues with uv sync
-    # echo "Selected Models to be prepared: ${MODEL}"
+    echo "Selected Models to be prepared: ${MODEL}"
 
     for model in "${VISION_MODELS[@]}"; do
-        # if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
-            # JDE has a dependency on cython_bbox, so prepare it first.
-            if [[ "${model}" == "jde" ]]; then
-                prepare_cython_bbox
-            fi
-            "prepare_${model}"
-        # fi
+        if [[ " ${MODEL,,} " != *" ${model} "* ]] && [[ "${MODEL,,}" != "all" ]]; then
+            continue
+        fi
+        # JDE has a dependency on cython_bbox, so prepare it first.
+        if [[ "${model}" == "jde" ]]; then
+            prepare_cython_bbox
+        fi
+        "prepare_${model}"
     done
 }
 
@@ -522,6 +546,125 @@ install_sam2 () {
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
+prepare_torchvision_model () {
+    echo
+    echo "Preparing torchvision-backed models for installation"
+    echo "No external source tree is required."
+    echo
+}
+
+install_torchvision_model () {
+    echo
+    echo "Installing torchvision-backed models"
+    echo "Faster R-CNN MobileNetV3-Large 320 FPN and LR-ASPP MobileNetV3-Large are provided by torchvision."
+    echo
+
+    if ! "${PIP[@]}" show torchvision >/dev/null 2>&1; then
+        install_torch
+    fi
+}
+
+prepare_fasterrcnn_mobilenet_v3_large_320_fpn () {
+    prepare_torchvision_model
+}
+
+install_fasterrcnn_mobilenet_v3_large_320_fpn () {
+    install_torchvision_model
+}
+
+prepare_lraspp_mobilenet_v3_large () {
+    prepare_torchvision_model
+}
+
+install_lraspp_mobilenet_v3_large () {
+    install_torchvision_model
+}
+
+prepare_efficientvit_model () {
+    echo
+    echo "Preparing EfficientViT for installation"
+    echo
+
+    if [ -d "${MODELS_SOURCE_DIR}/efficientvit" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/efficientvit")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/efficientvit"
+        return
+    fi
+
+    git clone https://github.com/mit-han-lab/efficientvit.git "${MODELS_SOURCE_DIR}/efficientvit"
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+install_efficientvit_model () {
+    if [[ "${EFFICIENTVIT_INSTALLED:-False}" == "True" ]]; then
+        echo "EfficientViT-SAM is already installed in this run. Skipping duplicate installation."
+        return
+    fi
+
+    echo
+    echo "Installing EfficientViT-SAM (reference: https://github.com/mit-han-lab/efficientvit)"
+    echo "The upstream repository documents Python 3.10; this installer keeps dependencies minimal for Python 3.8 + CUDA 11.8."
+    echo
+
+    if [ ! -d "${MODELS_SOURCE_DIR}/segment_anything" ]; then
+        prepare_segment_anything
+    fi
+    if ! "${PIP[@]}" show segment_anything >/dev/null 2>&1; then
+        install_segment_anything
+    fi
+
+    if [ ! -d "${MODELS_SOURCE_DIR}/efficientvit" ]; then
+        prepare_efficientvit_model
+    fi
+
+    "${PIP[@]}" install "timm<1.0.0" einops torchprofile scipy tqdm huggingface-hub
+
+    cd "${MODELS_SOURCE_DIR}/efficientvit"
+    "${PIP[@]}" install --no-deps -e .
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+
+    EFFICIENTVIT_INSTALLED="True"
+}
+
+prepare_efficientvit_sam_l0 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l0 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_l1 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l1 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_l2 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l2 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_xl0 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_xl0 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_xl1 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_xl1 () {
+    install_efficientvit_model
+}
+
 download_weights () {
     detect_env
     mkdir -p "${MODELS_WEIGHT_DIR}"
@@ -535,8 +678,35 @@ download_weights () {
             echo "Downloading model weights for ${model}..."
             echo
 
-            FILTER="[0-9a-fA-F]* ${model}/"
-            FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
+            case "${model}" in
+                fasterrcnn_mobilenet_v3_large_320_fpn|lraspp_mobilenet_v3_large)
+                    FILTER="__NO_EXTERNAL_WEIGHTS__"
+                    ;;
+                efficientvit_sam_l0)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l0.pt)"
+                    ;;
+                efficientvit_sam_l1)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l1.pt)"
+                    ;;
+                efficientvit_sam_l2)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l2.pt)"
+                    ;;
+                efficientvit_sam_xl0)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/xl0.pt)"
+                    ;;
+                efficientvit_sam_xl1)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/xl1.pt)"
+                    ;;
+                *)
+                    FILTER="[0-9a-fA-F]* ${model}/"
+                    ;;
+            esac
+            FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep -E "${FILTER}" || true)
+
+            if [[ -z "${FILTERED_WEIGHTS}" ]]; then
+                echo "No external weight files are managed by this script for ${model}."
+                continue
+            fi
 
             echo "${FILTERED_WEIGHTS}" | while read -r entry; do
                 read -r _SHA256SUM OUTPATH URL <<< "$entry"

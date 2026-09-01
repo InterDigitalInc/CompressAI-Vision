@@ -176,6 +176,7 @@ class ImageRemoteInference(BasePipeline):
             dec_d = {
                 "file_name": dec_seq["file_names"][0],
                 "file_origin": d[0]["file_name"],
+                "image_id": d[0]["image_id"],
             }
             # dec_d = {"file_name": dec_seq[0]["file_names"][0]}
 

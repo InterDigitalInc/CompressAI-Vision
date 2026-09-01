@@ -10,6 +10,7 @@ config:
 settings:
   input_augmentation_bypass: False
   linear_mapper: False
+  preserve_annotations: False
   patch_size: [512, 512]
   ret_name: False
   use_BGR: False
@@ -20,5 +21,4 @@ loader:
   shuffle: False
   batch_size: 1
   num_workers: 2
-
 

@@ -27,20 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import base64
-import csv
-import os
-
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List
 
-import cv2
 import numpy as np
-import pandas
 import torch
-
-from torch.nn import functional as F
 
 from compressai_vision.registry import register_vision_model
 

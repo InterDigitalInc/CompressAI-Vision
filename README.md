@@ -28,6 +28,12 @@ It currently focuses on two types of pipeline:
 
 - [Segment Anything 2 (SAM2)](https://github.com/facebookresearch/sam2?tab=readme-ov-file)
 
+- [torchvision](https://github.com/pytorch/vision) Faster R-CNN MobileNetV3-Large 320 FPN for Object Detection
+
+- [torchvision](https://github.com/pytorch/vision) LR-ASPP MobileNetV3-Large for Semantic Segmentation
+
+- [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) for Prompted Instance Segmentation
+
 ## Documentation
 
 A complete documentation is provided [here](https://interdigitalinc.github.io/CompressAI-Vision/index.html), including [installation](https://interdigitalinc.github.io/CompressAI-Vision/installation), [CLI usage](https://interdigitalinc.github.io/CompressAI-Vision/cli_usage.html), as well as [tutorials](https://interdigitalinc.github.io/CompressAI-Vision/tutorials).
@@ -84,6 +90,22 @@ The file can be downloaded at the following link (in place of the above file pat
 
 NOTE 3: SAM2 requires python>=3.10, torch>=2.5.1 and torchvision>=0.20.1., which are higher versions of the packages needed for the previous models installation.
 For instance, the installation of models with the ‘-—fcm-cttc’ configuration may be incompatible with SAM2 installation, and vice versa.
+
+NOTE 4: torchvision Faster R-CNN MobileNetV3-Large 320 FPN and LR-ASPP MobileNetV3-Large use the existing torch/torchvision installation. For Python 3.8 and CUDA 11.8, use:
+```
+bash scripts/install.sh -m fasterrcnn_mobilenet_v3_large_320_fpn --cuda_version "11.8"
+bash scripts/install.sh -m lraspp_mobilenet_v3_large --cuda_version "11.8"
+```
+The pretrained torchvision weights are downloaded by torchvision at runtime when `weights: "DEFAULT"` is used.
+
+NOTE 5: EfficientViT-SAM is integrated as an optional wrapper around the official MIT HAN Lab EfficientViT package. The installer clones the upstream source, installs the package, and downloads the EfficientViT-SAM checkpoints under `weights/efficientvit/sam/`:
+```
+bash scripts/install.sh -m efficientvit_sam_l0 --cuda_version "11.8"
+```
+For the official COCO benchmark setting, use COCO val2017 with `annotations/instances_val2017.json` and ViTDet box prompts. The installer downloads the upstream `coco_vitdet.json` prompt file under `weights/efficientvit/source_json_file/`.
+The upstream EfficientViT repository documents a Python 3.10 environment. If Python 3.8 compatibility is mandatory, validate this package in the target environment before using the EfficientViT-SAM wrapper.
+
+NOTE 6: LR-ASPP is a semantic segmentation model. Use `evaluator.type=TORCHVISION-SEMSEG-EVAL` for torchvision semantic segmentation outputs.
 
 ### 2. Using uv:
 Within the root folder of compressai-vision:
@@ -183,3 +205,5 @@ If you use this project, please cite:
  * [MMPOSE RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmo)
  * [Segment Anything](https://github.com/facebookresearch/segment-anything/tree/main)
  * [SAM2](https://github.com/facebookresearch/sam2?tab=readme-ov-file)
+ * [torchvision](https://github.com/pytorch/vision) - BSD-3-Clause. Pretrained weights are linked/downloaded from upstream and may carry dataset-specific terms.
+ * [EfficientViT](https://github.com/mit-han-lab/efficientvit) - Apache-2.0. Pretrained weights are linked/downloaded from upstream and may carry dataset-specific terms.

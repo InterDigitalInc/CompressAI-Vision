@@ -40,6 +40,7 @@ import motmetrics as mm
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn.functional as F
 
 from pytorch_msssim import ms_ssim
 from tqdm import tqdm
@@ -104,6 +105,35 @@ def calculate_mIoU(gt, pred):
     return mIoU, iou_dict
 
 
+def calculate_semantic_miou(gt, pred, num_classes=None, ignore_index=255):
+    valid = gt != ignore_index
+    if num_classes is None:
+        if np.any(valid):
+            num_classes = int(max(gt[valid].max(), pred[valid].max())) + 1
+        else:
+            num_classes = int(pred.max()) + 1
+
+    class_iou = {}
+    total_iou = 0.0
+    num_present = 0
+    for class_id in range(num_classes):
+        gt_class = (gt == class_id) & valid
+        pred_class = (pred == class_id) & valid
+        union = np.logical_or(gt_class, pred_class).sum()
+        if union == 0:
+            class_iou[class_id] = np.nan
+            continue
+        intersection = np.logical_and(gt_class, pred_class).sum()
+        iou = float(intersection / union * 100.0)
+        class_iou[class_id] = iou
+        if gt_class.any():
+            total_iou += iou
+            num_present += 1
+
+    miou = total_iou / num_present if num_present > 0 else 0.0
+    return miou, class_iou
+
+
 @register_evaluator("COCO-EVAL")
 class COCOEVal(BaseEvaluator):
     def __init__(
@@ -137,9 +167,46 @@ class COCOEVal(BaseEvaluator):
         self._evaluator.reset()
         self._mse_results = []
 
+    def _map_dataset_ids_to_contiguous_ids(self, pred):
+        def get_builtin_coco_mapping():
+            try:
+                from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
+
+                return _get_builtin_metadata("coco")[
+                    "thing_dataset_id_to_contiguous_id"
+                ]
+            except Exception:
+                return {}
+
+        for item in pred:
+            instances = item.get("instances", None)
+            if instances is None or not instances.has("pred_classes_dataset_id"):
+                continue
+
+            dataset_ids = instances.pred_classes_dataset_id
+            thing_id_mapping = getattr(self, "thing_id_mapping", {}) or {}
+            builtin_coco_mapping = get_builtin_coco_mapping()
+            mapped = [
+                thing_id_mapping.get(
+                    int(dataset_id),
+                    builtin_coco_mapping.get(int(dataset_id), int(dataset_id)),
+                )
+                for dataset_id in dataset_ids
+            ]
+            instances.set(
+                "pred_classes",
+                torch.tensor(
+                    mapped,
+                    dtype=torch.int64,
+                    device=dataset_ids.device,
+                ),
+            )
+        return pred
+
     def digest(self, gt, pred, mse_results=None):
         if mse_results:
             self._mse_results.append({"image_id": gt[0]["image_id"], **mse_results})
+        pred = self._map_dataset_ids_to_contiguous_ids(pred)
         return self._evaluator.process(gt, pred)
 
     def save_visualization(self, gt, pred, output_dir, threshold):
@@ -640,6 +707,267 @@ class SemanticSegmentationEval(BaseEvaluator):
             return class_mIoU, overall_mse
         else:
             return class_mIoU
+
+
+@register_evaluator("TORCHVISION-SEMSEG-EVAL")
+class TorchvisionSemanticSegmentationEval(BaseEvaluator):
+    """
+    Semantic segmentation evaluator for torchvision segmentation models.
+
+    Predictions are expected in torchvision format, e.g. [{"out": CxHxW logits}].
+    Ground truth can be a dense semantic mask in each sample ("sem_seg" or
+    "sem_seg_file_name") or point annotations as Nx3 arrays/lists with x, y, cls.
+    """
+
+    def __init__(
+        self,
+        datacatalog_name,
+        dataset_name,
+        dataset,
+        output_dir="./vision_output/",
+        eval_criteria="mIoU",
+        **args,
+    ):
+        super().__init__(
+            datacatalog_name, dataset_name, dataset, output_dir, eval_criteria
+        )
+        self.set_annotation_info(dataset)
+        self.num_classes = args.get("num_classes") or 21
+        self.ignore_index = args.get("ignore_index") or 255
+        self.category_id_mapping = args.get("category_id_mapping", None)
+        self._coco_to_voc = {
+            1: 15,  # person
+            2: 2,  # bicycle
+            3: 7,  # car
+            4: 14,  # motorbike
+            5: 1,  # aeroplane
+            6: 6,  # bus
+            7: 19,  # train
+            9: 4,  # boat
+            16: 3,  # bird
+            17: 8,  # cat
+            18: 12,  # dog
+            19: 13,  # horse
+            20: 17,  # sheep
+            21: 10,  # cow
+            44: 5,  # bottle
+            62: 9,  # chair
+            63: 18,  # sofa
+            64: 16,  # potted plant
+            67: 11,  # dining table
+            72: 20,  # tv/monitor
+        }
+        self._contiguous_to_dataset_id = {
+            contiguous_id: dataset_id
+            for dataset_id, contiguous_id in (self.thing_id_mapping or {}).items()
+        }
+        self._sem_gt = None
+        if self.annotation_path and str(self.annotation_path).endswith(".npz"):
+            loaded = np.load(self.annotation_path, allow_pickle=True)
+            if "gt" in loaded:
+                self._sem_gt = loaded["gt"]
+            elif "sem_seg" in loaded:
+                self._sem_gt = loaded["sem_seg"]
+        self.calculate_feature_mse = args.get("calculate_feature_mse", False)
+        self.reset()
+
+    def _map_category_id(self, category_id):
+        category_id = int(category_id)
+        if self.category_id_mapping == "coco_to_voc":
+            dataset_id = self._contiguous_to_dataset_id.get(category_id, category_id)
+            return self._coco_to_voc.get(dataset_id, None)
+        return category_id
+
+    def reset(self):
+        self._seq_gt_cats = []
+        self._seq_det_cats = []
+        self._frame_ctr = 0
+        self._mse_results = []
+
+    @staticmethod
+    def _prediction_to_class_map(pred):
+        out = pred[0]["out"] if isinstance(pred, list) else pred["out"]
+        if out.dim() == 4:
+            out = out[0]
+        return out.argmax(dim=0).detach().cpu().numpy()
+
+    @staticmethod
+    def _read_semantic_mask(path):
+        mask = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+        if mask is None:
+            raise FileNotFoundError(path)
+        if mask.ndim == 3:
+            mask = mask[:, :, 0]
+        return mask
+
+    def _annotation_to_mask(self, annotation, height, width):
+        from pycocotools import mask as mask_util
+
+        segmentation = annotation.get("segmentation", None)
+        if not segmentation:
+            return None
+
+        if isinstance(segmentation, list):
+            rles = mask_util.frPyObjects(segmentation, height, width)
+            rle = mask_util.merge(rles)
+        elif isinstance(segmentation.get("counts", None), list):
+            rle = mask_util.frPyObjects(segmentation, height, width)
+        else:
+            rle = segmentation
+
+        decoded = mask_util.decode(rle)
+        if decoded.ndim == 3:
+            decoded = np.any(decoded, axis=2)
+        return decoded.astype(bool)
+
+    def _dense_gt_from_coco_annotations(self, sample):
+        annotations = sample.get("annotations", None)
+        if not isinstance(annotations, list):
+            return None
+
+        height = sample.get("height", None)
+        width = sample.get("width", None)
+        if height is None or width is None:
+            image = sample.get("image", None)
+            if torch.is_tensor(image):
+                height, width = image.shape[-2:]
+        if height is None or width is None:
+            return None
+
+        gt_mask = np.zeros((int(height), int(width)), dtype=np.int64)
+        instance_masks = []
+        instance_categories = []
+        for annotation in annotations:
+            category_id = self._map_category_id(
+                annotation.get("category_id", self.ignore_index)
+            )
+            if category_id is None:
+                continue
+            if category_id < 0 or category_id >= self.num_classes:
+                continue
+            ann_mask = self._annotation_to_mask(annotation, int(height), int(width))
+            if ann_mask is not None:
+                instance_masks.append(ann_mask)
+                instance_categories.append(category_id)
+
+        if not instance_masks:
+            return gt_mask
+
+        stacked_masks = np.stack(instance_masks, axis=0)
+        categories = np.asarray(instance_categories, dtype=np.int64)
+        labeled_masks = stacked_masks * categories[:, None, None]
+        gt_mask = labeled_masks.max(axis=0)
+        gt_mask[stacked_masks.sum(axis=0) > 1] = self.ignore_index
+        return gt_mask
+
+    def _dense_gt_from_sample(self, sample):
+        if "sem_seg" in sample:
+            sem_seg = sample["sem_seg"]
+            if torch.is_tensor(sem_seg):
+                return sem_seg.detach().cpu().numpy()
+            return np.asarray(sem_seg)
+        if "sem_seg_file_name" in sample:
+            return self._read_semantic_mask(sample["sem_seg_file_name"])
+
+        annotations = sample.get("annotations", None)
+        if isinstance(annotations, dict):
+            for key in ("sem_seg", "semantic_mask", "mask"):
+                if key in annotations:
+                    value = annotations[key]
+                    if isinstance(value, (str, Path)):
+                        return self._read_semantic_mask(value)
+                    return np.asarray(value)
+        coco_gt = self._dense_gt_from_coco_annotations(sample)
+        if coco_gt is not None:
+            return coco_gt
+        return None
+
+    def _point_gt_from_sample(self, sample):
+        annotations = sample.get("annotations", None)
+        if isinstance(annotations, dict) and "gt" in annotations:
+            return np.asarray(annotations["gt"])
+        if self._sem_gt is not None:
+            return np.asarray(self._sem_gt[self._frame_ctr])
+        return None
+
+    def digest(self, gt, pred, mse_results=None):
+        assert len(gt) == 1 and len(pred) == 1
+        pred_map = self._prediction_to_class_map(pred)
+        sample = gt[0]
+
+        gt_mask = self._dense_gt_from_sample(sample)
+        if gt_mask is not None:
+            if gt_mask.shape != pred_map.shape:
+                pred_tensor = torch.as_tensor(pred_map)[None, None].float()
+                pred_map = (
+                    F.interpolate(
+                        pred_tensor,
+                        size=gt_mask.shape[-2:],
+                        mode="nearest",
+                    )
+                    .squeeze()
+                    .to(torch.int64)
+                    .numpy()
+                )
+            gt_cats = gt_mask.reshape(-1).astype(np.int64)
+            det_cats = pred_map.reshape(-1).astype(np.int64)
+        else:
+            point_gt = self._point_gt_from_sample(sample)
+            if point_gt is None or point_gt.size == 0:
+                raise ValueError(
+                    "TORCHVISION-SEMSEG-EVAL requires dense semantic masks or Nx3 "
+                    "point annotations with x, y, cls."
+                )
+            point_gt = np.asarray(point_gt, dtype=np.int64)
+            xs = np.clip(point_gt[:, 0], 0, pred_map.shape[1] - 1)
+            ys = np.clip(point_gt[:, 1], 0, pred_map.shape[0] - 1)
+            gt_cats = point_gt[:, 2]
+            det_cats = pred_map[ys, xs]
+
+        self._seq_gt_cats.append(gt_cats)
+        self._seq_det_cats.append(det_cats)
+        self._frame_ctr += 1
+
+        if mse_results:
+            self._mse_results.append({"image_id": sample["image_id"], **mse_results})
+
+    def results(self, save_path: str = None):
+        seq_gt = np.concatenate(self._seq_gt_cats)
+        seq_det = np.concatenate(self._seq_det_cats)
+        miou, class_miou = calculate_semantic_miou(
+            seq_gt,
+            seq_det,
+            num_classes=self.num_classes,
+            ignore_index=self.ignore_index,
+        )
+        out = {str(k): v for k, v in class_miou.items()}
+        out["mIoU"] = miou
+
+        if save_path:
+            self.write_results(out, save_path)
+        self.write_results(out)
+
+        if self._mse_results:
+            mse_results_dict = {"per_frame_mse": self._mse_results}
+            avg_mse = defaultdict(float)
+            for frame_mse in self._mse_results:
+                for key, value in frame_mse.items():
+                    if key != "image_id":
+                        avg_mse[key] += value
+            for key in avg_mse:
+                avg_mse[key] /= len(self._mse_results)
+            overall_mse = sum(avg_mse.values()) / len(avg_mse) if avg_mse else 0.0
+            mse_results_dict["layer_average_mse"] = dict(avg_mse)
+            mse_results_dict["overall_average_mse"] = overall_mse
+            with open(
+                f"{self.output_dir}/{self.output_file_name}_mse.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(mse_results_dict, f, ensure_ascii=False, indent=4)
+            return out, overall_mse
+
+        return out
 
 
 @register_evaluator("MOT-JDE-EVAL")
