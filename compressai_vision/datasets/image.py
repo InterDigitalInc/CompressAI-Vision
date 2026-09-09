@@ -261,7 +261,9 @@ class Detectron2Dataset(BaseDataset):
                 kwargs["cfg"] is not None
             ), "A proper mapper information via cfg must be provided"
             mapper = DatasetMapper(kwargs["cfg"], False)
-            self._org_mapper_func = PicklableWrapper(DatasetMapper(kwargs["cfg"], False))
+            self._org_mapper_func = PicklableWrapper(
+                DatasetMapper(kwargs["cfg"], False)
+            )
 
         if self.input_agumentation_bypass:
             emptyAugList = AugmentationList([])

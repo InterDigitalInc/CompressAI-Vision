@@ -214,11 +214,21 @@ class ImageSplitInference(BasePipeline):
             ):
                 self._save_hashes(dec_features["decoded_feature_tensor_hash"])
 
-            # dec_features should contain "org_input_size" and "input_size"
-            # When using anchor codecs, that's not the case, we read input images to derive them
-            if "vision_model_info" not in dec_features:
+            # dec_features should contain "org_input_size" and "input_size".
+            # Some codecs provide those fields directly, some carry them through
+            # vision_model_info, and anchor codecs may require deriving them from
+            # the input image.
+            if "org_input_size" in dec_features and "input_size" in dec_features:
+                if isinstance(dec_features["org_input_size"], list):
+                    dec_features["org_input_size"] = dec_features["org_input_size"][0]
+                if (
+                    isinstance(dec_features["input_size"], list)
+                    and len(dec_features["input_size"]) > 1
+                ):
+                    dec_features["input_size"] = [dec_features["input_size"][0]]
+            elif "vision_model_info" not in dec_features:
                 self.logger.warning(
-                    "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
+                    "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
                 )
                 dec_features["org_input_size"] = org_img_size
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)

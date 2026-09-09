@@ -404,7 +404,10 @@ def _summarize_performance(evaluator_name, performance, eval_criteria):
             eval_criteria = def_criteria
             value = [v for k, v in performance.items() if k == eval_criteria]
         return value, eval_criteria
-    elif evaluator_name == "SemanticSegmentationEval":
+    elif evaluator_name in (
+        "SemanticSegmentationEval",
+        "TorchvisionSemanticSegmentationEval",
+    ):
         def_criteria = "mIoU"
         if not eval_criteria:
             eval_criteria = def_criteria

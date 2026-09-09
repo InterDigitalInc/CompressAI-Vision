@@ -28,8 +28,9 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from enum import Enum
 import json
+
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List
 
@@ -212,9 +213,7 @@ class EfficientViTSAM(BaseWrapper):
 
     @staticmethod
     def prompt_inputs(file_name):
-        prompt_link = file_name.replace("/images/", "/prompts/").replace(
-            ".jpg", ".txt"
-        )
+        prompt_link = file_name.replace("/images/", "/prompts/").replace(".jpg", ".txt")
         prompts = []
         object_classes = []
         with open(prompt_link, "r") as f:
