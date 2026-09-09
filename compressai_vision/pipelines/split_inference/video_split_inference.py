@@ -306,12 +306,16 @@ class VideoSplitInference(BasePipeline):
                 "feature_restoration", dec_complexity[0], dec_complexity[1]
             )
 
-        # dec_features should contain "org_input_size" and "input_size"
-        # When using anchor codecs, that's not the case, we read input images to derive them
+        # dec_features should contain "org_input_size" and "input_size".
+        # Some codecs provide those fields directly, some carry them through
+        # vision_model_info, and anchor codecs may require deriving them from
+        # the input image.
         vision_model_info = None
-        if "vision_model_info" not in dec_features:
+        if "org_input_size" in dec_features and "input_size" in dec_features:
+            pass
+        elif "vision_model_info" not in dec_features:
             self.logger.warning(
-                "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
+                "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
             )
             first_frame = next(iter(dataloader))
             org_img_size = {
@@ -330,6 +334,9 @@ class VideoSplitInference(BasePipeline):
             and dec_features["decoded_feature_tensor_hash"] is not None
         ):
             self._save_hashes(dec_features["decoded_feature_tensor_hash"])
+
+        org_input_sizes = dec_features.get("org_input_size")
+        input_sizes = dec_features.get("input_size")
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
@@ -383,6 +390,10 @@ class VideoSplitInference(BasePipeline):
                         ].scaled_input_source_width,
                     )
                 ]
+            elif isinstance(org_input_sizes, list) and isinstance(input_sizes, list):
+                metadata_idx = e if e < len(org_input_sizes) else -1
+                dec_features["org_input_size"] = org_input_sizes[metadata_idx]
+                dec_features["input_size"] = input_sizes[metadata_idx]
 
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
