@@ -251,10 +251,21 @@ class EfficientViTSAM(BaseWrapper):
 
         if isinstance(img, torch.Tensor):
             tensor = img.to(device)
+            if tensor.dim() == 4:
+                assert tensor.shape[0] == 1
+                tensor = tensor[0]
             if tensor.dim() == 3:
-                tensor = tensor.unsqueeze(0)
-            if tensor.dim() == 4 and tensor.shape[0] == 1:
-                return tensor, tuple(tensor.shape[-2:])
+                image = tensor.detach().cpu()
+                if image.shape[0] in (1, 3):
+                    image = image.permute(1, 2, 0)
+                if image.is_floating_point() and image.max() <= 1:
+                    image = image * 255
+                image = image.clamp(0, 255).to(torch.uint8).numpy()
+                self.predictor.set_image(image)
+                return (
+                    self.predictor.features.to(device),
+                    tuple(self.predictor.input_size),
+                )
 
         raise TypeError(
             "EfficientViT-SAM expects a numpy RGB image or a 3D/4D torch tensor"
@@ -282,10 +293,7 @@ class EfficientViTSAM(BaseWrapper):
     @torch.no_grad()
     def _input_to_image_encoder(self, x, device):
         prepared, input_size = self._prepare_image(x[0], device)
-        if isinstance(x[0]["image"], np.ndarray):
-            self.features_at_splits["imgenc"] = prepared
-        else:
-            self.features_at_splits["imgenc"] = self.image_encoder(prepared)
+        self.features_at_splits["imgenc"] = prepared
         return {"data": self.features_at_splits, "input_size": list(input_size)}
 
     @torch.no_grad()
