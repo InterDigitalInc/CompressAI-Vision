@@ -15,11 +15,12 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-requires-python = ">=3.8,<3.11"
+requires-python = ">=3.9,<3.13"
 
 dependencies = [
     "hydra-core",
@@ -76,8 +77,8 @@ cu118 = [
     "torchvision>=0.15.1",
 ]
 cu128 = [
-    "torch>=2.7.0 ; python_version >= '3.9'",
-    "torchvision>=0.22.0 ; python_version >= '3.9'",
+    "torch>=2.7.0",
+    "torchvision>=0.22.0",
 ]
 
 models-detectron2 = [
@@ -136,8 +137,8 @@ cu118 = [
     "torchvision>=0.15.1",
 ]
 cu128 = [
-    "torch>=2.7.0 ; python_version >= '3.9'",
-    "torchvision>=0.22.0 ; python_version >= '3.9'",
+    "torch>=2.7.0",
+    "torchvision>=0.22.0",
 ]
 models-detectron2 = [
     "detectron2==0.6",

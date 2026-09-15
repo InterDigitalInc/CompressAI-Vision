@@ -16,8 +16,8 @@ stages:
   - uv run --no-sync python --version
   - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
-uv-install-py38:
-  image: python:3.8-bullseye
+uv-install-py310:
+  image: python:3.10-bookworm
   stage: setup
   script:
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -29,8 +29,8 @@ uv-install-py38:
   tags:
     - docker
 
-uv-install-py310:
-  image: python:3.10-bullseye
+uv-install-py311:
+  image: python:3.11-bookworm
   stage: setup
   script:
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -43,7 +43,7 @@ uv-install-py310:
     - docker
 ruff-lint:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bookworm
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -53,26 +53,9 @@ ruff-lint:
   tags:
     - docker
 
-pytest-py38:
-  stage: test
-  image: python:3.8-bullseye
-  dependencies:
-    - uv-install-py38
-  before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
-    - uv sync --inexact --extra=dev --extra=cpu
-  script:
-    - uv run --no-sync pytest
-  tags:
-    - docker
-
 pytest-py310:
   stage: test
-  image: python:3.10-bullseye
+  image: python:3.10-bookworm
   dependencies:
     - uv-install-py310
   before_script:
@@ -80,40 +63,56 @@ pytest-py310:
     - apt-get install -y libgl1-mesa-glx build-essential
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - uv sync --inexact --extra=dev --extra=cpu
   script:
     - uv run --no-sync pytest
   tags:
     - docker
 
-pytest-pip-py38:
+pytest-py311:
   stage: test
-  image: python:3.8-bullseye
+  image: python:3.11-bookworm
+  dependencies:
+    - uv-install-py311
+  before_script:
+    - apt-get update -y
+    - apt-get install -y libgl1-mesa-glx build-essential
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
+    - uv sync --inexact --extra=dev --extra=cpu
+  script:
+    - uv run --no-sync pytest
+  tags:
+    - docker
+
+pytest-pip-py310:
+  stage: test
+  image: python:3.10-bookworm
   before_script:
     - apt-get update -y
     - apt-get install -y libgl1-mesa-glx build-essential
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
-    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - pip install -e .[dev,cpu]
   script:
     - pytest
   tags:
     - docker
 
-pytest-pip-py310:
+pytest-pip-py311:
   stage: test
-  image: python:3.10-bullseye
+  image: python:3.11-bookworm
   before_script:
     - apt-get update -y
     - apt-get install -y libgl1-mesa-glx build-essential
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - pip install -e .[dev,cpu]
   script:
     - pytest
@@ -122,7 +121,7 @@ pytest-pip-py310:
 
 ruff-format:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bookworm
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -134,7 +133,7 @@ ruff-format:
 
 ruff-organize-imports:
   stage: static-analysis
-  image: python:3.8-bullseye
+  image: python:3.10-bookworm
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
@@ -146,7 +145,7 @@ ruff-organize-imports:
 
 doc:
   stage: doc
-  image: python:3.8-bullseye
+  image: python:3.10-bookworm
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools
