@@ -15,12 +15,11 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.10,<3.11"
 
 dependencies = [
     "hydra-core",
@@ -80,6 +79,10 @@ cu128 = [
     "torch>=2.7.0",
     "torchvision>=0.22.0",
 ]
+sam2-cpu = [
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
+]
 
 models-detectron2 = [
     "detectron2==0.6",
@@ -97,6 +100,9 @@ models-yolox = [
 ]
 models-segment_anything = [
     "segment_anything",
+]
+models-sam2 = [
+    "sam2",
 ]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
@@ -140,6 +146,10 @@ cu128 = [
     "torch>=2.7.0",
     "torchvision>=0.22.0",
 ]
+sam2-cpu = [
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
+]
 models-detectron2 = [
     "detectron2==0.6",
 ]
@@ -156,6 +166,9 @@ models-yolox = [
 ]
 models-segment_anything = [
     "segment_anything",
+]
+models-sam2 = [
+    "sam2",
 ]
 
 [project.scripts]
@@ -178,6 +191,42 @@ conflicts = [
         { extra = "cpu" },
         { extra = "cu118" },
         { extra = "cu128" },
+        { extra = "sam2-cpu" },
+    ],
+    # sam2 requires iopath>=0.1.10; detectron2 pins iopath<0.1.10. The model
+    # groups are duplicated as extras above, so every combination is declared.
+    [
+        { group = "models-sam2" },
+        { group = "models-detectron2" },
+    ],
+    [
+        { group = "models-sam2" },
+        { extra = "models-detectron2" },
+    ],
+    [
+        { extra = "models-sam2" },
+        { group = "models-detectron2" },
+    ],
+    [
+        { extra = "models-sam2" },
+        { extra = "models-detectron2" },
+    ],
+    # sam2 requires torch>=2.5.1; the cpu/cu118 lanes hold the FCM CTTC torch.
+    [
+        { group = "models-sam2" },
+        { extra = "cpu" },
+    ],
+    [
+        { group = "models-sam2" },
+        { extra = "cu118" },
+    ],
+    [
+        { extra = "models-sam2" },
+        { extra = "cpu" },
+    ],
+    [
+        { extra = "models-sam2" },
+        { extra = "cu118" },
     ],
 ]
 no-build-isolation-package = [
@@ -187,6 +236,7 @@ no-build-isolation-package = [
     "xtcocotools",  # build-system.requires: Cython, numpy
     "yolox",  # build-system.requires: pycocotools, torch, yolox, ...
     "segment_anything",  # build-system.requires: Cython, numpy, setuptools ...
+    "sam2",  # build-system.requires: torch (builds the sam2._C CUDA extension)
 ]
 
 # Manually specify dependencies for packages without declarative dependency metadata.
@@ -248,6 +298,21 @@ requires-dist = [
 ]
 
 [[tool.uv.dependency-metadata]]
+name = "sam2"
+version = "1.0"
+requires-dist = [
+    # From https://github.com/facebookresearch/sam2/blob/main/setup.py
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
+    "numpy>=1.24.4",
+    "tqdm>=4.66.1",
+    "hydra-core>=1.3.2",
+    "iopath>=0.1.10",
+    "pillow>=9.4.0",
+]
+
+
+[[tool.uv.dependency-metadata]]
 name = "yolox"
 version = "0.3.0"
 requires-dist = [
@@ -303,15 +368,18 @@ jde = { path = "models/Towards-Realtime-MOT" }
 mmpose = { path = "models/mmpose" }
 yolox = { path = "models/yolox" }
 segment_anything = { path = "models/segment_anything" }
+sam2 = { path = "models/sam2" }
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
     { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cpu", extra = "sam2-cpu" },
 ]
 torchvision = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
     { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cpu", extra = "sam2-cpu" },
 ]
 
 

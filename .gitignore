@@ -8,6 +8,7 @@ compressai_vision/version.py
 tags
 venv*/
 venv/
+.venv*/
 
 examples/
 models/
