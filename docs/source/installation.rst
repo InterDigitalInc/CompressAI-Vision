@@ -19,7 +19,7 @@ First, create and activate the virtualenv with:
    source ./venv/bin/activate
    pip install -U pip
 
-You might want to define the python version explicitly, i.e. with ``python3.8 -m venv venv``.  Python3.8+ is required.
+You might want to define the python version explicitly, i.e. with ``python3.10 -m venv venv``.  Python 3.10 is required.
 
 **While in the activated virtualenv**, run the installation:
 

@@ -51,10 +51,10 @@ CompressAI-Vision can be installed using a virtual environment and pip or using 
 ### 1. Using a virtual environment:
 
 #### Initialization of the environment
-To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.8/library/venv.html) with python==3.8:
+To get started locally and install the development version of CompressAI-Vision, first create a [virtual environment](https://docs.python.org/3.10/library/venv.html) with python==3.10:
 
 ```
-python3.8 -m venv venv
+python3.10 -m venv venv
 source ./venv/bin/activate
 pip install -U pip
 ```
@@ -115,7 +115,7 @@ bash scripts/install_uv.sh
 
 Note: Make sure you pin the desired installed python version before, e.g., 
 ```
-uv python pin 3.8
+uv python pin 3.10
 ```
 
 ## Usage

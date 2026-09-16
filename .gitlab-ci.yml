@@ -9,6 +9,10 @@ stages:
   - test
   - doc
 
+.apt-before-script: &apt-before-script
+  - apt-get update -y
+  - apt-get install -y --no-install-recommends libgl1 libglib2.0-0 build-essential
+
 .default-before-script: &default-before-script
   - git submodule update --init --recursive
   - export PATH="${UV_INSTALL_DIR}:$PATH"
@@ -59,8 +63,7 @@ pytest-py310:
   dependencies:
     - uv-install-py310
   before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
+    - *apt-before-script
     - *default-before-script
     - uv pip install -U pip wheel setuptools
     - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
@@ -107,8 +110,7 @@ pytest-pip-py311:
   stage: test
   image: python:3.11-bookworm
   before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
+    - *apt-before-script
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools

@@ -119,6 +119,8 @@ d4bfd842224cbb99de09acc3325e81ac5b7e8725c8fbdab152305e5d934bfe4a  efficientvit/s
 
 MODELS_SOURCE_DIR="${MODELS_PARENT_DIR}/models"
 MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
+# SAM2 is resolved in its own environment; see install_sam2.
+SAM2_VENV_DIR="${SAM2_VENV_DIR:-${COMPRESSAI_VISION_ROOT_DIR}/.venv-sam2}"
 
 # pip3 is the default package manager, run install_uv.sh for uv
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
@@ -534,13 +536,31 @@ install_sam2 () {
     echo "Requirements: python>=3.10, as well as torch>=2.5.1 and torchvision>=0.20.1."
     echo
 
-    cd "${MODELS_SOURCE_DIR}/sam2"
+    # SAM2 needs torch>=2.5.1 and iopath>=0.1.10. The FCM CTTC stack pins torch
+    # 2.0.0 and detectron2 pins iopath<0.1.10, so SAM2 cannot share their
+    # environment; see the [tool.uv] conflicts in pyproject.toml. It is
+    # installed into a separate venv instead.
+    local sam2_extra
+    if [ "${CPU}" == "True" ]; then
+        sam2_extra="sam2-cpu"
+    else
+        sam2_extra="cu128"
+        if [[ "${CUDA_VERSION}" != 12.* ]]; then
+            echo "[WARNING] SAM2 requires torch>=2.5.1, which is built here against CUDA 12.8,"
+            echo "          but the detected CUDA version is ${CUDA_VERSION}."
+        fi
+    fi
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        echo "[WARNING] Installing SAM2 with pip into the active venv will upgrade torch"
+        echo "          past the FCM CTTC version. Use a dedicated venv for SAM2."
+        cd "${MODELS_SOURCE_DIR}/sam2"
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-sam2 --extra="${BUILD_SUFFIX}"
+        UV_PROJECT_ENVIRONMENT="${SAM2_VENV_DIR}" \
+            uv sync --inexact --group=models-sam2 --extra="${sam2_extra}"
+        echo "SAM2 installed into ${SAM2_VENV_DIR}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
