@@ -38,6 +38,10 @@ codec:
     load_hashes: False
     hash_dir_enc: "${codec.output_dir}/features_pre_nn_part2"
     hash_dir_dec: "${codec.hash_dir}/hashes_dec"
+    load_prompts: False
+    save_prompts: False
+    prompt_file_enc: "prompt_file_enc.yaml"
+    prompt_file_dec: "propmt_file_dec.yaml"
 nn_task_part2:
     dump_results: False
     output_results_dir: "${codec.output_dir}/output_results"
