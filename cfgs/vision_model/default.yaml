@@ -45,7 +45,10 @@ sam_vit_h_4b8939:
   model_path_prefix: ${..model_root_path}
   cfg: "Built-in configurations"
   weights: "weights/segment_anything/sam_vit_h_4b8939.pth"
+  prompts_folder: ${dataset.config.prompts_folder}
+  prompt_format: ${dataset.config.prompt_format}
   splits: "imgenc"
+  #splits: "global_attn2"
 
 sam2_hiera_image_model:
   model_path_prefix: ${..model_root_path}
