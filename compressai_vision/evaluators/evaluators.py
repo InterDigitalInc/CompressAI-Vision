@@ -153,8 +153,16 @@ class COCOEVal(BaseEvaluator):
 
         from detectron2.evaluation import COCOEvaluator
 
+        tasks = args.get("tasks")
+        if tasks:
+            tasks = tuple(tasks)
+
         self._evaluator = COCOEvaluator(
-            dataset_name, False, output_dir=output_dir, use_fast_impl=False
+            dataset_name,
+            tasks=tasks,
+            distributed=False,
+            output_dir=output_dir,
+            use_fast_impl=False,
         )
 
         if datacatalog_name == "MPEGOIV6":

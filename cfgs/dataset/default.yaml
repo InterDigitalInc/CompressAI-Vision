@@ -4,6 +4,8 @@ config:
   root: '/data/dataset'
   dataset_name: "sample_dataset"
   imgs_folder: 'images'
+  prompts_folder: "${.root}/prompts"
+  prompt_format: "points_class"
   annotation_file: "annotations/${.dataset_name}.json"
   seqinfo: "seqinfo.ini"
   ext: "png"
@@ -21,4 +23,3 @@ loader:
   shuffle: False
   batch_size: 1
   num_workers: 2
-
