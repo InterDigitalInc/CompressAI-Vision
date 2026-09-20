@@ -36,6 +36,8 @@ NO_PREPARE="False"
 NO_INSTALL="False"
 DOWNLOAD_WEIGHTS="True"
 FCM_CTTC="False" # Install all models in conformance with MPEG FCM Common Test and Training Conditions
+FCM_CTTC_PROFILE="legacy"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
 export DNNL_MAX_CPU_ISA=AVX2
@@ -66,11 +68,17 @@ RUN OPTIONS:
                 [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching
                 [--no-weights) prevents the installation script from downloading vision model parameters]
                 [--fcm-cttc) Install all models in conformance with MPEG FCM Common Test and Training Conditions:
-                             Torch 2.0.0, Torchvision 0.15.1, (CUDA 11.8 or CPU)]
+                             legacy profile: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             (CUDA 11.8 or CPU)]
+                [--fcm-cttc-profile PROFILE) Select an FCM CTTC comparison profile:
+                             legacy: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             modern: Python 3.12, Torch 2.6.0, Torchvision 0.21.0
+                             Both profiles use CUDA 11.8 or CPU.]
 
 
 EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 FCM EXAMPLE     [bash install.sh --fcm-cttc (--cpu)]
+PROFILE EXAMPLE [bash install.sh --fcm-cttc-profile modern (--cpu)]
 
 _EOF_
             exit;
@@ -85,6 +93,7 @@ _EOF_
         --no-install) NO_INSTALL="True"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         --fcm-cttc) FCM_CTTC="True"; shift; ;;
+        --fcm-cttc-profile) shift; FCM_CTTC="True"; FCM_CTTC_PROFILE="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
@@ -167,6 +176,9 @@ main () {
 
     if [[ "${NO_INSTALL}" == "False" ]]; then
         run_install
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            verify_fcm_cttc_versions
+        fi
     else
         echo "Skipping installation due to --no-install flag."
     fi
@@ -176,11 +188,41 @@ main () {
     fi
 }
 
+verify_fcm_cttc_versions() {
+    "${PYTHON_BIN}" -c \
+        'import sys, torch, torchvision; expected_torch, expected_vision = sys.argv[1:]; actual_torch = torch.__version__.split("+")[0]; actual_vision = torchvision.__version__.split("+")[0]; assert actual_torch == expected_torch and actual_vision == expected_vision, f"FCM CTTC dependency drift: expected torch={expected_torch}, torchvision={expected_vision}; found torch={actual_torch}, torchvision={actual_vision}"' \
+        "${TORCH_VERSION}" "${TORCHVISION_VERSION}"
+}
+
 configure_fcm_cttc() {
-    echo "FCM CTTC Mode Enabled: Enforcing strict versions for all models."
-    TORCH_VERSION="2.0.0"
-    # Correct torchvision version for torch 2.0.0
-    TORCHVISION_VERSION="0.15.1"
+    case "${FCM_CTTC_PROFILE}" in
+        legacy)
+            EXPECTED_PYTHON="3.10"
+            TORCH_VERSION="2.0.0"
+            TORCHVISION_VERSION="0.15.1"
+            ;;
+        modern)
+            EXPECTED_PYTHON="3.12"
+            TORCH_VERSION="2.6.0"
+            TORCHVISION_VERSION="0.21.0"
+            ;;
+        *)
+            echo "[ERROR] Unknown FCM CTTC profile: ${FCM_CTTC_PROFILE}. Use legacy or modern." >&2
+            exit 1
+            ;;
+    esac
+
+    if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+        echo "[ERROR] Python executable not found: ${PYTHON_BIN}" >&2
+        exit 1
+    fi
+    ACTUAL_PYTHON=$("${PYTHON_BIN}" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    if [[ "${ACTUAL_PYTHON}" != "${EXPECTED_PYTHON}" ]]; then
+        echo "[ERROR] FCM CTTC ${FCM_CTTC_PROFILE} requires Python ${EXPECTED_PYTHON}; found ${ACTUAL_PYTHON}." >&2
+        exit 1
+    fi
+
+    echo "FCM CTTC ${FCM_CTTC_PROFILE} profile enabled: Python ${EXPECTED_PYTHON}, Torch ${TORCH_VERSION}, Torchvision ${TORCHVISION_VERSION}."
     MODEL="detectron2 jde yolox"
     
     if [ ${CPU} == "False" ]; then
