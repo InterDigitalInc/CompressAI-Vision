@@ -337,17 +337,27 @@ prepare_detectron2 () {
     echo "Preparing detectron2 for installation"
     echo
 
-
     if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
         echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
-        return
+    else
+        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+        cd "${MODELS_SOURCE_DIR}/detectron2"
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            git -c advice.detachedHead=false checkout 175b2453c2bc4227b8039118c01494ee75b08136
+            git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+        fi
     fi
-    
-    git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    if [[ "${FCM_CTTC}" == "True" ]]; then
-        git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-        git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+    local pillow_patch="${SCRIPT_DIR}/install_utils/patches/0003-detectron2-pillow-10.patch"
+    if git apply --check "${pillow_patch}" >/dev/null 2>&1; then
+        echo "Applying Detectron2 Pillow 10 compatibility patch..."
+        git apply "${pillow_patch}"
+    elif git apply --reverse --check "${pillow_patch}" >/dev/null 2>&1; then
+        echo "Detectron2 Pillow 10 compatibility patch already applied."
+    else
+        echo "[ERROR] Could not apply Detectron2 Pillow 10 compatibility patch." >&2
+        exit 1
     fi
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
