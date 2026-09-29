@@ -278,20 +278,22 @@ class VideoSplitInference(BasePipeline):
 
         else:  # decode only
             res = {}
-            bin_files = [
+            bin_files = sorted(
                 file_path
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
                 if (
                     (file_path.suffix in [".bin", ".mp4"])
                     and "_tmp" not in file_path.name
+                    and "_nctm" not in file_path.stem
                 )
-            ]
+            )
+            matching_pattern = f"{self.bitstream_name}*"
             assert (
                 len(bin_files) > 0
-            ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
+            ), f"Error: decode_only mode, no bitstream file matching {matching_pattern}"
             assert (
                 len(bin_files) == 1
-            ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+            ), f"Error, decode_only mode, multiple bitstream files matching {matching_pattern}: {bin_files}"
             res["bitstream"] = bin_files[0]
             # bitstream_bytes = res["bitstream"].stat().st_size
 
