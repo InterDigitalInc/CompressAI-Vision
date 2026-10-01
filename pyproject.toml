@@ -77,13 +77,14 @@ cu118 = [
     "torch>=2.0.0",
     "torchvision>=0.15.1",
 ]
+# These optional stacks require Python 3.10+, including during universal resolution.
 cu128 = [
-    "torch>=2.7.0",
-    "torchvision>=0.22.0",
+    "torch>=2.7.0; python_version >= '3.10'",
+    "torchvision>=0.22.0; python_version >= '3.10'",
 ]
 sam2-cpu = [
-    "torch>=2.5.1",
-    "torchvision>=0.20.1",
+    "torch>=2.5.1; python_version >= '3.10'",
+    "torchvision>=0.20.1; python_version >= '3.10'",
 ]
 
 models-detectron2 = [
@@ -104,7 +105,7 @@ models-segment_anything = [
     "segment_anything",
 ]
 models-sam2 = [
-    "sam2",
+    "sam2; python_version >= '3.10'",
 ]
 
 # NOTE: Temporarily duplicated from [project.optional-dependencies] until
@@ -145,12 +146,12 @@ cu118 = [
     "torchvision>=0.15.1",
 ]
 cu128 = [
-    "torch>=2.7.0",
-    "torchvision>=0.22.0",
+    "torch>=2.7.0; python_version >= '3.10'",
+    "torchvision>=0.22.0; python_version >= '3.10'",
 ]
 sam2-cpu = [
-    "torch>=2.5.1",
-    "torchvision>=0.20.1",
+    "torch>=2.5.1; python_version >= '3.10'",
+    "torchvision>=0.20.1; python_version >= '3.10'",
 ]
 models-detectron2 = [
     "detectron2==0.6",
@@ -170,7 +171,7 @@ models-segment_anything = [
     "segment_anything",
 ]
 models-sam2 = [
-    "sam2",
+    "sam2; python_version >= '3.10'",
 ]
 
 [project.scripts]
