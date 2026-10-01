@@ -20,6 +20,11 @@ stages:
   - uv run --no-sync python --version
   - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
+.ruff-before-script: &ruff-before-script
+  - python -m venv .venv-ruff
+  - source .venv-ruff/bin/activate
+  - python -m pip install "ruff==0.8.6"
+
 uv-install-py310:
   image: python:3.10-bookworm
   stage: setup
@@ -48,12 +53,10 @@ uv-install-py311:
 ruff-lint:
   stage: static-analysis
   image: python:3.10-bookworm
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+  dependencies: []
+  before_script: *ruff-before-script
   script:
-    - uv run --no-sync make check-ruff-lint
+    - make check-ruff-lint
   tags:
     - docker
 
@@ -124,24 +127,20 @@ pytest-pip-py311:
 ruff-format:
   stage: static-analysis
   image: python:3.10-bookworm
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+  dependencies: []
+  before_script: *ruff-before-script
   script:
-    - uv run --no-sync make check-ruff-format
+    - make check-ruff-format
   tags:
     - docker
 
 ruff-organize-imports:
   stage: static-analysis
   image: python:3.10-bookworm
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+  dependencies: []
+  before_script: *ruff-before-script
   script:
-    - uv run --no-sync make check-ruff-organize-imports
+    - make check-ruff-organize-imports
   tags:
     - docker
 
