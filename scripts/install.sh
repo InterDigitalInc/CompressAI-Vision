@@ -36,7 +36,7 @@ NO_PREPARE="False"
 NO_INSTALL="False"
 DOWNLOAD_WEIGHTS="True"
 FCM_CTTC="False" # Install all models in conformance with MPEG FCM Common Test and Training Conditions
-FCM_CTTC_PROFILE="legacy"
+FCM_CTTC_PROFILE="py310"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
@@ -68,17 +68,18 @@ RUN OPTIONS:
                 [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching
                 [--no-weights) prevents the installation script from downloading vision model parameters]
                 [--fcm-cttc) Install all models in conformance with MPEG FCM Common Test and Training Conditions:
-                             legacy profile: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             py310 profile: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
                              (CUDA 11.8 or CPU)]
                 [--fcm-cttc-profile PROFILE) Select an FCM CTTC comparison profile:
-                             legacy: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
-                             modern: Python 3.12, Torch 2.6.0, Torchvision 0.21.0
-                             Both profiles use CUDA 11.8 or CPU.]
+                             py38: Python 3.8, Torch 2.0.0, Torchvision 0.15.1
+                             py310: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             py312: Python 3.12, Torch 2.6.0, Torchvision 0.21.0
+                             All profiles use CUDA 11.8 or CPU.]
 
 
 EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 FCM EXAMPLE     [bash install.sh --fcm-cttc (--cpu)]
-PROFILE EXAMPLE [bash install.sh --fcm-cttc-profile modern (--cpu)]
+PROFILE EXAMPLE [bash install.sh --fcm-cttc-profile py312 (--cpu)]
 
 _EOF_
             exit;
@@ -196,18 +197,23 @@ verify_fcm_cttc_versions() {
 
 configure_fcm_cttc() {
     case "${FCM_CTTC_PROFILE}" in
-        legacy)
+        py38)
+            EXPECTED_PYTHON="3.8"
+            TORCH_VERSION="2.0.0"
+            TORCHVISION_VERSION="0.15.1"
+            ;;
+        py310)
             EXPECTED_PYTHON="3.10"
             TORCH_VERSION="2.0.0"
             TORCHVISION_VERSION="0.15.1"
             ;;
-        modern)
+        py312)
             EXPECTED_PYTHON="3.12"
             TORCH_VERSION="2.6.0"
             TORCHVISION_VERSION="0.21.0"
             ;;
         *)
-            echo "[ERROR] Unknown FCM CTTC profile: ${FCM_CTTC_PROFILE}. Use legacy or modern." >&2
+            echo "[ERROR] Unknown FCM CTTC profile: ${FCM_CTTC_PROFILE}. Use py38, py310, or py312." >&2
             exit 1
             ;;
     esac
