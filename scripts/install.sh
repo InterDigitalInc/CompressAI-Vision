@@ -261,8 +261,24 @@ run_prepare() {
     done
 }
 
-run_install () {
+run_install () (
     detect_env
+    if [[ "${FCM_CTTC}" == "True" && "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        # Keep subsequent model/package installs on the selected CTTC stack.
+        # Apply NumPy/Pillow constraints before compiling native extensions too.
+        CTTC_CONSTRAINTS="${SCRIPT_DIR}/install_utils/cttc-constraints.txt"
+        export PIP_CONSTRAINT="${PIP_CONSTRAINT:+${PIP_CONSTRAINT} }${CTTC_CONSTRAINTS}"
+
+        # The bundled CompressAI metadata otherwise forces torchvision>=0.17
+        # on Python 3.10, replacing the CTTC torch/torchvision pair.
+        local compressai_patch="${SCRIPT_DIR}/install_utils/patches/0001-compressai-cttc-torchvision.patch"
+        if git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply --check "${compressai_patch}" >/dev/null 2>&1; then
+            git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply "${compressai_patch}"
+        elif ! git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply --reverse --check "${compressai_patch}" >/dev/null 2>&1; then
+            echo "[ERROR] Could not apply CompressAI CTTC compatibility patch." >&2
+            exit 1
+        fi
+    fi
     "${PIP[@]}" install -U pip wheel "setuptools>=68,<81"
     
     echo "Selected Models to be installed: ${MODEL}"
@@ -311,7 +327,7 @@ run_install () {
         uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
         uv sync --inexact --extra="${BUILD_SUFFIX}"
     fi
-}
+)
 
 detect_cuda_version () {
     if [ -n "${CUDA_VERSION}" ]; then
