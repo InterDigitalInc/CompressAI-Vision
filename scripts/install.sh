@@ -24,6 +24,16 @@ VISION_MODELS=(
     efficientvit_sam_xl1
 )
 
+# Models referenced as path sources in pyproject.toml [tool.uv.sources].
+UV_PATH_SOURCE_MODELS=(
+    detectron2
+    jde
+    yolox
+    mmpose
+    segment_anything
+    sam2
+)
+
 # Default versions
 TORCH_VERSION="2.0.0"
 TORCHVISION_VERSION="0.15.1"
@@ -247,10 +257,18 @@ run_prepare() {
     detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
     
-    echo "Selected Models to be prepared: ${MODEL}"
+    local models_to_prepare="${MODEL,,}"
+    if [[ "${PACKAGE_MANAGER}" == "uv" && "${models_to_prepare}" != "all" ]]; then
+        # uv.lock is universal: `uv lock` / `uv sync` read every path source in
+        # [tool.uv.sources], including models that are not installed, so all of
+        # them must be present. Only the selected models get installed.
+        models_to_prepare+=" ${UV_PATH_SOURCE_MODELS[*]}"
+    fi
+
+    echo "Selected Models to be prepared: ${models_to_prepare}"
 
     for model in "${VISION_MODELS[@]}"; do
-        if [[ " ${MODEL,,} " != *" ${model} "* ]] && [[ "${MODEL,,}" != "all" ]]; then
+        if [[ " ${models_to_prepare} " != *" ${model} "* ]] && [[ "${models_to_prepare}" != "all" ]]; then
             continue
         fi
         # JDE has a dependency on cython_bbox, so prepare it first.
