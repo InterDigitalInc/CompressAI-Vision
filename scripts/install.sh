@@ -268,16 +268,6 @@ run_install () (
         # Apply NumPy/Pillow constraints before compiling native extensions too.
         CTTC_CONSTRAINTS="${SCRIPT_DIR}/install_utils/cttc-constraints.txt"
         export PIP_CONSTRAINT="${PIP_CONSTRAINT:+${PIP_CONSTRAINT} }${CTTC_CONSTRAINTS}"
-
-        # The bundled CompressAI metadata otherwise forces torchvision>=0.17
-        # on Python 3.10, replacing the CTTC torch/torchvision pair.
-        local compressai_patch="${SCRIPT_DIR}/install_utils/patches/0001-compressai-cttc-torchvision.patch"
-        if git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply --check "${compressai_patch}" >/dev/null 2>&1; then
-            git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply "${compressai_patch}"
-        elif ! git -C "${COMPRESSAI_VISION_ROOT_DIR}/compressai" apply --reverse --check "${compressai_patch}" >/dev/null 2>&1; then
-            echo "[ERROR] Could not apply CompressAI CTTC compatibility patch." >&2
-            exit 1
-        fi
     fi
     "${PIP[@]}" install -U pip wheel "setuptools>=68,<81"
     
@@ -354,18 +344,65 @@ install_torch () {
 
 }
 
+# Pinned source revisions of the vision models.
+DETECTRON2_CTTC_COMMIT="175b2453c2bc4227b8039118c01494ee75b08136"
+CYTHON_BBOX_COMMIT="9badb346a9222c98f828ba45c63fe3b7f2790ea2"  # cython-bbox 0.1.3
+JDE_COMMIT="c2654cdd7b69d39af669cff90758c04436025fe1"
+YOLOX_COMMIT="d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a"
+MMPOSE_COMMIT="71ec36ebd63c475ab589afc817868e749a61491f"
+SEGMENT_ANYTHING_COMMIT="dca509fe793f601edb92606367a655c15ac00fdf"
+SAM2_COMMIT="2b90b9f5ceec907a1c18123530e92e794ad901a4"  # Dec 16, 2024
+
+# An existing source tree is reused only if it is still at the pinned commit
+# and carries the current version of every patch; otherwise fail instead of
+# silently installing (or locking) stale code/metadata.
+# usage: verify_existing_source DIR COMMIT [PATCH...]   (COMMIT may be empty)
+verify_existing_source () {
+    local dir="$1" commit="$2"; shift 2
+    local stale="False" head patch
+    if [[ ! -e "${dir}/.git" ]]; then
+        echo "[ERROR] ${dir} is not a git checkout." >&2
+        stale="True"
+    elif [[ -n "${commit}" ]]; then
+        head=$(git -C "${dir}" rev-parse HEAD)
+        if [[ "${head}" != "${commit}" ]]; then
+            echo "[ERROR] ${dir} is at ${head}, expected ${commit}." >&2
+            stale="True"
+        fi
+    fi
+    if [[ "${stale}" == "False" ]]; then
+        for patch in "$@"; do
+            if ! git -C "${dir}" apply --reverse --check "${SCRIPT_DIR}/install_utils/patches/${patch}" >/dev/null 2>&1; then
+                echo "[ERROR] ${dir}: ${patch} is missing or outdated." >&2
+                stale="True"
+            fi
+        done
+    fi
+    if [[ "${stale}" == "True" ]]; then
+        echo "        Stale source tree. Delete it and re-run the installer:" >&2
+        echo "          rm -rf \"${dir}\"" >&2
+        exit 1
+    fi
+    echo "Source directory already exists and is up to date: ${dir}"
+}
+
 prepare_detectron2 () {
     echo
     echo "Preparing detectron2 for installation"
     echo
 
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
+    if [ -d "${MODELS_SOURCE_DIR}/detectron2" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            verify_existing_source "${MODELS_SOURCE_DIR}/detectron2" "${DETECTRON2_CTTC_COMMIT}" \
+                0001-detectron2-fpn-bottom-up-separate.patch
+        else
+            echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
+        fi
     else
         git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
         cd "${MODELS_SOURCE_DIR}/detectron2"
         if [[ "${FCM_CTTC}" == "True" ]]; then
-            git -c advice.detachedHead=false checkout 175b2453c2bc4227b8039118c01494ee75b08136
+            git -c advice.detachedHead=false checkout "${DETECTRON2_CTTC_COMMIT}"
             git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
         fi
     fi
@@ -381,6 +418,20 @@ prepare_detectron2 () {
         echo "[ERROR] Could not apply Detectron2 Pillow 10 compatibility patch." >&2
         exit 1
     fi
+
+    # Build-ready tree for any frontend (pip or uv, incl. --no-install):
+    # declarative build-system and a setup.py that imports torch lazily.
+    cp "${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml" ./pyproject.toml
+    local lazy_patch="${SCRIPT_DIR}/install_utils/patches/0002-detectron2-lazy-torch-import.patch"
+    if git apply --check "${lazy_patch}" >/dev/null 2>&1; then
+        echo "Applying Detectron2 lazy torch import patch..."
+        git apply "${lazy_patch}"
+    elif git apply --reverse --check "${lazy_patch}" >/dev/null 2>&1; then
+        echo "Detectron2 lazy torch import patch already applied."
+    else
+        # Same tolerance as before for non-CTTC (main branch) checkouts.
+        echo "[WARNING] Could not apply Detectron2 lazy torch import patch." >&2
+    fi
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -389,9 +440,8 @@ install_detectron2 () {
     echo "Installing detectron2"
     echo
 
+    # pyproject.toml and the lazy torch import patch are set up by prepare_detectron2.
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    cp ${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml ./pyproject.toml
-    git apply "${SCRIPT_DIR}/install_utils/patches/0002-detectron2-lazy-torch-import.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install --no-build-isolation -e .
@@ -409,14 +459,14 @@ prepare_cython_bbox () {
     echo
 
     if [ -d "${SCRIPT_DIR}/cython_bbox" ] && [ -n "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
-        echo "Source directory already exists: ${SCRIPT_DIR}/cython_bbox"
+        verify_existing_source "${SCRIPT_DIR}/cython_bbox" "${CYTHON_BBOX_COMMIT}" \
+            0001-cython_bbox-compatible-with-numpy-1.24.1.patch
         return
     fi
 
     git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
     cd "${SCRIPT_DIR}/cython_bbox"
-    # cython-bbox 0.1.3
-    git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
+    git -c advice.detachedHead=false checkout "${CYTHON_BBOX_COMMIT}"
     git apply "${SCRIPT_DIR}/install_utils/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
@@ -444,13 +494,14 @@ prepare_jde () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        verify_existing_source "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT" "${JDE_COMMIT}" \
+            0000-jde-package.patch 0001-jde-interface-with-compressai-vision.patch
         return
     fi
 
     git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
     cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-    git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
+    git -c advice.detachedHead=false checkout "${JDE_COMMIT}"
     git apply "${SCRIPT_DIR}/install_utils/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
     git apply "${SCRIPT_DIR}/install_utils/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -482,13 +533,13 @@ prepare_yolox () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/yolox" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/yolox"
+        verify_existing_source "${MODELS_SOURCE_DIR}/yolox" "${YOLOX_COMMIT}"
         return
     fi
 
     git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
     cd "${MODELS_SOURCE_DIR}/yolox"
-    git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
+    git reset --hard "${YOLOX_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -518,13 +569,13 @@ prepare_mmpose () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/mmpose" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/mmpose"
+        verify_existing_source "${MODELS_SOURCE_DIR}/mmpose" "${MMPOSE_COMMIT}"
         return
     fi
 
     git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
     cd "${MODELS_SOURCE_DIR}/mmpose"
-    git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
+    git reset --hard "${MMPOSE_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -560,13 +611,13 @@ prepare_segment_anything () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/segment_anything" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/segment_anything")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/segment_anything"
+        verify_existing_source "${MODELS_SOURCE_DIR}/segment_anything" "${SEGMENT_ANYTHING_COMMIT}"
         return
     fi
 
     git clone https://github.com/facebookresearch/segment-anything.git "${MODELS_SOURCE_DIR}/segment_anything"
     cd "${MODELS_SOURCE_DIR}/segment_anything"
-    git reset --hard dca509fe793f601edb92606367a655c15ac00fdf
+    git reset --hard "${SEGMENT_ANYTHING_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -593,14 +644,13 @@ prepare_sam2 () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/sam2" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/sam2")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/sam2"
+        verify_existing_source "${MODELS_SOURCE_DIR}/sam2" "${SAM2_COMMIT}"
         return
     fi
 
     git clone https://github.com/facebookresearch/sam2.git "${MODELS_SOURCE_DIR}/sam2"
     cd "${MODELS_SOURCE_DIR}/sam2"
-    #  Dec 16, 2024
-    git reset --hard 2b90b9f5ceec907a1c18123530e92e794ad901a4
+    git reset --hard "${SAM2_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
