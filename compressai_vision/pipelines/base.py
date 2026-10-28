@@ -37,10 +37,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict, Tuple
 from uuid import uuid4 as uuid
-import yaml
 
 import torch
 import torch.nn as nn
+import yaml
 
 from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
@@ -326,7 +326,9 @@ class BasePipeline(nn.Module):
 
     def _load_prompts(self):
         prompt_file_enc = Path(self.configs["codec"].prompt_file_enc)
-        assert prompt_file_enc.is_file(), f"Prompt info SEI message input file not found: {prompt_file_enc}"
+        assert (
+            prompt_file_enc.is_file()
+        ), f"Prompt info SEI message input file not found: {prompt_file_enc}"
 
         with open(prompt_file_enc) as f:
             prompts = yaml.safe_load(f)

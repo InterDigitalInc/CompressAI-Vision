@@ -334,10 +334,7 @@ class VideoSplitInference(BasePipeline):
         ):
             self._save_hashes(dec_features["decoded_feature_tensor_hash"])
 
-        if (
-            "prompt_info" in dec_features
-            and dec_features["prompt_info"] is not None
-        ):
+        if "prompt_info" in dec_features and dec_features["prompt_info"] is not None:
             self._save_prompts(dec_features["prompt_info"])
 
         # separate a tensor of each keyword item into a list of tensors
@@ -461,6 +458,7 @@ class VideoSplitInference(BasePipeline):
                     print(v)
                     return str(v)
                 return v
+
             out_res = {k: stringify(k, v) for k, v in out_res.items()}
             output_list.append(out_res)
 
