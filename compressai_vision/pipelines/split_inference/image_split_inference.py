@@ -136,6 +136,9 @@ class ImageSplitInference(BasePipeline):
                 if self.configs["codec"]["load_hashes"]:
                     features["hashes"] = self._load_hashes()
 
+                if self.configs["codec"]["load_prompts"]:
+                    features["prompt_info"] = self._load_prompts()
+
                 del res["data"]
 
                 start = time_measure()
@@ -213,6 +216,12 @@ class ImageSplitInference(BasePipeline):
                 and dec_features["decoded_feature_tensor_hash"] is not None
             ):
                 self._save_hashes(dec_features["decoded_feature_tensor_hash"])
+
+            if (
+                "prompt_info" in dec_features
+                and dec_features["prompt_info"] is not None
+            ):
+                self._save_prompts(dec_features["prompt_info"])
 
             # dec_features should contain "org_input_size" and "input_size"
             # When using anchor codecs, that's not the case, we read input images to derive them

@@ -40,6 +40,7 @@ from uuid import uuid4 as uuid
 
 import torch
 import torch.nn as nn
+import yaml
 
 from omegaconf.errors import InterpolationResolutionError
 from torch import Tensor
@@ -322,6 +323,25 @@ class BasePipeline(nn.Module):
             with open(hash_dir_dec / Path(f"img_id{frame_idx:06d}.md5"), "w") as f:
                 for dec_hash in dec_hashs:
                     f.write(dec_hash.hex() + "\n")
+
+    def _load_prompts(self):
+        prompt_file_enc = Path(self.configs["codec"].prompt_file_enc)
+        assert (
+            prompt_file_enc.is_file()
+        ), f"Prompt info SEI message input file not found: {prompt_file_enc}"
+
+        with open(prompt_file_enc) as f:
+            prompts = yaml.safe_load(f)
+
+        return prompts
+
+    def _save_prompts(self, dec_prompts):
+        prompt_file_dec = Path(self.configs["codec"].prompt_file_dec)
+        if prompt_file_dec.is_file():
+            self.logger.warning(f"Overwriting prompt file: {prompt_file_dec}")
+
+        with open(prompt_file_dec, "w") as f:
+            yaml.dump(prompt_file_dec, f)
 
     def _from_input_to_features(
         self,
