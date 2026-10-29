@@ -162,8 +162,8 @@ pytest-pip-py312:
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
-    - pip install -e .[dev,cpu]
+    - bash scripts/install.sh --fcm-cttc-profile py312 --no-weights --cpu
+    - pip install -c scripts/install_utils/cttc-constraints.txt -e .[dev,cpu]
   script:
     - pytest
   tags:
