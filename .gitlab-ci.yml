@@ -50,6 +50,20 @@ uv-install-py311:
     expire_in: 1 day
   tags:
     - docker
+
+uv-install-py312:
+  image: python:3.12-bookworm
+  stage: setup
+  script:
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - *default-before-script
+  artifacts:
+    paths:
+      - ".local/"
+    expire_in: 1 day
+  tags:
+    - docker
+
 ruff-lint:
   stage: static-analysis
   image: python:3.10-bookworm
@@ -93,6 +107,22 @@ pytest-py311:
   tags:
     - docker
 
+pytest-py312:
+  stage: test
+  image: python:3.12-bookworm
+  dependencies:
+    - uv-install-py312
+  before_script:
+    - *apt-before-script
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
+    - uv sync --inexact --extra=dev --extra=cpu
+  script:
+    - uv run --no-sync pytest
+  tags:
+    - docker
+
 pytest-pip-py310:
   stage: test
   image: python:3.10-bookworm
@@ -112,6 +142,21 @@ pytest-pip-py310:
 pytest-pip-py311:
   stage: test
   image: python:3.11-bookworm
+  before_script:
+    - *apt-before-script
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip wheel setuptools
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
+    - pip install -e .[dev,cpu]
+  script:
+    - pytest
+  tags:
+    - docker
+
+pytest-pip-py312:
+  stage: test
+  image: python:3.12-bookworm
   before_script:
     - *apt-before-script
     - python3 -m venv venv
