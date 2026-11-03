@@ -8,7 +8,31 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${SCRIPT_PATH}")" &> /dev/null && pwd)
 
 # --- Configuration ---
 # Central array for all vision models
-VISION_MODELS=(detectron2 jde yolox mmpose segment_anything sam2)
+VISION_MODELS=(
+    detectron2
+    jde
+    yolox
+    mmpose
+    segment_anything
+    sam2
+    fasterrcnn_mobilenet_v3_large_320_fpn
+    lraspp_mobilenet_v3_large
+    efficientvit_sam_l0
+    efficientvit_sam_l1
+    efficientvit_sam_l2
+    efficientvit_sam_xl0
+    efficientvit_sam_xl1
+)
+
+# Models referenced as path sources in pyproject.toml [tool.uv.sources].
+UV_PATH_SOURCE_MODELS=(
+    detectron2
+    jde
+    yolox
+    mmpose
+    segment_anything
+    sam2
+)
 
 # Default versions
 TORCH_VERSION="2.0.0"
@@ -22,6 +46,8 @@ NO_PREPARE="False"
 NO_INSTALL="False"
 DOWNLOAD_WEIGHTS="True"
 FCM_CTTC="False" # Install all models in conformance with MPEG FCM Common Test and Training Conditions
+FCM_CTTC_PROFILE="py310"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 # Constrain DNNL to avoid AVX512, which leads to non-deterministic operation across different CPUs...
 export DNNL_MAX_CPU_ISA=AVX2
@@ -39,7 +65,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 
 RUN OPTIONS:
-                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment-anything/all) default=all]
+                [-m|--model, vision models to install, (detectron2/jde/yolox/mmpose/segment_anything/sam2/fasterrcnn_mobilenet_v3_large_320_fpn/lraspp_mobilenet_v3_large/efficientvit_sam_l0/efficientvit_sam_l1/efficientvit_sam_l2/efficientvit_sam_xl0/efficientvit_sam_xl1/all) default=all]
                 [-t|--torch torch version, default="2.0.0"]
                 [--torchvision torchvision version, default="0.15.1"]
                 [--cpu) build for cpu only)]
@@ -52,11 +78,18 @@ RUN OPTIONS:
                 [--no-install) do not install (i.e. useful for only preparing source code by downloading and patching
                 [--no-weights) prevents the installation script from downloading vision model parameters]
                 [--fcm-cttc) Install all models in conformance with MPEG FCM Common Test and Training Conditions:
-                             Torch 2.0.0, Torchvision 0.15.1, (CUDA 11.8 or CPU)]
+                             py310 profile: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             (CUDA 11.8 or CPU)]
+                [--fcm-cttc-profile PROFILE) Select an FCM CTTC comparison profile:
+                             py38: Python 3.8, Torch 2.0.0, Torchvision 0.15.1
+                             py310: Python 3.10, Torch 2.0.0, Torchvision 0.15.1
+                             py312: Python 3.12, Torch 2.6.0, Torchvision 0.21.0
+                             All profiles use CUDA 11.8 or CPU.]
 
 
 EXAMPLE         [bash install.sh -m detectron2 -t "1.9.1" --cuda_version "11.8" --compressai /path/to/compressai]
 FCM EXAMPLE     [bash install.sh --fcm-cttc (--cpu)]
+PROFILE EXAMPLE [bash install.sh --fcm-cttc-profile py312 (--cpu)]
 
 _EOF_
             exit;
@@ -71,10 +104,15 @@ _EOF_
         --no-install) NO_INSTALL="True"; shift; ;;
         --no-weights) DOWNLOAD_WEIGHTS="False"; shift; ;;
         --fcm-cttc) FCM_CTTC="True"; shift; ;;
+        --fcm-cttc-profile) shift; FCM_CTTC="True"; FCM_CTTC_PROFILE="$1"; shift; ;;
         *) echo "[ERROR] Unknown parameter $1"; exit; ;;
     esac;
 done;
 
+MODEL="${MODEL//segment-anything/segment_anything}"
+MODEL="${MODEL//faster-rcnn-mobilenet-v3-large-320-fpn/fasterrcnn_mobilenet_v3_large_320_fpn}"
+MODEL="${MODEL//lr-aspp-mobilenet-v3-large/lraspp_mobilenet_v3_large}"
+MODEL="${MODEL//efficientvit-sam-/efficientvit_sam_}"
 
 WEIGHTS="
 3c25caca37baabbff3e22cc9eb0923db165a0c18b867871a3bf3570bac9b7ef0  detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl                  https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl
@@ -90,11 +128,19 @@ a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5  sam2/sam2.1_hi
 2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318  sam2/sam2.1_hiera_large.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt
 6d1aa6f30de5c92224f8172114de081d104bbd23dd9dc5c58996f0cad5dc4d38  sam2/sam2.1_hiera_small.pt                                                                          https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt
 7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69  sam2/sam2.1_hiera_tiny.pt                                                                           https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt
+ba17f9fb28832baf5573e8a4212cad7740d606dd95b9c6d13c5465f603627813  efficientvit/source_json_file/coco_vitdet.json                                                     https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/source_json_file/coco_vitdet.json?download=true
+c4f994b01a16d48bcf2fbbb089448cfbf58fae5811edfa8113c953b8b8cc64b8  efficientvit/sam/l0.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l0.pt?download=true
+fa151df2b9b96896accd505470755cdd293a4c50cdabac95478f3fbd86d9152b  efficientvit/sam/l1.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l1.pt?download=true
+d4bfd842224cbb99de09acc3325e81ac5b7e8725c8fbdab152305e5d934bfe4a  efficientvit/sam/l2.pt                                                                              https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_l2.pt?download=true
+9bc2f87bd23d6e6d1f7b5beff910f98835c7c333fac73e695bac0bec685968f8  efficientvit/sam/xl0.pt                                                                             https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_xl0.pt?download=true
+10f42277679427c1183dcff19758e536aa86bcc4304e4b387ff48865784be05c  efficientvit/sam/xl1.pt                                                                             https://huggingface.co/mit-han-lab/efficientvit-sam/resolve/main/efficientvit_sam_xl1.pt?download=true
 "
 
 
 MODELS_SOURCE_DIR="${MODELS_PARENT_DIR}/models"
 MODELS_WEIGHT_DIR="${MODELS_PARENT_DIR}/weights"
+# SAM2 is resolved in its own environment; see install_sam2.
+SAM2_VENV_DIR="${SAM2_VENV_DIR:-${COMPRESSAI_VISION_ROOT_DIR}/.venv-sam2}"
 
 # pip3 is the default package manager, run install_uv.sh for uv
 PACKAGE_MANAGER="${PACKAGE_MANAGER:-pip3}"
@@ -141,6 +187,9 @@ main () {
 
     if [[ "${NO_INSTALL}" == "False" ]]; then
         run_install
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            verify_fcm_cttc_versions
+        fi
     else
         echo "Skipping installation due to --no-install flag."
     fi
@@ -150,11 +199,46 @@ main () {
     fi
 }
 
+verify_fcm_cttc_versions() {
+    "${PYTHON_BIN}" -c \
+        'import sys, torch, torchvision; expected_torch, expected_vision = sys.argv[1:]; actual_torch = torch.__version__.split("+")[0]; actual_vision = torchvision.__version__.split("+")[0]; assert actual_torch == expected_torch and actual_vision == expected_vision, f"FCM CTTC dependency drift: expected torch={expected_torch}, torchvision={expected_vision}; found torch={actual_torch}, torchvision={actual_vision}"' \
+        "${TORCH_VERSION}" "${TORCHVISION_VERSION}"
+}
+
 configure_fcm_cttc() {
-    echo "FCM CTTC Mode Enabled: Enforcing strict versions for all models."
-    TORCH_VERSION="2.0.0"
-    # Correct torchvision version for torch 2.0.0
-    TORCHVISION_VERSION="0.15.1"
+    case "${FCM_CTTC_PROFILE}" in
+        py38)
+            EXPECTED_PYTHON="3.8"
+            TORCH_VERSION="2.0.0"
+            TORCHVISION_VERSION="0.15.1"
+            ;;
+        py310)
+            EXPECTED_PYTHON="3.10"
+            TORCH_VERSION="2.0.0"
+            TORCHVISION_VERSION="0.15.1"
+            ;;
+        py312)
+            EXPECTED_PYTHON="3.12"
+            TORCH_VERSION="2.6.0"
+            TORCHVISION_VERSION="0.21.0"
+            ;;
+        *)
+            echo "[ERROR] Unknown FCM CTTC profile: ${FCM_CTTC_PROFILE}. Use py38, py310, or py312." >&2
+            exit 1
+            ;;
+    esac
+
+    if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+        echo "[ERROR] Python executable not found: ${PYTHON_BIN}" >&2
+        exit 1
+    fi
+    ACTUAL_PYTHON=$("${PYTHON_BIN}" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    if [[ "${ACTUAL_PYTHON}" != "${EXPECTED_PYTHON}" ]]; then
+        echo "[ERROR] FCM CTTC ${FCM_CTTC_PROFILE} requires Python ${EXPECTED_PYTHON}; found ${ACTUAL_PYTHON}." >&2
+        exit 1
+    fi
+
+    echo "FCM CTTC ${FCM_CTTC_PROFILE} profile enabled: Python ${EXPECTED_PYTHON}, Torch ${TORCH_VERSION}, Torchvision ${TORCHVISION_VERSION}."
     MODEL="detectron2 jde yolox"
     
     if [ ${CPU} == "False" ]; then
@@ -173,22 +257,36 @@ run_prepare() {
     detect_env
     mkdir -p "${MODELS_SOURCE_DIR}"
     
-    # for now, prepare all models to avoid issues with uv sync
-    # echo "Selected Models to be prepared: ${MODEL}"
+    local models_to_prepare="${MODEL,,}"
+    if [[ "${PACKAGE_MANAGER}" == "uv" && "${models_to_prepare}" != "all" ]]; then
+        # uv.lock is universal: `uv lock` / `uv sync` read every path source in
+        # [tool.uv.sources], including models that are not installed, so all of
+        # them must be present. Only the selected models get installed.
+        models_to_prepare+=" ${UV_PATH_SOURCE_MODELS[*]}"
+    fi
+
+    echo "Selected Models to be prepared: ${models_to_prepare}"
 
     for model in "${VISION_MODELS[@]}"; do
-        # if [[ " ${MODEL,,} " == *" ${model} "* ]] || [[ "${MODEL,,}" == "all" ]]; then
-            # JDE has a dependency on cython_bbox, so prepare it first.
-            if [[ "${model}" == "jde" ]]; then
-                prepare_cython_bbox
-            fi
-            "prepare_${model}"
-        # fi
+        if [[ " ${models_to_prepare} " != *" ${model} "* ]] && [[ "${models_to_prepare}" != "all" ]]; then
+            continue
+        fi
+        # JDE has a dependency on cython_bbox, so prepare it first.
+        if [[ "${model}" == "jde" ]]; then
+            prepare_cython_bbox
+        fi
+        "prepare_${model}"
     done
 }
 
-run_install () {
+run_install () (
     detect_env
+    if [[ "${FCM_CTTC}" == "True" && "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        # Keep subsequent model/package installs on the selected CTTC stack.
+        # Apply NumPy/Pillow constraints before compiling native extensions too.
+        CTTC_CONSTRAINTS="${SCRIPT_DIR}/install_utils/cttc-constraints.txt"
+        export PIP_CONSTRAINT="${PIP_CONSTRAINT:+${PIP_CONSTRAINT} }${CTTC_CONSTRAINTS}"
+    fi
     "${PIP[@]}" install -U pip wheel "setuptools>=68,<81"
     
     echo "Selected Models to be installed: ${MODEL}"
@@ -237,7 +335,7 @@ run_install () {
         uv sync --inexact --extra="${BUILD_SUFFIX}" --dry-run
         uv sync --inexact --extra="${BUILD_SUFFIX}"
     fi
-}
+)
 
 detect_cuda_version () {
     if [ -n "${CUDA_VERSION}" ]; then
@@ -264,22 +362,93 @@ install_torch () {
 
 }
 
+# Pinned source revisions of the vision models.
+DETECTRON2_CTTC_COMMIT="175b2453c2bc4227b8039118c01494ee75b08136"
+CYTHON_BBOX_COMMIT="9badb346a9222c98f828ba45c63fe3b7f2790ea2"  # cython-bbox 0.1.3
+JDE_COMMIT="c2654cdd7b69d39af669cff90758c04436025fe1"
+YOLOX_COMMIT="d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a"
+MMPOSE_COMMIT="71ec36ebd63c475ab589afc817868e749a61491f"
+SEGMENT_ANYTHING_COMMIT="dca509fe793f601edb92606367a655c15ac00fdf"
+SAM2_COMMIT="2b90b9f5ceec907a1c18123530e92e794ad901a4"  # Dec 16, 2024
+
+# An existing source tree is reused only if it is still at the pinned commit
+# and carries the current version of every patch; otherwise fail instead of
+# silently installing (or locking) stale code/metadata.
+# usage: verify_existing_source DIR COMMIT [PATCH...]   (COMMIT may be empty)
+verify_existing_source () {
+    local dir="$1" commit="$2"; shift 2
+    local stale="False" head patch
+    if [[ ! -e "${dir}/.git" ]]; then
+        echo "[ERROR] ${dir} is not a git checkout." >&2
+        stale="True"
+    elif [[ -n "${commit}" ]]; then
+        head=$(git -C "${dir}" rev-parse HEAD)
+        if [[ "${head}" != "${commit}" ]]; then
+            echo "[ERROR] ${dir} is at ${head}, expected ${commit}." >&2
+            stale="True"
+        fi
+    fi
+    if [[ "${stale}" == "False" ]]; then
+        for patch in "$@"; do
+            if ! git -C "${dir}" apply --reverse --check "${SCRIPT_DIR}/install_utils/patches/${patch}" >/dev/null 2>&1; then
+                echo "[ERROR] ${dir}: ${patch} is missing or outdated." >&2
+                stale="True"
+            fi
+        done
+    fi
+    if [[ "${stale}" == "True" ]]; then
+        echo "        Stale source tree. Delete it and re-run the installer:" >&2
+        echo "          rm -rf \"${dir}\"" >&2
+        exit 1
+    fi
+    echo "Source directory already exists and is up to date: ${dir}"
+}
+
 prepare_detectron2 () {
     echo
     echo "Preparing detectron2 for installation"
     echo
 
-
-    if [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
-        return
+    if [ -d "${MODELS_SOURCE_DIR}/detectron2" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/detectron2")" ]; then
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            verify_existing_source "${MODELS_SOURCE_DIR}/detectron2" "${DETECTRON2_CTTC_COMMIT}" \
+                0001-detectron2-fpn-bottom-up-separate.patch
+        else
+            echo "Source directory already exists: ${MODELS_SOURCE_DIR}/detectron2"
+        fi
+    else
+        git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+        cd "${MODELS_SOURCE_DIR}/detectron2"
+        if [[ "${FCM_CTTC}" == "True" ]]; then
+            git -c advice.detachedHead=false checkout "${DETECTRON2_CTTC_COMMIT}"
+            git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+        fi
     fi
-    
-    git clone --single-branch --branch main https://github.com/facebookresearch/detectron2.git "${MODELS_SOURCE_DIR}/detectron2"
+
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    if [[ "${FCM_CTTC}" == "True" ]]; then
-        git -c advice.detachedHead=false  checkout 175b2453c2bc4227b8039118c01494ee75b08136
-        git apply "${SCRIPT_DIR}/install_utils/patches/0001-detectron2-fpn-bottom-up-separate.patch" || echo "Patch could not be applied. Possibly already applied."
+    local pillow_patch="${SCRIPT_DIR}/install_utils/patches/0003-detectron2-pillow-10.patch"
+    if git apply --check "${pillow_patch}" >/dev/null 2>&1; then
+        echo "Applying Detectron2 Pillow 10 compatibility patch..."
+        git apply "${pillow_patch}"
+    elif git apply --reverse --check "${pillow_patch}" >/dev/null 2>&1; then
+        echo "Detectron2 Pillow 10 compatibility patch already applied."
+    else
+        echo "[ERROR] Could not apply Detectron2 Pillow 10 compatibility patch." >&2
+        exit 1
+    fi
+
+    # Build-ready tree for any frontend (pip or uv, incl. --no-install):
+    # declarative build-system and a setup.py that imports torch lazily.
+    cp "${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml" ./pyproject.toml
+    local lazy_patch="${SCRIPT_DIR}/install_utils/patches/0002-detectron2-lazy-torch-import.patch"
+    if git apply --check "${lazy_patch}" >/dev/null 2>&1; then
+        echo "Applying Detectron2 lazy torch import patch..."
+        git apply "${lazy_patch}"
+    elif git apply --reverse --check "${lazy_patch}" >/dev/null 2>&1; then
+        echo "Detectron2 lazy torch import patch already applied."
+    else
+        # Same tolerance as before for non-CTTC (main branch) checkouts.
+        echo "[WARNING] Could not apply Detectron2 lazy torch import patch." >&2
     fi
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
@@ -289,9 +458,8 @@ install_detectron2 () {
     echo "Installing detectron2"
     echo
 
+    # pyproject.toml and the lazy torch import patch are set up by prepare_detectron2.
     cd "${MODELS_SOURCE_DIR}/detectron2"
-    cp ${SCRIPT_DIR}/install_utils/detectron2_pyproject.toml ./pyproject.toml
-    git apply "${SCRIPT_DIR}/install_utils/patches/0002-detectron2-lazy-torch-import.patch" || echo "Patch could not be applied. Possibly already applied."
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
         "${PIP[@]}" install --no-build-isolation -e .
@@ -309,14 +477,14 @@ prepare_cython_bbox () {
     echo
 
     if [ -d "${SCRIPT_DIR}/cython_bbox" ] && [ -n "$(ls -A "${SCRIPT_DIR}/cython_bbox")" ]; then
-        echo "Source directory already exists: ${SCRIPT_DIR}/cython_bbox"
+        verify_existing_source "${SCRIPT_DIR}/cython_bbox" "${CYTHON_BBOX_COMMIT}" \
+            0001-cython_bbox-compatible-with-numpy-1.24.1.patch
         return
     fi
 
     git clone https://github.com/samson-wang/cython_bbox.git "${SCRIPT_DIR}/cython_bbox"
     cd "${SCRIPT_DIR}/cython_bbox"
-    # cython-bbox 0.1.3
-    git checkout 9badb346a9222c98f828ba45c63fe3b7f2790ea2
+    git -c advice.detachedHead=false checkout "${CYTHON_BBOX_COMMIT}"
     git apply "${SCRIPT_DIR}/install_utils/patches/0001-cython_bbox-compatible-with-numpy-1.24.1.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
@@ -344,13 +512,14 @@ prepare_jde () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
+        verify_existing_source "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT" "${JDE_COMMIT}" \
+            0000-jde-package.patch 0001-jde-interface-with-compressai-vision.patch
         return
     fi
 
     git clone https://github.com/Zhongdao/Towards-Realtime-MOT.git "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
     cd "${MODELS_SOURCE_DIR}/Towards-Realtime-MOT"
-    git -c advice.detachedHead=false checkout c2654cdd7b69d39af669cff90758c04436025fe1
+    git -c advice.detachedHead=false checkout "${JDE_COMMIT}"
     git apply "${SCRIPT_DIR}/install_utils/patches/0000-jde-package.patch" || echo "Patch could not be applied. Possibly already applied."
     git apply "${SCRIPT_DIR}/install_utils/patches/0001-jde-interface-with-compressai-vision.patch" || echo "Patch could not be applied. Possibly already applied."
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
@@ -382,13 +551,13 @@ prepare_yolox () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/yolox" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/yolox")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/yolox"
+        verify_existing_source "${MODELS_SOURCE_DIR}/yolox" "${YOLOX_COMMIT}"
         return
     fi
 
     git clone https://github.com/Megvii-BaseDetection/yolox.git "${MODELS_SOURCE_DIR}/yolox"
     cd "${MODELS_SOURCE_DIR}/yolox"
-    git reset --hard d872c71bf63e1906ef7b7bb5a9d7a529c7a59e6a
+    git reset --hard "${YOLOX_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -418,13 +587,13 @@ prepare_mmpose () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/mmpose" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/mmpose")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/mmpose"
+        verify_existing_source "${MODELS_SOURCE_DIR}/mmpose" "${MMPOSE_COMMIT}"
         return
     fi
 
     git clone https://github.com/open-mmlab/mmpose.git "${MODELS_SOURCE_DIR}/mmpose"
     cd "${MODELS_SOURCE_DIR}/mmpose"
-    git reset --hard 71ec36ebd63c475ab589afc817868e749a61491f
+    git reset --hard "${MMPOSE_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -460,13 +629,13 @@ prepare_segment_anything () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/segment_anything" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/segment_anything")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/segment_anything"
+        verify_existing_source "${MODELS_SOURCE_DIR}/segment_anything" "${SEGMENT_ANYTHING_COMMIT}"
         return
     fi
 
     git clone https://github.com/facebookresearch/segment-anything.git "${MODELS_SOURCE_DIR}/segment_anything"
     cd "${MODELS_SOURCE_DIR}/segment_anything"
-    git reset --hard dca509fe793f601edb92606367a655c15ac00fdf
+    git reset --hard "${SEGMENT_ANYTHING_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -493,14 +662,13 @@ prepare_sam2 () {
     echo
 
     if [ -d "${MODELS_SOURCE_DIR}/sam2" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/sam2")" ]; then
-        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/sam2"
+        verify_existing_source "${MODELS_SOURCE_DIR}/sam2" "${SAM2_COMMIT}"
         return
     fi
 
     git clone https://github.com/facebookresearch/sam2.git "${MODELS_SOURCE_DIR}/sam2"
     cd "${MODELS_SOURCE_DIR}/sam2"
-    #  Dec 16, 2024
-    git reset --hard 2b90b9f5ceec907a1c18123530e92e794ad901a4
+    git reset --hard "${SAM2_COMMIT}"
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
 }
 
@@ -510,16 +678,153 @@ install_sam2 () {
     echo "Requirements: python>=3.10, as well as torch>=2.5.1 and torchvision>=0.20.1."
     echo
 
-    cd "${MODELS_SOURCE_DIR}/sam2"
+    # SAM2 needs torch>=2.5.1 and iopath>=0.1.10. The FCM CTTC stack pins torch
+    # 2.0.0 and detectron2 pins iopath<0.1.10, so SAM2 cannot share their
+    # environment; see the [tool.uv] conflicts in pyproject.toml. It is
+    # installed into a separate venv instead.
+    local sam2_extra
+    if [ "${CPU}" == "True" ]; then
+        sam2_extra="sam2-cpu"
+    else
+        sam2_extra="cu128"
+        if [[ "${CUDA_VERSION}" != 12.* ]]; then
+            echo "[WARNING] SAM2 requires torch>=2.5.1, which is built here against CUDA 12.8,"
+            echo "          but the detected CUDA version is ${CUDA_VERSION}."
+        fi
+    fi
 
     if [[ "${PACKAGE_MANAGER}" == "pip3" ]]; then
+        echo "[WARNING] Installing SAM2 with pip into the active venv will upgrade torch"
+        echo "          past the FCM CTTC version. Use a dedicated venv for SAM2."
+        cd "${MODELS_SOURCE_DIR}/sam2"
         "${PIP[@]}" install -e .
     elif [[ "${PACKAGE_MANAGER}" == "uv" ]]; then
         cd "${COMPRESSAI_VISION_ROOT_DIR}"
-        uv sync --inexact --group=models-sam2 --extra="${BUILD_SUFFIX}"
+        UV_PROJECT_ENVIRONMENT="${SAM2_VENV_DIR}" \
+            uv sync --inexact --group=models-sam2 --extra="${sam2_extra}"
+        echo "SAM2 installed into ${SAM2_VENV_DIR}"
     fi
 
     cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+prepare_torchvision_model () {
+    echo
+    echo "Preparing torchvision-backed models for installation"
+    echo "No external source tree is required."
+    echo
+}
+
+install_torchvision_model () {
+    echo
+    echo "Installing torchvision-backed models"
+    echo "Faster R-CNN MobileNetV3-Large 320 FPN and LR-ASPP MobileNetV3-Large are provided by torchvision."
+    echo
+
+    if ! "${PIP[@]}" show torchvision >/dev/null 2>&1; then
+        install_torch
+    fi
+}
+
+prepare_fasterrcnn_mobilenet_v3_large_320_fpn () {
+    prepare_torchvision_model
+}
+
+install_fasterrcnn_mobilenet_v3_large_320_fpn () {
+    install_torchvision_model
+}
+
+prepare_lraspp_mobilenet_v3_large () {
+    prepare_torchvision_model
+}
+
+install_lraspp_mobilenet_v3_large () {
+    install_torchvision_model
+}
+
+prepare_efficientvit_model () {
+    echo
+    echo "Preparing EfficientViT for installation"
+    echo
+
+    if [ -d "${MODELS_SOURCE_DIR}/efficientvit" ] && [ -n "$(ls -A "${MODELS_SOURCE_DIR}/efficientvit")" ]; then
+        echo "Source directory already exists: ${MODELS_SOURCE_DIR}/efficientvit"
+        return
+    fi
+
+    git clone https://github.com/mit-han-lab/efficientvit.git "${MODELS_SOURCE_DIR}/efficientvit"
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+}
+
+install_efficientvit_model () {
+    if [[ "${EFFICIENTVIT_INSTALLED:-False}" == "True" ]]; then
+        echo "EfficientViT-SAM is already installed in this run. Skipping duplicate installation."
+        return
+    fi
+
+    echo
+    echo "Installing EfficientViT-SAM (reference: https://github.com/mit-han-lab/efficientvit)"
+    echo "The upstream repository documents Python 3.10; this installer keeps dependencies minimal for Python 3.8 + CUDA 11.8."
+    echo
+
+    if [ ! -d "${MODELS_SOURCE_DIR}/segment_anything" ]; then
+        prepare_segment_anything
+    fi
+    if ! "${PIP[@]}" show segment_anything >/dev/null 2>&1; then
+        install_segment_anything
+    fi
+
+    if [ ! -d "${MODELS_SOURCE_DIR}/efficientvit" ]; then
+        prepare_efficientvit_model
+    fi
+
+    "${PIP[@]}" install "timm<1.0.0" einops torchprofile scipy tqdm huggingface-hub
+
+    cd "${MODELS_SOURCE_DIR}/efficientvit"
+    "${PIP[@]}" install --no-deps -e .
+    cd "${COMPRESSAI_VISION_ROOT_DIR}"
+
+    EFFICIENTVIT_INSTALLED="True"
+}
+
+prepare_efficientvit_sam_l0 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l0 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_l1 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l1 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_l2 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_l2 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_xl0 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_xl0 () {
+    install_efficientvit_model
+}
+
+prepare_efficientvit_sam_xl1 () {
+    prepare_efficientvit_model
+}
+
+install_efficientvit_sam_xl1 () {
+    install_efficientvit_model
 }
 
 download_weights () {
@@ -535,8 +840,35 @@ download_weights () {
             echo "Downloading model weights for ${model}..."
             echo
 
-            FILTER="[0-9a-fA-F]* ${model}/"
-            FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep "${FILTER}")
+            case "${model}" in
+                fasterrcnn_mobilenet_v3_large_320_fpn|lraspp_mobilenet_v3_large)
+                    FILTER="__NO_EXTERNAL_WEIGHTS__"
+                    ;;
+                efficientvit_sam_l0)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l0.pt)"
+                    ;;
+                efficientvit_sam_l1)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l1.pt)"
+                    ;;
+                efficientvit_sam_l2)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/l2.pt)"
+                    ;;
+                efficientvit_sam_xl0)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/xl0.pt)"
+                    ;;
+                efficientvit_sam_xl1)
+                    FILTER="[0-9a-fA-F]+ +(efficientvit/source_json_file/coco_vitdet.json|efficientvit/sam/xl1.pt)"
+                    ;;
+                *)
+                    FILTER="[0-9a-fA-F]* ${model}/"
+                    ;;
+            esac
+            FILTERED_WEIGHTS=$(echo "$WEIGHTS" | grep -E "${FILTER}" || true)
+
+            if [[ -z "${FILTERED_WEIGHTS}" ]]; then
+                echo "No external weight files are managed by this script for ${model}."
+                continue
+            fi
 
             echo "${FILTERED_WEIGHTS}" | while read -r entry; do
                 read -r _SHA256SUM OUTPATH URL <<< "$entry"

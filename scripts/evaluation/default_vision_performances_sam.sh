@@ -1,83 +1,133 @@
 #!/usr/bin/env bash
 #
-# This runs the evaluation of original models, whitout compression 
-# make sure you sourced the virtual environment that contains up-to-date installed compressai-vision
-# see provided installation scripts
-set -eu
+# Runs SAM inference on the MPEG-OIV6 image dataset.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+export PYTHONPATH="${PROJECT_ROOT}/models/segment_anything${PYTHONPATH:+:${PYTHONPATH}}"
 
 usage() {
-    echo "Usage: $0 --command <command> --testdata <path> --device <device>"
-    echo ""
-    echo "Runs evaluation for vision performances with SAM."
-    echo ""
-    echo "Options:"
-    echo "  -c, --command      Entrypoint command. Options: compressai-split-inference, compressai-remote-inference"
-    echo "  -t, --testdata     Path to the test data directory (e.g., /path/to/COCODataset/)."
-    echo "  -d, --device       Device to use for evaluation (e.g., cuda:0)."
-    echo "  -h, --help         Display this help message."
-    exit 1
+    cat <<EOF
+Usage: $0 --command <command> --testdata <dataset-dir> --device <device> [options]
+
+Options:
+  -c, --command      compressai-split-inference or compressai-remote-inference.
+  -t, --testdata     MPEG-OIV6 directory containing images/, prompts/, and annotations/.
+  -d, --device       Device used for SAM inference, for example cuda:0 or cpu.
+  -o, --output-dir   Root output directory (default: ./logs/runs).
+  -s, --split-point  SAM split point: imgenc or global_attn2 (default: imgenc).
+  -a, --annotation   Annotation path relative to the dataset root
+                     (default: annotations/mpeg-oiv6-segmentation-coco.json).
+      --dry-run      Resolve and print the Hydra configuration without running inference.
+      --             Pass all remaining arguments as Hydra overrides.
+  -h, --help         Display this help message.
+
+Example:
+  $0 \
+    --command compressai-split-inference \
+    --testdata /data/datasets/MPEG-FCM/fcm_testdata/mpeg-oiv6 \
+    --device cuda:0
+EOF
 }
 
-# Parse arguments
+OUTPUT_DIR="./logs/runs"
+SPLIT_POINT="imgenc"
+ANNOTATION_FILE="annotations/mpeg-oiv6-segmentation-coco.json"
+DRY_RUN=false
+EXTRA_ARGS=()
+
 while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        -c|--command) shift; ENTRY_CMD="$1"; shift; ;;
-        -t|--testdata) shift; TESTDATA_DIR="$1"; shift; ;;
-        -d|--device) shift; DEVICE="$1"; shift; ;;
-        -h|--help) usage;;
-        *) echo "[ERROR] Unknown parameter $1"; usage; exit; ;;
+    case "$1" in
+        -c|--command) ENTRY_CMD="$2"; shift 2 ;;
+        -t|--testdata) TESTDATA_DIR="$2"; shift 2 ;;
+        -d|--device) DEVICE="$2"; shift 2 ;;
+        -o|--output-dir) OUTPUT_DIR="$2"; shift 2 ;;
+        -s|--split-point) SPLIT_POINT="$2"; shift 2 ;;
+        -a|--annotation) ANNOTATION_FILE="$2"; shift 2 ;;
+        --dry-run) DRY_RUN=true; shift ;;
+        --) shift; EXTRA_ARGS=("$@"); break ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "[ERROR] Unknown parameter: $1" >&2; usage; exit 1 ;;
     esac
 done
 
-# Check if mandatory arguments are provided
-if [ -z "${ENTRY_CMD-}" ] || [ -z "${TESTDATA_DIR-}" ] || [ -z "${DEVICE-}" ]; then
-    echo "Error: Missing mandatory arguments."
+if [[ -z "${ENTRY_CMD:-}" || -z "${TESTDATA_DIR:-}" || -z "${DEVICE:-}" ]]; then
+    echo "[ERROR] --command, --testdata, and --device are required." >&2
     usage
-fi
-
-# List of entry cmds 
-CMD_OPTS=("compressai-split-inference" "compressai-remote-inference")
-
-if [[ " ${CMD_OPTS[@]} " =~ " ${ENTRY_CMD} " ]]; then
-    echo "Run ${ENTRY_CMD} ........"
-else
-    echo ": ${ENTRY_CMD} does not exist in the options."
-    echo ": Please choose one out of these options: ${CMD_OPTS[*]}"
     exit 1
 fi
 
-declare -A configs
+case "${ENTRY_CMD}" in
+    compressai-split-inference) CONF_NAME="eval_split_inference_example.yaml" ;;
+    compressai-remote-inference) CONF_NAME="eval_remote_inference_example.yaml" ;;
+    *) echo "[ERROR] Unsupported command: ${ENTRY_CMD}" >&2; exit 1 ;;
+esac
 
-configs["compressai-split-inference"]="eval_split_inference_example"
-configs["compressai-remote-inference"]="eval_remote_inference_example"
-
-CONF_NAME=${configs[${ENTRY_CMD}]}
-
-if [ ! -d "${TESTDATA_DIR}" ]; then
-    echo "${TESTDATA_DIR} does not exist, please select dataset folder, e.g.
-    $ bash default_vision_performances.sh --command [entry_cmd] --testdata [/path/to/dataset] --device [device]"
-    exit
+if ! command -v "${ENTRY_CMD}" >/dev/null 2>&1; then
+    echo "[ERROR] Command not found: ${ENTRY_CMD}" >&2
+    echo "Activate the CompressAI-Vision environment before running this script." >&2
+    exit 1
 fi
 
-MPEG_SAM="${TESTDATA_DIR}/sam_test"
+for directory in images prompts; do
+    if [[ ! -d "${TESTDATA_DIR}/${directory}" ]]; then
+        echo "[ERROR] Directory does not exist: ${TESTDATA_DIR}/${directory}" >&2
+        exit 1
+    fi
+done
 
+if [[ ! -f "${TESTDATA_DIR}/${ANNOTATION_FILE}" ]]; then
+    echo "[ERROR] Annotation file does not exist: ${TESTDATA_DIR}/${ANNOTATION_FILE}" >&2
+    exit 1
+fi
 
+if [[ "${SPLIT_POINT}" != "imgenc" && "${SPLIT_POINT}" != "global_attn2" ]]; then
+    echo "[ERROR] Unsupported split point: ${SPLIT_POINT}" >&2
+    exit 1
+fi
 
-# MPEGOIV6 - Small test
-${ENTRY_CMD} --config-name=${CONF_NAME}.yaml \
-             pipeline.type=image \
-             vision_model.arch=sam_vit_h_4b8939 \
-             dataset.type=SamDataset \
-             dataset.datacatalog=MPEGSAM \
-             dataset.config.root=${MPEG_SAM} \
-             dataset.config.annotation_file=annotations/mpeg-oiv6-segmentation-coco_2images.json \
-             dataset.config.dataset_name=mpeg-oiv6-sam \
-             evaluator.type=OIC-EVAL \
-             evaluator.overwrite_results=True \
-             codec.encoder_config.parallel_encoding=False \
-             pipeline.nn_task_part1.load_features=False \
-             pipeline.nn_task_part1.dump_features=False \
-             pipeline.nn_task_part2.dump_features=False \
-             misc.device.nn_parts=${DEVICE} \
-             codec.eval_encode='bpp' \
+declare -a COMMAND=(
+    "${ENTRY_CMD}"
+    "--config-name=${CONF_NAME}"
+    "pipeline.type=image"
+    "paths._run_root=${OUTPUT_DIR}"
+    "vision_model.arch=sam_vit_h_4b8939"
+    "vision_model.sam_vit_h_4b8939.splits=${SPLIT_POINT}"
+    "dataset.type=SamDataset"
+    "dataset.datacatalog=MPEGSAM"
+    "dataset.config.root=${TESTDATA_DIR}"
+    "dataset.config.imgs_folder=images"
+    "dataset.config.prompts_folder=${TESTDATA_DIR}/prompts"
+    "dataset.config.prompt_format=point_label_class"
+    "dataset.config.annotation_file=${ANNOTATION_FILE}"
+    "dataset.config.dataset_name=mpeg-oiv6-sam"
+    "dataset.config.seqinfo=none"
+    "dataset.config.ext=jpg"
+    "dataset.loader.num_workers=1"
+    "evaluator.type=OIC-EVAL"
+    "evaluator.overwrite_results=True"
+    "codec.type=bypass"
+    "codec.eval_encode=bpp"
+    "codec.device=${DEVICE}"
+    "+codec.hash_dir=${OUTPUT_DIR}/hashes"
+    "+codec.save_visualization=False"
+    "pipeline.nn_task_part1.load_features=False"
+    "pipeline.nn_task_part1.dump_features=False"
+    "pipeline.nn_task_part2.dump_features=False"
+    "misc.device.nn_parts=${DEVICE}"
+)
+
+COMMAND+=("${EXTRA_ARGS[@]}")
+
+if [[ "${DRY_RUN}" == true ]]; then
+    COMMAND+=("--cfg" "job" "--resolve")
+fi
+
+echo "Dataset:     ${TESTDATA_DIR}"
+echo "Split point: ${SPLIT_POINT}"
+echo "Device:      ${DEVICE}"
+echo "Prompts:     ${TESTDATA_DIR}/prompts"
+echo "Annotation:  ${TESTDATA_DIR}/${ANNOTATION_FILE}"
+
+"${COMMAND[@]}"

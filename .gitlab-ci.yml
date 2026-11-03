@@ -9,6 +9,10 @@ stages:
   - test
   - doc
 
+.apt-before-script: &apt-before-script
+  - apt-get update -y
+  - apt-get install -y --no-install-recommends libgl1 libglib2.0-0 build-essential
+
 .default-before-script: &default-before-script
   - git submodule update --init --recursive
   - export PATH="${UV_INSTALL_DIR}:$PATH"
@@ -16,21 +20,13 @@ stages:
   - uv run --no-sync python --version
   - bash scripts/install_uv.sh --no-install --no-weights --cpu
 
-uv-install-py38:
-  image: python:3.8-bullseye
-  stage: setup
-  script:
-    - curl -LsSf https://astral.sh/uv/install.sh | sh
-    - *default-before-script
-  artifacts:
-    paths:
-      - ".local/"
-    expire_in: 1 day
-  tags:
-    - docker
+.ruff-before-script: &ruff-before-script
+  - python -m venv .venv-ruff
+  - source .venv-ruff/bin/activate
+  - python -m pip install "ruff==0.8.6"
 
 uv-install-py310:
-  image: python:3.10-bullseye
+  image: python:3.10-bookworm
   stage: setup
   script:
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -41,80 +37,133 @@ uv-install-py310:
     expire_in: 1 day
   tags:
     - docker
-ruff-lint:
-  stage: static-analysis
-  image: python:3.8-bullseye
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+
+uv-install-py311:
+  image: python:3.11-bookworm
+  stage: setup
   script:
-    - uv run --no-sync make check-ruff-lint
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - *default-before-script
+  artifacts:
+    paths:
+      - ".local/"
+    expire_in: 1 day
   tags:
     - docker
 
-pytest-py38:
-  stage: test
-  image: python:3.8-bullseye
-  dependencies:
-    - uv-install-py38
-  before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
-    - uv sync --inexact --extra=dev --extra=cpu
+uv-install-py312:
+  image: python:3.12-bookworm
+  stage: setup
   script:
-    - uv run --no-sync pytest
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - *default-before-script
+  artifacts:
+    paths:
+      - ".local/"
+    expire_in: 1 day
+  tags:
+    - docker
+
+ruff-lint:
+  stage: static-analysis
+  image: python:3.10-bookworm
+  dependencies: []
+  before_script: *ruff-before-script
+  script:
+    - make check-ruff-lint
   tags:
     - docker
 
 pytest-py310:
   stage: test
-  image: python:3.10-bullseye
+  image: python:3.10-bookworm
   dependencies:
     - uv-install-py310
   before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
+    - *apt-before-script
     - *default-before-script
     - uv pip install -U pip wheel setuptools
-    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - uv sync --inexact --extra=dev --extra=cpu
   script:
     - uv run --no-sync pytest
   tags:
     - docker
 
-pytest-pip-py38:
+pytest-py311:
   stage: test
-  image: python:3.8-bullseye
+  image: python:3.11-bookworm
+  dependencies:
+    - uv-install-py311
+  before_script:
+    - apt-get update -y
+    - apt-get install -y libgl1-mesa-glx build-essential
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
+    - uv sync --inexact --extra=dev --extra=cpu
+  script:
+    - uv run --no-sync pytest
+  tags:
+    - docker
+
+pytest-py312:
+  stage: test
+  image: python:3.12-bookworm
+  dependencies:
+    - uv-install-py312
+  before_script:
+    - *apt-before-script
+    - *default-before-script
+    - uv pip install -U pip wheel setuptools
+    - bash scripts/install_uv.sh --no-weights --cpu -m "detectron2,yolox,jde"
+    - uv sync --inexact --extra=dev --extra=cpu
+  script:
+    - uv run --no-sync pytest
+  tags:
+    - docker
+
+pytest-pip-py310:
+  stage: test
+  image: python:3.10-bookworm
   before_script:
     - apt-get update -y
     - apt-get install -y libgl1-mesa-glx build-essential
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - pip install torch==2.0.0 torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
-    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - pip install -e .[dev,cpu]
   script:
     - pytest
   tags:
     - docker
 
-pytest-pip-py310:
+pytest-pip-py311:
   stage: test
-  image: python:3.10-bullseye
+  image: python:3.11-bookworm
   before_script:
-    - apt-get update -y
-    - apt-get install -y libgl1-mesa-glx build-essential
+    - *apt-before-script
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install -U pip wheel setuptools
-    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,segment_anything,jde"
+    - bash scripts/install.sh --no-weights --cpu -m "detectron2,yolox,jde"
     - pip install -e .[dev,cpu]
+  script:
+    - pytest
+  tags:
+    - docker
+
+pytest-pip-py312:
+  stage: test
+  image: python:3.12-bookworm
+  before_script:
+    - *apt-before-script
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip wheel setuptools
+    - bash scripts/install.sh --fcm-cttc-profile py312 --no-weights --cpu
+    - pip install -c scripts/install_utils/cttc-constraints.txt -e .[dev,cpu]
   script:
     - pytest
   tags:
@@ -122,31 +171,27 @@ pytest-pip-py310:
 
 ruff-format:
   stage: static-analysis
-  image: python:3.8-bullseye
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+  image: python:3.10-bookworm
+  dependencies: []
+  before_script: *ruff-before-script
   script:
-    - uv run --no-sync make check-ruff-format
+    - make check-ruff-format
   tags:
     - docker
 
 ruff-organize-imports:
   stage: static-analysis
-  image: python:3.8-bullseye
-  before_script:
-    - *default-before-script
-    - uv pip install -U pip wheel setuptools
-    - uv sync --group=dev --extra=cpu
+  image: python:3.10-bookworm
+  dependencies: []
+  before_script: *ruff-before-script
   script:
-    - uv run --no-sync make check-ruff-organize-imports
+    - make check-ruff-organize-imports
   tags:
     - docker
 
 doc:
   stage: doc
-  image: python:3.8-bullseye
+  image: python:3.10-bookworm
   before_script:
     - *default-before-script
     - uv pip install -U pip wheel setuptools

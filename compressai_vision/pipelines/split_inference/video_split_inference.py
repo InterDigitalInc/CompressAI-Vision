@@ -29,6 +29,7 @@
 
 
 import configparser
+import gc
 import os
 
 from itertools import repeat
@@ -170,6 +171,8 @@ class VideoSplitInference(BasePipeline):
 
         features = {"org_input_size": [], "input_size": []}
         gt_inputs, file_names = self.build_input_lists(dataloader)
+        encoded_org_input_sizes = None
+        encoded_input_sizes = None
 
         self.init_time_measure()
         self.init_complexity_measure()
@@ -247,6 +250,8 @@ class VideoSplitInference(BasePipeline):
 
             if not evaluator.calculate_feature_mse:
                 self._input_ftensor_buffer = []
+            encoded_org_input_sizes = features["org_input_size"]
+            encoded_input_sizes = features["input_size"]
 
             # Feature Compression
             start = time_measure()
@@ -265,9 +270,10 @@ class VideoSplitInference(BasePipeline):
                     "feature_reduction", enc_complexity[0], enc_complexity[1]
                 )
 
-            # for bypass mode, 'data' should be deleted.
-            if "data" in res["bitstream"] is False:
+            # for bypass mode, 'data' is carried in the returned bitstream object.
+            if not (isinstance(res["bitstream"], dict) and "data" in res["bitstream"]):
                 del features["data"]
+                gc.collect()
 
             if self.configs["codec"]["encode_only"] is True:
                 print("bitstreams generated, exiting")
@@ -275,20 +281,22 @@ class VideoSplitInference(BasePipeline):
 
         else:  # decode only
             res = {}
-            bin_files = [
+            bin_files = sorted(
                 file_path
                 for file_path in self.codec_output_dir.glob(f"{self.bitstream_name}*")
                 if (
                     (file_path.suffix in [".bin", ".mp4"])
                     and "_tmp" not in file_path.name
+                    and "_nctm" not in file_path.stem
                 )
-            ]
+            )
+            matching_pattern = f"{self.bitstream_name}*"
             assert (
                 len(bin_files) > 0
-            ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}*"
+            ), f"Error: decode_only mode, no bitstream file matching {matching_pattern}"
             assert (
                 len(bin_files) == 1
-            ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+            ), f"Error, decode_only mode, multiple bitstream files matching {matching_pattern}: {bin_files}"
             res["bitstream"] = bin_files[0]
             # bitstream_bytes = res["bitstream"].stat().st_size
 
@@ -309,12 +317,16 @@ class VideoSplitInference(BasePipeline):
                 "feature_restoration", dec_complexity[0], dec_complexity[1]
             )
 
-        # dec_features should contain "org_input_size" and "input_size"
-        # When using anchor codecs, that's not the case, we read input images to derive them
+        # dec_features should contain "org_input_size" and "input_size".
+        # Some codecs provide those fields directly, some carry them through
+        # vision_model_info, and anchor codecs may require deriving them from
+        # the input image.
         vision_model_info = None
-        if "vision_model_info" not in dec_features:
+        if "org_input_size" in dec_features and "input_size" in dec_features:
+            pass
+        elif "vision_model_info" not in dec_features:
             self.logger.warning(
-                "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
+                "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
             )
             first_frame = next(iter(dataloader))
             org_img_size = {
@@ -337,6 +349,9 @@ class VideoSplitInference(BasePipeline):
         if "prompt_info" in dec_features and dec_features["prompt_info"] is not None:
             self._save_prompts(dec_features["prompt_info"])
 
+        org_input_sizes = dec_features.get("org_input_size")
+        input_sizes = dec_features.get("input_size")
+
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
         assert all(
@@ -346,6 +361,8 @@ class VideoSplitInference(BasePipeline):
         dec_ftensors_list = [
             {k: v.type(torch.float32) for k, v in d.items()} for d in dec_ftensors_list
         ]
+        del dec_features["data"]
+        gc.collect()
 
         assert len(dec_ftensors_list) == len(dataloader), (
             f"The number of decoded frames ({len(dec_ftensors_list)}) is not equal "
@@ -365,34 +382,40 @@ class VideoSplitInference(BasePipeline):
         ):
             data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
 
-            if vision_model_info:
-                if (len(vision_model_info) - 1) < e:
-                    vision_model_info_idx = -1
-                else:
-                    vision_model_info_idx = e
-
+            if encoded_org_input_sizes is not None:
+                dec_features["org_input_size"] = encoded_org_input_sizes[e]
+                dec_features["input_size"] = encoded_input_sizes[e]
+            elif gt_inputs:
                 dec_features["org_input_size"] = {
-                    "height": dec_features["vision_model_info"][
-                        vision_model_info_idx
-                    ].input_source_height,
-                    "width": dec_features["vision_model_info"][
-                        vision_model_info_idx
-                    ].input_source_width,
+                    "height": gt_inputs[e][0]["height"],
+                    "width": gt_inputs[e][0]["width"],
                 }
                 dec_features["input_size"] = [
                     (
-                        dec_features["vision_model_info"][
-                            vision_model_info_idx
-                        ].scaled_input_source_height,
-                        dec_features["vision_model_info"][
-                            vision_model_info_idx
-                        ].scaled_input_source_width,
+                        gt_inputs[e][0]["height"],
+                        gt_inputs[e][0]["width"],
                     )
                 ]
+            elif vision_model_info:
+                dec_features["org_input_size"] = {
+                    "height": vision_model_info[-1].input_source_height,
+                    "width": vision_model_info[-1].input_source_width,
+                }
+                dec_features["input_size"] = [
+                    (
+                        vision_model_info[-1].scaled_input_source_height,
+                        vision_model_info[-1].scaled_input_source_width,
+                    )
+                ]
+            elif isinstance(org_input_sizes, list) and isinstance(input_sizes, list):
+                metadata_idx = e if e < len(org_input_sizes) else -1
+                dec_features["org_input_size"] = org_input_sizes[metadata_idx]
+                dec_features["input_size"] = input_sizes[metadata_idx]
 
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
             dec_features["file_origin"] = file_names[e]
+            dec_features["image_id"] = gt_inputs[e][0]["image_id"]
             dec_features["qp"] = (
                 "uncmp" if codec.qp_value is None else codec.qp_value
             )  # Assuming one qp will be used

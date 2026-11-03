@@ -85,7 +85,9 @@ def test_coco_eval(mock_deccode, mock_evaluator, mock_dataset):
     gt = [
         {"image_id": 1, "width": 640, "height": 480, "image": torch.zeros(3, 480, 640)}
     ]
-    pred = [{"instances": MagicMock()}]
+    mock_instances = MagicMock()
+    mock_instances.has.return_value = False
+    pred = [{"instances": mock_instances}]
 
     evaluator.digest(gt, pred)
     mock_evaluator.return_value.process.assert_called_once_with(gt, pred)

@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from . import detectron2, jde, rtmo, sam, sam2, yolox
+from . import detectron2, efficientvit, jde, rtmo, sam, sam2, torchvision, yolox
 from .base_wrapper import BaseWrapper
 
 __all__ = ["BaseWrapper"]

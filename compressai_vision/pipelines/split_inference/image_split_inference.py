@@ -168,7 +168,7 @@ class ImageSplitInference(BasePipeline):
                     )
             else:
                 res = {}
-                bin_files = [
+                bin_files = sorted(
                     file_path
                     for file_path in self.codec_output_dir.glob(
                         f"{self.bitstream_name}-{file_prefix}*"
@@ -176,14 +176,16 @@ class ImageSplitInference(BasePipeline):
                     if (
                         (file_path.suffix in [".bin", ".mp4"])
                         and "_tmp" not in file_path.name
+                        and "_nctm" not in file_path.stem
                     )
-                ]
+                )
+                matching_pattern = f"{self.bitstream_name}-{file_prefix}*"
                 assert (
                     len(bin_files) > 0
-                ), f"Error: decode_only mode, no bitstream file matching {self.bitstream_name}-{file_prefix}*"
+                ), f"Error: decode_only mode, no bitstream file matching {matching_pattern}"
                 assert (
                     len(bin_files) == 1
-                ), f"Error, decode_only mode, multiple bitstream files matching {self.bitstream_name}*"
+                ), f"Error, decode_only mode, multiple bitstream files matching {matching_pattern}: {bin_files}"
 
                 res["bitstream"] = bin_files[0]
                 print(f"reading bitstream... {res['bitstream']}")
@@ -223,11 +225,21 @@ class ImageSplitInference(BasePipeline):
             ):
                 self._save_prompts(dec_features["prompt_info"])
 
-            # dec_features should contain "org_input_size" and "input_size"
-            # When using anchor codecs, that's not the case, we read input images to derive them
-            if "vision_model_info" not in dec_features:
+            # dec_features should contain "org_input_size" and "input_size".
+            # Some codecs provide those fields directly, some carry them through
+            # vision_model_info, and anchor codecs may require deriving them from
+            # the input image.
+            if "org_input_size" in dec_features and "input_size" in dec_features:
+                if isinstance(dec_features["org_input_size"], list):
+                    dec_features["org_input_size"] = dec_features["org_input_size"][0]
+                if (
+                    isinstance(dec_features["input_size"], list)
+                    and len(dec_features["input_size"]) > 1
+                ):
+                    dec_features["input_size"] = [dec_features["input_size"][0]]
+            elif "vision_model_info" not in dec_features:
                 self.logger.warning(
-                    "Hacky: 'org_input_size' and 'input_size' retrived from input dataset."
+                    "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
                 )
                 dec_features["org_input_size"] = org_img_size
                 dec_features["input_size"] = self._get_model_input_size(vision_model, d)
@@ -245,6 +257,7 @@ class ImageSplitInference(BasePipeline):
 
             dec_features["file_name"] = d[0]["file_name"]
             dec_features["file_origin"] = d[0]["file_name"]
+            dec_features["image_id"] = d[0]["image_id"]
             if self.is_mac_calculation:
                 macs, pixels = vision_model.calc_complexity(
                     "nn_part_2", dec_features, dec_features["data"]

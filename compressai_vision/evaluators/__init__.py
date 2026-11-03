@@ -34,6 +34,7 @@ from .evaluators import (
     MOT_JDE_Eval,
     MOT_TVD_Eval,
     OpenImagesChallengeEval,
+    TorchvisionSemanticSegmentationEval,
     VisualQualityEval,
     YOLOXCOCOEval,
 )
@@ -46,5 +47,6 @@ __all__ = [
     "MOT_JDE_Eval",
     "MOT_HiEve_Eval",
     "MOT_TVD_Eval",
+    "TorchvisionSemanticSegmentationEval",
     "VisualQualityEval",
 ]

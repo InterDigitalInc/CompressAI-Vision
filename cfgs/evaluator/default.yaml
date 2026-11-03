@@ -3,3 +3,6 @@ output_dir: "${pipeline.evaluation.evaluation_dir}"
 overwrite_results: False
 calculate_feature_mse: False
 eval_criteria: ""
+num_classes: null
+ignore_index: 255
+category_id_mapping: null

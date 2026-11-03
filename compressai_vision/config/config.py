@@ -83,7 +83,10 @@ def create_data_transform(conf: DictConfig) -> transforms.Compose:
 
 
 def create_datacatalog(catalog: str, conf: DictConfig) -> DataCatalog:
-    return DATACATALOGS[catalog](**conf)
+    kwargs = OmegaConf.to_container(conf, resolve=True)
+    kwargs.pop("prompts_folder", None)
+    kwargs.pop("prompt_format", None)
+    return DATACATALOGS[catalog](**kwargs)
 
 
 def create_dataset(_type: str, args: Dict) -> Dataset:

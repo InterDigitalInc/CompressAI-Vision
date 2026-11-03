@@ -387,13 +387,14 @@ class LinearMapper:
 
     """
 
-    def __init__(self, bgr=False):
+    def __init__(self, bgr=False, preserve_annotations=False):
         """
         Args:
             img_size: expected input size (Height, Width)
         """
 
         self.bgr_output = bgr
+        self.preserve_annotations = preserve_annotations
 
     @property
     def image_format(self):
@@ -412,7 +413,8 @@ class LinearMapper:
         dataset_dict = copy.deepcopy(dataset_dict)
         # the copied dictionary will be modified by code below
 
-        dataset_dict.pop("annotations", None)
+        if not self.preserve_annotations:
+            dataset_dict.pop("annotations", None)
 
         # Read image
         org_img = cv2.imread(dataset_dict["file_name"])  # return img in BGR by default
