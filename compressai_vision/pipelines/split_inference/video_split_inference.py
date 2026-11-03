@@ -245,6 +245,9 @@ class VideoSplitInference(BasePipeline):
             if self.configs["codec"]["load_hashes"]:
                 features["hashes"] = self._load_hashes()
 
+            if self.configs["codec"]["load_prompts"]:
+                features["prompt_info"] = self._load_prompts()
+
             if not evaluator.calculate_feature_mse:
                 self._input_ftensor_buffer = []
             encoded_org_input_sizes = features["org_input_size"]
@@ -342,6 +345,9 @@ class VideoSplitInference(BasePipeline):
             and dec_features["decoded_feature_tensor_hash"] is not None
         ):
             self._save_hashes(dec_features["decoded_feature_tensor_hash"])
+
+        if "prompt_info" in dec_features and dec_features["prompt_info"] is not None:
+            self._save_prompts(dec_features["prompt_info"])
 
         org_input_sizes = dec_features.get("org_input_size")
         input_sizes = dec_features.get("input_size")
@@ -457,16 +463,26 @@ class VideoSplitInference(BasePipeline):
             out_res["org_input_size"] = (
                 f"{dec_features['org_input_size']['height']}x{dec_features['org_input_size']['width']}"
             )
-            if (
-                "decoded_feature_tensor_hash" in dec_features
-                and dec_features["decoded_feature_tensor_hash"] is not None
-            ):
-                out_res["decoded_feature_tensor_hash"] = (
-                    dec_features["decoded_feature_tensor_hash"][e]
-                    if e in dec_features["decoded_feature_tensor_hash"]
-                    else None
-                )
+            # Convert frame dict to framewise list
+            for framewise_sei in ["prompt_info", "decoded_feature_tensor_hash"]:
+                if (
+                    framewise_sei in dec_features
+                    and dec_features[framewise_sei] is not None
+                ):
+                    out_res[framewise_sei] = (
+                        dec_features[framewise_sei][e]
+                        if e in dec_features[framewise_sei]
+                        else None
+                    )
 
+            # Stringify SEI output
+            def stringify(k, v):
+                if k in ["prompt_info"]:
+                    print(v)
+                    return str(v)
+                return v
+
+            out_res = {k: stringify(k, v) for k, v in out_res.items()}
             output_list.append(out_res)
 
         if (
