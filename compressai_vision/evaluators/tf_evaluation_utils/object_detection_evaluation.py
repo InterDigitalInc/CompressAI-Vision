@@ -66,9 +66,6 @@ import unicodedata
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-import six
-
-from six.moves import range
 
 from ..tf_evaluation_utils import per_image_evaluation
 from .label_map_util import create_category_index
@@ -80,7 +77,7 @@ from .metrics import (
 from .standard_fields import DetectionResultFields, InputDataFields
 
 
-class DetectionEvaluator(six.with_metaclass(ABCMeta, object)):
+class DetectionEvaluator(metaclass=ABCMeta):
     """Interface for object detection evalution classes.
 
     Example usage of the Evaluator:
@@ -286,12 +283,10 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
             if idx + self._label_id_offset in category_index:
                 category_name = category_index[idx + self._label_id_offset]["name"]
                 try:
-                    category_name = six.text_type(category_name, "utf-8")
+                    category_name = str(category_name, "utf-8")
                 except TypeError:
                     pass
                 category_name = unicodedata.normalize("NFKD", category_name)
-                if six.PY2:
-                    category_name = category_name.encode("ascii", "ignore")
                 self._metric_names.append(
                     self._metric_prefix
                     + "PerformanceByCategory/AP@{}IOU/{}".format(
@@ -339,7 +334,7 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
         # If the key is not present in the groundtruth_dict or the array is empty
         # (unless there are no annotations for the groundtruth on this image)
         # use values from the dictionary or insert None otherwise.
-        if InputDataFields.groundtruth_difficult in six.viewkeys(groundtruth_dict) and (
+        if InputDataFields.groundtruth_difficult in groundtruth_dict and (
             groundtruth_dict[InputDataFields.groundtruth_difficult].size
             or not groundtruth_classes.size
         ):
@@ -437,12 +432,10 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
             if idx + self._label_id_offset in category_index:
                 category_name = category_index[idx + self._label_id_offset]["name"]
                 try:
-                    category_name = six.text_type(category_name, "utf-8")
+                    category_name = str(category_name, "utf-8")
                 except TypeError:
                     pass
                 category_name = unicodedata.normalize("NFKD", category_name)
-                if six.PY2:
-                    category_name = category_name.encode("ascii", "ignore")
                 display_name = (
                     self._metric_prefix
                     + "PerformanceByCategory/AP@{}IOU/{}".format(
@@ -581,7 +574,7 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
         # If the key is not present in the groundtruth_dict or the array is empty
         # (unless there are no annotations for the groundtruth on this image)
         # use values from the dictionary or insert None otherwise.
-        if InputDataFields.groundtruth_group_of in six.viewkeys(groundtruth_dict) and (
+        if InputDataFields.groundtruth_group_of in groundtruth_dict and (
             groundtruth_dict[InputDataFields.groundtruth_group_of].size
             or not groundtruth_classes.size
         ):

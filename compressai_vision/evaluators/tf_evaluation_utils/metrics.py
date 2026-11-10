@@ -50,8 +50,6 @@ from __future__ import division, print_function
 
 import numpy as np
 
-from six.moves import range
-
 
 def compute_precision_recall(scores, labels, num_gt):
     """Compute precision and recall.
