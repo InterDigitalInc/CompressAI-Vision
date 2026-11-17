@@ -385,7 +385,7 @@ class VideoSplitInference(BasePipeline):
             if encoded_org_input_sizes is not None:
                 dec_features["org_input_size"] = encoded_org_input_sizes[e]
                 dec_features["input_size"] = encoded_input_sizes[e]
-            elif gt_inputs:
+            elif gt_inputs and not vision_model_info:
                 dec_features["org_input_size"] = {
                     "height": gt_inputs[e][0]["height"],
                     "width": gt_inputs[e][0]["width"],
