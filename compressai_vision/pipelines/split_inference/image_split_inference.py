@@ -102,7 +102,8 @@ class ImageSplitInference(BasePipeline):
         dec_features = None
 
         for e, d in enumerate(tqdm(dataloader)):
-            features = {"org_input_size": [], "input_size": []}
+            features = {}
+            encoded_input_size = None
 
             org_img_size = {"height": d[0]["height"], "width": d[0]["width"]}
             file_prefix = f"img_id_{d[0]['image_id']}"
@@ -128,10 +129,9 @@ class ImageSplitInference(BasePipeline):
                     k: v.type(getattr(torch, self.datatype))
                     for k, v in res["data"].items()
                 }
-                features["org_input_size"].append(
-                    {"height": d[0]["height"], "width": d[0]["width"]}
-                )
-                features["input_size"].append(res["input_size"])
+                features["org_input_size"] = [org_img_size]
+                features["input_size"] = [res["input_size"]]
+                encoded_input_size = res["input_size"]
 
                 if self.configs["codec"]["load_hashes"]:
                     features["hashes"] = self._load_hashes()
@@ -225,35 +225,24 @@ class ImageSplitInference(BasePipeline):
             ):
                 self._save_prompts(dec_features["prompt_info"])
 
-            # dec_features should contain "org_input_size" and "input_size".
-            # Some codecs provide those fields directly, some carry them through
-            # vision_model_info, and anchor codecs may require deriving them from
-            # the input image.
-            if "org_input_size" in dec_features and "input_size" in dec_features:
-                if isinstance(dec_features["org_input_size"], list):
-                    dec_features["org_input_size"] = dec_features["org_input_size"][0]
-                if (
-                    isinstance(dec_features["input_size"], list)
-                    and len(dec_features["input_size"]) > 1
-                ):
-                    dec_features["input_size"] = [dec_features["input_size"][0]]
-            elif "vision_model_info" not in dec_features:
-                self.logger.warning(
-                    "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
-                )
-                dec_features["org_input_size"] = org_img_size
-                dec_features["input_size"] = self._get_model_input_size(vision_model, d)
-            else:
-                dec_features["org_input_size"] = {
-                    "height": dec_features["vision_model_info"][0].input_source_height,
-                    "width": dec_features["vision_model_info"][0].input_source_width,
-                }
-                dec_features["input_size"] = [
-                    (
-                        dec_features["vision_model_info"][0].scaled_input_source_height,
-                        dec_features["vision_model_info"][0].scaled_input_source_width,
+            # Prefer decoder metadata, then encoder metadata, then the input image.
+            org_size = dec_features.get("org_input_size")
+            size = dec_features.get("input_size")
+            if org_size is None or size is None:
+                org_size, size = org_img_size, encoded_input_size
+                if size is None:
+                    self.logger.warning(
+                        "'org_input_size' and 'input_size' retrieved from input dataset."
                     )
-                ]
+                    size = self._get_model_input_size(vision_model, d)
+
+            if isinstance(org_size, list):
+                org_size = org_size[0]
+            # Unwrap a picture list while preserving a flat [H, W] size.
+            if isinstance(size, list) and isinstance(size[0], (list, tuple)):
+                size = size[0]
+            dec_features["org_input_size"] = org_size
+            dec_features["input_size"] = [size] if isinstance(size, tuple) else size
 
             dec_features["file_name"] = d[0]["file_name"]
             dec_features["file_origin"] = d[0]["file_name"]
@@ -308,7 +297,10 @@ class ImageSplitInference(BasePipeline):
 
             out_res["coded_order"] = e
             out_res["org_input_size"] = f"{d[0]['height']}x{d[0]['width']}"
-            out_res["input_size"] = dec_features["input_size"][0]
+            size = dec_features["input_size"]
+            out_res["input_size"] = (
+                size[0] if isinstance(size[0], (list, tuple)) else size
+            )
             if (
                 "decoded_feature_tensor_hash" in dec_features
                 and dec_features["decoded_feature_tensor_hash"] is not None

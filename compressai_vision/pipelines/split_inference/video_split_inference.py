@@ -88,6 +88,19 @@ class VideoSplitInference(BasePipeline):
         self.datatype = configs["datatype"]
 
     @staticmethod
+    def _get_frame_size(sizes, index, n_frames):
+        """Use a common size directly, or select a frame from a size list."""
+        if isinstance(sizes, dict) or (
+            len(sizes) == 2 and not isinstance(sizes[0], (dict, list, tuple))
+        ):
+            return sizes
+        if len(sizes) not in (1, n_frames):
+            raise ValueError(
+                f"Expected one size or {n_frames} frame sizes; got {len(sizes)}"
+            )
+        return sizes[0 if len(sizes) == 1 else index]
+
+    @staticmethod
     def _get_sequence_dimensions(dataset) -> Tuple:
         seqinfo_path = getattr(dataset, "seqinfo_path", None)
         if seqinfo_path is None:
@@ -250,6 +263,7 @@ class VideoSplitInference(BasePipeline):
 
             if not evaluator.calculate_feature_mse:
                 self._input_ftensor_buffer = []
+
             encoded_org_input_sizes = features["org_input_size"]
             encoded_input_sizes = features["input_size"]
 
@@ -317,28 +331,18 @@ class VideoSplitInference(BasePipeline):
                 "feature_restoration", dec_complexity[0], dec_complexity[1]
             )
 
-        # dec_features should contain "org_input_size" and "input_size".
-        # Some codecs provide those fields directly, some carry them through
-        # vision_model_info, and anchor codecs may require deriving them from
-        # the input image.
-        vision_model_info = None
-        if "org_input_size" in dec_features and "input_size" in dec_features:
-            pass
-        elif "vision_model_info" not in dec_features:
+        # Prefer decoder metadata, then encoder metadata, then the input dataset.
+        org_input_sizes = dec_features.get("org_input_size")
+        input_sizes = dec_features.get("input_size")
+        has_decoded_sizes = org_input_sizes is not None and input_sizes is not None
+        has_encoded_sizes = (
+            encoded_org_input_sizes is not None and encoded_input_sizes is not None
+        )
+        use_input_dataset = not has_decoded_sizes and not has_encoded_sizes
+        if use_input_dataset:
             self.logger.warning(
-                "Hacky: 'org_input_size' and 'input_size' retrieved from input dataset."
+                "'org_input_size' and 'input_size' retrieved from encoder or input dataset."
             )
-            first_frame = next(iter(dataloader))
-            org_img_size = {
-                "height": first_frame[0]["height"],
-                "width": first_frame[0]["width"],
-            }
-            dec_features["org_input_size"] = org_img_size
-            dec_features["input_size"] = self._get_model_input_size(
-                vision_model, first_frame
-            )
-        else:
-            vision_model_info = dec_features["vision_model_info"]
 
         if (
             "decoded_feature_tensor_hash" in dec_features
@@ -348,9 +352,6 @@ class VideoSplitInference(BasePipeline):
 
         if "prompt_info" in dec_features and dec_features["prompt_info"] is not None:
             self._save_prompts(dec_features["prompt_info"])
-
-        org_input_sizes = dec_features.get("org_input_size")
-        input_sizes = dec_features.get("input_size")
 
         # separate a tensor of each keyword item into a list of tensors
         dec_ftensors_list = self._feature_tensor_dict_to_list(dec_features["data"])
@@ -372,7 +373,7 @@ class VideoSplitInference(BasePipeline):
         self.logger.info("Processing NN-Part2...")
         output_list = []
 
-        if getattr(self, "vis_dir", None):
+        if use_input_dataset or getattr(self, "vis_dir", None):
             dec_ftensors_list = zip(dec_ftensors_list, dataloader)
         else:
             dec_ftensors_list = zip(dec_ftensors_list, repeat(None))
@@ -382,35 +383,17 @@ class VideoSplitInference(BasePipeline):
         ):
             data = {k: v.to(self.device_nn_part2) for k, v in ftensors.items()}
 
-            if encoded_org_input_sizes is not None:
-                dec_features["org_input_size"] = encoded_org_input_sizes[e]
-                dec_features["input_size"] = encoded_input_sizes[e]
-            elif gt_inputs:
-                dec_features["org_input_size"] = {
-                    "height": gt_inputs[e][0]["height"],
-                    "width": gt_inputs[e][0]["width"],
-                }
-                dec_features["input_size"] = [
-                    (
-                        gt_inputs[e][0]["height"],
-                        gt_inputs[e][0]["width"],
-                    )
-                ]
-            elif vision_model_info:
-                dec_features["org_input_size"] = {
-                    "height": vision_model_info[-1].input_source_height,
-                    "width": vision_model_info[-1].input_source_width,
-                }
-                dec_features["input_size"] = [
-                    (
-                        vision_model_info[-1].scaled_input_source_height,
-                        vision_model_info[-1].scaled_input_source_width,
-                    )
-                ]
-            elif isinstance(org_input_sizes, list) and isinstance(input_sizes, list):
-                metadata_idx = e if e < len(org_input_sizes) else -1
-                dec_features["org_input_size"] = org_input_sizes[metadata_idx]
-                dec_features["input_size"] = input_sizes[metadata_idx]
+            if has_decoded_sizes:
+                org_size = self._get_frame_size(org_input_sizes, e, len(dataloader))
+                size = self._get_frame_size(input_sizes, e, len(dataloader))
+            elif has_encoded_sizes:
+                org_size = encoded_org_input_sizes[e]
+                size = encoded_input_sizes[e]
+            else:
+                org_size = {"height": d[0]["height"], "width": d[0]["width"]}
+                size = self._get_model_input_size(vision_model, d)
+            dec_features["org_input_size"] = org_size
+            dec_features["input_size"] = [size] if isinstance(size, tuple) else size
 
             dec_features["data"] = data
             dec_features["file_name"] = file_names[e]
